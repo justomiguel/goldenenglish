@@ -10,3 +10,12 @@ export const NAGO_BUNDLED_LOGO = "/images/nago/logo/logo.png";
 export function resolveNagoLogo(_brand?: Pick<BrandPublic, "logoPath">): string {
   return NAGO_BUNDLED_LOGO;
 }
+
+/** Auth screens reuse brand.logoPath. Nagô must show the home mark. */
+export function brandForPublicChrome<T extends { logoPath: string }>(
+  templateKind: string,
+  brand: T,
+): T {
+  if (templateKind !== "nago") return brand;
+  return { ...brand, logoPath: NAGO_BUNDLED_LOGO };
+}

@@ -46,7 +46,7 @@ export async function saveEventEmailTemplateAction(
   if (!bodyHtml) return { ok: false, message: "invalid_html" };
 
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     if (flowId) {
       const flow = await admin
         .from("event_registration_flows")
@@ -85,7 +85,7 @@ export async function saveEventEmailTemplateAction(
 }
 
 async function upsertEventEmailCopy(
-  admin: ReturnType<typeof createAdminClient>,
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
   row: {
     eventId: string;
     templateKey: EventEmailTemplateKey;

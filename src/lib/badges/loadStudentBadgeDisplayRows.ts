@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import { noteReadFailure, type LoadErrorReporter } from "@/lib/logging/noteReadFailure";
 import { loadActiveBadgeCatalog } from "@/lib/badges/loadBadgeCatalog";
 import { loadStudentBadgeEvaluationData } from "@/lib/badges/loadStudentBadgeEvaluationData";
@@ -16,8 +17,8 @@ export async function loadStudentBadgeDisplayRows(
   shareUrlForToken: (token: string, title?: string) => string,
   onLoadError?: LoadErrorReporter,
 ): Promise<StudentBadgeRowModel[]> {
-  const admin = createAdminClient();
-  const [grantsRes, catalog, ctx] = await Promise.all([
+  const admin = await createAdminClient();
+  const [grantsRes, catalog, ctx, { url: supabaseProjectUrl }] = await Promise.all([
     admin
       .from("student_badge_grants")
       .select("id, badge_code, earned_at, public_share_token")
@@ -25,6 +26,7 @@ export async function loadStudentBadgeDisplayRows(
       .order("earned_at", { ascending: false }),
     loadActiveBadgeCatalog(),
     loadStudentBadgeEvaluationData(studentId),
+    readRequestSupabasePublicEnv(),
   ]);
 
   noteReadFailure(
@@ -41,5 +43,6 @@ export async function loadStudentBadgeDisplayRows(
     grants,
     ctx,
     shareUrlForToken,
+    supabaseProjectUrl,
   });
 }

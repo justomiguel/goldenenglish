@@ -18,7 +18,7 @@ import { buildEventAttendeesXlsxArtifact } from "@/lib/events/export/buildEventA
 import { buildEventAttendeesPdfArtifact } from "@/lib/events/export/buildEventAttendeesPdfArtifact";
 import { resolveEventCoverImageUrl } from "@/lib/rich-content/resolvePublicContentCoverUrl";
 import { ensureAbsolutePublicUrl } from "@/lib/site/ensureAbsolutePublicUrl";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import type { EventAttendeesExportArtifact } from "@/lib/events/export/eventAttendeesExportTypes";
 import type { Dictionary, Locale } from "@/types/i18n";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
@@ -102,7 +102,7 @@ export async function exportEventAttendeesAction(input: {
     const isAdmin = await resolveIsAdminSession(supabase, user.id);
     if (!isAdmin) return { ok: false, message: errs.forbidden };
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: event, error: eventError } = await admin
       .from("events")
       .select("id, title, description, event_date, location, slug")
@@ -143,7 +143,7 @@ export async function exportEventAttendeesAction(input: {
     const exportedAt = new Date();
     const exportedAtFormatted = exportedAt.toLocaleString(locale);
     const eventDateFormatted = new Date(String(event.event_date)).toLocaleString(locale);
-    const siteOrigin = getPublicSiteUrl()?.origin ?? "http://localhost:3000";
+    const siteOrigin = (await getRequestPublicSiteUrl())?.origin ?? "http://localhost:3000";
     const coverRelative = resolveEventCoverImageUrl(String(event.description ?? ""));
     const coverImageUrl = coverRelative ? ensureAbsolutePublicUrl(coverRelative, siteOrigin) : null;
 

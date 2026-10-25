@@ -62,7 +62,7 @@ export async function transitionAdminShopOrder(
         to,
         key: "shop.order_ready",
         locale: parsed.data.locale,
-        vars: shopOrderReadyMailVars(parsed.data.locale, token),
+        vars: await shopOrderReadyMailVars(parsed.data.locale, token),
       });
     }
   }

@@ -28,7 +28,7 @@ export default async function AdminParentsComposePage({ params, searchParams }: 
   const isAdmin = await resolveIsAdminSession(supabase, user.id);
   if (!isAdmin) redirect(`/${locale}/dashboard`);
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const scope = parseParentRecipientScope(raw);
   const parents = await resolveParentRecipients(admin, scope);
   const listHref = `/${locale}/dashboard/admin/parents`;

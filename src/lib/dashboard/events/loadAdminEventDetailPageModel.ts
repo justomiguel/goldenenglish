@@ -34,7 +34,7 @@ export async function loadAdminEventDetailPageModel(input: {
   q?: string;
   paymentStatus?: string;
 }) {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: event } = await admin
     .from("events")
     .select(

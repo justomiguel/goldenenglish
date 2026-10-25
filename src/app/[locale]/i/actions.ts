@@ -10,7 +10,7 @@ import {
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 import { composeSyntheticMinorStudentEmail } from "@/lib/register/composeSyntheticMinorStudentEmail";
-import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
+import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
 import { randomLowercaseAlphaString } from "@/lib/server/randomLowercaseAlphaString";
 import { isSectionEnrollmentLinkToken } from "@/lib/register/sectionEnrollmentLink";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
@@ -107,7 +107,7 @@ export async function submitSectionLinkRegistration(
     return { ok: false, message: reg.validationError };
   }
 
-  const identity = await resolveExistingStudentByDni(createAdminClient(), d.dni);
+  const identity = await resolveExistingStudentByDni(await createAdminClient(), d.dni);
   if (identity.kind === "occupied") {
     return { ok: false, message: reg.documentInUse };
   }
@@ -123,7 +123,7 @@ export async function submitSectionLinkRegistration(
   }
 
   const tenantDomain = !existingStudent && age < legal
-    ? getRegistrationMailTenantDomain()
+    ? await getRequestMailTenantDomain()
     : null;
   if (!existingStudent && age < legal && !tenantDomain) {
     return { ok: false, message: dict.actionErrors.register.mailTenantMissing };
@@ -140,7 +140,7 @@ export async function submitSectionLinkRegistration(
 
   const quote = await quotePublicRegistrationFee({
     supabase,
-    admin: createAdminClient(),
+    admin: await createAdminClient(),
     sectionIds: [sectionId, ...parsedSections.additionalSectionIds],
     nowIso: new Date().toISOString(),
     dni: d.dni,

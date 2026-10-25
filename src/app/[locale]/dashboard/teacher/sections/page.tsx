@@ -8,6 +8,7 @@ import { SectionEnrollmentLinkCopyButton } from "@/components/molecules/SectionE
 import { clientAbsoluteUrl } from "@/lib/client/publicUrl";
 import { buildSectionEnrollmentLinkPath } from "@/lib/register/sectionEnrollmentLinkPath";
 import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { formatAcademicScheduleSummary } from "@/lib/academics/formatAcademicScheduleSummary";
 import { loadTeacherSectionIdsForUser } from "@/lib/academics/loadTeacherSectionIdsForUser";
@@ -63,6 +64,7 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
           "id, name, cohort_id, teacher_id, schedule_slots, reference_image_path, academic_cohorts(name)",
         );
   sections.sort((a, b) => a.name.localeCompare(b.name));
+  const { url: supabaseUrl } = await readRequestSupabasePublicEnv();
 
   const sectionList = sections.map((r) => {
     const c = r.academic_cohorts;
@@ -73,7 +75,7 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
       cohortId: r.cohort_id,
       cohortName,
       scheduleSlots: r.schedule_slots,
-      imageUrl: sectionReferenceImagePublicUrl(r.reference_image_path),
+      imageUrl: sectionReferenceImagePublicUrl(r.reference_image_path, supabaseUrl),
       accessRole: r.teacher_id === viewerId ? ("lead" as const) : ("assistant" as const),
     };
   });

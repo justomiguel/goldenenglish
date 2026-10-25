@@ -15,7 +15,7 @@ import {
   gatewayCountryForBillingCurrency,
   gatewaySupportsBillingCurrency,
 } from "@/lib/payment-gateways/gatewayCountryForBillingCurrency";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { isPubliclyReachableUrl } from "@/lib/site/isPubliclyReachableUrl";
 import { logServerActionInvariantViolation, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import type { StartRegistrationEnrollmentGatewayResult } from "@/lib/register/startRegistrationEnrollmentGatewayCore";
@@ -41,7 +41,7 @@ export async function startTrialLeadGatewayCore(input: {
   if (!gatewaySupportsBillingCurrency(input.method, currency)) {
     return { ok: false, code: "method_unavailable" };
   }
-  const origin = getPublicSiteUrl();
+  const origin = await getRequestPublicSiteUrl();
   if (!origin) return { ok: false, code: "no_public_url" };
   const originStr = origin.toString();
   const returnUrl = new URL(input.returnPath, originStr);

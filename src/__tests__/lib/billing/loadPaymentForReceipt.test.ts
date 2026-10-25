@@ -115,7 +115,7 @@ describe("loadPaymentForReceipt", () => {
         academic_sections: async () => ({ data: { name: "Inglés A1" }, error: null }),
         payment_flow_checkout_refs: async () => ({ data: null, error: null }),
         payment_flow_finalize_records: async () => ({ data: null, error: null }),
-      }) as unknown as ReturnType<typeof createAdminClient>,
+      }) as unknown as Awaited<ReturnType<typeof createAdminClient>>,
     );
 
     const out = await loadPaymentForReceipt({
@@ -162,7 +162,7 @@ describe("loadPaymentForReceipt", () => {
           },
           error: null,
         }),
-      }) as unknown as ReturnType<typeof createAdminClient>,
+      }) as unknown as Awaited<ReturnType<typeof createAdminClient>>,
     );
 
     const out = await loadPaymentForReceipt({
@@ -210,7 +210,7 @@ describe("loadPaymentForReceipt", () => {
           error: null,
         }),
         payment_flow_finalize_records: async () => ({ data: null, error: null }),
-      }) as unknown as ReturnType<typeof createAdminClient>,
+      }) as unknown as Awaited<ReturnType<typeof createAdminClient>>,
     );
 
     const out = await loadPaymentForReceipt({
@@ -254,7 +254,7 @@ describe("loadPaymentForReceipt", () => {
           },
           error: null,
         }),
-      }) as unknown as ReturnType<typeof createAdminClient>,
+      }) as unknown as Awaited<ReturnType<typeof createAdminClient>>,
     );
 
     const out = await loadPaymentForReceipt({
@@ -291,7 +291,7 @@ describe("loadPaymentForReceipt", () => {
           },
           error: null,
         }),
-      }) as unknown as ReturnType<typeof createAdminClient>,
+      }) as unknown as Awaited<ReturnType<typeof createAdminClient>>,
     );
 
     const out = await loadPaymentForReceipt({

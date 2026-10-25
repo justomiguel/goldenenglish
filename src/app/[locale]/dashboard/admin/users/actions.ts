@@ -51,7 +51,7 @@ export async function createDashboardUser(
     return { ok: false, message: localizeCreateDashboardUserError(dict, "password_policy") };
   }
 
-  const plan = planCreateDashboardUserInvite(dict, parsed.data);
+  const plan = await planCreateDashboardUserInvite(dict, parsed.data);
   if (!plan.ok) {
     return { ok: false, message: plan.message };
   }

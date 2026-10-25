@@ -138,7 +138,7 @@ export async function markTrialSeatAttendance(input: {
   const greetingName = (lead.tutor_name ?? lead.first_name).trim() || studentName;
   const sectionName = one(seat.section)?.name?.trim() || "—";
   const sched = scheduleLabel(seat);
-  const familyEmail = familyEmailForTrialLead({
+  const familyEmail = await familyEmailForTrialLead({
     isMinor,
     studentEmail: lead.email,
     tutorEmail: lead.tutor_email,

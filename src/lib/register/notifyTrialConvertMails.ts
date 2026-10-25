@@ -5,7 +5,7 @@ import { notifyRegistrationWelcome } from "@/lib/email/registrationIntakeEmails"
 import { familyEmailForTrialLead } from "@/lib/register/notifyTrialSeatMails";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 import { logServerException } from "@/lib/logging/serverActionLog";
 
 export async function notifyTrialConvertMails(input: {
@@ -27,7 +27,7 @@ export async function notifyTrialConvertMails(input: {
       ? fullYearsFromIsoDate(input.birthDate) < getLegalAgeMajorityFromSystem()
       : input.isMinor;
   if (input.reuseStudent) {
-    const to = familyEmailForTrialLead({
+    const to = await familyEmailForTrialLead({
       isMinor,
       studentEmail: input.studentEmail,
       tutorEmail: input.tutorEmail,
@@ -75,7 +75,7 @@ export async function notifyTrialConvertMails(input: {
       feeModeLabel: "trial",
       sourceLabel: "clase de prueba",
       existingStudentLabel: input.reuseStudent ? "Sí" : "No",
-      adminUrl: absoluteUrl(`/${locale}/dashboard/admin/registrations`)?.toString() ?? "",
+      adminUrl: (await absoluteUrlForRequest(`/${locale}/dashboard/admin/registrations`))?.toString() ?? "",
     },
   });
 }

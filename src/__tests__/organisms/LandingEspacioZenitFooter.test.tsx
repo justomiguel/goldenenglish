@@ -30,7 +30,7 @@ describe("LandingEspacioZenitFooter", () => {
     expect(screen.queryByText(dictPhone)).not.toBeInTheDocument();
   });
 
-  it("shows panel and logout in footer on mobile when logged in", () => {
+  it("shows Mi Portal and logout in footer on mobile when logged in", () => {
     render(
       <LandingEspacioZenitFooter
         dict={dict}
@@ -43,7 +43,7 @@ describe("LandingEspacioZenitFooter", () => {
     );
 
     expect(
-      screen.getByRole("link", { name: dict.nav.administration }),
+      screen.getByRole("link", { name: dict.nav.myPortal }),
     ).toHaveAttribute("href", "/es/dashboard");
     expect(
       screen.getByRole("button", { name: dict.nav.logout }),

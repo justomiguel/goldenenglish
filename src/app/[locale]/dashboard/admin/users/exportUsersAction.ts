@@ -87,7 +87,7 @@ export async function exportUsersAction(input: {
       };
     }
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const loaded = await loadProfilesForUsersExport(admin, scope, {
       q: parsed.data.q,
       role: parsed.data.role,

@@ -14,9 +14,15 @@ interface LoginFormProps {
   locale: string;
   /** Source: login page `next` query param (internal path only). */
   nextPath?: string | null;
+  inscriptionsEnabled?: boolean;
 }
 
-export function LoginForm({ labels, locale, nextPath = null }: LoginFormProps) {
+export function LoginForm({
+  labels,
+  locale,
+  nextPath = null,
+  inscriptionsEnabled = false,
+}: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const {
     identifier,
@@ -146,6 +152,18 @@ export function LoginForm({ labels, locale, nextPath = null }: LoginFormProps) {
           {labels.forgotPassword}
         </Link>
       </div>
+
+      {inscriptionsEnabled ? (
+        <p className="text-sm text-[var(--color-muted-foreground)]">
+          {labels.registerPrompt}{" "}
+          <Link
+            href={`/${locale}/register`}
+            className="font-semibold text-[var(--color-primary)] underline-offset-4 hover:underline"
+          >
+            {labels.registerCta}
+          </Link>
+        </p>
+      ) : null}
     </form>
   );
 }

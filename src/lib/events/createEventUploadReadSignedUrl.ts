@@ -17,7 +17,7 @@ export async function createEventUploadReadSignedUrl(
   if (!trimmed) return null;
 
   const { createAdminClient } = await import("@/lib/supabase/admin");
-  const admin = adminClient ?? createAdminClient();
+  const admin = adminClient ?? await createAdminClient();
   const { data, error } = await admin.storage.from(EVENT_UPLOADS_BUCKET).createSignedUrl(trimmed, 300);
 
   if (error || !data?.signedUrl) {

@@ -39,7 +39,7 @@ export default async function TrialConvertPage({
   };
   const seats = Array.isArray(context.seats) ? context.seats : [];
   const sectionIds = seats.map((seat) => String(seat.sectionId ?? "")).filter(Boolean);
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: lead } = await admin
     .from("registrations")
     .select("dni, trial_fee_captured, trial_fee_snapshot")

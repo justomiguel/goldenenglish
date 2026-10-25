@@ -33,7 +33,7 @@ export async function startTrialConvertAction(input: {
 }): Promise<TrialConvertActionResult> {
   const parsed = startSchema.safeParse(input);
   if (!parsed.success) return { ok: false, code: "validation" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: lead, error } = await admin
     .from("registrations")
     .select(
@@ -120,7 +120,7 @@ export async function startTrialConvertAction(input: {
 
   let rawKey: Buffer;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch {
     return { ok: false, code: "method_unavailable" };
   }
@@ -140,7 +140,7 @@ export async function startTrialConvertAction(input: {
     currency: quote.currency,
     title: `Unirse ${lead.first_name} ${lead.last_name}`.trim(),
     payerEmail:
-      familyEmailForTrialLead({
+      await familyEmailForTrialLead({
         isMinor,
         studentEmail: lead.email as string | null,
         tutorEmail: lead.tutor_email as string | null,

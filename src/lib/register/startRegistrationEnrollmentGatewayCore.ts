@@ -14,7 +14,7 @@ import {
   gatewaySupportsBillingCurrency,
 } from "@/lib/payment-gateways/gatewayCountryForBillingCurrency";
 import type { PaymentGatewayCountryCode } from "@/types/paymentGateway";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { buildMatriculaPayPath } from "@/lib/site/publicSharePaths";
 import { isPubliclyReachableUrl } from "@/lib/site/isPubliclyReachableUrl";
 import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
@@ -64,7 +64,7 @@ export async function startRegistrationEnrollmentGatewayCore(input: {
   );
   if (!open) return { ok: false, code: "section_full" };
 
-  const payerEmail = familyEmailFromPayLead(lead);
+  const payerEmail = await familyEmailFromPayLead(lead);
   if (!payerEmail) return { ok: false, code: "no_payer_email" };
 
   const currency = lead.snapshotCurrency.trim().toUpperCase();
@@ -74,7 +74,7 @@ export async function startRegistrationEnrollmentGatewayCore(input: {
     return { ok: false, code: "method_unavailable" };
   }
 
-  const origin = getPublicSiteUrl();
+  const origin = await getRequestPublicSiteUrl();
   if (!origin) return { ok: false, code: "no_public_url" };
   const originStr = origin.toString();
   const amount = Math.round(lead.snapshotTotal);

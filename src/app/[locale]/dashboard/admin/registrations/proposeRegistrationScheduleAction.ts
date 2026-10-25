@@ -18,7 +18,7 @@ export async function proposeRegistrationScheduleAction(input: {
   if (!auth.ok) return auth;
   const dict = await getDictionary(input.locale);
   const result = await proposeRegistrationScheduleCore({
-    admin: createAdminClient(),
+    admin: await createAdminClient(),
     locale: input.locale,
     dict,
     registrationId: input.registrationId,

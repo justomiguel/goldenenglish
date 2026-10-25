@@ -69,6 +69,7 @@ export function buildStudentShellConfig(
   });
 
   const accountItems: PortalAccountItem[] = [
+    { id: "publicSite", label: chrome.backToSite, href: `/${locale}` },
     { id: "profile", label: nav.myProfile, href: `/${locale}/dashboard/profile` },
     { id: "settings", label: nav.settings, href: `${baseHref}/settings` },
     { id: "language", label: portal.accountLanguage, action: "language" },
@@ -85,6 +86,7 @@ export function buildStudentShellConfig(
     accountOpenLabel: portal.accountOpen,
     accountHeading: portal.accountHeading,
     accountCloseLabel: portal.accountClose,
+    backToSiteLabel: chrome.backToSite,
     destinations,
     accountItems,
     subjectGroups: [],

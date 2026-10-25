@@ -4,15 +4,26 @@ import {
   appendMaskableManifestIcons,
   buildWebManifestIcons,
 } from "@/lib/brand/buildWebManifestIcons";
+import {
+  NAGO_INSTALL_CHROME,
+  bundledPublicInstallIcon,
+  bundledPublicInstallManifestIcons,
+} from "@/lib/brand/bundledPublicInstallIcon";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { defaultLocale, getDictionary, locales } from "@/lib/i18n/dictionaries";
 import { GE_REQUEST_LOCALE_HEADER } from "@/lib/i18n/requestLocaleHeader";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
 import { getProperty } from "@/lib/theme/themeParser";
 
+export const dynamic = "force-dynamic";
+
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
-  const brand = await getBrandForRequest();
-  const { properties } = await loadEffectiveProperties();
+  const [brand, { properties }, snapshot] = await Promise.all([
+    getBrandForRequest(),
+    loadEffectiveProperties(),
+    loadActiveTheme(),
+  ]);
   const background = getProperty(properties, "color.background", "#FFFFFF");
   const theme = getProperty(properties, "color.primary", "#103A5C");
 
@@ -24,7 +35,10 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
       : defaultLocale;
 
   const dict = await getDictionary(lang);
-  const icons = appendMaskableManifestIcons(buildWebManifestIcons(brand));
+  const installIcon = bundledPublicInstallIcon(snapshot?.theme.templateKind);
+  const icons = installIcon
+    ? bundledPublicInstallManifestIcons(installIcon)
+    : appendMaskableManifestIcons(buildWebManifestIcons(brand));
   const shortcutIcon =
     icons.find((icon) => icon.sizes === "192x192") ?? icons[0];
 
@@ -36,9 +50,9 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    orientation: "portrait-primary",
-    background_color: background,
-    theme_color: theme,
+    orientation: "any",
+    background_color: installIcon ? NAGO_INSTALL_CHROME : background,
+    theme_color: installIcon ? NAGO_INSTALL_CHROME : theme,
     lang,
     icons,
     shortcuts: shortcutIcon
@@ -59,6 +73,12 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
             name: dict.pwa.shortcuts.parentProgress,
             short_name: dict.pwa.shortcuts.parentProgressShort,
             url: `/${lang}/dashboard/parent/progress`,
+            icons: [shortcutIcon],
+          },
+          {
+            name: dict.pwa.shortcuts.studentPortal,
+            short_name: dict.pwa.shortcuts.studentPortalShort,
+            url: `/${lang}/dashboard/student`,
             icons: [shortcutIcon],
           },
         ]

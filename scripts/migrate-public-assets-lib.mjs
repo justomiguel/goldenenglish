@@ -29,7 +29,8 @@ export const CERT_MARKERS = [
 
 /**
  * Parses a dotenv-style file into a plain object (no `process.env` mutation).
- * Same rules as `loadEnvLocal` for quotes and `#` comments.
+ * Supports single-line `KEY=val` and multi-line single- or double-quoted values
+ * (such as formatted `TENANTS_CONFIG_JSON='[\n  ...\n]'`).
  * @param {string} filePath
  * @returns {Record<string, string>}
  */
@@ -37,18 +38,33 @@ export function readEnvFile(filePath) {
   /** @type {Record<string, string>} */
   const out = {};
   if (!fs.existsSync(filePath)) return out;
-  const text = fs.readFileSync(filePath, "utf8");
-  for (const line of text.split("\n")) {
-    const t = line.trim();
+  const lines = fs.readFileSync(filePath, "utf8").split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i];
+    const t = rawLine.trim();
     if (!t || t.startsWith("#")) continue;
     const eq = t.indexOf("=");
     if (eq <= 0) continue;
     const key = t.slice(0, eq).trim();
     let val = t.slice(eq + 1).trim();
-    if (
-      (val.startsWith('"') && val.endsWith('"')) ||
-      (val.startsWith("'") && val.endsWith("'"))
-    ) {
+    if ((val.startsWith("'") || val.startsWith('"')) && val.length >= 1) {
+      const quote = val[0];
+      if (val.length === 1 || !val.endsWith(quote)) {
+        const chunk = [val.slice(1)];
+        i += 1;
+        while (i < lines.length) {
+          const next = lines[i];
+          const trimmedNext = next.trimEnd();
+          if (trimmedNext.endsWith(quote)) {
+            chunk.push(trimmedNext.slice(0, -1));
+            break;
+          }
+          chunk.push(next);
+          i += 1;
+        }
+        out[key] = chunk.join("\n");
+        continue;
+      }
       val = val.slice(1, -1);
     }
     out[key] = val;

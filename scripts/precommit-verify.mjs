@@ -13,6 +13,7 @@ import {
   findTierAStudentParentPages,
   reachesSurfaceMountGate,
 } from "./tier-a-surface-verify.mjs";
+import { verifyTenantsJsonFile } from "./verify-tenants-json.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -242,6 +243,51 @@ function checkTierAStudentParentSurface() {
   }
 }
 
+const TENANT_ENV_ALLOWED_FILES = new Set([
+  "src/lib/tenant/tenantRegistry.ts",
+  "src/lib/tenant/tenantRequestContext.ts",
+  "src/lib/supabase/publicEnv.ts",
+  "src/lib/supabase/admin.ts",
+  "src/lib/supabase/middleware.ts",
+  "src/lib/email/resendEmailProvider.ts",
+  "src/lib/register/registrationMailTenant.ts",
+  "src/lib/site/publicUrl.ts",
+  "src/lib/site/googleMapsBrowserKey.ts",
+  "src/lib/site/googleMapsMapId.ts",
+  "src/lib/site/initialSiteSetupBypass.ts",
+  "src/lib/client/publicUrl.ts",
+  "src/lib/theme/siteBrandThemeSlug.ts",
+  "src/lib/theme/loadActiveTheme.ts",
+  "src/lib/push/loadVapidConfig.ts",
+  "src/lib/push/subscribePushClient.ts",
+  "src/lib/whatsapp/sendMetaClassReminderTemplate.ts",
+  "src/lib/payment-gateways/loadPaymentGatewayEncryptionKey.ts",
+  "src/lib/import/importJobKv.ts",
+  "src/lib/auth/loginSubmitSupport.ts",
+  "src/lib/profile/loadOrProvisionDashboardProfileRow.ts",
+]);
+
+const TENANT_SCOPED_ENV_RE =
+  /\bprocess\.env\.(?:TENANTS_CONFIG_JSON|DEV_TENANT_SLUG|NEXT_PUBLIC_SUPABASE_[A-Z0-9_]*|SUPABASE_[A-Z0-9_]*|RESEND_[A-Z0-9_]*|MAIL_TENANT|SITE_BRAND_THEME_SLUG|NEXT_PUBLIC_APP_URL|WHATSAPP_[A-Z0-9_]*|VAPID_[A-Z0-9_]*|NEXT_PUBLIC_VAPID_[A-Z0-9_]*|NEXT_PUBLIC_GOOGLE_MAPS_[A-Z0-9_]*|PAYMENT_GATEWAY_SECRET_ENCRYPTION_KEY|KV_REST_[A-Z0-9_]*|NEXT_PUBLIC_DEBUG_LOGIN|SKIP_INITIAL_SITE_SETUP)\b/;
+
+function checkTenantEnvBoundaries() {
+  const files = gitTrackedSrcTsx().filter((f) => !isSkippablePath(f));
+  for (const file of files) {
+    if (TENANT_ENV_ALLOWED_FILES.has(file)) continue;
+    const abs = join(ROOT, file);
+    if (!existsSync(abs)) continue;
+    const lines = readFileSync(abs, "utf8").split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const m = lines[i].match(TENANT_SCOPED_ENV_RE);
+      if (m) {
+        fail(
+          `Multitenant boundary: ${file}:${i + 1} reads ${m[0]} directly. Add the field to TenantConfig in src/lib/tenant/tenantRegistry.ts and read it through a tenant adapter.`,
+        );
+      }
+    }
+  }
+}
+
 checkBrandLiterals();
 checkDictionaryParity();
 checkPwaSurfaceHook();
@@ -249,6 +295,15 @@ checkNoAdHocViewportWidth();
 checkRootViewport();
 checkStagedFileSizes();
 checkTierAStudentParentSurface();
+checkTenantEnvBoundaries();
+
+function checkTenantsJsonFile() {
+  const file = join(ROOT, ".env.local");
+  if (!existsSync(file)) return;
+  for (const msg of verifyTenantsJsonFile(file)) fail(msg);
+}
+
+checkTenantsJsonFile();
 
 if (errors.length) {
   for (const msg of errors) {

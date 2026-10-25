@@ -72,7 +72,7 @@ export async function sendRetentionContactEmailAction(input: unknown): Promise<
 
   let admin;
   try {
-    admin = createAdminClient();
+    admin = await createAdminClient();
   } catch (e) {
     logServerActionException(S, e, { stage: "adminClient" });
     return { ok: false, code: "SEND" };

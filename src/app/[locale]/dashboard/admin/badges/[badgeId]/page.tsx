@@ -8,6 +8,7 @@ import {
 } from "@/lib/dashboard/adminSessionErrors";
 import { loadBadgeCatalogEntryById } from "@/lib/badges/loadBadgeCatalog";
 import { badgeImagePublicUrl } from "@/lib/badges/badgeImagePublicUrl";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import {
   AdminBadgeFormScreen,
   type AdminBadgeFormInitial,
@@ -35,8 +36,11 @@ export default async function AdminEditBadgePage({ params }: PageProps) {
     if (msg === ADMIN_SESSION_FORBIDDEN) redirect(`/${locale}/dashboard`);
     throw err;
   }
-  const dict = await getDictionary(locale);
-  const entry = await loadBadgeCatalogEntryById(badgeId);
+  const [dict, entry, { url: supabaseUrl }] = await Promise.all([
+    getDictionary(locale),
+    loadBadgeCatalogEntryById(badgeId),
+    readRequestSupabasePublicEnv(),
+  ]);
   if (!entry) notFound();
 
   const initial: AdminBadgeFormInitial = {
@@ -47,7 +51,7 @@ export default async function AdminEditBadgePage({ params }: PageProps) {
     criteriaThreshold: entry.criteriaThreshold,
     sortOrder: entry.sortOrder,
     isActive: entry.isActive,
-    imageUrl: badgeImagePublicUrl(entry.imagePath),
+    imageUrl: badgeImagePublicUrl(entry.imagePath, supabaseUrl),
     titleEn: entry.translations.en?.title ?? "",
     descriptionEn: entry.translations.en?.description ?? "",
     titleEs: entry.translations.es?.title ?? "",

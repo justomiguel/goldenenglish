@@ -13,12 +13,23 @@ function isHttpUrl(s: string): boolean {
   return /^https?:\/\//i.test(s.trim());
 }
 
+function storageOriginFromUrl(candidate: string): string | null {
+  const match = candidate
+    .trim()
+    .match(/^(https?:\/\/[^/]+)\/storage\/v1\/object\/public\/landing-media\//i);
+  return match?.[1] ?? null;
+}
+
 /** Prefer PNG/WebP/SVG (often square) for apple-touch; else sibling under favicon_io when favicon is site-relative. */
-export function pickAppleTouchIconUrl(brand: BrandPublic): string {
+export function pickAppleTouchIconUrl(
+  brand: BrandPublic,
+  supabaseUrl?: string | null,
+): string {
   if (brand.faviconBundlePrefix) {
     return resolveBrandAssetUrl(
       `${brand.faviconBundlePrefix}/apple-touch-icon.png`,
       brand.faviconPath,
+      supabaseUrl ?? storageOriginFromUrl(brand.faviconPath),
     );
   }
   const fav = brand.faviconPath;

@@ -18,7 +18,7 @@ export async function sendStudentMessageToAdministrationUseCase(input: {
   locale: string;
   emailProvider: EmailProvider;
 }): Promise<{ ok: true } | { ok: false; message: string }> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: admins, error: adminErr } = await admin
     .from("profiles")
     .select("id, role")

@@ -54,6 +54,7 @@ export function HomeEventPopupSlide({
             src={event.coverImageUrl}
             alt=""
             fill
+            priority
             sizes="(max-width: 768px) 100vw, 640px"
             className={`object-cover ${imageReady ? "opacity-100" : "opacity-0"}`}
             unoptimized={coverIsUnoptimized(event.coverImageUrl)}

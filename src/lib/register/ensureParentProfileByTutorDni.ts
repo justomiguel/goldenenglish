@@ -10,6 +10,7 @@ import { authInviteCollisionEmailMeta } from "@/lib/logging/authInviteAttemptLog
 import { createIncidentSupportRef } from "@/lib/server/createIncidentSupportRef";
 import { normalizeDni } from "@/lib/import/studentImportUtils";
 import { parentDefaultEmail } from "@/lib/import/parentDefaultEmail";
+import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
 import { resolveTutorParentAuthEmailConflict } from "@/lib/register/resolveTutorParentAuthEmailConflict";
 import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
 
@@ -57,7 +58,8 @@ export async function ensureParentProfileByTutorDni(
   }
   const { dni } = normalizeDni(raw);
   const explicitEmail = input.tutorEmail?.trim();
-  const syntheticEmail = explicitEmail ? null : parentDefaultEmail(dni);
+  const mailTenant = await getRequestMailTenantDomain();
+  const syntheticEmail = explicitEmail ? null : parentDefaultEmail(dni, mailTenant);
   if (!explicitEmail && !syntheticEmail) {
     return { ok: false, message: "tutor_mail_tenant_missing" };
   }

@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { parseLoginIdentifier } from "@/lib/auth/parseLoginIdentifier";
 import { lookupEmailByDni } from "@/lib/auth/lookupEmailByDni";
 import { checkLoginIdentifierRateLimit } from "@/lib/auth/loginIdentifierRateLimit";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 import {
   logServerException,
   logServerActionInvariantViolation,
@@ -70,7 +71,12 @@ export async function POST(request: Request) {
   }
 
   const ip = clientIpFromRequest(request);
-  const limit = checkLoginIdentifierRateLimit({ ip, identifier });
+  const tenant = await resolveRequestTenant();
+  const limit = checkLoginIdentifierRateLimit({
+    ip,
+    identifier,
+    tenantSlug: tenant?.slug,
+  });
   if (!limit.allowed) {
     return jsonResponse(
       { ok: false, message: "rate_limited" },
@@ -90,7 +96,7 @@ export async function POST(request: Request) {
 
   let email: string;
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     email = await lookupEmailByDni(admin, parsedIdentifier.value);
   } catch (err) {
     // Even on unexpected failure stay opaque: derive the synthetic so the

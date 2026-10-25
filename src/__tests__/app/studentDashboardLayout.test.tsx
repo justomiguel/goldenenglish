@@ -5,10 +5,11 @@ import type { DashboardActor } from "@/lib/dashboard/viewAsTypes";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
-const { redirectMock, getDashboardActorMock, loadMerchEnabled, state } = vi.hoisted(() => ({
+const { redirectMock, getDashboardActorMock, loadMerchEnabled, loadActiveThemeMock, state } = vi.hoisted(() => ({
   redirectMock: vi.fn(),
   getDashboardActorMock: vi.fn(),
   loadMerchEnabled: vi.fn(),
+  loadActiveThemeMock: vi.fn(),
   state: { userId: "student-1", role: "student" },
 }));
 
@@ -36,6 +37,14 @@ vi.mock("@/lib/dashboard/getDashboardActor", () => ({
   syncViewAsCookie: vi.fn(async () => undefined),
 }));
 
+vi.mock("@/lib/theme/loadActiveTheme", () => ({
+  loadActiveTheme: () => loadActiveThemeMock(),
+}));
+
+vi.mock("@/components/organisms/PublicTenantChrome", () => ({
+  PublicTenantChrome: (props: { children: ReactElement }) => props.children,
+}));
+
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({
     auth: {
@@ -53,6 +62,14 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 import StudentDashboardLayout from "@/app/[locale]/dashboard/student/layout";
+
+function portalProps(element: ReactElement) {
+  const root = element as ReactElement<{
+    templateKind: string;
+    children: ReactElement<{ config: PortalShellConfig; viewAs: { id: string } | null }>;
+  }>;
+  return { templateKind: root.props.templateKind, portal: root.props.children.props };
+}
 
 function actor(over: Partial<DashboardActor> = {}): DashboardActor {
   return {
@@ -72,6 +89,8 @@ describe("StudentDashboardLayout", () => {
     getDashboardActorMock.mockReset();
     loadMerchEnabled.mockReset();
     loadMerchEnabled.mockResolvedValue(false);
+    loadActiveThemeMock.mockReset();
+    loadActiveThemeMock.mockResolvedValue({ theme: { templateKind: "classic" } });
     state.userId = "student-1";
     state.role = "student";
     getDashboardActorMock.mockResolvedValue(actor());
@@ -81,10 +100,10 @@ describe("StudentDashboardLayout", () => {
     const element = (await StudentDashboardLayout({
       children: <p>Student content</p>,
       params: Promise.resolve({ locale: "en" }),
-    })) as ReactElement<{ config: PortalShellConfig }>;
+    })) as ReactElement;
 
     expect(redirectMock).not.toHaveBeenCalled();
-    const { config } = element.props;
+    const { config } = portalProps(element).portal;
     expect(config.baseHref).toBe("/en/dashboard/student");
     expect(config.brandBadge).toBe(dictEn.dashboard.studentChrome.badge);
     expect(config.destinations.map((d) => d.id)).toEqual([
@@ -101,8 +120,8 @@ describe("StudentDashboardLayout", () => {
     const element = (await StudentDashboardLayout({
       children: <p>Student content</p>,
       params: Promise.resolve({ locale: "en" }),
-    })) as ReactElement<{ config: PortalShellConfig }>;
-    expect(element.props.config.destinations.map((d) => d.id)).toEqual([
+    })) as ReactElement;
+    expect(portalProps(element).portal.config.destinations.map((d) => d.id)).toEqual([
       "home",
       "course",
       "payments",
@@ -126,10 +145,10 @@ describe("StudentDashboardLayout", () => {
     const element = (await StudentDashboardLayout({
       children: <p>Student content</p>,
       params: Promise.resolve({ locale: "en" }),
-    })) as ReactElement<{ viewAs: { id: string } | null }>;
+    })) as ReactElement;
 
     expect(redirectMock).not.toHaveBeenCalled();
-    expect(element.props.viewAs).toEqual({
+    expect(portalProps(element).portal.viewAs).toEqual({
       id: "stu-1",
       displayName: "Ana Pérez",
       role: "student",
@@ -149,5 +168,15 @@ describe("StudentDashboardLayout", () => {
     });
 
     expect(redirectMock).toHaveBeenCalledWith("/en/dashboard");
+  });
+
+  it("wraps the student portal in the active public theme", async () => {
+    loadActiveThemeMock.mockResolvedValue({ theme: { templateKind: "nago" } });
+    const element = (await StudentDashboardLayout({
+      children: <p>Student content</p>,
+      params: Promise.resolve({ locale: "en" }),
+    })) as ReactElement;
+
+    expect(portalProps(element).templateKind).toBe("nago");
   });
 });

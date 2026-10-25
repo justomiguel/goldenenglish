@@ -15,6 +15,7 @@ export interface PublicContactScreenEspacioZenitProps {
   dict: Dictionary;
   brand: BrandPublic;
   mediaMap?: LandingMediaMap;
+  sessionEmail?: string | null;
 }
 
 export function PublicContactScreenEspacioZenit({
@@ -22,6 +23,7 @@ export function PublicContactScreenEspacioZenit({
   dict,
   brand,
   mediaMap,
+  sessionEmail = null,
 }: PublicContactScreenEspacioZenitProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveEspacioZenitHeaderLogo(brand, mediaMap);
@@ -40,6 +42,7 @@ export function PublicContactScreenEspacioZenit({
         logoAlt={brand.logoAlt || brand.name}
         brandDisplayName={brand.name}
         dict={dict}
+        sessionEmail={sessionEmail}
       />
 
       <div className="mx-auto grid max-w-6xl gap-10 px-4 pt-10 md:pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:items-start lg:gap-12">

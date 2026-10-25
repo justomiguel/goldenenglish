@@ -3,14 +3,19 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
+import { PublicHeaderAccountCta } from "@/components/molecules/PublicHeaderAccountCta";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 interface RegisterSiteHeaderProps {
   brand: BrandPublic;
   locale: string;
   dict: Dictionary;
+  sessionEmail?: string | null;
   blogHref?: string;
   blogLabel?: string;
   eventsHref?: string;
   eventsLabel?: string;
+  shopHref?: string;
+  shopLabel?: string;
 }
 
 /** Marca (logo + nombre) y acceso al inicio, alineado al login desktop. */
@@ -18,16 +23,19 @@ export function RegisterSiteHeader({
   brand,
   locale,
   dict,
+  sessionEmail = null,
   blogHref,
   blogLabel,
   eventsHref,
   eventsLabel,
+  shopHref,
+  shopLabel,
 }: RegisterSiteHeaderProps) {
   const homeHref = `/${locale}`;
   const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
 
   return (
-    <header className="mx-auto mb-8 flex max-w-6xl flex-col gap-4 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
+    <header className={`${PUBLIC_MARKETING_CHROME_CLASS} mx-auto mb-8 flex max-w-6xl flex-col gap-4 sm:mb-10 sm:flex-row sm:items-center sm:justify-between`}>
       <Link
         href={homeHref}
         className="group flex min-w-0 items-center gap-3 rounded-[var(--layout-border-radius)] outline-none ring-[var(--color-primary)] transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-offset-2"
@@ -64,6 +72,23 @@ export function RegisterSiteHeader({
             {blogLabel}
           </Link>
         ) : null}
+        {shopHref && shopLabel ? (
+          <Link
+            href={shopHref}
+            className="inline-flex min-h-[44px] items-center rounded-[var(--layout-border-radius)] px-2.5 py-2 text-sm font-semibold text-[var(--color-foreground)] outline-none ring-[var(--color-primary)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-offset-2 sm:px-3"
+          >
+            {shopLabel}
+          </Link>
+        ) : null}
+        <PublicHeaderAccountCta
+          locale={locale}
+          sessionEmail={sessionEmail}
+          loginLabel={dict.nav.login}
+          loginShort={dict.nav.loginShort}
+          portalLabel={dict.nav.myPortal}
+          logoutLabel={dict.nav.logout}
+          showLogout
+        />
         <Link
           href={homeHref}
           className="inline-flex items-center gap-2 rounded-[var(--layout-border-radius)] px-2.5 py-2 text-sm font-semibold text-[var(--color-foreground)] outline-none ring-[var(--color-primary)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-offset-2 sm:px-3"

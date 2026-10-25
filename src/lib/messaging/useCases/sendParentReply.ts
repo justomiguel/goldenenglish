@@ -46,7 +46,7 @@ export async function sendParentReplyUseCase(input: {
     return { ok: false, message: MESSAGING_UC_REPLY_NOT_FOUND };
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: profile, error: profileErr } = await admin
     .from("profiles")
     .select("role")

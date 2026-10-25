@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CalendarDays, LayoutDashboard, LogIn, Menu, X } from "lucide-react";
+import { CalendarDays, Menu, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { PublicHeaderAccountCta } from "@/components/molecules/PublicHeaderAccountCta";
 import { NagoSiteHeaderMobileNav } from "@/components/organisms/NagoSiteHeaderMobileNav";
 import { useNagoSiteHeaderChrome } from "@/components/organisms/useNagoSiteHeaderChrome";
 import { NagoSoundToggle } from "@/components/organisms/NagoSoundToggle";
@@ -12,6 +12,7 @@ import type { NagoSiteHeaderLabels } from "@/lib/landing/nagoSiteHeaderLabels";
 import { nagoLandingRegisterCtas } from "@/lib/landing/nagoLandingRegisterCtas";
 import { NagoRegisterCtaButtons } from "@/components/molecules/NagoRegisterCtaButtons";
 import type { PublicRegisterCtaItem } from "@/lib/settings/publicRegisterCtaItems";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 export interface NagoSiteHeaderProps {
   locale: string;
@@ -79,7 +80,7 @@ export function NagoSiteHeader({
     <>
       <header
         id="top"
-        className={`nago-site-header fixed inset-x-0 top-0${scrolled ? " is-scrolled" : ""}${overlayHero ? " is-overlay" : ""}`}
+        className={`${PUBLIC_MARKETING_CHROME_CLASS} nago-site-header fixed inset-x-0 top-0${scrolled ? " is-scrolled" : ""}${overlayHero ? " is-overlay" : ""}`}
       >
         <div
           ref={barRef}
@@ -134,37 +135,16 @@ export function NagoSiteHeader({
               aria-label={dict.nav.accountAria}
               className="flex shrink-0 items-center gap-1"
             >
-              {sessionEmail ? (
-                <>
-                  <Link
-                    href={`/${locale}/dashboard`}
-                    className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full border border-[var(--nago-gold)]/50 bg-transparent px-3 py-2 text-xs font-semibold text-[var(--nago-gold)] transition hover:bg-[var(--nago-gold)]/10"
-                    aria-label={dict.nav.administration}
-                    title={dict.nav.administration}
-                  >
-                    <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                    <span className="hidden md:inline">{dict.nav.administration}</span>
-                  </Link>
-                  <SignOutButton
-                    locale={locale}
-                    label={dict.nav.logout}
-                    iconOnly
-                    title={dict.nav.logout}
-                    className="inline-flex min-h-[44px] min-w-[44px] rounded-full border border-[var(--nago-gold)]/50 bg-transparent text-[var(--nago-gold)] transition hover:bg-[var(--nago-gold)]/10"
-                  />
-                </>
-              ) : (
-                <Link
-                  href={`/${locale}/login`}
-                  className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-[var(--nago-gold)] transition hover:bg-[var(--nago-gold)]/10"
-                  aria-label={dict.nav.login}
-                >
-                  <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                  <span className="sr-only md:not-sr-only md:ml-1 md:hidden lg:inline lg:text-xs lg:font-semibold">
-                    {dict.nav.login}
-                  </span>
-                </Link>
-              )}
+              <PublicHeaderAccountCta
+                locale={locale}
+                sessionEmail={sessionEmail}
+                loginLabel={dict.nav.login}
+                loginShort={dict.nav.loginShort}
+                portalLabel={dict.nav.myPortal}
+                logoutLabel={dict.nav.logout}
+                tone="nago"
+                showLogout
+              />
             </nav>
             <button
               type="button"

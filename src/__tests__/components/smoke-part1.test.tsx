@@ -137,8 +137,9 @@ describe("component smoke — landing & gates", () => {
         sessionEmail="teacher@example.com"
       />,
     );
-    const panelLink = screen.getByRole("link", { name: dictEn.nav.administration });
-    expect(panelLink).toHaveAttribute("href", "/es/dashboard");
+    const panelLinks = screen.getAllByRole("link", { name: dictEn.nav.myPortal });
+    expect(panelLinks.length).toBeGreaterThan(0);
+    expect(panelLinks[0]).toHaveAttribute("href", "/es/dashboard");
   });
 
   it("AdminHubHome", () => {

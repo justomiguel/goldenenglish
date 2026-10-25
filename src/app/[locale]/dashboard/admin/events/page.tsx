@@ -31,7 +31,7 @@ export default async function AdminEventsPage({ params, searchParams }: PageProp
     ? (String(sp.sort ?? "event_date") as EventSortKey)
     : "event_date";
   const dir = String(sp.dir ?? "asc") === "desc" ? "desc" : "asc";
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
 
   const [result, counts] = await Promise.all([
     loadPaginatedAdminEvents(admin, { page, q, sort, dir, locale }),

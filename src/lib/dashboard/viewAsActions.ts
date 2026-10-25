@@ -29,7 +29,7 @@ export async function startViewAsAction(
   if (!user) return { href: `/${locale}/login`, started: false };
 
   const isAdmin = await resolveIsAdminSession(supabase, user.id);
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data } = await admin
     .from("profiles")
     .select("id, role, first_name, last_name")
@@ -77,7 +77,7 @@ export async function searchViewAsPeopleAction(
   const isAdmin = await resolveIsAdminSession(supabase, user.id);
   if (!isAdmin) return { rows: [] };
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const result = await loadPaginatedAdminUsers(admin, "—", {
     page: 1,
     pageSize: 8,

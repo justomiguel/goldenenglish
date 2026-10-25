@@ -36,8 +36,8 @@ vi.mock("@/lib/brand/legalAge", () => ({
   getLegalAgeMajorityFromSystem: () => 18,
 }));
 
-vi.mock("@/lib/register/registrationMailTenant", () => ({
-  getRegistrationMailTenantDomain: () => "tenant.test",
+vi.mock("@/lib/register/requestMailTenant", () => ({
+  getRequestMailTenantDomain: async () => "tenant.test",
 }));
 
 vi.mock("@/lib/i18n/dictionaries", () => ({

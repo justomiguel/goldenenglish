@@ -23,6 +23,7 @@ export interface RegisterMiMundoSurfaceProps {
   enrollmentLink?: SectionEnrollmentLinkContext;
   extrasPack?: "nago" | null;
   intent?: RegisterIntent;
+  sessionEmail?: string | null;
 }
 
 /**
@@ -43,6 +44,7 @@ export function RegisterMiMundoSurface({
   enrollmentLink,
   extrasPack = null,
   intent = "reserve",
+  sessionEmail = null,
 }: RegisterMiMundoSurfaceProps) {
   const prefix = `/${locale}`;
   const t = (path: string) => marketingLandingCopy(dict, "mm", path);
@@ -76,6 +78,7 @@ export function RegisterMiMundoSurface({
         logoSrc={brand.logoPath}
         logoAlt={brand.logoAlt || brand.name}
         dict={dict}
+        sessionEmail={sessionEmail}
       />
 
       {/* Subtle mouse estela — same as landing, fixed full viewport */}

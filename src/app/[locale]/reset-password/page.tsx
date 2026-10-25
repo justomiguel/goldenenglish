@@ -8,7 +8,9 @@ import {
 import { resolvePublicBrand } from "@/lib/brand/resolvePublicBrand";
 import { ResetPasswordScreenGate } from "@/components/organisms/ResetPasswordScreenGate";
 import { PublicTenantChrome } from "@/components/organisms/PublicTenantChrome";
+import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
+import { brandForPublicChrome } from "@/lib/landing/nagoLogo";
 
 interface ResetPasswordPageProps {
   params: Promise<{ locale: string }>;
@@ -42,9 +44,13 @@ export default async function ResetPasswordPage({
   const brand = await resolvePublicBrand(locale as AppLocale);
   const snapshot = await loadActiveTheme();
 
+  const templateKind = snapshot?.theme.templateKind ?? "classic";
+  const publicBrand = brandForPublicChrome(templateKind, brand);
   return (
-    <PublicTenantChrome templateKind={snapshot?.theme.templateKind ?? "classic"}>
-      <ResetPasswordScreenGate brand={brand} dict={dict} locale={locale} />
-    </PublicTenantChrome>
+    <PublicExperienceShell locale={locale} dict={dict} templateKind={templateKind}>
+      <PublicTenantChrome templateKind={templateKind}>
+        <ResetPasswordScreenGate brand={publicBrand} dict={dict} locale={locale} />
+      </PublicTenantChrome>
+    </PublicExperienceShell>
   );
 }

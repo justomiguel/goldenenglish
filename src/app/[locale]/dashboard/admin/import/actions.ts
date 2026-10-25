@@ -42,7 +42,7 @@ export async function bulkImportStudentsFromRows(
     emptyLastName: dict.admin.registrations.emptyValue,
   };
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const result = await bulkImportStudentsFromRowsAdmin(admin, parsed.data, tutorDefaults);
   void auditIdentityAction({
     actorId: user.id,

@@ -8,7 +8,7 @@ export type PersistAdminSiteContactVisitorReplySentCopyInput = {
   bodyHtml: string;
   visitorEmail: string;
   visitorDisplayName: string | null;
-  /** Injected in tests; production uses createAdminClient(). */
+  /** Injected in tests; production uses await createAdminClient(). */
   adminClient?: SupabaseClient;
 };
 
@@ -19,7 +19,7 @@ export type PersistAdminSiteContactVisitorReplySentCopyInput = {
 export async function persistAdminSiteContactVisitorReplySentCopy(
   input: PersistAdminSiteContactVisitorReplySentCopyInput,
 ): Promise<{ ok: true } | { ok: false }> {
-  const admin = input.adminClient ?? createAdminClient();
+  const admin = input.adminClient ?? await createAdminClient();
   const display = input.visitorDisplayName?.trim() || null;
   const { error } = await admin.from("portal_messages").insert({
     sender_id: input.adminUserId,

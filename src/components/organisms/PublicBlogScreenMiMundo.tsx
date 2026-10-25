@@ -4,6 +4,7 @@ import type { Dictionary } from "@/types/i18n";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { MiMundoSiteHeader } from "@/components/organisms/MiMundoSiteHeader";
+import { MiMundoFontRoot } from "@/components/organisms/MiMundoFontRoot";
 import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
 
 export interface PublicBlogScreenMiMundoProps {
@@ -12,6 +13,7 @@ export interface PublicBlogScreenMiMundoProps {
   brand: BrandPublic;
   sessionEmail: string | null;
   blogEnabled: boolean;
+  merchEnabled?: boolean;
   blogLabel: string;
   eventsLabel: string;
   mediaMap?: LandingMediaMap;
@@ -26,6 +28,7 @@ export function PublicBlogScreenMiMundo({
   children,
 }: PublicBlogScreenMiMundoProps) {
   return (
+    <MiMundoFontRoot>
     <main className="relative min-h-screen overflow-x-hidden bg-[var(--color-background)]">
       <MiMundoSiteHeader
         locale={locale}
@@ -56,5 +59,6 @@ export function PublicBlogScreenMiMundo({
         tone="dark"
       />
     </main>
+    </MiMundoFontRoot>
   );
 }

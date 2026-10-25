@@ -9,7 +9,7 @@ import {
   type LandingEditorOverviewItem,
   type LandingSectionEditorViewModel,
 } from "@/lib/cms/buildLandingEditorViewModel";
-import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
+import { createRequestLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import type { LandingOverrideLocale } from "@/lib/cms/landingContentCatalog";
 import {
   isSiteThemeKind,
@@ -160,13 +160,16 @@ export async function loadLandingEditorOverview(
 ): Promise<LandingEditorOverviewViewModel | null> {
   const snapshot = await fetchThemeAndMedia(supabase, themeId);
   if (!snapshot) return null;
-  const defaults = await loadDictionaries();
+  const [defaults, resolveMediaPublicUrl] = await Promise.all([
+    loadDictionaries(),
+    createRequestLandingMediaPublicUrlBuilder(),
+  ]);
   const sections = buildLandingEditorOverview({
     defaults,
     content: snapshot.theme.content,
     media: snapshot.media,
     blocks: snapshot.theme.blocks,
-    resolveMediaPublicUrl: createLandingMediaPublicUrlBuilder(),
+    resolveMediaPublicUrl,
     templateKind: snapshot.theme.templateKind,
   });
   return { theme: snapshot.theme, sections };
@@ -184,13 +187,16 @@ export async function loadLandingEditorSection(
 ): Promise<LandingEditorSectionViewModel | null> {
   const snapshot = await fetchThemeAndMedia(supabase, themeId);
   if (!snapshot) return null;
-  const defaults = await loadDictionaries();
+  const [defaults, resolveMediaPublicUrl] = await Promise.all([
+    loadDictionaries(),
+    createRequestLandingMediaPublicUrlBuilder(),
+  ]);
   const view = buildLandingSectionEditorViewModel(section, {
     defaults,
     content: snapshot.theme.content,
     media: snapshot.media,
     blocks: snapshot.theme.blocks,
-    resolveMediaPublicUrl: createLandingMediaPublicUrlBuilder(),
+    resolveMediaPublicUrl,
     templateKind: snapshot.theme.templateKind,
   });
   return { theme: snapshot.theme, section: view };

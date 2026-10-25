@@ -22,9 +22,14 @@ function isRateLimited(ip: string): boolean {
 }
 
 function clientIp(request: Request): string {
+  const host = (request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "default")
+    .trim()
+    .toLowerCase();
   const xf = request.headers.get("x-forwarded-for");
-  if (xf) return xf.split(",")[0]?.trim() ?? "unknown";
-  return request.headers.get("x-real-ip")?.trim() ?? "unknown";
+  const ip = xf
+    ? (xf.split(",")[0]?.trim() ?? "unknown")
+    : (request.headers.get("x-real-ip")?.trim() ?? "unknown");
+  return `${host}|${ip}`;
 }
 
 export async function POST(

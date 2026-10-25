@@ -11,7 +11,7 @@ import {
   requestedSectionIdsFromLead,
 } from "@/lib/register/loadRegistrationPayLeadByToken";
 import { requestedSectionsHaveOpenSeats } from "@/lib/register/requestedSectionsHaveOpenSeats";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 import type { Locale } from "@/types/i18n";
 
 const RECEIPTS_BUCKET = "payment-receipts";
@@ -115,7 +115,7 @@ async function notifyReceiptUploaded(input: {
     input.lead.snapshotCurrency,
     input.locale,
   );
-  const familyEmail = familyEmailFromPayLead(input.lead);
+  const familyEmail = await familyEmailFromPayLead(input.lead);
   if (familyEmail) {
     await sendBrandedEmail({
       to: familyEmail,
@@ -145,7 +145,7 @@ async function notifyReceiptUploaded(input: {
       sourceLabel: "/matricula",
       existingStudentLabel: "—",
       adminUrl:
-        absoluteUrl(`/${input.locale}/dashboard/admin/registrations`)?.toString() ?? "",
+        (await absoluteUrlForRequest(`/${input.locale}/dashboard/admin/registrations`))?.toString() ?? "",
     },
   });
 }

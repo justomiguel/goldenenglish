@@ -59,7 +59,7 @@ export default async function AdminMessagesPage({ params, searchParams }: PagePr
     mailboxFilters,
   );
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const [recipients, defaultReply] = await Promise.all([
     loadAdminPortalMessageRecipients(admin, user.id),
     loadMessagingDefaultReplyTemplate(supabase, MESSAGING_DEFAULT_REPLY_FACTORY_TEMPLATES),

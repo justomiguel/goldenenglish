@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { PortalShell } from "@/components/portal/PortalShell";
+import { PublicTenantChrome } from "@/components/organisms/PublicTenantChrome";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { buildParentShellConfig } from "@/lib/portal/buildParentShellConfig";
 import { loadParentFocusCatalog } from "@/lib/parent/loadParentFocusCatalog";
 import { resolveParentFocus } from "@/lib/parent/resolveParentFocus";
@@ -46,10 +48,12 @@ export default async function ParentDashboardLayout({
   if (redirectTo) redirect(redirectTo);
 
   const viewerId = actor?.viewerId ?? user.id;
-  const [focusCatalog, includeShopNav] = await Promise.all([
+  const [focusCatalog, includeShopNav, snapshot] = await Promise.all([
     loadParentFocusCatalog(supabase, viewerId),
     loadMerchEnabled(),
+    loadActiveTheme(),
   ]);
+  const templateKind = snapshot?.theme.templateKind ?? "classic";
   // Layouts cannot read `searchParams`; the shell only needs a default, and the
   // chips reconcile against the URL on the client.
   const defaultFocus = resolveParentFocus(focusCatalog, {
@@ -69,17 +73,19 @@ export default async function ParentDashboardLayout({
   });
 
   return (
-    <PortalShell
-      locale={locale}
-      dict={dict}
-      brand={brand}
-      config={{
-        ...config,
-        accountItems: filterAccountItemsForViewAs(config.accountItems, actor?.viewAs ?? null),
-      }}
-      viewAs={actor?.viewAs ?? null}
-    >
-      {children}
-    </PortalShell>
+    <PublicTenantChrome templateKind={templateKind}>
+      <PortalShell
+        locale={locale}
+        dict={dict}
+        brand={brand}
+        config={{
+          ...config,
+          accountItems: filterAccountItemsForViewAs(config.accountItems, actor?.viewAs ?? null),
+        }}
+        viewAs={actor?.viewAs ?? null}
+      >
+        {children}
+      </PortalShell>
+    </PublicTenantChrome>
   );
 }

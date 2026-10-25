@@ -1,21 +1,30 @@
 import { Resend } from "resend";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
+import { preferTenantValue } from "@/lib/tenant/preferTenantValue";
 import type { EmailProvider, SendEmailInput, SendEmailResult } from "@/lib/email/emailProvider";
 
-function fromAddress(): string {
-  const f = process.env.RESEND_FROM_EMAIL?.trim();
-  if (f) return f;
+export async function resolveResendFromAddress(): Promise<string> {
+  const tenant = await resolveRequestTenant();
+  const from = preferTenantValue(tenant?.resendFromEmail, process.env.RESEND_FROM_EMAIL);
+  if (from) return from;
   throw new Error("RESEND_FROM_EMAIL is required for outbound mail");
+}
+
+export async function resolveResendApiKey(): Promise<string | null> {
+  const tenant = await resolveRequestTenant();
+  const key = preferTenantValue(tenant?.resendApiKey, process.env.RESEND_API_KEY);
+  return key || null;
 }
 
 export class ResendEmailProvider implements EmailProvider {
   async sendEmail(input: SendEmailInput): Promise<SendEmailResult> {
-    const key = process.env.RESEND_API_KEY?.trim();
+    const key = await resolveResendApiKey();
     if (!key) {
       return { ok: false, error: "RESEND_API_KEY missing" };
     }
     let from: string;
     try {
-      from = fromAddress();
+      from = await resolveResendFromAddress();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       return { ok: false, error: msg };

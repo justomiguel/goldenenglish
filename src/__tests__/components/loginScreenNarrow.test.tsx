@@ -9,6 +9,7 @@ import { render, screen } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 import { LoginScreenNarrow } from "@/components/pwa/organisms/LoginScreenNarrow";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 vi.mock("@/hooks/useLogin", () => ({
   useLogin: () => ({
@@ -49,6 +50,7 @@ describe("LoginScreenNarrow", () => {
       />,
     );
     expect(container.querySelector("main")?.className).toContain("pb-[max(1rem");
+    expect(container.querySelector("header")?.className).toContain(PUBLIC_MARKETING_CHROME_CLASS);
   });
 
   it("keeps wordmark logos from being squashed into a square", () => {

@@ -51,6 +51,7 @@ export interface PortalShellConfig {
   accountOpenLabel: string;
   accountHeading: string;
   accountCloseLabel: string;
+  backToSiteLabel: string;
   destinations: PortalDestination[];
   accountItems: PortalAccountItem[];
   /** Rendered only for groups with more than one option; empty is the common case. */

@@ -27,4 +27,11 @@ describe("viewAsCookie", () => {
     const token = signViewAsCookie("user-1", 1_700_000_000);
     expect(verifyViewAsCookie(`${token}x`)).toBeNull();
   });
+
+  it("rejects a cookie signed for another tenant", () => {
+    process.env.CRON_SECRET = "view-as-test-secret";
+    const token = signViewAsCookie("user-1", 1_700_000_000, "nago");
+    expect(verifyViewAsCookie(token, "nago")?.tenantSlug).toBe("nago");
+    expect(verifyViewAsCookie(token, "golden")).toBeNull();
+  });
 });

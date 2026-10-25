@@ -13,7 +13,10 @@ import { createClient } from "@/lib/supabase/server";
 import { LoginScreenDesktop } from "@/components/desktop/organisms/LoginScreenDesktop";
 import { LoginScreenGate } from "@/components/organisms/LoginScreenGate";
 import { PublicTenantChrome } from "@/components/organisms/PublicTenantChrome";
+import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
+import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
+import { brandForPublicChrome } from "@/lib/landing/nagoLogo";
 
 interface LoginPageProps {
   params: Promise<{ locale: string }>;
@@ -78,26 +81,35 @@ export default async function LoginPage({
 
   const firstRunSetupHref =
     wizardMode !== "closed" ? `/${locale}/setup/first-run` : null;
-  const snapshot = await loadActiveTheme();
+  const [snapshot, inscriptionsEnabled] = await Promise.all([
+    loadActiveTheme(),
+    getInscriptionsEnabled(),
+  ]);
+  const templateKind = snapshot?.theme.templateKind ?? "classic";
+  const publicBrand = brandForPublicChrome(templateKind, brand);
 
   return (
-    <PublicTenantChrome templateKind={snapshot?.theme.templateKind ?? "classic"}>
-      <LoginScreenGate
-        brand={brand}
-        dict={dict}
-        locale={locale}
-        nextPath={nextPath}
-        firstRunSetupHref={firstRunSetupHref}
-        desktop={
-          <LoginScreenDesktop
-            brand={brand}
-            dict={dict}
-            locale={locale}
-            nextPath={nextPath}
-            firstRunSetupHref={firstRunSetupHref}
-          />
-        }
-      />
-    </PublicTenantChrome>
+    <PublicExperienceShell locale={locale} dict={dict} templateKind={templateKind} sessionEmail={null}>
+      <PublicTenantChrome templateKind={templateKind}>
+        <LoginScreenGate
+          brand={publicBrand}
+          dict={dict}
+          locale={locale}
+          nextPath={nextPath}
+          firstRunSetupHref={firstRunSetupHref}
+          inscriptionsEnabled={inscriptionsEnabled}
+          desktop={
+            <LoginScreenDesktop
+              brand={publicBrand}
+              dict={dict}
+              locale={locale}
+              nextPath={nextPath}
+              firstRunSetupHref={firstRunSetupHref}
+              inscriptionsEnabled={inscriptionsEnabled}
+            />
+          }
+        />
+      </PublicTenantChrome>
+    </PublicExperienceShell>
   );
 }

@@ -13,6 +13,7 @@ export interface PublicBlogScreenNagoProps {
   brand: BrandPublic;
   sessionEmail: string | null;
   blogEnabled: boolean;
+  merchEnabled?: boolean;
   blogLabel: string;
   eventsLabel: string;
   children: ReactNode;
@@ -24,6 +25,7 @@ export function PublicBlogScreenNago({
   brand,
   sessionEmail,
   blogEnabled,
+  merchEnabled = false,
   blogLabel,
   eventsLabel,
   children,
@@ -40,14 +42,12 @@ export function PublicBlogScreenNago({
         blogLabel={blogEnabled ? blogLabel : undefined}
         showEventsLink
         eventsLabel={eventsLabel}
+        showShopLink={merchEnabled}
+        shopLabel={merchEnabled ? dict.shop.catalog.title : undefined}
         labels={nagoSiteHeaderLabels(dict)}
       />
       <main className="relative min-h-screen overflow-x-hidden bg-[var(--nago-bg)]">
-        <div className="mx-auto w-full max-w-6xl px-4 py-6">
-          <div className="nago-public-sheet rounded-2xl border border-[var(--nago-gold)]/20 bg-[var(--nago-bg-2)] p-4 md:p-6">
-            {children}
-          </div>
-        </div>
+        <div className="mx-auto w-full max-w-6xl px-4 py-6">{children}</div>
         <PublicContentLanguageFooter
           locale={locale}
           labels={dict.common.locale}

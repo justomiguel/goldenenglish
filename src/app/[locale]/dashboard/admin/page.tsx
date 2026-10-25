@@ -35,7 +35,7 @@ export default async function AdminHomePage({ params }: AdminHomeProps) {
   const isAdmin = await resolveIsAdminSession(supabase, user.id);
   if (!isAdmin) redirect(`/${locale}`);
 
-  const adminClient = createAdminClient();
+  const adminClient = await createAdminClient();
   const [summary, birthdayRows, profile, includeBlog, checklist, shopEnabled] = await Promise.all([
     loadAdminHubSummary(supabase, adminClient, user.id),
     loadDashboardBirthdaysCard(supabase, user.id),

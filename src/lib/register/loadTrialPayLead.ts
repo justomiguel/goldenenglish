@@ -61,7 +61,7 @@ export async function loadTrialPayLeadByToken(
     additionalSectionIds: Array.isArray(extra) ? extra.map(String).filter(Boolean) : [],
     firstName: String(row.first_name ?? "").trim(),
     lastName: String(row.last_name ?? "").trim(),
-    familyEmail: familyEmailForTrialLead({
+    familyEmail: await familyEmailForTrialLead({
       isMinor,
       studentEmail: row.email == null ? null : String(row.email),
       tutorEmail: row.tutor_email == null ? null : String(row.tutor_email),

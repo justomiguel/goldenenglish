@@ -87,7 +87,7 @@ export function NagoSiteHeaderMobileNav({
                 tabIndex={open ? undefined : -1}
               >
                 <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                {dict.nav.administration}
+                {dict.nav.myPortal}
               </Link>
               <SignOutButton locale={locale} label={dict.nav.logout} className="nago-btn w-full" />
             </>

@@ -10,15 +10,18 @@ import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
 import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
-import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
+import { createRequestLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import { loadSectionEnrollmentLink } from "@/lib/register/loadSectionEnrollmentLink";
 import { loadRegistrationSectionOptions } from "@/lib/register/loadRegistrationSectionOptions";
 import { buildSectionEnrollmentLinkPath } from "@/lib/register/sectionEnrollmentLinkPath";
 import { buildSectionEnrollmentLinkPageMetadata } from "@/lib/register/buildSectionEnrollmentLinkPageMetadata";
 import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
 import { loadShareImageChain } from "@/lib/site/buildResolvedPublicShareMetadata";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import { RegisterSurfaceByTemplate } from "@/components/organisms/RegisterSurfaceByTemplate";
+import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
 import { SectionEnrollmentLinkUnavailable } from "@/components/register/SectionEnrollmentLinkUnavailable";
+import { loadRequestSessionEmail } from "@/lib/auth/loadRequestSessionEmail";
 
 export async function sectionEnrollmentLinkGenerateMetadata(
   locale: string,
@@ -30,7 +33,7 @@ export async function sectionEnrollmentLinkGenerateMetadata(
     resolvePublicBrand(loc),
     loadSectionEnrollmentLink(token),
   ]);
-  const meta = buildSectionEnrollmentLinkPageMetadata({
+  const meta = await buildSectionEnrollmentLinkPageMetadata({
     locale,
     brandName: brand.name,
     weekdays: dict.register.sectionLink.weekdays,
@@ -38,7 +41,10 @@ export async function sectionEnrollmentLinkGenerateMetadata(
     link,
   });
   if (!link) return meta;
-  const image = await loadShareImageChain(sectionReferenceImagePublicUrl(link.referenceImagePath));
+  const { url: supabaseUrl } = await readRequestSupabasePublicEnv();
+  const image = await loadShareImageChain(
+    sectionReferenceImagePublicUrl(link.referenceImagePath, supabaseUrl),
+  );
   if (!image) return meta;
   return {
     ...meta,
@@ -58,17 +64,28 @@ export async function SectionEnrollmentLinkRoute({
 }) {
   const loc = locale as AppLocale;
 
-  const [baseDict, brand, snapshot, legalAgeMajority, link, sectionOptions] =
-    await Promise.all([
-      getDictionary(locale),
-      resolvePublicBrand(loc),
-      loadActiveTheme(),
-      getLegalAgeMajorityFromSystem(),
-      loadSectionEnrollmentLink(token),
-      loadRegistrationSectionOptions(),
-    ]);
+  const [
+    baseDict,
+    brand,
+    snapshot,
+    legalAgeMajority,
+    link,
+    sectionOptions,
+    { url: supabaseUrl },
+    sessionEmail,
+  ] = await Promise.all([
+    getDictionary(locale),
+    resolvePublicBrand(loc),
+    loadActiveTheme(),
+    getLegalAgeMajorityFromSystem(),
+    loadSectionEnrollmentLink(token),
+    loadRegistrationSectionOptions(),
+    readRequestSupabasePublicEnv(),
+    loadRequestSessionEmail(),
+  ]);
 
   const dict = applyLandingContentOverrides(baseDict, snapshot?.theme.content, loc);
+  const templateKind = snapshot?.theme.templateKind ?? "classic";
 
   if (link) {
     const canonical = buildSectionEnrollmentLinkPath(locale, link.sectionName, token);
@@ -81,27 +98,36 @@ export async function SectionEnrollmentLinkRoute({
 
   if (!link) {
     return (
-      <SectionEnrollmentLinkUnavailable
-        locale={locale}
-        labels={dict.register.sectionLink}
-      />
+      <PublicExperienceShell locale={locale} dict={dict} templateKind={templateKind} sessionEmail={sessionEmail}>
+        <SectionEnrollmentLinkUnavailable
+          locale={locale}
+          labels={dict.register.sectionLink}
+        />
+      </PublicExperienceShell>
     );
   }
 
   const mediaMap: LandingMediaMap | undefined = snapshot
-    ? buildLandingMediaMap(snapshot.media, createLandingMediaPublicUrlBuilder())
+    ? buildLandingMediaMap(snapshot.media, await createRequestLandingMediaPublicUrlBuilder())
     : undefined;
+  const resolvedLink = {
+    ...link,
+    referenceImagePath: sectionReferenceImagePublicUrl(link.referenceImagePath, supabaseUrl),
+  };
 
   return (
-    <RegisterSurfaceByTemplate
-      templateKind={snapshot?.theme.templateKind ?? "classic"}
-      mediaMap={mediaMap}
-      locale={locale}
-      dict={dict}
-      brand={brand}
-      legalAgeMajority={legalAgeMajority}
-      sectionOptions={sectionOptions}
-      enrollmentLink={link}
-    />
+    <PublicExperienceShell locale={locale} dict={dict} templateKind={templateKind} sessionEmail={sessionEmail}>
+      <RegisterSurfaceByTemplate
+        templateKind={templateKind}
+        mediaMap={mediaMap}
+        locale={locale}
+        dict={dict}
+        brand={brand}
+        legalAgeMajority={legalAgeMajority}
+        sectionOptions={sectionOptions}
+        enrollmentLink={resolvedLink}
+        sessionEmail={sessionEmail}
+      />
+    </PublicExperienceShell>
   );
 }

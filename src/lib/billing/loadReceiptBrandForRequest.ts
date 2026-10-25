@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { getBrandForRequest } from "@/lib/brand/server";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { getProperty } from "@/lib/theme/themeParser";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
 import type { PaymentReceiptInputBrand } from "@/lib/billing/buildPaymentReceiptModel";
@@ -15,7 +15,7 @@ const FALLBACK_PRIMARY = "#103A5C";
  */
 export const loadReceiptBrandForRequest = cache(async (): Promise<PaymentReceiptInputBrand> => {
   const [brand, effective] = await Promise.all([getBrandForRequest(), loadEffectiveProperties()]);
-  const siteUrl = (getPublicSiteUrl()?.origin ?? "http://localhost:3000").replace(/\/+$/, "");
+  const siteUrl = ((await getRequestPublicSiteUrl())?.origin ?? "http://localhost:3000").replace(/\/+$/, "");
   const absoluteLogoUrl = ensureAbsolute(brand.logoPath, siteUrl);
   const primary = sanitizeHex(getProperty(effective.properties, "color.primary", FALLBACK_PRIMARY));
   return {

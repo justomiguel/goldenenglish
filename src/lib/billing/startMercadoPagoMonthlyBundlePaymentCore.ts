@@ -6,7 +6,7 @@ import { buildTuitionBundleGatewayReference } from "@/lib/billing/parseMonthlyGa
 import { loadMercadoPagoCredentialsPlain } from "@/lib/payment-gateways/mercadopago/loadMercadoPagoCredentialsPlain";
 import { mercadoPagoCreatePreference } from "@/lib/payment-gateways/mercadopago/mercadoPagoCreatePreference";
 import { gatewayCountryForBillingCurrency } from "@/lib/payment-gateways/gatewayCountryForBillingCurrency";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
 import type { PaymentGatewayCountryCode } from "@/types/paymentGateway";
 import type { StartMercadoPagoMonthlyPaymentCoreResult } from "@/lib/billing/startMercadoPagoMonthlyPaymentCore";
@@ -56,7 +56,7 @@ export async function startMercadoPagoMonthlyBundlePaymentCore(input: {
   );
   if (!creds?.enabled) return { ok: false, code: "no_credentials" };
 
-  const origin = getPublicSiteUrl();
+  const origin = await getRequestPublicSiteUrl();
   if (!origin) return { ok: false, code: "no_public_url" };
 
   const inserted = await insertMonthlyCheckoutBundle(input.admin, {

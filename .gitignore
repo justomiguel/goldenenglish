@@ -82,6 +82,9 @@ supabase/migrations/_tmp_*.sql
 
 # Single-file SQL bundle for SQL Editor (generated; do not commit)
 supabase/dist/*.sql
+# Local Pulsar data seed from TENANTS_CONFIG_JSON (contains secrets)
+supabase/pulsar-migrations/*.local.sql
+supabase/pulsar-migrations/*.local.txt
 
 # Playwright artifacts + auth storage (isolated e2e)
 /test-results/

@@ -32,7 +32,7 @@ export async function POST(
       return NextResponse.json({ ok: false, code: "unauthorized" }, { status: 401 });
     }
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: attendee } = await admin
       .from("event_attendees")
       .select("id, user_id, event_id, events!inner(slug)")

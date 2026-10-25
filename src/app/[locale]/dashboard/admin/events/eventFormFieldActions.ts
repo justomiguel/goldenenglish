@@ -57,7 +57,7 @@ export async function addEventFormFieldAction(input: {
       )
     : {};
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin.from("event_form_fields").insert({
     event_id: input.eventId,
     field_key: normalizedKey.value,
@@ -95,7 +95,7 @@ export async function updateEventFormFieldAction(raw: unknown): Promise<EventMut
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, fieldId, label, required, selectOptions, allowedMimeTypes } = parsed.data;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: field, error: lookupError } = await admin
     .from("event_form_fields")
     .select(
@@ -176,7 +176,7 @@ export async function updateEventFormFieldAction(raw: unknown): Promise<EventMut
 export async function archiveEventFormFieldAction(locale: string, fieldId: string): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: field, error: lookupError } = await admin
     .from("event_form_fields")
     .select("event_id")

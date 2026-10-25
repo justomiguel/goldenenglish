@@ -2,9 +2,16 @@ import { parseLoginIdentifier } from "@/lib/auth/parseLoginIdentifier";
 
 export const LOGIN_LOG_PREFIX = "[goldenenglish:login]";
 
+type GeTenantLoginPublic = { debugLogin?: boolean };
+
 /** Traces (submit steps, fingerprints): dev by default, or `NEXT_PUBLIC_DEBUG_LOGIN=true`. */
 export function loginDiagnosticsVerbose(): boolean {
   if (process.env.NODE_ENV === "development") return true;
+  if (typeof window !== "undefined") {
+    const injected = (window as Window & { __GE_TENANT_PUBLIC__?: GeTenantLoginPublic })
+      .__GE_TENANT_PUBLIC__?.debugLogin;
+    if (typeof injected === "boolean") return injected;
+  }
   return process.env.NEXT_PUBLIC_DEBUG_LOGIN === "true";
 }
 

@@ -43,7 +43,7 @@ export async function runCreateDashboardUserInviteOrchestration(params: {
   const pwd = parsed.password.trim();
   const finalPassword = pwd.length >= 6 ? pwd : ADMIN_INVITE_DEFAULT_PASSWORD;
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
 
   async function finishCreatedStudent(
     result: CreateDashboardUserResult,

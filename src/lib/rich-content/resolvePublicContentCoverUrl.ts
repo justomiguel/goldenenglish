@@ -6,14 +6,16 @@ import { readSupabasePublicEnv } from "@/lib/supabase/publicEnv";
 export function resolveBlogCoverImageUrl(
   bodyHtml: string,
   coverStoragePath: string | null | undefined,
+  supabaseProjectUrl?: string | null,
 ): string | null {
   const fromBody = extractFirstImageSrcFromHtml(bodyHtml);
   if (fromBody) return fromBody;
 
   const path = coverStoragePath?.trim();
   if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
 
-  const { url } = readSupabasePublicEnv();
+  const url = (supabaseProjectUrl ?? readSupabasePublicEnv().url).trim();
   if (!url) return null;
   return blogMediaPublicUrl(url, path);
 }

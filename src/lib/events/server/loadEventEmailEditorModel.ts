@@ -21,7 +21,7 @@ export interface EventEmailEditorModel {
 export async function loadEventEmailEditorModel(eventId: string): Promise<EventEmailEditorModel> {
   const fallbacks = emptyFallbacks();
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const [copiesResult, catalogResult] = await Promise.all([
       admin
         .from("event_email_templates")

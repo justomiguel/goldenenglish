@@ -3,7 +3,7 @@ import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { buildPortalCalendarPagePayload } from "@/lib/calendar/buildPortalCalendarPagePayload";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { PortalCalendarEntry } from "@/components/organisms/PortalCalendarEntry";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 import { getDashboardActor } from "@/lib/dashboard/getDashboardActor";
@@ -37,7 +37,7 @@ export default async function ParentCalendarPage({ params }: PageProps) {
     birthdayCopy: dict.dashboard.birthdays,
   });
 
-  const origin = getPublicSiteUrl()?.origin ?? "";
+  const origin = (await getRequestPublicSiteUrl())?.origin ?? "";
   const feedUrl =
     payload.feedToken && origin ? `${origin}/api/calendar/feed/${payload.feedToken}.ics` : null;
 

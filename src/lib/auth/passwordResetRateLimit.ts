@@ -25,8 +25,10 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-function bucketKey(ip: string | null, email: string): string {
-  return `${ip ?? "unknown"}|${normalizeEmail(email)}`;
+function bucketKey(ip: string | null, email: string, tenantSlug?: string | null): string {
+  const scope = tenantSlug?.trim().toLowerCase();
+  const base = `${ip ?? "unknown"}|${normalizeEmail(email)}`;
+  return scope ? `${scope}|${base}` : base;
 }
 
 export interface RateLimitResult {
@@ -38,6 +40,7 @@ export interface RateLimitResult {
 export interface CheckPasswordResetRateLimitOptions {
   ip: string | null;
   email: string;
+  tenantSlug?: string | null;
   /** Injected for tests. Defaults to `Date.now`. */
   now?: Clock;
   /** Injected for tests. Defaults to module-level `buckets`. */
@@ -47,10 +50,11 @@ export interface CheckPasswordResetRateLimitOptions {
 export function checkPasswordResetRateLimit({
   ip,
   email,
+  tenantSlug,
   now = Date.now,
   store = buckets,
 }: CheckPasswordResetRateLimitOptions): RateLimitResult {
-  const key = bucketKey(ip, email);
+  const key = bucketKey(ip, email, tenantSlug);
   const ts = now();
   const existing = store.get(key);
 

@@ -85,6 +85,8 @@ function buildInsertPayload(user: User, dni: string | null): Record<string, unkn
  * y existe `SUPABASE_SERVICE_ROLE_KEY`, intenta lectura con service role y, si sigue sin fila,
  * inserta una fila mínima alineada con `handle_new_user` + metadata de Auth.
  */
+import { isMultiTenantEnabled, tenantRegistryError } from "@/lib/tenant/tenantRegistry";
+
 export async function loadOrProvisionDashboardProfileRow(
   user: User,
 ): Promise<DashboardProfileRow | null> {
@@ -92,10 +94,11 @@ export async function loadOrProvisionDashboardProfileRow(
   let row = await selectProfileRow(supabase, user.id);
   if (row) return row;
 
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()) return null;
+  const hasMultiTenant = isMultiTenantEnabled() && !tenantRegistryError();
+  if (!hasMultiTenant && !process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()) return null;
 
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     row = await selectProfileRow(admin, user.id);
     if (row) return row;
 

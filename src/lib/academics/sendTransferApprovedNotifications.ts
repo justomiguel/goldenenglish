@@ -28,7 +28,7 @@ export async function sendTransferApprovedNotifications(input: {
     inAppBody: string;
   };
 }): Promise<void> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
 
   const { data: tutorLinks } = await input.supabase
     .from("tutor_student_rel")

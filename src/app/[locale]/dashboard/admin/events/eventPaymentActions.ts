@@ -18,7 +18,7 @@ export async function approveEventPaymentAction(
 ): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const result = await approveEventPayment({ adminClient: admin, actorId, paymentId, notes: notes ?? null });
   revalidatePath(adminEventsPath(locale), "page");
   if (eventId) revalidatePath(`${adminEventsPath(locale)}/${eventId}`, "page");
@@ -39,7 +39,7 @@ export async function rejectEventPaymentAction(
 ): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const result = await rejectEventPayment({ adminClient: admin, actorId, paymentId, notes });
   revalidatePath(adminEventsPath(locale), "page");
   if (eventId) revalidatePath(`${adminEventsPath(locale)}/${eventId}`, "page");
@@ -59,7 +59,7 @@ export async function deleteEventPaymentAction(
 ): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const result = await deleteEventPayment({
     adminClient: admin,
     actorId,
@@ -91,7 +91,7 @@ export async function revertEventPaymentApprovalAction(
 ): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const result = await revertEventPaymentApproval({
     adminClient: admin,
     actorId,

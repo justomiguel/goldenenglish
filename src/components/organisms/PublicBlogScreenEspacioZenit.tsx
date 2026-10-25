@@ -12,6 +12,7 @@ export interface PublicBlogScreenEspacioZenitProps {
   brand: BrandPublic;
   sessionEmail: string | null;
   blogEnabled: boolean;
+  merchEnabled?: boolean;
   blogLabel: string;
   eventsLabel: string;
   mediaMap?: LandingMediaMap;
@@ -24,6 +25,7 @@ export function PublicBlogScreenEspacioZenit({
   brand,
   sessionEmail,
   blogEnabled,
+  merchEnabled = false,
   blogLabel,
   eventsLabel,
   children,
@@ -41,6 +43,8 @@ export function PublicBlogScreenEspacioZenit({
         blogLabel={blogEnabled ? blogLabel : undefined}
         showEventsLink
         eventsLabel={eventsLabel}
+        showShopLink={merchEnabled}
+        shopLabel={merchEnabled ? dict.shop.catalog.title : undefined}
       />
       <div className="mx-auto w-full max-w-6xl px-4 py-6">{children}</div>
       <PublicContentLanguageFooter

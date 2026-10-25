@@ -15,7 +15,7 @@ export async function sendEventAttendeeNotification(input: {
   reason?: string;
 }): Promise<boolean> {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: attendee, error } = await admin
       .from("event_attendees")
       .select("email, first_name, last_name, registration_locale, registration_flow_id, event_id")

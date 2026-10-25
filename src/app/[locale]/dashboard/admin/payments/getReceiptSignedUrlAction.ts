@@ -17,7 +17,7 @@ export async function getReceiptSignedUrl(
   const trimmed = objectPath.trim();
   if (!trimmed || trimmed.includes("..")) return null;
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data, error } = await admin.storage
     .from("payment-receipts")
     .createSignedUrl(trimmed, 300);

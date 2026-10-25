@@ -16,7 +16,7 @@ export async function duplicateEventAction(input: {
 }): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const result = await duplicateEventServer(createAdminClient(), {
+  const result = await duplicateEventServer(await createAdminClient(), {
     eventId: input.eventId,
     actorId,
   });

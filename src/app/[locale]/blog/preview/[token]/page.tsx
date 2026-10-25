@@ -3,6 +3,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { verifyBlogPreviewToken } from "@/lib/blog/previewToken";
 import { buildBlogPreviewPath } from "@/lib/site/publicSharePaths";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 export const metadata = {
   robots: { index: false, follow: false },
@@ -14,8 +15,8 @@ interface PageProps {
 
 export default async function LegacyBlogPreviewPage({ params }: PageProps) {
   noStore();
-  const { locale, token } = await params;
-  const payload = verifyBlogPreviewToken(token);
+  const [{ locale, token }, tenant] = await Promise.all([params, resolveRequestTenant()]);
+  const payload = verifyBlogPreviewToken(token, tenant?.slug);
   if (!payload) notFound();
   const supabase = await createClient();
   const { data } = await supabase

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { resolveMercadoPagoMonthlyPaymentReturnPage } from "@/lib/billing/resolveMercadoPagoMonthlyPaymentReturnPage";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { logServerException } from "@/lib/logging/serverActionLog";
 
 function firstParam(raw: string | null): string | undefined {
@@ -21,7 +21,7 @@ export async function GET(req: Request): Promise<Response> {
     const dashboard = url.searchParams.get("dashboard") === "parent" ? "parent" : "student";
     const expectedRole = dashboard === "parent" ? "parent" : "student";
 
-    const base = getPublicSiteUrl();
+    const base = await getRequestPublicSiteUrl();
     if (!base) {
       return new Response("misconfigured", { status: 502 });
     }

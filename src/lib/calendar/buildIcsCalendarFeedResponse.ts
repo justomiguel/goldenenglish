@@ -42,7 +42,7 @@ export async function buildIcsCalendarFeedResponse(tokenRaw: string): Promise<Ic
 
   let admin;
   try {
-    admin = createAdminClient();
+    admin = await createAdminClient();
   } catch (err) {
     logServerException("buildIcsCalendarFeedResponse:noAdmin", err);
     return { ok: false, status: 503 };

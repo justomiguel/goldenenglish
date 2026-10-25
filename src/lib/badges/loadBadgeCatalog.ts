@@ -51,7 +51,7 @@ function decodeRow(
 async function fetchCatalogRowsAndTranslations(
   options: { activeOnly: boolean },
 ): Promise<{ rows: CatalogRow[]; translations: TranslationRow[] }> {
-  const supabase = createAdminClient();
+  const supabase = await createAdminClient();
   const query = supabase
     .from("badge_catalog")
     .select(
@@ -121,7 +121,7 @@ export async function loadFullBadgeCatalog(): Promise<BadgeCatalogEntry[]> {
 export async function loadBadgeCatalogEntryById(
   badgeId: string,
 ): Promise<BadgeCatalogEntry | null> {
-  const supabase = createAdminClient();
+  const supabase = await createAdminClient();
   const { data, error } = await supabase
     .from("badge_catalog")
     .select(

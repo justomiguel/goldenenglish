@@ -1,6 +1,6 @@
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { buildBadgeSharePath } from "@/lib/site/publicSharePaths";
 import { loadStudentBadgeDisplayRows } from "@/lib/badges/loadStudentBadgeDisplayRows";
 import { loadParentChildContext } from "@/lib/parent/loadParentChildContext";
@@ -27,11 +27,16 @@ export default async function ParentChildBadgesPage({ params, searchParams }: Pa
   const { focus } = await loadParentChildContext(locale, "/child/badges", sp);
 
   const failures = createProgressFailureTracker();
+  const shareOrigin = (await getRequestPublicSiteUrl())?.origin ?? "";
+  const badgeShareUrl = (token: string, title?: string) => {
+    const path = buildBadgeSharePath(locale, title ?? "", token);
+    if (!shareOrigin) return path;
+    return new URL(path, shareOrigin).toString();
+  };
   const rows = focus.studentId
     ? await loadStudentBadgeDisplayRows(
         focus.studentId,
-        (token, title) =>
-          absoluteUrl(buildBadgeSharePath(locale, title ?? "", token))?.toString() ?? "",
+        badgeShareUrl,
         failures.reporterFor("badges"),
       )
     : [];

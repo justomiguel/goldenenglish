@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { loadPublishedArticles } from "@/lib/blog/server";
 
 interface RouteContext {
@@ -9,7 +9,7 @@ interface RouteContext {
 export async function GET(_request: Request, context: RouteContext) {
   const { locale } = await context.params;
   const supabase = await createClient();
-  const publicUrl = getPublicSiteUrl();
+  const publicUrl = await getRequestPublicSiteUrl();
   const feed = await loadPublishedArticles(supabase, {
     locale: locale as "en" | "es" | "pt",
     page: 1,
@@ -45,7 +45,7 @@ export async function GET(_request: Request, context: RouteContext) {
   return new Response(xml, {
     headers: {
       "Content-Type": "application/rss+xml; charset=utf-8",
-      "Cache-Control": "public, max-age=300",
+      "Cache-Control": "private, no-store",
     },
   });
 }

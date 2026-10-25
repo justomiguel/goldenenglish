@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 
-export function toAbsoluteShareUrl(url: string): string {
+export async function toAbsoluteShareUrl(url: string): Promise<string> {
   const trimmed = url.trim();
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
   const path = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-  return absoluteUrl(path)?.toString() ?? trimmed;
+  return (await absoluteUrlForRequest(path))?.toString() ?? trimmed;
 }
 
-export function buildPublicShareMetadata(input: {
+export async function buildPublicShareMetadata(input: {
   title: string;
   description: string;
   path: string;
@@ -17,14 +17,14 @@ export function buildPublicShareMetadata(input: {
   ogType?: "website" | "article";
   /** Route-level `opengraph-image.tsx` supplies the image; keep large card without inline URLs. */
   deferShareImageToFileMetadata?: boolean;
-}): Pick<Metadata, "openGraph" | "twitter"> {
+}): Promise<Pick<Metadata, "openGraph" | "twitter">> {
   const shareImageRaw = input.coverImageUrl ?? input.fallbackImageUrl ?? null;
   const shareImage =
     input.deferShareImageToFileMetadata || !shareImageRaw
       ? null
-      : toAbsoluteShareUrl(shareImageRaw);
+      : await toAbsoluteShareUrl(shareImageRaw);
   const useLargeCard = Boolean(shareImage || input.deferShareImageToFileMetadata);
-  const pageUrl = absoluteUrl(input.path)?.toString() ?? input.path;
+  const pageUrl = (await absoluteUrlForRequest(input.path))?.toString() ?? input.path;
 
   return {
     openGraph: {

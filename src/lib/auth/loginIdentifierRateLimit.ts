@@ -33,8 +33,9 @@ function normalizeIdentifier(identifier: string): string {
   return identifier.trim().toLowerCase();
 }
 
-function bucketKey(ip: string | null, identifier: string): string {
-  return `${ip ?? "unknown"}|${normalizeIdentifier(identifier)}`;
+function bucketKey(ip: string | null, identifier: string, tenantKey?: string | null): string {
+  const scope = tenantKey?.trim().toLowerCase() || "default";
+  return `${scope}|${ip ?? "unknown"}|${normalizeIdentifier(identifier)}`;
 }
 
 export interface LoginIdentifierRateLimitResult {
@@ -46,6 +47,8 @@ export interface LoginIdentifierRateLimitResult {
 export interface CheckLoginIdentifierRateLimitOptions {
   ip: string | null;
   identifier: string;
+  tenantKey?: string | null;
+  tenantSlug?: string | null;
   /** Injected for tests. Defaults to `Date.now`. */
   now?: Clock;
   /** Injected for tests. Defaults to module-level `buckets`. */
@@ -55,10 +58,12 @@ export interface CheckLoginIdentifierRateLimitOptions {
 export function checkLoginIdentifierRateLimit({
   ip,
   identifier,
+  tenantKey,
+  tenantSlug,
   now = Date.now,
   store = buckets,
 }: CheckLoginIdentifierRateLimitOptions): LoginIdentifierRateLimitResult {
-  const key = bucketKey(ip, identifier);
+  const key = bucketKey(ip, identifier, tenantSlug ?? tenantKey);
   const ts = now();
   const existing = store.get(key);
 

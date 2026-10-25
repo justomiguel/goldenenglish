@@ -55,7 +55,7 @@ export async function saveStudentCareNotesAction(
       return { ok: false, message: dict.admin.users.detailErrForbidden };
     }
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
 
     // Care notes belong to a student's file; refuse anything else rather than
     // quietly writing columns nobody will ever read.

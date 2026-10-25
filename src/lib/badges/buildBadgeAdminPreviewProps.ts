@@ -1,7 +1,7 @@
 import "server-only";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandForRequest } from "@/lib/brand/server";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import type { Dictionary } from "@/types/i18n";
 
 /**
@@ -21,7 +21,7 @@ export async function buildBadgeAdminPreviewProps(): Promise<{
 }> {
   const [dictEn, dictEs] = await Promise.all([getDictionary("en"), getDictionary("es")]);
   const brand = await getBrandForRequest();
-  const url = getPublicSiteUrl();
+  const url = await getRequestPublicSiteUrl();
   const siteOrigin = url ? url.origin : "https://example.test";
   return {
     publicLabels: { en: dictEn.publicStudentBadge, es: dictEs.publicStudentBadge },

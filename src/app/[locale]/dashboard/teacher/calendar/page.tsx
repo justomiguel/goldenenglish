@@ -6,7 +6,7 @@ import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortal
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { buildPortalCalendarPagePayload } from "@/lib/calendar/buildPortalCalendarPagePayload";
 import { PortalCalendarEntry } from "@/components/organisms/PortalCalendarEntry";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -37,7 +37,7 @@ export default async function TeacherCalendarPage({ params }: PageProps) {
     locale,
     birthdayCopy: dict.dashboard.birthdays,
   });
-  const origin = getPublicSiteUrl()?.origin ?? "";
+  const origin = (await getRequestPublicSiteUrl())?.origin ?? "";
   const feedUrl = payload.feedToken && origin ? `${origin}/api/calendar/feed/${payload.feedToken}.ics` : null;
 
   return (

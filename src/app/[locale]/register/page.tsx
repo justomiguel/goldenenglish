@@ -10,14 +10,16 @@ import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
 import { resolveRegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import { RegisterSurfaceByTemplate } from "@/components/organisms/RegisterSurfaceByTemplate";
+import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
 import { TrialRescheduleForm } from "@/components/register/TrialRescheduleForm";
 import { loadRegistrationSectionPickerOptions } from "@/lib/register/loadRegistrationSectionPickerOptions";
 import { createClient } from "@/lib/supabase/server";
+import { loadRequestSessionEmail } from "@/lib/auth/loadRequestSessionEmail";
 import { notFound } from "next/navigation";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
 import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
-import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
+import { createRequestLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 
 export const metadata: Metadata = {
@@ -55,11 +57,12 @@ export default async function RegisterPage({ params, searchParams }: PageProps) 
     );
   }
 
-  const [baseDict, brand, snapshot, legalAgeMajority] = await Promise.all([
+  const [baseDict, brand, snapshot, legalAgeMajority, sessionEmail] = await Promise.all([
     getDictionary(locale),
     resolvePublicBrand(loc),
     loadActiveTheme(),
     getLegalAgeMajorityFromSystem(),
+    loadRequestSessionEmail(),
   ]);
 
   const templateKind = snapshot?.theme.templateKind ?? "classic";
@@ -79,19 +82,26 @@ export default async function RegisterPage({ params, searchParams }: PageProps) 
     });
     if (ok !== true) notFound();
     return (
-      <TrialRescheduleForm
+      <PublicExperienceShell
         locale={locale}
-        token={rescheduleToken}
-        dict={dict.register}
-        sectionOptions={sectionOptions}
-      />
+        dict={dict}
+        templateKind={templateKind}
+        sessionEmail={sessionEmail}
+      >
+        <TrialRescheduleForm
+          locale={locale}
+          token={rescheduleToken}
+          dict={dict.register}
+          sectionOptions={sectionOptions}
+        />
+      </PublicExperienceShell>
     );
   }
 
   const mediaMap: LandingMediaMap | undefined = snapshot
     ? buildLandingMediaMap(
         snapshot.media,
-        createLandingMediaPublicUrlBuilder(),
+        await createRequestLandingMediaPublicUrlBuilder(),
       )
     : undefined;
 
@@ -102,13 +112,21 @@ export default async function RegisterPage({ params, searchParams }: PageProps) 
     legalAgeMajority,
     sectionOptions,
     intent: resolved.kind === "ok" ? resolved.intent : resolved.to,
+    sessionEmail,
   };
 
   return (
-    <RegisterSurfaceByTemplate
+    <PublicExperienceShell
+      locale={locale}
+      dict={dict}
       templateKind={templateKind}
-      mediaMap={mediaMap}
-      {...shellProps}
-    />
+      sessionEmail={sessionEmail}
+    >
+      <RegisterSurfaceByTemplate
+        templateKind={templateKind}
+        mediaMap={mediaMap}
+        {...shellProps}
+      />
+    </PublicExperienceShell>
   );
 }

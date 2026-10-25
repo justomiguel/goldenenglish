@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { shopProductImagePublicUrl } from "@/lib/shop/shopMedia";
 import {
@@ -28,9 +29,10 @@ export async function loadPublicCatalog(): Promise<PublicCatalogCard[]> {
     logSupabaseClientError("loadPublicCatalog", error);
     return [];
   }
+  const { url: supabaseUrl } = await readRequestSupabasePublicEnv();
   return mapPublicCatalog((data ?? []).map(normalizeShopProductRow)).map((card) => ({
     ...card,
-    imageUrl: shopProductImagePublicUrl(card.imageUrl),
+    imageUrl: shopProductImagePublicUrl(card.imageUrl, supabaseUrl),
   }));
 }
 
@@ -50,7 +52,8 @@ export async function loadPublicProduct(id: string): Promise<PublicProductDetail
   if (!data) return null;
   const product = mapPublicProduct(normalizeShopProductRow(data));
   if (!product) return null;
-  return { ...product, imageUrl: shopProductImagePublicUrl(product.imageUrl) };
+  const { url: supabaseUrl } = await readRequestSupabasePublicEnv();
+  return { ...product, imageUrl: shopProductImagePublicUrl(product.imageUrl, supabaseUrl) };
 }
 
 const PRODUCT_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -79,7 +82,8 @@ export async function resolvePublicShopProduct(key: string): Promise<{
   if (data) {
     const mapped = mapPublicProduct(normalizeShopProductRow(data));
     if (!mapped) return null;
-    const product = { ...mapped, imageUrl: shopProductImagePublicUrl(mapped.imageUrl) };
+    const { url: supabaseUrl } = await readRequestSupabasePublicEnv();
+    const product = { ...mapped, imageUrl: shopProductImagePublicUrl(mapped.imageUrl, supabaseUrl) };
     return { product, canonicalSlug: product.slug };
   }
   const alias = await supabase

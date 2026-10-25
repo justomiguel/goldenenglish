@@ -51,7 +51,7 @@ export async function submitPublicContactForm(
   ];
 
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const result = await deliverPublicSiteContactToAdmins(admin, {
       locale,
       subjectFieldLabel: dict.publicContact.subject,

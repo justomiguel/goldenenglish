@@ -24,14 +24,10 @@ describe("[locale]/layout.tsx title metadata structure", () => {
   });
 
   it("does NOT have a title default — the structural-duplication fix", () => {
-    // Before the fix: title: { default: brand.name, template: `%s | ${brand.name}` }
-    // After the fix:  title: { template: `%s | ${brand.name}` }
-    //
-    // Find the title: { ... } block and confirm 'default:' is absent.
-    const titleBlockMatch = src.match(/title:\s*\{([^}]+)\}/);
-    expect(titleBlockMatch).not.toBeNull();
-    const titleBlock = titleBlockMatch![1];
-    expect(titleBlock).not.toMatch(/\bdefault:/);
+    // Institute pages use a template only. Pulsar keeps its own default above that block.
+    const instituteTitle = src.match(/title:\s*\{\s*template:\s*`%s \| \$\{brand\.name\}`\s*\}/);
+    expect(instituteTitle).not.toBeNull();
+    expect(instituteTitle![0]).not.toMatch(/\bdefault:/);
   });
 });
 

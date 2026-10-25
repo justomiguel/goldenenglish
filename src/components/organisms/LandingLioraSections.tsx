@@ -23,6 +23,7 @@ interface LandingLioraSectionsProps {
   mediaMap?: LandingMediaMap;
   publicCtaMode?: PublicCtaMode;
   inscriptionsEnabled?: boolean;
+  sessionEmail?: string | null;
 }
 
 const PILLARS = [
@@ -38,6 +39,7 @@ export function LandingLioraSections({
   mediaMap,
   publicCtaMode,
   inscriptionsEnabled,
+  sessionEmail = null,
 }: LandingLioraSectionsProps) {
   const t = (path: string) => marketingLandingCopy(dict, "liora", path);
   const img = (
@@ -178,7 +180,13 @@ export function LandingLioraSections({
         <LioraLandingContactPanel dict={dict} locale={locale} />
       </section>
 
-      <LandingLioraFooter dict={dict} brand={brand} locale={locale} t={t} />
+      <LandingLioraFooter
+        dict={dict}
+        brand={brand}
+        locale={locale}
+        t={t}
+        sessionEmail={sessionEmail}
+      />
     </>
   );
 }

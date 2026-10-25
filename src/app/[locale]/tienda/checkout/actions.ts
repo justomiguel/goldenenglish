@@ -10,7 +10,7 @@ import { shopCheckoutBuyerFailCode } from "@/lib/shop/shopCheckoutBuyerRole";
 import { startShopCheckout } from "@/lib/shop/startShopCheckout";
 import { validateShopCheckout } from "@/lib/shop/validateShopCheckout";
 import { notifyShopEmail } from "@/lib/shop/notifyShopEmail";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { buildShopOrderPath } from "@/lib/site/publicSharePaths";
 import type { ShopCheckoutFailCode, ShopCheckoutGateway, ShopCheckoutLine } from "@/lib/shop/types";
 
@@ -28,7 +28,7 @@ export async function startShopCheckoutAction(input: {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
 
   let buyerId: string;
   let buyerEmail: string;
@@ -56,7 +56,7 @@ export async function startShopCheckoutAction(input: {
 
   let rawKey: Buffer;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch {
     return { ok: false, code: "no_gateway" };
   }
@@ -107,7 +107,7 @@ async function sendGuestShopMail(input: {
   guest: { kind: "created"; tempPassword: string } | { kind: "existing_parent" } | null;
 }): Promise<void> {
   if (!input.guest) return;
-  const origin = getPublicSiteUrl()?.toString() ?? "";
+  const origin = (await getRequestPublicSiteUrl())?.toString() ?? "";
   const orderUrl = `${origin}${buildShopOrderPath(input.locale, "", input.payToken)}`;
   if (input.guest.kind === "created") {
     await notifyShopEmail({

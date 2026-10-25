@@ -1,6 +1,6 @@
 import { logServerWarn, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { notifyShopEmail } from "@/lib/shop/notifyShopEmail";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 import { buildShopOrderPath } from "@/lib/site/publicSharePaths";
 import type { Locale } from "@/types/i18n";
 
@@ -64,7 +64,7 @@ async function notifyPaid(admin: ShopMarkPaidAdmin, orderId: string): Promise<vo
   if (!to || !token) return;
   const locale: Locale = "es";
   const orderPath = buildShopOrderPath(locale, "", token);
-  const orderUrl = absoluteUrl(orderPath)?.toString() ?? orderPath;
+  const orderUrl = (await absoluteUrlForRequest(orderPath))?.toString() ?? orderPath;
   await notifyShopEmail({
     to,
     key: "shop.order_paid",

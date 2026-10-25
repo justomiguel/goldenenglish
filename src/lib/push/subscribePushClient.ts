@@ -31,8 +31,22 @@ function subscriptionToPayload(subscription: PushSubscription): SubscribePayload
   };
 }
 
+type GeTenantPushPublic = { vapidPublicKey?: string };
+
+function readBrowserVapidPublicKey(): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  const injected = (window as Window & { __GE_TENANT_PUBLIC__?: GeTenantPushPublic })
+    .__GE_TENANT_PUBLIC__;
+  return injected?.vapidPublicKey?.trim() || undefined;
+}
+
 export async function subscribeToPush(): Promise<PushSubscribeResult> {
-  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.trim();
+  const injectedBag =
+    typeof window !== "undefined" &&
+    (window as Window & { __GE_TENANT_PUBLIC__?: unknown }).__GE_TENANT_PUBLIC__;
+  const vapidPublicKey = injectedBag
+    ? readBrowserVapidPublicKey()
+    : (readBrowserVapidPublicKey() ?? process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.trim());
   if (!vapidPublicKey) return { ok: false, code: "vapid_unconfigured" };
   if (
     typeof window === "undefined" ||

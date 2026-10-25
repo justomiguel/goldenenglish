@@ -14,6 +14,13 @@ import {
 export function createAnonReadOnlyClient(): SupabaseClient | null {
   if (!hasSupabasePublicEnv()) return null;
   const { url, anonKey } = readSupabasePublicEnv();
+  return createAnonClientFromCredentials(url, anonKey);
+}
+
+export function createAnonClientFromCredentials(
+  url: string,
+  anonKey: string,
+): SupabaseClient {
   return createClient(url, anonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });

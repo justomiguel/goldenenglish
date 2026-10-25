@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import type { LanguageSwitcherLabels } from "@/components/molecules/LanguageSwitcher";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 interface PublicContentLanguageFooterProps {
   locale: string;
@@ -23,7 +24,7 @@ export function PublicContentLanguageFooter({
 
   return (
     <footer
-      className={`mx-auto mt-12 w-full max-w-6xl border-t ${borderClass} px-4 pb-8 pt-8`}
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} mx-auto mt-12 w-full max-w-6xl border-t ${borderClass} px-4 pb-8 pt-8`}
     >
       <div className="flex flex-col items-center gap-3">
         <LanguageSwitcher locale={locale} labels={labels} variant={variant} />

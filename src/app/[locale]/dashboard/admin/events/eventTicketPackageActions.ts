@@ -41,7 +41,7 @@ export async function addEventTicketPackageAction(raw: unknown): Promise<EventMu
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, name, price, capacity, benefits } = parsed.data;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const eventRow = await admin.from("events").select("price_by_flow").eq("id", eventId).maybeSingle();
   if (eventRow.data?.price_by_flow) return { ok: false, message: "price_mode_conflict" };
   const position = await nextPosition(admin, eventId);
@@ -79,7 +79,7 @@ export async function updateEventTicketPackageAction(raw: unknown): Promise<Even
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, packageId, name, price, capacity, benefits } = parsed.data;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const existing = await loadPackage(admin, packageId);
   if (!existing || existing.eventId !== eventId) {
     return { ok: false, message: "package_not_found" };
@@ -115,7 +115,7 @@ export async function moveEventTicketPackageAction(raw: unknown): Promise<EventM
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, packageId, direction } = parsed.data;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const existing = await loadPackage(admin, packageId);
   if (!existing) return { ok: false, message: "package_not_found" };
 
@@ -155,7 +155,7 @@ export async function archiveEventTicketPackageAction(
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const existing = await loadPackage(admin, packageId);
   if (!existing) return { ok: false, message: "package_not_found" };
 
@@ -186,7 +186,7 @@ export async function archiveEventTicketPackageAction(
   return { ok: true };
 }
 
-type AdminClient = ReturnType<typeof createAdminClient>;
+type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 
 async function loadPackage(
   admin: AdminClient,

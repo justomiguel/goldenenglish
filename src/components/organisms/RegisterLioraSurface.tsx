@@ -19,6 +19,7 @@ export interface RegisterLioraSurfaceProps {
   enrollmentLink?: SectionEnrollmentLinkContext;
   extrasPack?: "nago" | null;
   intent?: RegisterIntent;
+  sessionEmail?: string | null;
 }
 
 export function RegisterLioraSurface({
@@ -30,6 +31,7 @@ export function RegisterLioraSurface({
   enrollmentLink,
   extrasPack = null,
   intent = "reserve",
+  sessionEmail = null,
 }: RegisterLioraSurfaceProps) {
   const prefix = `/${locale}`;
   const t = (path: string) => marketingLandingCopy(dict, "liora", path);
@@ -42,6 +44,7 @@ export function RegisterLioraSurface({
         logoSrc={brand.logoPath.trim()}
         logoAlt={brand.logoAlt || brand.name}
         dict={dict}
+        sessionEmail={sessionEmail}
       />
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pt-10 md:gap-10 md:pt-14">
         <aside>

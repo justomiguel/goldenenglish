@@ -16,6 +16,7 @@ import {
 } from "@/lib/profile/formatProfileDisplayName";
 import type { AdminSectionPageData, AdminSectionRosterRow } from "./loadAdminSectionPageData.types";
 import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import {
   parseOptionalFeeAmount,
   resolveEffectiveEnrollmentFeeAmount,
@@ -189,6 +190,8 @@ export async function loadAdminSectionPageData(
   const minAttendancePercentOverride =
     rawMinAtt != null && Number.isFinite(rawMinAtt) ? Math.trunc(rawMinAtt) : null;
 
+  const { url: supabaseUrl } = await readRequestSupabasePublicEnv();
+
   return {
     section: {
       id: secRow.id,
@@ -218,7 +221,10 @@ export async function loadAdminSectionPageData(
       siteDefaultMinAttendancePercent,
       requiresEvaluationsToPass: secRow.requires_evaluations_to_pass === true,
       usesLearningRoute: secRow.uses_learning_route === true,
-      referenceImageUrl: sectionReferenceImagePublicUrl(secRow.reference_image_path),
+      referenceImageUrl: sectionReferenceImagePublicUrl(
+        secRow.reference_image_path,
+        supabaseUrl,
+      ),
     },
     cohort: {
       name: cohortName,

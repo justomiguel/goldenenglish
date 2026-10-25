@@ -5,7 +5,7 @@ import { buildPortalCalendarPagePayload } from "@/lib/calendar/buildPortalCalend
 import { loadFamilyHubModelForStudentIds } from "@/lib/parent/loadFamilyHubModelForStudentIds";
 import { loadRecentAttendanceForStudentIds } from "@/lib/parent/loadRecentAttendanceForStudentIds";
 import { ParentPortalCalendarEntry } from "@/components/parent/ParentPortalCalendarEntry";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { requirePortalPageActor } from "@/lib/dashboard/requirePortalPageActor";
 
 interface PageProps {
@@ -50,7 +50,7 @@ export default async function StudentCalendarPage({ params }: PageProps) {
     loadRecentAttendanceForStudentIds(supabase, [studentId]),
   ]);
 
-  const origin = getPublicSiteUrl()?.origin ?? "";
+  const origin = (await getRequestPublicSiteUrl())?.origin ?? "";
   const feedUrl = payload.feedToken && origin ? `${origin}/api/calendar/feed/${payload.feedToken}.ics` : null;
 
   return (

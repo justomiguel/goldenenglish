@@ -22,7 +22,7 @@ export interface CreateEventUploadSignedUrlResult {
 export async function createEventUploadSignedUrl(
   input: CreateEventUploadSignedUrlInput,
 ): Promise<CreateEventUploadSignedUrlResult | null> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const path = buildEventAttendeeUploadPath({
     eventId: input.eventId,
     attendeeId: input.attendeeId,

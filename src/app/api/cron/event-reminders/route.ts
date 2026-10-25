@@ -3,14 +3,16 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyCronRequest } from "@/lib/auth/verifyCronRequest";
 import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
 import { logServerException } from "@/lib/logging/serverActionLog";
+import { runCronAcrossTenants } from "@/lib/tenant/runCronAcrossTenants";
 
 export async function GET(request: Request) {
   if (!verifyCronRequest(request)) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
+  return runCronAcrossTenants(async () => {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const now = new Date();
     const until = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
@@ -36,4 +38,5 @@ export async function GET(request: Request) {
     logServerException("api/cron/event-reminders", error);
     return NextResponse.json({ ok: false }, { status: 500 });
   }
+  });
 }

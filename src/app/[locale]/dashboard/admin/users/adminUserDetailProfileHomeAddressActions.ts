@@ -52,7 +52,7 @@ export async function updateAdminUserDetailHomeAddressAction(
       return { ok: false, message: adminUserDetailDictError(dict, norm.code) };
     }
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const profilePatch = {
       home_address_text: norm.value.text,
       home_place_id: norm.value.placeId,

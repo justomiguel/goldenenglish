@@ -75,7 +75,7 @@ export async function markTrialSeatAttendanceAction(input: {
     });
     if (!access.ok) return access;
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     if (parsed.data.sectionId) {
       const { data: seat } = await admin
         .from("registration_trial_seats")
@@ -110,7 +110,7 @@ export async function resendTrialConvertInviteAction(input: {
 }): Promise<TrialSeatMarkActionState> {
   try {
     await assertAdmin();
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: lead, error } = await admin
       .from("registrations")
       .select(
@@ -134,7 +134,7 @@ export async function resendTrialConvertInviteAction(input: {
     await notifyTrialSeatInvite({
       locale,
       dict,
-      familyEmail: familyEmailForTrialLead({
+      familyEmail: await familyEmailForTrialLead({
         isMinor,
         studentEmail: lead.email as string | null,
         tutorEmail: lead.tutor_email as string | null,
@@ -159,7 +159,7 @@ export async function remintTrialConvertTokenAction(input: {
 }): Promise<TrialSeatMarkActionState> {
   try {
     await assertAdmin();
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: lead, error } = await admin
       .from("registrations")
       .select("id, status, intent")

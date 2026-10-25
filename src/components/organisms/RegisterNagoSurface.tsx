@@ -19,6 +19,7 @@ export interface RegisterNagoSurfaceProps {
   enrollmentLink?: SectionEnrollmentLinkContext;
   extrasPack?: "nago" | null;
   intent?: RegisterIntent;
+  sessionEmail?: string | null;
 }
 
 export function RegisterNagoSurface({
@@ -30,6 +31,7 @@ export function RegisterNagoSurface({
   enrollmentLink,
   extrasPack = null,
   intent = "reserve",
+  sessionEmail = null,
 }: RegisterNagoSurfaceProps) {
   const prefix = `/${locale}`;
   const nago = dict.landing.nago;
@@ -42,6 +44,7 @@ export function RegisterNagoSurface({
         logoSrc={logoSrc}
         logoAlt={brand.logoAlt || brand.name}
         dict={dict}
+        sessionEmail={sessionEmail}
       />
       <div
         className="pointer-events-none absolute inset-x-0 top-[76px] -z-10 h-[min(46vh,420px)] bg-[radial-gradient(ellipse_90%_70%_at_50%_0%,color-mix(in_srgb,var(--nago-gold)_16%,transparent)_0%,transparent_58%)]"

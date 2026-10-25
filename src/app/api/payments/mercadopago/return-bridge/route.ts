@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { logServerException } from "@/lib/logging/serverActionLog";
 
 /**
@@ -15,7 +15,7 @@ export async function GET(req: Request): Promise<Response> {
     const externalReference = url.searchParams.get("external_reference") ?? "";
     const paymentId = url.searchParams.get("payment_id") ?? url.searchParams.get("collection_id") ?? "";
 
-    const base = getPublicSiteUrl();
+    const base = await getRequestPublicSiteUrl();
     if (!base) {
       return new Response("misconfigured", { status: 502 });
     }

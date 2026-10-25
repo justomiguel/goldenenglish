@@ -1,49 +1,33 @@
 ---
-description: Onboarding tenants locally/on Vercel with branded deployments (prefixed env, tooling scripts, `site_theme`).
+description: Onboarding tenants and per-tenant settings via TENANTS_CONFIG_JSON (single .env.local + single Vercel project).
 globs:
+  - src/lib/tenant/**
   - scripts/run-dev-with-target.mjs
   - scripts/pull-vercel-env.mjs
-  - scripts/vercel-targets.json
+  - scripts/apply-migration-all-tenants*.mjs
   - package.json
   - .env.example
   - .gitignore
 alwaysApply: false
 ---
 
-# Multi-tenant workflow (local + Vercel — goldenenglish)
+# Multi-tenant configuration & onboarding (`TENANTS_CONFIG_JSON`)
 
-## Mandatory briefing inputs
+## Rule: every per-institute value lives in `TENANTS_CONFIG_JSON`
 
-**Operators/agents:** for “provision new tenant”, complete **`docs/runbooks/add-new-tenant.md`** tables (slug, Vercel project IDs, `SiteThemeKind`, env scaffolding, …) before guessing implementation completeness.
+Do **not** create `.env.local.<slug>` files or read new `process.env.<VAR>` keys directly in components, routes, or domain modules for settings that differ by institute. `scripts/precommit-verify.mjs` (`checkTenantEnvBoundaries`) blocks direct `process.env` reads outside the approved tenant adapters.
 
-## When to read this rule
+When adding a new setting that can vary per institute:
 
-Adding another **deployment target** (distinct Vercel project/Supabase/brand) leveraging the repo’s single-codebase/multi-target playbook.
+1. Add the field to `TenantConfig` and `parseTenantRow` in `src/lib/tenant/tenantRegistry.ts`.
+2. If the browser needs the value, expose it on `TenantPublicEnv` (`tenantPublicEnv()`) so `app/layout.tsx` injects it into `window.__GE_TENANT_PUBLIC__`. Never put secrets, private keys, or API tokens in `TenantPublicEnv`.
+3. Read the value through `resolveRequestTenant()` / `getAlsTenant()` inside the domain adapter (with an optional fallback to `process.env` for single-env E2E/test runs).
+4. Add the field to `.env.example` and `.env.local` inside the `TENANTS_CONFIG_JSON` array.
 
-## Checklist — operations (without new DB-backed brand entries)
+## Checklist — onboarding a new institute
 
-1. **`public/images/<slug>/`** — landing asset folders (`inicio/`, `historia/`, etc.); add `.gitkeep` when empty scaffolding must exist in git.
-2. **`.env.local.<slug>`** tracked via `.gitignore` alongside `.env.local.golden` conventions.
-3. **`scripts/run-dev-with-target.mjs`** — extend `TARGETS`, CLI aliases `--<slug>` / `--target=<slug>`, `GE_DEV_TARGET`, optional prompts.
-4. **`SITE_BRAND_THEME_SLUG`** — when pinning brand themes via slug serverside, whitelist inside `BRAND_THEME_TARGETS` in that script plus `.env.example` notes.
-5. **`scripts/pull-vercel-env.mjs`** — extend `OUT_FILES.<slug>` → `.env.local.<slug>`.
-6. **`scripts/vercel-targets.json`** — `orgId`, `projectId`, `projectName`; optional `envPullEnvironment`. Empty placeholders block `npm run deploy:vercel` until curated (or defer to **`scripts/vercel-targets.local.json`**, ignored).
-7. **`package.json`** — optional `dev:<slug>`, `pull:env:<slug>` ergonomics adopted by contributors.
-
-## Checklist — brand-specific templates (`SiteThemeKind`)
-
-When exposing bespoke CMS/marketing scaffolding (Mozarthitos / EspacioZenit pattern):
-
-1. **Migration:** `ALTER TYPE public.site_theme_kind ADD VALUE '<slug>'` (`093_*`-style idempotency).
-2. **Seed:** `site_themes` rows aligning `slug`/`template_kind` (`094_*`, `100_*`, …).
-3. **TypeScript catalogs:** [`src/types/theming.ts`](src/types/theming.ts), `SITE_THEME_KINDS`, CMS catalogs (`landing*Catalog.ts`), [`resolveLandingMedia.ts`](src/lib/cms/resolveLandingMedia.ts), `isSiteThemeKind` tests.
-4. **Landing experience:** parameterized/dedicated CSS & components referencing [`marketingLandingKinds`](src/lib/theme/marketingLandingKinds.ts) chrome when full-bleed treatments apply.
-5. **Dictionaries:** `landing.<brandRoot>.*` + admin selectors `kindPicker.options.<slug>`.
-
-## References
-
-- Runbook prerequisites: [`docs/runbooks/add-new-tenant.md`](../../docs/runbooks/add-new-tenant.md).
-- Example tenants: `golden`, `mozarthitos`, `espaciozenit`.
-- Deploy playbook: [`scripts/README.md`](../scripts/README.md#deploy-a-vercel-multi-tenant).
-- Promote-all shortcut: `npm run deploy:vercel:all:prod` ≡ `node scripts/deploy-vercel.mjs --all --prod`.
-- Sensitive Vercel env documentation: `.env.example` plus official docs.
+1. Complete the briefing in `docs/runbooks/add-new-tenant.md`.
+2. Add the institute object to `TENANTS_CONFIG_JSON` in `.env.local` (and in the single Vercel project): `slug`, `hosts`, `supabaseUrl`, `supabaseAnonKey`, `supabaseServiceRoleKey`, `databaseUrl`, `brandThemeSlug`, `mailTenant`, `resendFromEmail`, `resendApiKey`, `publicUrl`, `googleMapsApiKey`.
+3. Attach the institute's production domains to the Vercel project.
+4. If the institute uses a bespoke landing/register template (`SiteThemeKind`), follow rule `28-tenant-register-surface.mdc` and add the enum migration + `site_themes` seed.
+5. Run `npm run dev -- --target=<slug>` locally; `scripts/run-dev-with-target.mjs` reads `TENANTS_CONFIG_JSON` from `.env.local` and sets `DEV_TENANT_SLUG=<slug>` without overwriting `.env.local`.

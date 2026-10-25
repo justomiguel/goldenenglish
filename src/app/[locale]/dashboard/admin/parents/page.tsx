@@ -35,7 +35,7 @@ export default async function AdminParentsPage({ params, searchParams }: PagePro
   } = await supabase.auth.getUser();
   const currentUserId = user?.id ?? "";
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const [result, roleCounts, peopleStats] = await Promise.all([
     loadAdminLockedRoleDirectory(admin, dict.common.emptyValue, paginationParams),
     loadAdminUsersListRoleCounts(admin),

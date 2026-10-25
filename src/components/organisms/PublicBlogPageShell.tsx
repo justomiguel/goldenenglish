@@ -8,7 +8,7 @@ import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
 import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
-import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
+import { createRequestLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import { PublicBlogScreenClassic } from "@/components/organisms/PublicBlogScreenClassic";
 import { PublicBlogScreenEspacioZenit } from "@/components/organisms/PublicBlogScreenEspacioZenit";
 import { PublicBlogScreenMozarthitos } from "@/components/organisms/PublicBlogScreenMozarthitos";
@@ -16,6 +16,8 @@ import { PublicBlogScreenNago } from "@/components/organisms/PublicBlogScreenNag
 import { PublicBlogScreenMiMundo } from "@/components/organisms/PublicBlogScreenMiMundo";
 import { PublicBlogScreenLiora } from "@/components/organisms/PublicBlogScreenLiora";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
+import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
+import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 
 interface PublicBlogPageShellProps {
@@ -31,11 +33,12 @@ export async function PublicBlogPageShell({ locale, children }: PublicBlogPageSh
   } = await supabase.auth.getUser();
   const sessionEmail = user?.email ?? null;
 
-  const [{ brand, needsInitialSiteSetup, dict: baseDict }, snapshot, blogEnabled] =
+  const [{ brand, needsInitialSiteSetup, dict: baseDict }, snapshot, blogEnabled, merchEnabled] =
     await Promise.all([
       resolvePublicBrandWithSetup(loc),
       loadActiveTheme(),
       loadBlogEnabled(),
+      loadMerchEnabled(),
     ]);
 
   const dict = needsInitialSiteSetup
@@ -44,7 +47,7 @@ export async function PublicBlogPageShell({ locale, children }: PublicBlogPageSh
 
   const templateKind = snapshot?.theme.templateKind ?? "classic";
   const mediaMap = snapshot
-    ? buildLandingMediaMap(snapshot.media, createLandingMediaPublicUrlBuilder())
+    ? buildLandingMediaMap(snapshot.media, await createRequestLandingMediaPublicUrlBuilder())
     : undefined;
 
   const blogLabel = dict.blog.list.title;
@@ -60,26 +63,40 @@ export async function PublicBlogPageShell({ locale, children }: PublicBlogPageSh
     brand,
     sessionEmail,
     blogEnabled,
+    merchEnabled,
     blogLabel,
     eventsLabel,
     children,
   };
 
-  if (templateKind === "espaciozenit") {
-    return <PublicBlogScreenEspacioZenit {...shellProps} mediaMap={mediaMap} />;
-  }
-  if (templateKind === "mozarthitos") {
-    return <PublicBlogScreenMozarthitos {...shellProps} mediaMap={mediaMap} />;
-  }
-  if (templateKind === "nago") {
-    return <PublicBlogScreenNago {...shellProps} />;
-  }
-  if (templateKind === "mimundo") {
-    return <PublicBlogScreenMiMundo {...shellProps} mediaMap={mediaMap} />;
-  }
-  if (templateKind === "liora") {
-    return <PublicBlogScreenLiora {...shellProps} />;
-  }
+  const screen = (() => {
 
-  return <PublicBlogScreenClassic {...shellProps} />;
+    if (templateKind === "espaciozenit") {
+      return <PublicBlogScreenEspacioZenit {...shellProps} mediaMap={mediaMap} />;
+    }
+    if (templateKind === "mozarthitos") {
+      return <PublicBlogScreenMozarthitos {...shellProps} mediaMap={mediaMap} />;
+    }
+    if (templateKind === "nago") {
+      return <PublicBlogScreenNago {...shellProps} />;
+    }
+    if (templateKind === "mimundo") {
+      return <PublicBlogScreenMiMundo {...shellProps} mediaMap={mediaMap} />;
+    }
+    if (templateKind === "liora") {
+      return <PublicBlogScreenLiora {...shellProps} />;
+    }
+    return <PublicBlogScreenClassic {...shellProps} />;
+  })();
+
+  return (
+    <PublicExperienceShell
+      locale={locale}
+      dict={dict}
+      templateKind={templateKind}
+      sessionEmail={sessionEmail}
+    >
+      {screen}
+    </PublicExperienceShell>
+  );
 }

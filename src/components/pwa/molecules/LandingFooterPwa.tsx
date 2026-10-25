@@ -9,6 +9,7 @@ import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 interface LandingFooterPwaProps {
   dict: Dictionary;
@@ -48,7 +49,7 @@ export function LandingFooterPwa({
 
   return (
     <footer
-      className="relative border-t border-[var(--color-primary-dark)] bg-[var(--color-primary-dark)] px-4 pt-10 text-[var(--color-primary-foreground)]"
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} relative border-t border-[var(--color-primary-dark)] bg-[var(--color-primary-dark)] px-4 pt-10 text-[var(--color-primary-foreground)]`}
       style={{
         paddingBottom: "max(2.25rem, env(safe-area-inset-bottom, 0px))",
       }}
@@ -79,11 +80,9 @@ export function LandingFooterPwa({
         {/* Primary CTA — most prominent action */}
         <div className="mt-6">
           {sessionEmail ? (
-            <SignOutButton
-              locale={locale}
-              label={dict.nav.logout}
-              className={primaryBtnClass}
-            />
+            <Link href={`/${locale}/dashboard`} className={primaryBtnClass}>
+              {dict.nav.myPortal}
+            </Link>
           ) : (
             <Link href={`/${locale}/login`} className={primaryBtnClass}>
               <LogIn className="h-4 w-4" aria-hidden strokeWidth={stroke} />
@@ -94,6 +93,13 @@ export function LandingFooterPwa({
 
         {/* Secondary actions — contact + social, grouped on its own surface */}
         <div className="mt-3 flex flex-col gap-2 rounded-[var(--layout-border-radius)] border border-white/15 bg-white/[0.04] p-2.5">
+          {sessionEmail ? (
+            <SignOutButton
+              locale={locale}
+              label={dict.nav.logout}
+              className={secondaryBtnClass}
+            />
+          ) : null}
           <Link href={`/${locale}#contacto`} className={secondaryBtnClass}>
             <MessageSquare
               className="h-4 w-4 opacity-95"

@@ -88,7 +88,7 @@ export async function loadAdminUserDetail(
   }
 
   const userId = idParsed.data;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: authData, error: authErr } = await admin.auth.admin.getUserById(userId);
   if (authErr) {
     logSupabaseClientError("loadAdminUserDetail:authGetUserById", authErr, { userId });

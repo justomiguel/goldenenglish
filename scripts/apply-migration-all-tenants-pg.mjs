@@ -2,13 +2,10 @@
 /**
  * Applies a single SQL migration file to every tenant database using `pg` (no `psql` binary).
  *
- * Same env conventions as `apply-migration-all-tenants.mjs`:
- *   `.env.local.golden`, `.env.local.mozarthitos`, … with `DATABASE_URL` or `DIRECT_URL`.
+ * Reads the tenant list and each `databaseUrl` from `TENANTS_CONFIG_JSON` in `.env.local`.
  *
  * Usage:
- *   node scripts/apply-migration-all-tenants-pg.mjs [path/to/migration.sql]
- *   node scripts/apply-migration-all-tenants-pg.mjs --skip-dns-check
- *   npm run sql:apply-migration:all-tenants:pg -- supabase/migrations/126_....sql
+ *   node scripts/apply-migration-all-tenants-pg.mjs <path/to/migration.sql> [--skip-dns-check]
  */
 
 import { lookup } from "node:dns/promises";
@@ -24,14 +21,36 @@ const { Client } = pg;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
+const ENV_LOCAL = path.join(ROOT, ".env.local");
 
-const TENANTS = [
-  { id: "golden", label: "Golden English", file: path.join(ROOT, ".env.local.golden") },
-  { id: "mozarthitos", label: "mozarthitos", file: path.join(ROOT, ".env.local.mozarthitos") },
-  { id: "espaciozenit", label: "Espacio Zenit", file: path.join(ROOT, ".env.local.espaciozenit") },
-  { id: "nago", label: "Capoeira Nago", file: path.join(ROOT, ".env.local.nago") },
-  { id: "liora", label: "Liora Studio", file: path.join(ROOT, ".env.local.liora") },
-];
+function loadTenantsFromEnvLocal() {
+  if (!fs.existsSync(ENV_LOCAL)) {
+    console.error("Missing .env.local in project root.");
+    process.exit(1);
+  }
+  const env = readEnvFile(ENV_LOCAL);
+  const raw = (env.TENANTS_CONFIG_JSON || process.env.TENANTS_CONFIG_JSON || "").trim();
+  if (!raw) {
+    console.error("Missing TENANTS_CONFIG_JSON in .env.local.");
+    process.exit(1);
+  }
+  let list;
+  try {
+    list = JSON.parse(raw);
+  } catch {
+    console.error("Invalid TENANTS_CONFIG_JSON in .env.local.");
+    process.exit(1);
+  }
+  if (!Array.isArray(list) || list.length === 0) {
+    console.error("TENANTS_CONFIG_JSON must be a non-empty array.");
+    process.exit(1);
+  }
+  return list.map((row) => ({
+    id: String(row?.slug ?? "").trim(),
+    label: String(row?.slug ?? "").trim(),
+    databaseUrl: String(row?.databaseUrl ?? "").trim(),
+  }));
+}
 
 function postgresUriHostname(uri) {
   try {
@@ -42,20 +61,6 @@ function postgresUriHostname(uri) {
   }
 }
 
-function printDnsHints(hostname) {
-  console.error("");
-  console.error("  DNS resolution failed for the database host. Typical fixes:");
-  console.error(
-    "    • Use Session pooler URI from Supabase Connect (*.pooler.supabase.com)",
-  );
-  console.error(`    • nslookup ${hostname || "<host>"}`);
-  console.error("");
-  console.error(
-    "  Fallback: paste the .sql into Supabase → SQL Editor, or retry with --skip-dns-check.",
-  );
-  console.error("");
-}
-
 async function assertHostResolvable(hostname) {
   if (!hostname) return true;
   try {
@@ -63,12 +68,7 @@ async function assertHostResolvable(hostname) {
     return true;
   } catch (e) {
     const code = /** @type {NodeJS.ErrnoException} */ (e)?.code;
-    if (code === "ENOTFOUND" || code === "ESERVFAIL") {
-      console.error(`  DNS: cannot resolve "${hostname}" (${code})`);
-      printDnsHints(hostname);
-      return false;
-    }
-    console.error(`  DNS: unexpected error for "${hostname}":`, e?.message || e);
+    console.error(`  DNS: cannot resolve "${hostname}" (${code || e?.message || e})`);
     return false;
   }
 }
@@ -86,10 +86,6 @@ function parseCli() {
   return { skipDnsCheck, migrationRel: rel };
 }
 
-/**
- * @param {string} dbUrl
- * @param {string} sqlText
- */
 async function runSql(dbUrl, sqlText) {
   const client = new Client({ connectionString: dbUrl });
   await client.connect();
@@ -110,40 +106,29 @@ async function main() {
   }
 
   const sqlText = fs.readFileSync(migrationPath, "utf8");
+  const tenants = loadTenantsFromEnvLocal();
 
   let anyFailed = false;
   let anyRan = false;
-  let blockedByDns = 0;
-  let missingFileOrUrl = 0;
 
-  for (const t of TENANTS) {
+  for (const t of tenants) {
     console.log("");
     console.log(`── ${t.label} (${t.id}) ──`);
-    if (!fs.existsSync(t.file)) {
-      console.warn(`  SKIP: missing env file ${path.basename(t.file)}`);
-      missingFileOrUrl += 1;
-      continue;
-    }
-
-    const env = readEnvFile(t.file);
-    const dbUrl = (env.DATABASE_URL || env.DIRECT_URL || "").trim();
-    if (!dbUrl) {
-      console.error(`  ERROR: no DATABASE_URL or DIRECT_URL in ${path.basename(t.file)}`);
+    if (!t.databaseUrl) {
+      console.error(`  ERROR: missing databaseUrl for "${t.id}" in TENANTS_CONFIG_JSON`);
       anyFailed = true;
-      missingFileOrUrl += 1;
       continue;
     }
 
-    const host = postgresUriHostname(dbUrl);
+    const host = postgresUriHostname(t.databaseUrl);
     if (!skipDnsCheck && !(await assertHostResolvable(host))) {
       anyFailed = true;
-      blockedByDns += 1;
       continue;
     }
 
     anyRan = true;
     try {
-      await runSql(dbUrl, sqlText);
+      await runSql(t.databaseUrl, sqlText);
       console.log("  OK");
     } catch (e) {
       console.error(`  FAILED: ${e?.message || e}`);
@@ -151,17 +136,7 @@ async function main() {
     }
   }
 
-  if (!anyRan) {
-    console.error("\nNothing was applied.");
-    if (blockedByDns > 0) {
-      console.error(`  ${blockedByDns} tenant(s): DNS blocked (see hints above).`);
-    }
-    if (missingFileOrUrl > 0) {
-      console.error("  Some tenants: missing .env or DATABASE_URL/DIRECT_URL.");
-    }
-    process.exit(1);
-  }
-  if (anyFailed) process.exit(1);
+  if (!anyRan || anyFailed) process.exit(1);
 }
 
 main().catch((err) => {

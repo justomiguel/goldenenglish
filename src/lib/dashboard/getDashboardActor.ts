@@ -11,9 +11,10 @@ import {
   verifyViewAsCookie,
 } from "@/lib/dashboard/viewAsCookie";
 import type { DashboardActor } from "@/lib/dashboard/viewAsTypes";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 async function loadSubject(userId: string): Promise<ViewAsProfileRow | null> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data } = await admin
     .from("profiles")
     .select("id, role, first_name, last_name")
@@ -29,22 +30,27 @@ export const getDashboardActor = cache(async (): Promise<DashboardActor | null> 
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const isAdmin = await resolveIsAdminSession(supabase, user.id);
-  const jar = await cookies();
+  const [isAdmin, jar, tenant] = await Promise.all([
+    resolveIsAdminSession(supabase, user.id),
+    cookies(),
+    resolveRequestTenant(),
+  ]);
   const cookieValue = jar.get(VIEW_AS_COOKIE_NAME)?.value ?? null;
-  const payload = verifyViewAsCookie(cookieValue);
+  const payload = verifyViewAsCookie(cookieValue, tenant?.slug);
   const subject = payload ? await loadSubject(payload.userId) : null;
   const state = resolveDashboardActorState({
     sessionUserId: user.id,
     isAdmin,
     cookieValue,
     subject,
+    tenantSlug: tenant?.slug,
   });
   return { sessionUserId: user.id, isAdmin, ...state };
 });
 
 export async function writeViewAsCookie(userId: string): Promise<boolean> {
-  const token = signViewAsCookie(userId);
+  const tenant = await resolveRequestTenant();
+  const token = signViewAsCookie(userId, undefined, tenant?.slug);
   if (!token) return false;
   const jar = await cookies();
   jar.set(VIEW_AS_COOKIE_NAME, token, VIEW_AS_COOKIE_OPTIONS);

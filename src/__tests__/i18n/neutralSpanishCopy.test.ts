@@ -13,7 +13,7 @@ const SAFE = new Set([
   "está", "esté", "estás", "estés", "qué", "así", "sí", "aquí", "ahí", "allá",
   "quizá", "bebé", "canadá", "mié", "hé", "llegué", "sé", "más", "además", "demás",
   "atrás", "después", "través", "inglés", "francés", "portugués", "interés", "bebés",
-  "quizás",
+  "quizás", "caché",
 ]);
 
 /**

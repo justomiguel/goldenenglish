@@ -7,13 +7,16 @@ const BUCKET = "badge-images" as const;
  * Returns `null` when the input is invalid or the env is missing.
  * Avoids a runtime Supabase call (URL is deterministic for a public bucket).
  */
-export function badgeImagePublicUrl(path: string | null | undefined): string | null {
+export function badgeImagePublicUrl(
+  path: string | null | undefined,
+  supabaseProjectUrl?: string | null,
+): string | null {
   if (typeof path !== "string") return null;
   const trimmed = path.trim();
   if (trimmed.length === 0) return null;
   let envUrl: string;
   try {
-    envUrl = readSupabasePublicEnv().url;
+    envUrl = (supabaseProjectUrl ?? readSupabasePublicEnv().url).trim();
   } catch {
     return null;
   }

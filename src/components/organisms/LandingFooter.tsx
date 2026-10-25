@@ -6,6 +6,7 @@ import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 interface LandingFooterProps {
   dict: Dictionary;
@@ -36,7 +37,7 @@ export function LandingFooter({
         dict.landing.footerCta
       : dict.landing.footerCta;
   return (
-    <footer className="relative border-t border-[var(--color-primary-dark)] bg-[var(--color-primary-dark)] py-14 text-[var(--color-primary-foreground)]">
+    <footer className={`${PUBLIC_MARKETING_CHROME_CLASS} relative border-t border-[var(--color-primary-dark)] bg-[var(--color-primary-dark)] py-14 text-[var(--color-primary-foreground)]`}>
       <div
         className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--color-secondary)] via-[var(--color-accent)] to-[var(--color-primary)]"
         aria-hidden="true"
@@ -51,11 +52,16 @@ export function LandingFooter({
         ) : null}
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           {sessionEmail ? (
-            <SignOutButton
-              locale={locale}
-              label={dict.nav.logout}
-              className={linkClass}
-            />
+            <>
+              <Link href={`/${locale}/dashboard`} className={linkClass}>
+                {dict.nav.myPortal}
+              </Link>
+              <SignOutButton
+                locale={locale}
+                label={dict.nav.logout}
+                className={linkClass}
+              />
+            </>
           ) : (
             <Link href={`/${locale}/login`} className={linkClass}>
               <LogIn

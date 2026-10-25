@@ -5,6 +5,10 @@ vi.mock("@/lib/brand/server", () => ({
   getBrandForRequest: vi.fn(() => Promise.resolve(mockBrandPublic)),
 }));
 
+vi.mock("@/lib/theme/loadActiveTheme", () => ({
+  loadActiveTheme: vi.fn(() => Promise.resolve(null)),
+}));
+
 vi.mock("@/lib/theme/loadEffectiveProperties", () => ({
   loadEffectiveProperties: vi.fn(() =>
     Promise.resolve({
@@ -25,6 +29,8 @@ vi.mock("next/headers", () => ({
   ),
 }));
 
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
+import { NAGO_BUNDLED_LOGO } from "@/lib/landing/nagoLogo";
 import manifest from "@/app/manifest";
 
 describe("app/manifest", () => {
@@ -37,7 +43,20 @@ describe("app/manifest", () => {
     expect(m.background_color).toBe("#FAFAFA");
     expect(m.lang).toBe("en");
     expect(m.icons?.some((i) => i.purpose === "maskable")).toBe(true);
-    expect(m.shortcuts?.length).toBeGreaterThan(0);
+    expect(m.orientation).toBe("any");
+    expect(m.shortcuts?.some((item) => item.url === "/en/dashboard/student")).toBe(true);
+    expect(m.shortcuts?.some((item) => item.url === "/en/dashboard/parent/payments")).toBe(true);
     expect(m.icons?.some((i) => i.src.includes("android-chrome"))).toBe(true);
+  });
+
+  it("uses the Nagô home mark for the installed icon", async () => {
+    vi.mocked(loadActiveTheme).mockResolvedValueOnce({
+      theme: { templateKind: "nago" },
+    } as never);
+    const m = await manifest();
+    expect(m.icons?.every((icon) => icon.src === NAGO_BUNDLED_LOGO)).toBe(true);
+    expect(m.icons?.some((icon) => icon.purpose === "maskable")).toBe(false);
+    expect(m.background_color).toBe("#070707");
+    expect(m.theme_color).toBe("#070707");
   });
 });

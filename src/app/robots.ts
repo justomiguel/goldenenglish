@@ -1,8 +1,10 @@
 import type { MetadataRoute } from "next";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 
-export default function robots(): MetadataRoute.Robots {
-  const base = getPublicSiteUrl();
+export const dynamic = "force-dynamic";
+
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const base = await getRequestPublicSiteUrl();
   const sitemap = base ? new URL("/sitemap.xml", base).toString() : undefined;
 
   return {

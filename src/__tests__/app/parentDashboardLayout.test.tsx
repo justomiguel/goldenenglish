@@ -4,10 +4,11 @@ import type { DashboardActor } from "@/lib/dashboard/viewAsTypes";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
-const { redirectMock, getDashboardActorMock, loadMerchEnabled, state } = vi.hoisted(() => ({
+const { redirectMock, getDashboardActorMock, loadMerchEnabled, loadActiveThemeMock, state } = vi.hoisted(() => ({
   redirectMock: vi.fn(),
   getDashboardActorMock: vi.fn(),
   loadMerchEnabled: vi.fn(),
+  loadActiveThemeMock: vi.fn(),
   state: { userId: "parent-1", role: "parent" },
 }));
 
@@ -39,6 +40,14 @@ vi.mock("@/lib/dashboard/getDashboardActor", () => ({
   syncViewAsCookie: vi.fn(async () => undefined),
 }));
 
+vi.mock("@/lib/theme/loadActiveTheme", () => ({
+  loadActiveTheme: () => loadActiveThemeMock(),
+}));
+
+vi.mock("@/components/organisms/PublicTenantChrome", () => ({
+  PublicTenantChrome: (props: { children: ReactElement }) => props.children,
+}));
+
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({
     auth: {
@@ -55,6 +64,14 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 import ParentDashboardLayout from "@/app/[locale]/dashboard/parent/layout";
+
+function portalProps(element: ReactElement) {
+  const root = element as ReactElement<{
+    templateKind: string;
+    children: ReactElement<{ viewAs: { id: string } | null }>;
+  }>;
+  return { templateKind: root.props.templateKind, portal: root.props.children.props };
+}
 
 function actor(over: Partial<DashboardActor> = {}): DashboardActor {
   return {
@@ -74,6 +91,8 @@ describe("ParentDashboardLayout", () => {
     getDashboardActorMock.mockReset();
     loadMerchEnabled.mockReset();
     loadMerchEnabled.mockResolvedValue(false);
+    loadActiveThemeMock.mockReset();
+    loadActiveThemeMock.mockResolvedValue({ theme: { templateKind: "classic" } });
     state.userId = "parent-1";
     state.role = "parent";
     getDashboardActorMock.mockResolvedValue(actor());
@@ -94,10 +113,10 @@ describe("ParentDashboardLayout", () => {
     const element = (await ParentDashboardLayout({
       children: <p>Parent content</p>,
       params: Promise.resolve({ locale: "en" }),
-    })) as ReactElement<{ viewAs: { id: string } | null }>;
+    })) as ReactElement;
 
     expect(redirectMock).not.toHaveBeenCalled();
-    expect(element.props.viewAs).toEqual({
+    expect(portalProps(element).portal.viewAs).toEqual({
       id: "par-1",
       displayName: "Lucía Gómez",
       role: "parent",

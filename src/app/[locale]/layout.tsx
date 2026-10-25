@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import {
   locales,
   defaultLocale,
+  getDictionary,
   type AppLocale,
 } from "@/lib/i18n/dictionaries";
 import { notFound } from "next/navigation";
@@ -13,6 +14,8 @@ import { AnalyticsRoot } from "@/components/analytics/AnalyticsRoot";
 import { PwaInstallPromptHost } from "@/components/molecules/PwaInstallPromptHost";
 import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
+import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -30,6 +33,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const loc = locale as AppLocale;
+  if (await isPulsarPlatformRequest()) {
+    const dict = await getDictionary(loc);
+    return {
+      title: {
+        default: dict.pulsar.meta.brandName,
+        template: `%s | ${dict.pulsar.meta.brandName}`,
+      },
+      description: dict.pulsar.meta.description,
+    };
+  }
   const { brand, needsInitialSiteSetup, dict } =
     await resolvePublicBrandWithSetup(loc);
   const taglinePart = needsInitialSiteSetup
@@ -101,13 +114,17 @@ export default async function LocaleLayout({
   }
 
   const loc = locale as AppLocale;
+  if (await isPulsarPlatformRequest()) {
+    return <div className="min-h-screen">{children}</div>;
+  }
   const { brand, needsInitialSiteSetup, dict } =
     await resolvePublicBrandWithSetup(loc);
+  const siteOrigin = (await getRequestPublicSiteUrl())?.origin ?? null;
 
   return (
     <div className="min-h-screen">
       {needsInitialSiteSetup ? null : (
-        <JsonLdOrganization locale={locale} brand={brand} />
+        <JsonLdOrganization locale={locale} brand={brand} siteOrigin={siteOrigin} />
       )}
       <AnalyticsRoot>{children}</AnalyticsRoot>
       {needsInitialSiteSetup ? null : (

@@ -56,7 +56,7 @@ async function loadEventEmailRows(
   locale: string,
 ): Promise<EventEmailCopyRow[]> {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data, error } = await admin
       .from("event_email_templates")
       .select("template_key, locale, flow_id, subject, body_html")

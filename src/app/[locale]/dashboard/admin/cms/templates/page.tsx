@@ -9,7 +9,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadAdminSiteThemes } from "@/lib/cms/loadAdminSiteThemes";
 import { SiteThemeTemplatesShell } from "@/components/dashboard/admin/cms/SiteThemeTemplatesShell";
 import { loadProperties } from "@/lib/theme/themeParser";
-import { brandPublicFromProperties } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import {
   extractThemePreviewTokens,
   type ThemePreviewTokens,
@@ -40,13 +40,15 @@ export default async function AdminCmsTemplatesPage({ params }: PageProps) {
     throw err;
   }
 
-  const dict = await getDictionary(locale);
-  const { rows, total, truncated } = await loadAdminSiteThemes(supabase, {
-    includeArchived: true,
-  });
+  const [dict, { rows, total, truncated }, brand] = await Promise.all([
+    getDictionary(locale),
+    loadAdminSiteThemes(supabase, {
+      includeArchived: true,
+    }),
+    getBrandForRequest(),
+  ]);
 
   const defaults = loadProperties();
-  const brand = brandPublicFromProperties(defaults);
   const tokensByThemeId: Record<string, ThemePreviewTokens> = {};
   for (const row of rows) {
     tokensByThemeId[row.id] = extractThemePreviewTokens(defaults, row.properties);

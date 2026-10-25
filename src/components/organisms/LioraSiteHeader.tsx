@@ -5,7 +5,9 @@ import { useState } from "react";
 import { LayoutDashboard, LogIn, Menu, MessageCircle, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { PublicHeaderAccountCta } from "@/components/molecules/PublicHeaderAccountCta";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 import { BrandInstagramIcon } from "@/components/atoms/BrandSocialIcons";
 
 export interface LioraSiteHeaderProps {
@@ -83,7 +85,7 @@ export function LioraSiteHeader({
   return (
     <header
       id="top"
-      className="sticky top-0 z-50 border-b border-[var(--liora-line)] bg-[color-mix(in_srgb,var(--liora-cream)_94%,transparent)] backdrop-blur-md"
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} sticky top-0 z-50 border-b border-[var(--liora-line)] bg-[color-mix(in_srgb,var(--liora-cream)_94%,transparent)] backdrop-blur-md`}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-[max(1rem,env(safe-area-inset-left))] py-2 pe-[max(1rem,env(safe-area-inset-right))] sm:py-2.5 md:gap-3 lg:gap-4 lg:py-3">
@@ -140,35 +142,16 @@ export function LioraSiteHeader({
             aria-label={dict.nav.accountAria}
             className="flex shrink-0 items-center gap-1.5 sm:gap-2"
           >
-            {sessionEmail ? (
-              <>
-                <Link
-                  href={`${prefix}/dashboard`}
-                  className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full border border-[var(--liora-rose-deep)]/40 bg-white px-3 py-2 text-xs font-medium tracking-wide text-[var(--liora-rose-deep)] transition hover:bg-[color-mix(in_srgb,var(--liora-rose)_12%,#ffffff)] sm:px-3.5"
-                  aria-label={dict.nav.administration}
-                  title={dict.nav.administration}
-                >
-                  <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                  <span className="hidden md:inline">{dict.nav.administration}</span>
-                </Link>
-                <SignOutButton
-                  locale={locale}
-                  label={dict.nav.logout}
-                  iconOnly
-                  title={dict.nav.logout}
-                  className="inline-flex min-h-[44px] min-w-[44px] rounded-full border border-[var(--liora-rose-deep)]/40 bg-white text-[var(--liora-rose-deep)] transition hover:bg-[color-mix(in_srgb,var(--liora-rose)_12%,#ffffff)]"
-                />
-              </>
-            ) : (
-              <Link
-                href={`${prefix}/login`}
-                className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full bg-[var(--liora-rose-deep)] px-3 py-2 text-xs font-medium tracking-wide text-white transition hover:bg-[var(--liora-rose-hover)] sm:px-4"
-                aria-label={dict.nav.login}
-              >
-                <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                <span className="hidden md:inline">{dict.nav.login}</span>
-              </Link>
-            )}
+            <PublicHeaderAccountCta
+              locale={locale}
+              sessionEmail={sessionEmail}
+              loginLabel={dict.nav.login}
+              loginShort={dict.nav.loginShort}
+              portalLabel={dict.nav.myPortal}
+              logoutLabel={dict.nav.logout}
+              tone="liora"
+              showLogout
+            />
           </nav>
           <button
             type="button"
@@ -219,7 +202,7 @@ export function LioraSiteHeader({
                   onClick={() => setOpen(false)}
                 >
                   <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                  {dict.nav.administration}
+                  {dict.nav.myPortal}
                 </Link>
                 <SignOutButton
                   locale={locale}

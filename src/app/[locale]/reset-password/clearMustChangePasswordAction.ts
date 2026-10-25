@@ -29,7 +29,7 @@ export async function clearMustChangePasswordFlagAction(): Promise<{
     } = await supabase.auth.getUser();
     if (!user?.id) return { ok: false };
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data, error: readErr } = await admin.auth.admin.getUserById(user.id);
     if (readErr || !data?.user) {
       if (readErr) logSupabaseClientError(`${S}:read`, readErr, { userId: user.id });

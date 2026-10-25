@@ -8,17 +8,24 @@ import {
   logServerWarn,
   logSupabaseClientError,
 } from "@/lib/logging/serverActionLog";
-import { loadVapidConfig } from "@/lib/push/loadVapidConfig";
+import { loadVapidConfig, vapidConfigFromTenant } from "@/lib/push/loadVapidConfig";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
+import { isMultiTenantEnabled, tenantRegistryError } from "@/lib/tenant/tenantRegistry";
 import type { PushNotificationPayload } from "@/lib/push/pushNotificationPayload";
 
-let vapidConfigured = false;
+let lastVapidFingerprint: string | null = null;
 
-function ensureVapidConfigured(): boolean {
-  if (vapidConfigured) return true;
-  const config = loadVapidConfig();
+async function ensureVapidConfigured(): Promise<boolean> {
+  const config =
+    isMultiTenantEnabled() && !tenantRegistryError()
+      ? vapidConfigFromTenant(await resolveRequestTenant())
+      : loadVapidConfig();
   if (!config) return false;
-  webpush.setVapidDetails(`mailto:${config.contactEmail}`, config.publicKey, config.privateKey);
-  vapidConfigured = true;
+  const fingerprint = `${config.contactEmail}|${config.publicKey}|${config.privateKey}`;
+  if (lastVapidFingerprint !== fingerprint) {
+    webpush.setVapidDetails(`mailto:${config.contactEmail}`, config.publicKey, config.privateKey);
+    lastVapidFingerprint = fingerprint;
+  }
   return true;
 }
 
@@ -40,12 +47,12 @@ export async function sendPushToUser(
   userId: string,
   payload: PushNotificationPayload,
 ): Promise<{ sent: number; removed: number }> {
-  if (!ensureVapidConfigured()) {
+  if (!(await ensureVapidConfigured())) {
     logServerWarn("push.sendPushToUser:vapid_unconfigured", { userId });
     return { sent: 0, removed: 0 };
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: rows, error } = await admin
     .from("push_subscriptions")
     .select("id, endpoint, keys_p256dh, keys_auth")

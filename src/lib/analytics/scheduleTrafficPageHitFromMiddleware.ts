@@ -4,6 +4,8 @@ import {
   clientIpFromHeaders,
   insertTrafficPageHit,
 } from "@/lib/analytics/recordTrafficPageHitServer";
+import { runWithTenant } from "@/lib/tenant/tenantAls";
+import { tenantFromHeaderGet } from "@/lib/tenant/tenantRegistry";
 
 /**
  * Records one `traffic_page_hits` row after the response is sent (Edge `waitUntil`).
@@ -15,25 +17,27 @@ export function scheduleTrafficPageHitFromMiddleware(
   event: NextFetchEvent,
 ): void {
   const pathname = request.nextUrl.pathname;
+  const get = (n: string) => request.headers.get(n);
   if (
     !shouldRecordPublicTrafficHit({
       method: request.method,
       pathname,
-      getHeader: (n) => request.headers.get(n),
+      getHeader: get,
     })
   ) {
     return;
   }
-  const get = (n: string) => request.headers.get(n);
+  const tenant = tenantFromHeaderGet(get);
+  const row = {
+    pathname,
+    userAgent: get("user-agent"),
+    userId,
+    referrer: get("referer"),
+    geoCountry: get("x-vercel-ip-country"),
+    geoRegion: get("x-vercel-ip-country-region"),
+    clientIp: clientIpFromHeaders(get),
+  };
   event.waitUntil(
-    insertTrafficPageHit({
-      pathname,
-      userAgent: get("user-agent"),
-      userId,
-      referrer: get("referer"),
-      geoCountry: get("x-vercel-ip-country"),
-      geoRegion: get("x-vercel-ip-country-region"),
-      clientIp: clientIpFromHeaders(get),
-    }),
+    tenant ? runWithTenant(tenant, () => insertTrafficPageHit(row)) : insertTrafficPageHit(row),
   );
 }

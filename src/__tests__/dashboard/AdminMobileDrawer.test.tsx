@@ -85,7 +85,7 @@ describe("AdminMobileDrawer", () => {
     expect(screen.queryByRole("dialog", { name: dictEn.dashboard.adminNav.aria })).toBeNull();
   });
 
-  it("does not show the language switcher or view-site control", async () => {
+  it("shows the public site link and the language switcher", async () => {
     const user = userEvent.setup();
     render(
       <AdminMobileDrawer
@@ -98,7 +98,10 @@ describe("AdminMobileDrawer", () => {
 
     await user.click(screen.getByRole("button", { name: dictEn.dashboard.adminNav.mobileOpen }));
 
-    expect(screen.queryByRole("link", { name: dictEn.dashboard.adminChrome.backToSite })).toBeNull();
-    expect(screen.queryByRole("navigation", { name: dictEn.common.locale.label })).toBeNull();
+    expect(screen.getByRole("link", { name: dictEn.dashboard.adminChrome.backToSite })).toHaveAttribute(
+      "href",
+      "/es",
+    );
+    expect(screen.getByRole("navigation", { name: dictEn.common.locale.label })).toBeInTheDocument();
   });
 });

@@ -40,7 +40,7 @@ const orderSchema = flowSchema.extend({
 });
 
 async function activePackageExists(eventId: string): Promise<boolean> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data, error } = await admin
     .from("event_ticket_packages")
     .select("id")
@@ -65,7 +65,7 @@ export async function updateEventPriceByFlowAction(raw: unknown): Promise<EventM
     return { ok: false, message: "price_mode_conflict" };
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin.from("events").update({ price_by_flow: priceByFlow }).eq("id", eventId);
   if (error) {
     logSupabaseClientError("eventRegistrationFlow.priceMode", error, { eventId });
@@ -91,7 +91,7 @@ export async function saveEventRegistrationFlowAction(raw: unknown): Promise<Eve
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, flowId, name, price } = parsed.data;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const event = await admin.from("events").select("price_by_flow").eq("id", eventId).maybeSingle();
   if (event.error || !event.data) return { ok: false, message: "save_failed" };
   const priceByFlow = Boolean(event.data.price_by_flow);
@@ -142,7 +142,7 @@ export async function archiveEventRegistrationFlowAction(raw: unknown): Promise<
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, flowId } = parsed.data;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const archivedAt = new Date().toISOString();
   const flow = await admin
     .from("event_registration_flows")
@@ -171,7 +171,7 @@ export async function assignEventFormFieldFlowAction(raw: unknown): Promise<Even
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, fieldId, flowId } = parsed.data;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin
     .from("event_form_fields")
     .update({ flow_id: flowId })
@@ -194,7 +194,7 @@ export async function updateEventRegistrationFlowFieldOrderAction(
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, flowId, order } = parsed.data;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin
     .from("event_registration_flows")
     .update({ field_order: order })

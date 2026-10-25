@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { PublicHeaderAccountCta } from "@/components/molecules/PublicHeaderAccountCta";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 export interface EspacioZenitSiteHeaderProps {
   locale: string;
@@ -67,7 +69,7 @@ export function EspacioZenitSiteHeader({
   return (
     <header
       id="top"
-      className="ez-mock-header sticky top-0 z-50 border-b border-[rgb(0_174_239_/35%)] bg-black shadow-[0_12px_40px_rgb(0_0_0_/55%)]"
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} ez-mock-header sticky top-0 z-50 border-b border-[rgb(0_174_239_/35%)] bg-black shadow-[0_12px_40px_rgb(0_0_0_/55%)]`}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-[max(1rem,env(safe-area-inset-left))] py-3 pe-[max(1rem,env(safe-area-inset-right))] md:gap-4 lg:py-4">
@@ -111,37 +113,16 @@ export function EspacioZenitSiteHeader({
         </nav>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-          {!sessionEmail ? (
-            <Link
-              href={`/${locale}/login`}
-              className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[var(--ez-cyan)] bg-[var(--ez-cyan)]/15 px-3 text-[11px] font-bold uppercase tracking-[0.1em] text-white shadow-[0_4px_18px_-8px_rgb(0_174_239_/55%)] transition hover:bg-[var(--ez-cyan)]/28 sm:px-3.5"
-              aria-label={dict.nav.login}
-            >
-              <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-              <span className="hidden sm:inline">{dict.nav.login}</span>
-            </Link>
-          ) : (
-            <nav
-              aria-label={dict.nav.accountAria}
-              className="hidden items-center gap-1.5 lg:flex xl:gap-2"
-            >
-              <Link
-                href={`/${locale}/dashboard`}
-                className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[var(--ez-cyan)]/40 bg-[var(--ez-cyan)]/15 px-3 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition hover:bg-[var(--ez-cyan)]/28 sm:px-3.5"
-                aria-label={dict.nav.administration}
-              >
-                <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                <span className="hidden xl:inline">{dict.nav.administration}</span>
-              </Link>
-              <SignOutButton
-                locale={locale}
-                label={dict.nav.logout}
-                iconOnly
-                title={dict.nav.logout}
-                className="inline-flex min-h-[44px] min-w-[44px] shrink-0 rounded-xl border border-white/30 bg-white/10 text-white"
-              />
-            </nav>
-          )}
+          <PublicHeaderAccountCta
+            locale={locale}
+            sessionEmail={sessionEmail}
+            loginLabel={dict.nav.login}
+            loginShort={dict.nav.loginShort}
+            portalLabel={dict.nav.myPortal}
+            logoutLabel={dict.nav.logout}
+            tone="espaciozenit"
+            showLogout
+          />
           <button
             type="button"
             className="ez-mock-menu-btn inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl border border-white/35 bg-white/10 text-white lg:hidden"
@@ -179,12 +160,28 @@ export function EspacioZenitSiteHeader({
               ))}
             </ul>
           </nav>
-          {!sessionEmail ? (
-            <div
-              className="mt-3 border-t border-white/20 pt-3"
-              role="group"
-              aria-label={dict.nav.accountAria}
-            >
+          <div
+            className="mt-3 border-t border-white/20 pt-3"
+            role="group"
+            aria-label={dict.nav.accountAria}
+          >
+            {sessionEmail ? (
+              <>
+                <Link
+                  href={`/${locale}/dashboard`}
+                  className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-4 py-2 text-sm font-bold uppercase tracking-[0.1em] text-black"
+                  onClick={() => setOpen(false)}
+                >
+                  <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
+                  {dict.nav.myPortal}
+                </Link>
+                <SignOutButton
+                  locale={locale}
+                  label={dict.nav.logout}
+                  className="mt-2 inline-flex min-h-[48px] w-full items-center justify-center rounded-xl border border-white/30 bg-white/10 px-4 text-sm font-semibold text-white"
+                />
+              </>
+            ) : (
               <Link
                 href={`/${locale}/login`}
                 className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-4 py-2 text-sm font-bold uppercase tracking-[0.1em] text-black"
@@ -193,8 +190,8 @@ export function EspacioZenitSiteHeader({
                 <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
                 {dict.nav.login}
               </Link>
-            </div>
-          ) : null}
+            )}
+          </div>
         </div>
       ) : null}
     </header>

@@ -9,6 +9,7 @@ import type { Dictionary } from "@/types/i18n";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import { LoginForm } from "@/components/organisms/LoginForm";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 interface LoginScreenNarrowProps {
   brand: BrandPublic;
@@ -16,6 +17,7 @@ interface LoginScreenNarrowProps {
   locale: string;
   nextPath?: string | null;
   firstRunSetupHref?: string | null;
+  inscriptionsEnabled?: boolean;
   surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">;
 }
 
@@ -25,6 +27,7 @@ export function LoginScreenNarrow({
   locale,
   nextPath = null,
   firstRunSetupHref = null,
+  inscriptionsEnabled = false,
   surface,
 }: LoginScreenNarrowProps) {
   const homeHref = `/${locale}`;
@@ -40,7 +43,7 @@ export function LoginScreenNarrow({
       className={`flex min-h-dvh flex-col bg-[var(--color-background)] ${bottomPad}`}
     >
       <header
-        className={`flex items-center justify-between gap-3 px-4 ${standalone ? "pt-[max(0.35rem,env(safe-area-inset-top,0px))]" : "pt-[max(0.25rem,env(safe-area-inset-top,0px))]"}`}
+        className={`${PUBLIC_MARKETING_CHROME_CLASS} flex items-center justify-between gap-3 px-4 ${standalone ? "pt-[max(0.35rem,env(safe-area-inset-top,0px))]" : "pt-[max(0.25rem,env(safe-area-inset-top,0px))]"}`}
       >
         <Link
           href={homeHref}
@@ -98,6 +101,7 @@ export function LoginScreenNarrow({
             labels={dict.login}
             locale={locale}
             nextPath={nextPath}
+            inscriptionsEnabled={inscriptionsEnabled}
           />
           {firstRunSetupHref ? (
             <p className="mt-6 text-center text-sm">

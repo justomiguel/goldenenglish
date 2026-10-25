@@ -17,7 +17,7 @@ vi.mock("@/lib/supabase/client", () => ({
 import { PublicBlogScreenNago } from "@/components/organisms/PublicBlogScreenNago";
 
 describe("PublicBlogScreenNago", () => {
-  it("keeps the events and blog sheet on the dark nago surface", () => {
+  it("keeps events and blog on the dark nago surface", () => {
     const { container } = render(
       <PublicBlogScreenNago
         locale="es"
@@ -33,10 +33,8 @@ describe("PublicBlogScreenNago", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Eventos" })).toBeInTheDocument();
-    const sheet = container.querySelector(".nago-public-sheet");
-    expect(sheet).toBeTruthy();
-    expect(sheet?.className).not.toContain("color-surface");
-    expect(sheet?.className).toContain("nago-bg-2");
+    expect(container.querySelector(".nago-public-sheet")).toBeNull();
+    expect(container.querySelector("main")?.className).toContain("nago-bg");
 
     const header = container.querySelector(".nago-site-header");
     const main = container.querySelector("main");

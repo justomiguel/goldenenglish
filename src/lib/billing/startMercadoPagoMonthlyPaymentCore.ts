@@ -5,7 +5,7 @@ import { buildTuitionGatewayReference } from "@/lib/billing/parseMonthlyGatewayR
 import { loadMercadoPagoCredentialsPlain } from "@/lib/payment-gateways/mercadopago/loadMercadoPagoCredentialsPlain";
 import { mercadoPagoCreatePreference } from "@/lib/payment-gateways/mercadopago/mercadoPagoCreatePreference";
 import { gatewayCountryForBillingCurrency } from "@/lib/payment-gateways/gatewayCountryForBillingCurrency";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
 import type { Buffer } from "node:buffer";
 import type { PaymentGatewayCountryCode } from "@/types/paymentGateway";
@@ -85,7 +85,7 @@ export async function startMercadoPagoMonthlyPaymentCore(input: {
   });
 
   const unitPrice = Math.round(effective);
-  const origin = getPublicSiteUrl();
+  const origin = await getRequestPublicSiteUrl();
   if (!origin) {
     return { ok: false, code: "no_public_url" };
   }

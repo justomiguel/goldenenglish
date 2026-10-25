@@ -31,7 +31,7 @@ export async function uploadBadgeImageAction(formData: FormData): Promise<BadgeA
   }
   try {
     const { user } = await assertAdmin();
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const ext = file.type === "image/svg+xml" ? "svg" : file.type.split("/")[1] || "png";
     const path = `${badgeId}/${Date.now()}.${ext}`;
     const arrayBuf = await file.arrayBuffer();
@@ -91,7 +91,7 @@ export async function clearBadgeImageAction(raw: {
   }
   try {
     const { user } = await assertAdmin();
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: before } = await admin
       .from("badge_catalog")
       .select("id, code, image_path")

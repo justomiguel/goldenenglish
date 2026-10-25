@@ -439,6 +439,25 @@ html:has(.nago-landing) {
   animation: nago-fade-in-up 1.4s var(--nago-ease) infinite;
 }
 
+/* Phone dock covers the bottom of a 100svh hero. Lift copy and the photo. */
+@media (max-width: 767px), (display-mode: standalone) {
+  .nago-hero-parallax {
+    bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .nago-hero-lockup {
+    padding-bottom: calc(5.5rem + 4.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .nago-hero-discover {
+    bottom: calc(1.4rem + 4.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .nago-hero-carousel {
+    bottom: calc(3.6rem + 4.75rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 .nago-btn {
   display: inline-flex;
   min-height: 48px;

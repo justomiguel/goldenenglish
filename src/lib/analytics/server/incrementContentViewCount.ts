@@ -28,13 +28,13 @@ function buildViewMetadata(
   return { ...base, eventId: resourceId };
 }
 
-function resolveTelemetryClient(
+async function resolveTelemetryClient(
   sessionClient: SupabaseClient,
   userId: string | null | undefined,
-): SupabaseClient | null {
+): Promise<SupabaseClient | null> {
   try {
     // user_events RLS only allows authenticated self-inserts; public view telemetry runs server-side.
-    return createAdminClient();
+    return await createAdminClient();
   } catch (err) {
     if (userId) return sessionClient;
     logServerWarn("analytics.incrementContentViewCount.telemetry", {
@@ -102,7 +102,7 @@ export async function incrementContentViewCount(
   input: IncrementContentViewCountInput,
 ): Promise<{ ok: boolean; deduped: boolean }> {
   const dedupeSince = new Date(Date.now() - DEDUPE_WINDOW_MS).toISOString();
-  const telemetryClient = resolveTelemetryClient(supabase, input.userId);
+  const telemetryClient = await resolveTelemetryClient(supabase, input.userId);
 
   if (telemetryClient) {
     const recent = await findRecentContentView(telemetryClient, input, dedupeSince);

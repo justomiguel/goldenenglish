@@ -178,7 +178,7 @@ describe("component smoke — molecules & PWA", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: dictEn.nav.openMenu }));
-    expect(screen.getByRole("link", { name: dictEn.nav.administration })).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: dictEn.nav.myPortal })[0]).toHaveAttribute(
       "href",
       "/es/dashboard",
     );

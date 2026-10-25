@@ -23,11 +23,13 @@ export function sectionReferenceImageExt(mime: string): "jpg" | "png" | "webp" |
 
 export function sectionReferenceImagePublicUrl(
   path: string | null | undefined,
+  supabaseProjectUrl?: string | null,
 ): string | null {
   if (typeof path !== "string") return null;
   const trimmed = path.trim();
   if (trimmed.length === 0) return null;
-  const envUrl = readSupabasePublicEnv().url.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  const envUrl = (supabaseProjectUrl ?? readSupabasePublicEnv().url).trim();
   if (!envUrl) return null;
   const base = envUrl.replace(/\/+$/, "");
   return `${base}/storage/v1/object/public/${SECTION_IMAGES_BUCKET}/${encodePath(trimmed)}`;

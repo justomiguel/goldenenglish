@@ -3,18 +3,18 @@ import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import { sendRegistrationAdminEmails } from "@/lib/email/registrationIntakeEmails";
 import { buildRegistrationPayBlock } from "@/lib/register/buildRegistrationPayBlock";
 import { resolveRegistrationFamilyEmail } from "@/lib/register/resolveRegistrationFamilyEmail";
-import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
+import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
 import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 import { logServerException } from "@/lib/logging/serverActionLog";
 
-export function familyEmailForTrialLead(input: {
+export async function familyEmailForTrialLead(input: {
   isMinor: boolean;
   studentEmail: string | null;
   tutorEmail: string | null;
-}): string | null {
+}): Promise<string | null> {
   const studentEmail = (input.studentEmail ?? "").trim().toLowerCase();
-  const domain = getRegistrationMailTenantDomain();
+  const domain = await getRequestMailTenantDomain();
   const synthetic = Boolean(domain && studentEmail.endsWith(`@${domain.toLowerCase()}`));
   const email = resolveRegistrationFamilyEmail({
     isMinor: input.isMinor,
@@ -37,7 +37,7 @@ export async function notifyTrialSeatInvite(input: {
   convertToken: string;
 }): Promise<void> {
   if (!input.familyEmail) return;
-  const origin = absoluteUrl(`/${input.locale}/unirse/${input.convertToken}`);
+  const origin = await absoluteUrlForRequest(`/${input.locale}/unirse/${input.convertToken}`);
   const payBlock = buildRegistrationPayBlock({
     payUrl: origin?.toString() ?? "",
     amountLabel: "",
@@ -72,7 +72,7 @@ export async function notifyTrialSeatMissed(input: {
   rescheduleToken: string;
 }): Promise<void> {
   if (!input.familyEmail) return;
-  const origin = absoluteUrl(
+  const origin = await absoluteUrlForRequest(
     `/${input.locale}/register?intent=trial&reschedule=${input.rescheduleToken}`,
   );
   const payBlock = buildRegistrationPayBlock({
@@ -105,7 +105,7 @@ export async function notifyTrialAdminAttendanceDue(input: {
   scheduleLabel: string;
 }): Promise<void> {
   const adminUrl =
-    absoluteUrl(`/${input.locale}/dashboard/admin/registrations`)?.toString() ?? "";
+    (await absoluteUrlForRequest(`/${input.locale}/dashboard/admin/registrations`))?.toString() ?? "";
   await sendRegistrationAdminEmails({
     locale: input.locale,
     templateKey: "registration.admin_trial_attendance_due",

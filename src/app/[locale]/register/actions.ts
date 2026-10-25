@@ -11,7 +11,7 @@ import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 import { composeSyntheticMinorStudentEmail } from "@/lib/register/composeSyntheticMinorStudentEmail";
-import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
+import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
 import { randomLowercaseAlphaString } from "@/lib/server/randomLowercaseAlphaString";
 import {
   REGISTRATION_LEVEL_INTEREST_UNDECIDED,
@@ -101,7 +101,7 @@ export async function submitPublicRegistration(
     return { ok: false, message: reg.invalidSectionOption };
   }
 
-  const identity = await resolveExistingStudentByDni(createAdminClient(), d.dni);
+  const identity = await resolveExistingStudentByDni(await createAdminClient(), d.dni);
   if (identity.kind === "occupied") {
     return { ok: false, message: reg.documentInUse };
   }
@@ -117,7 +117,7 @@ export async function submitPublicRegistration(
   }
 
   const tenantDomain = !existingStudent && age < legal
-    ? getRegistrationMailTenantDomain()
+    ? await getRequestMailTenantDomain()
     : null;
   if (!existingStudent && age < legal && !tenantDomain) {
     return {
@@ -137,7 +137,7 @@ export async function submitPublicRegistration(
 
   if (d.intent === "trial") {
     const trial = await completeTrialRegistrationSubmit({
-      locale, dict, supabase, admin: createAdminClient(), parsed: d,
+      locale, dict, supabase, admin: await createAdminClient(), parsed: d,
       identity, extras: stamped.extras, age, legal,
     });
     if (trial.ok) revalidatePath(`/${locale}/dashboard/admin/registrations`, "page");
@@ -146,7 +146,7 @@ export async function submitPublicRegistration(
 
   const quote = await quotePublicRegistrationFee({
     supabase,
-    admin: createAdminClient(),
+    admin: await createAdminClient(),
     sectionIds: [preferredSectionId, ...additionalSectionIds].filter(
       (id): id is string => Boolean(id),
     ),

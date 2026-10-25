@@ -2,9 +2,9 @@ import type { Dictionary } from "@/types/i18n";
 import type { Locale } from "@/types/i18n";
 import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
 import { notifyRegistrationReceived } from "@/lib/email/registrationIntakeEmails";
-import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
+import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
 import { resolveRegistrationFamilyEmail } from "@/lib/register/resolveRegistrationFamilyEmail";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 
 export async function notifyTrialRegistrationReceived(input: {
   locale: string;
@@ -21,7 +21,7 @@ export async function notifyTrialRegistrationReceived(input: {
   snapshotCurrency: string;
 }): Promise<void> {
   const locale = input.locale as Locale;
-  const domain = getRegistrationMailTenantDomain();
+  const domain = await getRequestMailTenantDomain();
   const studentEmail = input.studentEmail.trim().toLowerCase();
   const synthetic = Boolean(domain && studentEmail.endsWith(`@${domain.toLowerCase()}`));
   const familyEmail = resolveRegistrationFamilyEmail({
@@ -30,7 +30,7 @@ export async function notifyTrialRegistrationReceived(input: {
     studentEmail,
     studentEmailIsSynthetic: synthetic,
   });
-  const origin = absoluteUrl(`/${locale}/clase-prueba/${input.payToken}`);
+  const origin = await absoluteUrlForRequest(`/${locale}/clase-prueba/${input.payToken}`);
   const payUrl = input.snapshotTotal > 0 && origin ? origin.toString() : "";
   const studentName = `${input.studentFirstName} ${input.studentLastName}`.trim();
   const amountLabel =
@@ -61,7 +61,7 @@ export async function notifyTrialRegistrationReceived(input: {
       feeModeLabel: "trial",
       sourceLabel: "/register?intent=trial",
       existingStudentLabel: "—",
-      adminUrl: absoluteUrl(`/${locale}/dashboard/admin/registrations`)?.toString() ?? "",
+      adminUrl: (await absoluteUrlForRequest(`/${locale}/dashboard/admin/registrations`))?.toString() ?? "",
     },
   });
 }

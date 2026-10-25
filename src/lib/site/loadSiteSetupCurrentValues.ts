@@ -3,6 +3,7 @@ import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
 import { loadAcademicsSectionDefaults } from "@/lib/academics/loadAcademicsSectionDefaults";
 import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
 import { createClient } from "@/lib/supabase/server";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import { resolveBrandAssetUrl } from "@/lib/brand/resolveBrandAssetUrl";
 
 const LOGO_FALLBACK = "/images/logo.png";
@@ -83,11 +84,13 @@ export interface SiteSetupCurrentValues {
  */
 export async function loadSiteSetupCurrentValues(): Promise<SiteSetupCurrentValues> {
   const supabase = await createClient();
-  const [{ properties }, sectionDefaults, billingCurrency] = await Promise.all([
-    loadEffectiveProperties(),
-    loadAcademicsSectionDefaults(),
-    loadBillingCurrencySetting(supabase),
-  ]);
+  const [{ properties }, sectionDefaults, billingCurrency, { url: supabaseUrl }] =
+    await Promise.all([
+      loadEffectiveProperties(),
+      loadAcademicsSectionDefaults(),
+      loadBillingCurrencySetting(supabase),
+      readRequestSupabasePublicEnv(),
+    ]);
 
   const rawLogo = getProperty(properties, "app.logo.path");
   const rawFav = getProperty(properties, "app.favicon.path");
@@ -105,8 +108,8 @@ export async function loadSiteSetupCurrentValues(): Promise<SiteSetupCurrentValu
     socialFacebook: g("social.facebook"),
     socialInstagram: g("social.instagram"),
     socialWhatsapp: g("social.whatsapp"),
-    logoUrl: resolveBrandAssetUrl(rawLogo, LOGO_FALLBACK),
-    faviconUrl: resolveBrandAssetUrl(rawFav, FAV_FALLBACK),
+    logoUrl: resolveBrandAssetUrl(rawLogo, LOGO_FALLBACK, supabaseUrl),
+    faviconUrl: resolveBrandAssetUrl(rawFav, FAV_FALLBACK, supabaseUrl),
     rawLogoPath: rawLogo,
     rawFaviconPath: rawFav,
     operational: {

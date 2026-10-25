@@ -5,7 +5,7 @@ import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { isEmailTemplatesMegaAdmin } from "@/lib/auth/emailTemplatesMegaAdmin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandForRequest } from "@/lib/brand/server";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { loadAdminEmailTemplates } from "@/lib/email/templates/loadAdminEmailTemplates";
 import { EmailTemplatesShell } from "@/components/dashboard/admin/communications/EmailTemplatesShell";
 import type { Locale } from "@/types/i18n";
@@ -36,7 +36,7 @@ export default async function AdminCommunicationsTemplatesPage({ params }: PageP
 
   const entries = await loadAdminEmailTemplates(supabase);
   const brand = await getBrandForRequest();
-  const origin = getPublicSiteUrl()?.origin ?? "http://localhost:3000";
+  const origin = (await getRequestPublicSiteUrl())?.origin ?? "http://localhost:3000";
 
   return (
     <div className="space-y-4">

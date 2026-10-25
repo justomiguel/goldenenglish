@@ -8,6 +8,7 @@ import { logServerAuthzDenied, logServerException } from "@/lib/logging/serverAc
 import { mergeImportJob, readImportJob } from "@/lib/import/importJobKv";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { IMPORT_JOB_CANCELLED_BY_USER } from "@/lib/import/importJobErrorCodes";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 export const runtime = "nodejs";
 
@@ -36,7 +37,8 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
 
-  const job = await readImportJob(id);
+  const tenant = await resolveRequestTenant();
+  const job = await readImportJob(id, tenant);
   if (!job) {
     return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
   }
@@ -72,7 +74,8 @@ export async function DELETE(_request: Request, context: RouteContext) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
 
-  const job = await readImportJob(id);
+  const tenant = await resolveRequestTenant();
+  const job = await readImportJob(id, tenant);
   if (!job) {
     return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
   }
@@ -83,17 +86,21 @@ export async function DELETE(_request: Request, context: RouteContext) {
     return NextResponse.json({ ok: true, cancelled: false, terminal: true });
   }
 
-  await mergeImportJob(id, {
-    ownerId: userId,
-    status: "error",
-    phase: "cancelled",
-    message: IMPORT_JOB_CANCELLED_BY_USER,
-    error: IMPORT_JOB_CANCELLED_BY_USER,
-    current: typeof job.current === "number" ? job.current : 0,
-    total: typeof job.total === "number" ? job.total : 0,
-    activeRow: typeof job.activeRow === "number" ? job.activeRow : 0,
-    activityAppend: { t: Date.now(), code: "cancelled_by_user" },
-  });
+  await mergeImportJob(
+    id,
+    {
+      ownerId: userId,
+      status: "error",
+      phase: "cancelled",
+      message: IMPORT_JOB_CANCELLED_BY_USER,
+      error: IMPORT_JOB_CANCELLED_BY_USER,
+      current: typeof job.current === "number" ? job.current : 0,
+      total: typeof job.total === "number" ? job.total : 0,
+      activeRow: typeof job.activeRow === "number" ? job.activeRow : 0,
+      activityAppend: { t: Date.now(), code: "cancelled_by_user" },
+    },
+    tenant,
+  );
 
   void recordSystemAudit({
     action: "csv_import_job_cancelled",

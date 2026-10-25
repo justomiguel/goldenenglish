@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { LayoutDashboard, LogIn, Menu, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import { PublicHeaderAccountCta } from "@/components/molecules/PublicHeaderAccountCta";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 export interface MozarthitosSiteHeaderLabels {
   inicio: string;
@@ -85,7 +87,7 @@ export function MozarthitosSiteHeader({
   return (
     <header
       id="top"
-      className="mz-site-header sticky top-0 z-50"
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} mz-site-header sticky top-0 z-50`}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="mz-site-header-accent w-full shrink-0" aria-hidden />
@@ -124,35 +126,16 @@ export function MozarthitosSiteHeader({
             aria-label={dict.nav.accountAria}
             className="mz-chrome-tools flex shrink-0 items-center gap-1 sm:gap-1.5"
           >
-            {sessionEmail ? (
-              <>
-                <Link
-                  href={`/${locale}/dashboard`}
-                  className="mz-chrome-dash inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border-2 border-white/55 bg-white/15 px-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-white/25 sm:min-w-0 sm:px-3 md:px-3.5"
-                  title={dict.nav.administration}
-                  aria-label={dict.nav.administration}
-                >
-                  <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                  <span className="hidden md:inline">{dict.nav.administration}</span>
-                </Link>
-                <SignOutButton
-                  locale={locale}
-                  label={dict.nav.logout}
-                  iconOnly
-                  title={dict.nav.logout}
-                  className="mz-chrome-signout min-h-[44px] min-w-[44px] rounded-2xl border-2 border-white/55 bg-white/15 text-white shadow-sm transition hover:bg-white/25"
-                />
-              </>
-            ) : (
-              <Link
-                href={`/${locale}/login`}
-                className="mz-chrome-login inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full border-2 border-white/60 bg-[var(--mz-yellow)] px-2.5 py-2 text-xs font-bold text-[var(--mz-ink-on-white)] shadow-md transition hover:bg-[var(--mz-yellow-soft)] sm:min-w-0 sm:gap-2 sm:px-4 sm:text-sm"
-                aria-label={dict.nav.login}
-              >
-                <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                <span className="hidden sm:inline">{dict.nav.login}</span>
-              </Link>
-            )}
+            <PublicHeaderAccountCta
+              locale={locale}
+              sessionEmail={sessionEmail}
+              loginLabel={dict.nav.login}
+              loginShort={dict.nav.loginShort}
+              portalLabel={dict.nav.myPortal}
+              logoutLabel={dict.nav.logout}
+              tone="mozarthitos"
+              showLogout
+            />
           </nav>
           <button
             type="button"
@@ -203,7 +186,7 @@ export function MozarthitosSiteHeader({
                   onClick={() => setOpen(false)}
                 >
                   <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                  {dict.nav.administration}
+                  {dict.nav.myPortal}
                 </Link>
                 <SignOutButton
                   locale={locale}

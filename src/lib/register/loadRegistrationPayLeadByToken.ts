@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
-import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
+import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
 import { resolveRegistrationFamilyEmail } from "@/lib/register/resolveRegistrationFamilyEmail";
 
 export type RegistrationPayLead = {
@@ -28,8 +28,10 @@ export function requestedSectionIdsFromLead(lead: RegistrationPayLead): string[]
   );
 }
 
-export function familyEmailFromPayLead(lead: RegistrationPayLead): string | null {
-  const domain = getRegistrationMailTenantDomain();
+export async function familyEmailFromPayLead(
+  lead: RegistrationPayLead,
+): Promise<string | null> {
+  const domain = await getRequestMailTenantDomain();
   const studentEmail = (lead.studentEmail ?? "").trim().toLowerCase();
   const synthetic = Boolean(domain && studentEmail.endsWith(`@${domain}`));
   return resolveRegistrationFamilyEmail({

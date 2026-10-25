@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { buildPortalCalendarPagePayload } from "@/lib/calendar/buildPortalCalendarPagePayload";
 import { PortalCalendarEntry } from "@/components/organisms/PortalCalendarEntry";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -43,7 +43,7 @@ export default async function AdminCalendarPage({ params, searchParams }: PagePr
     adminRoom: roomRaw.trim() || null,
     birthdayCopy: dict.dashboard.birthdays,
   });
-  const origin = getPublicSiteUrl()?.origin ?? "";
+  const origin = (await getRequestPublicSiteUrl())?.origin ?? "";
   const feedUrl = payload.feedToken && origin ? `${origin}/api/calendar/feed/${payload.feedToken}.ics` : null;
 
   return (

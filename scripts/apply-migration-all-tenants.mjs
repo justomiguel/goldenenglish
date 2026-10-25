@@ -1,27 +1,13 @@
 #!/usr/bin/env node
 /**
- * Applies a single SQL migration file to every local tenant database via `psql`.
+ * Applies a single SQL migration file to every tenant database via `psql`.
  *
- * Tenant env files (same as `run-dev-with-target.mjs`, gitignored):
- *   `.env.local.golden`, `.env.local.mozarthitos`, `.env.local.espaciozenit`
- *
- * Each file must define `DATABASE_URL` (or `DIRECT_URL`).
- * Prefer the Supabase Dashboard string you use from this machine — often **Session pooler**
- * (`aws-0-<REGION>.pooler.supabase.com:5432`) if corporate DNS refuses `db.<ref>.supabase.co`.
+ * Reads the tenant list and each `databaseUrl` from `TENANTS_CONFIG_JSON` in `.env.local`.
  *
  * Usage:
  *   node scripts/apply-migration-all-tenants.mjs [path/to/migration.sql]
- *   node scripts/apply-migration-all-tenants.mjs --skip-dns-check   # salta preflight DNS (psql igual necesita red)
+ *   node scripts/apply-migration-all-tenants.mjs --skip-dns-check
  *   npm run sql:apply-migration:all-tenants -- supabase/migrations/105_....sql
- *
- * Requires: `psql` on PATH, or Homebrew `opt/libpq/bin/psql`, or `PSQL_PATH`.
- *
- * Troubleshooting "could not translate host name" / ENOTFOUND:
- *   - Some resolvers resolve `<ref>.supabase.co` but return **No answer** for `db.<ref>.supabase.co`
- *     (often on corporate DNS): use Dashboard → Connect → **Session pooler** URI for `DATABASE_URL`,
- *     or run migrations from Dashboard → SQL Editor.
- *   - Test: `nslookup db.<ref>.supabase.co` vs `nslookup <ref>.supabase.co`; compare with `8.8.8.8`.
- *   - Hotspot / VPN off applies when everything under `*.supabase.co` is blocked.
  */
 
 import { spawnSync } from "node:child_process";
@@ -34,39 +20,36 @@ import { readEnvFile } from "./migrate-public-assets-lib.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
+const ENV_LOCAL = path.join(ROOT, ".env.local");
 
-const TENANTS = [
-  {
-    id: "golden",
-    label: "Golden English",
-    file: path.join(ROOT, ".env.local.golden"),
-  },
-  {
-    id: "mozarthitos",
-    label: "mozarthitos",
-    file: path.join(ROOT, ".env.local.mozarthitos"),
-  },
-  {
-    id: "espaciozenit",
-    label: "Espacio Zenit",
-    file: path.join(ROOT, ".env.local.espaciozenit"),
-  },
-  {
-    id: "nago",
-    label: "Capoeira Nago",
-    file: path.join(ROOT, ".env.local.nago"),
-  },
-  {
-    id: "mimundo",
-    label: "Jardín Materno Infantil Mi Mundo",
-    file: path.join(ROOT, ".env.local.mimundo"),
-  },
-  {
-    id: "liora",
-    label: "Liora Studio",
-    file: path.join(ROOT, ".env.local.liora"),
-  },
-];
+function loadTenantsFromEnvLocal() {
+  if (!fs.existsSync(ENV_LOCAL)) {
+    console.error("Missing .env.local in project root.");
+    process.exit(1);
+  }
+  const env = readEnvFile(ENV_LOCAL);
+  const raw = (env.TENANTS_CONFIG_JSON || process.env.TENANTS_CONFIG_JSON || "").trim();
+  if (!raw) {
+    console.error("Missing TENANTS_CONFIG_JSON in .env.local.");
+    process.exit(1);
+  }
+  let list;
+  try {
+    list = JSON.parse(raw);
+  } catch {
+    console.error("Invalid TENANTS_CONFIG_JSON in .env.local.");
+    process.exit(1);
+  }
+  if (!Array.isArray(list) || list.length === 0) {
+    console.error("TENANTS_CONFIG_JSON must be a non-empty array.");
+    process.exit(1);
+  }
+  return list.map((row) => ({
+    id: String(row?.slug ?? "").trim(),
+    label: String(row?.slug ?? "").trim(),
+    databaseUrl: String(row?.databaseUrl ?? "").trim(),
+  }));
+}
 
 function resolvePsqlBinary() {
   const explicit = process.env.PSQL_PATH?.trim();
@@ -91,7 +74,6 @@ function resolvePsqlBinary() {
   return "psql";
 }
 
-/** @param {string} uri postgresql://... */
 function postgresUriHostname(uri) {
   try {
     const u = new URL(uri);
@@ -104,23 +86,8 @@ function postgresUriHostname(uri) {
 function printDnsHints(hostname) {
   console.error("");
   console.error("  DNS resolution failed for the database host. Typical causes:");
-  console.error("    • Corporate / split DNS: resolves <ref>.supabase.co but NOT db.<ref>.supabase.co (No answer)");
-  console.error("      → Pegá en DATABASE_URL la URI «Session pooler» (Connect en el proyecto): host *.pooler.supabase.com");
-  console.error("    • No internet, VPN, or firewall blocking relevant hostnames entirely");
-  console.error("");
-  console.error("  Try (same machine):");
-  console.error(`    nslookup ${hostname || "db.<project>.supabase.co"}`);
-  console.error(
-    `    nslookup ${hostname || "db.<project>.supabase.co"} 8.8.8.8   # si esto sí resuelve, el DNS corporativo bloquea`,
-  );
-  console.error("    # o: desactivar VPN / usar hotspot / otra Wi‑Fi");
-  console.error("");
-  console.error("  Sin arreglar DNS desde esta laptop: abre cada proyecto en");
-  console.error("    Supabase → SQL Editor → pega el contenido del archivo .sql → Run.");
-  console.error("");
-  console.error(
-    "  Opción script: reintenta con --skip-dns-check (solo omite esta comprobación; psql sigue necesitando resolver el host).",
-  );
+  console.error("    • Use the Session pooler URI in TENANTS_CONFIG_JSON.databaseUrl (*.pooler.supabase.com)");
+  console.error(`    • nslookup ${hostname || "db.<project>.supabase.co"}`);
   console.error("");
 }
 
@@ -158,40 +125,28 @@ async function main() {
     process.exit(1);
   }
 
+  const tenants = loadTenantsFromEnvLocal();
   const psqlBin = resolvePsqlBinary();
   let anyFailed = false;
   let anyRan = false;
-  let blockedByDns = 0;
-  let missingFileOrUrl = 0;
 
-  for (const t of TENANTS) {
+  for (const t of tenants) {
     console.log("");
     console.log(`── ${t.label} (${t.id}) ──`);
-    if (!fs.existsSync(t.file)) {
-      console.warn(`  SKIP: missing env file ${path.basename(t.file)}`);
-      missingFileOrUrl += 1;
-      continue;
-    }
-
-    const env = readEnvFile(t.file);
-    const dbUrl = (env.DATABASE_URL || env.DIRECT_URL || "").trim();
-    if (!dbUrl) {
-      console.error(`  ERROR: no DATABASE_URL or DIRECT_URL in ${path.basename(t.file)}`);
+    if (!t.databaseUrl) {
+      console.error(`  ERROR: missing databaseUrl for "${t.id}" in TENANTS_CONFIG_JSON`);
       anyFailed = true;
-      missingFileOrUrl += 1;
       continue;
     }
 
-    const host = postgresUriHostname(dbUrl);
-    // Preflight avoids noisy psql errors when the issue is DNS (common on locked-down networks).
+    const host = postgresUriHostname(t.databaseUrl);
     if (!skipDnsCheck && !(await assertHostResolvable(host))) {
       anyFailed = true;
-      blockedByDns += 1;
       continue;
     }
 
     anyRan = true;
-    const r = spawnSync(psqlBin, [dbUrl, "-v", "ON_ERROR_STOP=1", "-f", migrationPath], {
+    const r = spawnSync(psqlBin, [t.databaseUrl, "-v", "ON_ERROR_STOP=1", "-f", migrationPath], {
       stdio: "inherit",
       env: process.env,
     });
@@ -206,32 +161,11 @@ async function main() {
       console.error(`  FAILED (exit ${code})`);
       anyFailed = true;
     } else {
-      console.log(`  OK`);
+      console.log("  OK");
     }
   }
 
-  if (!anyRan) {
-    console.error("\nNothing was applied.");
-    if (blockedByDns > 0) {
-      console.error(
-        `  ${blockedByDns} tenant(s): el host en DATABASE_URL/DIRECT_URL no resolvió (p. ej. db.<ref>.supabase.co).`,
-      );
-      console.error(
-        "  → En cada proyecto: Connect → Session pooler → copiar esa URI al .env del tenant (usuario postgres.<ref>, host *.pooler.supabase.com).",
-      );
-      console.error("  → Sin cambiar URLs: pegar el .sql en Supabase → SQL Editor → Run.");
-      console.error(
-        "  → Hotspot / sin VPN ayuda solo si también falla el pooler; --skip-dns-check no quita ENOTFOUND (psql resuelve el mismo host).",
-      );
-    }
-    if (missingFileOrUrl > 0) {
-      console.error(
-        "  Algún tenant: archivo .env ausente o sin DATABASE_URL/DIRECT_URL en el .env del tenant.",
-      );
-    }
-    process.exit(1);
-  }
-  if (anyFailed) process.exit(1);
+  if (!anyRan || anyFailed) process.exit(1);
 }
 
 main().catch((err) => {

@@ -12,7 +12,7 @@ export async function awardStudentBadgesForEnrollments(
   const unique = [...new Set(enrollmentIds.filter(Boolean))];
   if (unique.length === 0) return;
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data, error } = await admin
       .from("section_enrollments")
       .select("student_id")

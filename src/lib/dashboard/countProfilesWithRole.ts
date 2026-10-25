@@ -3,7 +3,7 @@ import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 /** Bounded institution metadata read (service role); used when session RLS cannot see admin rows. */
 export async function countProfilesWithRole(role: string): Promise<number> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { count, error } = await admin
     .from("profiles")
     .select("id", { head: true, count: "exact" })

@@ -43,7 +43,10 @@ export interface BrandPublic {
  * Reads only `process.env` for Storage URL resolution (`resolveBrandAssetUrl`);
  * no network or filesystem I/O.
  */
-export function brandPublicFromProperties(p: ThemeProperties): BrandPublic {
+export function brandPublicFromProperties(
+  p: ThemeProperties,
+  supabaseUrl?: string | null,
+): BrandPublic {
   const tagline = getProperty(p, "app.tagline");
   const taglineEn = getProperty(p, "app.tagline.en", tagline);
   return {
@@ -55,11 +58,13 @@ export function brandPublicFromProperties(p: ThemeProperties): BrandPublic {
     logoPath: resolveBrandAssetUrl(
       getProperty(p, "app.logo.path", LOGO_FALLBACK),
       LOGO_FALLBACK,
+      supabaseUrl,
     ),
     logoAlt: getProperty(p, "app.logo.alt"),
     faviconPath: resolveBrandAssetUrl(
       getProperty(p, "app.favicon.path", FAV_FALLBACK),
       FAV_FALLBACK,
+      supabaseUrl,
     ),
     faviconBundlePrefix: (() => {
       const raw = getProperty(p, "app.favicon.bundle.prefix", "").trim();
@@ -83,9 +88,14 @@ export function getBrandPublic(): BrandPublic {
  * `site_themes` row (same merge as CSS tokens). Cached per React request via `cache()`.
  */
 export const getBrandForRequest = cache(async (): Promise<BrandPublic> => {
-  const { loadEffectiveProperties } = await import(
-    "@/lib/theme/loadEffectiveProperties"
-  );
-  const { properties } = await loadEffectiveProperties();
-  return brandPublicFromProperties(properties);
+  const [{ loadEffectiveProperties }, { readRequestSupabasePublicEnv }] =
+    await Promise.all([
+      import("@/lib/theme/loadEffectiveProperties"),
+      import("@/lib/supabase/requestPublicEnv"),
+    ]);
+  const [{ properties }, { url }] = await Promise.all([
+    loadEffectiveProperties(),
+    readRequestSupabasePublicEnv(),
+  ]);
+  return brandPublicFromProperties(properties, url);
 });

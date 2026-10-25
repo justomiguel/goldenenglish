@@ -10,7 +10,7 @@ const GOOD_ATTENDANCE = ["present", "late", "excused"] as const;
 export async function loadStudentBadgeEvaluationData(
   studentId: string,
 ): Promise<StudentBadgeEvaluationContext> {
-  const supabase = createAdminClient();
+  const supabase = await createAdminClient();
 
   const [taskRes, attRes, profile, passedRes, messagesRes] = await Promise.all([
     supabase

@@ -5,6 +5,7 @@ import type { Dictionary } from "@/types/i18n";
 import { LoginForm } from "@/components/organisms/LoginForm";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { LoginHeroPanel } from "@/components/molecules/LoginHeroPanel";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 interface LoginScreenDesktopProps {
   brand: BrandPublic;
@@ -12,6 +13,7 @@ interface LoginScreenDesktopProps {
   locale: string;
   nextPath?: string | null;
   firstRunSetupHref?: string | null;
+  inscriptionsEnabled?: boolean;
 }
 
 export function LoginScreenDesktop({
@@ -20,6 +22,7 @@ export function LoginScreenDesktop({
   locale,
   nextPath = null,
   firstRunSetupHref = null,
+  inscriptionsEnabled = false,
 }: LoginScreenDesktopProps) {
   const homeHref = `/${locale}`;
 
@@ -51,7 +54,7 @@ export function LoginScreenDesktop({
       </aside>
 
       <section className="relative flex flex-col border-t border-[var(--color-border)] md:border-t-0 md:border-l md:border-[var(--color-border)] md:shadow-[inset_1px_0_0_rgb(255_255_255_/60%)]">
-        <header className="flex items-center justify-between gap-4 px-5 pt-5 sm:px-8 sm:pt-7">
+        <header className={`${PUBLIC_MARKETING_CHROME_CLASS} flex items-center justify-between gap-4 px-5 pt-5 sm:px-8 sm:pt-7`}>
           <Link
             href={homeHref}
             className="inline-flex items-center gap-2 rounded-[var(--layout-border-radius)] px-2 py-2 text-sm font-semibold text-[var(--color-foreground)] outline-none ring-[var(--color-primary)] transition hover:bg-[var(--color-muted)]/80 hover:text-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-offset-2"
@@ -72,6 +75,7 @@ export function LoginScreenDesktop({
               labels={dict.login}
               locale={locale}
               nextPath={nextPath}
+              inscriptionsEnabled={inscriptionsEnabled}
             />
             {firstRunSetupHref ? (
               <p className="mt-6 text-center text-sm">

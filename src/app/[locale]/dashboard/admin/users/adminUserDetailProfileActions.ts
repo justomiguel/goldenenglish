@@ -32,7 +32,7 @@ export async function searchAdminParentsForDetailAction(query: string): Promise<
     logServerAuthzDenied(`${S}:searchParents`);
     return [];
   }
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   return searchAdminParentsByPrefix(admin, query);
 }
 
@@ -78,7 +78,7 @@ export async function updateAdminUserDetailFieldAction(
       return { ok: false, message: adminUserDetailDictError(dict, parsedField.code) };
     }
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
 
     if (field === "email") {
       const nextEmail = parsedField.normalized as string;

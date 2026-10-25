@@ -12,7 +12,7 @@ import {
   gatewayCountryForBillingCurrency,
   gatewaySupportsBillingCurrency,
 } from "@/lib/payment-gateways/gatewayCountryForBillingCurrency";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { buildShopOrderPath } from "@/lib/site/publicSharePaths";
 import { isPubliclyReachableUrl } from "@/lib/site/isPubliclyReachableUrl";
 import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
@@ -52,7 +52,7 @@ export async function startShopGatewayPayment(input: {
   orderId: string;
   payToken: string;
 }): Promise<{ ok: true; redirectUrl: string } | { ok: false }> {
-  const origin = getPublicSiteUrl();
+  const origin = await getRequestPublicSiteUrl();
   if (!origin) return { ok: false };
   const originStr = origin.toString();
   const returnUrl = new URL(

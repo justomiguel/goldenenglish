@@ -4,7 +4,7 @@ import { buildRegistrationPayBlock } from "@/lib/register/buildRegistrationPayBl
 import { familyEmailForTrialLead } from "@/lib/register/notifyTrialSeatMails";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
 import { logServerException } from "@/lib/logging/serverActionLog";
 
@@ -28,7 +28,7 @@ export async function notifyTrialRescheduled(input: {
   const isMinor = input.lead.birthDate
     ? fullYearsFromIsoDate(input.lead.birthDate) < getLegalAgeMajorityFromSystem()
     : false;
-  const to = familyEmailForTrialLead({
+  const to = await familyEmailForTrialLead({
     isMinor,
     studentEmail: input.lead.email,
     tutorEmail: input.lead.tutorEmail,
@@ -37,7 +37,7 @@ export async function notifyTrialRescheduled(input: {
   const studentName = `${input.lead.firstName} ${input.lead.lastName}`.trim();
   const payUrl =
     input.deltaAmount > 0 && input.payToken
-      ? absoluteUrl(`/${locale}/clase-prueba/${input.payToken}`)?.toString() ?? ""
+      ? (await absoluteUrlForRequest(`/${locale}/clase-prueba/${input.payToken}`))?.toString() ?? ""
       : "";
   const sent = await sendBrandedEmail({
     to,

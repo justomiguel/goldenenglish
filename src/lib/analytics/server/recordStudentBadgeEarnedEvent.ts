@@ -13,7 +13,7 @@ export async function recordStudentBadgeEarnedEvent(input: {
   badgeCode: string;
 }): Promise<void> {
   try {
-    const supabase = createAdminClient();
+    const supabase = await createAdminClient();
     const { error } = await supabase.from("user_events").insert({
       user_id: input.userId,
       event_type: "action" as UserEventTypeName,

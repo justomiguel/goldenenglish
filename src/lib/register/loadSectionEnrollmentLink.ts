@@ -1,5 +1,5 @@
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
-import { createAnonReadOnlyClient } from "@/lib/supabase/anon";
+import { createRequestAnonClient } from "@/lib/supabase/requestAnonClient";
 import {
   isSectionEnrollmentLinkToken,
   type SectionEnrollmentLinkContext,
@@ -23,7 +23,7 @@ export async function loadSectionEnrollmentLink(
   token: string,
 ): Promise<SectionEnrollmentLinkContext | null> {
   if (!isSectionEnrollmentLinkToken(token)) return null;
-  const supabase = createAnonReadOnlyClient();
+  const supabase = await createRequestAnonClient();
   if (!supabase) return null;
 
   const { data, error } = await supabase.rpc("resolve_section_enrollment_link", {

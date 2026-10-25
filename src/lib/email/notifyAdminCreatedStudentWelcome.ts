@@ -1,7 +1,7 @@
 import { collectFamilyMailboxesForStudent } from "@/lib/email/collectFamilyMailboxesForStudent";
 import { resolveAdminStudentWelcomeInvite } from "@/lib/email/resolveAdminStudentWelcomeInvite";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { logServerException } from "@/lib/logging/serverActionLog";
 import type { Locale } from "@/types/i18n";
 
@@ -37,7 +37,7 @@ export async function notifyAdminCreatedStudentWelcome(input: {
     const locale = asLocale(input.locale);
     const studentName = `${input.studentFirstName} ${input.studentLastName}`.replace(/\s+/g, " ").trim();
     const greetingName = input.studentFirstName.trim() || studentName;
-    const origin = getPublicSiteUrl()?.origin ?? "http://localhost:3000";
+    const origin = (await getRequestPublicSiteUrl())?.origin ?? "http://localhost:3000";
     const portalUrl = `${origin}/${locale}/login`;
     const templateKey =
       invite.audience === "tutor"

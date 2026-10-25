@@ -12,16 +12,22 @@ export interface PublicContactScreenNagoProps {
   locale: string;
   dict: Dictionary;
   brand: BrandPublic;
+  sessionEmail?: string | null;
 }
 
-export function PublicContactScreenNago({ locale, dict, brand }: PublicContactScreenNagoProps) {
+export function PublicContactScreenNago({
+  locale,
+  dict,
+  brand,
+  sessionEmail = null,
+}: PublicContactScreenNagoProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveNagoLogo(brand);
   const pc = dict.publicContact;
 
   return (
     <NagoFontRoot className="relative min-h-screen pb-16">
-      <NagoRegisterHeader locale={locale} logoSrc={logoSrc} logoAlt={brand.logoAlt || brand.name} dict={dict} />
+      <NagoRegisterHeader locale={locale} logoSrc={logoSrc} logoAlt={brand.logoAlt || brand.name} dict={dict} sessionEmail={sessionEmail} />
       <div
         className="pointer-events-none absolute inset-x-0 top-[76px] -z-10 h-[min(46vh,420px)] bg-[radial-gradient(ellipse_90%_70%_at_50%_0%,color-mix(in_srgb,var(--nago-gold)_16%,transparent)_0%,transparent_58%)]"
         aria-hidden

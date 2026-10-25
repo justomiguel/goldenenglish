@@ -67,7 +67,7 @@ export async function publishArticleAction(
     (translationRows ?? []).map((row) => [row.locale as BlogLocale, row.slug]),
   ) as Partial<Record<BlogLocale, string>>;
 
-  const shareLinks = resolveBlogArticleAdminShareLinks({
+  const shareLinks = await resolveBlogArticleAdminShareLinks({
     articleId: input.articleId,
     status: "published",
     slugsByLocale,

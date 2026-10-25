@@ -27,9 +27,14 @@ function isRateLimited(ip: string): boolean {
 }
 
 function clientIp(request: Request): string {
+  const host = (request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "default")
+    .trim()
+    .toLowerCase();
   const xf = request.headers.get("x-forwarded-for");
-  if (xf) return xf.split(",")[0]?.trim() ?? "unknown";
-  return request.headers.get("x-real-ip")?.trim() ?? "unknown";
+  const ip = xf
+    ? (xf.split(",")[0]?.trim() ?? "unknown")
+    : (request.headers.get("x-real-ip")?.trim() ?? "unknown");
+  return `${host}|${ip}`;
 }
 
 function isGatewayMethod(value: string): value is EventGatewayMethod {
@@ -79,7 +84,7 @@ export async function POST(
 
     let encryptionKey32;
     try {
-      encryptionKey32 = loadPaymentGatewayEncryptionKeyRaw32();
+      encryptionKey32 = await loadPaymentGatewayEncryptionKeyRaw32();
     } catch (error) {
       logServerException("api/events/payment-start:encryptionKey", error);
       return NextResponse.json(
@@ -89,7 +94,7 @@ export async function POST(
     }
 
     const result = await startEventGatewayPaymentCore({
-      admin: createAdminClient(),
+      admin: await createAdminClient(),
       encryptionKey32,
       slug,
       attendeeId,

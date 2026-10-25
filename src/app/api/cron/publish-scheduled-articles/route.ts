@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyCronRequest } from "@/lib/auth/verifyCronRequest";
 import { publishScheduledArticles } from "@/lib/blog/server";
 import { logServerException } from "@/lib/logging/serverActionLog";
+import { runCronAcrossTenants } from "@/lib/tenant/runCronAcrossTenants";
 
 export const runtime = "nodejs";
 
@@ -11,12 +12,14 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
+  return runCronAcrossTenants(async () => {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const result = await publishScheduledArticles(admin);
     return NextResponse.json(result, { status: result.ok ? 200 : 500 });
   } catch (error) {
     logServerException("api/cron/publish-scheduled-articles", error);
     return NextResponse.json({ ok: false }, { status: 500 });
   }
+  });
 }

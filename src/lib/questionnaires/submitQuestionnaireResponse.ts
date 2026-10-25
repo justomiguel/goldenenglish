@@ -12,7 +12,7 @@ export async function submitQuestionnaireResponse(input: {
   guestEmail: string | null;
   answers: Record<string, QuestionnaireAnswerInput | undefined>;
 }): Promise<{ ok: true } | { ok: false; code: QuestionnaireSubmitCode }> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const loaded = await loadPublicQuestionnaire(admin, input.slug);
   if (!loaded) return { ok: false, code: "not_found" };
   const { questionnaire, questions } = loaded;

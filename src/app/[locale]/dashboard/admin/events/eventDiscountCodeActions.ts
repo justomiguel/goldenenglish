@@ -54,7 +54,7 @@ export async function saveEventDiscountCodeAction(input: {
 }): Promise<EventDiscountCodeActionResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, code: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const current = await loadEventDiscountCodes(admin, input.eventId);
   const occupied = new Map(current.map((row) => [row.code.toLowerCase(), row.reserved + row.consumed]));
   const parsed = parseEventDiscountCodeSheet([[input.code, input.uses, input.percent]], occupied);
@@ -76,7 +76,7 @@ export async function importEventDiscountCodesAction(input: {
   if (!actorId) return { ok: false, code: "forbidden" };
   const matrix = readDiscountCodeMatrix(input.fileBase64);
   if (!matrix) return { ok: false, code: "file" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const current = await loadEventDiscountCodes(admin, input.eventId);
   const occupied = new Map(current.map((row) => [row.code.toLowerCase(), row.reserved + row.consumed]));
   const parsed = parseEventDiscountCodeSheet(matrix, occupied);
@@ -98,7 +98,7 @@ export async function generateEventDiscountCodesAction(input: {
 }): Promise<EventDiscountCodeActionResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, code: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const current = await loadEventDiscountCodes(admin, input.eventId);
   const generated = generateEventDiscountCodes({
     quantity: input.quantity,
@@ -131,7 +131,7 @@ export async function deleteEventDiscountCodeAction(input: {
 }): Promise<EventDiscountCodeActionResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, code: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data, error } = await admin.rpc("delete_event_discount_code", { p_code_id: input.codeId });
   if (error) return { ok: false, code: "delete_failed" };
   const status = String(data ?? "");

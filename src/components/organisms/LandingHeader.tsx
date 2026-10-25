@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { LayoutDashboard, LogIn, Menu, X } from "lucide-react";
+import { LayoutDashboard, Menu, X } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { PublicHeaderAccountCta } from "@/components/molecules/PublicHeaderAccountCta";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 interface LandingHeaderProps {
   brand: BrandPublic;
@@ -55,7 +57,7 @@ export function LandingHeader({
 
   return (
     <header
-      className="sticky top-0 z-50 border-b border-[var(--color-border)]/80 bg-[var(--color-surface)]/90 shadow-[var(--shadow-soft)] backdrop-blur-md"
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} sticky top-0 z-50 border-b border-[var(--color-border)]/80 bg-[var(--color-surface)]/90 shadow-[var(--shadow-soft)] backdrop-blur-md`}
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
       <div className="mx-auto flex max-w-[var(--layout-max-width)] items-center justify-between gap-3 px-[max(1rem,env(safe-area-inset-left))] py-3.5 pe-[max(1rem,env(safe-area-inset-right))]">
@@ -96,7 +98,7 @@ export function LandingHeader({
                 aria-hidden
                 strokeWidth={2}
               />
-              {dict.nav.administration}
+              {dict.nav.myPortal}
             </Link>
           ) : null}
           {sectionLinks.map(({ href, label }) => (
@@ -111,33 +113,15 @@ export function LandingHeader({
             aria-label={dict.nav.accountAria}
             className="flex shrink-0 flex-nowrap items-center gap-2 sm:gap-2.5"
           >
-            {sessionEmail ? (
-              <div className="flex max-w-full items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)]/80 bg-[var(--color-surface)] px-2 py-1 shadow-sm sm:px-3">
-                <span
-                  className="hidden max-w-[10rem] truncate text-sm text-[var(--color-muted-foreground)] md:inline"
-                  title={sessionEmail}
-                >
-                  {sessionEmail}
-                </span>
-                <SignOutButton
-                  locale={locale}
-                  label={dict.nav.logout}
-                  className="rounded-[var(--layout-border-radius)] border-2 border-[var(--color-primary)] bg-transparent px-3 py-2 text-sm font-medium text-[var(--color-primary)] transition hover:bg-[var(--color-muted)] active:scale-[0.98] sm:px-4"
-                />
-              </div>
-            ) : (
-              <Link
-                href={`/${locale}/login`}
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-2 font-medium text-[var(--color-primary-foreground)] shadow-md transition hover:bg-[var(--color-primary-dark)] active:scale-[0.98]"
-              >
-                <LogIn
-                  className="h-4 w-4 opacity-90"
-                  aria-hidden
-                  strokeWidth={stroke}
-                />
-                <span className="hidden sm:inline">{dict.nav.login}</span>
-              </Link>
-            )}
+            <PublicHeaderAccountCta
+              locale={locale}
+              sessionEmail={sessionEmail}
+              loginLabel={dict.nav.login}
+              loginShort={dict.nav.loginShort}
+              portalLabel={dict.nav.myPortal}
+              logoutLabel={dict.nav.logout}
+              showLogout
+            />
           </nav>
           <button
             type="button"
@@ -188,7 +172,7 @@ export function LandingHeader({
                 onClick={() => setOpen(false)}
               >
                 <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                {dict.nav.administration}
+                {dict.nav.myPortal}
               </Link>
               <SignOutButton
                 locale={locale}

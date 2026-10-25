@@ -17,7 +17,7 @@ const FAIL_OPEN: EmailSendGate = { map: {}, classRemindersEnabled: true };
 
 export async function loadEmailSendGate(): Promise<EmailSendGate> {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data, error } = await admin
       .from("site_settings")
       .select("key, value")

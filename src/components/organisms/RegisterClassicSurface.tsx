@@ -18,6 +18,7 @@ export interface RegisterClassicSurfaceProps {
   enrollmentLink?: SectionEnrollmentLinkContext;
   extrasPack?: "nago" | null;
   intent?: RegisterIntent;
+  sessionEmail?: string | null;
 }
 
 export function RegisterClassicSurface({
@@ -29,6 +30,7 @@ export function RegisterClassicSurface({
   enrollmentLink,
   extrasPack = null,
   intent = "reserve",
+  sessionEmail = null,
 }: RegisterClassicSurfaceProps) {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[var(--color-muted)] px-4 py-10 md:py-14">
@@ -36,7 +38,7 @@ export function RegisterClassicSurface({
         className="pointer-events-none absolute inset-x-0 top-0 h-[min(55vh,520px)] -z-10 bg-[radial-gradient(ellipse_90%_80%_at_50%_-10%,color-mix(in_srgb,var(--color-accent)_16%,transparent)_0%,transparent_65%)] opacity-90"
         aria-hidden
       />
-      <RegisterSiteHeader brand={brand} locale={locale} dict={dict} />
+      <RegisterSiteHeader brand={brand} locale={locale} dict={dict} sessionEmail={sessionEmail} />
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
         <header className="text-center">

@@ -12,6 +12,8 @@ import { isKvImportConfigured, mergeImportJob } from "@/lib/import/importJobKv";
 import { runBulkImportJobWithKv } from "@/lib/import/runBulkImportJobWithKv";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
+import { runWithTenant } from "@/lib/tenant/tenantAls";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 export const runtime = "nodejs";
 
@@ -21,7 +23,8 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: Request) {
-  if (!isKvImportConfigured()) {
+  const tenant = await resolveRequestTenant();
+  if (!isKvImportConfigured(tenant)) {
     return NextResponse.json({ ok: false, code: "kv_not_configured" as const });
   }
 
@@ -67,15 +70,19 @@ export async function POST(request: Request) {
   };
 
   const jobId = crypto.randomUUID();
-  await mergeImportJob(jobId, {
-    ownerId: userId,
-    status: "queued",
-    phase: "queued",
-    message: "",
-    current: 0,
-    total: rowsParsed.data.length,
-    activityAppend: { t: Date.now(), code: "queued" },
-  });
+  await mergeImportJob(
+    jobId,
+    {
+      ownerId: userId,
+      status: "queued",
+      phase: "queued",
+      message: "",
+      current: 0,
+      total: rowsParsed.data.length,
+      activityAppend: { t: Date.now(), code: "queued" },
+    },
+    tenant,
+  );
 
   void recordSystemAudit({
     action: "csv_import_job_started",
@@ -85,7 +92,23 @@ export async function POST(request: Request) {
   });
 
   after(() =>
-    runBulkImportJobWithKv(jobId, userId, rowsParsed.data, tutorDefaults, parsedBody.data.locale),
+    tenant
+      ? runWithTenant(tenant, () =>
+          runBulkImportJobWithKv(
+            jobId,
+            userId,
+            rowsParsed.data,
+            tutorDefaults,
+            parsedBody.data.locale,
+          ),
+        )
+      : runBulkImportJobWithKv(
+          jobId,
+          userId,
+          rowsParsed.data,
+          tutorDefaults,
+          parsedBody.data.locale,
+        ),
   );
 
   return NextResponse.json({ ok: true, jobId });

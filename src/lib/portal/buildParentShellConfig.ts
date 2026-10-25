@@ -87,6 +87,7 @@ export function buildParentShellConfig(
     sections.find((section) => section.sectionId === input.activeSectionId) ?? sections[0] ?? null;
 
   const accountItems: PortalAccountItem[] = [
+    { id: "publicSite", label: chrome.backToSite, href: `/${locale}` },
     { id: "profile", label: nav.myProfile, href: `/${locale}/dashboard/profile` },
   ];
 
@@ -141,6 +142,7 @@ export function buildParentShellConfig(
     accountOpenLabel: portal.accountOpen,
     accountHeading: portal.accountHeading,
     accountCloseLabel: portal.accountClose,
+    backToSiteLabel: chrome.backToSite,
     destinations,
     accountItems,
     subjectGroups,

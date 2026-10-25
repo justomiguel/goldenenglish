@@ -6,6 +6,8 @@ import { LayoutDashboard, LogIn, Menu, Sparkles, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { PublicHeaderAccountCta } from "@/components/molecules/PublicHeaderAccountCta";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 function FbIcon({ className }: { className?: string }) {
   return (
@@ -88,7 +90,7 @@ export function MiMundoSiteHeader({
     <header
       ref={headerRef}
       id="top"
-      className={`mm-header sticky top-0 z-50 border-b border-[var(--mm-green)]/20 bg-[var(--mm-cream)]/95${scrolled ? " mm-scrolled" : ""}`}
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} mm-header sticky top-0 z-50 border-b border-[var(--mm-green)]/20 bg-[var(--mm-cream)]/95${scrolled ? " mm-scrolled" : ""}`}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-[max(1rem,env(safe-area-inset-left))] py-2.5 pe-[max(1rem,env(safe-area-inset-right))] sm:py-3 md:gap-3 lg:gap-4 lg:py-4">
@@ -135,33 +137,24 @@ export function MiMundoSiteHeader({
             </a>
           ) : null}
           <nav aria-label={dict.nav.accountAria} className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            {sessionEmail ? (
-              <>
-                <Link href={`/${locale}/dashboard`}
-                  className="hidden min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full border border-[var(--mm-green)]/40 bg-white px-3 py-2 text-xs font-semibold text-[var(--mm-green)] shadow-sm transition hover:bg-[var(--mm-green)]/8 md:inline-flex sm:px-3.5"
-                  aria-label={dict.nav.administration} title={dict.nav.administration}>
-                  <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                  <span className="hidden md:inline">{dict.nav.administration}</span>
-                </Link>
-                <SignOutButton locale={locale} label={dict.nav.logout} iconOnly title={dict.nav.logout}
-                  className="hidden min-h-[44px] min-w-[44px] rounded-full border border-[var(--mm-green)]/40 bg-white text-[var(--mm-green)] shadow-sm transition hover:bg-[var(--mm-green)]/8 md:inline-flex" />
-              </>
-            ) : (
-              <>
-                <Link href={`/${locale}/login`}
-                  className="hidden min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full border border-[var(--mm-green)]/50 bg-white px-3 py-2 text-xs font-semibold text-[var(--mm-green)] shadow-sm transition hover:bg-[var(--mm-green)]/8 sm:inline-flex sm:px-4"
-                  aria-label={labels.login}>
-                  <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                  <span className="hidden md:inline">{labels.login}</span>
-                </Link>
-                <Link href={`/${locale}/register`}
-                  className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full bg-[var(--mm-blue-dark)] px-3 py-2 text-xs font-semibold text-white shadow-[0_6px_18px_-8px_rgb(35_94_142_/55%)] transition hover:bg-[#1a486c] sm:px-4"
-                  aria-label={labels.reservar}>
-                  <Sparkles className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                  <span>{labels.reservar}</span>
-                </Link>
-              </>
-            )}
+            <PublicHeaderAccountCta
+              locale={locale}
+              sessionEmail={sessionEmail}
+              loginLabel={dict.nav.login}
+              loginShort={dict.nav.loginShort}
+              portalLabel={dict.nav.myPortal}
+              logoutLabel={dict.nav.logout}
+              tone="mimundo"
+              showLogout={Boolean(sessionEmail)}
+            />
+            {!sessionEmail ? (
+              <Link href={`/${locale}/register`}
+                className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full bg-[var(--mm-blue-dark)] px-3 py-2 text-xs font-semibold text-white shadow-[0_6px_18px_-8px_rgb(35_94_142_/55%)] transition hover:bg-[#1a486c] sm:px-4"
+                aria-label={labels.reservar}>
+                <Sparkles className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
+                <span>{labels.reservar}</span>
+              </Link>
+            ) : null}
           </nav>
           <button type="button"
             className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[var(--mm-green)]/35 bg-white text-[var(--mm-green)] shadow-sm lg:hidden"
@@ -194,7 +187,7 @@ export function MiMundoSiteHeader({
                   className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[var(--mm-green)] px-4 py-2 text-sm font-semibold text-white"
                   onClick={() => setOpen(false)}>
                   <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                  {dict.nav.administration}
+                  {dict.nav.myPortal}
                 </Link>
                 <SignOutButton locale={locale} label={dict.nav.logout}
                   className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full border border-[var(--mm-green)]/40 bg-white px-4 py-2 text-sm font-semibold text-[var(--mm-green)]" />

@@ -113,6 +113,7 @@ describe("buildParentShellConfig", () => {
 
   it("offers profile, child details, language, install and sign out in the account menu", () => {
     expect(build().accountItems.map((item) => item.id)).toEqual([
+      "publicSite",
       "profile",
       "childDetails",
       "language",
@@ -124,6 +125,7 @@ describe("buildParentShellConfig", () => {
   it("drops child details when no student is linked", () => {
     const config = build({ focusCatalog: catalog([]), activeStudentId: null });
     expect(config.accountItems.map((item) => item.id)).toEqual([
+      "publicSite",
       "profile",
       "language",
       "installApp",

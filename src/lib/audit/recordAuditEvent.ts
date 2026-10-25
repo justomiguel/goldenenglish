@@ -25,7 +25,7 @@ export async function recordAuditEvent(
     const diff = sanitizedDiff(input.diff ?? buildAuditDiff(beforeValues, afterValues));
     const metadata = sanitizeAuditPayload(input.metadata ?? {});
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { error } = await admin.from("audit_events").insert({
       actor_id: input.actorId ?? null,
       actor_role: input.actorRole ?? null,

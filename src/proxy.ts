@@ -5,6 +5,11 @@ import {
   syncContentViewViewerSessionCookie,
 } from "@/lib/analytics/server/contentViewSession";
 import { updateSession } from "@/lib/supabase/middleware";
+import { ensureTenantRegistryLoaded } from "@/lib/pulsar/pulsarTenantStore";
+import {
+  isPulsarRequestFromHeaderGet,
+  tenantHostBlockStatus,
+} from "@/lib/tenant/tenantRegistry";
 import { defaultLocale, locales } from "@/lib/i18n/dictionaries";
 
 const localeAlternation = locales.join("|");
@@ -39,6 +44,9 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
 
   /** App Router APIs live at `/api/*`, not under `[locale]` — skip locale prefix redirect. */
   if (pathname === "/api" || pathname.startsWith("/api/")) {
+    await ensureTenantRegistryLoaded();
+    const blocked = blockUnknownTenant(request);
+    if (blocked) return blocked;
     const { response } = await updateSession(request);
     return response;
   }
@@ -53,6 +61,10 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
     return NextResponse.rewrite(request.nextUrl);
   }
 
+  await ensureTenantRegistryLoaded();
+  const blocked = blockUnknownTenant(request);
+  if (blocked) return blocked;
+
   const hasLocale = locales.some(
     (l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`,
   );
@@ -60,6 +72,18 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   if (!hasLocale) {
     request.nextUrl.pathname = `/${defaultLocale}${pathname}`;
     return NextResponse.redirect(request.nextUrl);
+  }
+
+  const isPulsar = isPulsarRequestFromHeaderGet((name) => request.headers.get(name));
+  if (isPulsar) {
+    const pulsarShortcut = pathname.match(/^\/([^/]+)\/(?:login|dashboard(?:\/.*)?)$/);
+    if (pulsarShortcut) {
+      const loc = pulsarShortcut[1];
+      request.nextUrl.pathname = `/${loc}/admin`;
+      return NextResponse.redirect(request.nextUrl);
+    }
+    const { response } = await updateSession(request);
+    return response;
   }
 
   const parentDash = pathname.match(/^\/([^/]+)\/parent\/dashboard\/?$/);
@@ -78,4 +102,13 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   }
   scheduleTrafficPageHitFromMiddleware(request, userId, event);
   return response;
+}
+
+function blockUnknownTenant(request: NextRequest): NextResponse | null {
+  const status = tenantHostBlockStatus(
+    (name) => request.headers.get(name),
+    request.nextUrl.pathname,
+  );
+  if (!status) return null;
+  return new NextResponse(null, { status });
 }

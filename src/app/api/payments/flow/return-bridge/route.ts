@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { logServerException } from "@/lib/logging/serverActionLog";
 
 /**
@@ -19,7 +19,7 @@ export async function POST(req: Request): Promise<Response> {
     const body = new URLSearchParams(raw);
     const token = body.get("token")?.trim() ?? "";
 
-    const base = getPublicSiteUrl();
+    const base = await getRequestPublicSiteUrl();
     if (!base) {
       return new Response("misconfigured", { status: 502 });
     }

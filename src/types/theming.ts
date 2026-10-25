@@ -3,6 +3,10 @@ import type { ThemeProperties } from "@/lib/theme/themeParser";
 /** Cache tag invalidated when admin activates/edits the live theme. */
 export const SITE_THEME_ACTIVE_CACHE_TAG = "site-theme-active";
 
+export function siteThemeActiveCacheTagForTenant(slug: string): string {
+  return `${SITE_THEME_ACTIVE_CACHE_TAG}:${slug.trim().toLowerCase()}`;
+}
+
 /** Closed catalog of landing sections that admit media + content overrides. */
 export const LANDING_SECTION_SLUGS = [
   "inicio",

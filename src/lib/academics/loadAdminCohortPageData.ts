@@ -4,6 +4,7 @@ import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionM
 import { SECTION_LEAD_TEACHER_ELIGIBLE_ROLES } from "@/lib/academics/sectionStaffEligibleRoles";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 
 export interface AdminCohortSectionRow {
   id: string;
@@ -37,11 +38,14 @@ async function loadSectionRows(
   locale: string,
   defMax: number,
 ): Promise<AdminCohortSectionRow[]> {
-  const { data: sections } = await supabase
-    .from("academic_sections")
-    .select("id, name, max_students, teacher_id, archived_at, starts_on, ends_on, reference_image_path")
-    .eq("cohort_id", cohortId)
-    .order("name");
+  const [{ data: sections }, { url: supabaseUrl }] = await Promise.all([
+    supabase
+      .from("academic_sections")
+      .select("id, name, max_students, teacher_id, archived_at, starts_on, ends_on, reference_image_path")
+      .eq("cohort_id", cohortId)
+      .order("name"),
+    readRequestSupabasePublicEnv(),
+  ]);
   const dateFmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
   return Promise.all(
     (sections ?? []).map(async (s) => {
@@ -69,6 +73,7 @@ async function loadSectionRows(
         periodLine,
         referenceImageUrl: sectionReferenceImagePublicUrl(
           (s as { reference_image_path?: string | null }).reference_image_path,
+          supabaseUrl,
         ),
       };
     }),

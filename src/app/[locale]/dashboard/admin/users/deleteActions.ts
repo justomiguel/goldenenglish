@@ -47,7 +47,7 @@ export async function previewAdminUserDeletionPlan(
     return { ok: false, message: U.errDeleteInvalid };
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const planPreview = await buildAdminUserDeletionPlan(admin, sanitized);
   if ("error" in planPreview) {
     return { ok: false, message: U.errDeleteInvalid };
@@ -106,7 +106,7 @@ export async function deleteAdminUsers(
     return { ok: false };
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const plan = await buildAdminUserDeletionPlan(admin, sanitized);
   if ("error" in plan) return { ok: false };
   const { orderedIds: toDeleteOrdered, cascadeStudentIds } = plan;

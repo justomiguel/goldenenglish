@@ -22,9 +22,11 @@ import { BlogArticleDetailSurfaceEntry } from "@/components/organisms/BlogArticl
 import { JsonLdArticle } from "@/components/molecules/JsonLdArticle";
 import { BlogArticleRelatedInline } from "@/components/molecules/BlogArticleRelatedInline";
 import { getBrandForRequest } from "@/lib/brand/server";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { buildPublicShareMetadata } from "@/lib/site/buildPublicShareMetadata";
 import { buildPublicShareTitle, clipShareDescription } from "@/lib/site/publicShareText";
+import { blogMediaPublicUrl } from "@/lib/blog/blogMedia";
 import { resolveBlogCoverImageUrl } from "@/lib/rich-content/resolvePublicContentCoverUrl";
 import { stripFirstImageFromHtml } from "@/lib/rich-content/stripFirstImageFromHtml";
 import { BlogCommentsSection } from "@/components/organisms/BlogCommentsSection";
@@ -52,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = translation.seoTitle ?? translation.title;
   const description = clipShareDescription(translation.seoDescription ?? translation.excerpt);
   const shareTitle = buildPublicShareTitle(translation.title, brand.name);
-  const share = buildPublicShareMetadata({
+  const share = await buildPublicShareMetadata({
     title: shareTitle,
     description,
     path: `/${locale}/blog/${translation.slug}`,
@@ -117,10 +119,14 @@ export default async function BlogDetailPage({ params }: PageProps) {
     locale: blogLocale,
     limit: 3,
   });
-  const publicUrl = getPublicSiteUrl();
+  const [publicUrl, { url: supabaseUrl }] = await Promise.all([
+    getRequestPublicSiteUrl(),
+    readRequestSupabasePublicEnv(),
+  ]);
   const coverImageUrl = resolveBlogCoverImageUrl(
     translation.bodyHtml,
     article.coverStoragePath,
+    supabaseUrl,
   );
   const coverUnoptimized =
     coverImageUrl?.startsWith("/images/") || coverImageUrl?.startsWith("data:");
@@ -128,6 +134,13 @@ export default async function BlogDetailPage({ params }: PageProps) {
     ? stripFirstImageFromHtml(translation.bodyHtml)
     : translation.bodyHtml;
   const richContentLabels = pickBlogRichContentLabels(dict);
+  const attachments = supabaseUrl
+    ? translation.attachments.map((item) =>
+        item.kind === "file"
+          ? { ...item, storagePath: blogMediaPublicUrl(supabaseUrl, item.storagePath) }
+          : item,
+      )
+    : translation.attachments;
 
   return (
     <BlogArticleLocaleHrefProvider hrefs={localeHrefMap}>
@@ -139,7 +152,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
           bodyHtml={bodyHtml}
           coverImageUrl={coverImageUrl}
           coverUnoptimized={Boolean(coverUnoptimized)}
-          attachments={translation.attachments}
+          attachments={attachments}
           attachmentsTitle={detailLabels.attachmentsTitle}
           heroLabels={{
             backToBlog: detailLabels.backToBlog,

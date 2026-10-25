@@ -30,7 +30,7 @@ export async function runBulkImportJobWithKv(
       activityAppend: { t: Date.now(), code: "rows_begin", meta: { total } },
     });
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const throwIfCancelled = async () => {
       const latest = await readImportJob(jobId);
       if (latest?.phase === "cancelled" || latest?.error === IMPORT_JOB_CANCELLED_BY_USER) {

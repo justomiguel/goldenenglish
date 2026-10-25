@@ -22,6 +22,7 @@ export interface RegisterMozarthitosSurfaceProps {
   extrasPack?: "nago" | null;
   mediaMap?: LandingMediaMap;
   intent?: RegisterIntent;
+  sessionEmail?: string | null;
 }
 
 export function RegisterMozarthitosSurface({
@@ -34,6 +35,7 @@ export function RegisterMozarthitosSurface({
   enrollmentLink,
   extrasPack = null,
   intent = "reserve",
+  sessionEmail = null,
 }: RegisterMozarthitosSurfaceProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveLandingImageSrcForTheme(
@@ -57,6 +59,7 @@ export function RegisterMozarthitosSurface({
         logoSrc={logoSrc}
         logoAlt={brand.logoAlt || brand.name}
         dict={dict}
+        sessionEmail={sessionEmail}
       />
       <div
         className="pointer-events-none absolute inset-x-0 top-[72px] -z-10 h-[min(50vh,460px)] bg-[radial-gradient(ellipse_85%_75%_at_50%_-5%,color-mix(in_srgb,var(--mz-yellow)_22%,transparent)_0%,transparent_60%)] opacity-90 md:top-20"

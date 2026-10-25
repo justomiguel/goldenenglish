@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { assertBlogAuthor } from "@/lib/dashboard/assertBlogAuthor";
 import { createBlogPreviewToken } from "@/lib/blog/previewToken";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 const bodySchema = z.object({
   articleId: z.string().uuid(),
@@ -18,7 +19,8 @@ export async function POST(request: Request) {
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) return NextResponse.json({ ok: false }, { status: 400 });
 
-  const token = createBlogPreviewToken(parsed.data.articleId);
+  const tenant = await resolveRequestTenant();
+  const token = createBlogPreviewToken(parsed.data.articleId, undefined, tenant?.slug);
   if (!token) return NextResponse.json({ ok: false }, { status: 500 });
 
   return NextResponse.json(

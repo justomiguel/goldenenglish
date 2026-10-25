@@ -37,6 +37,7 @@ export function resolveDashboardActorState(input: {
   isAdmin: boolean;
   cookieValue: string | null;
   subject: ViewAsProfileRow | null;
+  tenantSlug?: string | null;
 }): Omit<DashboardActor, "sessionUserId" | "isAdmin"> {
   const empty = {
     viewerId: input.sessionUserId,
@@ -48,7 +49,7 @@ export function resolveDashboardActorState(input: {
   if (!input.cookieValue) return empty;
   if (!input.isAdmin) return empty;
 
-  const payload = verifyViewAsCookie(input.cookieValue);
+  const payload = verifyViewAsCookie(input.cookieValue, input.tenantSlug);
   if (!payload) {
     return { ...empty, clearCookie: true, redirectAdminEnded: true };
   }

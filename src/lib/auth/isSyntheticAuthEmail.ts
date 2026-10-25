@@ -1,5 +1,6 @@
 import { isParentSyntheticEmail } from "@/lib/import/parentDefaultEmail";
 import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
+import { knownMailTenantDomains } from "@/lib/tenant/tenantRegistry";
 
 const LEGACY_STUDENT_SYNTHETIC_SUFFIX = "@students.goldenenglish.local";
 
@@ -24,8 +25,10 @@ export function isSyntheticAuthEmail(email: string): boolean {
   const local = trimmed.slice(0, at);
   const domain = trimmed.slice(at + 1);
   if (SYNTHETIC_MINOR_DOCUMENT_LOCAL_RE.test(local)) return true;
+  const domains = new Set(knownMailTenantDomains());
   const tenant = getRegistrationMailTenantDomain();
-  if (tenant && domain === tenant && SYNTHETIC_MINOR_TENANT_LOCAL_RE.test(local)) {
+  if (tenant) domains.add(tenant);
+  if (domains.has(domain) && SYNTHETIC_MINOR_TENANT_LOCAL_RE.test(local)) {
     return true;
   }
   return false;

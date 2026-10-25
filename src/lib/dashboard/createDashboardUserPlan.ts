@@ -4,7 +4,7 @@ import type { Dictionary } from "@/types/i18n";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 import { composeSyntheticMinorStudentEmail } from "@/lib/register/composeSyntheticMinorStudentEmail";
-import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
+import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
 import { localizeRegistrationAcceptError } from "@/lib/register/localizeRegistrationAcceptError";
 import { localizeCreateDashboardUserError } from "@/lib/dashboard/localizeCreateDashboardUser";
 import { TUTOR_STUDENT_RELATIONSHIP_CODES } from "@/lib/register/tutorStudentRelationship";
@@ -87,10 +87,10 @@ function emailFieldValid(raw: string): boolean {
 }
 
 /** Resolves login email, profile phone, Auth metadata, minor guardian link intent. */
-export function planCreateDashboardUserInvite(
+export async function planCreateDashboardUserInvite(
   dict: Dictionary,
   parsed: CreateDashboardUserParsed,
-): CreateDashboardUserInvitePlan {
+): Promise<CreateDashboardUserInvitePlan> {
   const finalRole = (parsed.role ?? "student") as AdminInvitedProfileFields["role"];
   const dniOrPassport = parsed.dni_or_passport;
   const phone = parsed.phone;
@@ -123,7 +123,7 @@ export function planCreateDashboardUserInvite(
         effectiveEmail = parsed.email.trim().toLowerCase();
         effectivePhone = null;
       } else {
-        const tenant = getRegistrationMailTenantDomain();
+        const tenant = await getRequestMailTenantDomain();
         if (!tenant) {
           return { ok: false, message: dict.actionErrors.register.mailTenantMissing };
         }

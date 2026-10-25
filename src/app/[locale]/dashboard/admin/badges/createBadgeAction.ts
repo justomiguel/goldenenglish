@@ -21,7 +21,7 @@ export async function createBadgeAction(raw: BadgeCreateInput): Promise<BadgeAct
   if (!parsed.success) return { ok: false, message: ae.invalidData };
   try {
     const { user } = await assertAdmin();
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data, error } = await admin
       .from("badge_catalog")
       .insert({

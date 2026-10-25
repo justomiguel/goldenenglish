@@ -5,11 +5,11 @@ import {
 } from "@/lib/site/buildPublicShareMetadata";
 
 describe("buildPublicShareMetadata", () => {
-  it("includes og:image when cover url is present", () => {
+  it("includes og:image when cover url is present", async () => {
     const prev = process.env.NEXT_PUBLIC_APP_URL;
     process.env.NEXT_PUBLIC_APP_URL = "https://example.com";
     try {
-      const meta = buildPublicShareMetadata({
+      const meta = await buildPublicShareMetadata({
         title: "Workshop",
         description: "Join us",
         path: "/es/events/workshop",
@@ -24,8 +24,8 @@ describe("buildPublicShareMetadata", () => {
     }
   });
 
-  it("defers image urls when route opengraph-image handles preview", () => {
-    const meta = buildPublicShareMetadata({
+  it("defers image urls when route opengraph-image handles preview", async () => {
+    const meta = await buildPublicShareMetadata({
       title: "Post",
       description: "Body",
       path: "/es/blog/post",
@@ -37,11 +37,11 @@ describe("buildPublicShareMetadata", () => {
     expect(meta.twitter?.card).toBe("summary_large_image");
   });
 
-  it("resolves site-relative fallback urls", () => {
+  it("resolves site-relative fallback urls", async () => {
     const prev = process.env.NEXT_PUBLIC_APP_URL;
     process.env.NEXT_PUBLIC_APP_URL = "https://example.com";
     try {
-      expect(toAbsoluteShareUrl("/images/logo.png")).toBe("https://example.com/images/logo.png");
+      expect(await toAbsoluteShareUrl("/images/logo.png")).toBe("https://example.com/images/logo.png");
     } finally {
       process.env.NEXT_PUBLIC_APP_URL = prev;
     }

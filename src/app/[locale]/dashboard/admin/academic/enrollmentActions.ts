@@ -90,7 +90,7 @@ export async function enrollStudentInSectionAction(input: {
       const disposition =
         parseJoinDispositionInput(input.joinDisposition) ?? { kind: "behind" };
       const seeded = await runJoinBillingDisposition({
-        admin: createAdminClient(),
+        admin: await createAdminClient(),
         studentId: studentId.data,
         sectionIds: [sectionId.data],
         disposition,

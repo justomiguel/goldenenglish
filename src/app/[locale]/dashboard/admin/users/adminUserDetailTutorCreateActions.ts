@@ -86,7 +86,7 @@ export async function createAdminParentAndLinkStudentAction(
       confirmReuseOfProfileId,
     } = parsed.data;
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: stu, error: stuErr } = await admin.from("profiles").select("role").eq("id", studentId).single();
     if (stuErr || !stu || String(stu.role) !== "student") {
       return { ok: false, message: L.detailErrSave };

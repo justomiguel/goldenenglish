@@ -35,7 +35,8 @@
     "offline": {
       "title": "Sin conexión",
       "body": "Revisa tu conexión e intenta de nuevo.",
-      "retry": "Volver a {brand}"
+      "retry": "Volver a {brand}",
+      "retryGeneric": "Volver al inicio"
     },
     "install": {
       "title": "Instala la app",
@@ -55,7 +56,9 @@
       "parentMessages": "Mensajes (familia)",
       "parentMessagesShort": "Mensajes",
       "parentProgress": "Progreso y comentarios del docente",
-      "parentProgressShort": "Progreso"
+      "parentProgressShort": "Progreso",
+      "studentPortal": "Portal del estudiante",
+      "studentPortalShort": "Estudiante"
     },
     "pullToRefresh": {
       "pull": "Desliza para actualizar",
@@ -304,6 +307,8 @@
     "forgotPassword": "¿Olvidaste tu contraseña?",
     "noAccount": "¿No tienes cuenta?",
     "signUp": "Regístrate",
+    "registerPrompt": "¿Aún no tienes cuenta?",
+    "registerCta": "Inscríbete o agenda tu clase",
     "errors": {
       "invalidCredentials": "Correo/documento o contraseña inválidos",
       "identifierRequired": "Ingresa tu correo o documento",
@@ -382,7 +387,18 @@
     "closeMenu": "Cerrar menú",
     "modalities": "Modalidades",
     "certifications": "Certificaciones",
-    "administration": "Panel"
+    "administration": "Panel",
+    "loginShort": "Ingresar",
+    "myPortal": "Mi Portal",
+    "publicPwaBar": {
+      "home": "Inicio",
+      "courses": "Cursos",
+      "events": "Eventos",
+      "enroll": "Inscribirse",
+      "shop": "Tienda",
+      "blog": "Blog",
+      "aria": "Sitio público"
+    }
   },
   "landing": {
     "greenfieldPending": {
@@ -11908,6 +11924,204 @@
       "catalogLink": "Tienda",
       "ordersLink": "Pedidos",
       "studentLead": "Pedidos asignados a ti para retirar en el instituto."
+    }
+  },
+  "pulsar": {
+    "meta": {
+      "brandName": "Pulsar Lab",
+      "homeTitle": "Pulsar Lab — Plataforma integral para institutos y academias",
+      "productoTitle": "Producto",
+      "clientesTitle": "Clientes",
+      "contactoTitle": "Contacto",
+      "adminTitle": "Control Plane — Pulsar Lab",
+      "description": "Infraestructura digital, portales de alumnos y familias, pagos y gestión académica con base de datos aislada para cada instituto."
+    },
+    "nav": {
+      "home": "Inicio",
+      "product": "Producto",
+      "clients": "Clientes",
+      "contact": "Contacto",
+      "admin": "Control Plane",
+      "cta": "Solicitar demo",
+      "footerRights": "Pulsar Lab. Infraestructura dedicada para academias e institutos."
+    },
+    "home": {
+      "eyebrow": "INFRAESTRUCTURA PARA INSTITUTOS Y ACADEMIAS",
+      "title": "Tu instituto con plataforma propia, portal móvil y base de datos aislada",
+      "lead": "Operamos el sitio web, las inscripciones, la cobranza, la asistencia y la app instalada de cada institución desde una arquitectura multi-tenant con aislamiento real por cliente.",
+      "primaryCta": "Conversemos sobre tu instituto",
+      "secondaryCta": "Explorar módulos del producto",
+      "stats": {
+        "tenantsLabel": "Institutos configurados",
+        "isolationValue": "100% aislada",
+        "isolationLabel": "Base de datos Supabase por cliente",
+        "edgeValue": "1 deploy",
+        "edgeLabel": "Cómputo unificado en Vercel con alta sin redeploy"
+      },
+      "pillarsTitle": "Por qué los institutos eligen Pulsar Lab",
+      "pillarsLead": "Cada institución conserva su dominio, su identidad visual y su propia base de datos, mientras recibe mejoras continuas desde un núcleo compartido.",
+      "pillar1Title": "Aislamiento total de datos",
+      "pillar1Body": "Cada cliente corre sobre su propio proyecto de Supabase (Auth, Postgres y Storage independientes).",
+      "pillar2Title": "Identidad y PWA a medida",
+      "pillar2Body": "Landing editorial, manifiesto web e íconos de instalación propios en cada dominio.",
+      "pillar3Title": "Operación académica y pagos",
+      "pillar3Body": "Inscripciones, secciones, asistencia, comunicados, eventos, tienda y pasarelas de pago integradas."
+    },
+    "product": {
+      "eyebrow": "ARQUITECTURA Y MÓDULOS",
+      "title": "Todo lo que necesita un instituto moderno en una sola plataforma",
+      "lead": "Desde la captación en la web pública hasta el seguimiento diario de cada alumno y apoderado.",
+      "m1Title": "Sitio público, CMS, eventos y blog",
+      "m1Body": "Plantillas de alto impacto por rubro, agenda de eventos con venta de entradas y blog institucional optimizado para SEO.",
+      "m2Title": "Admisión, clases de prueba y matrículas",
+      "m2Body": "Flujos de inscripción por horarios, reserva de clase de prueba y enlaces directos por sección.",
+      "m3Title": "Gestión académica y asistencia",
+      "m3Body": "Cohortes, secciones, rutas de aprendizaje, insignias, matriz de asistencia y recordatorios automáticos por correo y WhatsApp.",
+      "m4Title": "Portal de familias y alumnos (Web + PWA)",
+      "m4Body": "Experiencia nativa instalable en el celular con calendario, progreso, tareas, tienda y pagos mensuales.",
+      "m5Title": "Finanzas, pasarelas y comprobantes",
+      "m5Body": "Integración con Flow y Mercado Pago, becas familiares, revisión de transferencias y recibos firmados.",
+      "m6Title": "Control Plane sin redeploy",
+      "m6Body": "Alta de nuevos institutos y dominios en caliente desde la base central de Pulsar Lab."
+    },
+    "clients": {
+      "eyebrow": "ECOSISTEMA EN PRODUCCIÓN",
+      "title": "Instituciones que operan sobre Pulsar Lab",
+      "lead": "Academias culturales, estudios de danza, jardines infantiles e institutos de idiomas con operación activa.",
+      "visitSite": "Visitar sitio",
+      "activeBadge": "Activo",
+      "hostsLabel": "Dominios"
+    },
+    "contact": {
+      "eyebrow": "CONTACTO DIRECTO",
+      "title": "Lleva tu instituto a Pulsar Lab",
+      "lead": "Escríbenos para activar un nuevo tenant con su propio proyecto de Supabase, dominio personalizado y puesta en marcha guiada.",
+      "emailLabel": "Correo directo",
+      "emailValue": "contacto@pulsarlab.cl",
+      "emailCta": "Escribir por correo",
+      "whatsappCta": "Hablar con el equipo",
+      "checklistTitle": "Qué incluye el alta de un nuevo cliente",
+      "check1": "Proyecto Supabase dedicado (Postgres, Auth, Storage y backups propios).",
+      "check2": "Dominio propio conectado al cluster de Pulsar Lab sin redeploy.",
+      "check3": "Configuración de marca, correo transaccional Resend y pasarelas de pago."
+    },
+    "admin": {
+      "eyebrow": "PULSAR LAB CONTROL PLANE",
+      "title": "Administración de tenants",
+      "lead": "Monitoreo en vivo de disponibilidad, tráfico (7 y 30 días) y credenciales por instituto.",
+      "newTenantCta": "Nuevo tenant",
+      "editTenantCta": "Editar",
+      "backToFleet": "Volver al listado",
+      "signOut": "Cerrar sesión",
+      "devModeBanner": "Modo desarrollo local activo. Configura PULSAR_SUPABASE_URL y PULSAR_SUPABASE_SERVICE_ROLE_KEY para persistir en la base de Pulsar.",
+      "pulsarDbBanner": "Conectado a la base de control de Pulsar Lab (cambios activos sin redeploy).",
+      "summary": {
+        "totalTenants": "Tenants configurados",
+        "onlineTenants": "Andando (DB online)",
+        "visits7d": "Visitas últimos 7 días",
+        "visits30d": "Visitas últimos 30 días"
+      },
+      "table": {
+        "tenant": "Instituto",
+        "hosts": "Dominios",
+        "status": "Estado DB",
+        "visits7d": "Visitas (7d)",
+        "visits30d": "Visitas (30d)",
+        "lastHit": "Última visita",
+        "actions": "Acciones",
+        "statusOnline": "Andando",
+        "statusError": "Error",
+        "statusDisabled": "Deshabilitado",
+        "noHits": "Sin registros",
+        "openPublicSite": "Abrir sitio",
+        "enableAction": "Habilitar",
+        "disableAction": "Pausar"
+      },
+      "login": {
+        "title": "Ingreso a Pulsar Control Plane",
+        "lead": "Acceso exclusivo para cuentas registradas en platform_staff de Pulsar Lab.",
+        "emailLabel": "Correo electrónico",
+        "passwordLabel": "Contraseña",
+        "submit": "Ingresar al panel",
+        "submitting": "Verificando...",
+        "notConfigured": "PULSAR_SUPABASE_URL no está configurado en este entorno.",
+        "unauthorized": "Tu cuenta no pertenece al equipo de staff de Pulsar Lab.",
+        "invalidCredentials": "Credenciales inválidas. Verifica tu correo y contraseña."
+      },
+      "password": {
+        "title": "Cambia tu contraseña",
+        "lead": "Esta contraseña es temporal. Elige una nueva para entrar al panel.",
+        "newPasswordLabel": "Nueva contraseña",
+        "confirmPasswordLabel": "Confirma la nueva contraseña",
+        "submit": "Guardar contraseña",
+        "submitting": "Guardando...",
+        "tooShort": "Usa al menos 8 caracteres.",
+        "mismatch": "Las contraseñas no coinciden.",
+        "errors": {
+          "unauthorized": "Tu sesión no es válida. Vuelve a ingresar.",
+          "not_required": "Esta cuenta ya tiene una contraseña definitiva.",
+          "too_short": "Usa al menos 8 caracteres.",
+          "update_failed": "No se pudo cambiar la contraseña. Intenta de nuevo."
+        }
+      },
+      "form": {
+        "createTitle": "Agregar nuevo tenant",
+        "editTitle": "Editar tenant",
+        "lead": "Al guardar, el caché del registro se actualiza de inmediato sin redeploy en Vercel.",
+        "saveCta": "Guardar tenant",
+        "saving": "Guardando...",
+        "testConnectionCta": "Probar conexión a Supabase",
+        "testingConnection": "Probando...",
+        "testOk": "Conexión exitosa con el proyecto de Supabase",
+        "testFail": "No se pudo conectar al proyecto de Supabase",
+        "savedNotice": "Tenant guardado y registro actualizado en memoria.",
+        "sectionIdentity": "Identidad y dominios",
+        "sectionSupabase": "Proyecto Supabase del instituto",
+        "sectionEmail": "Correo transaccional (Resend)",
+        "sectionPaymentsKv": "Cifrado de pagos y KV / Redis",
+        "sectionIntegrations": "WhatsApp, Web Push VAPID y Google Maps",
+        "fields": {
+          "slug": "Slug del tenant (ej. nago, liora)",
+          "displayName": "Nombre visible del instituto",
+          "isEnabled": "Tenant habilitado para recibir tráfico",
+          "hosts": "Dominios (separados por coma o salto de línea)",
+          "publicUrl": "URL pública canónica (https://...)",
+          "brandThemeSlug": "Slug del tema en site_themes (opcional)",
+          "skipInitialSiteSetup": "Omitir asistente de configuración inicial",
+          "debugLogin": "Activar trazas de depuración de login en navegador",
+          "supabaseUrl": "Supabase URL (https://xxx.supabase.co)",
+          "supabaseAnonKey": "Supabase Anon / Publishable Key",
+          "supabaseServiceRoleKey": "Supabase Service Role Key (secreto servidor)",
+          "databaseUrl": "Postgres Database URL (opcional, para migraciones CLI)",
+          "mailTenant": "Dominio de correo interno (mailTenant)",
+          "resendFromEmail": "Remitente verificado en Resend",
+          "resendApiKey": "Resend API Key",
+          "paymentGatewaySecretEncryptionKey": "Clave AES de 32 bytes en base64 (pagos)",
+          "kvRestApiUrl": "Upstash KV REST API URL",
+          "kvRestApiToken": "Upstash KV REST API Token",
+          "googleMapsApiKey": "Google Maps API Key",
+          "googleMapsMapId": "Google Maps Map ID",
+          "vapidPublicKey": "VAPID Public Key",
+          "vapidPrivateKey": "VAPID Private Key",
+          "vapidContactEmail": "Contacto VAPID (mailto:...)",
+          "whatsappAccessToken": "WhatsApp Cloud API Access Token",
+          "whatsappPhoneNumberId": "WhatsApp Phone Number ID",
+          "whatsappClassReminderTemplateName": "Nombre de plantilla de recordatorio WhatsApp"
+        },
+        "errors": {
+          "invalid_slug": "Ingresa un slug válido en minúsculas (sin usar pulsar).",
+          "duplicate_slug": "Ya existe un tenant con ese slug.",
+          "missing_display_name": "Ingresa el nombre visible del instituto.",
+          "missing_hosts": "Ingresa al menos un dominio para el tenant.",
+          "reserved_pulsar_host": "No puedes asignar el dominio principal de Pulsar Lab a un instituto.",
+          "duplicate_host": "Uno de los dominios ya está asignado a otro tenant.",
+          "invalid_supabase_credentials": "Completa una URL válida, la Anon Key y la Service Role Key de Supabase.",
+          "invalid_public_url": "La URL pública canónica debe comenzar con http:// o https://.",
+          "invalid_payment_key": "La clave de pagos debe codificar exactamente 32 bytes en base64.",
+          "unauthorized": "Tu sesión de staff de Pulsar no es válida.",
+          "db_write_failed": "No se pudo guardar el tenant en la base de datos de Pulsar."
+        }
+      }
     }
   }
 }

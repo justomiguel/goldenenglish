@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { escapeHtml } from "@/lib/academics/escapeHtml";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import type { Locale } from "@/types/i18n";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
@@ -41,7 +41,7 @@ export async function sendGradePublishedParentEmails(input: {
   labelByRubricKey: Record<string, string>;
   teacherFeedback: string | null;
 }): Promise<void> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
 
   const { data: studentProfile } = await input.supabase
     .from("profiles")
@@ -59,7 +59,7 @@ export async function sendGradePublishedParentEmails(input: {
   }));
 
   const scoreText = `${input.score} / ${input.maxScore}`;
-  const portal = absoluteUrl(`/${input.locale}/dashboard/parent`);
+  const portal = await absoluteUrlForRequest(`/${input.locale}/dashboard/parent`);
   const portalHref = portal?.toString() ?? "";
 
   const feedbackHtml = input.teacherFeedback?.trim()

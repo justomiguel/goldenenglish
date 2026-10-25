@@ -12,12 +12,16 @@ export const BRAND_ASSETS_BUCKET = "landing-media";
  *
  * When Supabase URL is missing (CI without env), returns `fallback`.
  */
-export function resolveBrandAssetUrl(raw: string, fallback: string): string {
+export function resolveBrandAssetUrl(
+  raw: string,
+  fallback: string,
+  supabaseUrl?: string | null,
+): string {
   const v = raw.trim();
   if (!v) return fallback;
   if (/^https?:\/\//i.test(v)) return v;
   if (v.startsWith("/")) return v;
-  const { url } = readSupabasePublicEnv();
+  const url = (supabaseUrl ?? readSupabasePublicEnv().url).trim();
   if (!url) return fallback;
   const base = url.replace(/\/+$/u, "");
   const encoded = v

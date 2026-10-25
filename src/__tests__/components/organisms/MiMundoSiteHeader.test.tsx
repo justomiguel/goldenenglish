@@ -45,7 +45,7 @@ describe("MiMundoSiteHeader", () => {
     expect(screen.queryByRole("link", { name: /inicio|blog|eventos/i })).toBeNull();
   });
 
-  it("keeps signed-in admin actions in the menu so the top bar stays one row", () => {
+  it("shows a visible portal link when the visitor is signed in", () => {
     render(
       <MiMundoSiteHeader
         locale="es"
@@ -57,10 +57,9 @@ describe("MiMundoSiteHeader", () => {
       />,
     );
 
-    const adminLinks = screen.getAllByRole("link", { name: dictEn.nav.administration });
-    expect(adminLinks.length).toBeGreaterThanOrEqual(1);
-    for (const link of adminLinks) {
-      expect(link.className.split(/\s+/)).toContain("md:inline-flex");
-    }
+    const portal = screen.getAllByRole("link", { name: dictEn.nav.myPortal });
+    expect(portal.length).toBeGreaterThanOrEqual(1);
+    expect(portal[0].className).not.toMatch(/\bhidden\b/);
+    expect(portal[0]).toHaveAttribute("href", "/es/dashboard");
   });
 });

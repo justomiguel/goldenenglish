@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { EmailProvider } from "@/lib/email/emailProvider";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
@@ -10,7 +10,7 @@ import { auditCommunicationsAction } from "@/lib/audit";
 import { logServerWarn } from "@/lib/logging/serverActionLog";
 
 async function authEmailForUserId(userId: string): Promise<string | null> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data, error } = await admin.auth.admin.getUserById(userId);
   if (error || !data.user?.email) return null;
   return isDeliverableAuthEmail(data.user.email) ? data.user.email : null;
@@ -28,8 +28,8 @@ function previewBlock(text: string, max = 500): string {
   return text.slice(0, max);
 }
 
-function originOrLocal(): string {
-  return getPublicSiteUrl()?.origin ?? "http://localhost:3000";
+async function originOrLocal(): Promise<string> {
+  return (await getRequestPublicSiteUrl())?.origin ?? "http://localhost:3000";
 }
 
 function asLocale(value: string): Locale {
@@ -74,7 +74,7 @@ export async function notifyTeacherNewMessage(params: {
 }): Promise<void> {
   const to = await authEmailForUserId(params.teacherId);
   if (!to) return;
-  const href = `${originOrLocal()}/${params.locale}/dashboard/teacher/messages`;
+  const href = `${await originOrLocal()}/${params.locale}/dashboard/teacher/messages`;
   await sendBrandedEmail({
     to,
     templateKey: "messaging.teacher_new",
@@ -110,7 +110,7 @@ export async function notifyPortalRecipientForStaffMessage(params: {
   }
   const dashboard =
     params.recipientRole === "admin" ? "dashboard/admin/messages" : "dashboard/teacher/messages";
-  const href = `${originOrLocal()}/${params.locale}/${dashboard}`;
+  const href = `${await originOrLocal()}/${params.locale}/${dashboard}`;
   const dict = await getDictionary(params.locale);
   const result = await sendBrandedEmail({
     to,
@@ -145,7 +145,7 @@ export async function notifyPortalInboxForStudentOrParent(params: {
 }): Promise<void> {
   const dashboard =
     params.recipientRole === "parent" ? "dashboard/parent/messages" : "dashboard/student/messages";
-  const href = `${originOrLocal()}/${params.locale}/${dashboard}`;
+  const href = `${await originOrLocal()}/${params.locale}/${dashboard}`;
   const dict = await getDictionary(params.locale);
   const to = await authEmailForUserId(params.recipientId);
   if (to) {
@@ -180,7 +180,7 @@ export async function notifyStudentTeacherReplied(params: {
   locale: string;
   emailProvider: EmailProvider;
 }): Promise<void> {
-  const href = `${originOrLocal()}/${params.locale}/dashboard/student/messages`;
+  const href = `${await originOrLocal()}/${params.locale}/dashboard/student/messages`;
   const dict = await getDictionary(params.locale);
   const to = await authEmailForUserId(params.studentId);
   if (to) {
@@ -215,7 +215,7 @@ export async function notifyParentTeacherReplied(params: {
   locale: string;
   emailProvider: EmailProvider;
 }): Promise<void> {
-  const href = `${originOrLocal()}/${params.locale}/dashboard/parent/messages`;
+  const href = `${await originOrLocal()}/${params.locale}/dashboard/parent/messages`;
   const dict = await getDictionary(params.locale);
   const to = await authEmailForUserId(params.parentId);
   if (to) {

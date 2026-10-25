@@ -35,7 +35,8 @@
     "offline": {
       "title": "Sem conexão",
       "body": "Verifique sua conexão e tente novamente.",
-      "retry": "Voltar para {brand}"
+      "retry": "Voltar para {brand}",
+      "retryGeneric": "Voltar ao início"
     },
     "install": {
       "title": "Instalar o app",
@@ -55,7 +56,9 @@
       "parentMessages": "Mensagens (família)",
       "parentMessagesShort": "Mensagens",
       "parentProgress": "Progresso e comentários do professor",
-      "parentProgressShort": "Progresso"
+      "parentProgressShort": "Progresso",
+      "studentPortal": "Portal do estudante",
+      "studentPortalShort": "Estudante"
     },
     "pullToRefresh": {
       "pull": "Puxe para atualizar",
@@ -304,6 +307,8 @@
     "forgotPassword": "Esqueceu sua senha?",
     "noAccount": "Não tem uma conta?",
     "signUp": "Inscrever-se",
+    "registerPrompt": "Ainda não tem conta?",
+    "registerCta": "Inscreva-se ou agende sua aula",
     "errors": {
       "invalidCredentials": "E-mail ou senha inválida",
       "identifierRequired": "E-mail ou documento é obrigatório",
@@ -382,7 +387,18 @@
     "closeMenu": "Fechar menu",
     "modalities": "Modalidades",
     "certifications": "Credenciais",
-    "administration": "Painel"
+    "administration": "Painel",
+    "loginShort": "Entrar",
+    "myPortal": "Meu portal",
+    "publicPwaBar": {
+      "home": "Início",
+      "courses": "Cursos",
+      "events": "Eventos",
+      "enroll": "Inscrever-se",
+      "shop": "Loja",
+      "blog": "Blog",
+      "aria": "Site público"
+    }
   },
   "landing": {
     "greenfieldPending": {

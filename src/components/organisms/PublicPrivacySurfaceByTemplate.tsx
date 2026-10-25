@@ -21,6 +21,7 @@ interface PublicPrivacySurfaceByTemplateProps {
   locale: string;
   dict: Dictionary;
   brand: BrandPublic;
+  sessionEmail?: string | null;
 }
 
 function PrivacyMain({
@@ -52,6 +53,7 @@ export function PublicPrivacySurfaceByTemplate({
   locale,
   dict,
   brand,
+  sessionEmail = null,
 }: PublicPrivacySurfaceByTemplateProps) {
   const logoSrc = brand.logoPath.trim();
   const logoAlt = brand.logoAlt || brand.name;
@@ -70,7 +72,7 @@ export function PublicPrivacySurfaceByTemplate({
   if (templateKind === "nago") {
     return (
       <NagoFontRoot className="relative min-h-screen pb-16">
-        <NagoRegisterHeader locale={locale} logoSrc={resolveNagoLogo(brand)} logoAlt={logoAlt} dict={dict} />
+        <NagoRegisterHeader locale={locale} logoSrc={resolveNagoLogo(brand)} logoAlt={logoAlt} dict={dict} sessionEmail={sessionEmail} />
         <PrivacyMain
           locale={locale}
           dict={dict}
@@ -90,7 +92,7 @@ export function PublicPrivacySurfaceByTemplate({
   if (templateKind === "liora") {
     return (
       <LioraFontRoot className="relative min-h-screen pb-16">
-        <LioraRegisterHeader locale={locale} logoSrc={logoSrc} logoAlt={logoAlt} dict={dict} />
+        <LioraRegisterHeader locale={locale} logoSrc={logoSrc} logoAlt={logoAlt} dict={dict} sessionEmail={sessionEmail} />
         <PrivacyMain
           locale={locale}
           dict={dict}
@@ -104,7 +106,7 @@ export function PublicPrivacySurfaceByTemplate({
   if (templateKind === "mimundo") {
     return (
       <MiMundoFontRoot className="relative min-h-screen pb-16">
-        <MiMundoRegisterHeader locale={locale} logoSrc={logoSrc} logoAlt={logoAlt} dict={dict} />
+        <MiMundoRegisterHeader locale={locale} logoSrc={logoSrc} logoAlt={logoAlt} dict={dict} sessionEmail={sessionEmail} />
         <PrivacyMain
           locale={locale}
           dict={dict}
@@ -118,7 +120,7 @@ export function PublicPrivacySurfaceByTemplate({
   if (templateKind === "mozarthitos") {
     return (
       <MozarthitosFontRoot className="relative min-h-screen pb-16">
-        <MozarthitosRegisterHeader locale={locale} logoSrc={logoSrc} logoAlt={logoAlt} dict={dict} />
+        <MozarthitosRegisterHeader locale={locale} logoSrc={logoSrc} logoAlt={logoAlt} dict={dict} sessionEmail={sessionEmail} />
         <PrivacyMain
           locale={locale}
           dict={dict}
@@ -138,6 +140,7 @@ export function PublicPrivacySurfaceByTemplate({
           logoAlt={logoAlt}
           brandDisplayName={brand.name}
           dict={dict}
+          sessionEmail={sessionEmail}
         />
         <PrivacyMain
           locale={locale}
@@ -158,7 +161,7 @@ export function PublicPrivacySurfaceByTemplate({
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[var(--color-muted)]">
-      <RegisterSiteHeader brand={brand} locale={locale} dict={dict} />
+      <RegisterSiteHeader brand={brand} locale={locale} dict={dict} sessionEmail={sessionEmail} />
       <PrivacyMain locale={locale} dict={dict} brand={brand} />
       {footer("light")}
     </div>

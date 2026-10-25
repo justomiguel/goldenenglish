@@ -19,6 +19,7 @@ export function buildBlogMediaStoragePath(input: {
 }
 
 export function blogMediaPublicUrl(supabaseProjectUrl: string, storagePath: string): string {
+  if (/^https?:\/\//i.test(storagePath.trim())) return storagePath.trim();
   const base = supabaseProjectUrl.replace(/\/$/, "");
   return `${base}/storage/v1/object/public/${BLOG_MEDIA_BUCKET}/${storagePath}`;
 }

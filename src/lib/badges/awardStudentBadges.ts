@@ -20,7 +20,7 @@ export type AwardStudentBadgesInput = {
 export async function awardStudentBadges(input: AwardStudentBadgesInput): Promise<void> {
   const { studentId, locale } = input;
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: existing, error: exErr } = await admin
       .from("student_badge_grants")
       .select("badge_code")

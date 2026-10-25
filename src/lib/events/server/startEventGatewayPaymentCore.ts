@@ -16,7 +16,7 @@ import {
   normalizeEventRegistrationDni,
   normalizeEventRegistrationEmail,
 } from "@/lib/events/eventTransferReceiptLimits";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { isPubliclyReachableUrl } from "@/lib/site/isPubliclyReachableUrl";
 import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
 import { buildEventPaymentReturnUrl } from "@/lib/events/buildEventPaymentReturnUrl";
@@ -91,7 +91,7 @@ export async function startEventGatewayPaymentCore(
   const amount = Math.round(Number(context.amount));
   if (!(amount > 0)) return { ok: false, code: "payment_not_pending" };
 
-  const origin = getPublicSiteUrl();
+  const origin = await getRequestPublicSiteUrl();
   if (!origin) return { ok: false, code: "no_public_url" };
   const originStr = origin.toString();
 

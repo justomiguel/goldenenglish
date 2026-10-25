@@ -3,16 +3,20 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { LayoutDashboard, LogIn, Menu, X } from "lucide-react";
+import { LayoutDashboard, Menu, X } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { PublicHeaderAccountCta } from "@/components/molecules/PublicHeaderAccountCta";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 interface LandingHeaderPwaProps {
   brand: BrandPublic;
   dict: Dictionary;
   locale: string;
   sessionEmail: string | null;
+  blogEnabled?: boolean;
+  merchEnabled?: boolean;
 }
 
 const stroke = 1.75;
@@ -22,6 +26,8 @@ export function LandingHeaderPwa({
   dict,
   locale,
   sessionEmail,
+  blogEnabled = false,
+  merchEnabled = false,
 }: LandingHeaderPwaProps) {
   const [open, setOpen] = useState(false);
   const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
@@ -32,11 +38,14 @@ export function LandingHeaderPwa({
     { href: `${prefix}#niveles`, label: dict.nav.courses },
     { href: `${prefix}#certificaciones`, label: dict.nav.certifications },
     { href: `${prefix}#contacto`, label: dict.nav.contact },
+    { href: `${prefix}/events`, label: dict.events.public.title },
+    ...(blogEnabled ? [{ href: `${prefix}/blog`, label: dict.blog.list.title }] : []),
+    ...(merchEnabled ? [{ href: `${prefix}/tienda`, label: dict.shop.catalog.title }] : []),
   ];
 
   return (
     <header
-      className="sticky top-0 z-50 border-b border-[var(--color-border)]/70 bg-[var(--color-surface)]/95 shadow-[0_1px_0_color-mix(in_srgb,var(--color-border)_60%,transparent)] backdrop-blur-md"
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} sticky top-0 z-50 border-b border-[var(--color-border)]/70 bg-[var(--color-surface)]/95 shadow-[0_1px_0_color-mix(in_srgb,var(--color-border)_60%,transparent)] backdrop-blur-md`}
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
       <div className="mx-auto flex max-w-[var(--layout-max-width)] items-center justify-between gap-3 px-[max(1rem,env(safe-area-inset-left))] pb-2.5 pt-2 pe-[max(1rem,env(safe-area-inset-right))]">
@@ -66,22 +75,15 @@ export function LandingHeaderPwa({
             aria-label={dict.nav.accountAria}
             className="flex shrink-0 items-center gap-2"
           >
-            {sessionEmail ? (
-              <SignOutButton
-                locale={locale}
-                label={dict.nav.logout}
-                title={dict.nav.logout}
-                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full border border-[var(--color-primary)]/35 bg-[var(--color-surface)] px-3.5 text-[0.8125rem] font-semibold text-[var(--color-primary)] shadow-sm transition active:scale-[0.98] active:bg-[var(--color-muted)]"
-              />
-            ) : (
-              <Link
-                href={`/${locale}/login`}
-                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[var(--color-primary)] px-3.5 text-[0.8125rem] font-semibold text-[var(--color-primary-foreground)] shadow-[0_4px_16px_-6px_color-mix(in_srgb,var(--color-primary)_55%,transparent)] transition active:scale-[0.98] active:brightness-95"
-              >
-                <LogIn className="h-4 w-4" aria-hidden strokeWidth={stroke} />
-                <span>{dict.nav.login}</span>
-              </Link>
-            )}
+            <PublicHeaderAccountCta
+              locale={locale}
+              sessionEmail={sessionEmail}
+              loginLabel={dict.nav.login}
+              loginShort={dict.nav.loginShort}
+              portalLabel={dict.nav.myPortal}
+              logoutLabel={dict.nav.logout}
+              showLogout={Boolean(sessionEmail)}
+            />
           </nav>
           <button
             type="button"
@@ -132,7 +134,7 @@ export function LandingHeaderPwa({
                 onClick={() => setOpen(false)}
               >
                 <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                {dict.nav.administration}
+                {dict.nav.myPortal}
               </Link>
               <SignOutButton
                 locale={locale}

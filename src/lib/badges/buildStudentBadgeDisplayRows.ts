@@ -13,10 +13,10 @@ export type BadgeGrantRow = {
   public_share_token: string;
 };
 
-function catalogToRowCatalog(entry: BadgeCatalogEntry) {
+function catalogToRowCatalog(entry: BadgeCatalogEntry, supabaseProjectUrl?: string | null) {
   return {
     category: entry.category,
-    imageUrl: badgeImagePublicUrl(entry.imagePath),
+    imageUrl: badgeImagePublicUrl(entry.imagePath, supabaseProjectUrl),
     translations: entry.translations,
   };
 }
@@ -29,8 +29,9 @@ export function buildStudentBadgeDisplayRows(params: {
   grants: BadgeGrantRow[];
   ctx: StudentBadgeEvaluationContext;
   shareUrlForToken: (token: string, title?: string) => string;
+  supabaseProjectUrl?: string | null;
 }): StudentBadgeRowModel[] {
-  const { catalog, grants, ctx, shareUrlForToken } = params;
+  const { catalog, grants, ctx, shareUrlForToken, supabaseProjectUrl } = params;
   const grantByCode = new Map<string, BadgeGrantRow>();
   for (const g of grants) {
     if (isStudentBadgeCode(g.badge_code)) grantByCode.set(g.badge_code, g);
@@ -54,7 +55,7 @@ export function buildStudentBadgeDisplayRows(params: {
         ),
         locked: false,
         progress: null,
-        catalog: catalogToRowCatalog(entry),
+        catalog: catalogToRowCatalog(entry, supabaseProjectUrl),
       });
       continue;
     }
@@ -71,7 +72,7 @@ export function buildStudentBadgeDisplayRows(params: {
         target: progress.target,
         percent: progress.percent,
       },
-      catalog: catalogToRowCatalog(entry),
+      catalog: catalogToRowCatalog(entry, supabaseProjectUrl),
     });
   }
 

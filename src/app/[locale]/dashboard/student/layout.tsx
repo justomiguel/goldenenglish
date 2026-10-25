@@ -5,6 +5,8 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
 import { PortalShell } from "@/components/portal/PortalShell";
+import { PublicTenantChrome } from "@/components/organisms/PublicTenantChrome";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { buildStudentShellConfig } from "@/lib/portal/buildStudentShellConfig";
 import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
 import { getDashboardActor, syncViewAsCookie } from "@/lib/dashboard/getDashboardActor";
@@ -45,10 +47,12 @@ export default async function StudentDashboardLayout({
   if (redirectTo) redirect(redirectTo);
 
   const viewerId = actor?.viewerId ?? user.id;
-  const [perms, includeShopNav] = await Promise.all([
+  const [perms, includeShopNav, snapshot] = await Promise.all([
     getProfilePermissions(supabase, viewerId),
     loadMerchEnabled(),
+    loadActiveTheme(),
   ]);
+  const templateKind = snapshot?.theme.templateKind ?? "classic";
   const config = buildStudentShellConfig({
     locale,
     baseHref: `/${locale}/dashboard/student`,
@@ -58,17 +62,19 @@ export default async function StudentDashboardLayout({
   });
 
   return (
-    <PortalShell
-      locale={locale}
-      dict={dict}
-      brand={brand}
-      config={{
-        ...config,
-        accountItems: filterAccountItemsForViewAs(config.accountItems, actor?.viewAs ?? null),
-      }}
-      viewAs={actor?.viewAs ?? null}
-    >
-      {children}
-    </PortalShell>
+    <PublicTenantChrome templateKind={templateKind}>
+      <PortalShell
+        locale={locale}
+        dict={dict}
+        brand={brand}
+        config={{
+          ...config,
+          accountItems: filterAccountItemsForViewAs(config.accountItems, actor?.viewAs ?? null),
+        }}
+        viewAs={actor?.viewAs ?? null}
+      >
+        {children}
+      </PortalShell>
+    </PublicTenantChrome>
   );
 }

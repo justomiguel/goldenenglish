@@ -37,7 +37,7 @@ export default async function ParentChildEditPage({ params, searchParams }: Page
     .single();
   if (!ward) redirect(`/${locale}/dashboard/parent`);
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: authRow } = await admin.auth.admin.getUserById(studentId);
   const wardEmail = authRow?.user?.email?.trim() ?? "";
 

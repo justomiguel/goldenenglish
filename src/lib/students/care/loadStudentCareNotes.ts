@@ -92,7 +92,7 @@ export async function loadStudentCareNotes(
     return { ok: false, reason: "forbidden" };
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data, error } = await admin
     .from("profiles")
     .select(NOTE_COLUMNS)

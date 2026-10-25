@@ -42,7 +42,7 @@ export default async function AdminMessagesComposePage({ params, searchParams }:
   const isAdmin = await resolveIsAdminSession(supabase, user.id);
   if (!isAdmin) redirect(`/${locale}/dashboard`);
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const recipients = await loadAdminPortalMessageRecipients(admin, user.id);
 
   const replyTo = typeof sp.replyTo === "string" ? sp.replyTo : undefined;

@@ -70,6 +70,15 @@ describe("nagoLanding.css", () => {
     );
   });
 
+  it("lifts the hero above the phone dock", () => {
+    expect(css).toMatch(
+      /@media \(max-width: 767px\), \(display-mode: standalone\)[\s\S]*\.nago-hero-discover[\s\S]*4\.75rem \+ env\(safe-area-inset-bottom/,
+    );
+    expect(css).toMatch(
+      /@media \(max-width: 767px\), \(display-mode: standalone\)[\s\S]*\.nago-hero-parallax[\s\S]*bottom:\s*calc\(4\.75rem \+ env\(safe-area-inset-bottom/,
+    );
+  });
+
   it("does not paint the Chile hero as a CSS background", () => {
     expect(css).not.toContain("/images/nago/inicio/hero-chile.png");
     expect(css).not.toContain("/images/nago/inicio/hero-bg.png");

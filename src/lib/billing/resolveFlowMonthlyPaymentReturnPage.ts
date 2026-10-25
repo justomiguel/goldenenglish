@@ -45,13 +45,13 @@ export async function resolveFlowMonthlyPaymentReturnPage(input: {
 
   let rawKey: Buffer;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch {
     logResolve("reject", { outcome: "misconfigured", kind: "no_encryption_key" });
     return { outcome: "misconfigured" };
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const creds = await loadFlowChileCredentialsPlain(admin, rawKey);
   if (!creds?.enabled) {
     logResolve("reject", { outcome: "misconfigured", kind: "flow_disabled_or_no_creds" });

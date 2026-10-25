@@ -21,7 +21,7 @@ export {
 
 async function upsertFailure(value: EmailSendLastFailure): Promise<void> {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { error } = await admin.from("site_settings").upsert(
       {
         key: EMAIL_SEND_LAST_FAILURE_KEY,
@@ -52,7 +52,7 @@ export async function recordEmailSendStaffNotice(input: {
 
 export async function clearEmailSendStaffNotice(): Promise<void> {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { error } = await admin.from("site_settings").delete().eq("key", EMAIL_SEND_LAST_FAILURE_KEY);
     if (error) logSupabaseClientError("emailSendStaffNotice:clear", error);
   } catch (err) {

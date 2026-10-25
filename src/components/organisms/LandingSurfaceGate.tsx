@@ -72,6 +72,8 @@ export function LandingSurfaceGate({
                 dict={dict}
                 locale={locale}
                 sessionEmail={sessionEmail}
+                blogEnabled={blogEnabled}
+                merchEnabled={merchEnabled}
               />
             )}
             <div className="flex-1">{main}</div>

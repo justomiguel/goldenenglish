@@ -46,7 +46,7 @@ export async function acceptRegistration(
 
   const dict = await getDictionary(locale);
   const result = await acceptRegistrationLead({
-    admin: createAdminClient(),
+    admin: await createAdminClient(),
     enrollClient: session,
     locale,
     dict,

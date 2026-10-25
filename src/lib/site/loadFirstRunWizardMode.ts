@@ -2,6 +2,8 @@ import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { parseInitialSiteSetupCompletedAt } from "@/lib/site/parseInitialSiteSetupRecord";
+import { isInitialSiteSetupBypassed } from "@/lib/site/initialSiteSetupBypass";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 export type FirstRunWizardMode = "bootstrap_account" | "site_setup" | "closed";
 
@@ -10,10 +12,11 @@ export type FirstRunWizardMode = "bootstrap_account" | "site_setup" | "closed";
  * Uses service role only on the server — never exposed to the client.
  */
 export async function loadFirstRunWizardMode(): Promise<FirstRunWizardMode> {
-  if (process.env.SKIP_INITIAL_SITE_SETUP === "1") return "closed";
+  const tenant = await resolveRequestTenant();
+  if (isInitialSiteSetupBypassed(tenant)) return "closed";
 
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
 
     const { count: adminCount, error: countErr } = await admin
       .from("profiles")

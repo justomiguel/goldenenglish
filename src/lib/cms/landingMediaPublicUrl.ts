@@ -1,9 +1,25 @@
 import "server-only";
 
 import { readSupabasePublicEnv } from "@/lib/supabase/publicEnv";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import { LANDING_MEDIA_BUCKET } from "@/lib/cms/landingMediaBucket";
 
 export { LANDING_MEDIA_BUCKET };
+
+function buildWithUrl(url: string): (storagePath: string) => string | null {
+  const clean = url.trim();
+  if (!clean) return () => null;
+  const base = clean.replace(/\/+$/u, "");
+  return (storagePath: string) => {
+    const trimmed = storagePath.replace(/^\/+/u, "");
+    if (!trimmed) return null;
+    const encoded = trimmed
+      .split("/")
+      .map((segment) => encodeURIComponent(segment))
+      .join("/");
+    return `${base}/storage/v1/object/public/${LANDING_MEDIA_BUCKET}/${encoded}`;
+  };
+}
 
 /**
  * Builds a function that, given a storage object path inside the
@@ -14,19 +30,15 @@ export { LANDING_MEDIA_BUCKET };
  * Returns a builder that yields `null` when Supabase env is not configured
  * (local CI without DB) so the caller can treat overrides as absent.
  */
-export function createLandingMediaPublicUrlBuilder(): (
-  storagePath: string,
-) => string | null {
-  const { url } = readSupabasePublicEnv();
-  if (!url) return () => null;
-  const base = url.replace(/\/+$/u, "");
-  return (storagePath: string) => {
-    const trimmed = storagePath.replace(/^\/+/u, "");
-    if (!trimmed) return null;
-    const encoded = trimmed
-      .split("/")
-      .map((segment) => encodeURIComponent(segment))
-      .join("/");
-    return `${base}/storage/v1/object/public/${LANDING_MEDIA_BUCKET}/${encoded}`;
-  };
+export function createLandingMediaPublicUrlBuilder(
+  supabaseUrl?: string | null,
+): (storagePath: string) => string | null {
+  return buildWithUrl(supabaseUrl ?? readSupabasePublicEnv().url);
+}
+
+export async function createRequestLandingMediaPublicUrlBuilder(): Promise<
+  (storagePath: string) => string | null
+> {
+  const { url } = await readRequestSupabasePublicEnv();
+  return buildWithUrl(url);
 }

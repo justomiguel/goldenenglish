@@ -10,6 +10,7 @@ export interface PublicBlogScreenClassicProps {
   brand: BrandPublic;
   sessionEmail: string | null;
   blogEnabled: boolean;
+  merchEnabled?: boolean;
   blogLabel: string;
   eventsLabel: string;
   children: ReactNode;
@@ -19,7 +20,9 @@ export function PublicBlogScreenClassic({
   locale,
   dict,
   brand,
+  sessionEmail,
   blogEnabled,
+  merchEnabled = false,
   blogLabel,
   eventsLabel,
   children,
@@ -30,8 +33,11 @@ export function PublicBlogScreenClassic({
         brand={brand}
         locale={locale}
         dict={dict}
+        sessionEmail={sessionEmail}
         eventsHref={`/${locale}/events`}
         eventsLabel={eventsLabel}
+        shopHref={merchEnabled ? `/${locale}/tienda` : undefined}
+        shopLabel={merchEnabled ? dict.shop.catalog.title : undefined}
         blogHref={blogEnabled ? `/${locale}/blog` : undefined}
         blogLabel={blogEnabled ? blogLabel : undefined}
       />

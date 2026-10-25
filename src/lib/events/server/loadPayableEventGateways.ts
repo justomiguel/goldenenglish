@@ -21,7 +21,7 @@ export async function loadPayableEventGateways(
 ): Promise<PaymentGatewayProvider[]> {
   let rawKey;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch {
     return [];
   }

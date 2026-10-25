@@ -37,7 +37,7 @@ export async function loadRegistrationMatriculaPayPage(
   let context = parseRegistrationPayContext(data);
   if (!context) return null;
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   if (context.intakeState === "offer_pending" && context.proposedSectionId) {
     const proposedOpen = await requestedSectionsHaveOpenSeats(supabase, [
       context.proposedSectionId,

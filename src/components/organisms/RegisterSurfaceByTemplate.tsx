@@ -21,6 +21,7 @@ interface RegisterSurfaceByTemplateProps {
   mediaMap?: LandingMediaMap;
   enrollmentLink?: SectionEnrollmentLinkContext;
   intent?: RegisterIntent;
+  sessionEmail?: string | null;
 }
 
 /**

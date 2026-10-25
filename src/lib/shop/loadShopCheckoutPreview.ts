@@ -54,7 +54,7 @@ async function loadCheckoutSession(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { role: null, requireEmail: true };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data } = await admin.from("profiles").select("role").eq("id", user.id).maybeSingle();
   const role = typeof data?.role === "string" ? data.role : null;
   return { role, requireEmail: false };

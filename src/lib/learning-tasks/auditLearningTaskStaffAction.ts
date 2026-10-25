@@ -10,7 +10,7 @@ export async function auditLearningTaskStaffAction(input: {
   payload?: Record<string, unknown>;
 }): Promise<void> {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { error } = await admin.from("system_config_audit").insert({
       actor_id: input.actorId,
       action: input.action,

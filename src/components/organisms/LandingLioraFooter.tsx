@@ -5,12 +5,14 @@ import type { Dictionary } from "@/types/i18n";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { BrandInstagramIcon } from "@/components/atoms/BrandSocialIcons";
 import { LIORA_SEDE_KEYS } from "@/lib/landing/lioraSchedule";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 interface LandingLioraFooterProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
   t: (path: string) => string;
+  sessionEmail?: string | null;
 }
 
 export function LandingLioraFooter({
@@ -18,6 +20,7 @@ export function LandingLioraFooter({
   brand,
   locale,
   t,
+  sessionEmail = null,
 }: LandingLioraFooterProps) {
   const links = [
     { href: `/${locale}#sobre`, label: t("nav.sobreNosotros") },
@@ -27,6 +30,10 @@ export function LandingLioraFooter({
     { href: `/${locale}/events`, label: t("nav.eventos") },
     { href: `/${locale}#contacto`, label: t("nav.contacto") },
     { href: `/${locale}/privacidad`, label: dict.privacy.footerLink },
+    {
+      href: sessionEmail ? `/${locale}/dashboard` : `/${locale}/login`,
+      label: sessionEmail ? dict.nav.myPortal : dict.nav.login,
+    },
   ];
   // Site setup (`social.*`, `contact.*`) manda; el diccionario queda como
   // respaldo para deploys sin tema cargado.
@@ -38,7 +45,7 @@ export function LandingLioraFooter({
   const email = brand.contactEmail.trim();
 
   return (
-    <footer className="bg-[var(--liora-footer)] px-[max(1.5rem,env(safe-area-inset-left))] py-16 pb-[max(2rem,env(safe-area-inset-bottom))] pe-[max(1.5rem,env(safe-area-inset-right))] text-white">
+    <footer className={`${PUBLIC_MARKETING_CHROME_CLASS} bg-[var(--liora-footer)] px-[max(1.5rem,env(safe-area-inset-left))] py-16 pb-[max(2rem,env(safe-area-inset-bottom))] pe-[max(1.5rem,env(safe-area-inset-right))] text-white`}>
       <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-4 md:gap-12">
         <div className="flex flex-col items-start gap-5 md:col-span-2">
           {brand.logoPath ? (

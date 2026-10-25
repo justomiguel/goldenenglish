@@ -42,7 +42,7 @@ export async function insertTrafficPageHit(
   const kind = classifyTrafficVisitor(ua, row.userId);
   let admin;
   try {
-    admin = createAdminClient();
+    admin = await createAdminClient();
   } catch (err) {
     logServerException("insertTrafficPageHit:noAdminClient", err);
     return { ok: false, error: { message: "server_misconfigured" } };

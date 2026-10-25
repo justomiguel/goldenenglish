@@ -1,7 +1,8 @@
-import { createAnonReadOnlyClient } from "@/lib/supabase/anon";
+import { createRequestAnonClient } from "@/lib/supabase/requestAnonClient";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logServerException } from "@/lib/logging/serverActionLog";
 import { getSiteBrandThemeSlug } from "@/lib/theme/siteBrandThemeSlug";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 /**
  * Theme row used by `/setup/first-run` when saving wizard data. Prefer
@@ -9,10 +10,11 @@ import { getSiteBrandThemeSlug } from "@/lib/theme/siteBrandThemeSlug";
  * and wizard output; otherwise the single `is_active` theme (anon).
  */
 export async function resolveFirstRunWizardThemeId(): Promise<string | null> {
-  const slug = getSiteBrandThemeSlug();
+  const tenant = await resolveRequestTenant();
+  const slug = tenant?.brandThemeSlug?.trim() || (tenant ? null : getSiteBrandThemeSlug());
   if (slug) {
     try {
-      const admin = createAdminClient();
+      const admin = await createAdminClient();
       const { data, error } = await admin
         .from("site_themes")
         .select("id")
@@ -25,7 +27,7 @@ export async function resolveFirstRunWizardThemeId(): Promise<string | null> {
     }
   }
 
-  const anon = createAnonReadOnlyClient();
+  const anon = await createRequestAnonClient();
   if (!anon) return null;
   const { data, error } = await anon
     .from("site_themes")

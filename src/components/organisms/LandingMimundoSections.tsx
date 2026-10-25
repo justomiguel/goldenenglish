@@ -10,6 +10,7 @@ import {
   resolveLandingImageSrcForTheme,
   type LandingMediaMap,
 } from "@/lib/cms/resolveLandingMedia";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { MiMundoHero } from "@/components/organisms/MiMundoHero";
@@ -148,7 +149,7 @@ export function LandingMimundoSections({
       </section>
 
       {/* Footer */}
-      <footer className="mm-footer px-[max(1.5rem,env(safe-area-inset-left))] py-14 pb-[max(2rem,env(safe-area-inset-bottom))] pe-[max(1.5rem,env(safe-area-inset-right))] md:py-16">
+      <footer className={`${PUBLIC_MARKETING_CHROME_CLASS} mm-footer px-[max(1.5rem,env(safe-area-inset-left))] py-14 pb-[max(2rem,env(safe-area-inset-bottom))] pe-[max(1.5rem,env(safe-area-inset-right))] md:py-16`}>
         <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3 md:gap-12">
           <div className="flex flex-col items-start gap-4">
             {brand.logoPath && (

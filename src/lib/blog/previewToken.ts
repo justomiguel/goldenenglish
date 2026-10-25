@@ -3,6 +3,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 interface PreviewTokenPayload {
   articleId: string;
   exp: number;
+  tenantSlug?: string;
 }
 
 function base64UrlEncode(value: string): string {
@@ -17,19 +18,28 @@ function signPart(value: string, secret: string): string {
   return createHmac("sha256", secret).update(value).digest("base64url");
 }
 
-export function createBlogPreviewToken(articleId: string, expiresInSeconds = 86_400): string | null {
+export function createBlogPreviewToken(
+  articleId: string,
+  expiresInSeconds = 86_400,
+  tenantSlug?: string | null,
+): string | null {
   const secret = process.env.CRON_SECRET?.trim();
   if (!secret) return null;
+  const slug = tenantSlug?.trim();
   const payload: PreviewTokenPayload = {
     articleId,
     exp: Math.floor(Date.now() / 1000) + expiresInSeconds,
+    ...(slug ? { tenantSlug: slug } : {}),
   };
   const encoded = base64UrlEncode(JSON.stringify(payload));
   const sig = signPart(encoded, secret);
   return `${encoded}.${sig}`;
 }
 
-export function verifyBlogPreviewToken(token: string): PreviewTokenPayload | null {
+export function verifyBlogPreviewToken(
+  token: string,
+  expectedTenantSlug?: string | null,
+): PreviewTokenPayload | null {
   const secret = process.env.CRON_SECRET?.trim();
   if (!secret) return null;
   const [encoded, providedSig] = token.split(".");
@@ -45,6 +55,8 @@ export function verifyBlogPreviewToken(token: string): PreviewTokenPayload | nul
     const payload = JSON.parse(base64UrlDecode(encoded)) as PreviewTokenPayload;
     if (!payload.articleId || typeof payload.exp !== "number") return null;
     if (payload.exp < Math.floor(Date.now() / 1000)) return null;
+    const expectedSlug = expectedTenantSlug?.trim();
+    if (expectedSlug && payload.tenantSlug !== expectedSlug) return null;
     return payload;
   } catch {
     return null;

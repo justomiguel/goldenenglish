@@ -6,6 +6,7 @@ import {
   LEGACY_PARENT_SYNTHETIC_DOMAIN,
   parentDefaultEmail,
 } from "@/lib/import/parentDefaultEmail";
+import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
 import {
   logServerActionInvariantViolation,
   logServerException,
@@ -13,8 +14,8 @@ import {
 } from "@/lib/logging/serverActionLog";
 
 /** Opaque login fallback when MAIL_TENANT is unset (must never return null). */
-function parentSyntheticOrLegacy(dni: string): string {
-  const tenantAware = parentDefaultEmail(dni);
+function parentSyntheticOrLegacy(dni: string, mailTenant: string | null): string {
+  const tenantAware = parentDefaultEmail(dni, mailTenant);
   if (tenantAware) return tenantAware;
   const safe = dni.replace(/[^\dA-Za-z]/g, "").toLowerCase() || "sin-doc";
   return `${safe}@${LEGACY_PARENT_SYNTHETIC_DOMAIN}`;
@@ -37,6 +38,7 @@ export async function lookupEmailByDni(
   admin: SupabaseClient,
   dni: string,
 ): Promise<string> {
+  const mailTenant = await getRequestMailTenantDomain();
   const fallbackStudent = studentSyntheticEmail(dni);
   let profile: { id: string; role: string } | null = null;
 
@@ -62,7 +64,7 @@ export async function lookupEmailByDni(
 
   const syntheticForRole =
     profile.role === "parent" || profile.role === "tutor"
-      ? parentSyntheticOrLegacy(dni)
+      ? parentSyntheticOrLegacy(dni, mailTenant)
       : studentSyntheticEmail(dni);
 
   try {

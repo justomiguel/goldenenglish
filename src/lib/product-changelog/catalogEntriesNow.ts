@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "pulsar-control-plane",
+    date: "2026-10-25",
+    area: "admin",
+    title: t(
+      "Pulsar Lab administra los institutos desde su base",
+      "Pulsar Lab manages institutes from its database",
+      "Pulsar Lab administra os institutos a partir da sua base",
+    ),
+    summary: t(
+      "El sitio de Pulsar lista los institutos, su estado y las visitas. Un instituto nuevo no exige un nuevo deploy.",
+      "The Pulsar site lists institutes, their status, and visits. A new institute does not need a new deploy.",
+      "O site da Pulsar lista os institutos, o estado e as visitas. Um instituto novo não exige um novo deploy.",
+    ),
+  },
+  {
     id: "event-phone-cards",
     date: "2026-10-20",
     area: "events",

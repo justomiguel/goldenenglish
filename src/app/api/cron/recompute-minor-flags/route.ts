@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { verifyCronRequest } from "@/lib/auth/verifyCronRequest";
+import { runCronAcrossTenants } from "@/lib/tenant/runCronAcrossTenants";
 
 export const runtime = "nodejs";
 
@@ -10,9 +11,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
+  return runCronAcrossTenants(async () => {
   let admin;
   try {
-    admin = createAdminClient();
+    admin = await createAdminClient();
   } catch (err) {
     logServerException("api/cron/recompute-minor-flags:createAdminClient", err);
     return NextResponse.json({ ok: false, message: "no_admin_client" }, { status: 500 });
@@ -25,4 +27,5 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({ ok: true });
+  });
 }

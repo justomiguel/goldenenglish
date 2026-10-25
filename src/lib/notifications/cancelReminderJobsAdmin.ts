@@ -7,7 +7,7 @@ export async function cancelReminderJobsForEnrollmentId(
   scope: string,
 ): Promise<void> {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     await cancelPendingClassReminderJobs(admin, { sectionEnrollmentId: enrollmentId }, scope);
   } catch (err) {
     logServerException(`${scope}:cancelReminderJobsForEnrollmentId`, err, { enrollmentId });
@@ -16,7 +16,7 @@ export async function cancelReminderJobsForEnrollmentId(
 
 export async function cancelReminderJobsForSectionId(sectionId: string, scope: string): Promise<void> {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     await cancelPendingClassReminderJobs(admin, { sectionId }, scope);
   } catch (err) {
     logServerException(`${scope}:cancelReminderJobsForSectionId`, err, { sectionId });

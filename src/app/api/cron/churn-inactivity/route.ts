@@ -6,6 +6,7 @@ import { verifyCronRequest } from "@/lib/auth/verifyCronRequest";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { loadEmailSendGate } from "@/lib/email/loadEmailSendGate";
 import { isProductEmailEnabled } from "@/lib/email/emailSendsEnabled";
+import { runCronAcrossTenants } from "@/lib/tenant/runCronAcrossTenants";
 
 export const runtime = "nodejs";
 
@@ -16,9 +17,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
+  return runCronAcrossTenants(async () => {
   let admin;
   try {
-    admin = createAdminClient();
+    admin = await createAdminClient();
   } catch (err) {
     logServerException("api/cron/churn-inactivity:createAdminClient", err);
     return NextResponse.json({ ok: false, message: "no_admin_client" }, { status: 500 });
@@ -72,4 +74,5 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({ ok: true, notified: sent });
+  });
 }

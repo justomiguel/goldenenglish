@@ -21,7 +21,7 @@ export async function collectFamilyMailboxesForStudent(
   };
   let admin;
   try {
-    admin = createAdminClient();
+    admin = await createAdminClient();
   } catch (err) {
     logServerException("collectFamilyMailboxesForStudent:createAdminClient", err);
     return empty;

@@ -78,7 +78,7 @@ export default async function AdminBlogEditPage({ params }: PageProps) {
     (translationRows ?? []).map((row) => [row.locale as BlogLocale, row.slug]),
   ) as Partial<Record<BlogLocale, string>>;
 
-  const initialShareLinks = resolveBlogArticleAdminShareLinks({
+  const initialShareLinks = await resolveBlogArticleAdminShareLinks({
     articleId: id,
     status: article.status,
     slugsByLocale,

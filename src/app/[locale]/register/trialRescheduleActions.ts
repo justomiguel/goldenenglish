@@ -18,7 +18,7 @@ export async function submitTrialRescheduleAction(input: {
     locale: input.locale,
     dict,
     supabase: await createClient(),
-    admin: createAdminClient(),
+    admin: await createAdminClient(),
     rescheduleToken: input.token,
     sectionIds: input.sectionIds,
   });

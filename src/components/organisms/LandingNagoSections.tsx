@@ -29,6 +29,7 @@ interface LandingNagoSectionsProps {
   locale: string;
   mediaMap?: LandingMediaMap;
   registerCtas?: PublicRegisterCtaItem[];
+  sessionEmail?: string | null;
 }
 
 export function LandingNagoSections({
@@ -36,6 +37,7 @@ export function LandingNagoSections({
   brand,
   locale,
   registerCtas = [],
+  sessionEmail = null,
 }: LandingNagoSectionsProps) {
   const t = (path: string) => marketingLandingCopy(dict, "nago", path);
 
@@ -96,7 +98,13 @@ export function LandingNagoSections({
           <NagoLandingLeadForm dict={dict} locale={locale} />
         </NagoReveal>
       </section>
-      <LandingNagoFooter dict={dict} brand={brand} locale={locale} t={t} />
+      <LandingNagoFooter
+        dict={dict}
+        brand={brand}
+        locale={locale}
+        t={t}
+        sessionEmail={sessionEmail}
+      />
     </NagoScrollRoot>
   );
 }

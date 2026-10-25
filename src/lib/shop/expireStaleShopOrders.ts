@@ -27,7 +27,7 @@ export async function expireStaleShopOrders(input?: {
   now?: Date;
 }): Promise<void> {
   const now = input?.now ?? new Date();
-  const admin = input?.admin ?? createAdminClient();
+  const admin = input?.admin ?? await createAdminClient();
   const cutoff = new Date(now.getTime() - MS_24H).toISOString();
   const { error } = await admin
     .from("shop_orders")

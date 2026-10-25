@@ -106,7 +106,7 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
         filterTooltip: dict.admin.registrations.filterTooltipSection,
       };
   const existingByLead = await resolveExistingStudentIdsForLeads(
-    createAdminClient(),
+    await createAdminClient(),
     result.rows,
   );
   const rows = result.rows.map((row) => ({

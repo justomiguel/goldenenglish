@@ -78,7 +78,7 @@ export async function upsertBadgeTranslations(
   badgeId: string,
   translations: z.infer<typeof badgeLocalesSchema>,
 ): Promise<{ ok: boolean }> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin.from("badge_translations").upsert(
     [
       {

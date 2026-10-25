@@ -5,6 +5,7 @@ export const VIEW_AS_COOKIE_NAME = "ge_view_as";
 export type ViewAsCookiePayload = {
   userId: string;
   iat: number;
+  tenantSlug?: string;
 };
 
 function base64UrlEncode(value: string): string {
@@ -24,15 +25,27 @@ function signingSecret(): string | null {
   return secret || null;
 }
 
-export function signViewAsCookie(userId: string, nowSeconds = Math.floor(Date.now() / 1000)): string | null {
+export function signViewAsCookie(
+  userId: string,
+  nowSeconds = Math.floor(Date.now() / 1000),
+  tenantSlug?: string | null,
+): string | null {
   const secret = signingSecret();
   if (!secret || !userId.trim()) return null;
-  const payload: ViewAsCookiePayload = { userId, iat: nowSeconds };
+  const slug = tenantSlug?.trim();
+  const payload: ViewAsCookiePayload = {
+    userId,
+    iat: nowSeconds,
+    ...(slug ? { tenantSlug: slug } : {}),
+  };
   const encoded = base64UrlEncode(JSON.stringify(payload));
   return `${encoded}.${signPart(encoded, secret)}`;
 }
 
-export function verifyViewAsCookie(token: string | null | undefined): ViewAsCookiePayload | null {
+export function verifyViewAsCookie(
+  token: string | null | undefined,
+  expectedTenantSlug?: string | null,
+): ViewAsCookiePayload | null {
   const secret = signingSecret();
   if (!secret || !token) return null;
   const [encoded, providedSig] = token.split(".");
@@ -47,6 +60,8 @@ export function verifyViewAsCookie(token: string | null | undefined): ViewAsCook
   try {
     const payload = JSON.parse(base64UrlDecode(encoded)) as ViewAsCookiePayload;
     if (!payload.userId || typeof payload.iat !== "number") return null;
+    const expectedSlug = expectedTenantSlug?.trim();
+    if (expectedSlug && payload.tenantSlug !== expectedSlug) return null;
     return payload;
   } catch {
     return null;

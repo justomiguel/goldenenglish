@@ -16,14 +16,7 @@ const ROOT = path.join(__dirname, "..");
 const TARGETS_PATH = path.join(__dirname, "vercel-targets.json");
 const LOCAL_TARGETS_PATH = path.join(__dirname, "vercel-targets.local.json");
 
-const OUT_FILES = {
-  golden: path.join(ROOT, ".env.local.golden"),
-  mozarthitos: path.join(ROOT, ".env.local.mozarthitos"),
-  espaciozenit: path.join(ROOT, ".env.local.espaciozenit"),
-  nago: path.join(ROOT, ".env.local.nago"),
-  mimundo: path.join(ROOT, ".env.local.mimundo"),
-  liora: path.join(ROOT, ".env.local.liora"),
-};
+const OUT_FILE = path.join(ROOT, ".env.local");
 
 const VERCEL_DIR = path.join(ROOT, ".vercel");
 const PROJECT_JSON = path.join(VERCEL_DIR, "project.json");
@@ -121,29 +114,24 @@ function temporaryProjectLink(orgId, projectId, projectName) {
 }
 
 function usage() {
-  console.error(`pull-vercel-env: ${Object.keys(OUT_FILES).join("|")} [--production|--preview|--development] [-y]
-Sensitive en Prod/Preview → CLI deja ""; usar Development sin Sensitive o pegar desde dashboard.
+  console.error(`pull-vercel-env: [golden] [--production|--preview|--development] [-y]
+Descarga las variables del proyecto único de Vercel hacia .env.local.
 `);
 }
 
 function main() {
   const argv = process.argv.slice(2);
   if (
-    argv.length === 0 ||
     argv[0] === "help" ||
     argv[0] === "--help" ||
     argv[0] === "-h"
   ) {
     usage();
-    process.exit(argv.length ? 0 : 1);
+    process.exit(0);
   }
 
-  const { target, environment: cliEnvironment, yes } = parseArgs(argv);
-  if (!target || !(target in OUT_FILES)) {
-    console.error(`Destino inválido: ${target ?? "(vacío)"}`);
-    usage();
-    process.exit(1);
-  }
+  const { target: rawTarget, environment: cliEnvironment, yes } = parseArgs(argv);
+  const target = rawTarget || "golden";
 
   const targets = mergeTargets(loadJson(TARGETS_PATH), loadJson(LOCAL_TARGETS_PATH));
   const entry = targets[target];
@@ -166,9 +154,7 @@ function main() {
   const environment =
     cliEnvironment ?? assertPullEnvironment(entry.envPullEnvironment) ?? "development";
 
-  const outFile = path.resolve(
-    OUT_FILES[/** @type {'golden'|'mozarthitos'|'espaciozenit'} */ (target)],
-  );
+  const outFile = path.resolve(OUT_FILE);
   const vercelArgs = ["env", "pull", outFile, "--environment", environment];
   if (yes) vercelArgs.push("--yes");
 

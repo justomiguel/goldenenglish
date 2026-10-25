@@ -5,7 +5,7 @@ import { isValidE164Phone } from "@/lib/notifications/validateE164Phone";
 import { sendMetaClassReminderTemplate } from "@/lib/whatsapp/sendMetaClassReminderTemplate";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { pushAfterNotify } from "@/lib/push/pushAfterNotify";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import {
   markJob,
@@ -138,7 +138,7 @@ export async function handleUrgentInAppJob(input: {
     return;
   }
   await markJob(admin, job.id, { status: "sent", channels_snapshot: { in_app: "sent" } });
-  const portal = absoluteUrl("/es/dashboard/student");
+  const portal = await absoluteUrlForRequest("/es/dashboard/student");
   await pushAfterNotify(
     job.recipient_user_id,
     {

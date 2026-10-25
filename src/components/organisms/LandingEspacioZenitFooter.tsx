@@ -8,6 +8,7 @@ import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { PublicContactForm } from "@/components/molecules/PublicContactForm";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 export interface LandingEspacioZenitFooterProps {
   dict: Dictionary;
@@ -37,7 +38,7 @@ export function LandingEspacioZenitFooter({
   return (
     <footer
       id="contacto"
-      className="relative z-[11] scroll-mt-[max(6rem,env(safe-area-inset-top)+5rem)] border-t border-[rgb(0_174_239_/25%)] bg-black px-[max(1rem,env(safe-area-inset-left))] pb-[max(2rem,env(safe-area-inset-bottom))] pt-14 text-white lg:px-6"
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} relative z-[11] scroll-mt-[max(6rem,env(safe-area-inset-top)+5rem)] border-t border-[rgb(0_174_239_/25%)] bg-black px-[max(1rem,env(safe-area-inset-left))] pb-[max(2rem,env(safe-area-inset-bottom))] pt-14 text-white lg:px-6`}
     >
       <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-3 md:gap-8 lg:gap-12">
         <div className="space-y-5 md:border-e md:border-white/10 md:pe-8">
@@ -120,7 +121,7 @@ export function LandingEspacioZenitFooter({
                 className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-4 py-2 text-sm font-bold uppercase tracking-[0.1em] text-black"
               >
                 <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={ICON} />
-                {dict.nav.administration}
+                {dict.nav.myPortal}
               </Link>
               <SignOutButton
                 locale={locale}
@@ -128,7 +129,16 @@ export function LandingEspacioZenitFooter({
                 className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white"
               />
             </div>
-          ) : null}
+          ) : (
+            <div className="mt-6 border-t border-white/15 pt-5 lg:hidden">
+              <Link
+                href={`/${locale}/login`}
+                className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl border border-[var(--ez-cyan)] px-4 py-2 text-sm font-bold uppercase tracking-[0.1em] text-[var(--ez-cyan)]"
+              >
+                {dict.nav.login}
+              </Link>
+            </div>
+          )}
         </div>
       </div>
       <div className="mx-auto mt-12 w-full max-w-lg border-t border-white/15 px-4 pt-12 lg:mt-14">

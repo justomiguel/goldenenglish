@@ -95,7 +95,7 @@ export async function dryRunImportUsersAction(
     }
 
     const { valid, invalid } = parseUsersSpreadsheetRawRows(parsed.rawRows);
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const existing = await loadExistingProfilesForUsersSpreadsheet(
       admin,
       valid.map((r) => r.email),
@@ -179,7 +179,7 @@ export async function applyImportUsersAction(raw: unknown): Promise<ApplyImportU
       else failed += 1;
     }
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     if (parsed.data.updateDuplicates) {
       for (const d of dupParsed) {
         if (!d.row) {

@@ -148,7 +148,7 @@ export async function createAcademicSectionAction(input: {
       const bytes = decodeSectionImageBase64(raw);
       if (bytes) {
         const persisted = await persistSectionReferenceImage({
-          admin: createAdminClient() as never,
+          admin: await createAdminClient() as never,
           sectionId: row.id as string,
           bytes,
           mime,

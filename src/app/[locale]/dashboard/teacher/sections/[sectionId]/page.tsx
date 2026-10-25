@@ -13,6 +13,7 @@ import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTe
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { SectionReferenceThumb } from "@/components/molecules/SectionReferenceThumb";
 import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 
 interface PageProps {
   params: Promise<{ locale: string; sectionId: string }>;
@@ -70,10 +71,10 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
     attendanceStatusLabels: d.attendanceStatus,
   });
 
-  const enrollmentLinkState = await loadSectionEnrollmentLinkState(
-    supabase,
-    sectionId,
-  );
+  const [enrollmentLinkState, { url: supabaseUrl }] = await Promise.all([
+    loadSectionEnrollmentLinkState(supabase, sectionId),
+    readRequestSupabasePublicEnv(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -86,7 +87,7 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
         </Link>
         <div className="mt-2 flex items-start gap-3">
           <SectionReferenceThumb
-            src={sectionReferenceImagePublicUrl(sec.reference_image_path)}
+            src={sectionReferenceImagePublicUrl(sec.reference_image_path, supabaseUrl)}
             alt={sec.name}
             size="md"
           />

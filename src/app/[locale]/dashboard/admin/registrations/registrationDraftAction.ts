@@ -94,7 +94,7 @@ export async function updateRegistrationDraft(
   const parsed = draftSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: reg.invalidData };
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const theme = await loadActiveTheme();
   const templateKind = theme?.theme.templateKind ?? "classic";
   const { registration_id, level_interest, ...rest } = parsed.data;
@@ -156,7 +156,7 @@ export async function createRegistration(
   const parsed = personSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: reg.invalidData };
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data, error } = await admin
     .from("registrations")
     .insert({

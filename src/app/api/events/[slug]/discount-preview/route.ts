@@ -50,7 +50,7 @@ export async function POST(
           parsed.data.isLocalResident ?? true,
         ) ?? 0);
 
-    const result = await previewEventDiscountCode(createAdminClient(), {
+    const result = await previewEventDiscountCode(await createAdminClient(), {
       eventId: event.id,
       code: parsed.data.code,
       amount,

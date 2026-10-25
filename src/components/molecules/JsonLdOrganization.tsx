@@ -5,11 +5,23 @@ import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 interface JsonLdOrganizationProps {
   locale: string;
   brand: BrandPublic;
+  /** Request origin. When omitted, the env public URL is used. */
+  siteOrigin?: string | null;
+}
+
+function baseUrlFromOrigin(siteOrigin: string | null | undefined): URL | null {
+  if (!siteOrigin) return getPublicSiteUrl();
+  try {
+    const normalized = siteOrigin.endsWith("/") ? siteOrigin.slice(0, -1) : siteOrigin;
+    return new URL(normalized);
+  } catch {
+    return getPublicSiteUrl();
+  }
 }
 
 /** Schema.org EducationalOrganization — home / marketing only (omit if no public base URL). */
-export function JsonLdOrganization({ locale, brand }: JsonLdOrganizationProps) {
-  const base = getPublicSiteUrl();
+export function JsonLdOrganization({ locale, brand, siteOrigin }: JsonLdOrganizationProps) {
+  const base = baseUrlFromOrigin(siteOrigin);
   if (!base) return null;
 
   const url = new URL(`/${locale}`, base).toString();

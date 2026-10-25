@@ -5,12 +5,14 @@ import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { BrandFacebookIcon, BrandInstagramIcon } from "@/components/atoms/BrandSocialIcons";
 import { resolveNagoLogo } from "@/lib/landing/nagoLogo";
 import { NagoReveal } from "@/components/organisms/NagoReveal";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 interface LandingNagoFooterProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
   t: (path: string) => string;
+  sessionEmail?: string | null;
 }
 
 function YoutubeGlyph({ className }: { className?: string }) {
@@ -24,9 +26,15 @@ function YoutubeGlyph({ className }: { className?: string }) {
   );
 }
 
-export function LandingNagoFooter({ dict, brand, locale, t }: LandingNagoFooterProps) {
+export function LandingNagoFooter({
+  dict,
+  brand,
+  locale,
+  t,
+  sessionEmail = null,
+}: LandingNagoFooterProps) {
   return (
-    <footer className="bg-[var(--nago-footer)] px-[max(1.25rem,env(safe-area-inset-left))] py-12 pb-[max(2rem,env(safe-area-inset-bottom))] pe-[max(1.25rem,env(safe-area-inset-right))] text-white">
+    <footer className={`${PUBLIC_MARKETING_CHROME_CLASS} bg-[var(--nago-footer)] px-[max(1.25rem,env(safe-area-inset-left))] py-12 pb-[max(2rem,env(safe-area-inset-bottom))] pe-[max(1.25rem,env(safe-area-inset-right))] text-white`}>
       <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.1fr_1fr_1fr] md:items-start">
         <NagoReveal>
           <div className="flex flex-col items-start gap-3">
@@ -89,6 +97,14 @@ export function LandingNagoFooter({ dict, brand, locale, t }: LandingNagoFooterP
             <li>
               <Link href={`/${locale}/privacidad`} className="hover:text-[var(--nago-gold)]">
                 {dict.privacy.footerLink}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={sessionEmail ? `/${locale}/dashboard` : `/${locale}/login`}
+                className="hover:text-[var(--nago-gold)]"
+              >
+                {sessionEmail ? dict.nav.myPortal : dict.nav.login}
               </Link>
             </li>
           </ul>

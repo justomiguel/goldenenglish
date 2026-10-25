@@ -1,7 +1,28 @@
 import type { NextConfig } from "next";
 import { loadEnvConfig } from "@next/env";
 import withSerwistInit from "@serwist/next";
-import { readSupabasePublicEnv } from "./src/lib/supabase/publicEnv";
+import { supabasePublicEnvInlinedForClient } from "./src/lib/supabase/clientBundleSupabaseEnv";
+import { listTenants } from "./src/lib/tenant/tenantRegistry";
+
+/**
+ * Single-tenant public Supabase env for the client bundle.
+ * Do not import `readSupabasePublicEnv` here: it pulls `@/lib/tenant/tenantAls`,
+ * and the next.config transpiler does not resolve that alias.
+ */
+function readSingleTenantSupabasePublicEnv(): { url: string; anonKey: string } {
+  const url =
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ||
+    process.env.SUPABASE_URL?.trim() ||
+    "";
+  const anonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ||
+    process.env.SUPABASE_ANON_KEY?.trim() ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
+    process.env.SUPABASE_PUBLISHABLE_KEY?.trim() ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_KEY?.trim() ||
+    "";
+  return { url, anonKey };
+}
 
 /** Vercel sets commit SHA in CI; local builds use a stable revision to avoid sw.js churn per commit. */
 const swRevision = process.env.VERCEL_GIT_COMMIT_SHA?.trim() || "local-dev";
@@ -23,18 +44,30 @@ const withSerwist = withSerwistInit({
 const projectDir = process.cwd();
 loadEnvConfig(projectDir);
 
-const { url: supabaseUrl, anonKey: supabaseAnonKey } = readSupabasePublicEnv();
+const configuredTenants = listTenants();
+const rawEnv = readSingleTenantSupabasePublicEnv();
+const inlinedSupabase = supabasePublicEnvInlinedForClient({
+  tenantCount: configuredTenants.length,
+  singleTenantUrl: rawEnv.url,
+  singleTenantAnonKey: rawEnv.anonKey,
+});
 
-let supabaseStorageHostname: string | null = null;
-try {
-  if (supabaseUrl) supabaseStorageHostname = new URL(supabaseUrl).hostname;
-} catch {
-  supabaseStorageHostname = null;
+const storageHostnames = new Set<string>(["*.supabase.co"]);
+const storageCandidates = [
+  ...configuredTenants.map((t) => t.supabaseUrl),
+  ...(configuredTenants.length === 0 ? [rawEnv.url] : []),
+];
+for (const candidate of storageCandidates) {
+  try {
+    if (candidate) storageHostnames.add(new URL(candidate).hostname);
+  } catch {
+    /* ignore malformed URL */
+  }
 }
 
 /**
- * Re-inline public Supabase vars so Edge proxy / Turbopack see them.
- * Values are loaded above from .env.local via loadEnvConfig.
+ * Single-tenant and E2E still inline public Supabase vars for Edge / Turbopack.
+ * A shared deploy inlines empty strings so one institute is not baked into the bundle.
  */
 const nextConfig: NextConfig = {
   ...(e2eIsolatedCache ? { distDir: ".next-e2e" } : {}),
@@ -47,8 +80,8 @@ const nextConfig: NextConfig = {
     "@fullcalendar/interaction",
   ],
   env: {
-    NEXT_PUBLIC_SUPABASE_URL: supabaseUrl,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: supabaseAnonKey,
+    NEXT_PUBLIC_SUPABASE_URL: inlinedSupabase.url,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: inlinedSupabase.anonKey,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL?.trim() ?? "",
   },
   compress: true,
@@ -57,15 +90,11 @@ const nextConfig: NextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 30,
-    remotePatterns: supabaseStorageHostname
-      ? [
-          {
-            protocol: "https",
-            hostname: supabaseStorageHostname,
-            pathname: "/storage/v1/object/**",
-          },
-        ]
-      : [],
+    remotePatterns: [...storageHostnames].map((hostname) => ({
+      protocol: "https" as const,
+      hostname,
+      pathname: "/storage/v1/object/**",
+    })),
   },
   experimental: {
     optimizePackageImports: [

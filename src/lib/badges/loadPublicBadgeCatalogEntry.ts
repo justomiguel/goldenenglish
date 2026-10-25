@@ -1,4 +1,4 @@
-import { createAnonReadOnlyClient } from "@/lib/supabase/anon";
+import { createRequestAnonClient } from "@/lib/supabase/requestAnonClient";
 import {
   isBadgeCategory,
   isBadgeLocale,
@@ -49,7 +49,7 @@ export async function loadPublicBadgeCatalogEntryByCode(
   code: string,
 ): Promise<PublicBadgeCatalogEntry> {
   if (typeof code !== "string" || code.length === 0 || code.length > 64) return null;
-  const supabase = createAnonReadOnlyClient();
+  const supabase = await createRequestAnonClient();
   if (!supabase) return null;
   const { data, error } = await supabase.rpc(RPC_NAME, { p_code: code });
   if (error) return null;

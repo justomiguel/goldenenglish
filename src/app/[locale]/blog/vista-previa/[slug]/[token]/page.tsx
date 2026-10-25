@@ -5,9 +5,12 @@ import { createClient } from "@/lib/supabase/server";
 import { parseBlogAttachmentsFromDb } from "@/lib/blog/attachments";
 import { pickBlogRichContentLabels } from "@/lib/blog/pickBlogRichContentLabels";
 import { verifyBlogPreviewToken } from "@/lib/blog/previewToken";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 import { buildBlogPreviewPath } from "@/lib/site/publicSharePaths";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { blogMediaPublicUrl } from "@/lib/blog/blogMedia";
 import { resolveBlogCoverImageUrl } from "@/lib/rich-content/resolvePublicContentCoverUrl";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import { stripFirstImageFromHtml } from "@/lib/rich-content/stripFirstImageFromHtml";
 import { BlogArticleDetailSurfaceEntry } from "@/components/organisms/BlogArticleDetailSurfaceEntry";
 import {
@@ -27,11 +30,11 @@ interface PageProps {
 export default async function BlogPreviewPage({ params }: PageProps) {
   noStore();
 
-  const { locale, slug, token } = await params;
+  const [{ locale, slug, token }, tenant] = await Promise.all([params, resolveRequestTenant()]);
   const dict = await getDictionary(locale);
   const detailLabels = dict.blog.detail;
   const listLabels = dict.blog.list;
-  const payload = verifyBlogPreviewToken(token);
+  const payload = verifyBlogPreviewToken(token, tenant?.slug);
   if (!payload) notFound();
 
   const supabase = await createClient();
@@ -71,6 +74,16 @@ export default async function BlogPreviewPage({ params }: PageProps) {
     coverImageUrl?.startsWith("/images/") || coverImageUrl?.startsWith("data:");
   const bodyHtml = coverImageUrl ? stripFirstImageFromHtml(bodyHtmlRaw) : bodyHtmlRaw;
 
+  const { url: supabaseUrl } = await readRequestSupabasePublicEnv();
+  const rawAttachments = parseBlogAttachmentsFromDb(translation.attachments);
+  const attachments = supabaseUrl
+    ? rawAttachments.map((item) =>
+        item.kind === "file"
+          ? { ...item, storagePath: blogMediaPublicUrl(supabaseUrl, item.storagePath) }
+          : item,
+      )
+    : rawAttachments;
+
   return (
     <BlogArticleDetailSurfaceEntry
       locale={locale}
@@ -79,7 +92,7 @@ export default async function BlogPreviewPage({ params }: PageProps) {
       bodyHtml={bodyHtml}
       coverImageUrl={coverImageUrl}
       coverUnoptimized={Boolean(coverUnoptimized)}
-      attachments={parseBlogAttachmentsFromDb(translation.attachments)}
+      attachments={attachments}
       attachmentsTitle={detailLabels.attachmentsTitle}
       heroLabels={{
         backToBlog: detailLabels.backToBlog,

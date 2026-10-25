@@ -49,12 +49,12 @@ export async function resolveMercadoPagoMonthlyPaymentReturnPage(input: {
 
   let rawKey: Buffer;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch {
     return { outcome: "misconfigured" };
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const creds = await loadMercadoPagoCredentialsPlain(admin, rawKey, country);
   if (!creds?.enabled) {
     return { outcome: "misconfigured" };

@@ -12,6 +12,7 @@ export interface PublicBlogScreenLioraProps {
   brand: BrandPublic;
   sessionEmail: string | null;
   blogEnabled: boolean;
+  merchEnabled?: boolean;
   blogLabel: string;
   eventsLabel: string;
   children: ReactNode;
@@ -23,6 +24,7 @@ export function PublicBlogScreenLiora({
   brand,
   sessionEmail,
   blogEnabled,
+  merchEnabled = false,
   blogLabel,
   eventsLabel,
   children,
@@ -42,6 +44,8 @@ export function PublicBlogScreenLiora({
           blogLabel={blogEnabled ? blogLabel : undefined}
           showEventsLink
           eventsLabel={eventsLabel}
+          showShopLink={merchEnabled}
+          shopLabel={merchEnabled ? dict.shop.catalog.title : undefined}
           instagramUrl={brand.socialInstagram}
           whatsappUrl={brand.socialWhatsapp}
           labels={{

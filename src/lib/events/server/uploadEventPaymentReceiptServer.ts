@@ -86,7 +86,7 @@ export async function uploadEventPaymentReceiptServer(
     return { ok: false, code: "invalid_file" };
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const context = await loadEventAttendeeGatewayContext(admin, input.attendeeId);
   if (!context) {
     return { ok: false, code: "payment_not_found" };

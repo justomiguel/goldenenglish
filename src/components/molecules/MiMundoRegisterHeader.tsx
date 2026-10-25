@@ -3,12 +3,15 @@ import { ArrowLeft } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
+import { PublicHeaderAccountCta } from "@/components/molecules/PublicHeaderAccountCta";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 export interface MiMundoRegisterHeaderProps {
   locale: string;
   logoSrc: string;
   logoAlt: string;
   dict: Dictionary;
+  sessionEmail?: string | null;
 }
 
 const stroke = 1.85;
@@ -18,6 +21,7 @@ export function MiMundoRegisterHeader({
   logoSrc,
   logoAlt,
   dict,
+  sessionEmail = null,
 }: MiMundoRegisterHeaderProps) {
   const homeHref = `/${locale}`;
   const backHome = marketingLandingCopy(dict, "mm", "register.backHome").trim();
@@ -25,7 +29,7 @@ export function MiMundoRegisterHeader({
   return (
     <header
       id="top"
-      className="mm-register-header sticky top-0 z-50 border-b border-[var(--mm-green)]/20 bg-[var(--mm-cream)]/95"
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} mm-register-header sticky top-0 z-50 border-b border-[var(--mm-green)]/20 bg-[var(--mm-cream)]/95`}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-[max(1rem,env(safe-area-inset-left))] py-2.5 pe-[max(1rem,env(safe-area-inset-right))] sm:py-3 md:gap-3 lg:gap-4 lg:py-4">
@@ -47,6 +51,15 @@ export function MiMundoRegisterHeader({
         </Link>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <PublicHeaderAccountCta
+            locale={locale}
+            sessionEmail={sessionEmail}
+            loginLabel={dict.nav.login}
+            loginShort={dict.nav.loginShort}
+            portalLabel={dict.nav.myPortal}
+            logoutLabel={dict.nav.logout}
+            tone="mimundo"
+          />
           <LanguageSwitcher
             locale={locale}
             labels={dict.common.locale}

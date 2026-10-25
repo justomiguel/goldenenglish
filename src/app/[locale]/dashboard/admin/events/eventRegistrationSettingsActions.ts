@@ -26,7 +26,7 @@ export async function updateEventCollectBirthDateAction(
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, collectBirthDate } = parsed.data;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin
     .from("events")
     .update(

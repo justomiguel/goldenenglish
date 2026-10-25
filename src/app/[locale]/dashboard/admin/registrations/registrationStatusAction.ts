@@ -40,7 +40,7 @@ async function applyRegistrationStatus(
   const parsed = idZ.safeParse(registrationId);
   if (!parsed.success) return { ok: false, message: err.invalidData };
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
 
   const { data: row, error: fetchErr } = await admin
     .from("registrations")

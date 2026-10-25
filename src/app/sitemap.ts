@@ -1,13 +1,15 @@
 import type { MetadataRoute } from "next";
 import { locales } from "@/lib/i18n/dictionaries";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 /** Public marketing + auth entry; admin/dashboard excluded (noindex elsewhere). */
 const INDEXED_PATHS = ["", "/login", "/contact", "/privacidad", "/blog", "/events"] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = getPublicSiteUrl();
+  const base = await getRequestPublicSiteUrl();
   if (!base) return [];
 
   const supabase = await createClient();

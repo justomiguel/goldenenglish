@@ -24,12 +24,17 @@ export function shopMediaPublicUrl(supabaseProjectUrl: string, storagePath: stri
   return `${base}/storage/v1/object/public/${SHOP_MEDIA_BUCKET}/${storagePath}`;
 }
 
-export function shopProductImagePublicUrl(path: string | null | undefined): string | null {
+export function shopProductImagePublicUrl(
+  path: string | null | undefined,
+  supabaseProjectUrl?: string | null,
+): string | null {
   if (typeof path !== "string") return null;
   const trimmed = path.trim();
   if (!trimmed) return null;
   try {
-    return shopMediaPublicUrl(readSupabasePublicEnv().url, trimmed);
+    const url = (supabaseProjectUrl ?? readSupabasePublicEnv().url).trim();
+    if (!url) return null;
+    return shopMediaPublicUrl(url, trimmed);
   } catch {
     return null;
   }

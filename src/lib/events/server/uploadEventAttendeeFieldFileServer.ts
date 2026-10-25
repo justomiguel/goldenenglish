@@ -36,7 +36,7 @@ export type UploadEventAttendeeFieldFileServerResult =
 export async function uploadEventAttendeeFieldFileServer(
   input: UploadEventAttendeeFieldFileServerInput,
 ): Promise<UploadEventAttendeeFieldFileServerResult> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const event = await loadEventForPublicLanding(admin, input.slug, input.locale);
   if (!event) {
     return { ok: false, code: "event_not_found" };

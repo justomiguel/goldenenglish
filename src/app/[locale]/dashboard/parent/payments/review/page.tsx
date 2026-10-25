@@ -54,7 +54,7 @@ export default async function ParentPaymentsReviewPage({ params, searchParams }:
   }
 
   const origin = payload.monthlyView.rows.find((r) => r.sectionId === sectionId);
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: studentProfile } = await admin
     .from("profiles")
     .select("dni_or_passport")

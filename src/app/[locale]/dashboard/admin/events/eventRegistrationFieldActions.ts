@@ -38,7 +38,7 @@ export async function updateEventRegistrationFieldOrderAction(
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, order } = parsed.data;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const fieldIds = [
     ...new Set(order.filter((token) => token.startsWith("field:")).map((token) => token.slice(6))),
   ];
@@ -103,7 +103,7 @@ export async function updateEventBaseFieldRequirementsAction(
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, requirePhone, requireBirthDate } = parsed.data;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: eventRow, error: readError } = await admin
     .from("events")
     .select("collect_birth_date")

@@ -12,8 +12,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { batchAuthEmailsForUserIds } from "@/lib/auth/batchAuthEmailsForUserIds";
 import { resolveRegistrationFamilyEmail } from "@/lib/register/resolveRegistrationFamilyEmail";
 import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
-import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import type { Locale } from "@/types/i18n";
 
 export async function notifyRegistrationReceived(input: {
@@ -78,7 +78,7 @@ export async function notifyRegistrationWelcome(input: {
 }): Promise<void> {
   const locale: Locale = input.locale === "en" || input.locale === "pt" ? input.locale : "es";
   const studentEmail = (input.studentEmail ?? "").trim().toLowerCase();
-  const domain = getRegistrationMailTenantDomain();
+  const domain = await getRequestMailTenantDomain();
   const synthetic = Boolean(domain && studentEmail.endsWith(`@${domain}`));
   const familyEmail = resolveRegistrationFamilyEmail({
     isMinor: input.isMinor,
@@ -88,7 +88,7 @@ export async function notifyRegistrationWelcome(input: {
   });
   if (!familyEmail || !isDeliverableAuthEmail(familyEmail)) return;
 
-  const origin = getPublicSiteUrl()?.origin ?? "http://localhost:3000";
+  const origin = (await getRequestPublicSiteUrl())?.origin ?? "http://localhost:3000";
   const inviteUrl = `${origin}/${locale}/login`;
   const sent = await sendBrandedEmail({
     to: familyEmail,
@@ -121,7 +121,7 @@ export async function sendRegistrationAdminEmails(input: {
   vars: Record<string, string>;
 }): Promise<void> {
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data, error } = await admin
       .from("profiles")
       .select("id")

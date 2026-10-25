@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { buildBadgeSharePath } from "@/lib/site/publicSharePaths";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { loadStudentLearningTasks } from "@/lib/learning-tasks/loadStudentLearningTasks";
@@ -53,6 +53,12 @@ export default async function StudentProgressPage({ params, searchParams }: Page
   // would tell the family their child has nothing.
   const failures = createProgressFailureTracker();
 
+  const shareOrigin = (await getRequestPublicSiteUrl())?.origin ?? "";
+  const badgeShareUrl = (token: string, title?: string) => {
+    const path = buildBadgeSharePath(locale, title ?? "", token);
+    if (!shareOrigin) return path;
+    return new URL(path, shareOrigin).toString();
+  };
   const [exams, tasks, assessments, feedback, badgeRows] = await Promise.all([
     loadStudentExamResults(supabase, {
       studentId,
@@ -65,14 +71,7 @@ export default async function StudentProgressPage({ params, searchParams }: Page
       childLabel: displayName || studentId,
       onLoadError: failures.reporterFor("feedback"),
     }),
-    loadStudentBadgeDisplayRows(
-      studentId,
-      (token, title) => {
-        const u = absoluteUrl(buildBadgeSharePath(locale, title ?? "", token));
-        return u ? u.toString() : "";
-      },
-      failures.reporterFor("badges"),
-    ),
+    loadStudentBadgeDisplayRows(studentId, badgeShareUrl, failures.reporterFor("badges")),
   ]);
 
   return (

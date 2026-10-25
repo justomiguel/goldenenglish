@@ -54,7 +54,7 @@ export async function setAdminUserPasswordFromDetailAction(
       return { ok: false, message: dict.admin.users.detailErrForbidden };
     }
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { error } = await admin.auth.admin.updateUserById(parsed.data.targetUserId, {
       password: parsed.data.password,
     });
@@ -137,7 +137,7 @@ export async function resetUserPasswordByDniAction(
       return { ok: false, message: dict.admin.users.detailDniResetErrAdminPassword };
     }
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
 
     const { data: profile, error: profileErr } = await admin
       .from("profiles")

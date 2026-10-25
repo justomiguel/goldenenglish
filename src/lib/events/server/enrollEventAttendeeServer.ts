@@ -135,7 +135,7 @@ const ENROLL_MAIL_CODES = new Set(["confirmed", "payment_pending", "waitlist"]);
 export async function enrollEventAttendeeServer(
   input: EnrollEventAttendeeServerInput,
 ): Promise<EnrollEventAttendeeServerResult> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const discountCode = input.discountCode?.trim() ?? "";
   if (discountCode && input.familyDiscountClaimed === true) return failure("discount_conflict");
 

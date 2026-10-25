@@ -1,3 +1,6 @@
+import { preferTenantValue } from "@/lib/tenant/preferTenantValue";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
+
 /**
  * Meta WhatsApp Cloud API — transactional template (body parameters only).
  * Requires WHATSAPP_ACCESS_TOKEN, WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_CLASS_REMINDER_TEMPLATE_NAME.
@@ -13,9 +16,16 @@ export async function sendMetaClassReminderTemplate(input: {
   /** Ordered body variable strings for the approved template */
   bodyParameters: string[];
 }): Promise<SendMetaClassReminderTemplateResult> {
-  const token = process.env.WHATSAPP_ACCESS_TOKEN?.trim();
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
-  const templateName = process.env.WHATSAPP_CLASS_REMINDER_TEMPLATE_NAME?.trim();
+  const tenant = await resolveRequestTenant();
+  const token = preferTenantValue(tenant?.whatsappAccessToken, process.env.WHATSAPP_ACCESS_TOKEN);
+  const phoneNumberId = preferTenantValue(
+    tenant?.whatsappPhoneNumberId,
+    process.env.WHATSAPP_PHONE_NUMBER_ID,
+  );
+  const templateName = preferTenantValue(
+    tenant?.whatsappClassReminderTemplateName,
+    process.env.WHATSAPP_CLASS_REMINDER_TEMPLATE_NAME,
+  );
   if (!token || !phoneNumberId || !templateName) {
     return { ok: false, code: "whatsapp_not_configured" };
   }

@@ -49,7 +49,7 @@ export async function submitTutorMonthlyReviewReceipt(
   if (!link.linked) return { ok: false, message: pe.studentNotLinked };
   if (!link.financialAccessActive) return { ok: false, message: pe.forbidden };
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const charge = await loadParentMonthlyReviewCharge(supabase, parsed, { admin });
   if (!charge.ok) {
     return { ok: false, message: charge.reason === "stale" ? pe.staleSnapshot : pe.invalidForm };

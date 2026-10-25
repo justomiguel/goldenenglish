@@ -3,7 +3,7 @@ import type { BlogLocale } from "@/lib/blog/domain";
 import { loadBlogArticleShareCover } from "@/lib/blog/server/loadBlogArticleShareCover";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { resolveBrandLogoAbsoluteUrl } from "@/lib/brand/resolveBrandLogoUrl";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { optimizeRemoteImageForShare } from "@/lib/rich-content/optimizeRemoteImageForShare";
 import { logServerWarn } from "@/lib/logging/serverActionLog";
 import { loadHomeSharePhotoUrl } from "@/lib/site/buildResolvedPublicShareMetadata";
@@ -11,9 +11,9 @@ import { loadHomeSharePhotoUrl } from "@/lib/site/buildResolvedPublicShareMetada
 export const alt = "Blog article preview";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/jpeg";
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-const OG_CACHE_CONTROL = "public, max-age=86400, stale-while-revalidate=604800";
+const OG_CACHE_CONTROL = "private, no-store";
 
 export default async function BlogArticleOpenGraphImage({
   params,
@@ -28,7 +28,7 @@ export default async function BlogArticleOpenGraphImage({
     slug,
   );
   const brand = await getBrandForRequest();
-  const origin = getPublicSiteUrl()?.origin.replace(/\/$/, "") ?? "http://localhost:3000";
+  const origin = (await getRequestPublicSiteUrl())?.origin.replace(/\/$/, "") ?? "http://localhost:3000";
   const fallbackLogo = resolveBrandLogoAbsoluteUrl(brand, origin);
 
   if (share?.coverImageUrl) {

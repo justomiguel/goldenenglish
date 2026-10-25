@@ -12,8 +12,8 @@ const weekdays = {
 };
 
 describe("buildSectionEnrollmentLinkPageMetadata", () => {
-  it("uses unavailable copy when the link is missing", () => {
-    const meta = buildSectionEnrollmentLinkPageMetadata({
+  it("uses unavailable copy when the link is missing", async () => {
+    const meta = await buildSectionEnrollmentLinkPageMetadata({
       locale: "es",
       brandName: "Instituto",
       weekdays,
@@ -24,11 +24,11 @@ describe("buildSectionEnrollmentLinkPageMetadata", () => {
     expect(meta.robots).toEqual({ index: false, follow: false });
   });
 
-  it("exposes share title, description and noindex for a valid link", () => {
+  it("exposes share title, description and noindex for a valid link", async () => {
     const prev = process.env.NEXT_PUBLIC_APP_URL;
     process.env.NEXT_PUBLIC_APP_URL = "https://example.com";
     try {
-      const meta = buildSectionEnrollmentLinkPageMetadata({
+      const meta = await buildSectionEnrollmentLinkPageMetadata({
         locale: "es",
         brandName: "Instituto",
         weekdays,

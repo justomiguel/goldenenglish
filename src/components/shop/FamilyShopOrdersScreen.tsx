@@ -5,7 +5,7 @@ import { useState } from "react";
 import { assignParentShopOrder } from "@/app/[locale]/dashboard/parent/shop/orders/actions";
 import { FamilyShopNav } from "@/components/shop/FamilyShopNav";
 import { formatShopMoney } from "@/lib/shop/formatShopMoney";
-import { isAssignableShopOrderStatus } from "@/lib/shop/shopOrderActionShared";
+import { isAssignableShopOrderStatus } from "@/lib/shop/shopOrderStatus";
 import type { FamilyShopOrderRow, ShopAssignOption } from "@/lib/shop/loadFamilyShopOrders";
 import type { Dictionary } from "@/types/i18n";
 

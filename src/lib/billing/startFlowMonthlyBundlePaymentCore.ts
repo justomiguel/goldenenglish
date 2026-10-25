@@ -6,7 +6,7 @@ import { loadFlowChileCredentialsPlain, flowChileApiBase } from "@/lib/payment-g
 import { flowCreatePaymentOrder } from "@/lib/payment-gateways/flow/flowCreatePaymentOrder";
 import { extractFlowMinimumClpFromCreateError } from "@/lib/payment-gateways/flow/parseFlowCreatePaymentError";
 import { reservePaymentFlowCommerceReferenceForBundle } from "@/lib/payment-gateways/flow/reservePaymentFlowCommerceReference";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
 import { truncateForFlowText } from "@/lib/billing/truncateFlowText";
 import type { StartFlowMonthlyPaymentCoreResult } from "@/lib/billing/startFlowMonthlyPaymentCore";
@@ -50,7 +50,7 @@ export async function startFlowMonthlyBundlePaymentCore(input: {
   const creds = await loadFlowChileCredentialsPlain(input.admin, input.encryptionKey32);
   if (!creds?.enabled) return { ok: false, code: "no_credentials" };
 
-  const origin = getPublicSiteUrl();
+  const origin = await getRequestPublicSiteUrl();
   if (!origin) return { ok: false, code: "no_public_url" };
 
   const inserted = await insertMonthlyCheckoutBundle(input.admin, {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import {
   normalizeEventPaymentBannerStatus,
   type EventPaymentReturnStatus,
@@ -66,7 +66,7 @@ async function buildRedirect(req: Request): Promise<Response> {
   const bridgeStatus = url.searchParams.get("status");
   const status = await resolveBannerStatus(req, bridgeStatus);
 
-  const base = getPublicSiteUrl();
+  const base = await getRequestPublicSiteUrl();
   if (!base || !slug) {
     return new Response("misconfigured", { status: 502 });
   }

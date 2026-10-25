@@ -1,8 +1,12 @@
 import { revalidatePath, updateTag } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { SITE_THEME_ACTIVE_CACHE_TAG } from "@/types/theming";
+import {
+  SITE_THEME_ACTIVE_CACHE_TAG,
+  siteThemeActiveCacheTagForTenant,
+} from "@/types/theming";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { logSupabaseError } from "@/lib/logging/serverActionLog";
+import { getAlsTenant } from "@/lib/tenant/alsTenantAccessor";
 
 /** Result shape shared by every site theme action. Stable codes (not localized
  *  copy) so the client renders messages from the dictionary, never from the
@@ -36,7 +40,11 @@ export const PG_UNIQUE_VIOLATION = "23505";
 /** Shared post-mutation invalidation. Templates can be edited at any time and
  *  any change to the **active** template must clear the cached snapshot used
  *  by the public layout (`loadActiveTheme`), per the runtime theming ADR. */
-export function revalidateSiteThemeSurfaces(locale: string): void {
+export function revalidateSiteThemeSurfaces(locale: string, tenantSlug?: string | null): void {
+  const slug = tenantSlug?.trim() || getAlsTenant()?.slug || null;
+  if (slug) {
+    updateTag(siteThemeActiveCacheTagForTenant(slug));
+  }
   updateTag(SITE_THEME_ACTIVE_CACHE_TAG);
   revalidatePath(`/${locale}/dashboard/admin/cms`);
   revalidatePath(`/${locale}/dashboard/admin/cms/templates`);

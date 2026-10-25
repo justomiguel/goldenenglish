@@ -10,6 +10,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { parseInitialSiteSetupCompletedAt } from "@/lib/site/parseInitialSiteSetupRecord";
 import { createIncidentSupportRef } from "@/lib/server/createIncidentSupportRef";
 import { authInviteCollisionEmailMeta } from "@/lib/logging/authInviteAttemptLogMeta";
+import { isInitialSiteSetupBypassed } from "@/lib/site/initialSiteSetupBypass";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 const bootstrapFirstAdminInputSchema = z
   .object({
@@ -39,7 +41,8 @@ export type BootstrapFirstAdminResult =
 export async function bootstrapFirstAdminAction(
   raw: unknown,
 ): Promise<BootstrapFirstAdminResult> {
-  if (process.env.SKIP_INITIAL_SITE_SETUP === "1") {
+  const tenant = await resolveRequestTenant();
+  if (isInitialSiteSetupBypassed(tenant)) {
     return { ok: false, code: "closed" };
   }
 
@@ -50,7 +53,7 @@ export async function bootstrapFirstAdminAction(
     return { ok: false, code: "password_mismatch" };
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
 
   const { count: adminCount, error: countErr } = await admin
     .from("profiles")

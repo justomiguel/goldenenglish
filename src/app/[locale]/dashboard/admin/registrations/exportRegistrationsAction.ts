@@ -50,7 +50,7 @@ export async function exportRegistrationsAction(input: {
       return { ok: false, message: dict.actionErrors.registrationDraft.forbidden };
     }
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const result = await loadPaginatedRegistrations(admin, {
       page: 1,
       pageSize: EXPORT_MAX_ROWS,

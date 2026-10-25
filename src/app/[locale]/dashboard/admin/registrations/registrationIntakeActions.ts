@@ -37,7 +37,7 @@ export async function waiveRegistrationFeeAction(input: {
   if (!disposition) return { ok: false, code: "validation" };
   const auth = await requireRegistrationIntakeAdmin();
   if (!auth.ok) return auth;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const lead = await loadRegistrationIntakeLead(admin, input.registrationId);
   if (!lead) return { ok: false, code: "not_found" };
   const dict = await getDictionary(input.locale);
@@ -65,7 +65,7 @@ export async function approveRegistrationReceiptAction(input: {
   if (!disposition) return { ok: false, code: "validation" };
   const auth = await requireRegistrationIntakeAdmin();
   if (!auth.ok) return auth;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const lead = await loadRegistrationIntakeLead(admin, input.registrationId);
   if (!lead || parseRegistrationIntakeState(lead.intake_state) !== "receipt_pending") {
     return { ok: false, code: "not_found" };
@@ -99,7 +99,7 @@ export async function rejectRegistrationReceiptAction(input: {
 }): Promise<IntakeActionResult> {
   const auth = await requireRegistrationIntakeAdmin();
   if (!auth.ok) return auth;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const lead = await loadRegistrationIntakeLead(admin, input.registrationId);
   if (!lead) return { ok: false, code: "not_found" };
   const { error } = await admin
@@ -131,7 +131,7 @@ export async function assignRegistrationSectionAction(input: {
 }): Promise<IntakeActionResult> {
   const auth = await requireRegistrationIntakeAdmin();
   if (!auth.ok) return auth;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const lead = await loadRegistrationIntakeLead(admin, input.registrationId);
   if (!lead) return { ok: false, code: "not_found" };
   const open = await requestedSectionsHaveOpenSeats(admin, [input.sectionId]);
@@ -206,7 +206,7 @@ export async function registrationEnrollmentReceiptUrlAction(
 ): Promise<{ ok: true; url: string } | { ok: false; code: string }> {
   const auth = await requireRegistrationIntakeAdmin();
   if (!auth.ok) return auth;
-  const lead = await loadRegistrationIntakeLead(createAdminClient(), registrationId);
+  const lead = await loadRegistrationIntakeLead(await createAdminClient(), registrationId);
   const url = await receiptSignedUrlForAdmin(lead?.enrollment_fee_receipt_path ?? null);
   if (!url) return { ok: false, code: "not_found" };
   return { ok: true, url };
@@ -220,7 +220,7 @@ export async function startRegistrationEnrollmentFeeFlowAction(input: {
   if (!auth.ok) return auth;
   const dict = await getDictionary(input.locale);
   const result = await startAdminRegistrationEnrollmentFeeFlow({
-    admin: createAdminClient(),
+    admin: await createAdminClient(),
     locale: input.locale,
     dict,
     registrationId: input.registrationId,

@@ -41,7 +41,7 @@ export async function saveFlowChileGatewaySettings(raw: unknown): Promise<SaveFl
 
   let rawKey;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch (err) {
     logServerActionException("saveFlowChileGatewaySettings:encryptionKey", err);
     return { ok: false, error: "encryption" };

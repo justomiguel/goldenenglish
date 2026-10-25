@@ -1,6 +1,6 @@
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { buildBadgeSharePath } from "@/lib/site/publicSharePaths";
 import { loadParentChildContext } from "@/lib/parent/loadParentChildContext";
 import { loadParentRecentAttendance } from "@/lib/parent/loadParentRecentAttendance";
@@ -65,6 +65,12 @@ export default async function ParentChildPage({ params, searchParams }: PageProp
   }
 
   const studentId = focus.studentId;
+  const shareOrigin = (await getRequestPublicSiteUrl())?.origin ?? "";
+  const badgeShareUrl = (token: string, title?: string) => {
+    const path = buildBadgeSharePath(locale, title ?? "", token);
+    if (!shareOrigin) return path;
+    return new URL(path, shareOrigin).toString();
+  };
   const [attendanceResult, examsResult, tasksResult, feedbackResult, badgesResult] =
     await Promise.allSettled([
       loadParentRecentAttendance(supabase, userId),
@@ -74,11 +80,7 @@ export default async function ParentChildPage({ params, searchParams }: PageProp
         studentId,
         childLabel: focus.student?.displayName ?? "",
       }),
-      loadStudentBadgeDisplayRows(
-        studentId,
-        (token, title) =>
-          absoluteUrl(buildBadgeSharePath(locale, title ?? "", token))?.toString() ?? "",
-      ),
+      loadStudentBadgeDisplayRows(studentId, badgeShareUrl),
     ]);
 
   const emptyAttendance: ParentRecentAttendanceModel = {

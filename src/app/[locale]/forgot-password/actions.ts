@@ -4,10 +4,11 @@ import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { getBrandForRequest } from "@/lib/brand/server";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { requestPasswordReset } from "@/lib/auth/requestPasswordReset";
 import { checkPasswordResetRateLimit } from "@/lib/auth/passwordResetRateLimit";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 export type RequestPasswordResetActionState =
   | { ok: true }
@@ -27,9 +28,9 @@ function clientIpFromHeaders(h: Headers): string | null {
  * exchanged on the server into session cookies (browser PKCE client cannot
  * complete `exchangeCodeForSession` without a prior code_verifier).
  */
-function buildRecoveryRedirectTo(locale: string): string {
+async function buildRecoveryRedirectTo(locale: string): Promise<string> {
   const base =
-    getPublicSiteUrl()?.toString().replace(/\/$/, "") ?? "http://localhost:3000";
+    (await getRequestPublicSiteUrl())?.toString().replace(/\/$/, "") ?? "http://localhost:3000";
   const nextPath = `/${locale}/reset-password`;
   return `${base}/api/auth/recovery-callback?next=${encodeURIComponent(nextPath)}`;
 }
@@ -46,9 +47,9 @@ export async function requestPasswordResetAction(
     return { ok: false, message: errors.emailRequired };
   }
 
-  const h = await headers();
+  const [h, tenant] = await Promise.all([headers(), resolveRequestTenant()]);
   const ip = clientIpFromHeaders(h);
-  const limit = checkPasswordResetRateLimit({ ip, email });
+  const limit = checkPasswordResetRateLimit({ ip, email, tenantSlug: tenant?.slug });
   if (!limit.allowed) {
     return { ok: false, message: errors.rateLimited };
   }
@@ -56,9 +57,9 @@ export async function requestPasswordResetAction(
   const result = await requestPasswordReset({
     email,
     locale,
-    redirectTo: buildRecoveryRedirectTo(locale),
+    redirectTo: await buildRecoveryRedirectTo(locale),
     brand: await getBrandForRequest(),
-    adminClient: createAdminClient(),
+    adminClient: await createAdminClient(),
     emailProvider: getEmailProvider(),
   });
 

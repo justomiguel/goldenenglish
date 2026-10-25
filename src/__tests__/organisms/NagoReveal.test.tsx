@@ -1,8 +1,23 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, waitFor } from "@testing-library/react";
 import { NagoReveal } from "@/components/organisms/NagoReveal";
 
 describe("NagoReveal", () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      "IntersectionObserver",
+      vi.fn(() => ({
+        observe: vi.fn(),
+        disconnect: vi.fn(),
+        unobserve: vi.fn(),
+      })),
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("marks the node as in-view when IntersectionObserver fires", async () => {
     const observe = vi.fn();
     const disconnect = vi.fn();
@@ -26,6 +41,7 @@ describe("NagoReveal", () => {
     );
 
     expect(container.firstElementChild).toHaveClass("nago-reveal");
+    expect(container.firstElementChild).not.toHaveClass("is-in");
     expect(observe).toHaveBeenCalled();
     await waitFor(() => {
       expect(container.firstElementChild).toHaveClass("is-in");

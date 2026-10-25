@@ -77,7 +77,7 @@ describe("tenant landing headers — PWA visibility", () => {
         />,
       );
       expect(
-        screen.getAllByRole("link", { name: dictEn.nav.administration }).length,
+        screen.getAllByRole("link", { name: dictEn.nav.myPortal }).length,
       ).toBeGreaterThan(0);
       await user.click(screen.getByRole("button", { name: mzLabels.openMenu }));
       expect(
@@ -103,7 +103,7 @@ describe("tenant landing headers — PWA visibility", () => {
       expect(loginLinks[0]).toHaveAttribute("href", "/es/login");
     });
 
-    it("keeps panel/logout out of mobile drawer when logged in", async () => {
+    it("puts Mi Portal in the mobile drawer when logged in", async () => {
       const user = userEvent.setup();
       const { container } = render(
         <EspacioZenitSiteHeader
@@ -122,10 +122,8 @@ describe("tenant landing headers — PWA visibility", () => {
       );
       const drawer = container.querySelector("#ez-mock-mobile-nav");
       expect(drawer).toBeTruthy();
-      expect(
-        drawer?.querySelector(`a[href="/es/dashboard"]`),
-      ).toBeNull();
-      expect(drawer?.textContent).not.toContain(dictEn.nav.logout);
+      expect(drawer?.querySelector(`a[href="/es/dashboard"]`)).toBeTruthy();
+      expect(drawer?.textContent).toContain(dictEn.nav.myPortal);
     });
   });
 
@@ -215,7 +213,7 @@ describe("tenant landing headers — PWA visibility", () => {
         />,
       );
       expect(
-        screen.getAllByRole("link", { name: dictEn.nav.administration }).length,
+        screen.getAllByRole("link", { name: dictEn.nav.myPortal }).length,
       ).toBeGreaterThan(0);
       expect(
         screen.getAllByRole("button", { name: dictEn.nav.logout }).length,

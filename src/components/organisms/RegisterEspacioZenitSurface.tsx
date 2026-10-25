@@ -22,6 +22,7 @@ export interface RegisterEspacioZenitSurfaceProps {
   extrasPack?: "nago" | null;
   mediaMap?: LandingMediaMap;
   intent?: RegisterIntent;
+  sessionEmail?: string | null;
 }
 
 export function RegisterEspacioZenitSurface({
@@ -34,6 +35,7 @@ export function RegisterEspacioZenitSurface({
   enrollmentLink,
   extrasPack = null,
   intent = "reserve",
+  sessionEmail = null,
 }: RegisterEspacioZenitSurfaceProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveEspacioZenitHeaderLogo(brand, mediaMap);
@@ -52,6 +54,7 @@ export function RegisterEspacioZenitSurface({
         logoAlt={brand.logoAlt || brand.name}
         brandDisplayName={brand.name}
         dict={dict}
+        sessionEmail={sessionEmail}
       />
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pt-10 md:gap-10 md:pt-14">

@@ -126,7 +126,7 @@ describe("coverage gap closure", () => {
       "/es#historia",
     );
     expect(
-      screen.getAllByRole("link", { name: dictEn.nav.administration }).length,
+      screen.getAllByRole("link", { name: dictEn.nav.myPortal }).length,
     ).toBeGreaterThan(0);
   });
 

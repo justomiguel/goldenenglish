@@ -26,7 +26,7 @@ export async function updateEventShowOnHomeAction(raw: unknown): Promise<EventMu
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, showOnHome } = parsed.data;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin
     .from("events")
     .update({ show_on_home: showOnHome })

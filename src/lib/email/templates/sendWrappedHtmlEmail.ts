@@ -2,7 +2,7 @@ import "server-only";
 import type { EmailProvider, SendEmailResult } from "@/lib/email/emailProvider";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { getBrandForRequest } from "@/lib/brand/server";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { wrapEmailHtml } from "@/lib/email/templates/wrapEmailHtml";
 import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
 import type { Locale } from "@/types/i18n";
@@ -22,7 +22,7 @@ export async function sendWrappedHtmlEmail(
   input: SendWrappedHtmlEmailInput,
 ): Promise<SendEmailResult> {
   const brand = await getBrandForRequest();
-  const origin = getPublicSiteUrl()?.origin ?? "http://localhost:3000";
+  const origin = (await getRequestPublicSiteUrl())?.origin ?? "http://localhost:3000";
   const html = wrapEmailHtml({
     brand,
     origin,

@@ -15,7 +15,7 @@ export async function loadPortalMessagePeerMeta(ids: string[]): Promise<PortalMe
   const unique = [...new Set(ids)];
   if (unique.length === 0) return [];
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const out: PortalMessagePeerMeta[] = [];
 
   for (let i = 0; i < unique.length; i += CHUNK) {

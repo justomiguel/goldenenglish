@@ -10,15 +10,16 @@ import { loadPublicStudentBadgeShareByToken } from "@/lib/badges/loadPublicStude
 import { loadPublicBadgeCatalogEntryByCode } from "@/lib/badges/loadPublicBadgeCatalogEntry";
 import { resolveBadgeTranslation } from "@/lib/badges/badgeCatalog";
 import { badgeImagePublicUrl } from "@/lib/badges/badgeImagePublicUrl";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import { isStudentBadgeCode } from "@/lib/badges/badgeCodes";
 import { School } from "lucide-react";
+import { PublicFlowFrame } from "@/components/organisms/PublicFlowFrame";
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string; token: string }>;
 }
 
-/** Public share page: same content per token for any visitor → safe for CDN. */
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 type BadgesDefs = Awaited<
   ReturnType<typeof getDictionary>
@@ -37,13 +38,16 @@ async function resolveTitleAndDescription(
   badgeCode: string,
   defs: BadgesDefs,
 ): Promise<{ title: string; description: string; imageUrl: string | null }> {
-  const catalog = await loadPublicBadgeCatalogEntryByCode(badgeCode);
+  const [catalog, { url: supabaseUrl }] = await Promise.all([
+    loadPublicBadgeCatalogEntryByCode(badgeCode),
+    readRequestSupabasePublicEnv(),
+  ]);
   if (catalog) {
     const t = resolveBadgeTranslation({ code: badgeCode, translations: catalog.translations }, locale);
     return {
       title: t.title,
       description: t.description,
-      imageUrl: badgeImagePublicUrl(catalog.imagePath),
+      imageUrl: badgeImagePublicUrl(catalog.imagePath, supabaseUrl),
     };
   }
   return { ...dictionaryFallback(defs, badgeCode), imageUrl: null };
@@ -99,6 +103,7 @@ export default async function PublicStudentBadgePage({ params }: PageProps) {
     ? data.earnedAt
     : new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(d);
   return (
+    <PublicFlowFrame locale={locale}>
     <div className="min-h-svh bg-[var(--color-muted)] px-4 py-10">
       <article
         className="mx-auto max-w-lg rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center shadow-sm"
@@ -128,5 +133,6 @@ export default async function PublicStudentBadgePage({ params }: PageProps) {
         </div>
       </article>
     </div>
+    </PublicFlowFrame>
   );
 }

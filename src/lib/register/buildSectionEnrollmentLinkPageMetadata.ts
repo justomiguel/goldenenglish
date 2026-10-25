@@ -4,19 +4,21 @@ import type { SectionEnrollmentLinkShareWeekdays } from "@/lib/register/buildSec
 import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import { buildPublicShareMetadata } from "@/lib/site/buildPublicShareMetadata";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 
 const NOINDEX = { index: false, follow: false } as const;
 
-export function buildSectionEnrollmentLinkPageMetadata(input: {
+export async function buildSectionEnrollmentLinkPageMetadata(input: {
   locale: string;
   brandName: string;
   weekdays: SectionEnrollmentLinkShareWeekdays;
   unavailableTitle: string;
   link: SectionEnrollmentLinkContext | null;
-}): Metadata {
+}): Promise<Metadata> {
   if (!input.link) {
     return { title: input.unavailableTitle, robots: NOINDEX };
   }
+  const { url: supabaseUrl } = await readRequestSupabasePublicEnv();
   const share = buildSectionEnrollmentLinkShareMetadata({
     locale: input.locale,
     brandName: input.brandName,
@@ -25,17 +27,20 @@ export function buildSectionEnrollmentLinkPageMetadata(input: {
     cohortName: input.link.cohortName,
     scheduleSlots: input.link.scheduleSlots,
     weekdays: input.weekdays,
-    referenceImagePublicUrl: sectionReferenceImagePublicUrl(input.link.referenceImagePath),
+    referenceImagePublicUrl: sectionReferenceImagePublicUrl(
+      input.link.referenceImagePath,
+      supabaseUrl,
+    ),
   });
   return {
     title: share.title,
     description: share.description,
     robots: NOINDEX,
-    ...buildPublicShareMetadata({
+    ...(await buildPublicShareMetadata({
       title: share.title,
       description: share.description,
       path: share.path,
       coverImageUrl: share.coverImageUrl,
-    }),
+    })),
   };
 }

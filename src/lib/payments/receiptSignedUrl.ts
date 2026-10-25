@@ -5,7 +5,7 @@ export async function receiptSignedUrlForAdmin(
 ): Promise<string | null> {
   if (!objectPath?.trim()) return null;
   if (objectPath.includes("..")) return null;
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data, error } = await admin.storage
     .from("payment-receipts")
     .createSignedUrl(objectPath.trim(), 300);

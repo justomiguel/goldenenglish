@@ -58,7 +58,7 @@ export async function startStudentFlowMonthlyPayment(
 
   let rawKey;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch (e) {
     logServerException("startStudentFlowMonthlyPayment:encryption", e);
     return { ok: false, message: pe.uploadFailed };
@@ -81,7 +81,7 @@ export async function startStudentFlowMonthlyPayment(
     periodLabel,
   });
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const core = await startFlowMonthlyPaymentCore({
     supabase,
     admin,

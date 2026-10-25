@@ -3,6 +3,8 @@ import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
+import { PublicHeaderAccountCta } from "@/components/molecules/PublicHeaderAccountCta";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 export interface EspacioZenitRegisterHeaderProps {
   locale: string;
@@ -10,6 +12,7 @@ export interface EspacioZenitRegisterHeaderProps {
   logoAlt: string;
   brandDisplayName: string;
   dict: Dictionary;
+  sessionEmail?: string | null;
 }
 
 const stroke = 2;
@@ -21,13 +24,14 @@ export function EspacioZenitRegisterHeader({
   logoAlt,
   brandDisplayName,
   dict,
+  sessionEmail = null,
 }: EspacioZenitRegisterHeaderProps) {
   const homeHref = `/${locale}`;
   const bypassOptimizer = logoSrc.startsWith("/images/");
 
   return (
     <header
-      className="border-b border-[rgb(0_174_239_/35%)] bg-black px-[max(1rem,env(safe-area-inset-left))] py-4 pe-[max(1rem,env(safe-area-inset-right))] shadow-[0_12px_40px_rgb(0_0_0_/55%)]"
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} border-b border-[rgb(0_174_239_/35%)] bg-black px-[max(1rem,env(safe-area-inset-left))] py-4 pe-[max(1rem,env(safe-area-inset-right))] shadow-[0_12px_40px_rgb(0_0_0_/55%)]`}
       style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
     >
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
@@ -49,6 +53,15 @@ export function EspacioZenitRegisterHeader({
         </Link>
 
         <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+          <PublicHeaderAccountCta
+            locale={locale}
+            sessionEmail={sessionEmail}
+            loginLabel={dict.nav.login}
+            loginShort={dict.nav.loginShort}
+            portalLabel={dict.nav.myPortal}
+            logoutLabel={dict.nav.logout}
+            tone="espaciozenit"
+          />
           <LanguageSwitcher
             locale={locale}
             labels={dict.common.locale}

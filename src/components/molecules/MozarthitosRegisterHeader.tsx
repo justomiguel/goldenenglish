@@ -2,12 +2,15 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
+import { PublicHeaderAccountCta } from "@/components/molecules/PublicHeaderAccountCta";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 export interface MozarthitosRegisterHeaderProps {
   locale: string;
   logoSrc: string;
   logoAlt: string;
   dict: Dictionary;
+  sessionEmail?: string | null;
 }
 
 const stroke = 2;
@@ -17,13 +20,14 @@ export function MozarthitosRegisterHeader({
   logoSrc,
   logoAlt,
   dict,
+  sessionEmail = null,
 }: MozarthitosRegisterHeaderProps) {
   const homeHref = `/${locale}`;
 
   return (
     <header
       id="top"
-      className="mz-site-header sticky top-0 z-50"
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} mz-site-header sticky top-0 z-50`}
       style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
     >
       <div className="mz-site-header-accent w-full shrink-0" aria-hidden />
@@ -41,6 +45,15 @@ export function MozarthitosRegisterHeader({
           />
         </Link>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <PublicHeaderAccountCta
+            locale={locale}
+            sessionEmail={sessionEmail}
+            loginLabel={dict.nav.login}
+            loginShort={dict.nav.loginShort}
+            portalLabel={dict.nav.myPortal}
+            logoutLabel={dict.nav.logout}
+            tone="mozarthitos"
+          />
           <LanguageSwitcher
             locale={locale}
             labels={dict.common.locale}

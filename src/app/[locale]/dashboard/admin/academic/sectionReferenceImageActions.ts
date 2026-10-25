@@ -23,7 +23,7 @@ async function revalidateSection(locale: string, cohortId: string, sectionId: st
 }
 
 async function loadSectionImageState(sectionId: string) {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data, error } = await admin
     .from("academic_sections")
     .select("id, cohort_id, reference_image_path")

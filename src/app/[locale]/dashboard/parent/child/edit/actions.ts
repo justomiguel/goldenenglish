@@ -7,15 +7,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getDictionary, locales } from "@/lib/i18n/dictionaries";
 import { pickLocaleFromUnknownPayload } from "@/lib/parent/pickLocaleFromUnknownPayload";
 import { verifyUserPassword } from "@/lib/supabase/verifyUserPassword";
-import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
-import { getBrandForRequest } from "@/lib/brand/server";
-import {
-  logServerException,
-  logSupabaseClientError,
-} from "@/lib/logging/serverActionLog";
-import type { Locale } from "@/types/i18n";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { auditIdentityAction } from "@/lib/audit";
+import { recordWardEmailChange } from "@/app/[locale]/dashboard/parent/child/edit/recordWardEmailChange";
+import type { Locale } from "@/types/i18n";
 
 const schema = z.object({
   locale: z.string().min(2).max(8),
@@ -50,11 +45,8 @@ function blankToNull(value: string | undefined): string | null {
   return trimmed === "" ? null : trimmed;
 }
 
-const SUPPORTED_LOCALES: ReadonlyArray<Locale> = locales;
 function asLocale(raw: string): Locale {
-  return (SUPPORTED_LOCALES as ReadonlyArray<string>).includes(raw)
-    ? (raw as Locale)
-    : "es";
+  return (locales as ReadonlyArray<string>).includes(raw) ? (raw as Locale) : "es";
 }
 
 export async function updateWardProfile(
@@ -92,7 +84,7 @@ export async function updateWardProfile(
   if (!link) return { ok: false, message: L.wardForbidden };
 
   const nextEmail = parsed.data.email.trim().toLowerCase();
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: authData, error: authReadErr } = await admin.auth.admin.getUserById(
     parsed.data.studentId,
   );
@@ -185,7 +177,7 @@ export async function updateWardProfile(
     }
 
     // Best-effort detective controls — do not block the client on notify/audit I/O.
-    void recordEmailChangeAuditAndNotify({
+    void recordWardEmailChange({
       studentId: parsed.data.studentId,
       parentId: user.id,
       parentEmail: (user.email ?? "").trim().toLowerCase(),
@@ -202,94 +194,4 @@ export async function updateWardProfile(
   revalidatePath(`/${loc}/dashboard/parent/child`);
   revalidatePath(`/${loc}/dashboard/parent/child/edit`);
   return { ok: true };
-}
-
-/**
- * Best-effort: persists the audit row and fires the change notification to
- * BOTH old and new mailbox. Failures are logged but do NOT revert the email
- * change — at this point the new credentials are already live; the audit and
- * the notifications are detective controls, not part of the transaction.
- */
-async function recordEmailChangeAuditAndNotify(input: {
-  studentId: string;
-  parentId: string;
-  parentEmail: string;
-  parentName: string;
-  wardName: string;
-  oldEmail: string;
-  newEmail: string;
-  locale: Locale;
-}): Promise<void> {
-  const admin = createAdminClient();
-
-  try {
-    const { error: auditErr } = await admin.from("system_config_audit").insert({
-      actor_id: input.parentId,
-      action: "parent.ward.email_changed",
-      resource_type: "auth.user.email",
-      resource_id: input.studentId,
-      payload: {
-        old_email: input.oldEmail,
-        new_email: input.newEmail,
-        parent_id: input.parentId,
-        parent_email: input.parentEmail,
-      },
-    });
-    if (auditErr) {
-      logSupabaseClientError("updateWardProfile:audit_insert", auditErr, {
-        studentId: input.studentId,
-      });
-    }
-  } catch (e) {
-    logServerException("updateWardProfile:audit_insert", e, {
-      studentId: input.studentId,
-    });
-  }
-
-  const brand = await getBrandForRequest();
-  const supportEmail =
-    brand.contactEmail?.trim() || input.parentEmail;
-  const vars = {
-    wardName: input.wardName,
-    oldEmail: input.oldEmail,
-    newEmail: input.newEmail,
-    parentName: input.parentName,
-    supportEmail,
-  };
-
-  for (const to of dedupe([input.oldEmail, input.newEmail].filter(Boolean))) {
-    try {
-      const r = await sendBrandedEmail({
-        to,
-        templateKey: "notifications.ward_email_changed",
-        locale: input.locale,
-        vars,
-      });
-      if (!r.ok) {
-        logServerException(
-          "updateWardProfile:notify",
-          new Error(r.error),
-          { to, studentId: input.studentId },
-        );
-      }
-    } catch (e) {
-      logServerException("updateWardProfile:notify", e, {
-        to,
-        studentId: input.studentId,
-      });
-    }
-  }
-}
-
-function dedupe(values: string[]): string[] {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const v of values) {
-    const k = v.toLowerCase();
-    if (!seen.has(k)) {
-      seen.add(k);
-      out.push(v);
-    }
-  }
-  return out;
 }

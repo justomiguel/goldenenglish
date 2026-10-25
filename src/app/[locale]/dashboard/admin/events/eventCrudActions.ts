@@ -31,7 +31,7 @@ export async function createEventAction(input: {
 }): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const slug = slugifyEventTitle(input.title);
   const defaultLocale = input.defaultLocale ?? "es";
   const priceLocal = input.priceLocal ?? input.price ?? null;
@@ -102,7 +102,7 @@ export async function updateEventAction(input: {
 }): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const priceLocal = input.priceLocal ?? input.price ?? null;
   const priceNonLocal = input.priceNonLocal ?? priceLocal;
   const description = sanitizeEventDescriptionInput(input.description);
@@ -149,7 +149,7 @@ export async function updateEventAction(input: {
 export async function publishEventAction(locale: string, eventId: string): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin
     .from("events")
     .update({ status: "published", published_at: new Date().toISOString() })
@@ -163,7 +163,7 @@ export async function publishEventAction(locale: string, eventId: string): Promi
 export async function unpublishEventAction(locale: string, eventId: string): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin.from("events").update({ status: "draft" }).eq("id", eventId);
   if (error) {
     logSupabaseClientError("unpublishEventAction:update", error, { eventId });
@@ -178,7 +178,7 @@ export async function unpublishEventAction(locale: string, eventId: string): Pro
 export async function archiveEventAction(locale: string, eventId: string): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin
     .from("events")
     .update({ archived_at: new Date().toISOString() })

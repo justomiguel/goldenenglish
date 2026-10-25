@@ -45,7 +45,7 @@ async function authorizeReviewCheckout(formData: FormData) {
   if (!link.financialAccessActive) return { ok: false as const, message: pe.forbidden };
 
   const charge = await loadParentMonthlyReviewCharge(supabase, parsed, {
-    admin: createAdminClient(),
+    admin: await createAdminClient(),
   });
   if (!charge.ok) {
     return { ok: false as const, message: charge.reason === "stale" ? pe.staleSnapshot : pe.invalidForm };
@@ -61,7 +61,7 @@ async function recordCreditAfterCheckout(auth: {
   };
 }) {
   await maybeRecordReviewTrialCredit({
-    admin: createAdminClient(),
+    admin: await createAdminClient(),
     registrationId: auth.charge.trialCreditRegistrationId,
     applied: auth.charge.trialCreditApplied,
   });
@@ -81,7 +81,7 @@ export async function startTutorFlowMonthlyReviewPayment(formData: FormData) {
 
   let rawKey;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch (e) {
     logServerException("startTutorFlowMonthlyReviewPayment:encryption", e);
     return { ok: false as const, message: auth.pe.uploadFailed };
@@ -106,7 +106,7 @@ export async function startTutorFlowMonthlyReviewPayment(formData: FormData) {
 
   const core = await startFlowMonthlyBundlePaymentCore({
     supabase: auth.supabase,
-    admin: createAdminClient(),
+    admin: await createAdminClient(),
     encryptionKey32: rawKey,
     studentId: auth.charge.studentId,
     sectionIds: auth.charge.lines.map((l) => l.sectionId),
@@ -157,7 +157,7 @@ export async function startTutorMercadoPagoMonthlyReviewPayment(formData: FormDa
 
   let rawKey;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch (e) {
     logServerException("startTutorMercadoPagoMonthlyReviewPayment:encryption", e);
     return { ok: false as const, message: auth.pe.uploadFailed };
@@ -175,7 +175,7 @@ export async function startTutorMercadoPagoMonthlyReviewPayment(formData: FormDa
 
   const core = await startMercadoPagoMonthlyBundlePaymentCore({
     supabase: auth.supabase,
-    admin: createAdminClient(),
+    admin: await createAdminClient(),
     encryptionKey32: rawKey,
     studentId: auth.charge.studentId,
     sectionIds: auth.charge.lines.map((l) => l.sectionId),

@@ -2,7 +2,7 @@ import "server-only";
 
 import type { Metadata } from "next";
 import { getBrandForRequest } from "@/lib/brand/server";
-import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
+import { createRequestLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import {
   buildLandingMediaMap,
   resolveLandingImageSrcForTheme,
@@ -14,7 +14,7 @@ import { buildPublicShareMetadata, toAbsoluteShareUrl } from "@/lib/site/buildPu
 import { pickHomeSharePhotoUrl } from "@/lib/site/pickHomeSharePhotoUrl";
 import { pickShareImageUrl } from "@/lib/site/pickShareImageUrl";
 import { buildPublicShareTitle, clipShareDescription } from "@/lib/site/publicShareText";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 
 async function urlExists(url: string): Promise<boolean> {
   try {
@@ -30,7 +30,7 @@ export async function loadHomeSharePhotoUrl(): Promise<string | null> {
   const snapshot = await loadActiveTheme();
   const kind = snapshot?.theme.templateKind ?? "classic";
   const media = snapshot
-    ? buildLandingMediaMap(snapshot.media, createLandingMediaPublicUrlBuilder())
+    ? buildLandingMediaMap(snapshot.media, await createRequestLandingMediaPublicUrlBuilder())
     : null;
   const picked = pickHomeSharePhotoUrl({
     media,
@@ -38,14 +38,14 @@ export async function loadHomeSharePhotoUrl(): Promise<string | null> {
     bundledGallery: resolveLandingImageSrcForTheme(kind, "modalidades", "1.png", media ?? undefined),
   });
   if (!picked) return null;
-  const absolute = toAbsoluteShareUrl(picked);
+  const absolute = await toAbsoluteShareUrl(picked);
   const fromMedia = media ? [...media.values()].some((url) => url.trim() === picked.trim()) : false;
   if (fromMedia) return absolute;
   return (await urlExists(absolute)) ? absolute : null;
 }
 
 export async function loadShareLogoUrl(): Promise<string | null> {
-  const origin = getPublicSiteUrl()?.origin;
+  const origin = (await getRequestPublicSiteUrl())?.origin;
   if (!origin) return null;
   const [brand, theme] = await Promise.all([getBrandForRequest(), loadActiveTheme()]);
   const bundle = sharePreviewBundleKeyFromTemplateKind(theme?.theme.templateKind);
@@ -80,13 +80,13 @@ export async function buildResolvedPublicShareMetadata(input: {
     description,
     ...(input.robots ? { robots: input.robots } : {}),
     alternates: { canonical: input.path },
-    ...buildPublicShareMetadata({
+    ...(await buildPublicShareMetadata({
       title,
       description,
       path: input.path,
       coverImageUrl: image,
       ogType: input.ogType,
       deferShareImageToFileMetadata: input.deferShareImageToFileMetadata,
-    }),
+    })),
   };
 }

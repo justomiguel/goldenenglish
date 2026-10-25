@@ -27,7 +27,7 @@ export async function promoteEventAttendeeToUserAction(input: {
 }): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: attendee, error } = await admin
     .from("event_attendees")
     .select("id, first_name, last_name, dni_or_passport, email, phone")
@@ -58,7 +58,7 @@ export async function promoteEventAttendeeToUserAction(input: {
 export async function promoteFromWaitlistAction(locale: string, attendeeId: string): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
 
   const { data: attendee } = await admin
     .from("event_attendees")
@@ -96,7 +96,7 @@ export async function promoteFromWaitlistAction(locale: string, attendeeId: stri
 export async function cancelEventAttendeeAction(locale: string, attendeeId: string): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin
     .from("event_attendees")
     .update({ status: "cancelled" })
@@ -115,7 +115,7 @@ export async function deleteEventAttendeeAction(
 ): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const result = await deleteEventAttendee({
     adminClient: admin,
     actorId,

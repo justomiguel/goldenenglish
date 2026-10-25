@@ -22,13 +22,15 @@ export function NagoReveal({
   drift,
 }: NagoRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [on, setOn] = useState(() => typeof IntersectionObserver === "undefined");
+  /** Same initial value on server and client, so hydration matches. */
+  const [on, setOn] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     if (typeof IntersectionObserver === "undefined") {
-      return;
+      const timer = window.setTimeout(() => setOn(true), 0);
+      return () => window.clearTimeout(timer);
     }
     const io = new IntersectionObserver(
       ([entry]) => {

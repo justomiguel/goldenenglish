@@ -1,11 +1,13 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import Link from "next/link";
+import { ExternalLink, Menu, X } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { AdminSidebarNavContent } from "@/components/dashboard/AdminSidebarNavContent";
 import { AdminSidebarProfileFooter } from "@/components/dashboard/AdminSidebarProfileFooter";
 import { DashboardMobileDrawerPortal } from "@/components/dashboard/DashboardMobileDrawerPortal";
+import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
 import { StaffSidebarBrand } from "@/components/dashboard/StaffSidebarBrand";
 import { useAdminMobileShell } from "@/components/dashboard/AdminMobileShellContext";
@@ -88,6 +90,20 @@ export function AdminMobileDrawer({
               avatarUrl={profileAvatarUrl}
             />
           ) : null}
+
+          <div className="mt-5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <Link
+                href={`/${locale}`}
+                onClick={close}
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm font-medium text-[var(--color-foreground)] shadow-sm transition-colors hover:bg-[var(--color-muted)]"
+              >
+                <ExternalLink className="h-4 w-4" aria-hidden />
+                <span>{chromeDict.backToSite}</span>
+              </Link>
+              <LanguageSwitcher locale={locale} labels={dict.common.locale} variant="compact" />
+            </div>
+          </div>
 
           <div className="mt-5 min-h-0 flex-1 overflow-y-auto">
             <AdminSidebarNavContent

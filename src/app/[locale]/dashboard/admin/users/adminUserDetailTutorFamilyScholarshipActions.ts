@@ -76,7 +76,7 @@ export async function applyAdminTutorFamilyScholarshipAction(
       }
     }
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: tutorProf, error: tutorErr } = await admin
       .from("profiles")
       .select("role")

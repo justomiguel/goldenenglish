@@ -10,7 +10,7 @@ export async function batchAuthEmailsForUserIds(userIds: string[]): Promise<Map<
 
   let admin;
   try {
-    admin = createAdminClient();
+    admin = await createAdminClient();
   } catch (e) {
     logServerException("batchAuthEmailsForUserIds:createAdminClient", e);
     return new Map();

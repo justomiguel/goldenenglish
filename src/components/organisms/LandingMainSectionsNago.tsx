@@ -66,6 +66,7 @@ export function LandingMainSectionsNago({
           locale={locale}
           mediaMap={mediaMap}
           registerCtas={registerCtas}
+          sessionEmail={sessionEmail}
         />
       </main>
     </NagoFontRoot>

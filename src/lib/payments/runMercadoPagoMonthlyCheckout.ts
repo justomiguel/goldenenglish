@@ -39,7 +39,7 @@ export async function runMercadoPagoMonthlyCheckout(
 ): Promise<{ ok: true; redirectUrl: string } | { ok: false; message: string }> {
   let rawKey;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch (e) {
     logServerException("runMercadoPagoMonthlyCheckout:encryption", e);
     return { ok: false, message: input.pe.uploadFailed };
@@ -60,7 +60,7 @@ export async function runMercadoPagoMonthlyCheckout(
   });
 
   const billing = await loadBillingCurrencySetting(input.supabase);
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const core = await startMercadoPagoMonthlyPaymentCore({
     supabase: input.supabase,
     admin,

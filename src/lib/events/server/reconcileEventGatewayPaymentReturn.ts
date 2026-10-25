@@ -68,13 +68,13 @@ export async function reconcileEventMercadoPagoReturn(input: {
 
   let rawKey;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch (e) {
     logServerException("reconcileEventMpReturn:encryptionKey", e);
     return "processing";
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const currency = await resolveReturnCurrency(admin, input.externalReference);
   const country = gatewayCountryForBillingCurrency(currency);
 
@@ -117,13 +117,13 @@ export async function reconcileEventFlowReturn(input: {
 
   let rawKey;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch (e) {
     logServerException("reconcileEventFlowReturn:encryptionKey", e);
     return "processing";
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const creds = await loadFlowChileCredentialsPlain(admin, rawKey);
   if (!creds?.enabled) {
     return "failure";

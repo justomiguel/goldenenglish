@@ -54,7 +54,7 @@ export async function uploadAdminStudentAvatarAction(formData: FormData): Promis
     }
 
     await assertAdmin();
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { targetUserId } = parsed.data;
     const { data: profile, error: profileError } = await admin
       .from("profiles")

@@ -5,6 +5,8 @@ import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
 import { PublicPrivacySurfaceByTemplate } from "@/components/organisms/PublicPrivacySurfaceByTemplate";
+import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
+import { loadRequestSessionEmail } from "@/lib/auth/loadRequestSessionEmail";
 
 export const dynamic = "force-dynamic";
 
@@ -25,20 +27,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function PublicPrivacyPage({ params }: PageProps) {
   const { locale } = await params;
   const loc = locale as AppLocale;
-  const [{ brand, needsInitialSiteSetup, dict: baseDict }, snapshot] = await Promise.all([
+  const [{ brand, needsInitialSiteSetup, dict: baseDict }, snapshot, sessionEmail] = await Promise.all([
     resolvePublicBrandWithSetup(loc),
     loadActiveTheme(),
+    loadRequestSessionEmail(),
   ]);
   if (needsInitialSiteSetup) {
     redirect(`/${locale}`);
   }
   const dict = applyLandingContentOverrides(baseDict, snapshot?.theme.content, loc);
+  const templateKind = snapshot?.theme.templateKind ?? "classic";
   return (
-    <PublicPrivacySurfaceByTemplate
-      templateKind={snapshot?.theme.templateKind ?? "classic"}
-      locale={locale}
-      dict={dict}
-      brand={brand}
-    />
+    <PublicExperienceShell locale={locale} dict={dict} templateKind={templateKind} sessionEmail={sessionEmail}>
+      <PublicPrivacySurfaceByTemplate
+        templateKind={templateKind}
+        locale={locale}
+        dict={dict}
+        brand={brand}
+        sessionEmail={sessionEmail}
+      />
+    </PublicExperienceShell>
   );
 }

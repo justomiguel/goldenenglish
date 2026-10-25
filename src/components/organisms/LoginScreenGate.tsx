@@ -15,6 +15,7 @@ interface LoginScreenGateProps {
   nextPath?: string | null;
   /** When initial site setup is pending — links to `/setup/first-run`. */
   firstRunSetupHref?: string | null;
+  inscriptionsEnabled?: boolean;
 }
 
 export function LoginScreenGate({
@@ -24,6 +25,7 @@ export function LoginScreenGate({
   locale,
   nextPath = null,
   firstRunSetupHref = null,
+  inscriptionsEnabled = false,
 }: LoginScreenGateProps) {
   return (
     <SurfaceMountGate
@@ -36,6 +38,7 @@ export function LoginScreenGate({
           locale={locale}
           nextPath={nextPath}
           firstRunSetupHref={firstRunSetupHref}
+          inscriptionsEnabled={inscriptionsEnabled}
           surface={surface}
         />
       )}

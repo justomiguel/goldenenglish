@@ -8,8 +8,8 @@ export const LEGACY_PARENT_SYNTHETIC_DOMAIN = "parents.goldenenglish.local";
  * Returns null when `MAIL_TENANT` is unset/invalid — callers that provision
  * users must fail closed; opaque login fallbacks may use the legacy domain.
  */
-export function parentSyntheticMailDomain(): string | null {
-  const tenant = getRegistrationMailTenantDomain();
+export function parentSyntheticMailDomain(mailTenant?: string | null): string | null {
+  const tenant = mailTenant ?? getRegistrationMailTenantDomain();
   if (!tenant) return null;
   if (tenant.startsWith("parents.")) return tenant;
   return `parents.${tenant}`;
@@ -19,8 +19,8 @@ export function parentSyntheticMailDomain(): string | null {
  * Distinct synthetic email space so student + tutor DNI never collide.
  * Requires `MAIL_TENANT` (same env as minor student synthetics).
  */
-export function parentDefaultEmail(dni: string): string | null {
-  const domain = parentSyntheticMailDomain();
+export function parentDefaultEmail(dni: string, mailTenant?: string | null): string | null {
+  const domain = parentSyntheticMailDomain(mailTenant);
   if (!domain) return null;
   const safe = dni.replace(/[^\dA-Za-z]/g, "").toLowerCase() || "sin-doc";
   return `${safe}@${domain}`;

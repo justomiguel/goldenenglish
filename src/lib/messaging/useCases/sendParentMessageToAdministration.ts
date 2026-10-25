@@ -40,7 +40,7 @@ export async function sendParentMessageToAdministrationUseCase(input: {
     return { ok: false, message: MESSAGING_UC_INVALID_RECIPIENT };
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: admins, error: adminErr } = await admin
     .from("profiles")
     .select("id, role")

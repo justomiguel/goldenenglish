@@ -9,8 +9,8 @@ import { parseJoinPackageSnapshot } from "@/lib/register/parseJoinPackageSnapsho
 import { buildRegistrationEnrollmentFeeInsertFields } from "@/lib/register/buildRegistrationEnrollmentFeeInsertFields";
 import { requestedSectionsHaveOpenSeats } from "@/lib/register/requestedSectionsHaveOpenSeats";
 import { resolveRegistrationFamilyEmail } from "@/lib/register/resolveRegistrationFamilyEmail";
-import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 import { buildMatriculaPayPath } from "@/lib/site/publicSharePaths";
 import type { Locale } from "@/types/i18n";
 import type { Dictionary } from "@/types/i18n";
@@ -59,7 +59,7 @@ export async function notifyPublicRegistrationReceived(input: {
   feeSnapshot?: unknown;
 }): Promise<void> {
   const locale = input.locale as Locale;
-  const domain = getRegistrationMailTenantDomain();
+  const domain = await getRequestMailTenantDomain();
   const studentEmail = input.studentEmail.trim().toLowerCase();
   const synthetic = Boolean(domain && studentEmail.endsWith(`@${domain.toLowerCase()}`));
   const familyEmail = resolveRegistrationFamilyEmail({
@@ -68,7 +68,7 @@ export async function notifyPublicRegistrationReceived(input: {
     studentEmail,
     studentEmailIsSynthetic: synthetic,
   });
-  const origin = absoluteUrl(buildMatriculaPayPath(locale, input.sectionLabel ?? "", input.payToken));
+  const origin = await absoluteUrlForRequest(buildMatriculaPayPath(locale, input.sectionLabel ?? "", input.payToken));
   const payUrl = input.snapshotTotal > 0 && origin ? origin.toString() : "";
   const studentName = `${input.studentFirstName} ${input.studentLastName}`.trim();
   const sectionName =
@@ -110,7 +110,7 @@ export async function notifyPublicRegistrationReceived(input: {
       feeModeLabel: "—",
       sourceLabel: "/register",
       existingStudentLabel: "—",
-      adminUrl: absoluteUrl(`/${locale}/dashboard/admin/registrations`)?.toString() ?? "",
+      adminUrl: (await absoluteUrlForRequest(`/${locale}/dashboard/admin/registrations`))?.toString() ?? "",
     },
   });
 }

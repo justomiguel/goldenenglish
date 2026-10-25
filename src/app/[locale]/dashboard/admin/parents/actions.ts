@@ -5,10 +5,11 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
+import { resolveResendFromAddress } from "@/lib/email/resendEmailProvider";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { loadEmailTemplate } from "@/lib/email/templates/loadEmailTemplate";
 import { inviteParentsToPlatform } from "@/lib/email/inviteParentsToPlatform";
 import { sendParentBulkCommunication } from "@/lib/messaging/useCases/sendParentBulkCommunication";
@@ -43,10 +44,10 @@ export async function inviteParentsAction(
   const labels = dict.admin.parents;
   const gate = await requireAdmin();
   if (!gate.ok) return { ok: false, message: dict.actionErrors.messaging.unauthorized };
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const parents = await resolveParentRecipients(admin, parseParentRecipientScope(rawScope));
   if (parents.length === 0) return { ok: false, message: labels.resultEmpty };
-  const origin = getPublicSiteUrl()?.origin ?? "http://localhost:3000";
+  const origin = (await getRequestPublicSiteUrl())?.origin ?? "http://localhost:3000";
   const loc = asLocale(locale);
   const result = await inviteParentsToPlatform({
     supabase: gate.supabase,
@@ -111,10 +112,15 @@ export async function sendParentBulkMailAction(
   if (!subject || stripHtmlToText(safeHtml).length === 0) {
     return { ok: false, message: labels.resultInvalid };
   }
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const parents = await resolveParentRecipients(admin, parseParentRecipientScope(rawScope));
   if (parents.length === 0) return { ok: false, message: labels.resultEmpty };
-  const fromAddress = process.env.RESEND_FROM_EMAIL?.trim() || "noreply@localhost";
+  let fromAddress = "noreply@localhost";
+  try {
+    fromAddress = await resolveResendFromAddress();
+  } catch {
+    fromAddress = "noreply@localhost";
+  }
   const result = await sendParentBulkCommunication({
     supabase: gate.supabase,
     senderId: gate.userId,

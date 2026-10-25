@@ -2,12 +2,15 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
+import { PublicHeaderAccountCta } from "@/components/molecules/PublicHeaderAccountCta";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 export interface NagoRegisterHeaderProps {
   locale: string;
   logoSrc: string;
   logoAlt: string;
   dict: Dictionary;
+  sessionEmail?: string | null;
 }
 
 const stroke = 2;
@@ -17,12 +20,13 @@ export function NagoRegisterHeader({
   logoSrc,
   logoAlt,
   dict,
+  sessionEmail = null,
 }: NagoRegisterHeaderProps) {
   const homeHref = `/${locale}`;
 
   return (
     <header
-      className="sticky top-0 z-50 border-b border-[var(--nago-gold)]/25 bg-black"
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} sticky top-0 z-50 border-b border-[var(--nago-gold)]/25 bg-black`}
       style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}
     >
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-[max(1rem,env(safe-area-inset-left))] pt-1 pb-0 pe-[max(1rem,env(safe-area-inset-right))]">
@@ -39,6 +43,15 @@ export function NagoRegisterHeader({
           />
         </Link>
         <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+          <PublicHeaderAccountCta
+            locale={locale}
+            sessionEmail={sessionEmail}
+            loginLabel={dict.nav.login}
+            loginShort={dict.nav.loginShort}
+            portalLabel={dict.nav.myPortal}
+            logoutLabel={dict.nav.logout}
+            tone="nago"
+          />
           <LanguageSwitcher
             locale={locale}
             labels={dict.common.locale}

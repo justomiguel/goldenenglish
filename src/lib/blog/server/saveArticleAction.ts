@@ -163,7 +163,7 @@ export async function saveArticleAction(
       translationRows.map((row) => [row.locale, row.slug]),
     ) as Partial<Record<BlogLocale, string>>;
 
-    const shareLinks = resolveBlogArticleAdminShareLinks({
+    const shareLinks = await resolveBlogArticleAdminShareLinks({
       articleId: articleRow.id,
       status: normalizedPayload.status,
       slugsByLocale,

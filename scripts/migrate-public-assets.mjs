@@ -26,11 +26,38 @@ async function main() {
 
   loadEnvLocal();
 
+  const argTenant = process.argv
+    .slice(2)
+    .find((a) => a.startsWith("--tenant="))
+    ?.slice("--tenant=".length)
+    .trim()
+    .toLowerCase();
+  const targetSlug = argTenant || (process.env.DEV_TENANT_SLUG ?? "").trim().toLowerCase();
+  let fromJson = null;
+  if (process.env.TENANTS_CONFIG_JSON) {
+    try {
+      const list = JSON.parse(process.env.TENANTS_CONFIG_JSON);
+      if (Array.isArray(list)) {
+        fromJson =
+          (targetSlug ? list.find((r) => String(r?.slug ?? "").toLowerCase() === targetSlug) : null) ??
+          list[0] ??
+          null;
+      }
+    } catch {
+      fromJson = null;
+    }
+  }
+
   const url =
+    (typeof fromJson?.supabaseUrl === "string" && fromJson.supabaseUrl.trim()) ||
     process.env.SUPABASE_URL?.trim() ||
     process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ||
     "";
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || "";
+  const serviceKey =
+    (typeof fromJson?.supabaseServiceRoleKey === "string" &&
+      fromJson.supabaseServiceRoleKey.trim()) ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
+    "";
 
   const imagesRoot = path.join(ROOT, "public", "images");
   const faviconRoot = path.join(ROOT, "public", "favicon_io");

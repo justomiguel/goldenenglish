@@ -18,7 +18,7 @@ import { buildRegistrationFeeSnapshot } from "@/lib/register/registrationFeeSnap
 import { intakeStateForSnapshotTotal } from "@/lib/register/registrationIntake";
 import { notifyTrialRegistrationReceived } from "@/lib/register/notifyTrialRegistrationReceived";
 import { composeSyntheticMinorStudentEmail } from "@/lib/register/composeSyntheticMinorStudentEmail";
-import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
+import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
 import { privacyAcceptanceStamp } from "@/lib/privacy/privacyAcceptanceStamp";
 
 export async function completeTrialRegistrationSubmit(input: {
@@ -107,7 +107,7 @@ export async function completeTrialRegistrationSubmit(input: {
   if (input.identity.kind === "student") {
     resolvedEmail = input.identity.email;
   } else if (input.age < input.legal) {
-    const domain = getRegistrationMailTenantDomain();
+    const domain = await getRequestMailTenantDomain();
     if (!domain) {
       return { ok: false, message: input.dict.actionErrors.register.mailTenantMissing };
     }

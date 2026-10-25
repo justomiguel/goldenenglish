@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import { type AppLocale } from "@/lib/i18n/dictionaries";
+import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
+import { PulsarLandingHome } from "@/components/organisms/pulsar/PulsarLandingHome";
+import { loadAllPulsarTenantsForAdmin } from "@/lib/pulsar/pulsarTenantStore";
+import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { LandingSurfaceGate } from "@/components/organisms/LandingSurfaceGate";
+import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
 import { LandingGreenfieldSurfaceGate } from "@/components/organisms/LandingGreenfieldSurfaceGate";
 import { LandingGreenfieldPendingMain } from "@/components/organisms/LandingGreenfieldPendingMain";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
@@ -13,7 +17,7 @@ import {
 } from "@/lib/theme/marketingLandingKinds";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
 import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
-import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
+import { createRequestLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import { groupBlocksBySection } from "@/lib/cms/landingBlocksCatalog";
 import { loadFirstRunWizardMode } from "@/lib/site/loadFirstRunWizardMode";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
@@ -51,6 +55,13 @@ export async function generateMetadata({
   params,
 }: HomePageProps): Promise<Metadata> {
   const { locale } = await params;
+  if (await isPulsarPlatformRequest()) {
+    const dict = await getDictionary(locale as AppLocale);
+    return {
+      title: { absolute: dict.pulsar.meta.homeTitle },
+      description: dict.pulsar.meta.description,
+    };
+  }
   const { brand, dict } = await resolvePublicBrandWithSetup(locale as AppLocale);
   const theme = await loadActiveTheme();
   const bundle = sharePreviewBundleKeyFromTemplateKind(theme?.theme.templateKind);
@@ -73,6 +84,19 @@ export async function generateMetadata({
 export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
   const loc = locale as AppLocale;
+  if (await isPulsarPlatformRequest()) {
+    const [dict, tenants] = await Promise.all([
+      getDictionary(loc),
+      loadAllPulsarTenantsForAdmin(),
+    ]);
+    return (
+      <PulsarLandingHome
+        locale={locale}
+        dict={dict}
+        activeTenantCount={tenants.filter((t) => t.isEnabled).length}
+      />
+    );
+  }
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const sessionEmail = user?.email ?? null;
@@ -113,7 +137,7 @@ export default async function HomePage({ params }: HomePageProps) {
     locale,
   );
   const mediaMap = activeTheme
-    ? buildLandingMediaMap(activeTheme.media, createLandingMediaPublicUrlBuilder())
+    ? buildLandingMediaMap(activeTheme.media, await createRequestLandingMediaPublicUrlBuilder())
     : undefined;
   const blocksBySection = activeTheme
     ? groupBlocksBySection(activeTheme.theme.blocks)
@@ -165,22 +189,29 @@ export default async function HomePage({ params }: HomePageProps) {
           priceNonLocal: dict.events.public.priceNonLocal,
         }}
       />
-      <LandingSurfaceGate
-        main={main}
-        brand={brand}
-        dict={dict}
+      <PublicExperienceShell
         locale={locale}
+        dict={dict}
+        templateKind={templateKind}
         sessionEmail={sessionEmail}
-        blogEnabled={blogEnabled}
-        merchEnabled={merchEnabled}
-        suppressHeader={marketingShell}
-        suppressPwaHeader={marketingShell}
-        suppressMarketingShellFooter={marketingLandingSuppressesShellFooter(
-          templateKind,
-        )}
-        marketingFullBleedShell={marketingShell}
-        marketingLandingFooterBrand={MARKETING_FOOTER_BRAND[templateKind]}
-      />
+      >
+        <LandingSurfaceGate
+          main={main}
+          brand={brand}
+          dict={dict}
+          locale={locale}
+          sessionEmail={sessionEmail}
+          blogEnabled={blogEnabled}
+          merchEnabled={merchEnabled}
+          suppressHeader={marketingShell}
+          suppressPwaHeader={marketingShell}
+          suppressMarketingShellFooter={marketingLandingSuppressesShellFooter(
+            templateKind,
+          )}
+          marketingFullBleedShell={marketingShell}
+          marketingLandingFooterBrand={MARKETING_FOOTER_BRAND[templateKind]}
+        />
+      </PublicExperienceShell>
     </>
   );
 }

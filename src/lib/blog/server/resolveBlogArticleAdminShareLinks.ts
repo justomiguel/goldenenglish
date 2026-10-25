@@ -4,7 +4,8 @@ import {
 } from "@/lib/blog/buildBlogArticleAdminShareLinks";
 import { createBlogPreviewToken } from "@/lib/blog/previewToken";
 import type { BlogArticleStatus, BlogLocale } from "@/lib/blog/domain";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 export interface BlogArticleAdminShareLink {
   locale: BlogLocale;
@@ -13,25 +14,31 @@ export interface BlogArticleAdminShareLink {
   kind: BlogArticleAdminShareLinkPath["kind"];
 }
 
-function toAbsoluteShareUrl(pathname: string): string {
-  return absoluteUrl(pathname)?.href ?? pathname;
+async function toAbsoluteShareUrl(pathname: string): Promise<string> {
+  return (await absoluteUrlForRequest(pathname))?.href ?? pathname;
 }
 
-export function resolveBlogArticleAdminShareLinks(input: {
+export async function resolveBlogArticleAdminShareLinks(input: {
   articleId: string;
   status: BlogArticleStatus;
   slugsByLocale: Partial<Record<BlogLocale, string>>;
-}): BlogArticleAdminShareLink[] {
+}): Promise<BlogArticleAdminShareLink[]> {
+  const tenant = input.status === "published" ? null : await resolveRequestTenant();
   const previewToken =
-    input.status === "published" ? null : createBlogPreviewToken(input.articleId);
+    input.status === "published"
+      ? null
+      : createBlogPreviewToken(input.articleId, undefined, tenant?.slug);
 
-  return buildBlogArticleAdminShareLinkPaths({
+  const links = buildBlogArticleAdminShareLinkPaths({
     articleId: input.articleId,
     status: input.status,
     slugsByLocale: input.slugsByLocale,
     previewToken,
-  }).map((link) => ({
-    ...link,
-    url: toAbsoluteShareUrl(link.pathname),
-  }));
+  });
+  return Promise.all(
+    links.map(async (link) => ({
+      ...link,
+      url: await toAbsoluteShareUrl(link.pathname),
+    })),
+  );
 }

@@ -45,7 +45,7 @@ export async function loadRegistrationTrialFeePayPage(
     });
     sectionLabel = label ? String(label) : "";
   }
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const [gateways, transfer, brand] = await Promise.all([
     loadEnabledGatewaysForBillingCurrency(admin, String(snapshot.currency ?? "USD")),
     loadBankTransferInstructionsSetting(admin),

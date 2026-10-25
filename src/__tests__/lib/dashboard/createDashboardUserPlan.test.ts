@@ -19,7 +19,7 @@ describe("planCreateDashboardUserInvite", () => {
     vi.unstubAllEnvs();
   });
 
-  it("requires guardian mode for minor via admin_ui", () => {
+  it("requires guardian mode for minor via admin_ui", async () => {
     const raw = createDashboardUserSchema.parse({
       email: "",
       password: "",
@@ -30,13 +30,13 @@ describe("planCreateDashboardUserInvite", () => {
       birth_date: "2018-01-10",
       role: "student",
     });
-    const plan = planCreateDashboardUserInvite(dict, raw);
+    const plan = await planCreateDashboardUserInvite(dict, raw);
     expect(plan.ok).toBe(false);
     if (plan.ok) return;
     expect(plan.message).toBe(dict.admin.users.errCreateGuardianModeRequired);
   });
 
-  it("builds synthetic email and minor link input when guardian is new", () => {
+  it("builds synthetic email and minor link input when guardian is new", async () => {
     const raw = createDashboardUserSchema.parse({
       email: "",
       password: "",
@@ -53,7 +53,7 @@ describe("planCreateDashboardUserInvite", () => {
       tutor_email: "luis@example.com",
       tutor_relationship: "father",
     });
-    const plan = planCreateDashboardUserInvite(dict, raw);
+    const plan = await planCreateDashboardUserInvite(dict, raw);
     expect(plan.ok).toBe(true);
     if (!plan.ok) return;
     expect(plan.effectiveEmail).toMatch(/@alumnos\.test$/);
@@ -68,7 +68,7 @@ describe("planCreateDashboardUserInvite", () => {
     expect(plan.minorLinkInput?.relationship).toBe("father");
   });
 
-  it("uses supplied email for registration_accept minors (no guardian in plan)", () => {
+  it("uses supplied email for registration_accept minors (no guardian in plan)", async () => {
     const raw = createDashboardUserSchema.parse({
       email: "synthetic.minor@test.local",
       password: "",
@@ -80,7 +80,7 @@ describe("planCreateDashboardUserInvite", () => {
       role: "student",
       provisioning_route: "registration_accept",
     });
-    const plan = planCreateDashboardUserInvite(dict, raw);
+    const plan = await planCreateDashboardUserInvite(dict, raw);
     expect(plan.ok).toBe(true);
     if (!plan.ok) return;
     expect(plan.effectiveEmail).toBe("synthetic.minor@test.local");

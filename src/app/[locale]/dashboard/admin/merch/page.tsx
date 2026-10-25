@@ -7,6 +7,7 @@ import {
   ADMIN_SESSION_FORBIDDEN,
   ADMIN_SESSION_UNAUTHORIZED,
 } from "@/lib/dashboard/adminSessionErrors";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import { shopProductImagePublicUrl } from "@/lib/shop/shopMedia";
 import { AdminMerchEntry } from "@/components/dashboard/admin/merch/AdminMerchEntry";
 import type { AdminMerchProductRow } from "@/components/dashboard/admin/merch/adminMerchTypes";
@@ -40,8 +41,11 @@ export default async function AdminMerchPage({ params }: PageProps) {
     throw err;
   }
 
-  const dict = await getDictionary(locale);
-  const supabase = await createClient();
+  const [dict, supabase, { url: supabaseUrl }] = await Promise.all([
+    getDictionary(locale),
+    createClient(),
+    readRequestSupabasePublicEnv(),
+  ]);
   const { data: rows } = await supabase
     .from("shop_products")
     .select(
@@ -65,7 +69,7 @@ export default async function AdminMerchPage({ params }: PageProps) {
       title: r.title as string,
       description: (r.description as string) ?? "",
       imagePath: (r.image_path as string | null) ?? null,
-      imageUrl: shopProductImagePublicUrl(r.image_path as string | null),
+      imageUrl: shopProductImagePublicUrl(r.image_path as string | null, supabaseUrl),
       active: Boolean(r.active),
       sortOrder: Number(r.sort_order ?? 0),
       variants,

@@ -9,6 +9,7 @@ import { LandingLevels } from "@/components/organisms/LandingLevels";
 import { LandingCertifications } from "@/components/organisms/LandingCertifications";
 import { LandingContactBand } from "@/components/organisms/LandingContactBand";
 import { LandingBlocksRenderer } from "@/components/organisms/LandingBlocksRenderer";
+import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 /**
  * Minimal template_kind variant.
@@ -28,6 +29,8 @@ interface LandingMainSectionsMinimalProps {
   blocksBySection?: Readonly<
     Record<LandingSectionSlug, ReadonlyArray<LandingBlock>>
   >;
+  publicCtaMode?: PublicCtaMode;
+  inscriptionsEnabled?: boolean;
 }
 
 function blocksFor(
@@ -60,6 +63,8 @@ export function LandingMainSectionsMinimal({
   locale,
   mediaMap,
   blocksBySection,
+  publicCtaMode,
+  inscriptionsEnabled,
 }: LandingMainSectionsMinimalProps) {
   return (
     <main className="bg-[var(--color-background)]">
@@ -68,6 +73,8 @@ export function LandingMainSectionsMinimal({
         brand={brand}
         locale={locale}
         mediaMap={mediaMap}
+        publicCtaMode={publicCtaMode}
+        inscriptionsEnabled={inscriptionsEnabled}
       />
       <LandingBlocksRenderer
         section="inicio"

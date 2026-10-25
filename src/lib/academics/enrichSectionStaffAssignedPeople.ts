@@ -26,7 +26,7 @@ async function defaultResolveEmails(ids: string[]): Promise<Map<string, string |
   const out = new Map<string, string | null>();
   if (ids.length === 0) return out;
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     await Promise.all(
       ids.map(async (id) => {
         try {

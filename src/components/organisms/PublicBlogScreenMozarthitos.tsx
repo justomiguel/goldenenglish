@@ -13,6 +13,7 @@ export interface PublicBlogScreenMozarthitosProps {
   brand: BrandPublic;
   sessionEmail: string | null;
   blogEnabled: boolean;
+  merchEnabled?: boolean;
   blogLabel: string;
   eventsLabel: string;
   mediaMap?: LandingMediaMap;
@@ -25,6 +26,7 @@ export function PublicBlogScreenMozarthitos({
   brand,
   sessionEmail,
   blogEnabled,
+  merchEnabled = false,
   blogLabel,
   eventsLabel,
   mediaMap,
@@ -50,6 +52,8 @@ export function PublicBlogScreenMozarthitos({
           blogLabel={blogEnabled ? blogLabel : undefined}
           showEventsLink
           eventsLabel={eventsLabel}
+          showShopLink={merchEnabled}
+          shopLabel={merchEnabled ? dict.shop.catalog.title : undefined}
           labels={{
             inicio: marketingLandingCopy(dict, "mz", "nav.inicio"),
             quienes: marketingLandingCopy(dict, "mz", "nav.quienes"),

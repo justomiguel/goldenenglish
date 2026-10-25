@@ -8,6 +8,7 @@ import {
 } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Globe } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
@@ -130,6 +131,13 @@ export function PortalShell({ locale, brand, dict, config, children, viewAs = nu
                 tourAnchor={config.tourAnchors.topNav}
               />
             </div>
+            <Link
+              href={`/${locale}`}
+              className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-sm font-semibold text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]"
+            >
+              <Globe className="h-4 w-4 shrink-0" aria-hidden />
+              {config.backToSiteLabel}
+            </Link>
             {account}
           </div>
         </header>

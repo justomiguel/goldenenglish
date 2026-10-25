@@ -3,7 +3,7 @@ import type { EmailProvider } from "@/lib/email/emailProvider";
 import { escapeHtml } from "@/lib/academics/escapeHtml";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 import { logServerException } from "@/lib/logging/serverActionLog";
 import {
   loadPrefs,
@@ -29,7 +29,7 @@ export async function processClassReminderJob(input: {
   dict: ClassReminderDispatchDict;
   emailProvider?: EmailProvider;
 }): Promise<void> {
-  const adminAuth = createAdminClient();
+  const adminAuth = await createAdminClient();
   const emailProvider = input.emailProvider ?? getEmailProvider();
   const prefs = await loadPrefs(input.admin, input.job.student_id);
   const { sectionLabel, locationLinePlain } = buildClassReminderJobLocation(
@@ -37,7 +37,7 @@ export async function processClassReminderJob(input: {
     input.dict,
   );
 
-  const portal = absoluteUrl("/es/dashboard");
+  const portal = await absoluteUrlForRequest("/es/dashboard");
   const portalLine = portal
     ? `<p><a href="${escapeHtml(portal.href)}">${escapeHtml(input.dict.portalLinkLine)}</a></p>`
     : "";

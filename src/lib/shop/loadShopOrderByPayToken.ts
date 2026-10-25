@@ -11,7 +11,7 @@ export async function loadShopOrderByPayToken(token: string): Promise<PublicShop
   const payToken = token.trim();
   if (!payToken) return null;
   await expireStaleShopOrders();
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data, error } = await admin
     .from("shop_orders")
     .select(ORDER_SELECT)

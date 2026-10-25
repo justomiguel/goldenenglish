@@ -29,7 +29,7 @@ export async function deleteRegistration(
   const parsed = idZ.safeParse(registrationId);
   if (!parsed.success) return { ok: false, message: del.invalidId };
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { data: beforeRegistration } = await admin
     .from("registrations")
     .select("id, first_name, last_name, dni, email, phone, level_interest, status, created_at")

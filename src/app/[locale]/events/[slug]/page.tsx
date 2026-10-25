@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const brand = await getBrandForRequest();
   const coverImageUrl = resolveEventCoverImageUrl(event.description);
   const shareTitle = buildPublicShareTitle(event.title, brand.name);
-  const share = buildPublicShareMetadata({
+  const share = await buildPublicShareMetadata({
     title: shareTitle,
     description,
     path: `/${locale}/events/${slug}`,

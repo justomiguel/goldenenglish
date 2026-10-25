@@ -2,10 +2,10 @@ import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 import { buildRegistrationPayBlock } from "@/lib/register/buildRegistrationPayBlock";
-import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
+import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
 import { resolveRegistrationFamilyEmail } from "@/lib/register/resolveRegistrationFamilyEmail";
 import type { IntakeLeadRow } from "@/lib/register/registrationIntakeActionSupport";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 import { buildMatriculaPayPath } from "@/lib/site/publicSharePaths";
 import type { Dictionary, Locale } from "@/types/i18n";
 
@@ -20,7 +20,7 @@ export async function notifyRegistrationScheduleOffer(input: {
   proposedSectionName: string;
   proposedScheduleLabel: string;
 }): Promise<void> {
-  const domain = getRegistrationMailTenantDomain();
+  const domain = await getRequestMailTenantDomain();
   const studentEmail = String(input.lead.email ?? "").trim().toLowerCase();
   const synthetic = Boolean(domain && studentEmail.endsWith(`@${domain.toLowerCase()}`));
   const birth = input.lead.birth_date != null ? String(input.lead.birth_date).slice(0, 10) : "";
@@ -34,7 +34,7 @@ export async function notifyRegistrationScheduleOffer(input: {
     studentEmailIsSynthetic: synthetic,
   });
   if (!familyEmail || !input.lead.pay_token) return;
-  const origin = absoluteUrl(buildMatriculaPayPath(input.locale, "", input.lead.pay_token));
+  const origin = await absoluteUrlForRequest(buildMatriculaPayPath(input.locale, "", input.lead.pay_token));
   const studentName = `${input.lead.first_name} ${input.lead.last_name}`.trim();
   try {
     await sendBrandedEmail({

@@ -1,10 +1,19 @@
 import "server-only";
 
 import { Buffer } from "node:buffer";
+import { getAlsTenant } from "@/lib/tenant/alsTenantAccessor";
+import { preferTenantValue } from "@/lib/tenant/preferTenantValue";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 /** Base64-encoded 32-byte key; generate with `openssl rand -base64 32`. */
-export function loadPaymentGatewayEncryptionKeyRaw32(): Buffer {
-  const b64 = process.env.PAYMENT_GATEWAY_SECRET_ENCRYPTION_KEY?.trim();
+export async function loadPaymentGatewayEncryptionKeyRaw32(
+  tenantKeyOverride?: string | null,
+): Promise<Buffer> {
+  const tenant = getAlsTenant() ?? (await resolveRequestTenant());
+  const b64 = preferTenantValue(
+    tenantKeyOverride ?? tenant?.paymentGatewaySecretEncryptionKey,
+    process.env.PAYMENT_GATEWAY_SECRET_ENCRYPTION_KEY,
+  );
   if (!b64) {
     throw new Error("missing_PAYMENT_GATEWAY_SECRET_ENCRYPTION_KEY");
   }

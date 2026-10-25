@@ -729,3 +729,17 @@ body.driver-active .ge-modal-stacked-scrim {
 body.driver-active dialog.ge-modal-stacked {
   z-index: 50 !important;
 }
+
+@media (display-mode: standalone) {
+  .public-marketing-chrome {
+    display: none;
+  }
+
+  .public-pwa-tab {
+    display: block;
+  }
+
+  .public-installed-scroll {
+    padding-bottom: calc(4.5rem + max(0.5rem, env(safe-area-inset-bottom, 0px)));
+  }
+}

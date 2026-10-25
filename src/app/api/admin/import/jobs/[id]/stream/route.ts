@@ -5,6 +5,7 @@ import {
 } from "@/lib/dashboard/adminSessionErrors";
 import { readImportJob } from "@/lib/import/importJobKv";
 import { logServerAuthzDenied, logServerException } from "@/lib/logging/serverActionLog";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 export const runtime = "nodejs";
 /** Aligned with ~720 ticks × 500 ms of the stream’s internal polling window. */
@@ -35,13 +36,14 @@ export async function GET(_request: Request, context: RouteContext) {
     return new Response("forbidden", { status: 403 });
   }
 
+  const tenant = await resolveRequestTenant();
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
       let lastPayload = "";
       const maxTicks = 720;
       for (let i = 0; i < maxTicks; i++) {
-        const job = await readImportJob(id);
+        const job = await readImportJob(id, tenant);
         if (!job) {
           controller.enqueue(
             encoder.encode(

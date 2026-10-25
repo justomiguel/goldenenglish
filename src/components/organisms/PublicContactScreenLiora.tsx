@@ -12,12 +12,14 @@ export interface PublicContactScreenLioraProps {
   locale: string;
   dict: Dictionary;
   brand: BrandPublic;
+  sessionEmail?: string | null;
 }
 
 export function PublicContactScreenLiora({
   locale,
   dict,
   brand,
+  sessionEmail = null,
 }: PublicContactScreenLioraProps) {
   const prefix = `/${locale}`;
   const t = (path: string) => marketingLandingCopy(dict, "liora", path);
@@ -30,6 +32,7 @@ export function PublicContactScreenLiora({
         logoSrc={brand.logoPath.trim()}
         logoAlt={brand.logoAlt || brand.name}
         dict={dict}
+        sessionEmail={sessionEmail}
       />
       <div className="mx-auto grid max-w-6xl gap-10 px-4 pt-10 md:pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start lg:gap-12">
         <aside className="hidden lg:block lg:pt-2">

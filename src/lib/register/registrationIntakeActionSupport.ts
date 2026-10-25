@@ -6,10 +6,10 @@ import { revalidateAcademicSurfaces } from "@/app/[locale]/dashboard/admin/acade
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { resolveRegistrationFamilyEmail } from "@/lib/register/resolveRegistrationFamilyEmail";
-import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
+import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
 import { buildRegistrationPayBlock } from "@/lib/register/buildRegistrationPayBlock";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
-import { absoluteUrl } from "@/lib/site/publicUrl";
+import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 import { buildMatriculaPayPath } from "@/lib/site/publicSharePaths";
 import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
 import {
@@ -79,7 +79,7 @@ export async function emailRegistrationReceiptRejected(
   lead: IntakeLeadRow,
 ): Promise<void> {
   const dict = await getDictionary(locale);
-  const domain = getRegistrationMailTenantDomain();
+  const domain = await getRequestMailTenantDomain();
   const studentEmail = String(lead.email ?? "").trim().toLowerCase();
   const synthetic = Boolean(domain && studentEmail.endsWith(`@${domain.toLowerCase()}`));
   const birth = lead.birth_date != null ? String(lead.birth_date).slice(0, 10) : "";
@@ -93,7 +93,7 @@ export async function emailRegistrationReceiptRejected(
     studentEmailIsSynthetic: synthetic,
   });
   if (!familyEmail || !lead.pay_token) return;
-  const origin = absoluteUrl(buildMatriculaPayPath(locale, "", lead.pay_token));
+  const origin = await absoluteUrlForRequest(buildMatriculaPayPath(locale, "", lead.pay_token));
   const total = snapshotTotalFromUnknown(lead.fee_snapshot);
   const currency = snapshotCurrencyFromUnknown(lead.fee_snapshot);
   const amountLabel = total > 0 ? formatMoneyLabel(total, currency, locale) : "";
@@ -118,6 +118,6 @@ export async function emailRegistrationReceiptRejected(
   });
 }
 
-export function createRegistrationIntakeAdmin() {
-  return createAdminClient();
+export async function createRegistrationIntakeAdmin() {
+  return await createAdminClient();
 }

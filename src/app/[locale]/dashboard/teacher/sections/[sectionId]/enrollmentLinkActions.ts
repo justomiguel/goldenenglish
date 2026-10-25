@@ -55,7 +55,7 @@ async function upsertLink(
   sectionId: string,
   userId: string,
 ): Promise<boolean> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin.from("section_enrollment_links").upsert(
     {
       section_id: sectionId,
@@ -78,7 +78,7 @@ async function setLinkActive(
   sectionId: string,
   active: boolean,
 ): Promise<boolean> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin
     .from("section_enrollment_links")
     .update({ is_active: active, updated_at: new Date().toISOString() })

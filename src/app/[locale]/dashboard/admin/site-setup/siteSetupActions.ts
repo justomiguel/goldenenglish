@@ -21,6 +21,7 @@ import {
   revalidateSiteThemeSurfaces,
 } from "@/app/[locale]/dashboard/admin/cms/siteThemeActionShared";
 import { getSiteBrandThemeSlug } from "@/lib/theme/siteBrandThemeSlug";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 import { isThemeEligibleForInitialSiteSetup } from "@/lib/site/wizardThemeEligibility";
 import { SITE_SETTINGS_OPERATIONAL_CACHE_TAG } from "@/lib/site/siteSettingsOperationalTag";
 import { updateBillingCurrencySetting } from "@/lib/billing/updateBillingCurrencySetting";
@@ -62,7 +63,12 @@ export async function completeInitialSiteSetupAction(
   const mode = data.mode ?? "create";
 
   const { admin } = ctx;
-  const existing = await fetchSiteThemeById(admin.supabase, data.themeId);
+  const [existing, tenant] = await Promise.all([
+    fetchSiteThemeById(admin.supabase, data.themeId),
+    resolveRequestTenant(),
+  ]);
+  const brandSlug =
+    tenant?.brandThemeSlug?.trim() || (tenant ? null : getSiteBrandThemeSlug());
   if (
     !isThemeEligibleForInitialSiteSetup(
       existing
@@ -72,7 +78,7 @@ export async function completeInitialSiteSetupAction(
             archived_at: existing.archived_at,
           }
         : null,
-      getSiteBrandThemeSlug(),
+      brandSlug,
     )
   ) {
     return { ok: false, code: "not_found" };

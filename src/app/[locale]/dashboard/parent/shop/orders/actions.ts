@@ -71,7 +71,7 @@ export async function assignParentShopOrder(
     return { ok: false, code: "not_child" };
   }
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { error } = await admin
     .from("shop_orders")
     .update({ assignee_student_id: studentId })

@@ -21,13 +21,13 @@ export async function POST(req: Request): Promise<Response> {
 
     let rawKey;
     try {
-      rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+      rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
     } catch (e) {
       logServerException("flowConfirm:encryptionKey", e);
       return new Response("ok", { status: 200 });
     }
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const creds = await loadFlowChileCredentialsPlain(admin, rawKey);
     if (!creds?.enabled) {
       return new Response("ok", { status: 200 });

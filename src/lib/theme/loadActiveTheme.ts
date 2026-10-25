@@ -1,7 +1,16 @@
 import { unstable_cache } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createAnonReadOnlyClient } from "@/lib/supabase/anon";
-import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  createAnonClientFromCredentials,
+  createAnonReadOnlyClient,
+} from "@/lib/supabase/anon";
+import { createAdminClient, createAdminClientFromCredentials } from "@/lib/supabase/admin";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
+import {
+  getTenantBySlug,
+  isMultiTenantEnabled,
+  tenantRegistryError,
+} from "@/lib/tenant/tenantRegistry";
 import { logServerException, logSupabaseError } from "@/lib/logging/serverActionLog";
 import {
   isSiteThemeKind,
@@ -13,6 +22,7 @@ import {
   type LandingSectionSlug,
   LANDING_SECTION_SLUGS,
   SITE_THEME_ACTIVE_CACHE_TAG,
+  siteThemeActiveCacheTagForTenant,
   type SiteThemeContent,
   type SiteThemeMediaRow,
   type SiteThemeRow,
@@ -160,7 +170,7 @@ async function loadActiveThemeUncached(): Promise<ActiveThemeSnapshot | null> {
   const brandSlug = getSiteBrandThemeSlug();
   if (brandSlug) {
     try {
-      const admin = createAdminClient();
+      const admin = await createAdminClient();
       const bySlug = await loadThemeBySlugWithClient(admin, brandSlug);
       if (bySlug) return bySlug;
     } catch (err) {
@@ -179,7 +189,7 @@ async function loadActiveThemeUncached(): Promise<ActiveThemeSnapshot | null> {
   return loadActiveThemeRowAnon(client);
 }
 
-export const loadActiveTheme = unstable_cache(
+const loadActiveThemeCached = unstable_cache(
   loadActiveThemeUncached,
   [
     "site-theme-active-v2",
@@ -187,3 +197,48 @@ export const loadActiveTheme = unstable_cache(
   ],
   { tags: [SITE_THEME_ACTIVE_CACHE_TAG], revalidate: 300 },
 );
+
+async function loadThemeSnapshotForTenant(slug: string): Promise<ActiveThemeSnapshot | null> {
+  const tenant = getTenantBySlug(slug);
+  if (!tenant) return null;
+  const brandSlug = tenant.brandThemeSlug?.trim() ?? "";
+  try {
+    if (brandSlug) {
+      const admin = createAdminClientFromCredentials(
+        tenant.supabaseUrl,
+        tenant.supabaseServiceRoleKey,
+      );
+      const bySlug = await loadThemeBySlugWithClient(admin, brandSlug);
+      if (bySlug) return bySlug;
+    }
+    const anon = createAnonClientFromCredentials(
+      tenant.supabaseUrl,
+      tenant.supabaseAnonKey,
+    );
+    return loadActiveThemeRowAnon(anon);
+  } catch (err) {
+    logServerException("loadActiveTheme:tenant", err);
+    return null;
+  }
+}
+
+function loadActiveThemeForTenantSlug(slug: string): Promise<ActiveThemeSnapshot | null> {
+  return unstable_cache(
+    () => loadThemeSnapshotForTenant(slug),
+    ["site-theme-active-tenant-v2", slug],
+    {
+      tags: [SITE_THEME_ACTIVE_CACHE_TAG, siteThemeActiveCacheTagForTenant(slug)],
+      revalidate: 300,
+    },
+  )();
+}
+
+/** Active theme for this host. Single-tenant deploys keep the env cache path. */
+export async function loadActiveTheme(): Promise<ActiveThemeSnapshot | null> {
+  if (!isMultiTenantEnabled() || tenantRegistryError()) {
+    return loadActiveThemeCached();
+  }
+  const tenant = await resolveRequestTenant();
+  if (!tenant) return null;
+  return loadActiveThemeForTenantSlug(tenant.slug);
+}

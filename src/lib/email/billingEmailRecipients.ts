@@ -11,7 +11,7 @@ export async function collectRecipientEmailsForStudent(
 ): Promise<string[]> {
   let admin;
   try {
-    admin = createAdminClient();
+    admin = await createAdminClient();
   } catch (err) {
     logServerException("collectRecipientEmailsForStudent:createAdminClient", err);
     return [];

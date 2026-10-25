@@ -5,7 +5,7 @@ import { loadFlowChileCredentialsPlain, flowChileApiBase } from "@/lib/payment-g
 import { flowCreatePaymentOrder } from "@/lib/payment-gateways/flow/flowCreatePaymentOrder";
 import { extractFlowMinimumClpFromCreateError } from "@/lib/payment-gateways/flow/parseFlowCreatePaymentError";
 import { reservePaymentFlowCommerceReferenceForSlot } from "@/lib/payment-gateways/flow/reservePaymentFlowCommerceReference";
-import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
 import type { Buffer } from "node:buffer";
 import { truncateForFlowText } from "@/lib/billing/truncateFlowText";
@@ -78,7 +78,7 @@ export async function startFlowMonthlyPaymentCore(input: {
   }
 
   const amountForFlow = Math.round(effective);
-  const origin = getPublicSiteUrl();
+  const origin = await getRequestPublicSiteUrl();
   if (!origin) {
     return { ok: false, code: "no_public_url" };
   }

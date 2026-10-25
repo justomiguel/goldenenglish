@@ -24,7 +24,7 @@ export async function updateBadgeAction(raw: BadgeUpdateInput): Promise<BadgeAct
   if (!parsed.success) return { ok: false, message: ae.invalidData };
   try {
     const { user } = await assertAdmin();
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: before } = await admin
       .from("badge_catalog")
       .select("id, code, category, criteria_type, criteria_threshold, sort_order")
@@ -82,7 +82,7 @@ export async function setBadgeActiveAction(raw: BadgeArchiveInput): Promise<Badg
   if (!parsed.success) return { ok: false, message: ae.invalidData };
   try {
     const { user } = await assertAdmin();
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: before } = await admin
       .from("badge_catalog")
       .select("id, code, is_active")

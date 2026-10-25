@@ -1,10 +1,24 @@
 import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
-import { loadPublishedArticles } from "@/lib/blog/server";
+import { blogMediaPublicUrl } from "@/lib/blog/blogMedia";
+import { loadPublishedArticles, type BlogArticleListItem } from "@/lib/blog/server";
 import { BlogIndexSurfaceEntry } from "@/components/organisms/BlogIndexSurfaceEntry";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { buildResolvedPublicShareMetadata } from "@/lib/site/buildResolvedPublicShareMetadata";
+import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
+
+function withResolvedBlogCovers(
+  rows: BlogArticleListItem[],
+  supabaseUrl: string,
+): BlogArticleListItem[] {
+  if (!supabaseUrl.trim()) return rows;
+  return rows.map((row) =>
+    row.coverStoragePath
+      ? { ...row, coverStoragePath: blogMediaPublicUrl(supabaseUrl, row.coverStoragePath) }
+      : row,
+  );
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -28,14 +42,21 @@ export default async function BlogIndexPage({ params, searchParams }: PageProps)
   const dict = await getDictionary(locale);
   const supabase = await createClient();
   const page = Number.parseInt(search.page ?? "1", 10) || 1;
-  const list = await loadPublishedArticles(supabase, {
-    locale: locale as "en" | "es" | "pt",
-    page,
-    pageSize: 12,
-    query: search.q ?? "",
-    tag: search.tag,
-  });
+  const [list, { url: supabaseUrl }] = await Promise.all([
+    loadPublishedArticles(supabase, {
+      locale: locale as "en" | "es" | "pt",
+      page,
+      pageSize: 12,
+      query: search.q ?? "",
+      tag: search.tag,
+    }),
+    readRequestSupabasePublicEnv(),
+  ]);
   return (
-    <BlogIndexSurfaceEntry locale={locale} rows={list.rows} labels={dict.blog.list} />
+    <BlogIndexSurfaceEntry
+      locale={locale}
+      rows={withResolvedBlogCovers(list.rows, supabaseUrl)}
+      labels={dict.blog.list}
+    />
   );
 }

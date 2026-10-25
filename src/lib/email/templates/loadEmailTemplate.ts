@@ -41,7 +41,7 @@ export async function fetchEmailTemplateOverride(input: {
 }): Promise<EmailTemplateOverrideRow | null> {
   let admin;
   try {
-    admin = createAdminClient();
+    admin = await createAdminClient();
   } catch (err) {
     logSupabaseClientError("fetchEmailTemplateOverride:admin", err as { message?: string }, {
       key: input.key,

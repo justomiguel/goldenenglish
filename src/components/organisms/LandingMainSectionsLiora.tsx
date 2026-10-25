@@ -67,6 +67,7 @@ export function LandingMainSectionsLiora({
           mediaMap={mediaMap}
           publicCtaMode={publicCtaMode}
           inscriptionsEnabled={inscriptionsEnabled}
+          sessionEmail={sessionEmail}
         />
       </main>
     </LioraFontRoot>

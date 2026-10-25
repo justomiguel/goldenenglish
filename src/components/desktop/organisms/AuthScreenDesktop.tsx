@@ -5,6 +5,7 @@ import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { LoginHeroPanel } from "@/components/molecules/LoginHeroPanel";
+import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 
 interface AuthScreenDesktopProps {
   brand: BrandPublic;
@@ -54,7 +55,7 @@ export function AuthScreenDesktop({
       </aside>
 
       <section className="relative flex flex-col border-t border-[var(--color-border)] md:border-t-0 md:border-l md:border-[var(--color-border)] md:shadow-[inset_1px_0_0_rgb(255_255_255_/60%)]">
-        <header className="flex items-center justify-between gap-4 px-5 pt-5 sm:px-8 sm:pt-7">
+        <header className={`${PUBLIC_MARKETING_CHROME_CLASS} flex items-center justify-between gap-4 px-5 pt-5 sm:px-8 sm:pt-7`}>
           <Link
             href={homeHref}
             className="inline-flex items-center gap-2 rounded-[var(--layout-border-radius)] px-2 py-2 text-sm font-semibold text-[var(--color-foreground)] outline-none ring-[var(--color-primary)] transition hover:bg-[var(--color-muted)]/80 hover:text-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-offset-2"

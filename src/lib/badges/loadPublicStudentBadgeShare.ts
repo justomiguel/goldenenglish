@@ -1,4 +1,4 @@
-import { createAnonReadOnlyClient } from "@/lib/supabase/anon";
+import { createRequestAnonClient } from "@/lib/supabase/requestAnonClient";
 import type { StudentBadgeCode } from "@/lib/badges/badgeCodes";
 import { isStudentBadgeCode } from "@/lib/badges/badgeCodes";
 
@@ -14,7 +14,7 @@ export async function loadPublicStudentBadgeShareByToken(
   token: string,
 ): Promise<PublicStudentBadgeShare> {
   if (!/^[0-9a-f-]{36}$/i.test(token)) return null;
-  const supabase = createAnonReadOnlyClient();
+  const supabase = await createRequestAnonClient();
   if (!supabase) return null;
   const { data, error } = await supabase.rpc("get_public_student_badge_share", {
     p_token: token,

@@ -46,7 +46,7 @@ export async function saveEventTranslationsAction(raw: unknown): Promise<{ ok: b
   const actorId = await requireAdminActor();
   if (!actorId) return { ok: false, message: "forbidden" };
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const { eventId, defaultLocale, translations, adminLocale } = parsed.data;
   const prepared = eventTranslationsToSave(
     translations.map((row) => ({
@@ -130,7 +130,7 @@ export async function translateEventFieldsAdminAction(
   if (!actorId) return { ok: false, message: "forbidden" };
 
   try {
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: event } = await admin.from("events").select("id").eq("id", parsed.data.eventId).maybeSingle();
     if (!event) return { ok: false, message: "event_not_found" };
 

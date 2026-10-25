@@ -67,7 +67,7 @@ export async function upsertAdminStudentTutorLinkAction(
       return { ok: false, message: dict.admin.users.detailErrTutorSelf };
     }
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: stu, error: stuErr } = await admin.from("profiles").select("role").eq("id", studentId).single();
     if (stuErr || !stu) return { ok: false, message: dict.admin.users.detailErrSave };
     if (String(stu.role) !== "student") {
@@ -129,7 +129,7 @@ export async function removeAdminStudentTutorLinkAction(
       return { ok: false, message: dict.admin.users.detailErrTutorSelf };
     }
 
-    const admin = createAdminClient();
+    const admin = await createAdminClient();
     const { data: stu, error: stuErr } = await admin.from("profiles").select("role").eq("id", studentId).single();
     if (stuErr || !stu) return { ok: false, message: dict.admin.users.detailErrSave };
     if (String(stu.role) !== "student") {

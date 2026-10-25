@@ -16,7 +16,7 @@ import {
 export async function loadEventRegistrationPaymentMethods(
   currency: string,
 ): Promise<EventRegistrationPaymentMethod[]> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const enabledGateways = await loadPayableEventGateways(admin, currency);
 
   const { data } = await admin

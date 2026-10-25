@@ -8,7 +8,7 @@ import type { Locale } from "@/types/i18n";
 async function emailsForStudentParents(studentId: string): Promise<string[]> {
   let admin;
   try {
-    admin = createAdminClient();
+    admin = await createAdminClient();
   } catch (err) {
     logServerException("emailsForStudentParents:createAdminClient", err);
     return [];

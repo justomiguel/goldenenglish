@@ -35,12 +35,12 @@ async function startGateway(
 ): Promise<MatriculaPayActionResult> {
   let rawKey: Buffer;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch {
     return { ok: false, code: "method_unavailable" };
   }
   const result = await startRegistrationEnrollmentGatewayCore({
-    admin: createAdminClient(),
+    admin: await createAdminClient(),
     encryptionKey32: rawKey,
     payToken: token,
     method,
@@ -59,7 +59,7 @@ export async function uploadRegistrationEnrollmentReceiptAction(
   const file = formData.get("receipt");
   if (!(file instanceof File)) return { ok: false, code: "invalid_file" };
   const result = await uploadRegistrationEnrollmentReceiptCore({
-    admin: createAdminClient(),
+    admin: await createAdminClient(),
     payToken: token,
     fileName: file.name,
     fileBytes: Buffer.from(await file.arrayBuffer()),
@@ -79,7 +79,7 @@ export async function switchRegistrationPaySectionAction(
   token: string,
   sectionId: string,
 ): Promise<MatriculaPayActionResult> {
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
   const result = await switchRegistrationPaySectionCore({
     admin,
     payToken: token,

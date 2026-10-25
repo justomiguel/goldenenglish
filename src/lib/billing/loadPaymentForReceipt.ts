@@ -72,7 +72,7 @@ export async function loadPaymentForReceipt(input: {
   if (error || !row) return { ok: false, reason: "not_found" };
   if (row.status !== "approved") return { ok: false, reason: "not_paid" };
 
-  const admin = createAdminClient();
+  const admin = await createAdminClient();
 
   const [studentNamesRes, parentNamesRes, sectionRes, currencyRes, refRes, flowFinalizeRes, mpFinalizeRes] =
     await Promise.all([

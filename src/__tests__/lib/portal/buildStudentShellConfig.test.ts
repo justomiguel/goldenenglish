@@ -67,6 +67,7 @@ describe("buildStudentShellConfig", () => {
 
   it("offers profile, settings, language, install and sign out", () => {
     expect(build().accountItems.map((item) => item.id)).toEqual([
+      "publicSite",
       "profile",
       "settings",
       "language",

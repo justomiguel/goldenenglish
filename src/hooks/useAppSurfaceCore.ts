@@ -44,3 +44,13 @@ export function getServerAppSurfaceSnapshot(): AppSurface {
 export function getClientAppSurfaceSnapshot(): AppSurface {
   return computeAppSurface();
 }
+
+/** Installed display at any width. Server snapshot stays false. */
+export function subscribeInstalledDisplay(onChange: () => void): () => void {
+  return subscribeAppSurface(onChange);
+}
+
+export function getClientInstalledDisplay(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia(STANDALONE_MEDIA).matches || isIosStandalone();
+}

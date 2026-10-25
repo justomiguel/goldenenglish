@@ -50,7 +50,7 @@ export async function saveMercadoPagoGatewaySettings(
 
   let rawKey;
   try {
-    rawKey = loadPaymentGatewayEncryptionKeyRaw32();
+    rawKey = await loadPaymentGatewayEncryptionKeyRaw32();
   } catch (err) {
     logServerActionException("saveMercadoPagoGatewaySettings:encryptionKey", err);
     return { ok: false, error: "encryption" };

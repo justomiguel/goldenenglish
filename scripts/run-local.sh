@@ -9,13 +9,12 @@ if [[ ! -d node_modules ]]; then
   npm install
 fi
 
-if [[ ! -f .env.local.golden && ! -f .env.local.mozarthitos ]]; then
-  echo "⚠ No hay .env.local.golden ni .env.local.mozarthitos."
-  echo "  Primera vez: cp .env.example .env.local.golden  (o migrá: cp .env.local .env.local.golden)"
-  echo "  Mozarthitos:   cp .env.local.golden .env.local.mozarthitos  y editá URLs / Supabase."
+if [[ ! -f .env.local ]]; then
+  echo "⚠ No existe .env.local."
+  echo "  Primera vez: cp .env.example .env.local y completá TENANTS_CONFIG_JSON."
   echo ""
 fi
 
-echo "→ Elegí target (golden | mozarthitos); ver también npm run dev:golden / dev:mozarthitos"
+echo "→ Elegí instituto desde TENANTS_CONFIG_JSON (.env.local); ver también npm run dev:<slug>"
 echo "→ http://localhost:3000 — Ctrl+C para detener | dev:clean borra .next"
 exec npm run dev
