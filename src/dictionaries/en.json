@@ -9,6 +9,12 @@
     "loading": "Loading...",
     "loadingAria": "Loading",
     "error": "Something went wrong",
+    "pageError": {
+      "title": "Something went wrong",
+      "body": "We could not open this page. Try again.",
+      "retry": "Try again",
+      "supportCode": "Support code"
+    },
     "back": "Back",
     "submit": "Submit",
     "cancel": "Cancel",

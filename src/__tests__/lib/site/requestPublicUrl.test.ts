@@ -23,6 +23,7 @@ describe("getRequestPublicSiteUrl", () => {
   const prevDev = process.env.DEV_TENANT_SLUG;
   const prevApp = process.env.NEXT_PUBLIC_APP_URL;
   const prevVercel = process.env.VERCEL_URL;
+  const prevPulsarHosts = process.env.PULSAR_HOSTS;
 
   beforeEach(() => {
     headerGet.mockReset();
@@ -40,6 +41,8 @@ describe("getRequestPublicSiteUrl", () => {
     else process.env.NEXT_PUBLIC_APP_URL = prevApp;
     if (prevVercel === undefined) delete process.env.VERCEL_URL;
     else process.env.VERCEL_URL = prevVercel;
+    if (prevPulsarHosts === undefined) delete process.env.PULSAR_HOSTS;
+    else process.env.PULSAR_HOSTS = prevPulsarHosts;
   });
 
   it("keeps localhost, including the port", async () => {
@@ -55,6 +58,18 @@ describe("getRequestPublicSiteUrl", () => {
     const url = await getRequestPublicSiteUrl();
     expect(url?.origin).toBe("https://www.capoeiranago.cl");
     expect((await absoluteUrlForRequest("blog"))?.href).toBe("https://www.capoeiranago.cl/blog");
+  });
+
+  it("uses the request host as the Pulsar origin", async () => {
+    headerGet.mockImplementation((name: string) =>
+      name === "host" ? "pulsarlab.vercel.app" : null,
+    );
+    const url = await getRequestPublicSiteUrl();
+    expect(url?.origin).toBe("https://pulsarlab.vercel.app");
+
+    process.env.PULSAR_HOSTS = "bad host";
+    headerGet.mockImplementation((name: string) => (name === "host" ? "bad host" : null));
+    expect((await getRequestPublicSiteUrl())?.origin).toBe("https://pulsarlab.cl");
   });
 
   it("falls back when the tenant origin is missing or not a URL", async () => {

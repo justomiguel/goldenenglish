@@ -1,5 +1,6 @@
 import { describe, expect, it, afterEach } from "vitest";
 import {
+  DEFAULT_PULSAR_HOSTS,
   getPulsarHosts,
   getTenantBySlug,
   isMultiTenantEnabled,
@@ -209,9 +210,9 @@ describe("tenantRegistry", () => {
     expect(tenantPublicEnv({ ...memoryTenant, hosts: [] }).origin).toBeNull();
     expect(tenantPublicEnv(memoryTenant).origin).toBe("https://capoeiranago.cl");
 
-    expect(getPulsarHosts()).toEqual(["pulsarlab.cl", "www.pulsarlab.cl"]);
+    expect(getPulsarHosts()).toEqual([...DEFAULT_PULSAR_HOSTS]);
     process.env.PULSAR_HOSTS = " , ";
-    expect(getPulsarHosts()).toEqual(["pulsarlab.cl", "www.pulsarlab.cl"]);
+    expect(getPulsarHosts()).toEqual([...DEFAULT_PULSAR_HOSTS]);
     process.env.PULSAR_HOSTS = "lab.example";
     expect(getPulsarHosts()).toEqual(["lab.example"]);
     expect(isPulsarHost(null)).toBe(false);
@@ -230,7 +231,6 @@ describe("tenantRegistry", () => {
     expect(resolveTenantByHost("lab.example")).toBeNull();
     expect(getTenantBySlug("")).toBeNull();
     expect(getTenantBySlug("pulsar")).toBeNull();
-
     const none = () => null;
     expect(tenantHostBlockStatus(none, "/es")).toBe(404);
     expect(tenantFromHeaderGet(none)).toBeNull();

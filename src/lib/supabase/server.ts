@@ -1,10 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
+import {
+  missingSupabaseEnvMessage,
+  readRequestSupabaseEnvDiagnosis,
+} from "@/lib/supabase/requestPublicEnv";
 
 export async function createClient() {
   const cookieStore = await cookies();
-  const { url, anonKey } = await readRequestSupabasePublicEnv();
+  const diag = await readRequestSupabaseEnvDiagnosis();
+  if (!diag.url || !diag.anonKey) {
+    throw new Error(missingSupabaseEnvMessage(diag));
+  }
+  const { url, anonKey } = diag;
 
   return createServerClient(url, anonKey, {
     cookies: {

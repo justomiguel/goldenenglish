@@ -5,6 +5,7 @@ import {
   syncContentViewViewerSessionCookie,
 } from "@/lib/analytics/server/contentViewSession";
 import { updateSession } from "@/lib/supabase/middleware";
+import { logServerWarn } from "@/lib/logging/serverActionLog";
 import { ensureTenantRegistryLoaded } from "@/lib/pulsar/pulsarTenantStore";
 import {
   isPulsarRequestFromHeaderGet,
@@ -110,5 +111,11 @@ function blockUnknownTenant(request: NextRequest): NextResponse | null {
     request.nextUrl.pathname,
   );
   if (!status) return null;
+  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  logServerWarn("tenant.host_blocked", {
+    status,
+    host,
+    pathname: request.nextUrl.pathname,
+  });
   return new NextResponse(null, { status });
 }

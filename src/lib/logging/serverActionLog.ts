@@ -4,28 +4,43 @@
  * No registrar secretos ni payloads con PII; usar ids/códigos en meta.
  */
 
+import { serializeUnknownError } from "@/lib/logging/serializeUnknownError";
+import { normalizeHost } from "@/lib/tenant/parseTenantConfigJson";
+
+export { serializeUnknownError };
+
 const PREFIX = "[ge:server]";
 
-function includeStack(): boolean {
-  return process.env.NODE_ENV === "development";
+type HeaderGet = { get(name: string): string | null };
+
+/**
+ * Client screens import this module through shared loaders.
+ * A static `next/headers` import would break that bundle.
+ * `instrumentation.ts` registers the reader on the server.
+ */
+let readHeaderStore: () => HeaderGet | null = () => null;
+
+export function registerRequestHeaderReader(reader: () => HeaderGet | null): void {
+  readHeaderStore = reader;
 }
 
-/** Normalize unknown throws for logs and optional tests. */
-export function serializeUnknownError(err: unknown): {
-  name: string;
-  message: string;
-  stack?: string;
-} {
-  if (err instanceof Error) {
-    return {
-      name: err.name,
-      message: err.message,
-      ...(includeStack() && err.stack
-        ? { stack: err.stack.split("\n").slice(0, 8).join("\n") }
-        : {}),
-    };
+function requestLogContext(): { host: string | null; tenantSlug: string | null } {
+  try {
+    const headerStore = readHeaderStore();
+    if (!headerStore || typeof headerStore.get !== "function") {
+      return { host: null, tenantSlug: null };
+    }
+    const raw = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
+    const slug = headerStore.get("x-ge-tenant")?.trim() || null;
+    return { host: raw ? normalizeHost(raw) : null, tenantSlug: slug };
+  } catch {
+    return { host: null, tenantSlug: null };
   }
-  return { name: "NonError", message: typeof err === "string" ? err : JSON.stringify(err) };
+}
+
+function withRequestLogMeta(meta?: Record<string, unknown>): Record<string, unknown> {
+  const ctx = requestLogContext();
+  return { host: ctx.host, tenantSlug: ctx.tenantSlug, ...meta };
 }
 
 type PostgrestLike = {
@@ -45,7 +60,7 @@ export function logSupabaseClientError(
 ): void {
   if (!error?.message && !error?.code) return;
   console.error(PREFIX, scope, {
-    ...meta,
+    ...withRequestLogMeta(meta),
     supabase: {
       message: error.message,
       code: error.code,
@@ -63,7 +78,7 @@ export function logServerActionException(
   err: unknown,
   meta?: Record<string, unknown>,
 ): void {
-  console.error(PREFIX, scope, { ...meta, error: serializeUnknownError(err) });
+  console.error(PREFIX, scope, withRequestLogMeta({ ...meta, error: serializeUnknownError(err) }));
 }
 
 /** Unexpected logical outcome (e.g. insert succeeded but returned no row id). */
@@ -72,7 +87,7 @@ export function logServerActionInvariantViolation(
   reason: string,
   meta?: Record<string, unknown>,
 ): void {
-  console.error(PREFIX, scope, { reason, ...meta });
+  console.error(PREFIX, scope, withRequestLogMeta({ reason, ...meta }));
 }
 
 /** Alias for route handlers and server utilities (same behavior as logServerActionException). */
@@ -85,22 +100,22 @@ export const logSupabaseError = logSupabaseClientError;
  * Session/autorización esperada (p. ej. assertAdmin). No es bug; usa `warn` para no confundir con 500.
  */
 export function logServerAuthzDenied(scope: string, meta?: Record<string, unknown>): void {
-  console.warn(PREFIX, scope, { kind: "authz_denied", ...meta });
+  console.warn(PREFIX, scope, withRequestLogMeta({ kind: "authz_denied", ...meta }));
 }
 
 /** Diagnóstico operativo (no error de app): filtros locales, branching previsto. Sin PII. */
 export function logServerWarn(scope: string, meta?: Record<string, unknown>): void {
-  console.warn(PREFIX, scope, meta);
+  console.warn(PREFIX, scope, withRequestLogMeta(meta));
 }
 
 /** Breadcrumb operativo (envío aceptado, conteos). Sin PII. */
 export function logServerInfo(scope: string, meta?: Record<string, unknown>): void {
-  console.info(PREFIX, scope, meta);
+  console.info(PREFIX, scope, withRequestLogMeta(meta));
 }
 
 /** Fallo operativo con meta plana (sin wrappear en Error). Sin PII. */
 export function logServerError(scope: string, meta?: Record<string, unknown>): void {
-  console.error(PREFIX, scope, meta);
+  console.error(PREFIX, scope, withRequestLogMeta(meta));
 }
 
 type AuthAdminErrLike = {
@@ -132,9 +147,9 @@ export function logAuthAdminCreateUserFailure(
       : typeof statusRaw === "string" && /^[0-9]+$/.test(statusRaw)
         ? Number.parseInt(statusRaw, 10)
         : undefined;
-  console.error(PREFIX, scope, {
+  console.error(PREFIX, scope, withRequestLogMeta({
     kind: "auth_admin_create_user_failure",
     ...meta,
     auth_error: message || code || statusRaw != null ? { message, code, status: statusNum ?? statusRaw } : null,
-  });
+  }));
 }

@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "page-error-support-code",
+    date: "2026-10-25",
+    area: "site",
+    title: t(
+      "Un error de página muestra un código de soporte",
+      "A page error shows a support code",
+      "Um erro de página mostra um código de suporte",
+    ),
+    summary: t(
+      "Si una página falla, ves un código para buscar el mismo fallo en los logs.",
+      "If a page fails, you see a code to find the same failure in the logs.",
+      "Se uma página falha, você vê um código para achar a mesma falha nos logs.",
+    ),
+  },
+  {
     id: "pulsar-control-plane",
     date: "2026-10-25",
     area: "admin",

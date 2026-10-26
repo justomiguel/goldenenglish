@@ -118,10 +118,13 @@ export default async function RootLayout({
       ? (headerLocale as AppLocale)
       : defaultLocale;
   const pulsarEnv = isPulsar ? readPulsarSupabasePublicEnv() : null;
+  const pulsarOrigin = isPulsar
+    ? ((await getRequestPublicSiteUrl())?.origin ?? "https://pulsarlab.cl")
+    : null;
   const tenant = !isPulsar && isMultiTenantEnabled() ? await resolveRequestTenant() : null;
   const tenantPublic =
-    isPulsar && pulsarEnv?.url && pulsarEnv?.anonKey
-      ? { url: pulsarEnv.url, anonKey: pulsarEnv.anonKey, origin: "https://pulsarlab.cl" }
+    isPulsar && pulsarEnv?.url && pulsarEnv?.anonKey && pulsarOrigin
+      ? { url: pulsarEnv.url, anonKey: pulsarEnv.anonKey, origin: pulsarOrigin }
       : tenant
         ? tenantPublicEnv(tenant)
         : null;

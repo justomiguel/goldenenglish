@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { logClientWarn } from "@/lib/logging/clientLog";
-import { serializeUnknownError } from "@/lib/logging/serverActionLog";
+import { serializeUnknownError } from "@/lib/logging/serializeUnknownError";
 
 export function PwaServiceWorkerRegister() {
   useEffect(() => {

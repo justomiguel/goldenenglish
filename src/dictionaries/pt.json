@@ -9,6 +9,12 @@
     "loading": "Carregando...",
     "loadingAria": "Carregando",
     "error": "Algo deu errado",
+    "pageError": {
+      "title": "Algo deu errado",
+      "body": "Não conseguimos abrir esta página. Tente de novo.",
+      "retry": "Tentar de novo",
+      "supportCode": "Código de suporte"
+    },
     "back": "Voltar",
     "submit": "Enviar",
     "cancel": "Cancelar",

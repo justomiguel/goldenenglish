@@ -32,6 +32,9 @@ export async function isPulsarPlatformRequest(): Promise<boolean> {
 export async function resolveRequestTenant(): Promise<TenantConfig | null> {
   const fromAls = getAlsTenant();
   if (fromAls) return fromAls;
+  // Middleware and the Node render do not share memory. Load the Pulsar list here.
+  const { ensureTenantRegistryLoaded } = await import("@/lib/pulsar/pulsarTenantStore");
+  await ensureTenantRegistryLoaded();
   if (!isMultiTenantEnabled() || tenantRegistryError()) return null;
 
   let host: string | null = null;

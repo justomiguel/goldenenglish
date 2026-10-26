@@ -9,6 +9,12 @@
     "loading": "Cargando...",
     "loadingAria": "Cargando",
     "error": "Algo salió mal",
+    "pageError": {
+      "title": "Algo salió mal",
+      "body": "No pudimos abrir esta página. Intenta de nuevo.",
+      "retry": "Intentar de nuevo",
+      "supportCode": "Código de soporte"
+    },
     "back": "Volver",
     "submit": "Enviar",
     "cancel": "Cancelar",

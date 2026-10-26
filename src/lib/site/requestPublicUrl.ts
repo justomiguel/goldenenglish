@@ -1,6 +1,6 @@
 import "server-only";
 import { readRequestHostRaw, resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
-import { isLocalDevHost, tenantPublicEnv } from "@/lib/tenant/tenantRegistry";
+import { isLocalDevHost, isPulsarHost, normalizeHost, tenantPublicEnv } from "@/lib/tenant/tenantRegistry";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 
 /** Public origin for this host. Local dev keeps `http://localhost:<port>`. */
@@ -11,6 +11,13 @@ export async function getRequestPublicSiteUrl(): Promise<URL | null> {
       return new URL(`http://${rawHost}`);
     } catch {
       return new URL("http://localhost:3000");
+    }
+  }
+  if (rawHost && isPulsarHost(rawHost)) {
+    try {
+      return new URL(`https://${normalizeHost(rawHost)}`);
+    } catch {
+      return new URL("https://pulsarlab.cl");
     }
   }
   const tenant = await resolveRequestTenant();

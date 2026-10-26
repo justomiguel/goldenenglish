@@ -9,7 +9,11 @@ export { normalizeHost };
 
 export const GE_TENANT_HEADER = "x-ge-tenant";
 export const PULSAR_SLUG = "pulsar";
-export const DEFAULT_PULSAR_HOSTS = ["pulsarlab.cl", "www.pulsarlab.cl"] as const;
+export const DEFAULT_PULSAR_HOSTS = [
+  "pulsarlab.cl",
+  "www.pulsarlab.cl",
+  "pulsarlab.vercel.app",
+] as const;
 
 export type TenantConfig = {
   slug: string;
@@ -58,6 +62,11 @@ let cachedError: string | null = null;
 /** Populates or clears the DB-backed tenant list from Pulsar `platform_tenants`. */
 export function setDynamicTenantsCache(tenants: TenantConfig[] | null): void {
   dynamicTenants = tenants;
+}
+
+/** True after this process has stored rows from Pulsar `platform_tenants`. */
+export function isDynamicTenantCacheLoaded(): boolean {
+  return dynamicTenants !== null;
 }
 
 export function isMultiTenantEnabled(): boolean {

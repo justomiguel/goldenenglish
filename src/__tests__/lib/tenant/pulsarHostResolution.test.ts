@@ -55,6 +55,7 @@ describe("Pulsar host resolution and dynamic tenant cache", () => {
   it("identifies pulsarlab.cl and www.pulsarlab.cl as Pulsar platform hosts", () => {
     expect(isPulsarHost("pulsarlab.cl")).toBe(true);
     expect(isPulsarHost("www.pulsarlab.cl:443")).toBe(true);
+    expect(isPulsarHost("pulsarlab.vercel.app")).toBe(true);
     expect(isPulsarHost("capoeiranago.cl")).toBe(false);
   });
 
@@ -86,6 +87,12 @@ describe("Pulsar host resolution and dynamic tenant cache", () => {
       "/es",
     );
     expect(status).toBeNull();
+    expect(
+      tenantHostBlockStatus(
+        (name) => (name === "host" ? "pulsarlab.vercel.app" : null),
+        "/es",
+      ),
+    ).toBeNull();
   });
 
   it("serves dynamic DB tenants when cache is populated without redeploying env", () => {
