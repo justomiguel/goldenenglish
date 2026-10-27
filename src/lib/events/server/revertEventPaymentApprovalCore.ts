@@ -93,6 +93,16 @@ export async function revertEventPaymentApprovalCore(
   }
 
   const attendeeReverted = await revertConfirmedAttendeeToPendingPayment(input.admin, attendeeId);
+  const companions = await input.admin
+    .from("event_attendees")
+    .update({ status: "pending_payment" })
+    .eq("primary_attendee_id", attendeeId)
+    .eq("status", "confirmed");
+  if (companions.error) {
+    logSupabaseClientError("revertEventPaymentApprovalCore:revertCompanions", companions.error, {
+      attendeeId,
+    });
+  }
   await reserveEventDiscountRedemption(input.admin, attendeeId);
 
   return {

@@ -16,6 +16,7 @@ import {
 import { canDeleteEventAttendee } from "@/lib/events/canDeleteEventAttendee";
 import type { EventAttendeeCustomFieldValuesMap } from "@/lib/dashboard/events/loadEventAttendeeCustomFieldValues";
 import type { EventAttendeeRow } from "@/lib/dashboard/events/loadEventAttendeesPaginated";
+import type { EventSeatMapConfig } from "@/lib/events/seatMapModel";
 import type { SortableValue } from "@/lib/sort/compareSortValues";
 
 interface AdminEventAttendeesTableProps {
@@ -25,6 +26,7 @@ interface AdminEventAttendeesTableProps {
   customFieldValues: EventAttendeeCustomFieldValuesMap;
   customFieldColumns: AdminEventAttendeeCustomFieldColumn[];
   labels: AdminEventAttendeesPanelLabels;
+  seatMapConfig?: EventSeatMapConfig | null;
 }
 
 export function AdminEventAttendeesTable({
@@ -34,6 +36,7 @@ export function AdminEventAttendeesTable({
   customFieldValues,
   customFieldColumns,
   labels,
+  seatMapConfig = null,
 }: AdminEventAttendeesTableProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const sortLabels = tableSortLabels(locale);
@@ -116,6 +119,7 @@ export function AdminEventAttendeesTable({
               locale={locale}
               eventId={eventId}
               labels={labels}
+              seatMapConfig={seatMapConfig}
               expanded={expandedId === row.id}
               deletable={canDeleteEventAttendee(row.payment)}
               onToggle={() => toggleRow(row.id)}

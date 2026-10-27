@@ -88,6 +88,27 @@ export const adminEnrolledTemplate: EmailTemplateDefinition = {
   }),
 };
 
+export const adminSectionFullTemplate: EmailTemplateDefinition = {
+  key: "registration.admin_section_full",
+  category: "notifications",
+  label: { es: "Inscripción: pagó y el horario se llenó (admin)", en: "Registration: paid and the schedule filled (admin)" },
+  description: {
+    es: "Pagó la matrícula y el horario pedido ya no tiene cupo.",
+    en: "The enrollment fee is paid and the requested schedule has no open seat.",
+  },
+  placeholders: REGISTRATION_ADMIN_PLACEHOLDERS,
+  defaults: withPtFallback({
+    es: {
+      subject: "Horario lleno · {{studentName}}",
+      bodyHtml: adminBody("Pagó la matrícula y el horario se llenó. Asigna otro horario con cupo."),
+    },
+    en: {
+      subject: "Schedule full · {{studentName}}",
+      bodyHtml: adminBody("The enrollment fee is paid and the schedule filled. Assign another open schedule."),
+    },
+  }),
+};
+
 export const adminNeedsSectionTemplate: EmailTemplateDefinition = {
   key: "registration.admin_needs_section",
   category: "notifications",

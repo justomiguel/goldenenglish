@@ -1,3 +1,4 @@
+import { notifyAdminsPaymentPaid } from "@/lib/email/notifyAdminsPurchasePayment";
 import { logServerWarn, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { notifyShopEmail } from "@/lib/shop/notifyShopEmail";
 import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
@@ -54,24 +55,39 @@ async function notifyPaid(admin: ShopMarkPaidAdmin, orderId: string): Promise<vo
   if (!admin.from) return;
   const { data, error } = await admin
     .from("shop_orders")
-    .select("buyer_email, pay_token")
+    .select("buyer_email, pay_token, total, currency")
     .eq("id", orderId)
     .maybeSingle();
   if (error || !data) return;
-  const row = data as { buyer_email?: unknown; pay_token?: unknown };
+  const row = data as {
+    buyer_email?: unknown;
+    pay_token?: unknown;
+    total?: unknown;
+    currency?: unknown;
+  };
   const to = String(row.buyer_email ?? "").trim();
   const token = String(row.pay_token ?? "").trim();
-  if (!to || !token) return;
   const locale: Locale = "es";
-  const orderPath = buildShopOrderPath(locale, "", token);
-  const orderUrl = (await absoluteUrlForRequest(orderPath))?.toString() ?? orderPath;
-  await notifyShopEmail({
-    to,
-    key: "shop.order_paid",
+  if (to && token) {
+    const orderPath = buildShopOrderPath(locale, "", token);
+    const orderUrl = (await absoluteUrlForRequest(orderPath))?.toString() ?? orderPath;
+    await notifyShopEmail({
+      to,
+      key: "shop.order_paid",
+      locale,
+      vars: {
+        orderUrl,
+        pickupNote: shopOrderPaidPickupNote(locale),
+      },
+    });
+  }
+  const total = row.total == null || row.total === "" ? null : Number(row.total);
+  await notifyAdminsPaymentPaid({
     locale,
-    vars: {
-      orderUrl,
-      pickupNote: shopOrderPaidPickupNote(locale),
-    },
+    kind: "shop",
+    contextLabel: to || "—",
+    payerName: to || "—",
+    amount: total != null && Number.isFinite(total) ? total : null,
+    currency: row.currency ? String(row.currency) : null,
   });
 }

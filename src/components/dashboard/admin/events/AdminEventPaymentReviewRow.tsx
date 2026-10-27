@@ -1,8 +1,22 @@
 "use client";
 
-import { ExternalLink, Mail, Phone } from "lucide-react";
+import {
+  CalendarClock,
+  CreditCard,
+  ExternalLink,
+  IdCard,
+  Landmark,
+  Mail,
+  Phone,
+  Users,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { AdminEventAttendeePresentationBadge } from "@/components/dashboard/admin/events/AdminEventAttendeePresentationBadge";
+import { EventSelectedSeatsMiniMap } from "@/components/dashboard/admin/events/EventSelectedSeatsMiniMap";
+import { resolveAttendeePaymentStatusTone } from "@/lib/events/resolveAttendeePresentation";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import type { EventPaymentRow } from "@/lib/dashboard/events/loadEventPaymentsPaginated";
+import type { EventSeatMapConfig } from "@/lib/events/seatMapModel";
 import {
   AdminEventPaymentReviewActions,
   type AdminEventPaymentReviewActionsLabels,
@@ -23,6 +37,10 @@ export interface AdminEventPaymentReviewRowLabels extends AdminEventPaymentRevie
   receiptOpenTooltip: string;
   statusLabels: Record<string, string>;
   methodLabels: Record<string, string>;
+  transferSource?: string;
+  transferAnswer?: string;
+  seatLabels?: string;
+  minorTickets?: string;
 }
 
 interface AdminEventPaymentReviewRowProps {
@@ -30,7 +48,22 @@ interface AdminEventPaymentReviewRowProps {
   eventId: string;
   row: EventPaymentRow;
   receiptPreviewUrl: string | null;
+  seatMapConfig?: EventSeatMapConfig | null;
   labels: AdminEventPaymentReviewRowLabels;
+}
+
+function Fact({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--color-muted-foreground)]">
+        {label}
+      </p>
+      <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-[var(--color-foreground)]">
+        <Icon className="h-3.5 w-3.5 shrink-0 text-[var(--color-muted-foreground)]" aria-hidden />
+        <span className="truncate">{value}</span>
+      </p>
+    </div>
+  );
 }
 
 function formatDateTime(value: string, locale: string): string {
@@ -44,6 +77,7 @@ export function AdminEventPaymentReviewRow({
   eventId,
   row,
   receiptPreviewUrl,
+  seatMapConfig = null,
   labels,
 }: AdminEventPaymentReviewRowProps) {
   const attendeeName = formatProfileNameSurnameFirst(row.attendee.firstName, row.attendee.lastName);
@@ -59,29 +93,48 @@ export function AdminEventPaymentReviewRow({
   const isPdf = receiptPreviewUrl ? /\.pdf($|\?)/i.test(receiptPreviewUrl) : false;
 
   return (
-    <li className="rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1">
-          <p className="text-base font-semibold text-[var(--color-foreground)]">{attendeeName}</p>
-          <p className="text-sm text-[var(--color-muted-foreground)]">
-            {labels.amount}: {amountLabel} · {labels.method}: {methodLabel}
-          </p>
-          <p className="text-sm text-[var(--color-muted-foreground)]">
-            {labels.dni}: {row.attendee.dniOrPassport} · {labels.email}: {row.attendee.email}
-          </p>
-          <p className="text-sm text-[var(--color-muted-foreground)]">
-            {labels.phone}: {row.attendee.phone?.trim() ? row.attendee.phone : labels.noPhone}
-          </p>
-          <p className="text-sm text-[var(--color-muted-foreground)]">
-            {labels.registered}: {formatDateTime(row.createdAt, locale)}
-          </p>
+    <li className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-4">
+        <div className="min-w-0">
+          <p className="truncate text-base font-semibold text-[var(--color-foreground)]">{attendeeName}</p>
+          <div className="mt-2">
+            <AdminEventAttendeePresentationBadge
+              label={statusLabel}
+              tone={resolveAttendeePaymentStatusTone(row.status)}
+            />
+          </div>
         </div>
-        <span className="rounded-full border border-[var(--color-border)] px-2.5 py-1 text-xs text-[var(--color-muted-foreground)]">
-          {statusLabel}
-        </span>
+        <p className="text-2xl font-semibold tracking-tight text-[var(--color-foreground)]">{amountLabel}</p>
       </div>
+      <div className="grid gap-4 px-4 py-4 sm:grid-cols-3">
+        <Fact
+          icon={row.gatewayProvider ? CreditCard : Landmark}
+          label={labels.method}
+          value={methodLabel}
+        />
+        <Fact icon={IdCard} label={labels.dni} value={row.attendee.dniOrPassport} />
+        <Fact icon={CalendarClock} label={labels.registered} value={formatDateTime(row.createdAt, locale)} />
+        {row.attendee.transferSourceLabel && labels.transferSource ? (
+          <Fact icon={Landmark} label={labels.transferSource} value={row.attendee.transferSourceLabel} />
+        ) : null}
+        {row.attendee.transferQuestionAnswer && labels.transferAnswer ? (
+          <Fact icon={Landmark} label={labels.transferAnswer} value={row.attendee.transferQuestionAnswer} />
+        ) : null}
+        {row.attendee.minorTicketCount && labels.minorTickets ? (
+          <Fact icon={Users} label={labels.minorTickets} value={String(row.attendee.minorTicketCount)} />
+        ) : null}
+      </div>
+      {row.attendee.seatLabels && row.attendee.seatLabels.length > 0 && labels.seatLabels ? (
+        <div className="border-t border-[var(--color-border)] px-4 py-4">
+          <EventSelectedSeatsMiniMap
+            config={seatMapConfig ?? null}
+            seatLabels={row.attendee.seatLabels}
+            label={labels.seatLabels}
+          />
+        </div>
+      ) : null}
 
-      <div className="mt-4 flex flex-wrap gap-4 text-sm">
+      <div className="flex flex-wrap gap-4 px-4 text-sm">
         <a
           href={`mailto:${row.attendee.email}`}
           className="inline-flex items-center gap-1.5 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
@@ -100,7 +153,7 @@ export function AdminEventPaymentReviewRow({
         ) : null}
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)]">
+      <div className="mt-4 grid gap-4 px-4 pb-4 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)]">
         <div className="space-y-3">
           {!isPending && row.reviewNotes?.trim() ? (
             <p className="text-sm text-[var(--color-muted-foreground)]">

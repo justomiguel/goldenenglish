@@ -1,9 +1,10 @@
 /** @vitest-environment node */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { update, sendEventAttendeeNotification, scene } = vi.hoisted(() => ({
+const { update, sendEventAttendeeNotification, notifyAdminsEventRegistered, scene } = vi.hoisted(() => ({
   update: vi.fn(),
   sendEventAttendeeNotification: vi.fn(async () => true),
+  notifyAdminsEventRegistered: vi.fn(async () => undefined),
   scene: {
     rpcNames: [] as string[],
     row: {
@@ -41,6 +42,10 @@ vi.mock("@/lib/events/server/sendEventAttendeeNotification", () => ({
   sendEventAttendeeNotification: (...args: unknown[]) => sendEventAttendeeNotification(...args),
 }));
 
+vi.mock("@/lib/email/notifyAdminsPurchasePayment", () => ({
+  notifyAdminsEventRegistered: (...args: unknown[]) => notifyAdminsEventRegistered(...args),
+}));
+
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logSupabaseClientError: vi.fn(),
 }));
@@ -74,6 +79,7 @@ describe("enrollEventAttendeeServer mail", () => {
     scene.rpcNames = [];
     update.mockClear();
     sendEventAttendeeNotification.mockClear();
+    notifyAdminsEventRegistered.mockClear();
   });
 
   it("stores the page locale and sends the registration mail", async () => {
@@ -89,6 +95,17 @@ describe("enrollEventAttendeeServer mail", () => {
       attendeeId: "att-1",
       templateKey: "events.registered",
     });
+    expect(notifyAdminsEventRegistered).toHaveBeenCalledTimes(1);
+    expect(notifyAdminsEventRegistered).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventId: "event-1",
+        firstName: "Ana",
+        lastName: "Pérez",
+        seatCount: 1,
+        paymentPending: false,
+        locale: "en",
+      }),
+    );
   });
 
   it("does not send when enrollment does not succeed", async () => {
@@ -100,6 +117,7 @@ describe("enrollEventAttendeeServer mail", () => {
     const failed = await enrollEventAttendeeServer(input);
     expect(failed.resultCode).toBe("rpc_error");
     expect(sendEventAttendeeNotification).not.toHaveBeenCalled();
+    expect(notifyAdminsEventRegistered).not.toHaveBeenCalled();
   });
 
   it("stores a charged flow status and still sends after a failed locale update", async () => {
@@ -124,11 +142,20 @@ describe("enrollEventAttendeeServer mail", () => {
     expect(sendEventAttendeeNotification).toHaveBeenCalled();
   });
 
+  it("does not mail admins for a waitlist seat", async () => {
+    scene.row.attendee_status = "waitlist";
+    scene.row.result_code = "waitlist";
+    await enrollEventAttendeeServer(input);
+    expect(sendEventAttendeeNotification).toHaveBeenCalled();
+    expect(notifyAdminsEventRegistered).not.toHaveBeenCalled();
+  });
+
   it("stores the locale when the event has no flow", async () => {
     await enrollEventAttendeeServer({ ...input, registrationFlow: null });
     expect(update).toHaveBeenCalledWith({
       registration_locale: "en",
       family_discount_claimed: false,
+      minor_ticket_count: 0,
     });
   });
 

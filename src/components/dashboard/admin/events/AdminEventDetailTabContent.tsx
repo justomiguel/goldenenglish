@@ -4,6 +4,8 @@ import { EventFormFieldsEditor } from "@/components/dashboard/admin/events/Event
 import { AdminEventDetailSummaryTab } from "@/components/dashboard/admin/events/AdminEventDetailSummaryTab";
 import { AdminEventDetailPaymentsTab } from "@/components/dashboard/admin/events/AdminEventDetailPaymentsTab";
 import { AdminEventDiscountCodesPanel } from "@/components/dashboard/admin/events/AdminEventDiscountCodesPanel";
+import { AdminEventSeatMapPanel } from "@/components/dashboard/admin/events/seat-map/AdminEventSeatMapPanel";
+import { createDefaultEventSeatMapConfig, parseEventSeatMapConfig } from "@/lib/events/seatMapModel";
 import type { EventAdminTab } from "@/components/dashboard/admin/events/AdminEventDetailTabs";
 import type { EventLocale } from "@/lib/events/domain";
 import type { Dictionary } from "@/types/i18n";
@@ -148,6 +150,7 @@ export function AdminEventDetailTabContent({
         page={model.attendees.page}
         pageSize={model.attendees.pageSize}
         searchQuery={model.attendeesQuery}
+        seatMapConfig={parseEventSeatMapConfig(model.event.seat_map_config)}
         labels={{
           title: detail.attendeesTitle,
           empty: detail.attendeesEmpty,
@@ -172,7 +175,12 @@ export function AdminEventDetailTabContent({
           noPhone: detail.attendeesNoPhone,
           noBirthDate: detail.attendeesNoBirthDate,
           noPayment: detail.attendeesNoPayment,
+          paidByHolder: detail.attendeesPaidByHolder,
           familyDiscount: detail.attendeesFamilyDiscount,
+          transferSource: detail.transferSourceLabel,
+          minorTickets: detail.minorTicketsLabel,
+          transferAnswer: detail.transferAnswerLabel,
+          seatLabels: detail.seatLabelsLabel,
           pagination: {
             prev: dict.admin.table.paginationPrev,
             next: dict.admin.table.paginationNext,
@@ -208,38 +216,26 @@ export function AdminEventDetailTabContent({
     );
   }
 
+  if (tab === "seats") {
+    const initialSeatMap = parseEventSeatMapConfig(model.event.seat_map_config) ?? createDefaultEventSeatMapConfig();
+    return <AdminEventSeatMapPanel locale={locale} eventId={eventId} initialConfig={initialSeatMap} seatLocks={model.seatLocks} labels={dict.admin.events.seatMap} />;
+  }
+
   if (tab === "payments") {
     return <AdminEventDetailPaymentsTab locale={locale} eventId={eventId} model={model} dict={dict} />;
   }
 
   if (tab === "codes") {
-    return (
-      <AdminEventDiscountCodesPanel locale={locale} eventId={eventId} rows={model.discountCodes} usesTruncated={model.discountCodeUsesTruncated} labels={detail.codes} />
-    );
+    return <AdminEventDiscountCodesPanel locale={locale} eventId={eventId} currency={model.event.currency} rows={model.discountCodes} usesTruncated={model.discountCodeUsesTruncated} labels={detail.codes} />;
   }
 
   if (tab === "waitlist") {
-    return (
-      <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
-        {detail.waitlistLead}
-      </section>
-    );
+    return <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">{detail.waitlistLead}</section>;
   }
 
   if (tab === "notifications") {
-    return (
-      <AdminEventNotificationsPanel
-        eventId={eventId}
-        pageLocale={locale}
-        flows={model.registrationFlows.map((flow) => ({
-          id: flow.id,
-          name: registrationFlowName(flow.nameI18n, locale, model.defaultLocale),
-        }))}
-        lead={detail.notificationsLead}
-        labels={detail.emailTemplates}
-        bodyField={dict.admin.communications.templates.bodyField}
-      />
-    );
+    const flows = model.registrationFlows.map((f) => ({ id: f.id, name: registrationFlowName(f.nameI18n, locale, model.defaultLocale) }));
+    return <AdminEventNotificationsPanel eventId={eventId} pageLocale={locale} flows={flows} lead={detail.notificationsLead} labels={detail.emailTemplates} bodyField={dict.admin.communications.templates.bodyField} />;
   }
 
   return null;

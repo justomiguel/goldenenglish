@@ -10,6 +10,11 @@ export interface EventPaymentAttendeeSummary {
   email: string;
   phone: string | null;
   status: string;
+  transferSourceKey?: string | null;
+  transferSourceLabel?: string | null;
+  transferQuestionAnswer?: string | null;
+  seatLabels?: string[];
+  minorTicketCount?: number;
 }
 
 export interface EventPaymentRow {
@@ -58,7 +63,7 @@ export async function loadEventPaymentsPaginated(
   const to = from + pageSize - 1;
 
   const attendeeSelect =
-    "id, first_name, last_name, dni_or_passport, email, phone, status, event_id";
+    "id, first_name, last_name, dni_or_passport, email, phone, status, event_id, transfer_source_key, transfer_source_label, transfer_question_answer, seat_labels, minor_ticket_count";
 
   let dataQuery = adminClient
     .from("event_payments")
@@ -139,6 +144,22 @@ export async function loadEventPaymentsPaginated(
         email: String(attendeeRow?.email ?? ""),
         phone: attendeeRow?.phone != null ? String(attendeeRow.phone) : null,
         status: String(attendeeRow?.status ?? ""),
+        transferSourceKey:
+          attendeeRow?.transfer_source_key != null
+            ? String(attendeeRow.transfer_source_key)
+            : null,
+        transferSourceLabel:
+          attendeeRow?.transfer_source_label != null
+            ? String(attendeeRow.transfer_source_label)
+            : null,
+        transferQuestionAnswer:
+          attendeeRow?.transfer_question_answer != null
+            ? String(attendeeRow.transfer_question_answer)
+            : null,
+        minorTicketCount: Number(attendeeRow?.minor_ticket_count ?? 0),
+        seatLabels: Array.isArray(attendeeRow?.seat_labels)
+          ? attendeeRow.seat_labels.map((item) => String(item))
+          : [],
       },
     };
   });

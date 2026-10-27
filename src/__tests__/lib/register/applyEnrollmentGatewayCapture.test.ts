@@ -5,10 +5,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 const mocks = vi.hoisted(() => ({
   accept: vi.fn(),
   getDictionary: vi.fn(),
+  notifyPlacement: vi.fn(async () => undefined),
 }));
 
 vi.mock("@/lib/register/acceptRegistrationLead", () => ({
   acceptRegistrationLead: mocks.accept,
+}));
+vi.mock("@/lib/email/notifyAdminsRegistrationPlacement", () => ({
+  notifyAdminsRegistrationPlacement: (...args: unknown[]) => mocks.notifyPlacement(...args),
 }));
 vi.mock("@/lib/i18n/dictionaries", () => ({
   getDictionary: mocks.getDictionary,
@@ -138,5 +142,11 @@ describe("applyEnrollmentGatewayCapture", () => {
         expect.objectContaining({ intake_state: "section_full" }),
       ]),
     );
+    expect(mocks.notifyPlacement).toHaveBeenCalledWith({
+      admin,
+      locale: "es",
+      registrationId: REG_ID,
+      kind: "section_full",
+    });
   });
 });

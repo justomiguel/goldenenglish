@@ -98,19 +98,15 @@ describe("resolveEventRegistrationTotal", () => {
     ).toEqual({ ok: true, seats: 1, total: 100 });
   });
 
-  it("rejects over the maximum and accepts exactly at it", () => {
-    expect(resolveEventRegistrationTotal({ unitPrice: 100, seats: 5, ...multi })).toEqual({
-      ok: false,
-      reason: "over_max",
-    });
-    expect(resolveEventRegistrationTotal({ unitPrice: 100, seats: 4, ...multi })).toEqual({
+  it("accepts a large seat count when the event sells several tickets", () => {
+    expect(resolveEventRegistrationTotal({ unitPrice: 100, seats: 12, ...multi })).toEqual({
       ok: true,
-      seats: 4,
-      total: 400,
+      seats: 12,
+      total: 1200,
     });
   });
 
-  it("treats a missing maximum as one seat, never as unlimited", () => {
+  it("does not treat a missing maximum as a cap of one", () => {
     expect(
       resolveEventRegistrationTotal({
         unitPrice: 100,
@@ -118,6 +114,6 @@ describe("resolveEventRegistrationTotal", () => {
         allowMultipleTickets: true,
         maxTicketsPerRegistration: null,
       }),
-    ).toEqual({ ok: false, reason: "over_max" });
+    ).toEqual({ ok: true, seats: 2, total: 200 });
   });
 });

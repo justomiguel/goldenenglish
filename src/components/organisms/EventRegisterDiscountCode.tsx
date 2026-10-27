@@ -4,6 +4,7 @@ import { useState } from "react";
 import { TicketPercent } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { formatEventFlowPriceLabel } from "@/lib/events/formatEventFlowPrice";
+import type { EventDiscountApplied } from "@/lib/events/resolveEventDiscountSelection";
 
 export interface EventRegisterDiscountCodeLabels {
   label: string;
@@ -24,8 +25,9 @@ interface EventRegisterDiscountCodeProps {
   flowId: string | null;
   isLocalResident: boolean;
   disabled?: boolean;
-  applied: { code: string; amount: number } | null;
-  onApplied: (next: { code: string; amount: number }) => void;
+  applied: EventDiscountApplied | null;
+  payAmount?: number | null;
+  onApplied: (next: EventDiscountApplied) => void;
   onClear: () => void;
   labels: EventRegisterDiscountCodeLabels;
 }
@@ -39,6 +41,7 @@ export function EventRegisterDiscountCode({
   isLocalResident,
   disabled = false,
   applied,
+  payAmount = null,
   onApplied,
   onClear,
   labels,
@@ -59,14 +62,35 @@ export function EventRegisterDiscountCode({
         body: JSON.stringify({ code, flowId: flowId ?? undefined, isLocalResident, locale }),
       });
       const body = (await response.json().catch(() => null)) as
-        | { ok?: boolean; code?: string; amount?: number }
+        | {
+            ok?: boolean;
+            code?: string;
+            kind?: string;
+            percent?: number;
+            discountAmount?: number;
+            ticketCount?: number;
+          }
         | null;
-      if (!response.ok || !body?.ok || body.amount == null) {
+      if (!response.ok || !body?.ok) {
         setMessage(body?.code === "no_uses" ? labels.noUses : labels.invalid);
         return;
       }
-      onApplied({ code, amount: body.amount });
-      setDraft("");
+      if (body.kind === "amount" && body.discountAmount != null && body.ticketCount != null) {
+        onApplied({
+          code,
+          kind: "amount",
+          discountAmount: body.discountAmount,
+          ticketCount: body.ticketCount,
+        });
+        setDraft("");
+        return;
+      }
+      if (body.kind === "percent" && body.percent != null) {
+        onApplied({ code, kind: "percent", percent: body.percent });
+        setDraft("");
+        return;
+      }
+      setMessage(labels.invalid);
     } catch {
       setMessage(labels.invalid);
     } finally {
@@ -75,14 +99,14 @@ export function EventRegisterDiscountCode({
   }
 
   const price =
-    applied == null
-      ? null
-      : formatEventFlowPriceLabel({
-          price: applied.amount,
+    applied?.kind === "percent" && payAmount != null
+      ? formatEventFlowPriceLabel({
+          price: payAmount,
           currency,
           locale,
           freeLabel,
-        });
+        })
+      : null;
 
   return (
     <div className="space-y-2">

@@ -66,15 +66,15 @@ describe("validateEventPurchasePayload", () => {
       ).toEqual({ ok: false, code: "multiple_tickets_not_allowed" });
     });
 
-    it("refuses more seats than the event's maximum", () => {
+    it("accepts as many seats as the buyer asks for", () => {
       const result = validateEventPurchasePayload(packagedMultiEvent, {
         ticketPackageId: "pkg-1",
         companions: [companion(), companion(), companion()],
       });
-      expect(result).toEqual({ ok: false, code: "too_many_tickets" });
+      expect(result).toMatchObject({ ok: true });
     });
 
-    it("accepts exactly the maximum, counting the titular", () => {
+    it("accepts a group that used to sit at an old maximum, counting the titular", () => {
       const result = validateEventPurchasePayload(packagedMultiEvent, {
         ticketPackageId: "pkg-1",
         companions: [companion(), companion()],

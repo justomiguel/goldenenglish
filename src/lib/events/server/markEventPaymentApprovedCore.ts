@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { notifyAdminsEventPaymentPaid } from "@/lib/email/notifyAdminsPurchasePayment";
 import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
 import { consumeEventDiscountRedemption } from "@/lib/events/server/syncEventDiscountRedemption";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
@@ -92,13 +93,26 @@ export async function markEventPaymentApprovedCore(
   }
 
   const attendeeConfirmed = await confirmPendingPaymentAttendee(input.admin, attendeeId);
-  if (attendeeId) await consumeEventDiscountRedemption(input.admin, attendeeId);
+  if (attendeeId) {
+    const companions = await input.admin
+      .from("event_attendees")
+      .update({ status: "confirmed" })
+      .eq("primary_attendee_id", attendeeId)
+      .eq("status", "pending_payment");
+    if (companions.error) {
+      logSupabaseClientError("markEventPaymentApprovedCore:confirmCompanions", companions.error, {
+        attendeeId,
+      });
+    }
+    await consumeEventDiscountRedemption(input.admin, attendeeId);
+  }
 
   if (paymentUpdated && attendeeId) {
     await sendEventAttendeeNotification({
       attendeeId,
       templateKey: "events.payment_approved",
     });
+    await notifyAdminsEventPaymentPaid(input.paymentId);
   }
 
   return {

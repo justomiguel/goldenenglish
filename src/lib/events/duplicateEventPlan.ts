@@ -29,6 +29,8 @@ export interface DuplicateEventSource {
   default_locale: string;
   cover_image_path: string | null;
   bank_transfer_instructions: string | null;
+  bank_transfer_sources_config?: unknown;
+  seat_map_config?: unknown;
   collect_birth_date: boolean;
   require_phone: boolean;
   require_birth_date: boolean;
@@ -39,6 +41,8 @@ export interface DuplicateEventSource {
   companion_collect_dni: boolean;
   companion_collect_birth_date: boolean;
   companion_collect_email: boolean;
+  allow_minor_tickets?: boolean;
+  minor_ticket_price?: number | null;
 }
 
 export function buildDuplicateEventInsert(
@@ -56,10 +60,22 @@ export function buildDuplicateEventInsert(
     price: source.price,
     price_local: source.price_local,
     price_non_local: source.price_non_local,
+    ...(source.allow_minor_tickets !== undefined
+      ? {
+          allow_minor_tickets: source.allow_minor_tickets,
+          minor_ticket_price: source.minor_ticket_price ?? null,
+        }
+      : {}),
     currency: source.currency,
     default_locale: source.default_locale,
     cover_image_path: source.cover_image_path,
     bank_transfer_instructions: source.bank_transfer_instructions,
+    ...(source.bank_transfer_sources_config !== undefined
+      ? { bank_transfer_sources_config: source.bank_transfer_sources_config }
+      : {}),
+    ...(source.seat_map_config !== undefined
+      ? { seat_map_config: source.seat_map_config }
+      : {}),
     collect_birth_date: source.collect_birth_date,
     require_phone: source.require_phone,
     require_birth_date: source.require_birth_date,

@@ -41,14 +41,16 @@ describe("AdminMessageCard", () => {
     );
 
     const article = screen.getByRole("article");
-    expect(article.className).toContain("flex-row");
-    expect(article.className).not.toContain("flex-col");
+    expect(article.className).toContain("flex-col");
+    expect(article.className).toContain("sm:flex-row");
     expect(article).toHaveAttribute("data-unread", "true");
     expect(article).toHaveAttribute("data-needs-reply", "true");
     expect(article).toHaveAttribute("data-source", "internal");
     expect(screen.getByText(en.admin.messages.badgeUnread)).toBeInTheDocument();
     expect(screen.getByText(en.admin.messages.badgeNeedsReply)).toBeInTheDocument();
     expect(screen.getByText("Short preview text for the list row")).toBeInTheDocument();
+    expect(screen.getByText(en.admin.messages.replyToMessage)).toBeInTheDocument();
+    expect(screen.getByText(en.admin.messages.replyWithDefaultMessage)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Mark read" })).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: new RegExp(en.admin.messages.badgeUnread, "i") }),
@@ -73,5 +75,48 @@ describe("AdminMessageCard", () => {
     expect(screen.getByRole("article")).toHaveAttribute("data-source", "contact_form");
     expect(screen.getByText("Juan Pérez")).toBeInTheDocument();
     expect(screen.getByText(en.admin.messages.sourceContactFormAria)).toBeInTheDocument();
+  });
+
+  it("distinguishes a read but unanswered message from unread and from handled messages", () => {
+    const { rerender } = render(
+      <AdminMessageCard
+        locale="en"
+        row={{
+          ...baseRow,
+          isUnread: false,
+          needsReply: true,
+        }}
+        labels={en.admin.messages}
+        detailHref="/en/dashboard/admin/messages/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+      />,
+    );
+
+    const readNeedsReplyArticle = screen.getByRole("article");
+    expect(readNeedsReplyArticle).toHaveAttribute("data-unread", "false");
+    expect(readNeedsReplyArticle).toHaveAttribute("data-needs-reply", "true");
+    expect(readNeedsReplyArticle).toHaveAttribute("data-attention-state", "read-needs-reply");
+    expect(readNeedsReplyArticle.className).toContain("border-l-amber-500");
+    expect(screen.queryByText(en.admin.messages.badgeUnread)).not.toBeInTheDocument();
+    expect(screen.getByText(en.admin.messages.badgeRead)).toBeInTheDocument();
+    expect(screen.getByText(en.admin.messages.badgeNeedsReply)).toBeInTheDocument();
+
+    rerender(
+      <AdminMessageCard
+        locale="en"
+        row={{
+          ...baseRow,
+          isUnread: false,
+          needsReply: false,
+        }}
+        labels={en.admin.messages}
+        detailHref="/en/dashboard/admin/messages/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+      />,
+    );
+
+    const handledArticle = screen.getByRole("article");
+    expect(handledArticle).toHaveAttribute("data-attention-state", "handled");
+    expect(handledArticle.className).toContain("border-l-transparent");
+    expect(screen.queryByText(en.admin.messages.badgeRead)).not.toBeInTheDocument();
+    expect(screen.queryByText(en.admin.messages.badgeNeedsReply)).not.toBeInTheDocument();
   });
 });

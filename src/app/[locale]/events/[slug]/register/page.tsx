@@ -2,8 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPublicLanding";
+import { isEventSeatMapActive } from "@/lib/events/seatMapState";
+import { loadEventSeatLocks } from "@/lib/events/server/eventSeatLocksServer";
 import { loadEventRegistrationPaymentMethods } from "@/lib/events/server/loadEventRegistrationPaymentMethods";
 import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
 import { resolveBankTransferInstructions } from "@/lib/billing/resolveBankTransferInstructions";
@@ -31,12 +34,17 @@ export default async function EventRegisterPage({ params }: PageProps) {
   const paymentMethods = await loadEventRegistrationPaymentMethods(event.currency);
   const { instructions: globalBankTransferInstructions } =
     await loadBankTransferInstructionsSetting(supabase);
+  const seatLocks = isEventSeatMapActive(event.seatMapConfig)
+    ? await loadEventSeatLocks(await createAdminClient(), event.id)
+    : [];
   const eventForRegister = {
     ...event,
     bankTransferInstructions: resolveBankTransferInstructions(
       event.bankTransferInstructions,
       globalBankTransferInstructions,
     ),
+    globalBankTransferInstructions,
+    seatLocks,
   };
   const adminEditHref = await resolveSessionEventAdminEditHref(supabase, locale, event.id);
   const pageClasses = publicEventRegisterPageClasses(surfaceVariant);
@@ -71,6 +79,7 @@ export default async function EventRegisterPage({ params }: PageProps) {
         surfaceVariant={surfaceVariant}
         labels={{
           participantSection: dict.events.register.participantSection,
+          steps: dict.events.register.steps,
           flowQuestion: dict.events.register.flowQuestion,
           free: dict.events.public.free,
           firstName: dict.events.register.firstName,
@@ -126,6 +135,10 @@ export default async function EventRegisterPage({ params }: PageProps) {
           transferInstructions: {
             title: dict.events.register.transferInstructions.title,
           },
+          transferSource: dict.events.register.transferSource,
+          seatMap: dict.events.register.seatMap,
+          companions: dict.events.register.companions,
+          minorTickets: dict.events.register.minorTickets,
           selectPlaceholder: dict.events.register.selectPlaceholder,
           fileUploadProgressSending: dict.common.fileUpload.progressSending,
           customFieldFile: {

@@ -20,6 +20,7 @@ interface ParticipantValues {
 
 interface EventRegisterOrderedQuestionsProps {
   sectionTitle: string;
+  showHeading?: boolean;
   surfaceVariant?: PublicEventSurfaceVariant;
   questionOrder: readonly string[];
   collectBirthDate: boolean;
@@ -61,6 +62,7 @@ const BASE_VALUE_KEY: Record<RegistrationQuestionBaseId, keyof ParticipantValues
 
 export function EventRegisterOrderedQuestions({
   sectionTitle,
+  showHeading = true,
   surfaceVariant = "default",
   questionOrder,
   collectBirthDate,
@@ -103,7 +105,7 @@ export function EventRegisterOrderedQuestions({
 
   return (
     <section className="space-y-3">
-      <h2 className={typography.sectionTitle}>{sectionTitle}</h2>
+      {showHeading ? <h2 className={typography.sectionTitle}>{sectionTitle}</h2> : null}
       <div className="space-y-3">
         {order.map((token) => {
           if (token.startsWith("field:")) {

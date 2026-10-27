@@ -11,6 +11,7 @@ import {
 } from "@/components/dashboard/admin/events/AdminEventAttendeePresentationBadge";
 import {
   formatAttendeeDisplayName,
+  formatAttendeeMissingPaymentLabel,
   formatAttendeePaymentAmount,
   formatAttendeePaymentStatusLabel,
   formatAttendeeStatus,
@@ -20,6 +21,7 @@ import {
   type AdminEventAttendeeCustomFieldColumn,
   type AdminEventAttendeesPanelLabels,
 } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
+import type { EventSeatMapConfig } from "@/lib/events/seatMapModel";
 import {
   ADMIN_EVENT_ATTENDEES_TABLE_BODY_CELL,
   ADMIN_EVENT_ATTENDEES_TABLE_CUSTOM_BODY_CELL,
@@ -42,6 +44,7 @@ interface AdminEventAttendeeTableRowProps {
   locale: string;
   eventId: string;
   labels: AdminEventAttendeesPanelLabels;
+  seatMapConfig?: EventSeatMapConfig | null;
   expanded: boolean;
   deletable: boolean;
   onToggle: () => void;
@@ -54,6 +57,7 @@ export function AdminEventAttendeeTableRow({
   locale,
   eventId,
   labels,
+  seatMapConfig = null,
   expanded,
   deletable,
   onToggle,
@@ -135,7 +139,7 @@ export function AdminEventAttendeeTableRow({
               />
             </div>
           ) : (
-            <AdminEventAttendeeNoPaymentBadge label={labels.noPayment} />
+            <AdminEventAttendeeNoPaymentBadge label={formatAttendeeMissingPaymentLabel(row, labels)} />
           )}
         </td>
         {customFieldColumns.map((column) => {
@@ -178,6 +182,7 @@ export function AdminEventAttendeeTableRow({
               customFields={customFields}
               locale={locale}
               labels={labels}
+              seatMapConfig={seatMapConfig}
             />
           </td>
         </tr>

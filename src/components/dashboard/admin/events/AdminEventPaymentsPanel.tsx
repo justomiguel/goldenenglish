@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { eventPaymentReceiptSignedUrlForAdmin } from "@/lib/events/eventPaymentReceiptSignedUrlForAdmin";
 import type { PaginatedEventPaymentsResult } from "@/lib/dashboard/events/loadEventPaymentsPaginated";
+import type { EventSeatMapConfig } from "@/lib/events/seatMapModel";
 import { formatPaginationSummary } from "@/lib/dashboard/formatPaginationSummary";
 import {
   AdminEventPaymentReviewRow,
@@ -36,6 +37,7 @@ interface AdminEventPaymentsPanelProps {
   payments: PaginatedEventPaymentsResult;
   searchQuery: string;
   statusFilter: string;
+  seatMapConfig?: EventSeatMapConfig | null;
   labels: AdminEventPaymentsPanelLabels;
 }
 
@@ -58,6 +60,7 @@ export async function AdminEventPaymentsPanel({
   payments,
   searchQuery,
   statusFilter,
+  seatMapConfig = null,
   labels,
 }: AdminEventPaymentsPanelProps) {
   const baseHref = `/${locale}/dashboard/admin/events/${eventId}`;
@@ -161,6 +164,7 @@ export async function AdminEventPaymentsPanel({
               eventId={eventId}
               row={row}
               receiptPreviewUrl={receiptPreviewUrl}
+              seatMapConfig={seatMapConfig}
               labels={labels.row}
             />
           ))}

@@ -65,7 +65,9 @@ export async function deliverPublicSiteContactToAdmins(
   const batchId = randomUUID();
 
   for (const recipientId of adminIds) {
+    const messageId = randomUUID();
     const { error: insErr } = await admin.from("portal_messages").insert({
+      id: messageId,
       sender_id: PUBLIC_SITE_CONTACT_SENDER_PROFILE_ID,
       recipient_id: recipientId,
       body_html: bodyHtml,
@@ -88,6 +90,7 @@ export async function deliverPublicSiteContactToAdmins(
         emailProvider,
         recipientRole: "admin",
         source: "contact_form",
+        messageId,
       });
     } catch (emailErr) {
       logServerException("deliverPublicSiteContactToAdmins:notifyEmail", emailErr, {

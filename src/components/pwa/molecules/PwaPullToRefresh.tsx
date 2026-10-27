@@ -65,7 +65,7 @@ export function PwaPullToRefresh({
       </div>
       <div
         className={refreshing ? "" : "transition-transform motion-reduce:transition-none"}
-        style={{ transform: `translateY(${offset}px)` }}
+        style={offset > 0 ? { transform: `translateY(${offset}px)` } : undefined}
       >
         {children}
       </div>

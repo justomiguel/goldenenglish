@@ -5,7 +5,8 @@ import { applyEventCodeDiscount } from "@/lib/events/applyEventCodeDiscount";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export type PreviewEventDiscountCodeResult =
-  | { ok: true; amount: number; percent: number }
+  | { ok: true; kind: "percent"; percent: number; amount: number }
+  | { ok: true; kind: "amount"; discountAmount: number; ticketCount: number }
   | { ok: false; code: "invalid_code" | "no_uses" };
 
 /** Prices a code. It does not insert a redemption. */
@@ -18,7 +19,7 @@ export async function previewEventDiscountCode(
 
   const { data: codeRow, error } = await admin
     .from("event_discount_codes")
-    .select("id, discount_percent, max_uses")
+    .select("id, discount_percent, discount_amount, ticket_count, max_uses")
     .eq("event_id", input.eventId)
     .eq("code_normalized", normalized)
     .maybeSingle();
@@ -42,12 +43,23 @@ export async function previewEventDiscountCode(
     if ((count ?? 0) >= Number(codeRow.max_uses)) return { ok: false, code: "no_uses" };
   }
 
+  if (codeRow.discount_amount != null && codeRow.ticket_count != null) {
+    return {
+      ok: true,
+      kind: "amount",
+      discountAmount: Number(codeRow.discount_amount),
+      ticketCount: Number(codeRow.ticket_count),
+    };
+  }
+
+  const percent = Number(codeRow.discount_percent);
   return {
     ok: true,
-    percent: Number(codeRow.discount_percent),
+    kind: "percent",
+    percent,
     amount: applyEventCodeDiscount({
       amount: input.amount,
-      percent: Number(codeRow.discount_percent),
+      percent,
       currency: input.currency,
     }),
   };

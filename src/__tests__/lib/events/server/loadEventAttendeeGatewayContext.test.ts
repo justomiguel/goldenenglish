@@ -126,6 +126,19 @@ describe("loadEventAttendeeGatewayContext", () => {
     expect(context?.amount).toBe(5000);
   });
 
+  it("charges the stored fixed amount on the covered seats only", async () => {
+    const { admin } = makeAdmin(
+      { data: baseRow, error: null },
+      { data: [{ id: "c1" }, { id: "c2" }], error: null },
+      { data: { discount_percent: null, discount_amount: 2000, ticket_count: 2 }, error: null },
+    );
+
+    const context = await loadEventAttendeeGatewayContext(admin, "att-1");
+
+    expect(context?.seats).toBe(3);
+    expect(context?.amount).toBe(26000);
+  });
+
   it("charges 90% when the attendee claimed the family discount", async () => {
     const { admin } = makeAdmin({
       data: { ...baseRow, family_discount_claimed: true },

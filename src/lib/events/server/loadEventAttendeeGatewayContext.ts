@@ -3,6 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { applyEventCodeDiscount } from "@/lib/events/applyEventCodeDiscount";
 import { applyEventFamilyDiscount } from "@/lib/events/applyEventFamilyDiscount";
+import { applyEventFixedAmountDiscount, roundEventMoney } from "@/lib/events/applyEventFixedAmountDiscount";
+import { resolveEventMinorTicketCharge } from "@/lib/events/resolveEventMinorTicketCharge";
 import { resolveEventSeatPrice } from "@/lib/events/resolveEventRegistrationTotal";
 
 export interface EventAttendeeGatewayContext {
@@ -31,6 +33,7 @@ interface AttendeeRow {
   primary_attendee_id: string | null;
   ticket_package_id: string | null;
   family_discount_claimed: boolean | null;
+  minor_ticket_count: number | null;
   event_ticket_packages: { price: number } | { price: number }[] | null;
   event_registration_flows: { price: number | null } | { price: number | null }[] | null;
   events: {
@@ -41,6 +44,8 @@ interface AttendeeRow {
     price_local: number | null;
     price_non_local: number | null;
     price_by_flow: boolean | null;
+    allow_minor_tickets: boolean | null;
+    minor_ticket_price: number | null;
   };
 }
 
@@ -71,7 +76,7 @@ export async function loadEventAttendeeGatewayContext(
   const { data, error } = await admin
     .from("event_attendees")
     .select(
-      "id, status, is_local_resident, email, dni_or_passport, event_id, primary_attendee_id, ticket_package_id, family_discount_claimed, event_ticket_packages(price), event_registration_flows(price), events!inner(slug, title, currency, price, price_local, price_non_local, price_by_flow)",
+      "id, status, is_local_resident, email, dni_or_passport, event_id, primary_attendee_id, ticket_package_id, family_discount_claimed, minor_ticket_count, event_ticket_packages(price), event_registration_flows(price), events!inner(slug, title, currency, price, price_local, price_non_local, price_by_flow, allow_minor_tickets, minor_ticket_price)",
     )
     .eq("id", attendeeId)
     .maybeSingle();
@@ -107,8 +112,26 @@ export async function loadEventAttendeeGatewayContext(
     ) ?? 0;
 
   const seats = 1 + (await countCompanionSeats(admin, attendeeId));
-  const baseAmount = Number(unitPrice) * seats;
-  const redemptionPercent = await loadDiscountPercent(admin, attendeeId);
+  const minorTickets = Math.max(0, Math.floor(Number(row.minor_ticket_count ?? 0)));
+  const minorUnitPrice = event.minor_ticket_price == null ? null : Number(event.minor_ticket_price);
+  const minorCharge = resolveEventMinorTicketCharge({
+    seats,
+    minorTickets,
+    adultUnitPrice: Number(unitPrice),
+    minorUnitPrice,
+    allowMinorTickets: Boolean(event.allow_minor_tickets) || minorTickets > 0,
+  });
+  const baseAmount = minorCharge.ok ? minorCharge.subtotal : Number(unitPrice) * seats;
+  const redemption = await loadDiscountSnapshot(admin, attendeeId);
+  const amount = chargeAmount({
+    baseAmount,
+    unitPrice: Number(unitPrice),
+    seats,
+    currency: event.currency,
+    familyClaimed: row.family_discount_claimed === true,
+    redemption,
+    mixedPrices: minorCharge.ok && minorCharge.minorTickets > 0,
+  });
 
   return {
     attendeeId: String(row.id),
@@ -121,25 +144,60 @@ export async function loadEventAttendeeGatewayContext(
     title: event.title,
     currency: event.currency,
     seats,
-    amount:
-      redemptionPercent == null
-        ? applyEventFamilyDiscount({
-            amount: baseAmount,
-            claimed: row.family_discount_claimed === true,
-            currency: event.currency,
-          })
-        : applyEventCodeDiscount({
-            amount: baseAmount,
-            percent: redemptionPercent,
-            currency: event.currency,
-          }),
+    amount,
   };
 }
 
-async function loadDiscountPercent(admin: SupabaseClient, attendeeId: string): Promise<number | null> {
+interface DiscountSnapshot {
+  percent: number | null;
+  discountAmount: number | null;
+  ticketCount: number | null;
+}
+
+function chargeAmount(input: {
+  baseAmount: number;
+  unitPrice: number;
+  seats: number;
+  currency: string;
+  familyClaimed: boolean;
+  redemption: DiscountSnapshot | null;
+  mixedPrices?: boolean;
+}): number {
+  const redemption = input.redemption;
+  if (redemption?.discountAmount != null && redemption.ticketCount != null && input.mixedPrices) {
+    const covered = Math.min(input.seats, Math.max(0, Math.floor(redemption.ticketCount)));
+    return roundEventMoney(Math.max(0, input.baseAmount - covered * redemption.discountAmount), input.currency);
+  }
+  if (redemption?.discountAmount != null && redemption.ticketCount != null) {
+    return applyEventFixedAmountDiscount({
+      unitPrice: input.unitPrice,
+      seats: input.seats,
+      discountAmount: redemption.discountAmount,
+      ticketCount: redemption.ticketCount,
+      currency: input.currency,
+    }).total;
+  }
+  if (redemption?.percent != null) {
+    return applyEventCodeDiscount({
+      amount: input.baseAmount,
+      percent: redemption.percent,
+      currency: input.currency,
+    });
+  }
+  return applyEventFamilyDiscount({
+    amount: input.baseAmount,
+    claimed: input.familyClaimed,
+    currency: input.currency,
+  });
+}
+
+async function loadDiscountSnapshot(
+  admin: SupabaseClient,
+  attendeeId: string,
+): Promise<DiscountSnapshot | null> {
   const { data, error } = await admin
     .from("event_discount_code_redemptions")
-    .select("discount_percent")
+    .select("discount_percent, discount_amount, ticket_count")
     .eq("attendee_id", attendeeId)
     .in("status", ["reserved", "consumed"])
     .maybeSingle();
@@ -147,8 +205,12 @@ async function loadDiscountPercent(admin: SupabaseClient, attendeeId: string): P
     logSupabaseClientError("loadEventAttendeeGatewayContext:discount", error, { attendeeId });
     return null;
   }
-  if (data?.discount_percent == null) return null;
-  return Number(data.discount_percent);
+  if (!data) return null;
+  return {
+    percent: data.discount_percent == null ? null : Number(data.discount_percent),
+    discountAmount: data.discount_amount == null ? null : Number(data.discount_amount),
+    ticketCount: data.ticket_count == null ? null : Number(data.ticket_count),
+  };
 }
 
 async function countCompanionSeats(admin: SupabaseClient, titularId: string): Promise<number> {

@@ -4,8 +4,16 @@ export interface AdminEventDiscountCodeLabels {
   uses: string;
   usesHint: string;
   percent: string;
+  modeLegend: string;
+  modePercent: string;
+  modeAmount: string;
+  amount: string;
+  tickets: string;
+  amountHint: string;
+  amountCell: string;
   add: string;
   importFile: string;
+  exportFile: string;
   generate: string;
   quantity: string;
   download: string;
@@ -45,5 +53,9 @@ export interface AdminEventDiscountCodeLabels {
     occupied: string;
     forbidden: string;
     file: string;
+    bad_amount: string;
+    bad_tickets: string;
+    wrong_file: string;
+    examples_only: string;
   };
 }

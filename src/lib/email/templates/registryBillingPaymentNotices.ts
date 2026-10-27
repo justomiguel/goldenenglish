@@ -1,5 +1,21 @@
 import type { EmailTemplateDefinition } from "@/types/emailTemplates";
 import { withPtFallback } from "@/lib/email/templates/withPtEmailDefaults";
+import type { Locale } from "@/types/i18n";
+
+export const ADMIN_PAID_KIND_LABEL: Record<Locale, Record<"event" | "tuition" | "shop", string>> = {
+  es: { event: "Evento", tuition: "Mensualidad", shop: "Tienda" },
+  en: { event: "Event", tuition: "Monthly tuition", shop: "Shop" },
+  pt: { event: "Evento", tuition: "Mensualidad", shop: "Tienda" },
+};
+
+export const ADMIN_RECEIPT_KIND_LABEL: Record<
+  Locale,
+  Record<"event" | "tuition" | "enrollment" | "invoice", string>
+> = {
+  es: { event: "Evento", tuition: "Mensualidad", enrollment: "Matrícula", invoice: "Factura" },
+  en: { event: "Event", tuition: "Monthly tuition", enrollment: "Enrollment fee", invoice: "Invoice" },
+  pt: { event: "Evento", tuition: "Mensualidad", enrollment: "Matrícula", invoice: "Factura" },
+};
 
 export const receiptSubmittedPendingTemplate: EmailTemplateDefinition = {
   key: "billing.receipt_submitted_pending",
@@ -146,10 +162,68 @@ export const overdueBalanceReminderTemplate: EmailTemplateDefinition = {
   }),
 };
 
+export const paymentsAdminPaidTemplate: EmailTemplateDefinition = {
+  key: "payments.admin_paid",
+  category: "notifications",
+  label: { es: "Pago recibido (admin)", en: "Payment received (admin)" },
+  description: {
+    es: "Avisa a cada admin cuando un pago queda pagado por primera vez.",
+    en: "Tells each admin when a payment first becomes paid.",
+  },
+  placeholders: [
+    { name: "paymentKind", description: "Evento, mensualidad o tienda", sample: "Evento" },
+    { name: "contextLabel", description: "Evento, período o pedido", sample: "Concierto" },
+    { name: "payerName", description: "Quién pagó", sample: "Pérez Ana" },
+    { name: "amountLabel", description: "Monto", sample: "CLP 20.000" },
+  ],
+  defaults: withPtFallback({
+    es: {
+      subject: "Pago recibido · {{contextLabel}}",
+      bodyHtml:
+        "<p>Un pago quedó pagado.</p><p>{{paymentKind}}: {{contextLabel}}.</p><p>{{payerName}}. {{amountLabel}}.</p>",
+    },
+    en: {
+      subject: "Payment received · {{contextLabel}}",
+      bodyHtml:
+        "<p>A payment is now paid.</p><p>{{paymentKind}}: {{contextLabel}}.</p><p>{{payerName}}. {{amountLabel}}.</p>",
+    },
+  }),
+};
+
+export const paymentsAdminReceiptPendingTemplate: EmailTemplateDefinition = {
+  key: "payments.admin_receipt_pending",
+  category: "notifications",
+  label: { es: "Comprobante por aprobar (admin)", en: "Receipt to approve (admin)" },
+  description: {
+    es: "Avisa a cada admin que un comprobante quedó pendiente de aprobación.",
+    en: "Tells each admin that a receipt is waiting for approval.",
+  },
+  placeholders: [
+    { name: "paymentKind", description: "Evento, mensualidad o matrícula", sample: "Evento" },
+    { name: "contextLabel", description: "Evento, período o sección", sample: "Concierto" },
+    { name: "payerName", description: "Quién subió el comprobante", sample: "Pérez Ana" },
+    { name: "amountLabel", description: "Monto", sample: "CLP 20.000" },
+  ],
+  defaults: withPtFallback({
+    es: {
+      subject: "Comprobante por aprobar · {{contextLabel}}",
+      bodyHtml:
+        "<p>Llegó un comprobante y está pendiente de aprobación.</p><p>{{paymentKind}}: {{contextLabel}}.</p><p>{{payerName}}. {{amountLabel}}.</p>",
+    },
+    en: {
+      subject: "Receipt to approve · {{contextLabel}}",
+      bodyHtml:
+        "<p>A receipt arrived and is waiting for approval.</p><p>{{paymentKind}}: {{contextLabel}}.</p><p>{{payerName}}. {{amountLabel}}.</p>",
+    },
+  }),
+};
+
 export const BILLING_PAYMENT_NOTICE_TEMPLATES: ReadonlyArray<EmailTemplateDefinition> = [
   receiptSubmittedPendingTemplate,
   monthlyPaymentApprovedTemplate,
   monthlyPaymentRejectedTemplate,
   adminRecordedMonthlyPaidTemplate,
   overdueBalanceReminderTemplate,
+  paymentsAdminPaidTemplate,
+  paymentsAdminReceiptPendingTemplate,
 ];

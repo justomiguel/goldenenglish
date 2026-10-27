@@ -40,7 +40,12 @@ export interface AdminEventAttendeesPanelLabels {
   noPhone: string;
   noBirthDate: string;
   noPayment: string;
+  paidByHolder?: string;
   familyDiscount: string;
+  transferSource?: string;
+  minorTickets?: string;
+  transferAnswer?: string;
+  seatLabels?: string;
   pagination: {
     prev: string;
     next: string;
@@ -91,6 +96,18 @@ export function formatAttendeeValue(value: string | null | undefined): string {
 
 export function formatAttendeeStatus(status: string, labels: AdminEventAttendeesPanelLabels): string {
   return labels.statusLabels[status] ?? status;
+}
+
+export function attendeeHasHolderPayment(row: Pick<EventAttendeeRow, "payment" | "primaryAttendeeId">): boolean {
+  return !row.payment && Boolean(row.primaryAttendeeId);
+}
+
+export function formatAttendeeMissingPaymentLabel(
+  row: Pick<EventAttendeeRow, "payment" | "primaryAttendeeId">,
+  labels: AdminEventAttendeesPanelLabels,
+): string {
+  if (attendeeHasHolderPayment(row) && labels.paidByHolder) return labels.paidByHolder;
+  return labels.noPayment;
 }
 
 export function formatAttendeePaymentStatus(

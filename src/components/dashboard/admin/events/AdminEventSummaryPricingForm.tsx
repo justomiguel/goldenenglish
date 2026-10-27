@@ -6,6 +6,15 @@ import { Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { updateEventAction } from "@/app/[locale]/dashboard/admin/events/actions";
 import { AdminEventPricingFields } from "@/components/dashboard/admin/events/AdminEventPricingFields";
+import type { AdminEventDualTransferLabels } from "@/components/dashboard/admin/events/AdminEventDualTransferFields";
+import type {
+  AdminEventMultiTicketConfig,
+  AdminEventMultiTicketLabels,
+} from "@/components/dashboard/admin/events/AdminEventMultiTicketFields";
+import {
+  createDefaultEventBankTransferSourcesConfig,
+  parseEventBankTransferSourcesConfig,
+} from "@/lib/events/eventBankTransferSources";
 
 interface AdminEventSummaryPricingFormProps {
   locale: string;
@@ -20,15 +29,38 @@ interface AdminEventSummaryPricingFormProps {
     priceNonLocal: number | null;
     currency: string;
     bankTransferInstructions: string | null;
+    bankTransferSourcesConfig: unknown;
+    globalInstructions: string | null;
+    allowFamilyDiscount?: boolean;
+    allowMinorTickets?: boolean;
+    minorTicketPrice?: number | null;
+    allowMultipleTickets?: boolean;
+    maxTicketsPerRegistration?: number | null;
+    companionRequireDetails?: boolean;
+    companionCollectDni?: boolean;
+    companionCollectEmail?: boolean;
+    companionCollectBirthDate?: boolean;
   };
   labels: {
     priceLocalLabel: string;
     priceNonLocalLabel: string;
     priceHint: string;
+    allowFamilyDiscountLabel?: string;
+    allowMinorTicketsLabel?: string;
+    minorTicketPriceLabel?: string;
+    minorTicketPriceHint?: string;
     currencyLabel: string;
     currencyGatewayWarning: string;
     bankTransferInstructionsLabel: string;
     bankTransferInstructionsHint: string;
+    groupPriceTitle?: string;
+    groupPriceLead?: string;
+    groupTicketsTitle?: string;
+    groupTicketsLead?: string;
+    groupTransferTitle?: string;
+    groupTransferLead?: string;
+    multiTicket?: AdminEventMultiTicketLabels;
+    dualTransfer: AdminEventDualTransferLabels;
     save: string;
     savedOk: string;
     errorSave: string;
@@ -54,6 +86,26 @@ export function AdminEventSummaryPricingForm({
   const [bankTransferInstructions, setBankTransferInstructions] = useState(
     initial.bankTransferInstructions ?? "",
   );
+  const [allowFamilyDiscount, setAllowFamilyDiscount] = useState(
+    Boolean(initial.allowFamilyDiscount),
+  );
+  const [allowMinorTickets, setAllowMinorTickets] = useState(Boolean(initial.allowMinorTickets));
+  const [minorTicketPrice, setMinorTicketPrice] = useState(
+    initial.minorTicketPrice != null ? String(initial.minorTicketPrice) : "",
+  );
+  const [multiTicketConfig, setMultiTicketConfig] = useState<AdminEventMultiTicketConfig>({
+    allowMultipleTickets: Boolean(initial.allowMultipleTickets),
+    maxTicketsPerRegistration: Math.max(2, Number(initial.maxTicketsPerRegistration ?? 4)),
+    companionRequireDetails: Boolean(initial.companionRequireDetails),
+    companionCollectDni: Boolean(initial.companionCollectDni),
+    companionCollectEmail: Boolean(initial.companionCollectEmail),
+    companionCollectBirthDate: Boolean(initial.companionCollectBirthDate),
+  });
+  const [dualConfig, setDualConfig] = useState(
+    () =>
+      parseEventBankTransferSourcesConfig(initial.bankTransferSourcesConfig) ??
+      createDefaultEventBankTransferSourcesConfig(),
+  );
 
   function parsePrice(raw: string): number | null {
     const trimmed = raw.trim();
@@ -78,6 +130,18 @@ export function AdminEventSummaryPricingForm({
         priceNonLocal: parsePrice(priceNonLocal),
         currency: currency.trim() || "CLP",
         bankTransferInstructions: bankTransferInstructions.trim() || null,
+        bankTransferSourcesConfig: dualConfig,
+        allowFamilyDiscount,
+        allowMinorTickets,
+        minorTicketPrice: allowMinorTickets ? parsePrice(minorTicketPrice) : null,
+        allowMultipleTickets: multiTicketConfig.allowMultipleTickets,
+        maxTicketsPerRegistration: multiTicketConfig.allowMultipleTickets
+          ? multiTicketConfig.maxTicketsPerRegistration
+          : null,
+        companionRequireDetails: multiTicketConfig.companionRequireDetails,
+        companionCollectDni: multiTicketConfig.companionCollectDni,
+        companionCollectEmail: multiTicketConfig.companionCollectEmail,
+        companionCollectBirthDate: multiTicketConfig.companionCollectBirthDate,
       });
       if (!result.ok) {
         setMessage(labels.errorSave);
@@ -104,11 +168,34 @@ export function AdminEventSummaryPricingForm({
           currencyGatewayWarning: labels.currencyGatewayWarning,
           bankTransferInstructionsLabel: labels.bankTransferInstructionsLabel,
           bankTransferInstructionsHint: labels.bankTransferInstructionsHint,
+          allowFamilyDiscountLabel: labels.allowFamilyDiscountLabel,
+          allowMinorTicketsLabel: labels.allowMinorTicketsLabel,
+          minorTicketPriceLabel: labels.minorTicketPriceLabel,
+          minorTicketPriceHint: labels.minorTicketPriceHint,
+          groupPriceTitle: labels.groupPriceTitle,
+          groupPriceLead: labels.groupPriceLead,
+          groupTicketsTitle: labels.groupTicketsTitle,
+          groupTicketsLead: labels.groupTicketsLead,
+          groupTransferTitle: labels.groupTransferTitle,
+          groupTransferLead: labels.groupTransferLead,
         }}
         onPriceLocalChange={setPriceLocal}
         onPriceNonLocalChange={setPriceNonLocal}
         onCurrencyChange={setCurrency}
         onBankTransferInstructionsChange={setBankTransferInstructions}
+        allowFamilyDiscount={allowFamilyDiscount}
+        onAllowFamilyDiscountChange={setAllowFamilyDiscount}
+        allowMinorTickets={allowMinorTickets}
+        onAllowMinorTicketsChange={setAllowMinorTickets}
+        minorTicketPrice={minorTicketPrice}
+        onMinorTicketPriceChange={setMinorTicketPrice}
+        multiTicketConfig={labels.multiTicket ? multiTicketConfig : undefined}
+        multiTicketLabels={labels.multiTicket}
+        onMultiTicketConfigChange={setMultiTicketConfig}
+        dualConfig={dualConfig}
+        dualLabels={labels.dualTransfer}
+        globalInstructions={initial.globalInstructions}
+        onDualConfigChange={setDualConfig}
       />
       <Button type="submit" isLoading={pending} disabled={pending}>
         {!pending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}

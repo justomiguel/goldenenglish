@@ -52,6 +52,29 @@ describe("duplicateEventPlan", () => {
 
   it("appends a number when the slug is taken", () => {
     expect(pickDuplicateEventSlug("taller-copia", new Set(["taller-copia"]))).toBe("taller-copia-2");
+    expect(pickDuplicateEventSlug("", new Set())).toBe("event");
+    expect(duplicateEventTitle("  ")).toBe("copia");
+    const taken = new Set(["event", ...Array.from({ length: 98 }, (_, index) => `event-${index + 2}`)]);
+    expect(pickDuplicateEventSlug("event", taken)).toBe("event-100");
+  });
+
+  it("copies the minor price and the seat map when the source has them", () => {
+    const row = buildDuplicateEventInsert(
+      {
+        ...source,
+        allow_minor_tickets: true,
+        minor_ticket_price: 4000,
+        bank_transfer_sources_config: { enabled: true },
+        seat_map_config: { enabled: true },
+      },
+      { actorId: "admin-1", slug: "taller-copia", title: "Taller (copia)" },
+    );
+    expect(row).toMatchObject({
+      allow_minor_tickets: true,
+      minor_ticket_price: 4000,
+      bank_transfer_sources_config: { enabled: true },
+      seat_map_config: { enabled: true },
+    });
   });
 
   it("remaps a flow id and drops an unknown flow", () => {

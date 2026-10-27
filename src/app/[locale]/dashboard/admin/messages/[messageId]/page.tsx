@@ -53,10 +53,10 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
   const replyWithDefaultHref = `${replyHref}&useDefault=1`;
 
   return (
-    <div className="mx-auto max-w-4xl pb-28 md:pb-10">
+    <div className="mx-auto max-w-4xl pb-4 md:pb-10">
       <Link
         href={listHref}
-        className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-[var(--color-primary)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+        className="inline-flex min-h-9 items-center gap-1.5 text-sm font-medium text-[var(--color-primary)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 md:min-h-10 md:gap-2"
         title={dict.admin.messages.composeBackToListTitle}
       >
         <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
@@ -69,37 +69,39 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
           tourAnchor={ADMIN_TOUR_ANCHORS.messagesDetailTitle}
         />
       </div>
-      <div className="mt-7 md:mt-9">
+      <div className="mt-2 md:mt-9">
         <AdminPortalMessageDetailView locale={locale} labels={dict.admin.messages} detail={detail} />
       </div>
       <div
-        className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] z-30 flex flex-wrap items-center justify-end gap-2 border-t border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 md:static md:z-auto md:mt-8 md:gap-3 md:border-[var(--color-border)]/80 md:bg-transparent md:px-0 md:py-0 md:pt-7"
+        className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end sm:gap-3 md:mt-8 md:border-t md:border-[var(--color-border)]/80 md:pt-7"
         data-tour={ADMIN_TOUR_ANCHORS.messagesDetailActions}
       >
         <Link
           href={replyHref}
-          className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+          className="inline-flex min-h-[44px] min-w-0 items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-xs font-medium text-[var(--color-primary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 sm:px-4 sm:text-sm"
           title={dict.admin.messages.replyToMessageTitle}
         >
           <Reply className="h-4 w-4 shrink-0" aria-hidden />
-          {dict.admin.messages.replyToMessage}
+          <span className="truncate">{dict.admin.messages.replyToMessage}</span>
         </Link>
         <Link
           href={replyWithDefaultHref}
-          className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+          className="inline-flex min-h-[44px] min-w-0 items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-xs font-medium text-[var(--color-primary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 sm:px-4 sm:text-sm"
           title={dict.admin.messages.replyWithDefaultMessageTitle}
         >
           <ReplyAll className="h-4 w-4 shrink-0" aria-hidden />
-          {dict.admin.messages.replyWithDefaultMessage}
+          <span className="truncate">{dict.admin.messages.replyWithDefaultMessage}</span>
         </Link>
-        <DeletePortalMessageButton
-          locale={locale}
-          messageId={detail.id}
-          labels={dict.admin.messages}
-          confirmSnippet={detail.previewSnippet || undefined}
-          navigateAfterDelete="messages-list"
-          messagesListHref={listHref}
-        />
+        <div className="col-span-2 flex sm:col-span-1">
+          <DeletePortalMessageButton
+            locale={locale}
+            messageId={detail.id}
+            labels={dict.admin.messages}
+            confirmSnippet={detail.previewSnippet || undefined}
+            navigateAfterDelete="messages-list"
+            messagesListHref={listHref}
+          />
+        </div>
       </div>
     </div>
   );

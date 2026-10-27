@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { amountsMatchForCurrency } from "@/lib/billing/upsertApprovedMonthlyPaymentSupport";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { notifyAdminsRegistrationPlacement } from "@/lib/email/notifyAdminsRegistrationPlacement";
 import { acceptRegistrationLead } from "@/lib/register/acceptRegistrationLead";
 import { requestedSectionsHaveOpenSeats } from "@/lib/register/requestedSectionsHaveOpenSeats";
 
@@ -78,6 +79,12 @@ export async function applyEnrollmentGatewayCapture(input: {
       });
       return { ok: false };
     }
+    await notifyAdminsRegistrationPlacement({
+      admin: input.admin,
+      locale: input.locale,
+      registrationId: input.registrationId,
+      kind: "section_full",
+    });
     return { ok: true, skipped: "section_full" };
   }
 

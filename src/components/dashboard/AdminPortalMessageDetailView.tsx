@@ -1,6 +1,27 @@
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { Dictionary } from "@/types/i18n";
-import { ArrowRight, CalendarClock, ChevronDown, Inbox, User } from "lucide-react";
+import { ArrowRight, CalendarClock, ChevronDown, Inbox, MessageSquareText, User } from "lucide-react";
+
+const FIRST_HR = /<hr\b[^>]*>/i;
+
+function splitContactMetaAndBodyHtml(rawHtml: string): {
+  contactMetaHtml: string | null;
+  mainBodyHtml: string;
+} {
+  const trimmed = rawHtml.trim();
+  if (!trimmed) {
+    return { contactMetaHtml: null, mainBodyHtml: "" };
+  }
+  const segments = trimmed.split(FIRST_HR);
+  if (segments.length > 1) {
+    const meta = segments[0]?.trim() ?? "";
+    const body = segments.slice(1).join("<hr />").trim();
+    if (meta && body) {
+      return { contactMetaHtml: meta, mainBodyHtml: body };
+    }
+  }
+  return { contactMetaHtml: null, mainBodyHtml: trimmed };
+}
 
 interface AdminPortalMessageDetailViewProps {
   locale: string;
@@ -64,16 +85,22 @@ export function AdminPortalMessageDetailView({
   labels,
   detail,
 }: AdminPortalMessageDetailViewProps) {
-  const hasBody = Boolean(detail.bodyHtmlDisplay.trim());
+  const { contactMetaHtml, mainBodyHtml } = splitContactMetaAndBodyHtml(detail.bodyHtmlDisplay);
+  const hasBody = Boolean(mainBodyHtml.trim());
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
-      <div className="h-1 bg-[var(--color-primary)]/55" aria-hidden />
+    <article className="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)] md:rounded-2xl">
+      <div className="h-0.5 bg-[var(--color-primary)]/55 md:h-1" aria-hidden />
 
-      <div className="space-y-8 p-4 md:p-8">
-        <p className="text-sm font-medium text-[var(--color-foreground)] md:hidden">
-          {detail.fromName} → {detail.toName} · {formatSentAt(detail.createdAt, locale)}
-        </p>
+      <div className="space-y-3 p-3.5 md:space-y-6 md:p-8">
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b border-[var(--color-border)]/60 pb-2.5 md:hidden">
+          <p className="min-w-0 text-xs font-medium text-[var(--color-foreground)]">
+            {detail.fromName} → {detail.toName} · {formatSentAt(detail.createdAt, locale)}
+          </p>
+          <span className="inline-flex shrink-0 items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]">
+            {detail.fromRoleLabel}
+          </span>
+        </div>
         <header className="hidden border-b border-[var(--color-border)]/70 pb-6 md:block">
           <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm text-[var(--color-muted-foreground)]">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[calc(var(--layout-border-radius)-2px)] bg-[var(--color-muted)]/40 text-[var(--color-primary)]">
@@ -110,35 +137,40 @@ export function AdminPortalMessageDetailView({
           </div>
         </div>
 
+        {contactMetaHtml ? (
+          <div
+            data-testid="admin-portal-msg-contact-meta"
+            className="rounded-lg border border-[var(--color-border)]/70 bg-[var(--color-muted)]/20 px-3 py-2 text-xs leading-snug text-[var(--color-muted-foreground)] [&_p]:my-1 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_strong]:text-[var(--color-foreground)]"
+            dangerouslySetInnerHTML={{ __html: contactMetaHtml }}
+          />
+        ) : null}
+
         <section
           aria-labelledby="admin-portal-msg-body-heading"
-          className="space-y-5 pt-2 md:space-y-6 md:pt-4"
+          className="space-y-2 pt-0.5 md:space-y-3 md:pt-2"
           data-tour={ADMIN_TOUR_ANCHORS.messagesDetailBody}
         >
-          <div className="flex items-start gap-4 px-1 md:gap-5 md:px-2">
-            <span
-              className="mt-2 h-11 w-0.5 shrink-0 rounded-full bg-[var(--color-primary)]/45 md:h-14 md:w-1"
-              aria-hidden
-            />
-            <div className="min-w-0 flex-1 space-y-2 border-b border-[var(--color-border)]/50 pb-5 md:pb-6">
-              <h2
-                id="admin-portal-msg-body-heading"
-                className="text-base font-semibold leading-snug text-[var(--color-primary)] md:text-lg"
-              >
-                {labels.detailBodyLabel}
-              </h2>
-              <div className="h-px w-12 rounded-full bg-[var(--color-primary)]/35 md:w-16" aria-hidden />
-            </div>
+          <div className="flex items-center gap-2">
+            <MessageSquareText className="h-4 w-4 shrink-0 text-[var(--color-primary)]" aria-hidden />
+            <h2
+              id="admin-portal-msg-body-heading"
+              className="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] md:text-sm"
+            >
+              {labels.detailBodyLabel}
+            </h2>
           </div>
 
-          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-6 py-8 md:px-10 md:py-11">
+          <div
+            data-testid="admin-portal-msg-body-box"
+            className="rounded-xl border border-[var(--color-border)] border-l-4 border-l-[var(--color-primary)] bg-[var(--color-surface)]/55 px-4 py-3.5 md:rounded-2xl md:px-8 md:py-7"
+          >
             {hasBody ? (
               <div
-                className="prose prose-sm max-w-none text-[var(--color-foreground)] md:prose-base [&_h1]:mt-8 [&_h1]:text-[var(--color-secondary)] [&_h2]:mt-8 [&_h2]:text-[var(--color-secondary)] [&_h3]:mt-6 [&_h3]:text-[var(--color-secondary)] [&_h1:first-child]:mt-0 [&_h2:first-child]:mt-0 [&_h3:first-child]:mt-0 [&_iframe]:aspect-video [&_iframe]:h-auto [&_iframe]:min-h-0 [&_iframe]:w-full [&_iframe]:max-w-full [&_img]:rounded-[calc(var(--layout-border-radius)-4px)] [&_img]:max-w-full [&_li]:my-1 [&_ol]:my-4 [&_p:empty]:hidden [&_p]:my-0 [&_p]:leading-relaxed [&_p+p]:mt-5 [&_table]:my-6 [&_table]:max-w-full [&_table]:text-sm [&_ul]:my-4 [&_a]:text-[var(--color-primary)] [&_blockquote]:my-6 [&_blockquote]:border-[var(--color-primary)]/35 [&_hr]:my-10 [&_hr]:border-[var(--color-border)]"
-                dangerouslySetInnerHTML={{ __html: detail.bodyHtmlDisplay }}
+                className="prose prose-sm max-w-none text-base leading-relaxed text-[var(--color-foreground)] md:prose-base [&_h1]:mt-4 md:[&_h1]:mt-8 [&_h1]:text-[var(--color-secondary)] [&_h2]:mt-4 md:[&_h2]:mt-8 [&_h2]:text-[var(--color-secondary)] [&_h3]:mt-3 md:[&_h3]:mt-6 [&_h3]:text-[var(--color-secondary)] [&_h1:first-child]:mt-0 [&_h2:first-child]:mt-0 [&_h3:first-child]:mt-0 [&_iframe]:aspect-video [&_iframe]:h-auto [&_iframe]:min-h-0 [&_iframe]:w-full [&_iframe]:max-w-full [&_img]:rounded-[calc(var(--layout-border-radius)-4px)] [&_img]:max-w-full [&_li]:my-1 [&_ol]:my-3 md:[&_ol]:my-4 [&_p:empty]:hidden [&_p]:my-0 [&_p]:leading-relaxed [&_p+p]:mt-2.5 md:[&_p+p]:mt-4 [&_table]:my-4 md:[&_table]:my-6 [&_table]:max-w-full [&_table]:text-sm [&_ul]:my-3 md:[&_ul]:my-4 [&_a]:text-[var(--color-primary)] [&_blockquote]:my-3 md:[&_blockquote]:my-6 [&_blockquote]:border-[var(--color-primary)]/35 [&_hr]:my-3 md:[&_hr]:my-6 [&_hr]:border-[var(--color-border)]"
+                dangerouslySetInnerHTML={{ __html: mainBodyHtml }}
               />
             ) : (
-              <p className="py-2 text-sm leading-relaxed text-[var(--color-muted-foreground)]">{labels.detailEmptyBody}</p>
+              <p className="py-1 text-sm leading-relaxed text-[var(--color-muted-foreground)]">{labels.detailEmptyBody}</p>
             )}
           </div>
         </section>

@@ -38,14 +38,10 @@ export function resolveEventRegistrationTotal(input: {
   allowMultipleTickets: boolean;
   maxTicketsPerRegistration: number | null;
 }): EventRegistrationTotal {
-  const { unitPrice, seats, allowMultipleTickets, maxTicketsPerRegistration } = input;
+  const { unitPrice, seats, allowMultipleTickets } = input;
 
   if (!Number.isFinite(seats) || seats < 1) return { ok: false, reason: "seats_below_one" };
   if (seats > 1 && !allowMultipleTickets) return { ok: false, reason: "multiple_not_allowed" };
-
-  // "Unlimited" is never implicit: without a maximum an event sells one seat.
-  const max = allowMultipleTickets ? (maxTicketsPerRegistration ?? 1) : 1;
-  if (seats > max) return { ok: false, reason: "over_max" };
 
   return { ok: true, seats, total: (unitPrice ?? 0) * seats };
 }

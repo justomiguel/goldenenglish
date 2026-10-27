@@ -43,9 +43,10 @@ export function AdminMessageReadToggleButton({
       title={title}
       aria-label={aria}
       aria-busy={busy || undefined}
-      className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] disabled:opacity-60"
+      className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 text-xs font-medium text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] disabled:opacity-60 sm:min-h-9 sm:w-auto sm:min-w-9 sm:rounded-[var(--layout-border-radius)] sm:px-2"
     >
       <Icon className="h-4 w-4 shrink-0" aria-hidden />
+      <span className="truncate sm:hidden">{aria}</span>
     </button>
   );
 }

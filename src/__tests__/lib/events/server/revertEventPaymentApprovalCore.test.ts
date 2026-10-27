@@ -24,13 +24,17 @@ describe("revertEventPaymentApprovalCore", () => {
       })),
     }));
 
+    const attendeeFilters: string[][] = [];
     const attendeeUpdate = vi.fn(() => ({
-      eq: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          select: vi.fn(() => ({
-            maybeSingle: vi.fn(async () => ({ data: { id: "att-1" }, error: null })),
-          })),
-        })),
+      eq: vi.fn((column: string, value: string) => ({
+        eq: vi.fn((column2: string, value2: string) => {
+          attendeeFilters.push([column, value, column2, value2]);
+          return {
+            select: vi.fn(() => ({
+              maybeSingle: vi.fn(async () => ({ data: { id: "att-1" }, error: null })),
+            })),
+          };
+        }),
       })),
     }));
 
@@ -82,7 +86,10 @@ describe("revertEventPaymentApprovalCore", () => {
       attendeeReverted: true,
     });
     expect(paymentUpdate).toHaveBeenCalled();
-    expect(attendeeUpdate).toHaveBeenCalled();
+    expect(attendeeFilters).toEqual([
+      ["id", "att-1", "status", "confirmed"],
+      ["primary_attendee_id", "att-1", "status", "confirmed"],
+    ]);
   });
 
   it("returns not_found when payment does not exist", async () => {

@@ -18,6 +18,17 @@ import {
   loadEventTicketPackages,
   loadEventTicketPackageSeatsSold,
 } from "@/lib/events/server/loadEventTicketPackages";
+import {
+  parseEventBankTransferSourcesConfig,
+  type EventBankTransferSourcesConfig,
+} from "@/lib/events/eventBankTransferSources";
+import {
+  parseEventSeatMapConfig,
+  stripEventSeatMapGuideImages,
+  type EventSeatMapConfig,
+} from "@/lib/events/seatMapModel";
+import type { EventSeatLockSnapshot } from "@/lib/events/seatMapState";
+import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export interface PublicEventDetail {
   id: string;
@@ -36,6 +47,13 @@ export interface PublicEventDetail {
   defaultLocale: EventLocale;
   localeUsed: EventLocale;
   bankTransferInstructions: string | null;
+  globalBankTransferInstructions?: string | null;
+  bankTransferSourcesConfig?: EventBankTransferSourcesConfig | null;
+  allowFamilyDiscount?: boolean;
+  allowMinorTickets?: boolean;
+  minorTicketPrice?: number | null;
+  seatMapConfig?: EventSeatMapConfig | null;
+  seatLocks?: EventSeatLockSnapshot[];
   collectBirthDate: boolean;
   requirePhone: boolean;
   requireBirthDate: boolean;
@@ -45,6 +63,7 @@ export interface PublicEventDetail {
   fields: EventFormFieldDefinition[];
   allowMultipleTickets: boolean;
   maxTicketsPerRegistration: number | null;
+  companionRequireDetails?: boolean;
   companionCollectDni: boolean;
   companionCollectBirthDate: boolean;
   companionCollectEmail: boolean;
@@ -82,12 +101,18 @@ export async function loadEventForPublicLanding(
   let request = supabase
     .from("events")
     .select(
-      "id, slug, title, description, view_count, event_date, location, price, price_local, price_non_local, currency, capacity, default_locale, bank_transfer_instructions, collect_birth_date, require_phone, require_birth_date, registration_field_order, price_by_flow, allow_multiple_tickets, max_tickets_per_registration, companion_collect_dni, companion_collect_birth_date, companion_collect_email",
+      "id, slug, title, description, view_count, event_date, location, price, price_local, price_non_local, currency, capacity, default_locale, bank_transfer_instructions, bank_transfer_sources_config, allow_family_discount, allow_minor_tickets, minor_ticket_price, seat_map_config, collect_birth_date, require_phone, require_birth_date, registration_field_order, price_by_flow, allow_multiple_tickets, max_tickets_per_registration, companion_require_details, companion_collect_dni, companion_collect_birth_date, companion_collect_email",
     )
     .is("archived_at", null);
   request = lookup.column === "id" ? request.eq("id", lookup.value) : request.eq("slug", lookup.value);
   if (lookup.publishedOnly) request = request.eq("status", "published");
-  const { data: eventRow } = await request.maybeSingle();
+  const { data: eventRow, error: eventError } = await request.maybeSingle();
+  if (eventError) {
+    logSupabaseClientError("loadEventForPublicLanding:event", eventError, {
+      slug,
+      eventId: options?.eventId ?? null,
+    });
+  }
 
   if (!eventRow?.id) return null;
 
@@ -176,6 +201,14 @@ export async function loadEventForPublicLanding(
       eventRow.bank_transfer_instructions == null
         ? null
         : String(eventRow.bank_transfer_instructions),
+    bankTransferSourcesConfig: parseEventBankTransferSourcesConfig(
+      eventRow.bank_transfer_sources_config,
+    ),
+    allowFamilyDiscount: Boolean(eventRow.allow_family_discount),
+    seatMapConfig: (() => {
+      const parsed = parseEventSeatMapConfig(eventRow.seat_map_config);
+      return parsed ? stripEventSeatMapGuideImages(parsed) : null;
+    })(),
     collectBirthDate: Boolean(eventRow.collect_birth_date),
     requirePhone: Boolean(eventRow.require_phone),
     requireBirthDate: Boolean(eventRow.require_birth_date),
@@ -196,11 +229,14 @@ export async function loadEventForPublicLanding(
       fieldOrder: flow.fieldOrder,
     })),
     fields,
+    allowMinorTickets: Boolean(eventRow.allow_minor_tickets),
+    minorTicketPrice: eventRow.minor_ticket_price == null ? null : Number(eventRow.minor_ticket_price),
     allowMultipleTickets: Boolean(eventRow.allow_multiple_tickets),
     maxTicketsPerRegistration:
       eventRow.max_tickets_per_registration == null
         ? null
         : Number(eventRow.max_tickets_per_registration),
+    companionRequireDetails: Boolean(eventRow.companion_require_details),
     companionCollectDni: Boolean(eventRow.companion_collect_dni),
     companionCollectBirthDate: Boolean(eventRow.companion_collect_birth_date),
     companionCollectEmail: Boolean(eventRow.companion_collect_email),

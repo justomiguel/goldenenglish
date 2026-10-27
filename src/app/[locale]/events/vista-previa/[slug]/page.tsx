@@ -76,11 +76,13 @@ export default async function EventRegistrationFormPreviewPage({ params }: PageP
             event.bankTransferInstructions,
             globalBankTransferInstructions,
           ),
+          globalBankTransferInstructions,
         }}
         paymentMethods={paymentMethods}
         surfaceVariant={surfaceVariant}
         labels={{
           participantSection: register.participantSection,
+          steps: register.steps,
           flowQuestion: register.flowQuestion,
           free: dict.events.public.free,
           firstName: register.firstName,
@@ -106,6 +108,10 @@ export default async function EventRegistrationFormPreviewPage({ params }: PageP
             tooLarge: fillEventTransferReceiptMaxMbTemplate(register.transferReceipt.tooLarge),
           },
           transferInstructions: register.transferInstructions,
+          transferSource: register.transferSource,
+          seatMap: register.seatMap,
+          companions: register.companions,
+          minorTickets: register.minorTickets,
           selectPlaceholder: register.selectPlaceholder,
           fileUploadProgressSending: dict.common.fileUpload.progressSending,
           customFieldFile: register.customFieldFile,

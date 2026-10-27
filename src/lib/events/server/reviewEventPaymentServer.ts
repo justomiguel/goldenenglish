@@ -6,6 +6,7 @@ import { logServerWarn, logSupabaseClientError } from "@/lib/logging/serverActio
 import { markEventPaymentApprovedCore } from "@/lib/events/server/markEventPaymentApprovedCore";
 import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
 import { releaseEventDiscountRedemption } from "@/lib/events/server/syncEventDiscountRedemption";
+import { releaseSeatsForAttendee } from "@/lib/events/server/eventSeatLocksServer";
 import { revertEventPaymentApprovalCore } from "@/lib/events/server/revertEventPaymentApprovalCore";
 
 export async function approveEventPayment(input: {
@@ -111,13 +112,38 @@ export async function rejectEventPayment(input: {
   const attendeeId = beforeRow?.event_attendee_id ? String(beforeRow.event_attendee_id) : "";
   if (attendeeId) {
     await releaseEventDiscountRedemption(input.adminClient, attendeeId);
+    await releaseSeatsForAttendee(input.adminClient, attendeeId);
     await sendEventAttendeeNotification({
       attendeeId,
       templateKey: "events.payment_rejected",
     });
+    const removed = await removeRejectedPurchaseAttendees(input.adminClient, attendeeId);
+    if (!removed) return { ok: false };
   }
 
   return { ok: true };
+}
+
+/** The holder and every companion leave the attendee list. The payment row goes with the holder. */
+async function removeRejectedPurchaseAttendees(
+  admin: SupabaseClient,
+  attendeeId: string,
+): Promise<boolean> {
+  const companions = await admin
+    .from("event_attendees")
+    .delete()
+    .eq("primary_attendee_id", attendeeId);
+  if (companions.error) {
+    logSupabaseClientError("rejectEventPayment:deleteCompanions", companions.error, { attendeeId });
+    return false;
+  }
+
+  const holder = await admin.from("event_attendees").delete().eq("id", attendeeId);
+  if (holder.error) {
+    logSupabaseClientError("rejectEventPayment:deleteHolder", holder.error, { attendeeId });
+    return false;
+  }
+  return true;
 }
 
 export async function revertEventPaymentApproval(input: {

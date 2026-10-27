@@ -55,11 +55,6 @@ export function validateEventPurchasePayload(
     return { ok: false, code: "multiple_tickets_not_allowed" };
   }
 
-  const seats = 1 + rawCompanions.length;
-  // Without a maximum an event sells one seat; "unlimited" is never implicit.
-  const max = settings.allowMultipleTickets ? (settings.maxTicketsPerRegistration ?? 1) : 1;
-  if (seats > max) return { ok: false, code: "too_many_tickets" };
-
   const companions: EventCompanionPayload[] = [];
   for (const entry of rawCompanions) {
     if (typeof entry !== "object" || entry === null) {

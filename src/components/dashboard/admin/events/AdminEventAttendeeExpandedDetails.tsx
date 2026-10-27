@@ -11,13 +11,12 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import {
-  AdminEventAttendeePresentationBadge,
-} from "@/components/dashboard/admin/events/AdminEventAttendeePresentationBadge";
+import { AdminEventAttendeePresentationBadge } from "@/components/dashboard/admin/events/AdminEventAttendeePresentationBadge";
 import { AdminEventAttendeeCustomFieldMediaCell } from "@/components/dashboard/admin/events/AdminEventAttendeeCustomFieldMediaCell";
 import {
   formatAttendeeBirthDate,
   formatAttendeeDate,
+  formatAttendeeMissingPaymentLabel,
   formatAttendeePaymentAmount,
   formatAttendeePaymentStatusLabel,
   formatAttendeeResidency,
@@ -26,7 +25,9 @@ import {
   formatAttendeeValue,
   type AdminEventAttendeesPanelLabels,
 } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
+import { EventSelectedSeatsMiniMap } from "@/components/dashboard/admin/events/EventSelectedSeatsMiniMap";
 import { resolveAttendeePaymentStatusTone } from "@/lib/events/resolveAttendeePresentation";
+import type { EventSeatMapConfig } from "@/lib/events/seatMapModel";
 import type { EventAttendeeCustomFieldValue } from "@/lib/dashboard/events/loadEventAttendeeCustomFieldValues";
 import type { EventAttendeeRow } from "@/lib/dashboard/events/loadEventAttendeesPaginated";
 
@@ -35,6 +36,7 @@ interface AdminEventAttendeeExpandedDetailsProps {
   customFields: EventAttendeeCustomFieldValue[];
   locale: string;
   labels: AdminEventAttendeesPanelLabels;
+  seatMapConfig?: EventSeatMapConfig | null;
 }
 
 export function AdminEventAttendeeExpandedDetails({
@@ -42,6 +44,7 @@ export function AdminEventAttendeeExpandedDetails({
   customFields,
   locale,
   labels,
+  seatMapConfig = null,
 }: AdminEventAttendeeExpandedDetailsProps) {
   const paymentStatusLabel = formatAttendeePaymentStatusLabel(row.payment, labels);
 
@@ -82,6 +85,32 @@ export function AdminEventAttendeeExpandedDetails({
           value={formatAttendeeValue(row.phone ?? labels.noPhone)}
           href={row.phone?.trim() ? `tel:${row.phone}` : undefined}
         />
+        {row.minorTicketCount > 0 && labels.minorTickets ? (
+          <AttendeeDetailCard
+            icon={Users}
+            label={labels.minorTickets}
+            value={String(row.minorTicketCount)}
+          />
+        ) : null}
+        {row.transferSourceLabel ? (
+          <AttendeeDetailCard
+            icon={Wallet}
+            label={labels.transferSource ?? labels.columns.payment}
+            value={formatAttendeeValue(row.transferSourceLabel)}
+          />
+        ) : null}
+        {row.transferQuestionAnswer ? (
+          <AttendeeDetailCard
+            icon={ClipboardList}
+            label={labels.transferAnswer ?? labels.customFieldsTitle}
+            value={formatAttendeeValue(row.transferQuestionAnswer)}
+          />
+        ) : null}
+        {row.seatLabels && row.seatLabels.length > 0 && labels.seatLabels ? (
+          <div className="sm:col-span-2 lg:col-span-3">
+            <EventSelectedSeatsMiniMap config={seatMapConfig} seatLabels={row.seatLabels} label={labels.seatLabels} />
+          </div>
+        ) : null}
       </div>
 
       {row.tutor ? (
@@ -140,7 +169,9 @@ export function AdminEventAttendeeExpandedDetails({
               />
             </div>
           ) : (
-            <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.noPayment}</p>
+            <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+              {formatAttendeeMissingPaymentLabel(row, labels)}
+            </p>
           )}
         </div>
       </div>

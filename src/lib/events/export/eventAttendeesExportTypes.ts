@@ -14,6 +14,9 @@ export interface EventAttendeesExportColumnLabels {
   tutorEmail: string;
   tutorPhone: string;
   tutorRelationship: string;
+  transferSource?: string;
+  transferAnswer?: string;
+  seatLabels?: string;
   statusLabels: Record<string, string>;
   paymentLabels: Record<string, string>;
   residencyLabels: { local: string; nonLocal: string };
@@ -21,6 +24,7 @@ export interface EventAttendeesExportColumnLabels {
   noPhone: string;
   noBirthDate: string;
   noPayment: string;
+  paidByHolder?: string;
   emptyValue: string;
 }
 

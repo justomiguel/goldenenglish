@@ -149,6 +149,27 @@ describe("notifyMessagingEmails", () => {
     expect(html).toContain("/en/dashboard/admin/messages");
   });
 
+  it("notifyPortalRecipientForStaffMessage links directly to /dashboard/admin/messages/[messageId] when messageId is provided", async () => {
+    const { notifyPortalRecipientForStaffMessage } = await import(
+      "@/lib/messaging/notifyMessagingEmails"
+    );
+    await notifyPortalRecipientForStaffMessage({
+      recipientId: "u1",
+      senderName: "Visitor",
+      messagePreview: "preview",
+      locale: "es",
+      emailProvider: { sendEmail },
+      recipientRole: "admin",
+      source: "contact_form",
+      messageId: "11111111-1111-4111-8111-111111111111",
+    });
+    expect(sendEmail).toHaveBeenCalled();
+    const html = sendEmail.mock.calls[0][0].html as string;
+    expect(html).toContain(
+      "/es/dashboard/admin/messages/11111111-1111-4111-8111-111111111111",
+    );
+  });
+
   it("notifyPortalRecipientForStaffMessage routes teacher and assistant recipients to /dashboard/teacher/messages", async () => {
     const { notifyPortalRecipientForStaffMessage } = await import(
       "@/lib/messaging/notifyMessagingEmails"

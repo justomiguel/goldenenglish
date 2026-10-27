@@ -1,5 +1,12 @@
 import type { EmailTemplateDefinition } from "@/types/emailTemplates";
 import { withPtFallback } from "@/lib/email/templates/withPtEmailDefaults";
+import type { Locale } from "@/types/i18n";
+
+export const ADMIN_EVENT_PAYMENT_STATE: Record<Locale, { pending: string; settled: string }> = {
+  es: { pending: "El pago sigue pendiente.", settled: "No hay un pago pendiente." },
+  en: { pending: "Payment is still pending.", settled: "There is no pending payment." },
+  pt: { pending: "El pago sigue pendiente.", settled: "No hay un pago pendiente." },
+};
 
 export const EVENTS_EMAIL_KEYS = [
   "events.registered",
@@ -118,10 +125,40 @@ export const eventsReminderTemplate: EmailTemplateDefinition = {
   }),
 };
 
+export const eventsAdminRegisteredTemplate: EmailTemplateDefinition = {
+  key: "events.admin_registered",
+  category: "notifications",
+  label: { es: "Eventos: compra nueva (admin)", en: "Events: new purchase (admin)" },
+  description: {
+    es: "Avisa a cada admin cuando alguien se inscribe a un evento.",
+    en: "Tells each admin when someone registers for an event.",
+  },
+  placeholders: [
+    { name: "eventTitle", description: "Evento", sample: "Concierto" },
+    { name: "buyerName", description: "Comprador", sample: "Pérez Ana" },
+    { name: "seatCount", description: "Entradas", sample: "2" },
+    { name: "amountLabel", description: "Monto", sample: "CLP 20.000" },
+    { name: "paymentState", description: "Si el pago sigue pendiente", sample: "El pago sigue pendiente." },
+  ],
+  defaults: withPtFallback({
+    es: {
+      subject: "Nueva compra · {{eventTitle}}",
+      bodyHtml:
+        "<p>{{buyerName}} compró {{seatCount}} entradas para {{eventTitle}}.</p><p>Monto: {{amountLabel}}.</p><p>{{paymentState}}</p>",
+    },
+    en: {
+      subject: "New purchase · {{eventTitle}}",
+      bodyHtml:
+        "<p>{{buyerName}} bought {{seatCount}} tickets for {{eventTitle}}.</p><p>Amount: {{amountLabel}}.</p><p>{{paymentState}}</p>",
+    },
+  }),
+};
+
 export const EVENTS_EMAIL_TEMPLATES: ReadonlyArray<EmailTemplateDefinition> = [
   eventsRegisteredTemplate,
   eventsPaymentApprovedTemplate,
   eventsPaymentRejectedTemplate,
   eventsReminderTemplate,
   eventsRegistrationRemovedTemplate,
+  eventsAdminRegisteredTemplate,
 ];

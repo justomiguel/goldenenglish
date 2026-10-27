@@ -6,6 +6,7 @@ import { AdminEventAttendeesPaginationBar } from "@/components/dashboard/admin/e
 import { AdminEventAttendeesTable } from "@/components/dashboard/admin/events/AdminEventAttendeesTable";
 import type { AdminEventAttendeeCustomFieldColumn } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
 import type { AdminEventAttendeesPanelLabels } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
+import type { EventSeatMapConfig } from "@/lib/events/seatMapModel";
 
 export type { AdminEventAttendeesPanelLabels };
 
@@ -20,6 +21,7 @@ interface AdminEventAttendeesPanelProps {
   pageSize: number;
   searchQuery: string;
   labels: AdminEventAttendeesPanelLabels;
+  seatMapConfig?: EventSeatMapConfig | null;
 }
 
 export function AdminEventAttendeesPanel({
@@ -33,6 +35,7 @@ export function AdminEventAttendeesPanel({
   pageSize,
   searchQuery,
   labels,
+  seatMapConfig = null,
 }: AdminEventAttendeesPanelProps) {
   const baseHref = `/${locale}/dashboard/admin/events/${eventId}`;
 
@@ -83,6 +86,7 @@ export function AdminEventAttendeesPanel({
         customFieldValues={customFieldValues}
         customFieldColumns={customFieldColumns}
         labels={labels}
+        seatMapConfig={seatMapConfig}
       />
     </section>
   );

@@ -5,6 +5,7 @@ import { defaultLocale } from "@/lib/i18n/dictionaries";
 import type { Locale } from "@/types/i18n";
 import { z } from "zod";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
+import { notifyAdminsEnrollmentReceipt } from "@/lib/email/notifyAdminsReceiptPending";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { createClient } from "@/lib/supabase/server";
 import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
@@ -242,5 +243,6 @@ export async function submitEnrollmentFeeReceipt(
 
   revalidatePath(`/${locale}/dashboard/student/payments`);
   revalidatePath(`/${locale}/dashboard/admin/finance`);
+  await notifyAdminsEnrollmentReceipt(locale, user.id, sectionIdParsed.data);
   return { ok: true };
 }

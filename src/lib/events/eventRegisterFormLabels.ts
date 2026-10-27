@@ -1,5 +1,21 @@
+import type { EventRegisterSeatPickerLabels } from "@/components/organisms/EventRegisterSeatPicker";
+import type { EventRegisterCompanionsLabels } from "@/components/organisms/EventRegisterMultiTicketSection";
+import type { EventRegisterMinorTicketsLabels } from "@/components/organisms/EventRegisterMinorTicketsField";
+
 export interface EventRegisterFormLabels {
   participantSection: string;
+  steps: {
+    who: string;
+    whoLead: string;
+    tickets: string;
+    ticketsLead: string;
+    amount: string;
+    amountLead: string;
+    pay: string;
+    payLead: string;
+    confirm: string;
+    confirmLead: string;
+  };
   flowQuestion: string;
   free: string;
   firstName: string;
@@ -21,6 +37,11 @@ export interface EventRegisterFormLabels {
     invalid: string;
     noUses: string;
     conflict: string;
+    coveredOne: string;
+    coveredMany: string;
+    extraOne: string;
+    extraMany: string;
+    off: string;
   };
   error: string;
   successModal: {
@@ -67,6 +88,16 @@ export interface EventRegisterFormLabels {
   transferInstructions: {
     title: string;
   };
+  transferSource: {
+    questionFallback: string;
+    chooseSource: string;
+    optionRequired: string;
+    sourceRequired: string;
+    globalAccount: string;
+  };
+  seatMap?: EventRegisterSeatPickerLabels;
+  companions?: EventRegisterCompanionsLabels;
+  minorTickets?: EventRegisterMinorTicketsLabels;
   selectPlaceholder: string;
   customFieldFile: {
     fileButton: string;

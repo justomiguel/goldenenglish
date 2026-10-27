@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 const mocks = vi.hoisted(() => ({
   notify: vi.fn(),
+  notifyAdmins: vi.fn(),
   warn: vi.fn(),
   flowStatus: vi.fn(),
   mpGet: vi.fn(),
@@ -11,6 +12,9 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@/lib/shop/notifyShopEmail", () => ({
   notifyShopEmail: (...args: unknown[]) => mocks.notify(...args),
+}));
+vi.mock("@/lib/email/notifyAdminsPurchasePayment", () => ({
+  notifyAdminsPaymentPaid: (...args: unknown[]) => mocks.notifyAdmins(...args),
 }));
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logSupabaseClientError: vi.fn(),
@@ -40,6 +44,7 @@ describe("markShopOrderPaid", () => {
     const r = await markShopOrderPaid({ admin: { rpc }, orderId: "o" });
     expect(r).toEqual({ ok: true, alreadyPaid: true });
     expect(mocks.notify).not.toHaveBeenCalled();
+    expect(mocks.notifyAdmins).not.toHaveBeenCalled();
   });
 
   it("returns false when the RPC errors or data is unexpected", async () => {
@@ -56,13 +61,14 @@ describe("markShopOrderPaid", () => {
     const r = await markShopOrderPaid({ admin: { rpc }, orderId: "o" });
     expect(r).toEqual({ ok: false, code: "insufficient_stock" });
     expect(mocks.notify).not.toHaveBeenCalled();
+    expect(mocks.notifyAdmins).not.toHaveBeenCalled();
     expect(mocks.warn).toHaveBeenCalled();
   });
 
   it("paid decrements once and sends shop.order_paid", async () => {
     const rpc = vi.fn().mockResolvedValue({ data: "paid", error: null });
     const maybeSingle = vi.fn().mockResolvedValue({
-      data: { buyer_email: "ada@school.cl", pay_token: "tok-1" },
+      data: { buyer_email: "ada@school.cl", pay_token: "tok-1", total: 12000, currency: "CLP" },
       error: null,
     });
     const admin = {
@@ -76,6 +82,14 @@ describe("markShopOrderPaid", () => {
     const r = await markShopOrderPaid({ admin, orderId: "o" });
     expect(r).toEqual({ ok: true });
     expect(rpc).toHaveBeenCalledWith("shop_mark_paid_and_decrement_stock", { p_order_id: "o" });
+    expect(mocks.notifyAdmins).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: "shop",
+        payerName: "ada@school.cl",
+        amount: 12000,
+        currency: "CLP",
+      }),
+    );
     expect(mocks.notify).toHaveBeenCalledWith(
       expect.objectContaining({
         to: "ada@school.cl",

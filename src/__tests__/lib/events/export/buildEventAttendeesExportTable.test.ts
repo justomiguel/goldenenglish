@@ -109,4 +109,54 @@ describe("buildEventAttendeesExportTable", () => {
 
     expect(table.rows[0]?.at(-1)).toEqual({ text: "—" });
   });
+
+  it("adds transfer account columns when those labels are set", () => {
+    const table = buildEventAttendeesExportTable({
+      attendees: [
+        {
+          ...attendee,
+          transferSourceLabel: "Institute A",
+          transferQuestionAnswer: "Local",
+        },
+      ],
+      customColumns: [],
+      customFieldValues: {},
+      locale: "en-US",
+      labels: {
+        ...labels,
+        transferSource: "Transfer account",
+        transferAnswer: "Chosen option",
+      },
+    });
+
+    expect(table.headers).toContain("Transfer account");
+    expect(table.headers).toContain("Chosen option");
+    expect(table.rows[0]?.map((cell) => cell.text)).toEqual(
+      expect.arrayContaining(["Institute A", "Local"]),
+    );
+  });
+
+  it("labels a companion paid by the holder and lists the seats", () => {
+    const table = buildEventAttendeesExportTable({
+      attendees: [
+        {
+          ...attendee,
+          payment: null,
+          primaryAttendeeId: "att-holder",
+          birthDate: "not-a-date",
+          createdAt: "nope",
+          seatLabels: ["A-1", "A-2"],
+          tutor: null,
+        },
+      ],
+      customColumns: [],
+      customFieldValues: {},
+      locale: "en-US",
+      labels: { ...labels, paidByHolder: "Holder paid", seatLabels: "Seats" },
+    });
+
+    expect(table.rows[0]?.map((cell) => cell.text)).toEqual(
+      expect.arrayContaining(["Holder paid", "not-a-date", "nope", "A-1, A-2", "—"]),
+    );
+  });
 });

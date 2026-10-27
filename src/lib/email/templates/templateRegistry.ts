@@ -27,6 +27,7 @@ import {
   wardEmailChangedTemplate,
 } from "@/lib/email/templates/registryNotifications";
 import { REGISTRATION_EMAIL_TEMPLATES } from "@/lib/email/templates/registryRegistration";
+import { blogAdminPendingReviewTemplate } from "@/lib/email/templates/registryBlog";
 import { EVENTS_EMAIL_TEMPLATES } from "@/lib/email/templates/registryEvents";
 import { SHOP_EMAIL_TEMPLATES } from "@/lib/email/templates/registryShop";
 import {
@@ -62,6 +63,7 @@ const REGISTRY: ReadonlyArray<EmailTemplateDefinition> = [
   passwordResetTemplate,
   adminPasswordResetNoticeTemplate,
   ...REGISTRATION_EMAIL_TEMPLATES,
+  blogAdminPendingReviewTemplate,
   ...EVENTS_EMAIL_TEMPLATES,
   ...SHOP_EMAIL_TEMPLATES,
 ];

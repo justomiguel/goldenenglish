@@ -5,6 +5,7 @@ import {
   adminNeedsSectionTemplate,
   adminReceiptPendingTemplate,
   adminReceivedTemplate,
+  adminSectionFullTemplate,
 } from "@/lib/email/templates/registryRegistrationAdmin";
 import {
   REGISTRATION_TRIAL_EMAIL_KEYS,
@@ -26,6 +27,7 @@ export const REGISTRATION_EMAIL_KEYS = [
   "registration.admin_receipt_pending",
   "registration.admin_enrolled",
   "registration.admin_needs_section",
+  "registration.admin_section_full",
   "registration.welcome",
   "registration.receipt_rejected",
   "registration.section_full",
@@ -184,6 +186,7 @@ export const REGISTRATION_EMAIL_TEMPLATES: ReadonlyArray<EmailTemplateDefinition
   adminReceiptPendingTemplate,
   adminEnrolledTemplate,
   adminNeedsSectionTemplate,
+  adminSectionFullTemplate,
   welcomeTemplate,
   receiptRejectedTemplate,
   sectionFullTemplate,

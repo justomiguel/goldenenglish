@@ -116,8 +116,13 @@ export async function sendRegistrationAdminEmails(input: {
     | "registration.admin_receipt_pending"
     | "registration.admin_enrolled"
     | "registration.admin_needs_section"
+    | "registration.admin_section_full"
+    | "blog.admin_pending_review"
     | "registration.admin_trial_attendance_due"
-    | "registration.admin_trial_enrolled";
+    | "registration.admin_trial_enrolled"
+    | "events.admin_registered"
+    | "payments.admin_paid"
+    | "payments.admin_receipt_pending";
   vars: Record<string, string>;
 }): Promise<void> {
   try {

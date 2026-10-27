@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { notifyAdminsEnrollmentReceipt } from "@/lib/email/notifyAdminsReceiptPending";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { createClient } from "@/lib/supabase/server";
@@ -110,5 +111,6 @@ export async function submitTutorEnrollmentFeeReceipt(
   revalidatePath(`/${locale}/dashboard/parent/payments`);
   revalidatePath(`/${locale}/dashboard/student/payments`);
   revalidatePath(`/${locale}/dashboard/admin/finance`);
+  await notifyAdminsEnrollmentReceipt(locale, studentId, sectionIdParsed.data);
   return { ok: true };
 }

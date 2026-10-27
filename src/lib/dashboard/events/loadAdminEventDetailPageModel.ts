@@ -19,6 +19,9 @@ import {
   loadEventDiscountCodes,
 } from "@/lib/dashboard/events/loadEventDiscountCodes";
 import { loadEventDiscountCodeUses } from "@/lib/dashboard/events/loadEventDiscountCodeUses";
+import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
+import { loadEventSeatLocks } from "@/lib/events/server/eventSeatLocksServer";
+import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export async function loadAdminEventDetailPageModel(input: {
   locale: string;
@@ -35,13 +38,18 @@ export async function loadAdminEventDetailPageModel(input: {
   paymentStatus?: string;
 }) {
   const admin = await createAdminClient();
-  const { data: event } = await admin
+  const { data: event, error: eventError } = await admin
     .from("events")
     .select(
-      "id, slug, title, description, event_date, status, capacity, location, price, price_local, price_non_local, currency, default_locale, view_count, bank_transfer_instructions, collect_birth_date, show_on_home, require_phone, require_birth_date, registration_field_order, price_by_flow",
+      "id, slug, title, description, event_date, status, capacity, location, price, price_local, price_non_local, currency, default_locale, view_count, bank_transfer_instructions, bank_transfer_sources_config, allow_family_discount, allow_minor_tickets, minor_ticket_price, allow_multiple_tickets, max_tickets_per_registration, companion_require_details, companion_collect_dni, companion_collect_birth_date, companion_collect_email, seat_map_config, collect_birth_date, show_on_home, require_phone, require_birth_date, registration_field_order, price_by_flow",
     )
     .eq("id", input.eventId)
     .maybeSingle();
+  if (eventError) {
+    logSupabaseClientError("loadAdminEventDetailPageModel:event", eventError, {
+      eventId: input.eventId,
+    });
+  }
   if (!event) notFound();
 
   const defaultLocale: EventLocale = isEventLocale(String(event.default_locale ?? "es"))
@@ -138,6 +146,10 @@ export async function loadAdminEventDetailPageModel(input: {
     usesByCode.set(use.codeId, list);
   }
   const discountCodes = loadedCodes.map((row) => ({ ...row, uses: usesByCode.get(row.id) ?? [] }));
+  const { instructions: globalBankTransferInstructions } =
+    await loadBankTransferInstructionsSetting(admin);
+  const seatLocks =
+    input.tab === "seats" ? await loadEventSeatLocks(admin, input.eventId) : [];
 
   return {
     event,
@@ -165,5 +177,7 @@ export async function loadAdminEventDetailPageModel(input: {
     discountCodeCount,
     discountCodes,
     discountCodeUsesTruncated: loadedUses.truncated,
+    globalBankTransferInstructions,
+    seatLocks,
   };
 }

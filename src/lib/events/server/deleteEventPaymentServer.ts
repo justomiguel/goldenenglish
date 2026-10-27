@@ -2,6 +2,8 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { auditFinanceAction } from "@/lib/audit";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { releaseSeatsForAttendee } from "@/lib/events/server/eventSeatLocksServer";
+import { releaseEventDiscountRedemption } from "@/lib/events/server/syncEventDiscountRedemption";
 import { EVENT_UPLOADS_BUCKET } from "@/lib/events/server/uploadEventAttendeeFileServer";
 
 type DeleteEventPaymentCode = "not_found" | "not_deletable" | "delete_failed";
@@ -54,11 +56,11 @@ export async function deleteEventPayment(input: {
     return { ok: false, code: "not_found" };
   }
 
-  if (row.status === "approved" || row.gateway_provider) {
+  if (row.gateway_provider) {
     return { ok: false, code: "not_deletable" };
   }
 
-  if (row.status !== "pending" && row.status !== "rejected") {
+  if (row.status !== "pending" && row.status !== "rejected" && row.status !== "approved") {
     return { ok: false, code: "not_deletable" };
   }
 
@@ -85,6 +87,9 @@ export async function deleteEventPayment(input: {
     return { ok: false, code: "delete_failed" };
   }
 
+  const removed = await removePurchaseAttendees(input.adminClient, attendee.id);
+  if (!removed) return { ok: false, code: "delete_failed" };
+
   const audit = await auditFinanceAction({
     actorId: input.actorId,
     actorRole: "admin",
@@ -109,4 +114,23 @@ export async function deleteEventPayment(input: {
   });
 
   return { ok: audit.ok };
+}
+
+/** The holder and every companion leave the attendee list with the payment. */
+async function removePurchaseAttendees(admin: SupabaseClient, attendeeId: string): Promise<boolean> {
+  await releaseSeatsForAttendee(admin, attendeeId);
+  await releaseEventDiscountRedemption(admin, attendeeId);
+
+  const companions = await admin.from("event_attendees").delete().eq("primary_attendee_id", attendeeId);
+  if (companions.error) {
+    logSupabaseClientError("deleteEventPayment:deleteCompanions", companions.error, { attendeeId });
+    return false;
+  }
+
+  const holder = await admin.from("event_attendees").delete().eq("id", attendeeId);
+  if (holder.error) {
+    logSupabaseClientError("deleteEventPayment:deleteHolder", holder.error, { attendeeId });
+    return false;
+  }
+  return true;
 }

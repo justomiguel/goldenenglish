@@ -5,6 +5,8 @@ import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPu
 import { validateEventAttendeePayload } from "@/lib/events/validateEventAttendeePayload";
 import { enrollEventAttendeeServer } from "@/lib/events/server/enrollEventAttendeeServer";
 import { validateEventPurchasePayload } from "@/lib/events/validateEventPurchasePayload";
+import { validateEventTransferSelection } from "@/lib/events/eventTransferPresentation";
+import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
 import { logServerException } from "@/lib/logging/serverActionLog";
 
 export const runtime = "nodejs";
@@ -82,8 +84,12 @@ export async function POST(
           familyDiscount?: boolean;
           discountCode?: string;
           paymentMethod?: string;
+          transferOptionId?: string;
+          transferSourceKey?: string;
+          seatKeys?: unknown;
           ticketPackageId?: string;
           companions?: unknown;
+          minorTicketCount?: number;
           flowId?: string;
         }
       | null;
@@ -137,6 +143,26 @@ export async function POST(
       return NextResponse.json({ ok: false, code: purchase.code }, { status: 400 });
     }
 
+    const needsGlobalAccount =
+      body.paymentMethod === "transfer" &&
+      Boolean(event.bankTransferSourcesConfig?.included.includes("global"));
+    const globalTransferInstructions = needsGlobalAccount
+      ? (await loadBankTransferInstructionsSetting(supabase)).instructions
+      : null;
+    const transferCheck = validateEventTransferSelection({
+      requiresTransferReceipt: body.paymentMethod === "transfer",
+      config: event.bankTransferSourcesConfig ?? null,
+      globalTransferInstructions,
+      selectedOptionId: body.transferOptionId,
+      selectedSourceKey: body.transferSourceKey,
+    });
+    if (!transferCheck.ok) {
+      return NextResponse.json(
+        { ok: false, code: transferCheck.code },
+        { status: 400, headers: { "Cache-Control": "private, no-store" } },
+      );
+    }
+
     const result = await enrollEventAttendeeServer({
       eventId: event.id,
       userId: user?.id ?? null,
@@ -161,9 +187,18 @@ export async function POST(
           }
         : null,
       locale: body.locale,
-      familyDiscountClaimed: body.familyDiscount === true,
+      familyDiscountClaimed:
+        event.allowFamilyDiscount !== false && body.familyDiscount === true,
       discountCode: typeof body.discountCode === "string" ? body.discountCode : null,
       currency: event.currency,
+      transferSelection: transferCheck.selection,
+      seatMapConfig: event.seatMapConfig ?? null,
+      minorTicketCount: body.minorTicketCount ?? 0,
+      allowMinorTickets: Boolean(event.allowMinorTickets),
+      minorTicketPrice: event.minorTicketPrice ?? null,
+      seatKeys: Array.isArray(body.seatKeys)
+        ? body.seatKeys.filter((item): item is string => typeof item === "string")
+        : [],
     });
 
     return NextResponse.json({ ok: true, result }, {

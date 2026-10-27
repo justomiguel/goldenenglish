@@ -97,6 +97,8 @@ export async function notifyPortalRecipientForStaffMessage(params: {
   recipientRole: "teacher" | "admin" | "assistant";
   /** Optional inbound channel tag for audit/log metadata (no PII). */
   source?: string;
+  /** Optional portal_messages.id so admin links open the message detail directly. */
+  messageId?: string;
 }): Promise<void> {
   const to = await authEmailForUserId(params.recipientId);
   if (!to) {
@@ -109,7 +111,11 @@ export async function notifyPortalRecipientForStaffMessage(params: {
     return;
   }
   const dashboard =
-    params.recipientRole === "admin" ? "dashboard/admin/messages" : "dashboard/teacher/messages";
+    params.recipientRole === "admin"
+      ? params.messageId
+        ? `dashboard/admin/messages/${params.messageId}`
+        : "dashboard/admin/messages"
+      : "dashboard/teacher/messages";
   const href = `${await originOrLocal()}/${params.locale}/${dashboard}`;
   const dict = await getDictionary(params.locale);
   const result = await sendBrandedEmail({
@@ -232,13 +238,9 @@ export async function notifyParentTeacherReplied(params: {
       },
     });
   }
-  await pushAfterNotify(
-    params.parentId,
-    {
-      title: dict.pwa.push.teacherReplyTitle,
-      body: previewBlock(params.replyPreview),
-      url: href,
-    },
-    "notifyParentTeacherReplied",
-  );
+  await pushAfterNotify(params.parentId, {
+    title: dict.pwa.push.teacherReplyTitle,
+    body: previewBlock(params.replyPreview),
+    url: href,
+  }, "notifyParentTeacherReplied");
 }

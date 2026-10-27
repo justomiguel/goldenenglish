@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { notifyAdminsEventReceiptPending } from "@/lib/email/notifyAdminsReceiptPending";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildEventPaymentReceiptPath } from "@/lib/events/buildEventPaymentReceiptPath";
 import {
@@ -183,5 +184,6 @@ export async function uploadEventPaymentReceiptServer(
     return { ok: false, code: "update_failed" };
   }
 
+  await notifyAdminsEventReceiptPending(input.attendeeId);
   return { ok: true, path };
 }

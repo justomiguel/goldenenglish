@@ -34,8 +34,15 @@ export interface EventAttendeeRow {
   tutorId: string | null;
   tutor: EventAttendeeTutorSummary | null;
   payment: EventAttendeePaymentSummary | null;
+  /** Set on a companion. The holder owns the payment. */
+  primaryAttendeeId: string | null;
   createdAt: string;
   familyDiscountClaimed: boolean;
+  minorTicketCount: number;
+  transferSourceKey?: string | null;
+  transferSourceLabel?: string | null;
+  transferQuestionAnswer?: string | null;
+  seatLabels?: string[];
 }
 
 export interface PaginatedEventAttendeesParams {
@@ -107,7 +114,7 @@ export async function loadEventAttendeesPaginated(
   let dataQuery = adminClient
     .from("event_attendees")
     .select(
-      "id, event_id, first_name, last_name, dni_or_passport, email, phone, birth_date, status, source, is_local_resident, user_id, tutor_id, tutor_first_name, tutor_last_name, tutor_dni_or_passport, tutor_email, tutor_phone, tutor_relationship, created_at, family_discount_claimed, event_payments(status, amount, currency, gateway_provider)",
+      "id, event_id, first_name, last_name, dni_or_passport, email, phone, birth_date, status, source, is_local_resident, user_id, tutor_id, tutor_first_name, tutor_last_name, tutor_dni_or_passport, tutor_email, tutor_phone, tutor_relationship, created_at, family_discount_claimed, minor_ticket_count, primary_attendee_id, transfer_source_key, transfer_source_label, transfer_question_answer, seat_labels, event_payments(status, amount, currency, gateway_provider)",
     )
     .eq("event_id", params.eventId);
 
@@ -177,8 +184,20 @@ export async function loadEventAttendeesPaginated(
               paymentRow.gateway_provider != null ? String(paymentRow.gateway_provider) : null,
           }
         : null,
+      primaryAttendeeId:
+        row.primary_attendee_id != null ? String(row.primary_attendee_id) : null,
       createdAt: String(row.created_at ?? ""),
       familyDiscountClaimed: row.family_discount_claimed === true,
+      minorTicketCount: Number(row.minor_ticket_count ?? 0),
+      transferSourceKey:
+        row.transfer_source_key != null ? String(row.transfer_source_key) : null,
+      transferSourceLabel:
+        row.transfer_source_label != null ? String(row.transfer_source_label) : null,
+      transferQuestionAnswer:
+        row.transfer_question_answer != null ? String(row.transfer_question_answer) : null,
+      seatLabels: Array.isArray(row.seat_labels)
+        ? row.seat_labels.map((item) => String(item))
+        : [],
     };
   });
 

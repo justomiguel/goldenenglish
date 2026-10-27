@@ -50,6 +50,7 @@ interface AdminEventTranslationsEditorProps {
   editorLabels: EditorLabels;
   academicLabels: AcademicLabels;
   fileUploadProgress: FileUploadProgressLabels;
+  embedded?: boolean;
 }
 
 export function AdminEventTranslationsEditor({
@@ -61,6 +62,7 @@ export function AdminEventTranslationsEditor({
   editorLabels,
   academicLabels,
   fileUploadProgress,
+  embedded = false,
 }: AdminEventTranslationsEditorProps) {
   const router = useRouter();
   const [activeLocale, setActiveLocale] = useState<EventLocale>(defaultLocale);
@@ -140,8 +142,16 @@ export function AdminEventTranslationsEditor({
   }
 
   return (
-    <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
-      <h3 className="text-sm font-semibold text-[var(--color-foreground)]">{labels.sectionTitle}</h3>
+    <section
+      className={
+        embedded
+          ? "space-y-3"
+          : "space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]"
+      }
+    >
+      {embedded ? null : (
+        <h3 className="text-sm font-semibold text-[var(--color-foreground)]">{labels.sectionTitle}</h3>
+      )}
       <UnderlineTabBar
         idPrefix={`event-i18n-${eventId}`}
         ariaLabel={labels.localeTabsAria}

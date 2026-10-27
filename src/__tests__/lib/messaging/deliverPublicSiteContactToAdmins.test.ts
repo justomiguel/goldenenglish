@@ -2,6 +2,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { deliverPublicSiteContactToAdmins } from "@/lib/messaging/deliverPublicSiteContactToAdmins";
+import { notifyPortalRecipientForStaffMessage } from "@/lib/messaging/notifyMessagingEmails";
 import { PUBLIC_SITE_CONTACT_SENDER_PROFILE_ID } from "@/lib/site/publicSiteContactSenderId";
 
 vi.mock("@/lib/messaging/notifyMessagingEmails", () => ({
@@ -67,10 +68,20 @@ describe("deliverPublicSiteContactToAdmins", () => {
     });
     expect(res).toEqual({ ok: true, delivered: 1 });
     expect(insert).toHaveBeenCalledTimes(1);
-    expect(insert.mock.calls[0][0]).toMatchObject({
+    const insertedRow = insert.mock.calls[0][0] as { id?: string };
+    expect(insertedRow).toMatchObject({
+      id: expect.any(String),
       external_contact_reply_email: "juan@example.com",
       external_contact_display_name: "Juan",
       broadcast_batch_id: expect.any(String),
     });
+    expect(notifyPortalRecipientForStaffMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recipientId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        recipientRole: "admin",
+        source: "contact_form",
+        messageId: insertedRow.id,
+      }),
+    );
   });
 });

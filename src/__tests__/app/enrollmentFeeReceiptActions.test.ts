@@ -98,9 +98,15 @@ vi.mock("@/lib/auth/resolveTutorStudentLink", () => ({
   resolveTutorStudentLink: (...args: unknown[]) => mockResolveTutorLink(...args),
 }));
 
+const { notifyAdminsEnrollmentReceipt } = vi.hoisted(() => ({
+  notifyAdminsEnrollmentReceipt: vi.fn(async () => undefined),
+}));
 const mockAssertAdmin = vi.fn();
 vi.mock("@/lib/dashboard/assertAdmin", () => ({
   assertAdmin: () => mockAssertAdmin(),
+}));
+vi.mock("@/lib/email/notifyAdminsReceiptPending", () => ({
+  notifyAdminsEnrollmentReceipt,
 }));
 
 vi.mock("@/lib/analytics/server/recordUserEvent", () => ({
@@ -220,6 +226,7 @@ describe("submitEnrollmentFeeReceipt", () => {
       p_section_id: sectionId,
       p_receipt_url: uploadCall[0],
     });
+    expect(notifyAdminsEnrollmentReceipt).toHaveBeenCalledWith("es", studentId, sectionId);
   });
 
   it("returns error when the enrollment receipt RPC cannot persist the row", async () => {
@@ -292,6 +299,7 @@ describe("submitTutorEnrollmentFeeReceipt", () => {
       p_section_id: sectionId,
       p_receipt_url: uploadCall[0],
     });
+    expect(notifyAdminsEnrollmentReceipt).toHaveBeenCalledWith("es", studentId, sectionId);
   });
 });
 

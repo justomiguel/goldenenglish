@@ -168,8 +168,9 @@ describe("reviewEventPaymentServer", () => {
 
   it("sends the rejection mail when the payment has an attendee", async () => {
     sendEventAttendeeNotification.mockClear();
+    const deleted: Array<{ table: string; column: string }> = [];
     const adminClient = {
-      from: vi.fn(() => ({
+      from: vi.fn((table: string) => ({
         select: vi.fn(() => ({
           eq: vi.fn(() => ({
             maybeSingle: vi.fn(async () => ({
@@ -180,6 +181,12 @@ describe("reviewEventPaymentServer", () => {
         })),
         update: vi.fn(() => ({
           eq: vi.fn(async () => ({ error: null })),
+        })),
+        delete: vi.fn(() => ({
+          eq: vi.fn(async (column: string) => {
+            deleted.push({ table, column });
+            return { error: null };
+          }),
         })),
       })),
     };
@@ -197,6 +204,10 @@ describe("reviewEventPaymentServer", () => {
       templateKey: "events.payment_rejected",
     });
     expect(mockReleaseDiscount).toHaveBeenCalledWith(expect.anything(), "att-1");
+    expect(deleted.filter((row) => row.table === "event_attendees")).toEqual([
+      { table: "event_attendees", column: "primary_attendee_id" },
+      { table: "event_attendees", column: "id" },
+    ]);
   });
 
   it("rejectEventPayment returns ok false when update errors", async () => {

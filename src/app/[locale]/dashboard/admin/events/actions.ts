@@ -1,12 +1,12 @@
 export type { EventMutationResult } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
 
+export { createEventAction, updateEventAction } from "@/app/[locale]/dashboard/admin/events/eventCrudActions";
+
 export {
-  createEventAction,
-  updateEventAction,
   publishEventAction,
   unpublishEventAction,
   archiveEventAction,
-} from "@/app/[locale]/dashboard/admin/events/eventCrudActions";
+} from "@/app/[locale]/dashboard/admin/events/eventPublishActions";
 
 export {
   addEventFormFieldAction,
@@ -37,3 +37,5 @@ export {
   deleteEventAttendeeAction,
   prepareEventMediaFileUploadAction,
 } from "@/app/[locale]/dashboard/admin/events/eventAttendeeActions";
+
+export { saveEventSeatMapConfigAction } from "@/app/[locale]/dashboard/admin/events/eventSeatMapActions";

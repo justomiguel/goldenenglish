@@ -123,6 +123,9 @@ describe("AdminEventPaymentReviewActions", () => {
     const revertButton = screen.getByRole("button", { name: detail.paymentsRevertTooltip });
     expect(revertButton).toHaveTextContent(detail.paymentsRevert);
 
+    const deleteButton = screen.getByRole("button", { name: detail.paymentsDeleteTooltip });
+    expect(deleteButton).toHaveTextContent(detail.paymentsDelete);
+
     await user.click(revertButton);
     expect(screen.getByRole("heading", { name: detail.paymentsRevertConfirmTitle })).toBeVisible();
   });

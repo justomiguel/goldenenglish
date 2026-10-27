@@ -86,6 +86,7 @@ export function AdminEventSummaryScheduleForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-3">
+      <div className="grid gap-3 md:grid-cols-3">
       <div>
         <Label htmlFor="event-schedule-date">{labels.eventDateLabel}</Label>
         <Input
@@ -120,6 +121,7 @@ export function AdminEventSummaryScheduleForm({
           required
           className="mt-1"
         />
+      </div>
       </div>
       <Button type="submit" isLoading={pending} disabled={pending}>
         {!pending ? <CalendarClock className="h-4 w-4 shrink-0" aria-hidden /> : null}

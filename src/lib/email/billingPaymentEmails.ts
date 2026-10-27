@@ -1,4 +1,6 @@
 import { collectRecipientEmailsForStudent } from "@/lib/email/billingEmailRecipients";
+import { notifyAdminsPaymentPaid } from "@/lib/email/notifyAdminsPurchasePayment";
+import { notifyAdminsReceiptPending } from "@/lib/email/notifyAdminsReceiptPending";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
 import { logServerException } from "@/lib/logging/serverActionLog";
@@ -25,11 +27,22 @@ export async function notifyPaymentReceiptPending(opts: {
   currency: string;
   sectionName: string | null;
 }): Promise<void> {
+  const periodLabel = formatBillingPeriodLabel(opts.month, opts.year);
+  const section = dashIfEmpty(opts.sectionName ?? "");
+  const contextLabel = opts.sectionName?.trim()
+    ? `${opts.sectionName.trim()} · ${periodLabel}`
+    : periodLabel;
+  await notifyAdminsReceiptPending({
+    locale: opts.locale,
+    kind: "tuition",
+    contextLabel,
+    studentId: opts.studentId,
+    amount: opts.amount,
+    currency: opts.currency,
+  });
   const toList = await collectRecipientEmailsForStudent(opts.studentId);
   if (toList.length === 0) return;
-  const periodLabel = formatBillingPeriodLabel(opts.month, opts.year);
   const amountLabel = formatMoneyLabel(opts.amount, opts.currency, opts.locale);
-  const section = dashIfEmpty(opts.sectionName ?? "");
   for (const to of toList) {
     const r = await sendBrandedEmail({
       to,
@@ -55,9 +68,19 @@ export async function notifyMonthlyPaymentDecision(opts: {
   decision: "approved" | "rejected";
   adminNotes: string | null;
 }): Promise<void> {
+  const periodLabel = formatBillingPeriodLabel(opts.month, opts.year);
+  if (opts.decision === "approved") {
+    await notifyAdminsPaymentPaid({
+      locale: opts.locale,
+      kind: "tuition",
+      contextLabel: periodLabel,
+      studentId: opts.studentId,
+      amount: opts.amount,
+      currency: opts.currency,
+    });
+  }
   const toList = await collectRecipientEmailsForStudent(opts.studentId);
   if (toList.length === 0) return;
-  const periodLabel = formatBillingPeriodLabel(opts.month, opts.year);
   const key =
     opts.decision === "approved"
       ? "billing.monthly_payment_approved"
@@ -93,9 +116,17 @@ export async function notifyAdminRecordedPayment(opts: {
   currency: string;
   sectionName: string;
 }): Promise<void> {
+  const periodLabel = formatBillingPeriodLabel(opts.month, opts.year);
+  await notifyAdminsPaymentPaid({
+    locale: opts.locale,
+    kind: "tuition",
+    contextLabel: `${opts.sectionName} · ${periodLabel}`,
+    studentId: opts.studentId,
+    amount: opts.amount,
+    currency: opts.currency,
+  });
   const toList = await collectRecipientEmailsForStudent(opts.studentId);
   if (toList.length === 0) return;
-  const periodLabel = formatBillingPeriodLabel(opts.month, opts.year);
   const amountLabel = formatMoneyLabel(opts.amount, opts.currency, opts.locale);
   for (const to of toList) {
     const r = await sendBrandedEmail({

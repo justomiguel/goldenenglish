@@ -6,6 +6,7 @@ import {
   type BlogArticleAdminShareLink,
 } from "@/lib/blog/server/resolveBlogArticleAdminShareLinks";
 import type { BlogLocale } from "@/lib/blog/domain";
+import { notifyAdminsBlogPendingReview } from "@/lib/email/notifyAdminsBlogReview";
 
 export async function submitForReviewAction(
   supabase: SupabaseClient,
@@ -13,6 +14,7 @@ export async function submitForReviewAction(
     articleId: string;
     actorRole: "admin" | "assistant" | "teacher";
     actorId?: string;
+    locale?: string | null;
   },
 ): Promise<{ ok: boolean; code?: string }> {
   if (input.actorRole !== "teacher") return { ok: false, code: "forbidden" };
@@ -25,6 +27,12 @@ export async function submitForReviewAction(
     logSupabaseClientError("blog.submit_for_review", error, { articleId: input.articleId });
     return { ok: false, code: "update_failed" };
   }
+
+  await notifyAdminsBlogPendingReview({
+    supabase,
+    articleId: input.articleId,
+    locale: input.locale,
+  });
 
   if (input.actorId) {
     await supabase.from("user_events").insert({

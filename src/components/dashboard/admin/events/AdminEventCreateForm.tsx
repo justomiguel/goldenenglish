@@ -9,6 +9,8 @@ import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { createEventAction } from "@/app/[locale]/dashboard/admin/events/actions";
 import { AdminEventPricingFields } from "@/components/dashboard/admin/events/AdminEventPricingFields";
+import type { AdminEventDualTransferLabels } from "@/components/dashboard/admin/events/AdminEventDualTransferFields";
+import { createDefaultEventBankTransferSourcesConfig } from "@/lib/events/eventBankTransferSources";
 import { EventDescriptionEditor } from "@/components/dashboard/admin/events/EventDescriptionEditor";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { isEventLocale } from "@/lib/events/domain";
@@ -31,6 +33,7 @@ interface AdminEventCreateFormLabels {
   currencyGatewayWarning: string;
   bankTransferInstructionsLabel: string;
   bankTransferInstructionsHint: string;
+  dualTransfer?: AdminEventDualTransferLabels;
   submit: string;
   back: string;
   errorSave: string;
@@ -43,6 +46,7 @@ interface AdminEventCreateFormProps {
   editorLabels: EditorLabels;
   academicLabels: AcademicLabels;
   fileUploadProgress: FileUploadProgressLabels;
+  globalInstructions?: string | null;
 }
 
 function parseOptionalPrice(raw: string): number | null {
@@ -58,6 +62,7 @@ export function AdminEventCreateForm({
   editorLabels,
   academicLabels,
   fileUploadProgress,
+  globalInstructions = null,
 }: AdminEventCreateFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -72,6 +77,7 @@ export function AdminEventCreateForm({
   const [priceNonLocal, setPriceNonLocal] = useState("");
   const [currency, setCurrency] = useState("CLP");
   const [bankTransferInstructions, setBankTransferInstructions] = useState("");
+  const [dualConfig, setDualConfig] = useState(createDefaultEventBankTransferSourcesConfig);
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -109,6 +115,7 @@ export function AdminEventCreateForm({
         priceNonLocal: parsedNonLocal ?? parsedLocal,
         currency: currency.trim() || "CLP",
         bankTransferInstructions: bankTransferInstructions.trim() || null,
+        bankTransferSourcesConfig: labels.dualTransfer ? dualConfig : undefined,
         defaultLocale: isEventLocale(locale) ? locale : "es",
       });
       if (!result.ok || !result.eventId) {
@@ -205,6 +212,10 @@ export function AdminEventCreateForm({
             onPriceNonLocalChange={setPriceNonLocal}
             onCurrencyChange={setCurrency}
             onBankTransferInstructionsChange={setBankTransferInstructions}
+            dualConfig={labels.dualTransfer ? dualConfig : undefined}
+            dualLabels={labels.dualTransfer}
+            globalInstructions={globalInstructions}
+            onDualConfigChange={setDualConfig}
           />
         </div>
       </div>
@@ -226,10 +237,7 @@ export function AdminEventCreateForm({
           {!pending ? <CalendarPlus className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {labels.submit}
         </Button>
-        <Link
-          href={`/${locale}/dashboard/admin/events`}
-          className="inline-flex min-h-[44px] items-center gap-2 rounded-md border border-[var(--color-border)] px-3 py-2 text-sm text-[var(--color-foreground)]"
-        >
+        <Link href={`/${locale}/dashboard/admin/events`} className="inline-flex min-h-[44px] items-center gap-2 rounded-md border border-[var(--color-border)] px-3 py-2 text-sm text-[var(--color-foreground)]">
           <ArrowLeft className="h-4 w-4" aria-hidden />
           {labels.back}
         </Link>

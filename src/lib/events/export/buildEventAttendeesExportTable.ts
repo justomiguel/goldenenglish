@@ -22,7 +22,10 @@ function formatBirthDate(value: string, locale: string): string {
 }
 
 function formatPayment(row: EventAttendeeRow, locale: string, labels: EventAttendeesExportColumnLabels): string {
-  if (!row.payment) return labels.noPayment;
+  if (!row.payment) {
+    if (row.primaryAttendeeId && labels.paidByHolder) return labels.paidByHolder;
+    return labels.noPayment;
+  }
   const amount = new Intl.NumberFormat(locale, {
     style: "currency",
     currency: row.payment.currency,
@@ -53,6 +56,9 @@ function buildFixedHeaders(labels: EventAttendeesExportColumnLabels): string[] {
     labels.tutorEmail,
     labels.tutorPhone,
     labels.tutorRelationship,
+    ...(labels.transferSource ? [labels.transferSource] : []),
+    ...(labels.transferAnswer ? [labels.transferAnswer] : []),
+    ...(labels.seatLabels ? [labels.seatLabels] : []),
   ];
 }
 
@@ -78,6 +84,21 @@ function buildFixedRow(
     textCell(tutor?.email?.trim() ? tutor.email : labels.emptyValue),
     textCell(tutor?.phone?.trim() ? tutor.phone : labels.emptyValue),
     textCell(tutor?.relationship?.trim() ? tutor.relationship : labels.emptyValue),
+    ...(labels.transferSource
+      ? [textCell(row.transferSourceLabel?.trim() ? row.transferSourceLabel : labels.emptyValue)]
+      : []),
+    ...(labels.transferAnswer
+      ? [textCell(row.transferQuestionAnswer?.trim() ? row.transferQuestionAnswer : labels.emptyValue)]
+      : []),
+    ...(labels.seatLabels
+      ? [
+          textCell(
+            row.seatLabels && row.seatLabels.length > 0
+              ? row.seatLabels.join(", ")
+              : labels.emptyValue,
+          ),
+        ]
+      : []),
   ];
 }
 

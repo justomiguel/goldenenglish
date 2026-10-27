@@ -9,6 +9,7 @@ vi.mock("next/navigation", () => ({
 }));
 vi.mock("@/app/[locale]/dashboard/admin/events/eventDiscountCodeActions", () => ({
   deleteEventDiscountCodeAction: vi.fn(),
+  exportEventDiscountCodesAction: vi.fn(),
   generateEventDiscountCodesAction: vi.fn(),
   importEventDiscountCodesAction: vi.fn(),
   saveEventDiscountCodeAction: vi.fn(),
@@ -20,8 +21,16 @@ const labels = {
   uses: "Uses",
   usesHint: "Hint",
   percent: "Percent",
+  modeLegend: "Discount type",
+  modePercent: "Percent",
+  modeAmount: "Fixed amount",
+  amount: "Amount",
+  tickets: "Tickets covered",
+  amountHint: "Amount comes off each covered ticket.",
+  amountCell: "{{amount}} off {{count}} tickets",
   add: "Add",
   importFile: "Import",
+  exportFile: "Export",
   generate: "Generate",
   quantity: "Quantity",
   download: "Download",
@@ -61,6 +70,10 @@ const labels = {
     occupied: "o",
     forbidden: "x",
     file: "file",
+    bad_amount: "bad amount",
+    bad_tickets: "bad tickets",
+    wrong_file: "wrong file",
+    examples_only: "examples",
   },
 } satisfies AdminEventDiscountCodeLabels;
 
@@ -70,12 +83,16 @@ describe("AdminEventDiscountCodesPanel", () => {
       <AdminEventDiscountCodesPanel
         locale="es"
         eventId="event-1"
+        currency="CLP"
         labels={labels}
         rows={[
           {
             id: "code-1",
             code: "SAVE10",
+            kind: "percent",
             discountPercent: 10,
+            discountAmount: null,
+            ticketCount: null,
             maxUses: 2,
             reserved: 1,
             consumed: 0,
@@ -109,5 +126,24 @@ describe("AdminEventDiscountCodesPanel", () => {
     expect(screen.getByText("Gómez Luis")).toBeInTheDocument();
     expect(screen.getByText("No payment")).toBeInTheDocument();
     expect(screen.getByText("Released")).toBeInTheDocument();
+  });
+
+  it("shows the amount and ticket fields only in fixed-amount mode", () => {
+    render(
+      <AdminEventDiscountCodesPanel
+        locale="es"
+        eventId="event-1"
+        currency="CLP"
+        labels={labels}
+        rows={[]}
+      />,
+    );
+    expect(screen.getByRole("textbox", { name: "Percent" })).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "Amount" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("radio", { name: "Fixed amount" }));
+    expect(screen.queryByRole("textbox", { name: "Percent" })).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Amount" })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Tickets covered" })).toBeInTheDocument();
+    expect(screen.getByText("Amount comes off each covered ticket.")).toBeInTheDocument();
   });
 });

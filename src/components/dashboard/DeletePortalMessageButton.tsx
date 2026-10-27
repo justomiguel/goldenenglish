@@ -58,7 +58,11 @@ export function DeletePortalMessageButton({
       <Button
         type="button"
         variant="destructive"
-        className={iconOnlyBelowSm ? "min-h-[44px] min-w-[44px] px-2.5 sm:px-4" : "min-h-[44px]"}
+        className={
+          iconOnlyBelowSm
+            ? "min-h-[44px] min-w-[44px] px-2.5 sm:px-4"
+            : "min-h-[44px] w-full px-2.5 text-xs sm:w-auto sm:px-4 sm:text-sm"
+        }
         title={labels.deletePortalMessageTitle}
         aria-label={labels.deletePortalMessageAction}
         onClick={() => {

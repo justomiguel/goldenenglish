@@ -5,7 +5,10 @@ import type { EventDiscountCodeUse } from "@/lib/events/mapEventDiscountCodeUses
 export interface EventDiscountCodeListRow {
   id: string;
   code: string;
-  discountPercent: number;
+  kind: "percent" | "amount";
+  discountPercent: number | null;
+  discountAmount: number | null;
+  ticketCount: number | null;
   maxUses: number | null;
   reserved: number;
   consumed: number;
@@ -33,7 +36,7 @@ export async function loadEventDiscountCodes(
 ): Promise<EventDiscountCodeListRow[]> {
   const { data, error } = await admin
     .from("event_discount_codes")
-    .select("id, code, discount_percent, max_uses")
+    .select("id, code, discount_percent, discount_amount, ticket_count, max_uses")
     .eq("event_id", eventId)
     .order("code", { ascending: true })
     .range(0, 499);
@@ -63,10 +66,16 @@ export async function loadEventDiscountCodes(
   }
   return codes.map((row) => {
     const usage = counts.get(String(row.id)) ?? { reserved: 0, consumed: 0 };
+    const discountAmount = row.discount_amount == null ? null : Number(row.discount_amount);
+    const ticketCount = row.ticket_count == null ? null : Number(row.ticket_count);
+    const kind = discountAmount != null && ticketCount != null ? "amount" : "percent";
     return {
       id: String(row.id),
       code: String(row.code),
-      discountPercent: Number(row.discount_percent),
+      kind,
+      discountPercent: row.discount_percent == null ? null : Number(row.discount_percent),
+      discountAmount,
+      ticketCount,
       maxUses: row.max_uses == null ? null : Number(row.max_uses),
       reserved: usage.reserved,
       consumed: usage.consumed,

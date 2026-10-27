@@ -11,6 +11,11 @@ const labels = {
   invalid: "Invalid",
   noUses: "No uses",
   conflict: "Conflict",
+  coveredOne: "{{count}} ticket at {{price}}",
+  coveredMany: "{{count}} tickets at {{price}}",
+  extraOne: "{{count}} extra ticket at {{price}}",
+  extraMany: "{{count}} extra tickets at {{price}}",
+  off: "Ticket price minus {{amount}}",
 };
 
 describe("EventRegisterDiscountCode", () => {
@@ -19,7 +24,7 @@ describe("EventRegisterDiscountCode", () => {
       "fetch",
       vi.fn(async () => ({
         ok: true,
-        json: async () => ({ ok: true, amount: 4500 }),
+        json: async () => ({ ok: true, kind: "percent", percent: 10, amount: 4500 }),
       })),
     );
     const onApplied = vi.fn();
@@ -40,7 +45,7 @@ describe("EventRegisterDiscountCode", () => {
     fireEvent.change(screen.getByLabelText("Discount code"), { target: { value: "SAVE10" } });
     fireEvent.click(screen.getByRole("button", { name: "Apply" }));
     await screen.findByRole("button", { name: "Apply" });
-    expect(onApplied).toHaveBeenCalledWith({ code: "SAVE10", amount: 4500 });
+    expect(onApplied).toHaveBeenCalledWith({ code: "SAVE10", kind: "percent", percent: 10 });
 
     rerender(
       <EventRegisterDiscountCode
@@ -50,7 +55,8 @@ describe("EventRegisterDiscountCode", () => {
         freeLabel="Free"
         flowId={null}
         isLocalResident
-        applied={{ code: "SAVE10", amount: 4500 }}
+        applied={{ code: "SAVE10", kind: "percent", percent: 10 }}
+        payAmount={4500}
         onApplied={onApplied}
         onClear={vi.fn()}
         labels={labels}

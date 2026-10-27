@@ -1,7 +1,6 @@
-export interface EventDiscountApplied {
-  code: string;
-  amount: number;
-}
+export type EventDiscountApplied =
+  | { code: string; kind: "percent"; percent: number }
+  | { code: string; kind: "amount"; discountAmount: number; ticketCount: number };
 
 export interface EventDiscountSelection {
   family: boolean;

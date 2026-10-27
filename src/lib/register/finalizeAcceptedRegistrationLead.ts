@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { notifyRegistrationWelcome } from "@/lib/email/registrationIntakeEmails";
+import { notifyAdminsRegistrationPlacement } from "@/lib/email/notifyAdminsRegistrationPlacement";
 import { failAfterStudentCreated } from "@/lib/register/acceptRegistrationHelpers";
 import { enrollRequestedSectionsOnAccept } from "@/lib/register/enrollRequestedSectionsOnAccept";
 import { localizeRegistrationAcceptError } from "@/lib/register/localizeRegistrationAcceptError";
@@ -150,6 +151,15 @@ export async function finalizeAcceptedRegistrationLead(input: {
         : null,
     },
   });
+
+  if (write.intake_state === "needs_section" || write.intake_state === "section_full") {
+    await notifyAdminsRegistrationPlacement({
+      admin,
+      locale: input.locale,
+      registrationId: String(reg.id),
+      kind: write.intake_state,
+    });
+  }
 
   const undecided = dict.register.enrollmentPayUndecidedSection;
   const sectionName = registrationWelcomeSectionLabel({

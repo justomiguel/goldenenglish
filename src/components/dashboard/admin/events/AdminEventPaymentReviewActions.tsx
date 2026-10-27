@@ -66,7 +66,7 @@ export function AdminEventPaymentReviewActions({
   const isPending = status === "pending";
   const isApproved = status === "approved";
   const isRejected = status === "rejected";
-  const canDelete = !gatewayProvider && (isPending || isRejected);
+  const canDelete = !gatewayProvider && (isPending || isRejected || isApproved);
   const canRevert = !gatewayProvider && isApproved;
   const hasActions = isPending || canDelete || canRevert;
 

@@ -6,6 +6,7 @@ import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { billingUploadActionDict, localeFromFormData } from "@/lib/i18n/actionErrors";
 import { getFinancialBillingContext } from "@/lib/billing/getFinancialBillingContext";
 import { extFromMime } from "@/lib/billing/extFromMime";
+import { notifyAdminsReceiptPending } from "@/lib/email/notifyAdminsReceiptPending";
 import { createClient } from "@/lib/supabase/server";
 
 const MAX_BYTES = 4 * 1024 * 1024;
@@ -52,12 +53,12 @@ export async function uploadBillingReceipt(
 
   const { data: inv, error: invErr } = await supabase
     .from("billing_invoices")
-    .select("id, student_id, status")
+    .select("id, student_id, status, description")
     .eq("id", invoiceId)
     .maybeSingle();
   if (invErr || !inv) return { ok: false, message: pe.invoiceNotFound };
 
-  const invRow = inv as { id: string; student_id: string; status: string };
+  const invRow = inv as { id: string; student_id: string; status: string; description: string | null };
   if (!["pending", "overdue"].includes(invRow.status)) {
     return { ok: false, message: pe.invoiceNotActionable };
   }
@@ -113,6 +114,17 @@ export async function uploadBillingReceipt(
     return { ok: false, message: pe.uploadFailed };
   }
 
+  const loc = localeFromFormData(formData);
+  const description = String(invRow.description ?? "").trim();
+  await notifyAdminsReceiptPending({
+    locale: loc,
+    kind: "invoice",
+    contextLabel: description || "—",
+    studentId: invRow.student_id,
+    amount,
+    currency: null,
+  });
+
   const { error: invUp } = await supabase
     .from("billing_invoices")
     .update({ status: "verifying" })
@@ -131,7 +143,6 @@ export async function uploadBillingReceipt(
     },
   });
 
-  const loc = localeFromFormData(formData);
   revalidatePath(`/${loc}/dashboard/parent/billing`);
   revalidatePath(`/${loc}/dashboard/student/billing`);
   revalidatePath(`/${loc}/dashboard/admin/finance/receipts`);

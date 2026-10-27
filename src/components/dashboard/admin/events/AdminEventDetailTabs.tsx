@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
+  Armchair,
   Bell,
   ClipboardList,
   CreditCard,
@@ -15,6 +16,7 @@ import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 export type EventAdminTab =
   | "summary"
   | "form"
+  | "seats"
   | "attendees"
   | "payments"
   | "codes"
@@ -24,6 +26,7 @@ export type EventAdminTab =
 export const EVENT_ADMIN_TAB_ORDER: readonly EventAdminTab[] = [
   "summary",
   "form",
+  "seats",
   "attendees",
   "payments",
   "codes",
@@ -63,6 +66,7 @@ export interface AdminEventDetailTabsProps {
 const TAB_ICONS: Record<EventAdminTab, LucideIcon> = {
   summary: LayoutDashboard,
   form: ClipboardList,
+  seats: Armchair,
   attendees: Users,
   payments: CreditCard,
   codes: TicketPercent,
@@ -70,7 +74,7 @@ const TAB_ICONS: Record<EventAdminTab, LucideIcon> = {
   notifications: Bell,
 };
 
-const TAB_TOUR_ANCHORS: Record<EventAdminTab, string> = {
+const TAB_TOUR_ANCHORS: Partial<Record<EventAdminTab, string>> = {
   summary: ADMIN_TOUR_ANCHORS.eventDetailTabSummary,
   form: ADMIN_TOUR_ANCHORS.eventDetailTabForm,
   attendees: ADMIN_TOUR_ANCHORS.eventDetailTabAttendees,

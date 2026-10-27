@@ -52,6 +52,9 @@ function columnLabelsFromDict(dict: Dictionary) {
     tutorEmail: columns.email,
     tutorPhone: columns.phone,
     tutorRelationship: detail.attendeesExport.tutorRelationship,
+    transferSource: detail.attendeesExport.transferSource,
+    transferAnswer: detail.attendeesExport.transferAnswer,
+    seatLabels: detail.attendeesExport.seatLabels,
     statusLabels: detail.attendeesStatusLabels,
     paymentLabels: {
       pending: dict.admin.finance.events.pendingLabel,
@@ -63,6 +66,7 @@ function columnLabelsFromDict(dict: Dictionary) {
     noPhone: detail.attendeesNoPhone,
     noBirthDate: detail.attendeesNoBirthDate,
     noPayment: detail.attendeesNoPayment,
+    paidByHolder: detail.attendeesPaidByHolder,
     emptyValue: detail.attendeesExport.emptyValue,
   };
 }

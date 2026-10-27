@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import type { EventRegistrationPaymentMethod } from "@/lib/events/resolveEventRegistrationPaymentMethods";
-import type { EventFormFieldDefinition, EventFieldPayloadEntry } from "@/lib/events/types";
+import type {
+  EventCompanionPayload,
+  EventFormFieldDefinition,
+  EventFieldPayloadEntry,
+} from "@/lib/events/types";
 import { validateEventTransferReceiptFile } from "@/lib/events/eventTransferReceiptLimits";
 import {
   fillEventFormFieldMaxMbTemplate,
@@ -11,6 +15,7 @@ import {
 import { uploadEventPaymentReceipt } from "@/lib/client/uploadEventPaymentReceipt";
 import { uploadEventAttendeeFieldFile } from "@/lib/client/uploadEventAttendeeFieldFile";
 import { startEventGatewayPayment } from "@/lib/client/startEventGatewayPayment";
+import { buildEventEnrollRequestBody } from "@/lib/events/buildEventEnrollRequestBody";
 
 function isOnlineGatewayMethod(method: EventRegistrationPaymentMethod): method is "mercadopago" | "flow" {
   return method === "mercadopago" || method === "flow";
@@ -50,7 +55,14 @@ export interface EventRegisterSubmitPayload {
   flowId?: string | null;
   familyDiscountClaimed: boolean;
   discountCode?: string | null;
-  discountErrors?: { invalid_code: string; no_uses: string; discount_conflict: string };
+  discountErrors?: Record<string, string>;
+  transferOptionId?: string | null;
+  transferSourceKey?: string | null;
+  seatKeys?: string[];
+  companions?: EventCompanionPayload[];
+  minorTicketCount?: number;
+  transferOptionRequired?: string;
+  transferSourceRequired?: string;
 }
 
 export interface EventRegisterSubmitLabels {
@@ -159,40 +171,27 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
       const response = await fetch(`/api/events/${payload.slug}/enroll`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          captchaToken: "manual-placeholder",
-          locale: payload.locale,
-          base: {
-            firstName: payload.firstName,
-            lastName: payload.lastName,
-            dniOrPassport: payload.dni,
-            email: payload.email,
-            phone: payload.phone,
-            ...(payload.birthDate.trim()
-              ? { birthDate: payload.birthDate.trim() }
-              : {}),
-          },
-          tutor: payload.isMinor ? payload.tutor : {},
-          paymentMethod: payload.showPaymentPicker ? payload.paymentMethod : undefined,
-          isLocalResident: payload.isLocalResident,
-          fieldValues,
-          ...(payload.flowId ? { flowId: payload.flowId } : {}),
-          familyDiscount: payload.familyDiscountClaimed,
-          discountCode: payload.discountCode ?? undefined,
-        }),
+        body: JSON.stringify(buildEventEnrollRequestBody({ ...payload, fieldValues })),
       });
 
       const body = (await response.json().catch(() => null)) as {
         ok?: boolean;
+        code?: string;
         result?: { attendeeId?: string | null; paymentRequired?: boolean; resultCode?: string };
       } | null;
       if (!response.ok || !body?.ok) {
-        setMessage(labels.error);
+        if (body?.code === "transfer_option_required" && payload.transferOptionRequired) {
+          setMessage(payload.transferOptionRequired);
+        } else if (body?.code === "transfer_source_required" && payload.transferSourceRequired) {
+          setMessage(payload.transferSourceRequired);
+        } else {
+          setMessage(labels.error);
+        }
         return;
       }
-      const discountCode = body.result?.resultCode as "invalid_code" | "no_uses" | "discount_conflict";
-      if (payload.discountErrors?.[discountCode]) {
-        setMessage(payload.discountErrors[discountCode]);
+      const resultCode = body.result?.resultCode ?? "";
+      if (resultCode && payload.discountErrors?.[resultCode]) {
+        setMessage(payload.discountErrors[resultCode]);
         return;
       }
 

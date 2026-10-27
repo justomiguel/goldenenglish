@@ -60,6 +60,7 @@ export async function submitBlogForReviewAdminAction(locale: string, articleId: 
     articleId,
     actorRole: role,
     actorId: user.id,
+    locale,
   });
   if (result.ok) revalidateBlogPaths(locale);
   return result;

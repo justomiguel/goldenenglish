@@ -3,10 +3,16 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { serializeEventFieldValuesForEnrollRpc } from "@/lib/events/serializeEventFieldValuesForEnrollRpc";
-import { parseEventEmailLocale } from "@/lib/events/eventEmailCopy";
-import { applyEventFamilyDiscount } from "@/lib/events/applyEventFamilyDiscount";
-import { registrationFlowCharge } from "@/lib/events/registrationFlows";
+import { resolveEventMinorTicketCharge } from "@/lib/events/resolveEventMinorTicketCharge";
+import { storeEnrolledAttendeeCharge } from "@/lib/events/server/storeEnrolledAttendeeCharge";
+import { notifyAdminsEventRegistered } from "@/lib/email/notifyAdminsPurchasePayment";
 import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
+import type { EventSeatMapConfig } from "@/lib/events/seatMapModel";
+import { isEventSeatMapActive, validateEventSeatSelection } from "@/lib/events/seatMapState";
+import {
+  loadEventSeatLocks,
+  lockSeatsForAttendee,
+} from "@/lib/events/server/eventSeatLocksServer";
 import type {
   EventCompanionPayload,
   EventFieldPayloadEntry,
@@ -37,6 +43,17 @@ export interface EnrollEventAttendeeServerInput {
   currency?: string | null;
   /** Code text. The server computes the amount. Empty means no code. */
   discountCode?: string | null;
+  /** Selected bank transfer destination when dual transfer mode is active. */
+  transferSelection?: {
+    sourceKey: "source_1" | "source_2" | "global";
+    sourceLabel: string;
+    questionAnswer: string | null;
+  } | null;
+  seatMapConfig?: EventSeatMapConfig | null;
+  seatKeys?: string[];
+  minorTicketCount?: number;
+  allowMinorTickets?: boolean;
+  minorTicketPrice?: number | null;
 }
 
 export interface EnrollEventAttendeeServerResult {
@@ -138,54 +155,81 @@ export async function enrollEventAttendeeServer(
   const admin = await createAdminClient();
   const discountCode = input.discountCode?.trim() ?? "";
   if (discountCode && input.familyDiscountClaimed === true) return failure("discount_conflict");
+  const minorPreview = resolveEventMinorTicketCharge({
+    seats: 1 + (input.companions?.length ?? 0),
+    minorTickets: input.minorTicketCount ?? 0,
+    adultUnitPrice: 0,
+    minorUnitPrice: input.minorTicketPrice ?? null,
+    allowMinorTickets: Boolean(input.allowMinorTickets),
+  });
+  if (!minorPreview.ok) return failure(minorPreview.reason);
+
+  let assignedSeats: Array<{ seatKey: string; seatLabel: string }> = [];
+  if (isEventSeatMapActive(input.seatMapConfig)) {
+    const locks = await loadEventSeatLocks(admin, input.eventId);
+    const seatCheck = validateEventSeatSelection({
+      config: input.seatMapConfig,
+      locks,
+      selectedSeatKeys: input.seatKeys ?? [],
+      requiredSeatCount: 1 + (input.companions?.length ?? 0),
+    });
+    if (!seatCheck.ok) return failure(seatCheck.code);
+    assignedSeats = seatCheck.assignedSeats;
+  }
 
   const result = await callEnrollRpc(admin, input, discountCode);
   if (!result.attendeeId || !ENROLL_MAIL_CODES.has(result.resultCode)) return result;
 
-  const flow = input.registrationFlow;
-  const claimed = !discountCode && input.familyDiscountClaimed === true;
-  const currency = input.currency?.trim() || "CLP";
-  const charge =
-    flow?.price == null
-      ? null
-      : registrationFlowCharge({
-          price: flow.price,
-          seats: result.seats,
-          status: result.attendeeStatus,
-        });
-  const { error } = await admin
-    .from("event_attendees")
-    .update({
-      registration_locale: parseEventEmailLocale(input.locale),
-      family_discount_claimed: claimed,
-      ...(flow ? { registration_flow_id: flow.id } : {}),
-      ...(!discountCode && charge ? { status: charge.status } : {}),
-    })
-    .eq("id", result.attendeeId);
-  if (error) {
-    logSupabaseClientError("enrollEventAttendeeServer:flow", error, {
+  if (assignedSeats.length > 0) {
+    const lockRes = await lockSeatsForAttendee(admin, {
       eventId: input.eventId,
       attendeeId: result.attendeeId,
+      seats: assignedSeats,
     });
+    if (!lockRes.ok) return failure(lockRes.code);
   }
+
+  const stored = await storeEnrolledAttendeeCharge(admin, {
+    eventId: input.eventId,
+    attendeeId: result.attendeeId,
+    locale: input.locale,
+    discountCode,
+    familyDiscountClaimed: input.familyDiscountClaimed,
+    currency: input.currency,
+    registrationFlow: input.registrationFlow,
+    minorTicketCount: input.minorTicketCount,
+    allowMinorTickets: input.allowMinorTickets,
+    minorTicketPrice: input.minorTicketPrice,
+    transferSelection: input.transferSelection,
+    rpcTotal: result.totalAmount,
+    rpcStatus: result.attendeeStatus,
+    rpcPaymentRequired: result.paymentRequired,
+    seats: result.seats,
+  });
+  if (!stored.ok) return failure(stored.reason);
 
   await sendEventAttendeeNotification({
     attendeeId: result.attendeeId,
     templateKey: "events.registered",
   });
 
-  const baseTotal = charge?.totalAmount ?? result.totalAmount;
-  const totalAmount = discountCode
-    ? result.totalAmount
-    : baseTotal == null
-      ? null
-      : applyEventFamilyDiscount({ amount: baseTotal, claimed, currency });
+  if (result.resultCode !== "waitlist") {
+    await notifyAdminsEventRegistered({
+      eventId: input.eventId,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      seatCount: result.seats,
+      amount: stored.totalAmount,
+      currency: input.currency ?? null,
+      paymentPending: stored.paymentRequired,
+      locale: input.locale ?? null,
+    });
+  }
 
-  if (!charge || discountCode) return { ...result, totalAmount };
   return {
     ...result,
-    attendeeStatus: charge.status,
-    paymentRequired: charge.paymentRequired,
-    totalAmount,
+    attendeeStatus: stored.attendeeStatus,
+    paymentRequired: stored.paymentRequired,
+    totalAmount: stored.totalAmount,
   };
 }

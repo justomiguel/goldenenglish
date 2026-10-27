@@ -18,6 +18,7 @@ import {
 } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
 import { deleteEventAttendee } from "@/lib/events/server/deleteEventAttendeeServer";
 import { releaseEventDiscountRedemption } from "@/lib/events/server/syncEventDiscountRedemption";
+import { releaseSeatsForAttendee } from "@/lib/events/server/eventSeatLocksServer";
 
 export async function promoteEventAttendeeToUserAction(input: {
   locale: string;
@@ -103,6 +104,7 @@ export async function cancelEventAttendeeAction(locale: string, attendeeId: stri
     .eq("id", attendeeId);
   if (error) return { ok: false, message: error.message };
   await releaseEventDiscountRedemption(admin, attendeeId);
+  await releaseSeatsForAttendee(admin, attendeeId);
   revalidatePath(adminEventsPath(locale), "page");
   return { ok: true };
 }

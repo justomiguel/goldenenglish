@@ -1,8 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const { notifyAdminsEventPaymentPaid } = vi.hoisted(() => ({
+  notifyAdminsEventPaymentPaid: vi.fn(async () => undefined),
+}));
+
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logSupabaseClientError: vi.fn(),
   logServerException: vi.fn(),
+}));
+
+vi.mock("@/lib/email/notifyAdminsPurchasePayment", () => ({
+  notifyAdminsEventPaymentPaid: (...args: unknown[]) => notifyAdminsEventPaymentPaid(...args),
 }));
 
 import { markEventPaymentApprovedCore } from "@/lib/events/server/markEventPaymentApprovedCore";
@@ -78,6 +86,8 @@ describe("markEventPaymentApprovedCore", () => {
     });
     expect(paymentUpdate).toHaveBeenCalled();
     expect(attendeeUpdate).toHaveBeenCalled();
+    expect(notifyAdminsEventPaymentPaid).toHaveBeenCalledTimes(1);
+    expect(notifyAdminsEventPaymentPaid).toHaveBeenCalledWith("pay-1");
   });
 
   it("returns not_found when payment is missing", async () => {
@@ -204,5 +214,6 @@ describe("markEventPaymentApprovedCore", () => {
     });
     expect(paymentUpdate).not.toHaveBeenCalled();
     expect(attendeeUpdate).toHaveBeenCalled();
+    expect(notifyAdminsEventPaymentPaid).not.toHaveBeenCalled();
   });
 });

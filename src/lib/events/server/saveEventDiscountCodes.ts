@@ -38,7 +38,9 @@ export async function saveEventDiscountCodes(
       const { error: updateError } = await admin
         .from("event_discount_codes")
         .update({
-          discount_percent: row.discountPercent,
+          discount_percent: row.kind === "percent" ? row.discountPercent : null,
+          discount_amount: row.kind === "amount" ? row.discountAmount : null,
+          ticket_count: row.kind === "amount" ? row.ticketCount : null,
           max_uses: row.maxUses,
           updated_at: new Date().toISOString(),
         })
@@ -56,7 +58,9 @@ export async function saveEventDiscountCodes(
       .insert({
         event_id: eventId,
         code: row.code.trim(),
-        discount_percent: row.discountPercent,
+        discount_percent: row.kind === "percent" ? row.discountPercent : null,
+        discount_amount: row.kind === "amount" ? row.discountAmount : null,
+        ticket_count: row.kind === "amount" ? row.ticketCount : null,
         max_uses: row.maxUses,
       })
       .select("id")

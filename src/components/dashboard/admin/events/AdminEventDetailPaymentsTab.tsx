@@ -1,4 +1,5 @@
 import { AdminEventPaymentsPanel } from "@/components/dashboard/admin/events/AdminEventPaymentsPanel";
+import { parseEventSeatMapConfig } from "@/lib/events/seatMapModel";
 import type { Dictionary } from "@/types/i18n";
 import type { loadAdminEventDetailPageModel } from "@/lib/dashboard/events/loadAdminEventDetailPageModel";
 
@@ -26,6 +27,7 @@ export function AdminEventDetailPaymentsTab({
       payments={model.eventPayments}
       searchQuery={model.paymentsQuery}
       statusFilter={model.paymentStatusFilter}
+      seatMapConfig={parseEventSeatMapConfig(model.event.seat_map_config)}
       labels={{
         title: dict.admin.finance.events.title,
         lead: detail.paymentsLead,
@@ -79,6 +81,10 @@ export function AdminEventDetailPaymentsTab({
             rejected: dict.admin.finance.events.rejectedLabel,
           },
           methodLabels: detail.paymentsMethodLabels,
+          transferSource: detail.transferSourceLabel,
+          transferAnswer: detail.transferAnswerLabel,
+          seatLabels: detail.seatLabelsLabel,
+          minorTickets: detail.minorTicketsLabel,
         },
         pagination: {
           prev: dict.admin.table.paginationPrev,
