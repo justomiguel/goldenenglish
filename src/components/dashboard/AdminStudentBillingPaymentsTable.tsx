@@ -87,7 +87,7 @@ export function AdminStudentBillingPaymentsTable({
                 className={[
                   "border-b border-[var(--color-border)] last:border-0",
                   hasScholarshipDiscount
-                    ? "border-l-4 border-l-[var(--color-success)] bg-[var(--color-success)]/10"
+                    ? "bg-[var(--color-success)]/10"
                     : "",
                 ].join(" ")}
               >

@@ -7,6 +7,7 @@ import {
   resolveE2eIsolation,
 } from "./env";
 import { gotoIsolated } from "./helpers/gotoIsolated";
+import { rosterRowName } from "./helpers/scheduleOfferRoster";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -42,7 +43,7 @@ test.describe("@critical-section-enroll", () => {
     });
 
     // Roster may already include student-b from a prior pass; require status "active".
-    const activeRosterRow = page.getByRole("row", { name: /EnrolleeB\s+E2E.*\bactive\b/i });
+    const activeRosterRow = page.getByRole("row", { name: rosterRowName(STUDENT_B_LABEL, "active") });
     if (await activeRosterRow.count()) {
       await expect(activeRosterRow.first()).toBeVisible();
       return;

@@ -34,7 +34,13 @@ async function loginOnPage(
       await emailField.fill(email);
       await page.locator('input[type="password"]').fill(password);
       await page.getByRole("button", { name: /sign in|iniciar|entrar|login/i }).click();
-      await page.waitForURL(new RegExp(`/${locale}/dashboard`), { timeout: 60_000 });
+      const denied = page.getByRole("alert").filter({ hasText: /invalid_credentials/i });
+      await Promise.race([
+        page.waitForURL(new RegExp(`/${locale}/dashboard`), { timeout: 60_000 }),
+        denied.waitFor({ timeout: 60_000 }).then(() => {
+          throw new Error("E2E login rejected: invalid_credentials");
+        }),
+      ]);
       await expect(page).toHaveURL(new RegExp(`/${locale}/dashboard`));
       return;
     } catch (err) {

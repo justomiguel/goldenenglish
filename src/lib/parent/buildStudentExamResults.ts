@@ -19,6 +19,7 @@ export type BuildStudentExamResultsInput = {
   /** Published grades only; a missing entry means "no result to show yet". */
   gradesByAssessmentId: Map<string, ExamPublishedGrade>;
   sectionNameByCohortId: Map<string, string>;
+  sectionIdByCohortId?: Map<string, string>;
   now: Date;
 };
 
@@ -46,6 +47,7 @@ export function buildStudentExamResults({
   assessments,
   gradesByAssessmentId,
   sectionNameByCohortId,
+  sectionIdByCohortId,
   now,
 }: BuildStudentExamResultsInput): StudentExamResult[] {
   const today = isoDay(now);
@@ -57,6 +59,7 @@ export function buildStudentExamResults({
       return {
         id: assessment.id,
         name: assessment.name,
+        sectionId: sectionIdByCohortId?.get(assessment.cohortId),
         sectionName: sectionNameByCohortId.get(assessment.cohortId) ?? "",
         examOn: assessment.examOn,
         maxScore: usableNumber(assessment.maxScore),

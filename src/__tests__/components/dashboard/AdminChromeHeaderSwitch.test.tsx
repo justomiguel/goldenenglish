@@ -55,10 +55,15 @@ describe("AdminChromeHeader workspace switch", () => {
       />,
     );
     expect(screen.queryByRole("navigation", { name: dictEn.common.locale.label })).toBeNull();
-    expect(screen.queryByRole("link", { name: dictEn.dashboard.adminChrome.backToSite })).not.toBeNull();
-    expect(
-      screen.getByRole("link", { name: dictEn.dashboard.adminChrome.headerMessagesAria }),
-    ).toHaveAttribute("href", "/en/dashboard/admin/messages");
+    const backToSite = screen.getByRole("link", { name: dictEn.dashboard.adminChrome.backToSite });
+    expect(backToSite.className).toContain("hidden");
+    expect(backToSite.className).toContain("md:inline-flex");
+    const messages = screen.getByRole("link", { name: dictEn.dashboard.adminChrome.headerMessagesAria });
+    expect(messages).toHaveAttribute("href", "/en/dashboard/admin/messages");
+    expect(messages.className).toContain("hidden");
+    expect(messages.className).toContain("md:inline-flex");
+    expect(screen.getByRole("link", { name: mockBrandPublic.name }).className).toContain("md:hidden");
+    expect(screen.getByRole("img", { name: mockBrandPublic.logoAlt })).toBeTruthy();
     expect(screen.queryByRole("button", { name: dictEn.nav.logout })).toBeNull();
   });
 

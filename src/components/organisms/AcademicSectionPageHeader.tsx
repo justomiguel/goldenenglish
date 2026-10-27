@@ -36,7 +36,7 @@ export function AcademicSectionPageHeader({
   imageUrl?: string | null;
 }) {
   return (
-    <div className="min-w-0 rounded-3xl border border-[color-mix(in_srgb,var(--color-primary)_10%,var(--color-border))] bg-[linear-gradient(90deg,color-mix(in_srgb,var(--color-primary)_8%,#eef3fb)_0%,color-mix(in_srgb,var(--color-primary)_12%,#e8eef8)_48%,color-mix(in_srgb,var(--color-primary)_6%,#f5f7fb)_100%)] px-6 py-6 shadow-[var(--shadow-soft)]">
+    <div className="min-w-0 rounded-2xl border border-[color-mix(in_srgb,var(--color-primary)_10%,var(--color-border))] bg-[linear-gradient(90deg,color-mix(in_srgb,var(--color-primary)_8%,#eef3fb)_0%,color-mix(in_srgb,var(--color-primary)_12%,#e8eef8)_48%,color-mix(in_srgb,var(--color-primary)_6%,#f5f7fb)_100%)] px-4 py-4 shadow-[var(--shadow-soft)] sm:rounded-3xl sm:px-6 sm:py-6">
       <Link
         href={`/${locale}/dashboard/admin/academic/${cohortId}`}
         className="text-sm font-medium text-[var(--color-primary)] hover:underline"

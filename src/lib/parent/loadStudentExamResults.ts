@@ -61,6 +61,7 @@ export async function loadStudentExamResults(
   noteReadFailure(`${SCOPE}:sections`, sectionsError, { studentId }, onLoadError);
 
   const sectionNameByCohortId = new Map<string, string>();
+  const sectionIdByCohortId = new Map<string, string>();
   for (const section of (sectionRows ?? []) as {
     id: string;
     name: string | null;
@@ -69,6 +70,7 @@ export async function loadStudentExamResults(
     if (!section.cohort_id) continue;
     if (!sectionNameByCohortId.has(section.cohort_id)) {
       sectionNameByCohortId.set(section.cohort_id, section.name ?? "");
+      sectionIdByCohortId.set(section.cohort_id, section.id);
     }
   }
 
@@ -125,6 +127,7 @@ export async function loadStudentExamResults(
     assessments,
     gradesByAssessmentId,
     sectionNameByCohortId,
+    sectionIdByCohortId,
     now,
   });
 }

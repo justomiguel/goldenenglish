@@ -1,17 +1,10 @@
-import {
-  compareProfileNamesByLastThenFirst,
-  formatProfileNameSurnameFirst,
-} from "@/lib/profile/formatProfileDisplayName";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import type { MonthlyDueTotal } from "@/lib/billing/sumDiscountedMonthlyDue";
 import type {
   AdminStudentDirectoryParent,
   AdminStudentDirectorySection,
 } from "@/lib/dashboard/loadAdminStudentDirectoryExtras";
-import {
-  directoryBillingMarkSortRank,
-  type DirectoryBillingMark,
-} from "@/lib/dashboard/directoryBillingStatus";
-import { compareSortValues } from "@/lib/sort/compareSortValues";
+import type { DirectoryBillingMark } from "@/lib/dashboard/directoryBillingStatus";
 
 export type AdminUserRow = {
   id: string;
@@ -56,21 +49,6 @@ export type SortKey =
   | "enrollmentFee"
   | "monthlyStatus";
 export type SortDir = "asc" | "desc";
-
-function sectionsSortValue(row: AdminUserRow): string {
-  if (row.missingSection) return "";
-  return row.sections.map((section) => section.name).join("\0");
-}
-
-function peopleSortValue(people: { firstName: string; lastName: string }[]): string {
-  return people
-    .map((person) => formatProfileNameSurnameFirst(person.firstName, person.lastName))
-    .join("\0");
-}
-
-function monthlyDueSortValue(row: AdminUserRow): number {
-  return row.monthlyDue.reduce((sum, line) => sum + line.amount, 0);
-}
 
 export const ROLE_FILTER_ALL = "all" as const;
 
@@ -159,70 +137,4 @@ export function applyUserRowToggle(
   return next;
 }
 
-export function sortAdminUsers(
-  rows: AdminUserRow[],
-  key: SortKey,
-  dir: SortDir,
-): AdminUserRow[] {
-  const copy = [...rows];
-  const mult = dir === "asc" ? 1 : -1;
-  copy.sort((a, b) => {
-    if (key === "name") {
-      return compareProfileNamesByLastThenFirst(
-        { firstName: a.firstName, lastName: a.lastName },
-        { firstName: b.firstName, lastName: b.lastName },
-      ) * mult;
-    }
-    if (key === "lastAccess") {
-      const va = a.lastSessionStartAt ?? "";
-      const vb = b.lastSessionStartAt ?? "";
-      return va.localeCompare(vb) * mult;
-    }
-    if (key === "sections") {
-      return (
-        sectionsSortValue(a).localeCompare(sectionsSortValue(b), undefined, {
-          sensitivity: "base",
-          numeric: true,
-        }) * mult
-      );
-    }
-    if (key === "parent") {
-      return (
-        peopleSortValue(a.parents).localeCompare(peopleSortValue(b.parents), undefined, {
-          sensitivity: "base",
-        }) * mult
-      );
-    }
-    if (key === "children") {
-      return (
-        peopleSortValue(a.children).localeCompare(peopleSortValue(b.children), undefined, {
-          sensitivity: "base",
-        }) * mult
-      );
-    }
-    if (key === "monthlyDue") {
-      return (monthlyDueSortValue(a) - monthlyDueSortValue(b)) * mult;
-    }
-    if (key === "lastEnrollment") {
-      return compareSortValues(a.lastEnrollmentAt, b.lastEnrollmentAt, dir);
-    }
-    if (key === "enrollmentFee") {
-      return compareSortValues(
-        directoryBillingMarkSortRank(a.enrollmentFeeStatus),
-        directoryBillingMarkSortRank(b.enrollmentFeeStatus),
-        dir,
-      );
-    }
-    if (key === "monthlyStatus") {
-      return compareSortValues(
-        directoryBillingMarkSortRank(a.monthlyStatus),
-        directoryBillingMarkSortRank(b.monthlyStatus),
-        dir,
-      );
-    }
-    const va = a[key as keyof Pick<AdminUserRow, "email" | "role" | "phone">];
-    const vb = b[key as keyof Pick<AdminUserRow, "email" | "role" | "phone">];
-    return va.localeCompare(vb, undefined, { sensitivity: "base" }) * mult;
-  });
-  return copy;
-}
+export { sortAdminUsers } from "@/lib/dashboard/sortAdminUserRows";

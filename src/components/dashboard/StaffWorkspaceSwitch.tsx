@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Eye } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { ViewAsSelectorRole, ViewAsSubject, ViewAsSubjectRole } from "@/lib/dashboard/viewAsTypes";
 import { adminUserRoleOptionLabel } from "@/lib/dashboard/adminUserRoleOptionLabel";
@@ -14,8 +14,15 @@ import {
   startViewAsAction,
   type ViewAsPersonHit,
 } from "@/lib/dashboard/viewAsActions";
+import { StaffWorkspaceSwitchMenu, workspaceSelectorLabel } from "@/components/dashboard/StaffWorkspaceSwitchMenu";
+import { StaffWorkspaceSwitchSheet } from "@/components/dashboard/StaffWorkspaceSwitchSheet";
 
-const SELECTOR_ROLES: ViewAsSelectorRole[] = ["admin", "teacher", "student", "parent", "assistant", "all"];
+const NARROW_QUERY = "(max-width: 767px)";
+
+function isNarrowViewport(): boolean {
+  if (typeof window.matchMedia !== "function") return false;
+  return window.matchMedia(NARROW_QUERY).matches;
+}
 
 export function StaffWorkspaceSwitch({
   locale,
@@ -29,12 +36,13 @@ export function StaffWorkspaceSwitch({
   viewAs: ViewAsSubject | null;
 }) {
   const router = useRouter();
+  const titleId = useId();
   const labels = dict.dashboard.viewAs;
   const roleLabels = dict.admin.users;
   const chrome = dict.dashboard.adminChrome;
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<"popover" | "sheet" | null>(null);
   const [searchRole, setSearchRole] = useState<ViewAsSelectorRole | null>(null);
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<ViewAsPersonHit[]>([]);
@@ -46,6 +54,9 @@ export function StaffWorkspaceSwitch({
     : activeRole === "teacher"
       ? chrome.workspaceTeacher
       : chrome.workspaceAdmin;
+  const eyebrow = viewAs
+    ? adminUserRoleOptionLabel(roleLabels, viewAs.role)
+    : labels.barEyebrow;
 
   function measureBox() {
     const el = triggerRef.current;
@@ -57,8 +68,12 @@ export function StaffWorkspaceSwitch({
     return { top: rect.bottom + 8, left, width };
   }
 
+  function close() {
+    setOpen(null);
+  }
+
   useLayoutEffect(() => {
-    if (!open) return;
+    if (open !== "popover") return;
     const onViewport = () => {
       const next = measureBox();
       if (next) setBox(next);
@@ -76,10 +91,17 @@ export function StaffWorkspaceSwitch({
     const onDoc = (event: MouseEvent) => {
       const target = event.target as Node;
       if (triggerRef.current?.contains(target) || panelRef.current?.contains(target)) return;
-      setOpen(false);
+      close();
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
     };
     document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   useEffect(() => {
@@ -95,124 +117,130 @@ export function StaffWorkspaceSwitch({
   }, [query, searchRole]);
 
   async function go(href: string) {
-    setOpen(false);
+    close();
     router.push(href);
     router.refresh();
   }
 
-  function selectorLabel(role: ViewAsSelectorRole): string {
-    if (role === "admin") return chrome.workspaceAdmin;
-    if (role === "teacher") return chrome.workspaceTeacher;
-    if (role === "all") return roleLabels.roleFilterAll;
-    return adminUserRoleOptionLabel(roleLabels, role);
+  function pickRole(role: ViewAsSelectorRole) {
+    if (role === "admin") {
+      void clearViewAsAction(locale).then((result) => go(result.href));
+      return;
+    }
+    setSearchRole(role);
+    setQuery("");
+    setHits([]);
+    if (open === "popover") {
+      const next = measureBox();
+      if (next) setBox(next);
+    }
   }
 
+  const menu = (
+    <StaffWorkspaceSwitchMenu
+      labels={labels}
+      roleLabels={roleLabels}
+      chrome={chrome}
+      activeRole={activeRole}
+      viewAs={viewAs}
+      searchRole={searchRole}
+      query={query}
+      hits={hits}
+      searching={searching}
+      showRoles={open !== "sheet" || !searchRole}
+      showSearch={Boolean(searchRole)}
+      rowClassName="min-h-11 rounded-xl px-3 py-2 text-left text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+      onPickRole={pickRole}
+      onQueryChange={setQuery}
+      onPickPerson={(id) => {
+        void startViewAsAction(locale, id).then((result) => go(result.href));
+      }}
+      onOwnTeacher={() => {
+        void openOwnTeacherAction(locale).then((result) => go(result.href));
+      }}
+    />
+  );
+
+  const sheetTitle = searchRole
+    ? workspaceSelectorLabel(searchRole, chrome, roleLabels)
+    : labels.sheetTitle;
+
   const panel =
-    open && box && typeof document !== "undefined" ? (
-      createPortal(
-        <div
-          ref={panelRef}
-          role="listbox"
-          aria-label={labels.ariaSelector}
-          style={{ position: "fixed", top: box.top, left: box.left, width: box.width, zIndex: 200 }}
-          className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-2 shadow-[var(--shadow-soft)]"
-        >
-          <div className="grid gap-1">
-            {SELECTOR_ROLES.map((role) => (
-              <button
-                key={role}
-                type="button"
-                role="option"
-                aria-selected={searchRole === role || (!searchRole && !viewAs && activeRole === role)}
-                className="min-h-11 rounded-xl px-3 py-2 text-left text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
-                onClick={() => {
-                  if (role === "admin") {
-                    void clearViewAsAction(locale).then((result) => go(result.href));
-                    return;
+    open === "sheet" && typeof document !== "undefined"
+      ? createPortal(
+          <StaffWorkspaceSwitchSheet
+            panelRef={panelRef}
+            title={sheetTitle}
+            titleId={titleId}
+            closeLabel={labels.close}
+            backLabel={searchRole ? labels.backToRoles : null}
+            onBack={
+              searchRole
+                ? () => {
+                    setSearchRole(null);
+                    setQuery("");
+                    setHits([]);
                   }
-                  setSearchRole(role);
-                  setQuery("");
-                  setHits([]);
-                  const next = measureBox();
-                  if (next) setBox(next);
-                }}
-              >
-                {selectorLabel(role)}
-              </button>
-            ))}
-          </div>
-          {searchRole && searchRole !== "admin" ? (
-            <div className="mt-2 border-t border-[var(--color-border)] pt-2">
-              {searchRole === "teacher" ? (
-                <button
-                  type="button"
-                  data-tour="admin-chrome-teacher-portal"
-                  className="mb-2 w-full rounded-xl px-3 py-2 text-left text-sm font-semibold text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
-                  onClick={() => {
-                    void openOwnTeacherAction(locale).then((result) => go(result.href));
-                  }}
-                >
-                  {labels.ownTeacher}
-                </button>
-              ) : null}
-              <input
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={labels.searchPlaceholder}
-                aria-label={labels.searchPlaceholder}
-                className="w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
-              />
-              <p className="mt-1 px-1 text-xs text-[var(--color-muted-foreground)]">
-                {searching ? "…" : hits.length === 0 ? labels.searchEmpty : labels.searchHint}
-              </p>
-              <ul className="mt-1 max-h-56 overflow-y-auto">
-                {hits.map((hit) => (
-                  <li key={hit.id}>
-                    <button
-                      type="button"
-                      className="w-full rounded-xl px-3 py-2 text-left hover:bg-[var(--color-muted)]"
-                      onClick={() => {
-                        void startViewAsAction(locale, hit.id).then((result) => go(result.href));
-                      }}
-                    >
-                      <span className="block truncate text-sm font-medium">{hit.displayName}</span>
-                      <span className="block truncate text-xs text-[var(--color-muted-foreground)]">
-                        {adminUserRoleOptionLabel(roleLabels, hit.role)}
-                        {hit.email && hit.email !== "—" ? ` · ${hit.email}` : ""}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-        </div>,
-        document.body,
-      )
-    ) : null;
+                : null
+            }
+            onClose={close}
+          >
+            {menu}
+          </StaffWorkspaceSwitchSheet>,
+          document.body,
+        )
+      : open === "popover" && box && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              ref={panelRef}
+              role="listbox"
+              aria-label={labels.ariaSelector}
+              style={{ position: "fixed", top: box.top, left: box.left, width: box.width, zIndex: 200 }}
+              className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-2 shadow-[var(--shadow-soft)]"
+            >
+              {menu}
+            </div>,
+            document.body,
+          )
+        : null;
 
   return (
-    <div className="relative min-w-0">
+    <div className="relative min-w-0 w-full md:w-auto" data-tour="admin-chrome-teacher-portal">
       <button
         ref={triggerRef}
         type="button"
         aria-label={labels.ariaSelector}
-        aria-expanded={open}
-        data-tour="admin-chrome-teacher-portal"
+        aria-expanded={open !== null}
         onClick={() => {
           if (open) {
-            setOpen(false);
+            close();
+            return;
+          }
+          if (isNarrowViewport()) {
+            setSearchRole(null);
+            setQuery("");
+            setHits([]);
+            setOpen("sheet");
             return;
           }
           const measured = measureBox();
           if (measured) setBox(measured);
-          setOpen(true);
+          setOpen("popover");
         }}
-        className="inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full bg-[var(--color-primary)] px-4 py-2 text-xs font-bold uppercase tracking-wide text-[var(--color-primary-foreground)] shadow-sm transition hover:bg-[var(--color-primary-dark)] sm:text-sm"
+        className="flex w-full min-h-[52px] items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-left shadow-sm transition-colors hover:bg-[var(--color-muted)] md:inline-flex md:w-auto md:min-h-11 md:gap-1.5 md:rounded-full md:border-transparent md:bg-[var(--color-primary)] md:px-4 md:py-2 md:text-[var(--color-primary-foreground)] md:shadow-sm md:hover:bg-[var(--color-primary-dark)]"
       >
-        <span className="truncate">{triggerLabel}</span>
-        <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-[var(--color-primary-foreground)] md:hidden">
+          <Eye className="h-4 w-4" aria-hidden />
+        </span>
+        <span className="min-w-0 flex-1 md:flex-none">
+          <span className="block truncate text-[0.6875rem] font-medium text-[var(--color-muted-foreground)] md:hidden">
+            {eyebrow}
+          </span>
+          <span className="block truncate text-sm font-semibold text-[var(--color-foreground)] md:text-xs md:font-bold md:uppercase md:tracking-wide md:text-[var(--color-primary-foreground)]">
+            {triggerLabel}
+          </span>
+        </span>
+        <ChevronDown className="h-4 w-4 shrink-0 text-[var(--color-muted-foreground)] md:text-[var(--color-primary-foreground)]" aria-hidden />
       </button>
       {panel}
     </div>

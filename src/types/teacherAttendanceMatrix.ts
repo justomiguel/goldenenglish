@@ -2,6 +2,8 @@ import type { SectionAttendanceStatusDb } from "@/types/sectionAcademics";
 
 export type TeacherAttendanceMatrixRow = {
   enrollmentId: string;
+  /** Present on admin loads so the name can open the profile. */
+  studentId?: string;
   studentLabel: string;
   /** Raw `section_enrollments.status` for styling and bulk rules. */
   enrollmentStatus: string;

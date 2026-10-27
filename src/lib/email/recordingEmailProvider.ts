@@ -40,6 +40,7 @@ export class RecordingEmailProvider implements EmailProvider {
       html: input.html,
       ...(input.cc?.length ? { cc: input.cc } : {}),
       ...(input.bcc?.length ? { bcc: input.bcc } : {}),
+      ...(input.attachments?.length ? { attachments: input.attachments } : {}),
     });
     return { ok: true };
   }

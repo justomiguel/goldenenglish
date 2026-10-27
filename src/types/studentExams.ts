@@ -5,6 +5,8 @@ export type StudentExamResult = {
   /** `cohort_assessments.id`. */
   id: string;
   name: string;
+  /** Section used to open the grading page. Absent on older callers. */
+  sectionId?: string;
   sectionName: string;
   /** `assessment_on`, ISO date (YYYY-MM-DD). */
   examOn: string;

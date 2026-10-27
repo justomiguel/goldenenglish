@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AdminUserNameLink } from "@/components/molecules/AdminUserNameLink";
 import { AdminRetentionContactCell } from "@/components/organisms/AdminRetentionContactCell";
 import { AdminRetentionReasonsList } from "@/components/molecules/AdminRetentionReasonsList";
 import { AdminRetentionTablePagination } from "@/components/molecules/AdminRetentionTablePagination";
@@ -157,7 +158,9 @@ export function AdminRetentionTable({
             const mailTip = row.guardianEmail ? buildEmailTooltip(row.guardianEmail, emailTemplate) : "";
             return (
               <tr key={row.enrollmentId} className="text-[var(--color-foreground)]">
-                <td className="px-3 py-3 font-medium">{row.studentLabel}</td>
+                <td className="px-3 py-3 font-medium">
+                  <AdminUserNameLink locale={locale} userId={row.studentId} name={row.studentLabel} />
+                </td>
                 <td className="px-3 py-3">{row.sectionName}</td>
                 <td className="px-3 py-3">{row.trailingAbsences}</td>
                 <td className="px-3 py-3">{row.avgScore != null ? row.avgScore : dict.avgMissing}</td>

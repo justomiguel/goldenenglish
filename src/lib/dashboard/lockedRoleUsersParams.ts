@@ -1,21 +1,6 @@
 import type { PaginatedAdminUsersParams } from "@/lib/dashboard/loadPaginatedAdminUsers";
-import type { SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
 import { parseAdminDirectoryFilters } from "@/lib/dashboard/adminDirectoryFilters";
-
-const VALID_SORT_KEYS: SortKey[] = [
-  "email",
-  "name",
-  "role",
-  "phone",
-  "lastAccess",
-  "sections",
-  "monthlyDue",
-  "parent",
-  "children",
-  "lastEnrollment",
-  "enrollmentFee",
-  "monthlyStatus",
-];
+import { parseAdminUsersSortCriteria } from "@/lib/dashboard/adminUsersSortCriteria";
 
 export function parseAdminUsersSearchParams(
   raw: Record<string, string | string[] | undefined>,
@@ -23,18 +8,20 @@ export function parseAdminUsersSearchParams(
   const pageStr = typeof raw.page === "string" ? raw.page : "1";
   const q = typeof raw.q === "string" ? raw.q : "";
   const role = typeof raw.role === "string" ? raw.role : undefined;
-  const sort =
-    typeof raw.sort === "string" && VALID_SORT_KEYS.includes(raw.sort as SortKey)
-      ? (raw.sort as SortKey)
-      : "name";
-  const dir = raw.dir === "desc" ? "desc" : "asc";
+  const sortCriteria = parseAdminUsersSortCriteria({
+    order: raw.order,
+    sort: raw.sort,
+    dir: raw.dir,
+  });
+  const first = sortCriteria[0];
 
   return {
     page: Math.max(1, parseInt(pageStr, 10) || 1),
     q,
     role,
-    sort,
-    dir,
+    sort: first.key,
+    dir: first.dir,
+    sortCriteria,
   };
 }
 

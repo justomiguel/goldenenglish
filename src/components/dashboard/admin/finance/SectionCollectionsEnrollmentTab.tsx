@@ -148,7 +148,14 @@ export function SectionCollectionsEnrollmentTab({
                     aria-label={dict.matrix.selectStudentAria.replace("{name}", s.studentName)}
                   />
                 </td>
-                <td className="px-3 py-2 font-medium">{s.studentName}</td>
+                <td className="px-3 py-2 font-medium">
+                  <Link
+                    href={`/${locale}/dashboard/admin/users/${s.studentId}`}
+                    className="text-[var(--color-primary)] hover:underline"
+                  >
+                    {s.studentName}
+                  </Link>
+                </td>
                 <td className="px-3 py-2">
                   {s.enrollmentFee.exempt ? t.enrollmentYes : t.enrollmentNo}
                 </td>

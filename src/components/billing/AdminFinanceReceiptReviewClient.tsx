@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Check, X } from "lucide-react";
 import {
   approveBillingReceipt,
   rejectBillingReceipt,
@@ -37,6 +39,7 @@ export function AdminFinanceReceiptReviewClient({
   amountPaid,
   dict,
 }: AdminFinanceReceiptReviewClientProps) {
+  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [rejectOpen, setRejectOpen] = useState(false);
@@ -57,20 +60,20 @@ export function AdminFinanceReceiptReviewClient({
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
       <div
-        className="min-h-[50vh] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]"
+        className="min-h-[15rem] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)] lg:min-h-[50vh]"
         data-tour={ADMIN_TOUR_ANCHORS.financeReceiptDetailPreview}
       >
         {isPdf ? (
-          <iframe title={dict.openReview} src={signedUrl} className="h-[70vh] w-full" />
+          <iframe title={dict.openReview} src={signedUrl} className="h-[42vh] w-full lg:h-[70vh]" />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element -- signed URL from our storage
           <img
             src={signedUrl}
             alt=""
             title={dict.tipReceiptImage}
-            className="max-h-[70vh] w-full object-contain"
+            className="max-h-[42vh] w-full object-contain lg:max-h-[70vh]"
           />
         )}
       </div>
@@ -109,16 +112,20 @@ export function AdminFinanceReceiptReviewClient({
           type="button"
           disabled={busy}
           title={dict.tipApproveReceipt}
-          className="w-full rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-4 text-base font-bold text-[var(--color-primary-foreground)] disabled:opacity-50"
+          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-3.5 text-base font-bold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)] disabled:opacity-50"
           onClick={async () => {
             setBusy(true);
             setMsg(null);
             const r = await approveBillingReceipt({ receiptId, locale });
             setBusy(false);
             if (!r.ok) setMsg(r.message ?? dict.modalClose);
-            else window.location.href = `/${locale}/dashboard/admin/finance/receipts`;
+            else {
+              router.push(`/${locale}/dashboard/admin/finance/receipts`);
+              router.refresh();
+            }
           }}
         >
+          <Check className="h-5 w-5 shrink-0" aria-hidden />
           {dict.approveCta}
         </button>
         {!rejectOpen ? (
@@ -126,9 +133,10 @@ export function AdminFinanceReceiptReviewClient({
             type="button"
             disabled={busy}
             title={dict.tipRejectReceipt}
-            className="w-full rounded-2xl border-2 border-[var(--color-error)] px-4 py-3 text-sm font-semibold text-[var(--color-error)] disabled:opacity-50"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border-2 border-[var(--color-error)] bg-[var(--color-surface)] px-4 py-3 text-sm font-semibold text-[var(--color-error)] transition-colors hover:bg-[var(--color-muted)] disabled:opacity-50"
             onClick={() => setRejectOpen(true)}
           >
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {dict.rejectCta}
           </button>
         ) : (
@@ -163,7 +171,7 @@ export function AdminFinanceReceiptReviewClient({
               type="button"
               disabled={busy}
               title={dict.tipRejectSubmit}
-              className="w-full rounded-[var(--layout-border-radius)] bg-[var(--color-error)] px-4 py-2 text-sm font-semibold text-[var(--color-background)] disabled:opacity-50"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-error)] px-4 py-2 text-sm font-semibold text-[var(--color-background)] disabled:opacity-50"
               onClick={async () => {
                 setBusy(true);
                 setMsg(null);
@@ -175,9 +183,13 @@ export function AdminFinanceReceiptReviewClient({
                 });
                 setBusy(false);
                 if (!r.ok) setMsg(r.message ?? dict.modalClose);
-                else window.location.href = `/${locale}/dashboard/admin/finance/receipts`;
+                else {
+                  router.push(`/${locale}/dashboard/admin/finance/receipts`);
+                  router.refresh();
+                }
               }}
             >
+              <X className="h-4 w-4 shrink-0" aria-hidden />
               {dict.rejectSubmit}
             </button>
           </div>

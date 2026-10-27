@@ -71,6 +71,7 @@ for (const candidate of storageCandidates) {
  */
 const nextConfig: NextConfig = {
   ...(e2eIsolatedCache ? { distDir: ".next-e2e" } : {}),
+  serverExternalPackages: ["@resvg/resvg-js"],
   transpilePackages: [
     "@fullcalendar/core",
     "@fullcalendar/react",

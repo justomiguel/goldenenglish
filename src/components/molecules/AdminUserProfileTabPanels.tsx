@@ -5,6 +5,8 @@ import type { Dictionary, Locale } from "@/types/i18n";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { AdminStudentBillingClient } from "@/components/dashboard/AdminStudentBillingClient";
+import { AdminStudentAcademicExams } from "@/components/molecules/AdminStudentAcademicExams";
+import { AdminStudentAcademicNotes } from "@/components/molecules/AdminStudentAcademicNotes";
 import { AdminStudentCurrentCohortAssignmentCard } from "@/components/molecules/AdminStudentCurrentCohortAssignmentCard";
 import { AdminUserDetailPasswordSection } from "@/components/molecules/AdminUserDetailPasswordSection";
 import { AdminUserDetailDniResetSection } from "@/components/molecules/AdminUserDetailDniResetSection";
@@ -19,11 +21,11 @@ type RoleOption = { value: string; label: string };
 
 function CardShell({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]">
-      <h2 className="border-b border-[var(--color-border)] pb-3 font-display text-lg font-semibold text-[var(--color-primary)]">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3.5 shadow-[var(--shadow-soft)] sm:p-5">
+      <h2 className="border-b border-[var(--color-border)] pb-2.5 font-display text-base font-semibold text-[var(--color-primary)] sm:pb-3 sm:text-lg">
         {title}
       </h2>
-      <dl className="mt-4">{children}</dl>
+      <dl className="mt-3 sm:mt-4">{children}</dl>
     </section>
   );
 }
@@ -84,20 +86,33 @@ export function AdminUserAcademicPanel({
   const currentCohortAssignment = detail.role === "student" ? detail.currentCohortAssignment : null;
 
   return (
-    <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)]">
-      <CardShell title={labels.detailCardAcademic}>
-        <AdminUserInlineEditableField locale={locale} userId={detail.userId} field="role" label={labels.detailFieldRole} displayValue={roleLabel} editInitial={detail.role} editable={editable} inputKind="select" selectOptions={roleOptions} labels={labels} onFeedback={onFeedback} />
-        {detail.role === "student" ? (
-          <ReadOnlyRow label={labels.detailFieldTeacher} value={detail.assignedTeacherName ?? labels.detailNoValue} />
+    <div className="space-y-5">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)]">
+        <CardShell title={labels.detailCardAcademic}>
+          <AdminUserInlineEditableField locale={locale} userId={detail.userId} field="role" label={labels.detailFieldRole} displayValue={roleLabel} editInitial={detail.role} editable={editable} inputKind="select" selectOptions={roleOptions} labels={labels} onFeedback={onFeedback} />
+        </CardShell>
+        {currentCohortAssignment ? (
+          <AdminStudentCurrentCohortAssignmentCard
+            locale={locale}
+            studentId={detail.userId}
+            labels={labels}
+            assignment={currentCohortAssignment}
+          />
         ) : null}
-      </CardShell>
-      {currentCohortAssignment ? (
-        <AdminStudentCurrentCohortAssignmentCard
-          locale={locale}
-          studentId={detail.userId}
-          labels={labels}
-          assignment={currentCohortAssignment}
-        />
+      </div>
+      {detail.role === "student" ? (
+        <>
+          <AdminStudentAcademicExams
+            locale={locale}
+            exams={detail.academicExams ?? []}
+            labels={labels}
+          />
+          <AdminStudentAcademicNotes
+            locale={locale}
+            notes={detail.academicNotes ?? []}
+            labels={labels}
+          />
+        </>
       ) : null}
     </div>
   );

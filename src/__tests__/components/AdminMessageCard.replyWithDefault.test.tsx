@@ -1,17 +1,8 @@
-// REGRESSION CHECK: Reply-with-default must deep-link compose with useDefault=1.
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import en from "@/dictionaries/en.json";
 import { AdminMessageCard } from "@/components/dashboard/AdminMessageCard";
 import type { AdminPortalMessageRow } from "@/types/messaging";
-
-vi.mock("@/components/dashboard/DeletePortalMessageButton", () => ({
-  DeletePortalMessageButton: () => <button type="button">Delete</button>,
-}));
-
-vi.mock("@/components/dashboard/AdminMessageReadToggleButton", () => ({
-  AdminMessageReadToggleButton: () => <button type="button">Mark read</button>,
-}));
 
 const baseRow: AdminPortalMessageRow = {
   id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
@@ -27,7 +18,7 @@ const baseRow: AdminPortalMessageRow = {
 };
 
 describe("AdminMessageCard reply with default", () => {
-  it("links reply-with-default to compose with useDefault=1", () => {
+  it("keeps reply actions off the list row", () => {
     render(
       <AdminMessageCard
         locale="en"
@@ -37,10 +28,10 @@ describe("AdminMessageCard reply with default", () => {
       />,
     );
 
-    const link = screen.getByRole("link", { name: en.admin.messages.replyWithDefaultMessage });
-    expect(link).toHaveAttribute(
+    expect(screen.queryByRole("link", { name: en.admin.messages.replyWithDefaultMessage })).toBeNull();
+    expect(screen.getByRole("link", { name: /Short preview/ })).toHaveAttribute(
       "href",
-      "/en/dashboard/admin/messages/compose?replyTo=aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa&useDefault=1",
+      "/en/dashboard/admin/messages/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
     );
   });
 });

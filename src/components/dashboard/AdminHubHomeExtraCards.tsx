@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatEventDay } from "@/lib/events/formatEventDate";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminHomeExtraWidgets } from "@/lib/dashboard/loadAdminHomeExtraWidgets";
@@ -25,11 +24,18 @@ export function AdminHubHomePeoplePulseCard({
   const t = dict.admin.home.layout.widgets;
   const value = pulse ?? { newLast30Days: 0, neverEntered: 0 };
   return (
-    <AdminHubMetricCard href={`${base}/students`} icon={<Sparkles className="h-6 w-6" />} title={t.peoplePulseTitle} accentClass={iconClass}>
-      <p className="text-sm text-[var(--color-muted-foreground)]">
+    <AdminHubMetricCard
+      compact
+      href={`${base}/students`}
+      icon={<Sparkles className="h-4 w-4" aria-hidden />}
+      title={t.peoplePulseTitle}
+      linkLabel={t.peoplePulseOpen}
+      hint={t.about.peoplePulse}
+      accentClass={iconClass}
+    >
+      <p className="truncate text-xs text-[var(--color-muted-foreground)]">
         {t.peoplePulseNew}: <span className="font-semibold text-[var(--color-foreground)]">{value.newLast30Days}</span>
-      </p>
-      <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+        {" · "}
         {t.peoplePulseNever}: <span className="font-semibold text-[var(--color-foreground)]">{value.neverEntered}</span>
       </p>
     </AdminHubMetricCard>
@@ -49,16 +55,27 @@ export function AdminHubHomeCollectionsCard({
 }) {
   const t = dict.admin.home.layout.widgets;
   return (
-    <AdminHubMetricCard href={`${base}/finance/collections`} icon={<Wallet className="h-6 w-6" />} title={t.collectionsTitle} accentClass={iconClass}>
+    <AdminHubMetricCard
+      compact
+      href={`${base}/finance/collections`}
+      icon={<Wallet className="h-4 w-4" aria-hidden />}
+      title={t.collectionsTitle}
+      linkLabel={t.collectionsOpen}
+      hint={t.about.collections}
+      accentClass={iconClass}
+    >
       {collections ? (
-        <ul className="space-y-1 text-sm text-[var(--color-muted-foreground)]">
-          <li>{collections.cohortName}</li>
-          <li>{t.collectionsPaid}: {money(locale, collections.paid)}</li>
-          <li>{t.collectionsPending}: {money(locale, collections.pendingReview)}</li>
-          <li>{t.collectionsOverdue}: {money(locale, collections.overdue)}</li>
-        </ul>
+        <p className="truncate text-xs text-[var(--color-muted-foreground)]">
+          {collections.cohortName}
+          {" · "}
+          {t.collectionsPaid} {money(locale, collections.paid)}
+          {" · "}
+          {t.collectionsPending} {money(locale, collections.pendingReview)}
+          {" · "}
+          {t.collectionsOverdue} {money(locale, collections.overdue)}
+        </p>
       ) : (
-        <p className="text-sm text-[var(--color-muted-foreground)]">{t.collectionsEmpty}</p>
+        <p className="truncate text-xs text-[var(--color-muted-foreground)]">{t.collectionsEmpty}</p>
       )}
     </AdminHubMetricCard>
   );
@@ -76,24 +93,27 @@ export function AdminHubHomeEventsCard({
   events: AdminHomeExtraWidgets["upcomingEvents"];
 }) {
   const t = dict.admin.home.layout.widgets;
+  const next = events[0];
   return (
-    <AdminHubMetricCard href={`${base}/events`} icon={<CalendarDays className="h-6 w-6" />} title={t.eventsTitle} accentClass={iconClass}>
-      {events.length === 0 ? (
-        <p className="text-sm text-[var(--color-muted-foreground)]">{t.eventsEmpty}</p>
+    <AdminHubMetricCard
+      compact
+      href={`${base}/events`}
+      icon={<CalendarDays className="h-4 w-4" aria-hidden />}
+      title={t.eventsTitle}
+      linkLabel={t.eventsOpen}
+      hint={t.about.upcomingEvents}
+      accentClass={iconClass}
+    >
+      {next ? (
+        <p className="truncate text-xs text-[var(--color-muted-foreground)]">
+          <span className="font-medium text-[var(--color-foreground)]">{next.title}</span>
+          {" · "}
+          {formatEventDay(next.eventDate, locale)}
+          {next.capacity != null ? ` · ${t.eventsSeats.replace("{{count}}", String(next.capacity))}` : ""}
+          {events.length > 1 ? ` · ${t.eventsMore.replace("{{count}}", String(events.length - 1))}` : ""}
+        </p>
       ) : (
-        <ul className="space-y-2">
-          {events.map((event) => (
-            <li key={event.id}>
-              <Link href={`${base}/events/${event.id}`} className="text-sm font-medium text-[var(--color-primary)]">
-                {event.title}
-              </Link>
-              <p className="text-xs text-[var(--color-muted-foreground)]">
-                {formatEventDay(event.eventDate, locale)}
-                {event.capacity != null ? ` · ${t.eventsSeats.replace("{{count}}", String(event.capacity))}` : ""}
-              </p>
-            </li>
-          ))}
-        </ul>
+        <p className="truncate text-xs text-[var(--color-muted-foreground)]">{t.eventsEmpty}</p>
       )}
     </AdminHubMetricCard>
   );

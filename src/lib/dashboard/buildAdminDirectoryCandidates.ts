@@ -10,6 +10,7 @@ export type BuildAdminDirectoryCandidatesInput = {
     phone: string | null;
     created_at: string | null;
     last_session_start_at: string | null;
+    age_years?: number | null;
   }>;
   sectionsByPerson?: Map<string, DirectoryFactSection[]>;
   leadIdsByTeacher?: Map<string, string[]>;
@@ -41,6 +42,7 @@ export function buildAdminDirectoryCandidates(
       monthlyStatus: input.monthlyStatusByPerson?.get(profile.id) ?? "na",
       emailDeliverable: input.emailDeliverableById?.get(profile.id) ?? false,
       hasChildren: (input.childrenByParent?.get(profile.id) ?? []).length > 0,
+      ageYears: typeof profile.age_years === "number" ? profile.age_years : null,
     };
   });
 }

@@ -160,7 +160,7 @@ export function AssessmentRosterGradingClient({
       ) : null}
 
       <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
-        <table className="min-w-full text-left text-sm">
+        <table className="ge-stack-cards min-w-full text-left text-sm">
           <thead className="bg-[var(--color-muted)]/40">
             <tr>
               <SortableTh columnId="student" label={dict.studentColumn} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 font-medium text-[var(--color-foreground)]" />

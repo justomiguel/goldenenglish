@@ -14,6 +14,7 @@ function mockSupabase(opts: {
   countRows?: Array<{ section_id: string }>;
   studentRows?: Array<{ id: string; section_id: string }>;
   teacherRows?: Array<{ id: string; first_name: string; last_name: string }>;
+  assistantRows?: Array<{ section_id: string; assistant_id: string }>;
 }) {
   const cohortQuery = {
     select: vi.fn().mockReturnValue({
@@ -52,6 +53,11 @@ function mockSupabase(opts: {
       in: vi.fn().mockResolvedValue({ data: opts.teacherRows ?? [], error: null }),
     }),
   };
+  const assistantsQuery = {
+    select: vi.fn().mockReturnValue({
+      in: vi.fn().mockResolvedValue({ data: opts.assistantRows ?? [], error: null }),
+    }),
+  };
 
   return {
     from: vi.fn((table: string) => {
@@ -59,6 +65,7 @@ function mockSupabase(opts: {
       if (table === "academic_sections") return sectionsQuery;
       if (table === "section_enrollments") return enrollmentQuery;
       if (table === "profiles") return profilesQuery;
+      if (table === "academic_section_assistants") return assistantsQuery;
       throw new Error(`unexpected table ${table}`);
     }),
   } as unknown as Parameters<typeof loadAdminStudentCurrentCohortAssignment>[0];
@@ -106,7 +113,9 @@ describe("loadAdminStudentCurrentCohortAssignment", () => {
         teacherRows: [
           { id: "teacher-a", first_name: "Ada", last_name: "Lovelace" },
           { id: "teacher-b", first_name: "Grace", last_name: "Hopper" },
+          { id: "assistant-a", first_name: "Alan", last_name: "Turing" },
         ],
+        assistantRows: [{ section_id: "section-a", assistant_id: "assistant-a" }],
       }),
       studentId,
     );
@@ -116,9 +125,17 @@ describe("loadAdminStudentCurrentCohortAssignment", () => {
       enrollmentId: "enrollment-a",
       sectionId: "section-a",
       sectionName: "A1",
+      teacher: { id: "teacher-a", name: "Lovelace Ada" },
+      assistants: [{ id: "assistant-a", name: "Turing Alan" }],
     });
     expect(result.currentSections).toEqual([
-      { enrollmentId: "enrollment-a", sectionId: "section-a", sectionName: "A1" },
+      {
+        enrollmentId: "enrollment-a",
+        sectionId: "section-a",
+        sectionName: "A1",
+        teacher: { id: "teacher-a", name: "Lovelace Ada" },
+        assistants: [{ id: "assistant-a", name: "Turing Alan" }],
+      },
     ]);
     expect(result.sections[0]).toMatchObject({
       id: "section-a",

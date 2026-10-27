@@ -58,87 +58,88 @@ export function AdminEventDiscountCodesPanel({
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   return (
-    <section className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
+    <section className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3.5 shadow-[var(--shadow-soft)] sm:p-4">
       <p className="text-sm text-[var(--color-muted-foreground)]">{labels.lead}</p>
       <AdminEventDiscountCodeEditor locale={locale} eventId={eventId} labels={labels} />
       {message ? <p className="text-sm text-[var(--color-foreground)]">{message}</p> : null}
       {usesTruncated ? <p className="text-sm text-[var(--color-muted-foreground)]">{labels.usesCap}</p> : null}
-      {rows.length === 0 ? <p className="text-sm text-[var(--color-muted-foreground)]">{labels.empty}</p> : (
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-sm font-medium text-[var(--color-foreground)]">
-              <th className="pb-2">{labels.columns.code}</th>
-              <th className="pb-2">{labels.columns.percent}</th>
-              <th className="pb-2">{labels.columns.uses}</th>
-              <th className="pb-2">{labels.columns.reserved}</th>
-              <th className="pb-2">{labels.columns.consumed}</th>
-              <th className="pb-2">{labels.columns.person}</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => {
-              const open = openCodeId === row.id;
-              const people = row.uses ?? [];
-              return (
-                <Fragment key={row.id}>
-                  <tr className="border-t border-[var(--color-border)]">
-                    <td className="py-2">{row.code}</td>
-                    <td>{discountCell(row, labels, currency, locale)}</td>
-                    <td>{row.maxUses == null ? labels.unlimited : row.maxUses}</td>
-                    <td>{row.reserved}</td>
-                    <td>{row.consumed}</td>
-                    <td>
-                      <Button type="button" variant="ghost" onClick={() => setOpenCodeId(open ? null : row.id)}>
-                        <ChevronDown className="h-4 w-4" aria-hidden />
-                        {open ? labels.hideUses : labels.showUses}
-                      </Button>
-                    </td>
-                    <td>
-                      <Button type="button" variant="destructive" onClick={() => setDeleteId(row.id)} aria-label={labels.delete}>
-                        <Trash2 className="h-4 w-4" aria-hidden />
-                      </Button>
-                    </td>
-                  </tr>
-                  {open ? (
+      {rows.length === 0 ? (
+        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.empty}</p>
+      ) : (
+        <div className="overflow-x-auto rounded-2xl border border-[var(--color-border)]">
+          <table className="ge-stack-cards w-full text-sm">
+            <thead>
+              <tr className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40 text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]">
+                <th className="px-3 py-2">{labels.columns.code}</th>
+                <th className="px-3 py-2">{labels.columns.percent}</th>
+                <th className="px-3 py-2">{labels.columns.uses}</th>
+                <th className="px-3 py-2">{labels.columns.reserved}</th>
+                <th className="px-3 py-2">{labels.columns.consumed}</th>
+                <th className="px-3 py-2">{labels.columns.person}</th>
+                <th className="px-3 py-2" />
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => {
+                const open = openCodeId === row.id;
+                const people = row.uses ?? [];
+                return (
+                  <Fragment key={row.id}>
                     <tr className="border-t border-[var(--color-border)]">
-                      <td colSpan={7} className="py-2">
-                        {people.length === 0 ? (
-                          <p className="text-sm text-[var(--color-muted-foreground)]">{labels.noUsesYet}</p>
-                        ) : (
-                          <table className="w-full text-sm">
-                            <thead>
-                              <tr className="text-left text-sm font-medium text-[var(--color-foreground)]">
-                                <th>{labels.columns.person}</th>
-                                <th>{labels.columns.email}</th>
-                                <th>{labels.columns.use}</th>
-                                <th>{labels.columns.payment}</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {people.map((use) => (
-                                <tr key={use.id}>
-                                  <td className="py-1">{use.attendeeName}</td>
-                                  <td>{use.email}</td>
-                                  <td>{labels.useStatus[use.useStatus]}</td>
-                                  <td>{use.paymentStatus ? labels.paymentStatus[use.paymentStatus] : labels.paymentStatus.none}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        )}
+                      <td className="px-3 py-2 font-mono text-xs font-semibold">{row.code}</td>
+                      <td className="px-3 py-2">{discountCell(row, labels, currency, locale)}</td>
+                      <td className="px-3 py-2">{row.maxUses == null ? labels.unlimited : row.maxUses}</td>
+                      <td className="px-3 py-2 tabular-nums">{row.reserved}</td>
+                      <td className="px-3 py-2 tabular-nums">{row.consumed}</td>
+                      <td className="px-3 py-2">
+                        <Button type="button" variant="ghost" size="sm" onClick={() => setOpenCodeId(open ? null : row.id)}>
+                          <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />
+                          {open ? labels.hideUses : labels.showUses}
+                        </Button>
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        <Button type="button" variant="destructive" size="sm" onClick={() => setDeleteId(row.id)} aria-label={labels.delete}>
+                          <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
+                        </Button>
                       </td>
                     </tr>
-                  ) : null}
-                </Fragment>
-              );
-            })}
-          </tbody>
-        </table>
+                    {open ? (
+                      <tr className="border-t border-[var(--color-border)] bg-[var(--color-muted)]/15">
+                        <td colSpan={7} className="p-3">
+                          {people.length === 0 ? (
+                            <p className="text-sm text-[var(--color-muted-foreground)]">{labels.noUsesYet}</p>
+                          ) : (
+                            <ul className="space-y-2">
+                              {people.map((use) => (
+                                <li
+                                  key={use.id}
+                                  className="grid gap-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-xs sm:grid-cols-4 sm:items-center sm:gap-3 sm:text-sm"
+                                >
+                                  <span className="font-medium text-[var(--color-foreground)]">{use.attendeeName}</span>
+                                  <span className="truncate text-[var(--color-muted-foreground)]">{use.email}</span>
+                                  <span className="text-[var(--color-foreground)]">{labels.useStatus[use.useStatus]}</span>
+                                  <span className="text-[var(--color-muted-foreground)]">
+                                    {use.paymentStatus ? labels.paymentStatus[use.paymentStatus] : labels.paymentStatus.none}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
       <ConfirmActionModal
         open={deleteId != null}
-        onOpenChange={(open) => { if (!open) setDeleteId(null); }}
+        onOpenChange={(open) => {
+          if (!open) setDeleteId(null);
+        }}
         title={labels.confirmTitle}
         body={labels.confirmBody}
         cancelLabel={labels.cancel}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
+import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
 import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 import { useAdminUsersTable } from "@/hooks/useAdminUsersTable";
 import { AdminUsersToolbar } from "@/components/dashboard/AdminUsersToolbar";
@@ -35,6 +36,7 @@ interface AdminUsersTableDesktopProps {
   roleCounts: AdminUsersListRoleCounts;
   sortKey: SortKey;
   sortDir: SortDir;
+  sortCriteria?: AdminUsersSortCriterion[];
   locale: string;
   currentUserId: string;
   labels: UserLabels;
@@ -54,6 +56,7 @@ export function AdminUsersTableDesktop({
   roleCounts,
   sortKey,
   sortDir,
+  sortCriteria,
   locale,
   currentUserId,
   labels,
@@ -73,6 +76,7 @@ export function AdminUsersTableDesktop({
     roleFilter,
     sortKey,
     sortDir,
+    sortCriteria,
     locale,
     currentUserId,
     labels,
@@ -80,7 +84,7 @@ export function AdminUsersTableDesktop({
 
   return (
     <div className="space-y-4">
-      <div data-tour={ADMIN_TOUR_ANCHORS.usersTable}>
+      <div data-tour={ADMIN_TOUR_ANCHORS.usersTable} aria-busy={u.isPending || undefined}>
       <AdminUsersDataTable
         locale={locale}
         toolbar={
@@ -103,6 +107,9 @@ export function AdminUsersTableDesktop({
             selectAllFilteredDisabled={u.selectAllFilteredDisabled}
             onExportUsers={() => setExportOpen(true)}
             lockRole={lockRole}
+            sortCriteria={u.sortCriteria}
+            onSortCriteriaChange={u.setSortCriteria}
+            listPending={u.isPending}
             directoryFilters={
               directoryFilters
                 ? {

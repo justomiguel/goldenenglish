@@ -95,6 +95,7 @@ describe("AdminGlobalContentRepository", () => {
       "href",
       "/en/dashboard/admin/academic/contents/global/new",
     );
+    expect(screen.getAllByRole("heading", { name: labels.repositoryTitle })).toHaveLength(1);
   });
 
   it("links existing content to a read-only detail page", () => {

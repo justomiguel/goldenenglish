@@ -6,6 +6,7 @@ import { AdminUsersTableDesktop } from "@/components/desktop/organisms/AdminUser
 import { AdminUsersScreenNarrow } from "@/components/pwa/organisms/AdminUsersScreenNarrow";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
+import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
 import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 import type { AdminDirectoryFilters, AdminDirectoryRole } from "@/lib/dashboard/adminDirectoryFilters";
 import type { AdminDirectoryFacets } from "@/lib/dashboard/countAdminDirectoryFacets";
@@ -36,6 +37,7 @@ export interface AdminUsersScreenProps {
   roleCounts: AdminUsersListRoleCounts;
   sortKey: SortKey;
   sortDir: SortDir;
+  sortCriteria?: AdminUsersSortCriterion[];
   locale: string;
   currentUserId: string;
   labels: UserLabels;

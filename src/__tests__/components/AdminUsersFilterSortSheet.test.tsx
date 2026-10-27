@@ -21,6 +21,7 @@ const facets: AdminDirectoryFacets = {
   monthlyStatus: { all: 1, current: 0, behind: 1, na: 0 },
   email: { all: 1, deliverable: 1, none: 0 },
   children: binary,
+  age: { all: 1, unknown: 1, "0-2": 0, "3-5": 0, "6-8": 0, "9-12": 0, "13-17": 0, "18+": 0 },
 };
 
 function installDialog() {
@@ -40,27 +41,15 @@ describe("AdminUsersFilterSortSheet", () => {
     installDialog();
   });
 
-  it("changes sort field and direction, then closes on apply", async () => {
+  it("shows the filter title and closes on apply", async () => {
     const user = userEvent.setup();
-    const onToggleSort = vi.fn();
     const onOpenChange = vi.fn();
     render(
-      <AdminUsersFilterSortSheet
-        open
-        onOpenChange={onOpenChange}
-        labels={labels}
-        sortKeys={["email", "name"]}
-        sortKey="email"
-        sortDir="asc"
-        onToggleSort={onToggleSort}
-      />,
+      <AdminUsersFilterSortSheet open onOpenChange={onOpenChange} labels={labels} />,
     );
 
-    expect(screen.getByRole("heading", { name: labels.mobileFilterSortTitle })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: labels.mobileSortDesc }));
-    expect(onToggleSort).toHaveBeenCalledWith("email");
-    await user.click(screen.getByRole("button", { name: labels.colName }));
-    expect(onToggleSort).toHaveBeenCalledWith("name");
+    expect(screen.getByRole("heading", { name: labels.mobileFilterTitle })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: labels.sortPanelTitle })).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: labels.mobileApplyFilters }));
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
@@ -73,10 +62,6 @@ describe("AdminUsersFilterSortSheet", () => {
         open
         onOpenChange={() => {}}
         labels={labels}
-        sortKeys={["name"]}
-        sortKey="name"
-        sortDir="desc"
-        onToggleSort={() => {}}
         directoryFilters={{
           role: "student",
           labels: dictEn.admin.directoryFilters,

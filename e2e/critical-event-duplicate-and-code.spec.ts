@@ -30,8 +30,14 @@ test.describe("@critical-event-duplicate-and-code", () => {
     const eventPath = await openPaidEvent(adminPage, locale);
     const sourceId = eventPath.split("/").pop();
 
-    await adminPage.getByRole("button", { name: /Duplicar evento|Duplicate event/i }).click();
-    await expect(adminPage).toHaveURL(/\/dashboard\/admin\/events\/[0-9a-f-]{36}/i, { timeout: 30_000 });
+    const duplicate = adminPage.getByRole("button", { name: /Duplicar evento|Duplicate event/i });
+    await expect(duplicate).toBeEnabled();
+    const copied = new RegExp(`/dashboard/admin/events/(?!${sourceId})[0-9a-f-]{36}`, "i");
+    await expect(async () => {
+      if (copied.test(adminPage.url())) return;
+      await duplicate.click();
+      await expect(adminPage).toHaveURL(copied, { timeout: 8_000 });
+    }).toPass({ timeout: 40_000 });
     const nextId = new URL(adminPage.url()).pathname.split("/").pop();
     expect(nextId).not.toBe(sourceId);
     await expect(adminPage.getByRole("heading", { name: /\(copia\)|\(copy\)/i })).toBeVisible({

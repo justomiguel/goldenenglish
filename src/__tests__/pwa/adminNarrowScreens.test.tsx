@@ -130,15 +130,11 @@ describe("admin narrow screens", () => {
       />,
     );
     expect(screen.getByText(/u@x.co/)).toBeInTheDocument();
-    await user.click(
-      screen.getByRole("button", {
-        name: new RegExp(dictEn.admin.users.mobileSortButton.replace("{{field}}", ".*")),
-      }),
+    await user.click(screen.getByRole("button", { name: dictEn.admin.users.sortPanelTitle }));
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: dictEn.admin.users.sortFieldLabel.replace("{{n}}", "1") }),
+      "email",
     );
-    const emailSort = screen.getByRole("button", {
-      name: dictEn.admin.users.colEmail,
-    });
-    await user.click(emailSort);
   });
 
   it("AdminImportScreenNarrow renders title", () => {

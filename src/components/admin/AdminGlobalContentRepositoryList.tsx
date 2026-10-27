@@ -89,11 +89,7 @@ export function AdminGlobalContentRepositoryList({
   const emptySearch = contents.length === 0 && pagination.searchQuery.trim().length > 0;
 
   return (
-    <aside className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <div>
-        <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{labels.repositoryTitle}</h2>
-        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.repositoryStudioLead}</p>
-      </div>
+    <aside className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3.5 sm:p-4">
       <form
         className="flex flex-wrap items-end gap-2"
         onSubmit={(e) => {

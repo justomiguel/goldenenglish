@@ -141,7 +141,7 @@ export function SectionCollectionsHistoryTab({
                   <tr key={r.id} className="border-b border-[var(--color-border)] last:border-0">
                     <td className="px-3 py-2">
                       <Link
-                        href={`/${locale}/dashboard/admin/users/${r.studentId}/billing`}
+                        href={`/${locale}/dashboard/admin/users/${r.studentId}`}
                         className="font-medium text-[var(--color-primary)] hover:underline"
                       >
                         {r.studentDisplayName}

@@ -18,6 +18,7 @@ function candidate(partial: Partial<AdminDirectoryCandidate> & { id: string }): 
     monthlyStatus: "na",
     emailDeliverable: false,
     hasChildren: false,
+    ageYears: null,
     ...partial,
   };
 }

@@ -41,6 +41,7 @@ describe("emailTemplateRegistry", () => {
       "payments.admin_paid",
       "payments.admin_receipt_pending",
       "blog.admin_pending_review",
+      "admin.weekly_digest",
       "registration.admin_section_full",
       "registration.trial_invite",
       "registration.trial_missed",

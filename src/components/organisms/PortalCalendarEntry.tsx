@@ -134,13 +134,17 @@ export function PortalCalendarEntry({
     <SurfaceMountGate
       skeleton={<div className="h-40 animate-pulse rounded bg-[var(--color-muted)]" aria-hidden />}
       desktop={<div>{desktopBody}</div>}
-      narrow={(surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">) => (
-        <PwaPageShell surface={surface}>
-          <div className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
-            <div className="mx-auto max-w-[var(--layout-max-width)] py-2">{narrowBody}</div>
-          </div>
-        </PwaPageShell>
-      )}
+      narrow={(surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">) =>
+        admin ? (
+          <div className="mx-auto max-w-[var(--layout-max-width)] py-1">{narrowBody}</div>
+        ) : (
+          <PwaPageShell surface={surface}>
+            <div className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
+              <div className="mx-auto max-w-[var(--layout-max-width)] py-2">{narrowBody}</div>
+            </div>
+          </PwaPageShell>
+        )
+      }
     />
   );
 }

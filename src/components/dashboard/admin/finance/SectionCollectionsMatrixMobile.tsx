@@ -33,7 +33,7 @@ export interface SectionCollectionsMatrixMobileProps {
   overdueLabel: string;
 }
 
-/** One student, then a vertical list of month cells. */
+/** Mobile student collections card with a 2-column month grid and inline totals. */
 export function SectionCollectionsMatrixMobile({
   students,
   view,
@@ -52,7 +52,11 @@ export function SectionCollectionsMatrixMobile({
   overdueLabel,
 }: SectionCollectionsMatrixMobileProps) {
   const [studentId, setStudentId] = useState(students[0]?.studentId ?? "");
-  const student = students.find((row) => row.studentId === studentId) ?? students[0];
+  const currentIdx = Math.max(
+    0,
+    students.findIndex((row) => row.studentId === studentId),
+  );
+  const student = students[currentIdx] ?? students[0];
   if (!student) return null;
 
   const money = new Intl.NumberFormat(locale, {
@@ -72,12 +76,17 @@ export function SectionCollectionsMatrixMobile({
     (isCellSelectable?.(student.studentId, SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH) ?? true);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3.5 shadow-[var(--shadow-soft)]">
       <div className="space-y-1">
-        <Label htmlFor="collections-mobile-student">{dict.matrix.mobilePickStudent}</Label>
+        <div className="flex items-center justify-between gap-2">
+          <Label htmlFor="collections-mobile-student">{dict.matrix.mobilePickStudent}</Label>
+          <span className="text-xs font-medium tabular-nums text-[var(--color-muted-foreground)]">
+            {currentIdx + 1} / {students.length}
+          </span>
+        </div>
         <select
           id="collections-mobile-student"
-          className="min-h-11 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-sm"
+          className="min-h-11 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm"
           value={student.studentId}
           onChange={(event) => setStudentId(event.target.value)}
         >
@@ -88,24 +97,41 @@ export function SectionCollectionsMatrixMobile({
           ))}
         </select>
       </div>
-      {onToggleStudent && selectedIds ? (
-        <label className="inline-flex min-h-11 items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            className="h-5 w-5 accent-[var(--color-primary)]"
-            checked={selectedIds.has(student.studentId)}
-            onChange={(event) => onToggleStudent(student.studentId, event.target.checked)}
-            aria-label={dict.matrix.selectStudentAria.replace("{name}", student.studentName)}
-          />
-          {dict.matrix.selectStudentAria.replace("{name}", student.studentName)}
-        </label>
-      ) : null}
-      <Link
-        href={`/${locale}/dashboard/admin/users/${student.studentId}/billing`}
-        className="inline-flex min-h-11 items-center text-sm font-medium text-[var(--color-primary)] underline-offset-2 hover:underline"
-      >
-        {student.studentName}
-      </Link>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5">
+        <div className="flex min-w-0 items-center gap-2.5">
+          {onToggleStudent && selectedIds ? (
+            <input
+              type="checkbox"
+              className="h-5 w-5 shrink-0 accent-[var(--color-primary)]"
+              checked={selectedIds.has(student.studentId)}
+              onChange={(event) => onToggleStudent(student.studentId, event.target.checked)}
+              aria-label={dict.matrix.selectStudentAria.replace("{name}", student.studentName)}
+            />
+          ) : null}
+          <Link
+            href={`/${locale}/dashboard/admin/users/${student.studentId}`}
+            className="truncate text-sm font-semibold text-[var(--color-primary)] underline-offset-2 hover:underline"
+          >
+            {student.studentName}
+          </Link>
+        </div>
+        <dl className="flex items-center gap-3 text-xs">
+          <div>
+            <dt className="inline text-[var(--color-muted-foreground)]">{paidLabel}: </dt>
+            <dd className="inline font-semibold tabular-nums text-[var(--color-success)]">
+              {money.format(student.paid)}
+            </dd>
+          </div>
+          <div>
+            <dt className="inline text-[var(--color-muted-foreground)]">{overdueLabel}: </dt>
+            <dd className="inline font-semibold tabular-nums text-[var(--color-error)]">
+              {money.format(student.overdue)}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
       {showEnrollmentFeeColumn ? (
         <SectionCollectionsEnrollmentFeeCell
           student={student}
@@ -120,12 +146,16 @@ export function SectionCollectionsMatrixMobile({
           }
         />
       ) : null}
-      <ul className="space-y-2">
+
+      <ul className="grid grid-cols-2 gap-2">
         {MONTHS.map((month, index) => {
           const cell = student.row.cells.find((item) => item.month === month && item.year === view.year);
           return (
-            <li key={month} className="flex items-center gap-3">
-              <span className="w-12 shrink-0 text-sm font-medium text-[var(--color-muted-foreground)]">
+            <li
+              key={month}
+              className="flex items-center gap-2 rounded-xl border border-[var(--color-border)]/60 bg-[var(--color-surface)] p-1.5"
+            >
+              <span className="w-9 shrink-0 text-xs font-semibold text-[var(--color-muted-foreground)]">
                 {monthShort[index]}
               </span>
               <div className="min-w-0 flex-1">
@@ -153,16 +183,6 @@ export function SectionCollectionsMatrixMobile({
           );
         })}
       </ul>
-      <dl className="grid grid-cols-2 gap-2 text-sm">
-        <div>
-          <dt className="text-[var(--color-muted-foreground)]">{paidLabel}</dt>
-          <dd className="font-semibold text-[var(--color-success)]">{money.format(student.paid)}</dd>
-        </div>
-        <div>
-          <dt className="text-[var(--color-muted-foreground)]">{overdueLabel}</dt>
-          <dd className="font-semibold text-[var(--color-error)]">{money.format(student.overdue)}</dd>
-        </div>
-      </dl>
     </div>
   );
 }

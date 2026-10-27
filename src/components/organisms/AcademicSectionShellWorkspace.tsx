@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, type ReactNode } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import {
   CircleDollarSign,
@@ -55,11 +55,35 @@ const AREA_ICONS: Record<AcademicSectionShellAreaId, LucideIcon> = {
   students: Users,
 };
 
+function areaFromLocationSearch(search: string, flags: AcademicSectionFeatureFlags) {
+  const tab = parseAcademicSectionShellTabParam(new URLSearchParams(search).get("tab") ?? undefined);
+  return resolveAcademicSectionShellArea(tab, flags);
+}
+
+/**
+ * Next.js treats a bare `pushState` as a router restore and refetches the
+ * section page. The URL changes and the hub stays. `__NA` keeps the entry
+ * in history and skips that restore. The panel switches from local state.
+ */
+function pushAreaUrl(url: string) {
+  const prev = window.history.state as { __PRIVATE_NEXTJS_INTERNALS_TREE?: unknown } | null;
+  window.history.pushState(
+    {
+      ...(prev ?? {}),
+      __NA: true,
+      __PRIVATE_NEXTJS_INTERNALS_TREE: prev?.__PRIVATE_NEXTJS_INTERNALS_TREE,
+    },
+    "",
+    url,
+  );
+}
+
 export interface AcademicSectionShellWorkspaceProps {
   labels: AcademicSectionShellWorkspaceLabels;
   featureFlags: AcademicSectionFeatureFlags;
   /** Resolved from `?tab=` on the server; `null` = hub. */
   initialArea?: AcademicSectionShellAreaId | null;
+  enrollmentLinkPanel?: ReactNode;
   hubOverview: ReactNode;
   configuration: ReactNode;
   teachers: ReactNode;
@@ -73,8 +97,8 @@ export interface AcademicSectionShellWorkspaceProps {
 export function AcademicSectionShellWorkspace({
   labels,
   featureFlags,
-  // initialArea is kept in the interface for the server's first-paint prop; the
-  // running area is derived from useSearchParams so the browser history works.
+  initialArea = null,
+  enrollmentLinkPanel,
   hubOverview,
   configuration,
   teachers,
@@ -85,20 +109,27 @@ export function AcademicSectionShellWorkspace({
   students,
 }: AcademicSectionShellWorkspaceProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const flags = featureFlags;
+  const evalOn = featureFlags.requiresEvaluationsToPass;
+  const routeOn = featureFlags.usesLearningRoute;
+  const flags = useMemo(
+    () => ({ requiresEvaluationsToPass: evalOn, usesLearningRoute: routeOn }),
+    [evalOn, routeOn],
+  );
   const areas = useMemo(() => visibleAcademicSectionHubAreas(flags), [flags]);
+  const [area, setArea] = useState<AcademicSectionShellAreaId | null>(() =>
+    resolveAcademicSectionShellArea(initialArea ?? undefined, flags),
+  );
 
-  const tab = parseAcademicSectionShellTabParam(searchParams.get("tab") ?? undefined);
-  const area = resolveAcademicSectionShellArea(tab, flags);
+  useEffect(() => {
+    const onPop = () => setArea(areaFromLocationSearch(window.location.search, flags));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [flags]);
 
-  // pushState lets Next.js update the URL without re-running the server route.
-  // useSearchParams picks up the change and re-renders this component — making
-  // back and forward work because the browser updating the URL is the same
-  // event as the component changing area.
   const navigate = (next: AcademicSectionShellAreaId | null) => {
+    setArea(resolveAcademicSectionShellArea(next ?? undefined, flags));
     const url = next ? `${pathname}?tab=${encodeURIComponent(next)}` : pathname;
-    window.history.pushState(null, "", url);
+    pushAreaUrl(url);
   };
 
   const cardLabels = useMemo(() => {
@@ -129,7 +160,8 @@ export function AcademicSectionShellWorkspace({
 
   if (area == null) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-5 sm:space-y-6">
+        {enrollmentLinkPanel}
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.generalLead}</p>
         <AcademicSectionShellHub
           areasAria={labels.hubAreasAria}
@@ -137,7 +169,7 @@ export function AcademicSectionShellWorkspace({
           cardLabels={cardLabels}
           onOpenArea={(id) => navigate(id)}
         />
-        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-4 shadow-[var(--shadow-soft)] sm:px-5 sm:py-5">
+        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-3.5 py-4 shadow-[var(--shadow-soft)] sm:px-5 sm:py-5">
           {hubOverview}
         </div>
       </div>
@@ -156,7 +188,7 @@ export function AcademicSectionShellWorkspace({
         onBack={() => navigate(null)}
         onSwitchArea={(id) => navigate(id)}
       />
-      <div className="space-y-4 px-4 py-4 sm:px-5 sm:py-5">
+      <div className="space-y-4 px-3 py-3 sm:px-5 sm:py-5">
         <p className="inline-flex items-center gap-2 text-sm text-[var(--color-muted-foreground)]">
           <Icon className="h-5 w-5 shrink-0 opacity-90" aria-hidden />
           {labels[`${area}Lead` as keyof AcademicSectionShellWorkspaceLabels] as string}

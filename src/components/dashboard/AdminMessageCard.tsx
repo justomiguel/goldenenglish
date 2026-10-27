@@ -1,21 +1,13 @@
 import type { Dictionary } from "@/types/i18n";
 import type { AdminPortalMessageRow } from "@/types/messaging";
 import Link from "next/link";
-import { Globe, MessageSquare, Reply, ReplyAll } from "lucide-react";
-import { DeletePortalMessageButton } from "@/components/dashboard/DeletePortalMessageButton";
-import { AdminMessageReadToggleButton } from "@/components/dashboard/AdminMessageReadToggleButton";
+import { Globe, MessageSquare } from "lucide-react";
 
 interface AdminMessageCardProps {
   locale: string;
   row: AdminPortalMessageRow;
   labels: Dictionary["admin"]["messages"];
   detailHref: string;
-  /** Sent folder: hide unread toggle. */
-  showReadToggle?: boolean;
-  /** When set, shows a leading selection checkbox. */
-  selected?: boolean;
-  onSelectedChange?: (selected: boolean) => void;
-  selectionDisabled?: boolean;
 }
 
 function formatSentAt(iso: string, locale: string) {
@@ -30,12 +22,7 @@ export function AdminMessageCard({
   row,
   labels,
   detailHref,
-  showReadToggle = true,
-  selected,
-  onSelectedChange,
-  selectionDisabled = false,
 }: AdminMessageCardProps) {
-  const selectionEnabled = typeof selected === "boolean" && onSelectedChange;
   const sourceAria =
     row.source === "contact_form" ? labels.sourceContactFormAria : labels.sourceInternalAria;
   const SourceIcon = row.source === "contact_form" ? Globe : MessageSquare;
@@ -57,13 +44,10 @@ export function AdminMessageCard({
     row.needsReply ? labels.badgeNeedsReply : null,
     row.preview ? `${labels.preview}: ${row.preview}` : labels.detailEmptyBody,
   ].filter(Boolean);
-  const replyHref = `/${locale}/dashboard/admin/messages/compose?replyTo=${row.id}`;
-  const replyWithDefaultHref = `${replyHref}&useDefault=1`;
-
   return (
     <article
       className={[
-        "flex flex-col gap-2.5 rounded-xl border border-[var(--color-border)] px-3 py-2.5 transition-colors sm:flex-row sm:items-center sm:gap-3 sm:py-3",
+        "rounded-xl border border-[var(--color-border)] px-3 py-2.5 transition-colors",
         accent,
         "hover:border-[var(--color-border)] hover:bg-[var(--color-muted)]/20",
       ].join(" ")}
@@ -71,23 +55,8 @@ export function AdminMessageCard({
       data-needs-reply={row.needsReply ? "true" : "false"}
       data-attention-state={attentionState}
       data-source={row.source}
-      data-selected={selectionEnabled && selected ? "true" : "false"}
     >
-      <div className="flex min-w-0 flex-1 items-start gap-2.5 sm:items-center">
-        {selectionEnabled ? (
-          <div className="flex shrink-0 items-start pt-0.5 sm:items-center sm:pt-0">
-            <input
-              type="checkbox"
-              className="h-4 w-4 shrink-0 cursor-pointer rounded border-[var(--color-border)] text-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
-              checked={selected}
-              disabled={selectionDisabled}
-              aria-label={labels.bulkSelectRowAria.replace("{{from}}", row.fromName)}
-              onChange={(e) => onSelectedChange(e.target.checked)}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
-        ) : null}
-        <Link
+      <Link
           href={detailHref}
           className="min-w-0 flex-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
           aria-label={ariaParts.join(". ")}
@@ -151,43 +120,7 @@ export function AdminMessageCard({
           >
             {row.preview || "—"}
           </p>
-        </Link>
-      </div>
-      <div className="grid grid-cols-2 gap-1.5 border-t border-[var(--color-border)]/60 pt-2 sm:flex sm:shrink-0 sm:items-center sm:justify-end sm:border-t-0 sm:pt-0">
-        <Link
-          href={replyHref}
-          className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 text-xs font-medium text-[var(--color-primary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] sm:min-h-10 sm:border-transparent sm:bg-transparent sm:px-2 sm:text-sm"
-          title={labels.replyToMessageTitle}
-          aria-label={labels.replyToMessage}
-        >
-          <Reply className="h-4 w-4 shrink-0" aria-hidden />
-          <span className="truncate">{labels.replyToMessage}</span>
-        </Link>
-        <Link
-          href={replyWithDefaultHref}
-          className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 text-xs font-medium text-[var(--color-primary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] sm:min-h-10 sm:border-transparent sm:bg-transparent sm:px-2 sm:text-sm"
-          title={labels.replyWithDefaultMessageTitle}
-          aria-label={labels.replyWithDefaultMessage}
-        >
-          <ReplyAll className="h-4 w-4 shrink-0" aria-hidden />
-          <span className="truncate sm:hidden lg:inline">{labels.replyWithDefaultMessage}</span>
-        </Link>
-        {showReadToggle ? (
-          <AdminMessageReadToggleButton
-            locale={locale}
-            messageId={row.id}
-            isUnread={row.isUnread}
-            labels={labels}
-          />
-        ) : null}
-        <DeletePortalMessageButton
-          locale={locale}
-          messageId={row.id}
-          labels={labels}
-          confirmSnippet={row.preview || undefined}
-          navigateAfterDelete="refresh"
-        />
-      </div>
+      </Link>
     </article>
   );
 }

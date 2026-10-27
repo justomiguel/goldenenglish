@@ -98,6 +98,7 @@ export async function loadTeacherSectionAttendanceMatrix(
     const label = p ? formatProfileSnakeSurnameFirst(p, r.student_id) : r.student_id;
     return {
       enrollmentId: r.id,
+      studentId: r.student_id,
       studentLabel: label,
       enrollmentStatus: String(r.status ?? ""),
       createdAt: String(r.created_at ?? ""),

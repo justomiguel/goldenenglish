@@ -86,6 +86,7 @@ function canonicalDailyHrefs(base: string): Set<string> {
     `${base}/parents`,
     `${base}/users`,
     `${base}/registrations`,
+    `${base}/messages`,
     `${base}/academic`,
     `${base}/finance`,
     `${base}/events`,

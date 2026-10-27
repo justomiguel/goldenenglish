@@ -6,6 +6,11 @@ import type { Dictionary } from "@/types/i18n";
 import { deleteAdminUsers } from "@/app/[locale]/dashboard/admin/users/deleteActions";
 import { useAdminUserDeleteConfirmation } from "@/hooks/useAdminUserDeleteConfirmation";
 import {
+  adminUsersSortCriteriaToParams,
+  cycleAdminUsersSortCriterion,
+  type AdminUsersSortCriterion,
+} from "@/lib/dashboard/adminUsersSortCriteria";
+import {
   ROLE_FILTER_ALL,
   applyUserRowToggle,
   type AdminUserRow,
@@ -28,6 +33,7 @@ export interface UseAdminUsersTableParams {
   roleFilter: string;
   sortKey: SortKey;
   sortDir: SortDir;
+  sortCriteria?: AdminUsersSortCriterion[];
   locale: string;
   currentUserId: string;
   labels: UserLabels;
@@ -42,6 +48,7 @@ export function useAdminUsersTable({
   roleFilter,
   sortKey,
   sortDir,
+  sortCriteria,
   locale,
   currentUserId,
   labels,
@@ -49,7 +56,8 @@ export function useAdminUsersTable({
   const router = useRouter();
   const pathname = usePathname();
   const currentParams = useSearchParams();
-  const [, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
+  const criteria = sortCriteria ?? [{ key: sortKey, dir: sortDir }];
 
   const del = useAdminUserDeleteConfirmation(locale, labels);
 
@@ -89,13 +97,26 @@ export function useAdminUsersTable({
     [pushParams],
   );
 
+  const pushSort = useCallback(
+    (next: AdminUsersSortCriterion[]) => {
+      const params = adminUsersSortCriteriaToParams(next);
+      pushParams({ order: params.order, sort: params.sort, dir: params.dir, page: undefined });
+    },
+    [pushParams],
+  );
+
   const toggleSort = useCallback(
     (key: SortKey) => {
-      const newDir: SortDir =
-        sortKey === key ? (sortDir === "asc" ? "desc" : "asc") : "asc";
-      pushParams({ sort: key, dir: newDir, page: undefined });
+      pushSort(cycleAdminUsersSortCriterion(criteria, key));
     },
-    [pushParams, sortKey, sortDir],
+    [criteria, pushSort],
+  );
+
+  const setSortCriteria = useCallback(
+    (next: AdminUsersSortCriterion[]) => {
+      pushSort(next);
+    },
+    [pushSort],
   );
 
   const setPage = useCallback(
@@ -167,6 +188,9 @@ export function useAdminUsersTable({
     setRoleFilter,
     sortKey,
     sortDir,
+    sortCriteria: criteria,
+    setSortCriteria,
+    isPending,
     toggleSort,
     selectedIds,
     toggleRow,

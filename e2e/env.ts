@@ -110,3 +110,39 @@ export function e2eSharedPassword(env: NodeJS.ProcessEnv = process.env): string 
     (env.E2E_USER_PASSWORD ?? env.E2E_ADMIN_PASSWORD ?? "").trim() || "E2eLocal!Stack1"
   );
 }
+
+/**
+ * Env for `next start` during isolated E2E.
+ * A developer `.env.local` must not steer 127.0.0.1 at a product tenant.
+ */
+export function e2eIsolatedWebServerEnv(env: NodeJS.ProcessEnv = process.env): Record<string, string> {
+  const url = (env.NEXT_PUBLIC_SUPABASE_URL ?? "").trim();
+  const anonKey = (env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "").trim();
+  const serviceRole = (env.SUPABASE_SERVICE_ROLE_KEY ?? "").trim();
+  const publicUrl = (env.PLAYWRIGHT_BASE_URL ?? env.NEXT_PUBLIC_APP_URL ?? defaultE2eBaseURL(env)).trim();
+  const mailTenant = (env.MAIL_TENANT ?? "").trim() || "alumnos.e2e.test";
+  const tenant = {
+    slug: "e2e",
+    hosts: ["127.0.0.1", "localhost"],
+    supabaseUrl: url,
+    supabaseAnonKey: anonKey,
+    supabaseServiceRoleKey: serviceRole,
+    publicUrl,
+    mailTenant,
+    skipInitialSiteSetup: true,
+  };
+  const next: Record<string, string> = {};
+  for (const [key, value] of Object.entries(env)) {
+    if (typeof value === "string") next[key] = value;
+  }
+  next.GE_DEV_TARGET = "e2e";
+  next.DEV_TENANT_SLUG = "e2e";
+  next.TENANTS_CONFIG_JSON = JSON.stringify([tenant]);
+  next.PULSAR_SUPABASE_URL = "";
+  next.PULSAR_SUPABASE_SERVICE_ROLE_KEY = "";
+  next.EMAIL_PROVIDER = "recording";
+  next.MAIL_TENANT = mailTenant;
+  next.RESEND_API_KEY = "";
+  next.RESEND_FROM_EMAIL = "";
+  return next;
+}

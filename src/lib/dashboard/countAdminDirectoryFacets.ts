@@ -3,6 +3,7 @@ import type {
   AdminDirectoryFilterKey,
   AdminDirectoryFilters,
 } from "@/lib/dashboard/adminDirectoryFilters";
+import { DIRECTORY_AGE_BANDS } from "@/lib/dashboard/directoryAgeBand";
 import { filterAdminDirectoryCandidates } from "@/lib/dashboard/matchAdminDirectoryCandidate";
 
 export type DirectoryBinaryFacet = { all: number; with: number; without: number };
@@ -21,6 +22,7 @@ export type AdminDirectoryFacets = {
   monthlyStatus: { all: number; current: number; behind: number; na: number };
   email: { all: number; deliverable: number; none: number };
   children: DirectoryBinaryFacet;
+  age: { all: number } & Record<(typeof DIRECTORY_AGE_BANDS)[number], number>;
 };
 
 function withoutKey(
@@ -70,6 +72,13 @@ export function countAdminDirectoryFacets(
   const teachingBase = withoutKey(filters, "teachingRole");
   const emailBase = withoutKey(filters, "email");
   const monthlyBase = withoutKey(filters, "monthlyStatus");
+  const ageBase = withoutKey(filters, "age");
+  const age = {
+    all: countWith(candidates, ageBase, now),
+  } as AdminDirectoryFacets["age"];
+  for (const band of DIRECTORY_AGE_BANDS) {
+    age[band] = countWith(candidates, { ...ageBase, age: band }, now);
+  }
   return {
     section,
     sectionAll: countWith(candidates, sectionBase, now),
@@ -105,6 +114,7 @@ export function countAdminDirectoryFacets(
       none: countWith(candidates, { ...emailBase, email: "none" }, now),
     },
     children: binaryFacet(candidates, filters, "children", now),
+    age,
   };
 }
 

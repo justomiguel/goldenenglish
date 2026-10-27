@@ -6,6 +6,7 @@ import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortal
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { buildPortalCalendarPagePayload } from "@/lib/calendar/buildPortalCalendarPagePayload";
 import { PortalCalendarEntry } from "@/components/organisms/PortalCalendarEntry";
+import { getDashboardActor } from "@/lib/dashboard/getDashboardActor";
 import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 
 interface PageProps {
@@ -26,14 +27,16 @@ export default async function TeacherCalendarPage({ params }: PageProps) {
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login?next=/${locale}/dashboard/teacher/calendar`);
 
+  const actor = await getDashboardActor();
+  const viewerId = actor?.viewerId ?? user.id;
   const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
-  if (!allowed) {
+  if (!allowed && !actor?.viewAs) {
     const isAdmin = await resolveIsAdminSession(supabase, user.id);
     if (isAdmin) redirect(`/${locale}/dashboard/admin/calendar`);
     redirect(`/${locale}/dashboard`);
   }
 
-  const payload = await buildPortalCalendarPagePayload(supabase, user.id, "teacher", {
+  const payload = await buildPortalCalendarPagePayload(supabase, viewerId, "teacher", {
     locale,
     birthdayCopy: dict.dashboard.birthdays,
   });
@@ -46,7 +49,7 @@ export default async function TeacherCalendarPage({ params }: PageProps) {
       dict={dict.dashboard.portalCalendar}
       events={payload.events}
       feedUrl={feedUrl}
-      viewerId={user.id}
+      viewerId={viewerId}
     />
   );
 }

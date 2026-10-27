@@ -25,13 +25,25 @@ const assignment = {
   cohortId: "cohort-1",
   cohortName: "2026",
   sections: [
-    { id: "section-a", name: "A1", teacherName: "Ada", activeCount: 5, maxStudents: 12 },
-    { id: "section-b", name: "B1", teacherName: "Grace", activeCount: 3, maxStudents: 12 },
-    { id: "section-c", name: "C1", teacherName: "Emmy", activeCount: 7, maxStudents: 12 },
+    { id: "section-a", name: "A1", teacherId: "teacher-a", teacherName: "Ada", activeCount: 5, maxStudents: 12 },
+    { id: "section-b", name: "B1", teacherId: "teacher-b", teacherName: "Grace", activeCount: 3, maxStudents: 12 },
+    { id: "section-c", name: "C1", teacherId: null, teacherName: "—", activeCount: 7, maxStudents: 12 },
   ],
-  current: { enrollmentId: "enrollment-b", sectionId: "section-b", sectionName: "B1" },
+  current: {
+    enrollmentId: "enrollment-b",
+    sectionId: "section-b",
+    sectionName: "B1",
+    teacher: { id: "teacher-b", name: "Hopper Grace" },
+    assistants: [{ id: "assistant-b", name: "Lovelace Ada" }],
+  },
   currentSections: [
-    { enrollmentId: "enrollment-b", sectionId: "section-b", sectionName: "B1" },
+    {
+      enrollmentId: "enrollment-b",
+      sectionId: "section-b",
+      sectionName: "B1",
+      teacher: { id: "teacher-b", name: "Hopper Grace" },
+      assistants: [{ id: "assistant-b", name: "Lovelace Ada" }],
+    },
   ],
   hasMultipleCurrentAssignments: false,
 };
@@ -54,8 +66,53 @@ describe("AdminStudentCurrentCohortAssignmentCard", () => {
       />,
     );
 
-    expect(screen.getByText("B1")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "B1" })).toHaveAttribute(
+      "href",
+      "/en/dashboard/admin/academic/cohort-1/section-b",
+    );
+    expect(screen.getByRole("link", { name: "Hopper Grace" })).toHaveAttribute(
+      "href",
+      "/en/dashboard/admin/users/teacher-b",
+    );
+    expect(screen.getByRole("link", { name: "Lovelace Ada" })).toHaveAttribute(
+      "href",
+      "/en/dashboard/admin/users/assistant-b",
+    );
     expect(screen.getByRole("button", { name: /Remove B1/i })).toBeInTheDocument();
+  });
+
+  it("shows the section teacher next to the course when the enrollment has no teacher", () => {
+    render(
+      <AdminStudentCurrentCohortAssignmentCard
+        locale="en"
+        studentId="student-1"
+        labels={en.admin.users}
+        assignment={{
+          ...assignment,
+          current: {
+            enrollmentId: "enrollment-b",
+            sectionId: "section-b",
+            sectionName: "B1",
+            teacher: null,
+            assistants: [],
+          },
+          currentSections: [
+            {
+              enrollmentId: "enrollment-b",
+              sectionId: "section-b",
+              sectionName: "B1",
+              teacher: null,
+              assistants: [],
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Grace" })).toHaveAttribute(
+      "href",
+      "/en/dashboard/admin/users/teacher-b",
+    );
   });
 
   it("adds the student to a new section", async () => {

@@ -126,6 +126,8 @@ describe("AdminEventDiscountCodesPanel", () => {
     expect(screen.getByText("Gómez Luis")).toBeInTheDocument();
     expect(screen.getByText("No payment")).toBeInTheDocument();
     expect(screen.getByText("Released")).toBeInTheDocument();
+    expect(screen.getAllByRole("table")).toHaveLength(1);
+    expect(screen.getByRole("table")).toHaveClass("ge-stack-cards");
   });
 
   it("shows the amount and ticket fields only in fixed-amount mode", () => {

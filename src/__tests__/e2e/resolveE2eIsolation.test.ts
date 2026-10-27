@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import {
   defaultE2eBaseURL,
+  e2eIsolatedWebServerEnv,
   e2eRequireEnabled,
   e2eRequireFailureMessage,
   e2eSkipRequested,
@@ -98,6 +99,32 @@ describe("e2eRequireFailureMessage", () => {
         PLAYWRIGHT_BASE_URL: "http://127.0.0.1:3100",
       }),
     ).toBeNull();
+  });
+});
+
+describe("e2eIsolatedWebServerEnv", () => {
+  it("points localhost at the isolated Supabase project", () => {
+    const env = e2eIsolatedWebServerEnv({
+      DEV_TENANT_SLUG: "nago",
+      TENANTS_CONFIG_JSON: '[{"slug":"nago"}]',
+      PULSAR_SUPABASE_URL: "https://pulsar.supabase.co",
+      PULSAR_SUPABASE_SERVICE_ROLE_KEY: "pulsar-secret",
+      NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon",
+      SUPABASE_SERVICE_ROLE_KEY: "service",
+      PLAYWRIGHT_BASE_URL: "http://127.0.0.1:3100",
+    });
+    expect(env.DEV_TENANT_SLUG).toBe("e2e");
+    expect(env.PULSAR_SUPABASE_URL).toBe("");
+    expect(env.PULSAR_SUPABASE_SERVICE_ROLE_KEY).toBe("");
+    const tenants = JSON.parse(String(env.TENANTS_CONFIG_JSON)) as {
+      slug: string;
+      supabaseUrl: string;
+      skipInitialSiteSetup: boolean;
+    }[];
+    expect(tenants[0]?.slug).toBe("e2e");
+    expect(tenants[0]?.supabaseUrl).toBe("http://127.0.0.1:54321");
+    expect(tenants[0]?.skipInitialSiteSetup).toBe(true);
   });
 });
 

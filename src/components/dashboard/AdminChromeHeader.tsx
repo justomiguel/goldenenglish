@@ -46,23 +46,37 @@ export function AdminChromeHeader({
       className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface)]/95 shadow-[var(--shadow-soft)] backdrop-blur-md"
       aria-label={labels.ariaHeader}
     >
-      <div className="flex items-center justify-between gap-1.5 px-safe pb-2 pt-safe md:gap-4 md:px-8 md:py-4">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          {mobileNav}
-          {compactBrand ? (
-            <div className="min-w-0">
-              <StaffWorkspaceSwitch
-                locale={locale}
-                dict={dict}
-                activeRole="admin"
-                viewAs={null}
-              />
-              <p className="mt-1.5 hidden min-w-0 truncate text-xs text-[var(--color-muted-foreground)] sm:block">
-                {tagline}
-              </p>
-            </div>
-          ) : null}
-          {!compactBrand ? (
+      <div className="flex items-center gap-2 px-safe pb-2 pt-safe md:gap-4 md:px-8 md:py-4">
+        {mobileNav}
+        {compactBrand ? (
+          <Link
+            href={`/${locale}/dashboard/admin`}
+            aria-label={brand.name}
+            className="shrink-0 rounded-[var(--layout-border-radius)] bg-[var(--color-background)] p-1 shadow-sm ring-1 ring-[var(--color-border)] md:hidden"
+          >
+            <Image
+              src={brand.logoPath}
+              alt={brand.logoAlt || brand.name}
+              width={32}
+              height={32}
+              unoptimized={bypassLogoOptimizer}
+              className="block h-8 w-8 rounded-[var(--layout-border-radius)] object-contain"
+            />
+          </Link>
+        ) : null}
+        {compactBrand ? (
+          <div className="hidden min-w-0 md:block">
+            <StaffWorkspaceSwitch
+              locale={locale}
+              dict={dict}
+              activeRole="admin"
+              viewAs={null}
+            />
+            <p className="mt-1.5 hidden min-w-0 truncate text-xs text-[var(--color-muted-foreground)] sm:block">
+              {tagline}
+            </p>
+          </div>
+        ) : (
           <Link
             href={`/${locale}/dashboard/admin`}
             className="group flex min-w-0 flex-1 items-center gap-3 rounded-[var(--layout-border-radius)] outline-none ring-[var(--color-primary)] transition hover:opacity-95 focus-visible:ring-2 focus-visible:ring-offset-2"
@@ -97,24 +111,25 @@ export function AdminChromeHeader({
               </p>
             </div>
           </Link>
-          ) : null}
-          {!compactBrand ? (
+        )}
+        {!compactBrand ? (
+          <div className="hidden min-w-0 md:block">
             <StaffWorkspaceSwitch
               locale={locale}
               dict={dict}
               activeRole="admin"
               viewAs={null}
             />
-          ) : null}
-        </div>
+          </div>
+        ) : null}
 
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <div className="ms-auto flex shrink-0 items-center gap-1.5 sm:gap-3">
           <Link
             href={`/${locale}`}
             data-tour="admin-chrome-back-to-site"
             aria-label={labels.backToSite}
             title={labels.backToSite}
-            className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 text-xs font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] sm:min-w-0 sm:justify-start sm:px-3 sm:text-sm"
+            className="hidden min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 text-xs font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] md:inline-flex sm:min-w-0 sm:justify-start sm:px-3 sm:text-sm"
           >
             <ExternalLink
               className="h-4 w-4 shrink-0 text-[var(--color-muted-foreground)]"
@@ -127,7 +142,7 @@ export function AdminChromeHeader({
             href={`/${locale}/dashboard/admin/messages`}
             aria-label={labels.headerMessagesAria}
             title={labels.headerMessages}
-            className="relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
+            className="relative hidden min-h-11 min-w-11 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] md:inline-flex"
           >
             <MessageCircle className="h-4 w-4" aria-hidden strokeWidth={2} />
             {recentInboundMessagesCount > 0 ? (

@@ -96,4 +96,26 @@ describe("AdminUsersPwaListItem", () => {
     expect(screen.getByRole("checkbox")).toBeDisabled();
     expect(screen.getByRole("button", { name: `${labels.deleteOne}: ${row.email}` })).toBeDisabled();
   });
+
+  // REGRESSION CHECK: Directory mobile cards must not render duplicate view/edit icon links that crush person names on narrow screens.
+  it("omits the duplicate edit icon link while keeping the profile view link and delete button", () => {
+    render(
+      <AdminUsersPwaListItem
+        locale="es"
+        labels={labels}
+        row={row}
+        currentUserId="other"
+        selected={false}
+        busy={false}
+        studentsDirectory={false}
+        teachersDirectory={false}
+        emptyValue="—"
+        onToggleRow={() => {}}
+        onRequestDeleteOne={() => {}}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: `${labels.viewOne}: ${row.email}` })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: `${labels.editOne}: ${row.email}` })).not.toBeInTheDocument();
+  });
 });

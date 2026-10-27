@@ -49,10 +49,10 @@ describe("AdminUsersMobileToolbar", () => {
     expect(onExportUsers).toHaveBeenCalledOnce();
   });
 
-  it("flushes search on submit and opens the sort sheet", async () => {
+  it("flushes search on submit and adds a sort criterion", async () => {
     const user = userEvent.setup();
     const onQueryChange = vi.fn();
-    const onToggleSort = vi.fn();
+    const onSortCriteriaChange = vi.fn();
     render(
       <AdminUsersMobileToolbar
         labels={labels}
@@ -61,7 +61,8 @@ describe("AdminUsersMobileToolbar", () => {
         totalCount={1}
         sortKey="email"
         sortDir="asc"
-        onToggleSort={onToggleSort}
+        onToggleSort={() => {}}
+        onSortCriteriaChange={onSortCriteriaChange}
         allVisibleSelected={false}
         onToggleSelectAllVisible={() => {}}
         selectAllDisabled={false}
@@ -72,8 +73,10 @@ describe("AdminUsersMobileToolbar", () => {
     await user.keyboard("{Enter}");
     expect(onQueryChange).toHaveBeenCalledWith("ana");
 
-    await user.click(screen.getByRole("button", { name: /Sort:/ }));
-    await user.click(screen.getByRole("button", { name: labels.colName }));
-    expect(onToggleSort).toHaveBeenCalledWith("name");
+    await user.click(screen.getByRole("button", { name: labels.sortPanelTitle }));
+    await user.selectOptions(screen.getByRole("combobox", { name: "Criterion 1" }), "phone");
+    expect(onSortCriteriaChange).toHaveBeenCalledWith([{ key: "phone", dir: "asc" }]);
+    await user.click(screen.getByRole("button", { name: `${labels.sortDirAsc}: ${labels.colEmail}` }));
+    expect(onSortCriteriaChange).toHaveBeenCalledWith([{ key: "email", dir: "desc" }]);
   });
 });

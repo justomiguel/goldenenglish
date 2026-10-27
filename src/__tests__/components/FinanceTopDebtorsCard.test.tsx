@@ -106,6 +106,6 @@ describe("FinanceTopDebtorsCard", () => {
       />,
     );
     const link = screen.getByRole("link", { name: /Smith Ana/ });
-    expect(link).toHaveAttribute("href", "/dashboard/admin/users/stu-1/billing");
+    expect(link).toHaveAttribute("href", "/en/dashboard/admin/users/stu-1");
   });
 });

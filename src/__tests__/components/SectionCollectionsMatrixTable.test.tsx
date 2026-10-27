@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { beforeEach, describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { SectionCollectionsMatrixTable } from "@/components/dashboard/admin/finance/SectionCollectionsMatrixTable";
 import { dictEn } from "@/test/dictEn";
@@ -6,6 +6,12 @@ import type {
   SectionCollectionsView,
   SectionCollectionsStudentRow,
 } from "@/types/sectionCollections";
+
+const surfaceMock = vi.hoisted(() => vi.fn(() => "web-desktop" as "web-desktop" | "pwa-mobile" | "web-mobile"));
+
+vi.mock("@/hooks/useAppSurface", () => ({
+  useAppSurface: () => surfaceMock(),
+}));
 
 const collectionsDict = dictEn.admin.finance.collections;
 
@@ -89,6 +95,10 @@ const baseView: SectionCollectionsView = {
 };
 
 describe("SectionCollectionsMatrixTable", () => {
+  beforeEach(() => {
+    surfaceMock.mockReturnValue("web-desktop");
+  });
+
   it("renders student rows with month columns and totals", () => {
     render(
       <SectionCollectionsMatrixTable
@@ -102,10 +112,8 @@ describe("SectionCollectionsMatrixTable", () => {
     );
     expect(screen.getByText("Ada")).toBeInTheDocument();
     expect(screen.getByText("Bea")).toBeInTheDocument();
-    const adaBilling = screen.getByRole("link", {
-      name: collectionsDict.matrix.openStudentBillingAria.replace("{name}", "Ada"),
-    });
-    expect(adaBilling).toHaveAttribute("href", "/en/dashboard/admin/users/s1/billing");
+    const adaProfile = screen.getByRole("link", { name: "Ada" });
+    expect(adaProfile).toHaveAttribute("href", "/en/dashboard/admin/users/s1");
     expect(screen.getByText("DNI 123")).toBeInTheDocument();
     expect(screen.getByText(collectionsDict.matrix.studentColumn)).toBeInTheDocument();
     expect(
@@ -160,5 +168,24 @@ describe("SectionCollectionsMatrixTable", () => {
       />,
     );
     expect(screen.getByText(collectionsDict.matrix.empty)).toBeInTheDocument();
+  });
+
+  // REGRESSION CHECK: Mobile section collections must show a 2-column month grid and student counter on pwa-mobile.
+  it("renders the mobile student card and 2-column month grid on pwa-mobile", () => {
+    surfaceMock.mockReturnValue("pwa-mobile");
+    const { container } = render(
+      <SectionCollectionsMatrixTable
+        view={baseView}
+        dict={collectionsDict}
+        locale="en"
+        selectedIds={new Set()}
+        onToggleStudent={() => undefined}
+        onToggleAll={() => undefined}
+      />,
+    );
+
+    expect(screen.getByLabelText(collectionsDict.matrix.mobilePickStudent)).toBeInTheDocument();
+    expect(screen.getByText("1 / 2")).toBeInTheDocument();
+    expect(container.querySelector("ul.grid-cols-2")).toBeTruthy();
   });
 });

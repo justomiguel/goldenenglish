@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Check, PackageCheck, UserCheck, XCircle } from "lucide-react";
+import { Button } from "@/components/atoms/Button";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import {
   assignAdminShopOrder,
@@ -79,10 +81,10 @@ export function AdminMerchOrdersScreen({
           <Link
             key={status}
             href={status === "all" ? `${base}/orders` : `${base}/orders?status=${status}`}
-            className={`rounded-full px-3 py-1 text-sm ${
+            className={`inline-flex min-h-[38px] items-center rounded-full px-3 py-1.5 text-xs font-medium sm:text-sm ${
               statusFilter === status
                 ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
-                : "border border-[var(--color-border)]"
+                : "border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)]"
             }`}
           >
             {status === "all" ? labels.filterAll : statusLabels[status]}
@@ -90,7 +92,7 @@ export function AdminMerchOrdersScreen({
         ))}
       </nav>
       {rows.length === 0 ? (
-        <p role="status">{labels.emptyOrders}</p>
+        <p role="status" className="text-sm text-[var(--color-muted-foreground)]">{labels.emptyOrders}</p>
       ) : (
         <ul className="space-y-4">
           {rows.map((row) => (
@@ -155,13 +157,17 @@ function AdminOrderCard({
   onAssign: (studentId: string | null) => void;
 }) {
   return (
-    <li className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4">
-      <p className="text-sm font-semibold">{statusLabels[row.status]}</p>
-      <p className="text-sm">
+    <li className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="rounded-full bg-[var(--color-muted)] px-2.5 py-0.5 text-xs font-semibold text-[var(--color-foreground)]">
+          {statusLabels[row.status]}
+        </span>
+        <span className="text-sm font-semibold tabular-nums text-[var(--color-foreground)]">
+          {labels.colTotal}: {row.total} {row.currency}
+        </span>
+      </div>
+      <p className="break-all text-sm text-[var(--color-foreground)]">
         {labels.colBuyer}: {row.buyerEmail}
-      </p>
-      <p className="text-sm">
-        {labels.colTotal}: {row.total} {row.currency}
       </p>
       <p className="text-sm text-[var(--color-muted-foreground)]">
         {labels.colItems}: {row.items || "—"}
@@ -174,12 +180,12 @@ function AdminOrderCard({
           onAssign(value || null);
         }}
       >
-        <label className="text-sm">
+        <label className="min-w-[12rem] flex-1 text-sm font-medium text-[var(--color-foreground)]">
           {labels.colAssignee}
           <select
             name="studentId"
             defaultValue={row.assigneeStudentId ?? ""}
-            className="mt-1 block rounded-md border border-[var(--color-border)] px-2 py-1"
+            className="mt-1 block min-h-11 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm"
           >
             <option value="">{labels.assignNone}</option>
             {students.map((s) => (
@@ -189,25 +195,29 @@ function AdminOrderCard({
             ))}
           </select>
         </label>
-        <button type="submit" disabled={busy} className="text-sm font-semibold text-[var(--color-primary)]">
+        <Button type="submit" variant="secondary" size="sm" disabled={busy}>
+          <UserCheck className="h-4 w-4 shrink-0" aria-hidden />
           {labels.assignSubmit}
-        </button>
+        </Button>
       </form>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 border-t border-[var(--color-border)]/60 pt-3">
         {row.status === "paid" ? (
-          <button type="button" disabled={busy} onClick={() => onTransition("ready_for_pickup")}>
+          <Button type="button" size="sm" disabled={busy} onClick={() => onTransition("ready_for_pickup")}>
+            <PackageCheck className="h-4 w-4 shrink-0" aria-hidden />
             {labels.markReady}
-          </button>
+          </Button>
         ) : null}
         {row.status === "ready_for_pickup" ? (
-          <button type="button" disabled={busy} onClick={() => onTransition("picked_up")}>
+          <Button type="button" size="sm" disabled={busy} onClick={() => onTransition("picked_up")}>
+            <Check className="h-4 w-4 shrink-0" aria-hidden />
             {labels.markPickedUp}
-          </button>
+          </Button>
         ) : null}
         {row.status === "pending_payment" || row.status === "paid" || row.status === "ready_for_pickup" ? (
-          <button type="button" disabled={busy} onClick={() => onTransition("cancelled")}>
+          <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={() => onTransition("cancelled")}>
+            <XCircle className="h-4 w-4 shrink-0" aria-hidden />
             {labels.markCancel}
-          </button>
+          </Button>
         ) : null}
       </div>
     </li>

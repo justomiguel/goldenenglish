@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { AdminMessagesInbox } from "@/components/dashboard/AdminMessagesInbox";
 import type { AdminPortalMessageRow } from "@/types/messaging";
 
@@ -59,20 +58,18 @@ const row: AdminPortalMessageRow = {
 };
 
 describe("AdminMessagesInbox selection", () => {
-  it("toggles row selection via checkbox", async () => {
-    const user = userEvent.setup();
-    const onToggle = vi.fn();
+  it("shows the message and no row actions", () => {
     render(
       <AdminMessagesInbox
         locale="en"
         labels={labels}
         rows={[row]}
         listTopMargin={false}
-        selectedIds={new Set()}
-        onToggleSelected={onToggle}
       />,
     );
-    await user.click(screen.getByRole("checkbox", { name: "Select message from Ada Lovelace" }));
-    expect(onToggle).toHaveBeenCalledWith(row.id);
+    expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
+    expect(screen.queryByRole("checkbox")).toBeNull();
+    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.queryByRole("link", { name: "Reply" })).toBeNull();
   });
 });

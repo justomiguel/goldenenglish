@@ -4,6 +4,7 @@ import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { AdminCreateUserForm } from "@/components/dashboard/AdminCreateUserForm";
 import { parseAdminCreateUserRoleQuery } from "@/lib/dashboard/parseAdminCreateUserRoleQuery";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -31,17 +32,14 @@ export default async function AdminUsersNewPage({ params, searchParams }: PagePr
   };
 
   return (
-    <div>
-      <h1
-        className="text-2xl font-bold text-[var(--color-secondary)]"
-        data-tour={ADMIN_TOUR_ANCHORS.usersNewTitle}
-      >
-        {dict.admin.users.title}
-      </h1>
-      <p className="mt-2 max-w-2xl text-sm text-[var(--color-muted-foreground)]">
-        {dict.admin.users.lead}
-      </p>
-      <div className="mt-6">
+    <div className="space-y-6">
+      <AdminPageHeader
+        title={dict.admin.users.title}
+        lead={dict.admin.users.lead}
+        iconId="students"
+        tourAnchor={ADMIN_TOUR_ANCHORS.usersNewTitle}
+      />
+      <div>
         <AdminCreateUserForm
           locale={locale}
           legalAgeMajority={legalAgeMajority}

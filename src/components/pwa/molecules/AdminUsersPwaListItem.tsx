@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Eye, Loader2, Trash2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { adminUserRowAriaName, type AdminUserRow } from "@/lib/dashboard/adminUsersTableHelpers";
 import { Button } from "@/components/atoms/Button";
@@ -27,6 +28,7 @@ export function AdminUsersPwaListItem(props: {
   onRequestDeleteOne: (id: string) => void;
 }) {
   const { row: r, labels, locale } = props;
+  const [opening, setOpening] = useState(false);
   const isSelf = r.id === props.currentUserId;
   const ariaName = props.studentsDirectory ? adminUserRowAriaName(r) : r.email;
   const name = formatProfileNameSurnameFirst(r.firstName, r.lastName);
@@ -47,9 +49,12 @@ export function AdminUsersPwaListItem(props: {
   const feeAlert = r.enrollmentFeeStatus === "no" ? labels.colEnrollmentFee : r.missingSection ? labels.noSectionBadge : null;
 
   return (
-    <li className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-2 py-2 shadow-[var(--shadow-soft)]">
-      <div className="flex items-center gap-1">
-        <label className="inline-flex min-h-11 min-w-11 items-center justify-center">
+    <li
+      aria-busy={opening || undefined}
+      className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3.5 shadow-[var(--shadow-soft)]"
+    >
+      <div className="flex items-start gap-2">
+        <label className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center">
           <input
             type="checkbox"
             className="h-5 w-5 rounded border-[var(--color-border)]"
@@ -60,13 +65,17 @@ export function AdminUsersPwaListItem(props: {
             title={isSelf ? labels.selfProtected : labels.tipSelectRow}
           />
         </label>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
+        <div className="min-w-0 flex-1 py-0.5">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <Link
               href={`/${locale}/dashboard/admin/users/${r.id}`}
               title={labels.tipOpenUserProfile}
-              className="min-w-0 truncate text-sm font-semibold text-[var(--color-primary)]"
+              aria-busy={opening || undefined}
+              onClick={() => setOpening(true)}
+              className="inline-flex min-w-0 items-center gap-1.5 break-words text-base font-semibold leading-snug text-[var(--color-primary)]"
             >
+              {opening ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden /> : null}
+              {opening ? <span className="sr-only">{labels.openingProfile}</span> : null}
               {name}
             </Link>
             {props.studentsDirectory || props.parentsDirectory ? (
@@ -77,9 +86,11 @@ export function AdminUsersPwaListItem(props: {
               </span>
             )}
           </div>
-          <p className="truncate text-xs text-[var(--color-muted-foreground)]">{summary || props.emptyValue}</p>
+          <p className="mt-1 line-clamp-2 break-words text-xs leading-relaxed text-[var(--color-muted-foreground)] sm:text-sm">
+            {summary || props.emptyValue}
+          </p>
           {feeAlert ? (
-            <p className="truncate text-[11px] font-medium text-[var(--color-foreground)]">{feeAlert}</p>
+            <p className="mt-1 truncate text-[11px] font-medium text-[var(--color-foreground)]">{feeAlert}</p>
           ) : null}
         </div>
         <div className="flex shrink-0 items-center">
@@ -87,23 +98,16 @@ export function AdminUsersPwaListItem(props: {
             href={`/${locale}/dashboard/admin/users/${r.id}`}
             title={labels.tipViewOne}
             aria-label={`${labels.viewOne}: ${ariaName}`}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
+            onClick={() => setOpening(true)}
           >
             <Eye className="h-4 w-4" aria-hidden />
-          </Link>
-          <Link
-            href={`/${locale}/dashboard/admin/users/${r.id}`}
-            title={labels.tipEditOne}
-            aria-label={`${labels.editOne}: ${ariaName}`}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
-          >
-            <Pencil className="h-4 w-4" aria-hidden />
           </Link>
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="min-h-10 min-w-10 shrink-0 gap-0 p-2 text-[var(--color-error)]"
+            className="min-h-11 min-w-11 shrink-0 gap-0 p-2 text-[var(--color-error)]"
             disabled={isSelf || props.busy}
             title={isSelf ? labels.selfProtected : labels.tipDeleteOneRow}
             onClick={() => props.onRequestDeleteOne(r.id)}

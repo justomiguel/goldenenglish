@@ -23,15 +23,11 @@ export default async function NewGlobalContentPage({ params }: PageProps) {
   const labels = dict.dashboard.adminContents;
 
   return (
-    <main className="space-y-5">
-      <header className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-        <Link href={`/${locale}/dashboard/admin/academic/contents`} className="text-sm font-medium text-[var(--color-primary)]">
-          {labels.backToRepository}
-        </Link>
-        <div className="mt-3">
-          <AdminPageHeader title={labels.globalCreateTitle} lead={labels.globalFullPageLead} iconId="contents" />
-        </div>
-      </header>
+    <main className="space-y-4">
+      <Link href={`/${locale}/dashboard/admin/academic/contents`} className="inline-flex min-h-9 items-center text-sm font-medium text-[var(--color-primary)] hover:underline">
+        {labels.backToRepository}
+      </Link>
+      <AdminPageHeader title={labels.globalCreateTitle} lead={labels.globalFullPageLead} iconId="contents" />
       <AdminGlobalContentBuilder locale={locale} labels={labels} editingContent={null} fileUploadProgress={dict.common.fileUpload} />
     </main>
   );

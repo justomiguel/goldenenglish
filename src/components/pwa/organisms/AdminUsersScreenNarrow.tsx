@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
 import type { AppSurface } from "@/hooks/useAppSurface";
+import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
 import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 import { useAdminUsersTable } from "@/hooks/useAdminUsersTable";
 import { useRouter } from "next/navigation";
@@ -35,6 +36,7 @@ interface AdminUsersScreenNarrowProps {
   roleCounts: AdminUsersListRoleCounts;
   sortKey: SortKey;
   sortDir: SortDir;
+  sortCriteria?: AdminUsersSortCriterion[];
   locale: string;
   currentUserId: string;
   labels: UserLabels;
@@ -55,6 +57,7 @@ export function AdminUsersScreenNarrow({
   roleCounts: _roleCounts,
   sortKey,
   sortDir,
+  sortCriteria,
   locale,
   currentUserId,
   labels,
@@ -76,6 +79,7 @@ export function AdminUsersScreenNarrow({
     roleFilter,
     sortKey,
     sortDir,
+    sortCriteria,
     locale,
     currentUserId,
     labels,
@@ -85,6 +89,7 @@ export function AdminUsersScreenNarrow({
     <div className="mx-auto max-w-[var(--layout-max-width)] space-y-3">
           <AdminUsersPwaList
             locale={locale}
+            listPending={u.isPending}
             toolbar={
               <AdminUsersMobileToolbar
                 labels={labels}
@@ -94,6 +99,8 @@ export function AdminUsersScreenNarrow({
                 sortKey={u.sortKey}
                 sortDir={u.sortDir}
                 onToggleSort={u.toggleSort}
+                sortCriteria={u.sortCriteria}
+                onSortCriteriaChange={u.setSortCriteria}
                 lockRole={lockRole}
                 allVisibleSelected={u.allVisibleSelected}
                 onToggleSelectAllVisible={u.toggleSelectAllVisible}

@@ -11,6 +11,10 @@ import {
   loadTutorFamilyScholarshipSectionsForAdminDetail,
 } from "@/lib/dashboard/loadAdminUserDetailTutorFamily";
 import { resolveAvatarUrlForAdmin } from "@/lib/dashboard/resolveAvatarUrl";
+import type { AdminStudentAcademicNote } from "@/lib/dashboard/adminStudentAcademicNotes";
+import { loadAdminStudentAcademicNotes } from "@/lib/dashboard/loadAdminStudentAcademicNotes";
+import { loadStudentExamResults } from "@/lib/parent/loadStudentExamResults";
+import type { StudentExamResult } from "@/types/studentExams";
 import {
   loadAdminStudentCurrentCohortAssignment,
   type AdminStudentCurrentCohortAssignment,
@@ -143,10 +147,14 @@ export async function loadAdminUserDetail(
   let tutorLinkedStudents: AdminUserTutorFamilyStudentVM[] = [];
   let tutorFamilyScholarshipSections: AdminUserTutorFamilySectionOptionVM[] = [];
   let currentCohortAssignment: AdminStudentCurrentCohortAssignment | null = null;
+  let academicNotes: AdminStudentAcademicNote[] = [];
+  let academicExams: StudentExamResult[] = [];
   if (role === "student" && includeStudentAcademicContext) {
-    [tutorLinks, currentCohortAssignment] = await Promise.all([
+    [tutorLinks, currentCohortAssignment, academicNotes, academicExams] = await Promise.all([
       loadTutorLinksForStudent(admin, userId, emptyDisplay),
       loadAdminStudentCurrentCohortAssignment(admin, userId),
+      loadAdminStudentAcademicNotes(admin, userId),
+      loadStudentExamResults(admin, { studentId: userId }),
     ]);
   } else if (role === "student") {
     tutorLinks = await loadTutorLinksForStudent(admin, userId, emptyDisplay);
@@ -182,6 +190,8 @@ export async function loadAdminUserDetail(
     tutorLinkedStudents,
     tutorFamilyScholarshipSections,
     currentCohortAssignment,
+    academicNotes,
+    academicExams,
     familyHomeAddressPeerIds,
     hasCareNotes: (profile as { has_care_notes?: boolean | null }).has_care_notes === true,
     viewerMayInlineEdit,

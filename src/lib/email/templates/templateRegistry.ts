@@ -28,6 +28,7 @@ import {
 } from "@/lib/email/templates/registryNotifications";
 import { REGISTRATION_EMAIL_TEMPLATES } from "@/lib/email/templates/registryRegistration";
 import { blogAdminPendingReviewTemplate } from "@/lib/email/templates/registryBlog";
+import { adminWeeklyDigestTemplate } from "@/lib/email/templates/registryAdminWeeklyDigest";
 import { EVENTS_EMAIL_TEMPLATES } from "@/lib/email/templates/registryEvents";
 import { SHOP_EMAIL_TEMPLATES } from "@/lib/email/templates/registryShop";
 import {
@@ -64,6 +65,7 @@ const REGISTRY: ReadonlyArray<EmailTemplateDefinition> = [
   adminPasswordResetNoticeTemplate,
   ...REGISTRATION_EMAIL_TEMPLATES,
   blogAdminPendingReviewTemplate,
+  adminWeeklyDigestTemplate,
   ...EVENTS_EMAIL_TEMPLATES,
   ...SHOP_EMAIL_TEMPLATES,
 ];

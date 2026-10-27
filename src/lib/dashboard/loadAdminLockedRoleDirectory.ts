@@ -43,7 +43,7 @@ import { profileToAdminDirectorySortRow } from "@/lib/dashboard/profileToAdminDi
 import { directoryBillingRowFields } from "@/lib/dashboard/directoryBillingStatus";
 
 const PROFILE_COLUMNS =
-  "id, role, first_name, last_name, phone, avatar_url, last_session_start_at, created_at";
+  "id, role, first_name, last_name, phone, avatar_url, last_session_start_at, created_at, age_years";
 
 export type AdminLockedRoleDirectoryResult = PaginatedAdminUsersResult & {
   facets: AdminDirectoryFacets;
@@ -59,6 +59,7 @@ type ProfileStub = {
   avatar_url: string | null;
   last_session_start_at: string | null;
   created_at: string | null;
+  age_years: number | null;
 };
 
 function directoryFiltersFromParams(params: PaginatedAdminUsersParams): AdminDirectoryFilters {
@@ -90,8 +91,10 @@ export async function loadAdminLockedRoleDirectory(
   const page = Math.max(1, params.page ?? 1);
   const pageSize = params.pageSize ?? DEFAULT_TABLE_PAGE_SIZE;
   const qRaw = (params.q ?? "").trim();
-  const sortKey: SortKey = params.sort ?? "name";
-  const dir = params.dir === "desc" ? "desc" : "asc";
+  const sortCriteria =
+    params.sortCriteria && params.sortCriteria.length > 0
+      ? params.sortCriteria
+      : [{ key: (params.sort ?? "name") as SortKey, dir: params.dir === "desc" ? "desc" as const : "asc" as const }];
   const filters = directoryFiltersFromParams(params);
   const empty = {
     rows: [] as AdminUserRow[],
@@ -179,8 +182,7 @@ export async function loadAdminLockedRoleDirectory(
   const matchedProfiles = profiles.filter((p) => matchedIds.has(p.id));
   const sortedIds = sortAdminUsers(
     matchedProfiles.map((profile) => profileToAdminDirectorySortRow(profile, role, sortExtras)),
-    sortKey,
-    dir,
+    sortCriteria,
   ).map((row) => row.id);
   const profileById = new Map(matchedProfiles.map((profile) => [profile.id, profile]));
   const sorted = sortedIds

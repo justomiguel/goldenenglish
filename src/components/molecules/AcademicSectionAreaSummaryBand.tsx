@@ -17,7 +17,7 @@ export function AcademicSectionAreaSummaryBand({
     <div
       aria-label={ariaLabelledBy ? undefined : ariaLabel}
       aria-labelledby={ariaLabelledBy}
-      className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]"
+      className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-3.5 py-3 shadow-[var(--shadow-soft)] sm:p-5"
     >
       {children}
     </div>

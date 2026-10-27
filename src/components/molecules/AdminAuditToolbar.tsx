@@ -77,8 +77,8 @@ export function AdminAuditToolbar({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
-      <div className="grid gap-3 md:grid-cols-[minmax(16rem,2fr)_repeat(3,minmax(10rem,1fr))]">
+    <form onSubmit={onSubmit} className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3.5 shadow-[var(--shadow-soft)] sm:p-4">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-[minmax(14rem,2fr)_repeat(3,minmax(9rem,1fr))] sm:gap-3">
         <div className="space-y-1">
           <Label htmlFor="audit-search">{labels.filterLabel}</Label>
           <Input
@@ -128,8 +128,8 @@ export function AdminAuditToolbar({
           />
         </div>
       </div>
-      <div className="flex flex-col gap-3 md:flex-row md:items-end">
-        <div className="grid flex-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="flex flex-col gap-2.5 md:flex-row md:items-end md:gap-3">
+        <div className="grid flex-1 grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
           <div className="space-y-1">
             <Label htmlFor="audit-date-from">{labels.dateFromLabel}</Label>
             <Input
@@ -150,7 +150,7 @@ export function AdminAuditToolbar({
               autoComplete="off"
             />
           </div>
-          <div className="space-y-1 sm:col-span-2 lg:col-span-1">
+          <div className="col-span-2 space-y-1 lg:col-span-1">
             <Label htmlFor="audit-actor-id">{labels.actorIdFilterLabel}</Label>
             <Input
               id="audit-actor-id"

@@ -88,12 +88,24 @@ const assignment = {
   cohortId: "cohort-1",
   cohortName: "2026",
   sections: [
-    { id: sectionId, name: "A1", teacherName: "Ada", activeCount: 5, maxStudents: 12 },
-    { id: otherSectionId, name: "B1", teacherName: "Grace", activeCount: 3, maxStudents: 12 },
+    { id: sectionId, name: "A1", teacherId: null, teacherName: "Ada", activeCount: 5, maxStudents: 12 },
+    { id: otherSectionId, name: "B1", teacherId: null, teacherName: "Grace", activeCount: 3, maxStudents: 12 },
   ],
-  current: { enrollmentId: enrollmentId, sectionId: otherSectionId, sectionName: "B1" },
+  current: {
+    enrollmentId: enrollmentId,
+    sectionId: otherSectionId,
+    sectionName: "B1",
+    teacher: null,
+    assistants: [],
+  },
   currentSections: [
-    { enrollmentId: enrollmentId, sectionId: otherSectionId, sectionName: "B1" },
+    {
+      enrollmentId: enrollmentId,
+      sectionId: otherSectionId,
+      sectionName: "B1",
+      teacher: null,
+      assistants: [],
+    },
   ],
   hasMultipleCurrentAssignments: false,
 };

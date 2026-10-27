@@ -89,6 +89,7 @@ describe("loadStudentExamResults", () => {
     expect(exams[0]).toMatchObject({
       id: "asm-1",
       name: "Unit 3 exam",
+      sectionId: "sec-1",
       sectionName: "B1 — Group A",
       examOn: "2026-08-05",
       score: null,

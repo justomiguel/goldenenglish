@@ -10,7 +10,7 @@ export function stackableHeaderText(cell: Element): string {
   return clone.textContent?.replace(/\s+/g, " ").trim() ?? "";
 }
 
-function labelStackableTables(root: ParentNode) {
+export function labelStackableTables(root: ParentNode) {
   root.querySelectorAll("table.ge-stack-cards").forEach((table) => {
     const headers = Array.from(table.querySelectorAll(":scope > thead th, :scope > thead td")).map(
       (cell) => stackableHeaderText(cell),
@@ -18,8 +18,17 @@ function labelStackableTables(root: ParentNode) {
     table.querySelectorAll(":scope > tbody > tr").forEach((row) => {
       Array.from(row.children).forEach((cell, index) => {
         if (!(cell instanceof HTMLElement)) return;
+        const colSpan = Number(cell.getAttribute("colspan") ?? "1");
+        if (colSpan > 1) {
+          delete cell.dataset.label;
+          return;
+        }
         const label = headers[index];
-        if (label) cell.dataset.label = label;
+        if (label) {
+          cell.dataset.label = label;
+        } else {
+          delete cell.dataset.label;
+        }
       });
     });
   });

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import type {
   SectionCollectionsView,
   SectionCollectionsStudentRow,
@@ -87,18 +86,10 @@ export function SectionCollectionsMatrixStudentRow({
       </td>
       <td className="px-3 py-2 align-middle">
         <Link
-          href={`/${locale}/dashboard/admin/users/${student.studentId}/billing`}
-          className="group inline-flex max-w-full items-center gap-1 text-sm font-medium text-[var(--color-primary)] hover:underline"
-          aria-label={dict.matrix.openStudentBillingAria.replace(
-            "{name}",
-            student.studentName,
-          )}
+          href={`/${locale}/dashboard/admin/users/${student.studentId}`}
+          className="inline-flex max-w-full items-center text-sm font-medium text-[var(--color-primary)] hover:underline"
         >
           <span className="truncate">{student.studentName}</span>
-          <ChevronRight
-            className="h-3.5 w-3.5 shrink-0 opacity-100"
-            aria-hidden
-          />
         </Link>
         {student.documentLabel ? (
           <div className="text-[11px] text-[var(--color-muted-foreground)]">

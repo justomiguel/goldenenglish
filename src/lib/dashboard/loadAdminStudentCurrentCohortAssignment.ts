@@ -7,15 +7,23 @@ import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 export type AdminStudentCurrentCohortSectionOption = {
   id: string;
   name: string;
+  teacherId: string | null;
   teacherName: string;
   activeCount: number;
   maxStudents: number;
+};
+
+export type AdminStudentSectionStaff = {
+  id: string;
+  name: string;
 };
 
 export type AdminStudentCurrentCohortEnrollment = {
   enrollmentId: string;
   sectionId: string;
   sectionName: string;
+  teacher: AdminStudentSectionStaff | null;
+  assistants: AdminStudentSectionStaff[];
 };
 
 export type AdminStudentCurrentCohortAssignment = {
@@ -103,7 +111,7 @@ export async function loadAdminStudentCurrentCohortAssignment(
     };
   }
 
-  const [countResult, studentResult, teacherNameMap] = await Promise.all([
+  const [countResult, studentResult, assistantResult] = await Promise.all([
     supabase
       .from("section_enrollments")
       .select("section_id")
@@ -115,10 +123,24 @@ export async function loadAdminStudentCurrentCohortAssignment(
       .in("section_id", sectionIds)
       .eq("student_id", studentId)
       .eq("status", "active"),
-    loadTeacherNameMap(
-      supabase,
-      sectionsRaw.map((section) => section.teacher_id ?? ""),
-    ),
+    supabase
+      .from("academic_section_assistants")
+      .select("section_id, assistant_id")
+      .in("section_id", sectionIds),
+  ]);
+
+  if (assistantResult.error) {
+    logSupabaseClientError("loadAdminStudentCurrentCohortAssignment:assistants", assistantResult.error, {
+      cohortId: cohort.id,
+    });
+  }
+
+  const assistantRows = (
+    assistantResult.error ? [] : (assistantResult.data ?? [])
+  ) as Array<{ section_id: string; assistant_id: string }>;
+  const teacherNameMap = await loadTeacherNameMap(supabase, [
+    ...sectionsRaw.map((section) => section.teacher_id ?? ""),
+    ...assistantRows.map((row) => row.assistant_id),
   ]);
 
   const countMap = new Map<string, number>();
@@ -127,20 +149,39 @@ export async function loadAdminStudentCurrentCohortAssignment(
   }
 
   const defaultMax = getDefaultSectionMaxStudents();
+  const assistantsBySection = new Map<string, Array<{ id: string; name: string }>>();
+  for (const row of assistantRows) {
+    const list = assistantsBySection.get(row.section_id) ?? [];
+    list.push({
+      id: row.assistant_id,
+      name: teacherNameMap.get(row.assistant_id) ?? "—",
+    });
+    assistantsBySection.set(row.section_id, list);
+  }
+
   const sections = sectionsRaw.map((section) => ({
     id: section.id,
     name: section.name,
+    teacherId: section.teacher_id,
     teacherName: section.teacher_id ? (teacherNameMap.get(section.teacher_id) ?? "—") : "—",
     activeCount: countMap.get(section.id) ?? 0,
     maxStudents: section.max_students ?? defaultMax,
   }));
+  const sectionById = new Map(sectionsRaw.map((section) => [section.id, section]));
   const sectionNameById = new Map(sections.map((section) => [section.id, section.name]));
   const activeRows = (studentResult.data ?? []) as Array<{ id: string; section_id: string }>;
-  const currentSections: AdminStudentCurrentCohortEnrollment[] = activeRows.map((row) => ({
-    enrollmentId: row.id,
-    sectionId: row.section_id,
-    sectionName: sectionNameById.get(row.section_id) ?? row.section_id,
-  }));
+  const currentSections: AdminStudentCurrentCohortEnrollment[] = activeRows.map((row) => {
+    const teacherId = sectionById.get(row.section_id)?.teacher_id ?? null;
+    return {
+      enrollmentId: row.id,
+      sectionId: row.section_id,
+      sectionName: sectionNameById.get(row.section_id) ?? row.section_id,
+      teacher: teacherId
+        ? { id: teacherId, name: teacherNameMap.get(teacherId) ?? "—" }
+        : null,
+      assistants: assistantsBySection.get(row.section_id) ?? [],
+    };
+  });
 
   return {
     cohortId: cohort.id,

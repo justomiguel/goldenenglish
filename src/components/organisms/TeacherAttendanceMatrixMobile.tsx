@@ -8,6 +8,7 @@ import { cyclePatAdmin, cyclePatTeacher } from "@/lib/academics/attendanceMatrix
 import { defaultFocusColumnId } from "@/lib/dashboard/projectMatrixFocus";
 import type { AttendanceMatrixAutosaveVariant } from "@/hooks/useAttendanceMatrixAutosave";
 import { Label } from "@/components/atoms/Label";
+import { AdminUserNameLink } from "@/components/molecules/AdminUserNameLink";
 
 const STATUS_SURFACE: Record<"present" | "absent" | "late", string> = {
   present: "bg-[var(--color-success)] text-[var(--color-primary-foreground)]",
@@ -23,6 +24,7 @@ export interface TeacherAttendanceMatrixMobileProps {
   editableByDate: Record<string, boolean>;
   onCellStatus: (enrollmentId: string, dateIso: string, status: SectionAttendanceStatusDb) => void;
   matrixMode: AttendanceMatrixAutosaveVariant;
+  locale: string;
   dict: Dictionary["dashboard"]["teacherSectionAttendance"]["matrix"];
 }
 
@@ -46,6 +48,7 @@ export function TeacherAttendanceMatrixMobile({
   editableByDate,
   onCellStatus,
   matrixMode,
+  locale,
   dict,
 }: TeacherAttendanceMatrixMobileProps) {
   const [dateIso, setDateIso] = useState(() => defaultFocusColumnId(classDays, todayIso) ?? classDays[0] ?? "");
@@ -86,7 +89,11 @@ export function TeacherAttendanceMatrixMobile({
               className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2"
             >
               <span className="min-w-0 break-words text-sm font-medium text-[var(--color-foreground)]">
-                {row.studentLabel}
+                {matrixMode === "admin" && row.studentId ? (
+                  <AdminUserNameLink locale={locale} userId={row.studentId} name={row.studentLabel} />
+                ) : (
+                  row.studentLabel
+                )}
               </span>
               <button
                 type="button"

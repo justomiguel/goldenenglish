@@ -52,7 +52,7 @@ export function AcademicPendingTransfers({
 
   return (
     <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
-      <table className="min-w-full text-left text-sm">
+      <table className="ge-stack-cards min-w-full text-left text-sm">
         <thead className="bg-[var(--color-muted)]/50 text-xs uppercase text-[var(--color-muted-foreground)]">
           <tr>
             <SortableTh columnId="studentId" label={d.colStudent} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />

@@ -98,7 +98,7 @@ export function AcademicSectionPageShellBody({
   const { section, cohort, slots, rows, moveTargets, debtByStudentId, staff, feePlansWithUsage } = data;
   const featureFlags = { requiresEvaluationsToPass: section.requiresEvaluationsToPass, usesLearningRoute: section.usesLearningRoute };
   return (
-    <div className="space-y-6" data-tour={ADMIN_TOUR_ANCHORS.sectionDetail}>
+    <div className="space-y-4 sm:space-y-6" data-tour={ADMIN_TOUR_ANCHORS.sectionDetail}>
       <AcademicSectionPageHeader
         locale={locale}
         cohortId={cohortId}
@@ -114,13 +114,12 @@ export function AcademicSectionPageShellBody({
         imageUrl={section.referenceImageUrl}
       />
 
-      {enrollmentLinkPanel}
-
       <AcademicSectionShellWorkspace
         key={`section-shell-${featureFlags.requiresEvaluationsToPass}-${featureFlags.usesLearningRoute}`}
         labels={shellTabLabels}
         initialArea={initialShellArea}
         featureFlags={featureFlags}
+        enrollmentLinkPanel={enrollmentLinkPanel}
         hubOverview={
           <AcademicSectionHealthOverview
             locale={locale}

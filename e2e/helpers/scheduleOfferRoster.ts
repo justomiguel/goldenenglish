@@ -9,6 +9,14 @@ export const STUDENT_B_EMAIL = "e2e-student-b@example.test";
 export const STUDENT_A_LABEL = /Student\s+E2E/i;
 export const STUDENT_A_EMAIL = "e2e-student@example.test";
 
+const ROSTER_STATUS_ACTIVE = String.raw`(?:\bactive\b|\bactivo\b|\bativo\b)`;
+const ROSTER_STATUS_DROPPED = String.raw`(?:\bdropped\b|dado de baja|\bdesligado\b)`;
+
+export function rosterRowName(label: RegExp, status: "active" | "dropped"): RegExp {
+  const statusSource = status === "active" ? ROSTER_STATUS_ACTIVE : ROSTER_STATUS_DROPPED;
+  return new RegExp(`${label.source}.*${statusSource}`, "i");
+}
+
 const U = es.admin.users;
 
 export async function openCohortSections(page: Page, locale: string) {
@@ -88,7 +96,7 @@ export async function ensureTinyHasSeat(page: Page, locale: string) {
   await expect(page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.sectionDetail))).toBeVisible({
     timeout: 60_000,
   });
-  if (await page.getByRole("row", { name: /EnrolleeB\s+E2E.*\bactive\b/i }).count()) {
+  if (await page.getByRole("row", { name: rosterRowName(STUDENT_B_LABEL, "active") }).count()) {
     await dropStudentBFromNamedSection(page, locale, "E2E Section Tiny");
   }
 }
@@ -104,7 +112,7 @@ export async function enrollStudentIntoHref(
   await expect(page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.sectionDetail))).toBeVisible({
     timeout: 60_000,
   });
-  const activeRosterRow = page.getByRole("row", { name: new RegExp(`${label.source}.*\\bactive\\b`, "i") });
+  const activeRosterRow = page.getByRole("row", { name: rosterRowName(label, "active") });
   if (await activeRosterRow.count()) {
     await expect(activeRosterRow.first()).toBeVisible();
     return;

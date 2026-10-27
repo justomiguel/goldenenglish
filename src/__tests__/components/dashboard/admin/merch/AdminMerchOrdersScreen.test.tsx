@@ -108,4 +108,12 @@ describe("AdminMerchOrdersScreen", () => {
     });
     confirmSpy.mockRestore();
   });
+
+  // REGRESSION CHECK: Merch order actions must use design-system Button with leading icons for 44px mobile touch targets.
+  it("renders order transition buttons with leading icons and button styling", () => {
+    renderOrders();
+    const readyBtn = screen.getByRole("button", { name: labels.markReady });
+    expect(readyBtn.querySelector("svg")).toBeTruthy();
+    expect(readyBtn.className).toContain("inline-flex");
+  });
 });

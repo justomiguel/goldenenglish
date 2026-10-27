@@ -22,14 +22,16 @@ export function AcademicSectionStudentsPanel({
   children,
 }: AcademicSectionStudentsPanelProps) {
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6">
       <AcademicSectionAreaSummaryBand ariaLabel={dict.summaryTitle}>
-        <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
-          {dict.summaryActiveLabel}
-        </p>
-        <p className="mt-1 text-lg font-semibold tabular-nums text-[var(--color-foreground)]">
-          {activeEnrollmentCount}
-        </p>
+        <div className="flex items-center justify-between gap-3 sm:block">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
+            {dict.summaryActiveLabel}
+          </p>
+          <p className="text-base font-semibold tabular-nums text-[var(--color-foreground)] sm:mt-1 sm:text-lg">
+            {activeEnrollmentCount}
+          </p>
+        </div>
       </AcademicSectionAreaSummaryBand>
 
       <AcademicSectionAreaBlock

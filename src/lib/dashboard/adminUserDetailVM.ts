@@ -1,4 +1,6 @@
+import type { AdminStudentAcademicNote } from "@/lib/dashboard/adminStudentAcademicNotes";
 import type { AdminStudentCurrentCohortAssignment } from "@/lib/dashboard/loadAdminStudentCurrentCohortAssignment";
+import type { StudentExamResult } from "@/types/studentExams";
 
 /** Linked guardian row for admin student profile. */
 export type AdminUserTutorLinkVM = {
@@ -56,6 +58,10 @@ export type AdminUserDetailVM = {
   /** Sections with at least one active enrollment among `tutorLinkedStudents` (for family-wide scholarships). */
   tutorFamilyScholarshipSections: AdminUserTutorFamilySectionOptionVM[];
   currentCohortAssignment: AdminStudentCurrentCohortAssignment | null;
+  /** Latest published grades and teacher comments. Students only. */
+  academicNotes?: AdminStudentAcademicNote[];
+  /** Cohort exams for the student, including ones with no published score. */
+  academicExams?: StudentExamResult[];
   /** Other profiles in the same tutor↔student household (for optional bulk home address). */
   familyHomeAddressPeerIds: string[];
   /** Derived marker only: the note text lives behind `loadStudentCareNotes`. */

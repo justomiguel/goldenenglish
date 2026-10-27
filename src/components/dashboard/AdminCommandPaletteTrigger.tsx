@@ -20,7 +20,7 @@ export function AdminCommandPaletteTrigger({ label }: AdminCommandPaletteTrigger
       onClick={openAdminCommandPalette}
       aria-label={label}
       title={label}
-      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
+      className="hidden min-h-11 min-w-11 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] md:inline-flex"
     >
       <Search className="h-4 w-4" aria-hidden strokeWidth={2} />
     </button>

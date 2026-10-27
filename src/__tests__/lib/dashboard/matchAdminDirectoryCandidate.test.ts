@@ -18,6 +18,7 @@ function candidate(partial: Partial<AdminDirectoryCandidate> & { id: string }): 
     monthlyStatus: "na",
     emailDeliverable: false,
     hasChildren: false,
+    ageYears: null,
     ...partial,
   };
 }
@@ -106,5 +107,19 @@ describe("filterAdminDirectoryCandidates", () => {
     expect(
       filterAdminDirectoryCandidates(rows, { monthlyStatus: "na" }, { now }).map((r) => r.id),
     ).toEqual(["none"]);
+  });
+
+  it("keeps only the selected age band", () => {
+    const rows = [
+      candidate({ id: "child", ageYears: 4 }),
+      candidate({ id: "teen", ageYears: 15 }),
+      candidate({ id: "blank", ageYears: null }),
+    ];
+    expect(filterAdminDirectoryCandidates(rows, { age: "3-5" }, { now }).map((row) => row.id)).toEqual([
+      "child",
+    ]);
+    expect(filterAdminDirectoryCandidates(rows, { age: "unknown" }, { now }).map((row) => row.id)).toEqual([
+      "blank",
+    ]);
   });
 });

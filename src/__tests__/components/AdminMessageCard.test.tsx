@@ -1,20 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import en from "@/dictionaries/en.json";
 import { AdminMessageCard } from "@/components/dashboard/AdminMessageCard";
 import type { AdminPortalMessageRow } from "@/types/messaging";
 
-vi.mock("@/components/dashboard/DeletePortalMessageButton", () => ({
-  DeletePortalMessageButton: () => <button type="button">Delete</button>,
-}));
-
-vi.mock("@/components/dashboard/AdminMessageReadToggleButton", () => ({
-  AdminMessageReadToggleButton: ({ isUnread }: { isUnread: boolean }) => (
-    <button type="button">{isUnread ? "Mark read" : "Mark unread"}</button>
-  ),
-}));
-
-// REGRESSION CHECK: Unread uses chip + semibold, not a muted full-row wash; toggle is present.
+// REGRESSION CHECK: Unread uses chip + semibold, not a muted full-row wash. The list row has no actions.
 
 const baseRow: AdminPortalMessageRow = {
   id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
@@ -41,17 +31,16 @@ describe("AdminMessageCard", () => {
     );
 
     const article = screen.getByRole("article");
-    expect(article.className).toContain("flex-col");
-    expect(article.className).toContain("sm:flex-row");
     expect(article).toHaveAttribute("data-unread", "true");
     expect(article).toHaveAttribute("data-needs-reply", "true");
     expect(article).toHaveAttribute("data-source", "internal");
     expect(screen.getByText(en.admin.messages.badgeUnread)).toBeInTheDocument();
     expect(screen.getByText(en.admin.messages.badgeNeedsReply)).toBeInTheDocument();
     expect(screen.getByText("Short preview text for the list row")).toBeInTheDocument();
-    expect(screen.getByText(en.admin.messages.replyToMessage)).toBeInTheDocument();
-    expect(screen.getByText(en.admin.messages.replyWithDefaultMessage)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Mark read" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: en.admin.messages.replyToMessage })).toBeNull();
+    expect(screen.queryByRole("link", { name: en.admin.messages.replyWithDefaultMessage })).toBeNull();
+    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.queryByRole("checkbox")).toBeNull();
     expect(
       screen.getByRole("link", { name: new RegExp(en.admin.messages.badgeUnread, "i") }),
     ).toBeInTheDocument();

@@ -55,8 +55,11 @@ function makeStudentDetail(
             enrollmentId: "enr-1",
             sectionId: "sec-1",
             sectionName: "A1",
+            teacher: null,
+            assistants: [],
           }
         : null,
+      currentSections: [],
       hasMultipleCurrentAssignments: false,
     },
     familyHomeAddressPeerIds: [],

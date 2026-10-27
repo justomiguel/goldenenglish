@@ -92,6 +92,22 @@ function comboOptions(
       { value: "none", label: optionLabel(labels.optionWithCount, labels.emailNone, facets.email.none) },
     ];
   }
+  if (key === "age") {
+    const bands: { value: string; label: string; count: number }[] = [
+      { value: "", label: labels.ageAll, count: facets.age.all },
+      { value: "unknown", label: labels.ageUnknown, count: facets.age.unknown },
+      { value: "0-2", label: labels.age0to2, count: facets.age["0-2"] },
+      { value: "3-5", label: labels.age3to5, count: facets.age["3-5"] },
+      { value: "6-8", label: labels.age6to8, count: facets.age["6-8"] },
+      { value: "9-12", label: labels.age9to12, count: facets.age["9-12"] },
+      { value: "13-17", label: labels.age13to17, count: facets.age["13-17"] },
+      { value: "18+", label: labels.age18plus, count: facets.age["18+"] },
+    ];
+    return bands.map((band) => ({
+      value: band.value,
+      label: optionLabel(labels.optionWithCount, band.label, band.count),
+    }));
+  }
   if (key === "monthlyStatus") {
     return [
       { value: "", label: optionLabel(labels.optionWithCount, labels.monthlyStatusAll, facets.monthlyStatus.all) },
@@ -135,6 +151,7 @@ function comboTitle(key: AdminDirectoryFilterKey, labels: Labels): string {
     monthlyStatus: labels.monthlyStatus,
     email: labels.email,
     children: labels.children,
+    age: labels.age,
   };
   return titles[key];
 }

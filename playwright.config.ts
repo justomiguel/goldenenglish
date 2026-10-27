@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 import {
   defaultE2eBaseURL,
   e2eAuthPaths,
+  e2eIsolatedWebServerEnv,
   e2eRequireEnabled,
   resolveE2eIsolation,
 } from "./e2e/env";
@@ -51,14 +52,7 @@ export default defineConfig({
           timeout: 120_000,
           stdout: "pipe",
           stderr: "pipe",
-          env: {
-            ...process.env,
-            GE_DEV_TARGET: "e2e",
-            EMAIL_PROVIDER: "recording",
-            MAIL_TENANT: process.env.MAIL_TENANT?.trim() || "alumnos.e2e.test",
-            RESEND_API_KEY: "",
-            RESEND_FROM_EMAIL: "",
-          },
+          env: e2eIsolatedWebServerEnv(process.env),
         },
       }
     : {}),

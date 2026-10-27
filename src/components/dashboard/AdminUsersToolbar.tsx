@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { ListChecks, Search, SlidersHorizontal, Trash2 } from "lucide-react";
+import { ArrowUpDown, ListChecks, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { ROLE_FILTER_ALL } from "@/lib/dashboard/adminUsersTableHelpers";
@@ -14,6 +14,9 @@ import {
   AdminParentsToolbarFields,
   type AdminParentsToolbarChrome,
 } from "@/components/dashboard/AdminParentsToolbarFields";
+import { AdminUsersSortChecklist } from "@/components/dashboard/AdminUsersSortChecklist";
+import { adminUsersSortKeysForLock } from "@/lib/dashboard/adminUsersSortKeys";
+import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
 import { AdminDirectoryFilterPanel } from "@/components/dashboard/AdminDirectoryFilterPanel";
 import type { AdminDirectoryFilterPanelProps } from "@/components/dashboard/AdminDirectoryFilterPanel";
 
@@ -64,6 +67,9 @@ export interface AdminUsersToolbarProps {
     onChange: AdminDirectoryFilterPanelProps["onChange"];
     onClear: AdminDirectoryFilterPanelProps["onClear"];
   };
+  sortCriteria?: AdminUsersSortCriterion[];
+  onSortCriteriaChange?: (next: AdminUsersSortCriterion[]) => void;
+  listPending?: boolean;
 }
 
 export function AdminUsersToolbar({
@@ -86,10 +92,16 @@ export function AdminUsersToolbar({
   lockRole,
   parentsChrome,
   directoryFilters,
+  sortCriteria = [],
+  onSortCriteriaChange,
+  listPending = false,
 }: AdminUsersToolbarProps) {
   const { localValue: localQuery, setLocalValue: setLocalQuery, flushNow } =
     useDebouncedSearch({ value: query, onDebouncedChange: onQueryChange });
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(
+    sortCriteria.length > 1 || sortCriteria.some((criterion) => criterion.key !== "name" || criterion.dir !== "asc"),
+  );
 
   function onSubmitFilter(e: FormEvent) {
     e.preventDefault();
@@ -135,6 +147,32 @@ export function AdminUsersToolbar({
           </Button>
         )}
       </div>
+
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          className="min-h-11 rounded-xl border border-[var(--color-border)] px-4"
+          aria-expanded={sortOpen}
+          onClick={() => setSortOpen((open) => !open)}
+        >
+          <ArrowUpDown className="h-4 w-4 shrink-0" aria-hidden />
+          {labels.sortPanelTitle}
+        </Button>
+      </div>
+      {listPending ? (
+        <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
+          {labels.listUpdating}
+        </p>
+      ) : null}
+      {sortOpen && onSortCriteriaChange ? (
+        <AdminUsersSortChecklist
+          labels={labels}
+          sortKeys={adminUsersSortKeysForLock(lockRole)}
+          criteria={sortCriteria}
+          onChange={onSortCriteriaChange}
+        />
+      ) : null}
 
       {directoryFilters ? <AdminDirectoryFilterPanel {...directoryFilters} /> : null}
 

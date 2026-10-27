@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Eye, Loader2, Pencil, Trash2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import {
   adminUserRowAriaName,
@@ -35,11 +36,12 @@ export function AdminUsersDataTableRow(props: {
   onRequestDeleteOne: (id: string) => void;
 }) {
   const { row: r, labels, locale } = props;
+  const [opening, setOpening] = useState(false);
   const isSelf = r.id === props.currentUserId;
   const ariaName = props.studentsDirectory ? adminUserRowAriaName(r) : r.email;
   return (
-    <tr className="border-b border-[var(--color-border)] last:border-0">
-      <td className="px-2 py-2 align-middle">
+    <tr aria-busy={opening || undefined} className="border-b border-[var(--color-border)] last:border-0">
+      <td className="px-3 py-3.5 align-middle">
         <input
           type="checkbox"
           className="h-4 w-4 rounded border-[var(--color-border)]"
@@ -51,21 +53,28 @@ export function AdminUsersDataTableRow(props: {
         />
       </td>
       {props.studentsDirectory || props.parentsDirectory ? null : (
-        <td className="min-w-0 max-w-0 break-words px-2 py-2 align-top">
+        <td className="min-w-0 max-w-0 break-words px-3 py-3.5 align-top">
           <Link
             href={`/${locale}/dashboard/admin/users/${r.id}`}
-            className="font-medium text-[var(--color-primary)] hover:underline"
+            aria-busy={opening || undefined}
+            onClick={() => setOpening(true)}
+            className="inline-flex items-center gap-1.5 font-medium text-[var(--color-primary)] hover:underline"
           >
+            {opening ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden /> : null}
             {r.email}
           </Link>
         </td>
       )}
-      <td className="min-w-0 px-2 py-2 align-top">
+      <td className="min-w-0 px-3 py-3.5 align-top">
         <Link
           href={`/${locale}/dashboard/admin/users/${r.id}`}
           title={labels.tipOpenUserProfile}
+          aria-busy={opening || undefined}
+          onClick={() => setOpening(true)}
           className="flex items-start gap-2 text-[var(--color-foreground)] hover:underline"
         >
+          {opening ? <Loader2 className="mt-1 h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden /> : null}
+          {opening ? <span className="sr-only">{labels.openingProfile}</span> : null}
           <ProfileAvatar
             url={r.avatarDisplayUrl}
             displayName={formatProfileNameSurnameFirst(r.firstName, r.lastName)}
@@ -86,7 +95,7 @@ export function AdminUsersDataTableRow(props: {
       </td>
       {props.studentsDirectory ? (
         <>
-          <td className="min-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top">
             <AdminStudentSectionsList
               row={r}
               locale={locale}
@@ -94,7 +103,7 @@ export function AdminUsersDataTableRow(props: {
               emptyValue={props.emptyValue}
             />
           </td>
-          <td className="min-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top">
             <AdminStudentMonthlyDueCell
               row={r}
               locale={locale}
@@ -102,20 +111,20 @@ export function AdminUsersDataTableRow(props: {
               emptyValue={props.emptyValue}
             />
           </td>
-          <td className="min-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top">
             <AdminDirectoryMonthlyStatusCell status={r.monthlyStatus} labels={labels} />
           </td>
-          <td className="min-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top">
             <AdminDirectoryEnrollmentFeeCell status={r.enrollmentFeeStatus} labels={labels} />
           </td>
-          <td className="min-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top">
             <AdminDirectoryLastEnrollmentCell
               iso={r.lastEnrollmentAt}
               locale={locale}
               emptyValue={props.emptyValue}
             />
           </td>
-          <td className="min-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top">
             <AdminStudentParentsList
               row={r}
               locale={locale}
@@ -126,10 +135,10 @@ export function AdminUsersDataTableRow(props: {
         </>
       ) : props.parentsDirectory ? (
         <>
-          <td className="min-w-0 max-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 max-w-0 break-words px-3 py-3.5 align-top">
             {r.emailDeliverable ? r.email : labels.noDeliverableEmail}
           </td>
-          <td className="min-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top">
             {r.children.length === 0
               ? props.emptyValue
               : r.children.map((c) => (
@@ -142,7 +151,7 @@ export function AdminUsersDataTableRow(props: {
                   </Link>
                 ))}
           </td>
-          <td className="min-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top">
             <AdminStudentSectionsList
               row={r}
               locale={locale}
@@ -150,26 +159,26 @@ export function AdminUsersDataTableRow(props: {
               emptyValue={props.emptyValue}
             />
           </td>
-          <td className="min-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top">
             <AdminDirectoryMonthlyStatusCell status={r.monthlyStatus} labels={labels} />
           </td>
-          <td className="min-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top">
             <AdminDirectoryEnrollmentFeeCell status={r.enrollmentFeeStatus} labels={labels} />
           </td>
-          <td className="min-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top">
             <AdminDirectoryLastEnrollmentCell
               iso={r.lastEnrollmentAt}
               locale={locale}
               emptyValue={props.emptyValue}
             />
           </td>
-          <td className="min-w-0 break-words px-2 py-2 align-top text-[var(--color-foreground)]">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top text-[var(--color-foreground)]">
             {formatParentLastAccess(r.lastSessionStartAt, locale, labels.lastAccessNever)}
           </td>
         </>
       ) : props.teachersDirectory ? (
         <>
-          <td className="min-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top">
             <AdminStudentSectionsList
               row={r}
               locale={locale}
@@ -177,51 +186,53 @@ export function AdminUsersDataTableRow(props: {
               emptyValue={props.emptyValue}
             />
           </td>
-          <td className="min-w-0 break-words px-2 py-2 align-top text-[var(--color-foreground)]">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top text-[var(--color-foreground)]">
             {r.phone}
           </td>
         </>
       ) : (
         <>
-          <td className="min-w-0 break-words px-2 py-2 align-top">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top">
             <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-semibold capitalize text-sky-800">
               {r.role}
             </span>
           </td>
-          <td className="min-w-0 break-words px-2 py-2 align-top text-[var(--color-foreground)]">
+          <td className="min-w-0 break-words px-3 py-3.5 align-top text-[var(--color-foreground)]">
             {r.phone}
           </td>
         </>
       )}
-      <td className="min-w-0 px-2 py-2 align-top whitespace-nowrap">
+      <td className="min-w-0 px-3 py-3.5 align-top whitespace-nowrap">
         <div className="flex items-center gap-1">
           <Link
             href={`/${locale}/dashboard/admin/users/${r.id}`}
             title={labels.tipViewOne}
             aria-label={`${labels.viewOne}: ${ariaName}`}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-[var(--color-primary)] hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[var(--color-primary)] hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)]"
+            onClick={() => setOpening(true)}
           >
-            <Eye className="h-4 w-4" aria-hidden />
+            <Eye className="h-3.5 w-3.5" aria-hidden />
           </Link>
           <Link
             href={`/${locale}/dashboard/admin/users/${r.id}`}
             title={labels.tipEditOne}
             aria-label={`${labels.editOne}: ${ariaName}`}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+            onClick={() => setOpening(true)}
           >
-            <Pencil className="h-4 w-4" aria-hidden />
+            <Pencil className="h-3.5 w-3.5" aria-hidden />
           </Link>
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="h-10 w-10 min-h-10 rounded-xl p-0 text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
+            className="h-9 w-9 min-h-9 rounded-xl p-0 text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
             disabled={isSelf || props.busy}
             title={isSelf ? labels.selfProtected : labels.tipDeleteOneRow}
             onClick={() => props.onRequestDeleteOne(r.id)}
             aria-label={`${labels.deleteOne}: ${ariaName}`}
           >
-            <Trash2 className="h-4 w-4" aria-hidden />
+            <Trash2 className="h-3.5 w-3.5" aria-hidden />
           </Button>
         </div>
       </td>

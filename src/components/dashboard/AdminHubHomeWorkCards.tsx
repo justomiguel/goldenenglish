@@ -1,4 +1,4 @@
-import { ClipboardCheck, ClipboardList, CreditCard, Wallet } from "lucide-react";
+import { ClipboardList, Wallet } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminHubSummary } from "@/lib/dashboard/loadAdminHubSummary";
 import { AdminHubMessagesCard } from "@/components/dashboard/AdminHubMessagesCard";
@@ -19,26 +19,21 @@ export function AdminHubHomePaymentsCard({
     <AdminHubMetricCard
       href={`${base}/payments`}
       tourAnchor="admin-hub-payments"
-      icon={<Wallet className="h-6 w-6" />}
+      icon={<Wallet className="h-4 w-4" />}
       title={t.title}
       hint={t.cardTip}
       accentClass={pending ? "bg-amber-50 text-amber-600" : "bg-emerald-50 text-emerald-600"}
       linkLabel={t.viewAll}
       urgent={pending}
-      illustration={
-        <CreditCard
-          className={`h-14 w-14 ${pending ? "text-amber-300" : "text-emerald-300"}`}
-          strokeWidth={1.15}
-        />
-      }
+      compact
     >
       {pending ? (
-        <>
-          <p className="text-4xl font-bold text-amber-600">{summary.payments.pendingCount}</p>
-          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{t.pending}</p>
-        </>
+        <p className="flex items-baseline gap-2">
+          <span className="text-2xl font-bold text-amber-600">{summary.payments.pendingCount}</span>
+          <span className="truncate text-xs text-[var(--color-muted-foreground)]">{t.pending}</span>
+        </p>
       ) : (
-        <p className="text-sm font-medium text-emerald-600">{t.noPending}</p>
+        <p className="text-xs font-medium text-emerald-600">{t.noPending}</p>
       )}
     </AdminHubMetricCard>
   );
@@ -59,31 +54,26 @@ export function AdminHubHomeRegistrationsCard({
     <AdminHubMetricCard
       href={`${base}/registrations`}
       tourAnchor="admin-hub-registrations"
-      icon={<ClipboardList className="h-6 w-6" />}
+      icon={<ClipboardList className="h-4 w-4" />}
       title={t.title}
       hint={t.cardTip}
       accentClass={fresh ? "bg-orange-50 text-orange-600" : "bg-emerald-50 text-emerald-600"}
       linkLabel={t.viewAll}
       urgent={fresh}
-      illustration={
-        <ClipboardCheck
-          className={`h-14 w-14 ${fresh ? "text-orange-300" : "text-emerald-300"}`}
-          strokeWidth={1.15}
-        />
-      }
+      compact
     >
       {fresh ? (
-        <>
-          <p className="text-4xl font-bold text-orange-600">{summary.registrations.newCount}</p>
-          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{t.newCount}</p>
-        </>
+        <p className="flex items-baseline gap-2">
+          <span className="text-2xl font-bold text-orange-600">{summary.registrations.newCount}</span>
+          <span className="truncate text-xs text-[var(--color-muted-foreground)]">{t.newCount}</span>
+        </p>
       ) : (
-        <>
-          <p className="text-4xl font-bold text-[var(--color-foreground)]">0</p>
-          <p className="mt-1 text-sm font-medium text-emerald-600">{t.noNew}</p>
-        </>
+        <p className="flex items-baseline gap-2">
+          <span className="text-2xl font-bold text-[var(--color-foreground)]">0</span>
+          <span className="truncate text-xs font-medium text-emerald-600">{t.noNew}</span>
+        </p>
       )}
-      <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+      <p className="mt-0.5 text-xs text-[var(--color-muted-foreground)]">
         {t.awaitingFee}: {summary.registrations.awaitingFeeCount}
       </p>
     </AdminHubMetricCard>

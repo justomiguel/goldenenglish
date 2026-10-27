@@ -3,6 +3,7 @@
 import { ChevronDown, ChevronRight, Pencil, Trash2, UserPlus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { RegistrationContactCell } from "@/components/dashboard/RegistrationContactCell";
+import { AdminUserNameLink } from "@/components/molecules/AdminUserNameLink";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
@@ -93,7 +94,15 @@ export function AdminRegistrationTableRow({
         </Button>
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top font-medium">
-        {formatProfileNameSurnameFirst(r.first_name, r.last_name)}
+        {r.existingStudentId ? (
+          <AdminUserNameLink
+            locale={locale}
+            userId={r.existingStudentId}
+            name={formatProfileNameSurnameFirst(r.first_name, r.last_name)}
+          />
+        ) : (
+          formatProfileNameSurnameFirst(r.first_name, r.last_name)
+        )}
         {r.existingStudentId ? <RegistrationExistingStudentBadge labels={labels} /> : null}
         {contact.isMinor ? (
           <span className="ml-2 whitespace-nowrap rounded-full border border-[var(--color-border)] px-2 py-0.5 text-xs font-normal text-[var(--color-muted-foreground)]">

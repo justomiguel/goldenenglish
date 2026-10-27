@@ -29,6 +29,11 @@ describe("FinanceHubKpiStrip", () => {
       />,
     );
 
+    const strip = screen.getByRole("region", { name: kpisDict.expectedYear });
+    expect(strip.className).toContain("grid");
+    expect(strip.className).toContain("grid-cols-2");
+    expect(strip.className).not.toContain("overflow-x-auto");
+
     expect(screen.getByText(kpisDict.expectedYear)).toBeInTheDocument();
     expect(screen.getByText(kpisDict.paid)).toBeInTheDocument();
     expect(screen.getByText(kpisDict.pendingReview)).toBeInTheDocument();

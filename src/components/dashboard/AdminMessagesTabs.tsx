@@ -9,8 +9,6 @@ import {
   type UnderlineTabItem,
 } from "@/components/molecules/UnderlineTabBar";
 import { AdminMessagesInbox } from "@/components/dashboard/AdminMessagesInbox";
-import { AdminMessagesBulkBar } from "@/components/dashboard/AdminMessagesBulkBar";
-import { useAdminMessagesBulkSelection } from "@/hooks/useAdminMessagesBulkSelection";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminPortalMessageRow } from "@/types/messaging";
@@ -55,14 +53,6 @@ export function AdminMessagesTabs({
   );
 
   const hint = tab === "inbox" ? labels.tabInboxDescription : labels.tabSentDescription;
-  const activeRows = tab === "inbox" ? inboxRows : sentRows;
-  const visibleIds = useMemo(() => activeRows.map((r) => r.id), [activeRows]);
-
-  const bulk = useAdminMessagesBulkSelection({
-    locale,
-    folderKey: tab,
-    visibleIds,
-  });
 
   const rowsFor = (t: TabId) => (t === "inbox" ? inboxRows : sentRows);
 
@@ -81,10 +71,6 @@ export function AdminMessagesTabs({
           rows={rowsFor(t)}
           listTopMargin={false}
           emptyListLabel={emptyListLabel}
-          showReadToggle={t === "inbox"}
-          selectedIds={bulk.selected}
-          onToggleSelected={bulk.toggle}
-          selectionDisabled={bulk.busy}
         />
       ) : null}
     </div>
@@ -112,20 +98,6 @@ export function AdminMessagesTabs({
         <p className="hidden text-sm leading-snug text-[var(--color-muted-foreground)] md:block" aria-live="polite">
           {hint}
         </p>
-        <AdminMessagesBulkBar
-          labels={labels}
-          selectedCount={bulk.selectedCount}
-          allVisibleSelected={bulk.allVisibleSelected}
-          visibleCount={activeRows.length}
-          busy={bulk.busy}
-          errorCode={bulk.errorCode}
-          showReadActions={tab === "inbox"}
-          onSelectAll={bulk.selectAllVisible}
-          onClear={bulk.clear}
-          onMarkRead={bulk.markRead}
-          onMarkUnread={bulk.markUnread}
-          onDelete={bulk.deleteSelected}
-        />
         <div className="mt-2 md:mt-5">
           {panel("inbox")}
           {panel("sent")}

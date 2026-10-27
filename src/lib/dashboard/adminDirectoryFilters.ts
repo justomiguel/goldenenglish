@@ -6,6 +6,7 @@ export type DirectoryCreatedFilter = "last30" | "older";
 export type DirectoryTeachingRoleFilter = "lead" | "assistant";
 export type DirectoryEmailFilter = "deliverable" | "none";
 export type DirectoryMonthlyStatusFilter = "current" | "behind" | "na";
+export type DirectoryAgeFilter = "unknown" | "0-2" | "3-5" | "6-8" | "9-12" | "13-17" | "18+";
 
 export type AdminDirectoryFilters = {
   section?: string;
@@ -20,6 +21,7 @@ export type AdminDirectoryFilters = {
   monthlyStatus?: DirectoryMonthlyStatusFilter;
   email?: DirectoryEmailFilter;
   children?: DirectoryBinaryFilter;
+  age?: DirectoryAgeFilter;
 };
 
 export type AdminDirectoryFilterKey = keyof AdminDirectoryFilters;
@@ -38,6 +40,7 @@ export type AdminDirectoryCandidate = {
   monthlyStatus: "yes" | "no" | "na";
   emailDeliverable: boolean;
   hasChildren: boolean;
+  ageYears: number | null;
 };
 
 const STUDENT_KEYS = [
@@ -50,6 +53,7 @@ const STUDENT_KEYS = [
   "scholarship",
   "due",
   "monthlyStatus",
+  "age",
 ] as const satisfies readonly AdminDirectoryFilterKey[];
 
 const TEACHER_KEYS = [
@@ -69,6 +73,7 @@ const PARENT_KEYS = [
   "email",
   "children",
   "monthlyStatus",
+  "age",
 ] as const satisfies readonly AdminDirectoryFilterKey[];
 
 const KEYS_BY_ROLE: Record<AdminDirectoryRole, readonly AdminDirectoryFilterKey[]> = {
@@ -107,6 +112,21 @@ function parseEmail(raw: string): DirectoryEmailFilter | undefined {
 
 function parseMonthlyStatus(raw: string): DirectoryMonthlyStatusFilter | undefined {
   return raw === "current" || raw === "behind" || raw === "na" ? raw : undefined;
+}
+
+function parseAge(raw: string): DirectoryAgeFilter | undefined {
+  if (
+    raw === "unknown" ||
+    raw === "0-2" ||
+    raw === "3-5" ||
+    raw === "6-8" ||
+    raw === "9-12" ||
+    raw === "13-17" ||
+    raw === "18+"
+  ) {
+    return raw;
+  }
+  return undefined;
 }
 
 export function parseAdminDirectoryFilters(
@@ -161,6 +181,10 @@ export function parseAdminDirectoryFilters(
     const children = parseBinary(asString(raw.children));
     if (children) out.children = children;
   }
+  if (allowed.has("age")) {
+    const age = parseAge(asString(raw.age));
+    if (age) out.age = age;
+  }
   return out;
 }
 
@@ -190,6 +214,7 @@ export function clearedDirectoryFilterParams(): Record<AdminDirectoryFilterKey, 
     monthlyStatus: undefined,
     email: undefined,
     children: undefined,
+    age: undefined,
   };
 }
 
@@ -206,4 +231,5 @@ export const ADMIN_DIRECTORY_FILTER_PARAM_KEYS = [
   "monthlyStatus",
   "email",
   "children",
+  "age",
 ] as const satisfies readonly AdminDirectoryFilterKey[];

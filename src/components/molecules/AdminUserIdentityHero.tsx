@@ -32,8 +32,8 @@ export function AdminUserIdentityHero({
   const canChangeStudentAvatar = detail.role === "student" && detail.viewerMayInlineEdit;
 
   return (
-    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]">
-      <div className="grid gap-5 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)] sm:p-5">
+      <div className="grid gap-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:gap-5">
         <div className="relative w-fit">
           <div className="inline-flex rounded-full bg-[var(--color-background)] p-1 shadow-[var(--shadow-soft)] ring-1 ring-[var(--color-border)]">
             <ProfileAvatar
@@ -56,42 +56,42 @@ export function AdminUserIdentityHero({
           ) : null}
         </div>
 
-        <div className="min-w-0 space-y-4">
+        <div className="min-w-0 space-y-3 sm:space-y-4">
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1
-                className="break-words font-display text-2xl font-bold leading-tight text-[var(--color-primary)]"
+                className="break-words font-display text-xl font-bold leading-tight text-[var(--color-primary)] sm:text-2xl"
                 data-tour={ADMIN_TOUR_ANCHORS.userDetailTitle}
               >
                 {displayName}
               </h1>
-              <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-800">
+              <span className="rounded-full bg-[var(--color-primary)]/10 px-3 py-1 text-xs font-semibold text-[var(--color-primary)]">
                 {roleLabel}
               </span>
               {detail.hasCareNotes ? <StudentCareBadge label={labels.detailCareBadge} /> : null}
             </div>
             <p className="mt-1 break-all text-sm text-[var(--color-muted-foreground)]">{detail.emailDisplay}</p>
           </div>
-          <dl className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
+          <dl className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
+            <div className="col-span-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] p-2.5 sm:col-span-1 sm:rounded-2xl sm:p-3">
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-[var(--color-muted-foreground)] sm:text-xs">
                 {labels.detailIdentityRoleLabel}
               </dt>
-              <dd className="mt-1 text-sm font-semibold text-[var(--color-foreground)]">{roleLabel}</dd>
+              <dd className="mt-0.5 text-sm font-semibold text-[var(--color-foreground)] sm:mt-1">{roleLabel}</dd>
             </div>
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
+            <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] p-2.5 sm:rounded-2xl sm:p-3">
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-[var(--color-muted-foreground)] sm:text-xs">
                 {labels.detailFieldDni}
               </dt>
-              <dd className="mt-1 text-sm font-semibold text-[var(--color-foreground)]">
+              <dd className="mt-0.5 truncate text-sm font-semibold text-[var(--color-foreground)] sm:mt-1">
                 {detail.dniOrPassport || labels.detailNoValue}
               </dd>
             </div>
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
+            <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] p-2.5 sm:rounded-2xl sm:p-3">
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-[var(--color-muted-foreground)] sm:text-xs">
                 {labels.detailIdentitySinceLabel}
               </dt>
-              <dd className="mt-1 text-sm font-semibold text-[var(--color-foreground)]">
+              <dd className="mt-0.5 truncate text-sm font-semibold text-[var(--color-foreground)] sm:mt-1">
                 {detail.createdAtDisplay}
               </dd>
             </div>

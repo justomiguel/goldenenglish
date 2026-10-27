@@ -1,5 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AdminUserRow, SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
+import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
+import { adminUsersProfileSortColumns } from "@/lib/dashboard/adminUsersSortCriteria";
 import type { AdminDirectoryFilters } from "@/lib/dashboard/adminDirectoryFilters";
 import {
   isLockedDirectoryRole,
@@ -31,21 +33,6 @@ import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
 
 const PROFILE_COLUMNS = "id, role, first_name, last_name, phone, avatar_url, last_session_start_at";
 
-const SORT_COLUMN_MAP: Record<SortKey, string> = {
-  email: "last_name",
-  name: "last_name",
-  role: "role",
-  phone: "phone",
-  lastAccess: "last_session_start_at",
-  sections: "last_name",
-  monthlyDue: "last_name",
-  parent: "last_name",
-  children: "last_name",
-  lastEnrollment: "last_name",
-  enrollmentFee: "last_name",
-  monthlyStatus: "last_name",
-};
-
 export interface PaginatedAdminUsersResult {
   rows: AdminUserRow[];
   totalCount: number;
@@ -60,6 +47,7 @@ export interface PaginatedAdminUsersParams extends AdminDirectoryFilters {
   role?: string;
   sort?: SortKey;
   dir?: "asc" | "desc";
+  sortCriteria?: AdminUsersSortCriterion[];
   /** When true, load the locked-role directory (in-memory facets + relation filters). */
   lockedDirectory?: boolean;
 }
@@ -81,8 +69,10 @@ export async function loadPaginatedAdminUsers(
 
   const page = Math.max(1, params.page ?? 1);
   const pageSize = params.pageSize ?? DEFAULT_TABLE_PAGE_SIZE;
-  const sortCol = SORT_COLUMN_MAP[params.sort ?? "name"] ?? "last_name";
-  const ascending = (params.dir ?? "asc") === "asc";
+  const sortCriteria =
+    params.sortCriteria && params.sortCriteria.length > 0
+      ? params.sortCriteria
+      : [{ key: params.sort ?? "name", dir: params.dir ?? "asc" }];
   const qRaw = (params.q ?? "").trim();
   const roleFilter = params.role ?? ROLE_FILTER_ALL;
 
@@ -139,9 +129,10 @@ export async function loadPaginatedAdminUsers(
     countQuery = countQuery.or(filter);
   }
 
-  dataQuery = dataQuery
-    .order(sortCol, { ascending })
-    .range(from, to);
+  for (const column of adminUsersProfileSortColumns(sortCriteria)) {
+    dataQuery = dataQuery.order(column.column, { ascending: column.ascending });
+  }
+  dataQuery = dataQuery.range(from, to);
 
   const [dataResult, countResult] = await Promise.all([
     dataQuery,

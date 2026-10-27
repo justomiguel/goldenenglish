@@ -72,7 +72,7 @@ export function FinanceTopDebtorsCard({
             >
               <div className="flex flex-1 flex-col gap-0.5">
                 <Link
-                  href={`/dashboard/admin/users/${d.studentId}/billing`}
+                  href={`/${locale}/dashboard/admin/users/${d.studentId}`}
                   className="inline-flex items-center gap-1 font-medium text-[var(--color-foreground)] hover:text-[var(--color-primary)] hover:underline"
                 >
                   {d.name}

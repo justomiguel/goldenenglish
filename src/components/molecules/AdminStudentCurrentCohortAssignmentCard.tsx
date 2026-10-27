@@ -97,6 +97,8 @@ export function AdminStudentCurrentCohortAssignmentCard({
           enrollmentId: result.enrollmentId,
           sectionId: selectedSectionId,
           sectionName: sec?.name ?? selectedSectionId,
+          teacher: sec?.teacherId ? { id: sec.teacherId, name: sec.teacherName } : null,
+          assistants: [],
         };
         setLocalSections((prev) => [...prev, newEntry]);
         setMessage({ text: labels.detailSectionAssignSaved, ok: true });
@@ -163,7 +165,10 @@ export function AdminStudentCurrentCohortAssignmentCard({
       {assignment.cohortId && assignment.sections.length > 0 && (
         <div className="mt-4 space-y-4">
           <AdminStudentSectionsList
+            locale={locale}
+            cohortId={assignment.cohortId}
             sections={localSections}
+            sectionOptions={assignment.sections}
             labels={labels}
             busy={busy}
             onRemove={(e) => setRemoveTarget(e)}

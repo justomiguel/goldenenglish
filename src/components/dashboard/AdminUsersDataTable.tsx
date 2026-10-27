@@ -11,6 +11,7 @@ import {
   type SortDir,
 } from "@/lib/dashboard/adminUsersTableHelpers";
 import { AdminUsersDataTableRow } from "@/components/dashboard/AdminUsersDataTableRow";
+import { DirectoryBillingLegend } from "@/components/molecules/DirectoryBillingLegend";
 import { UniversalListView } from "@/components/organisms/UniversalListView";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -109,6 +110,8 @@ export function AdminUsersDataTable({
           { id: "phone", label: labels.colPhone, thClassName: colHead },
         ];
   return (
+    <div className="space-y-3">
+    {studentsDirectory || parentsDirectory ? <DirectoryBillingLegend labels={labels} /> : null}
     <UniversalListView
       toolbar={toolbar}
       columns={columns}
@@ -176,5 +179,6 @@ export function AdminUsersDataTable({
         />
       ))}
     </UniversalListView>
+    </div>
   );
 }

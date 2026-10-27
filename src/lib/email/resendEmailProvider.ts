@@ -38,6 +38,16 @@ export class ResendEmailProvider implements EmailProvider {
         html: input.html,
         ...(input.cc?.length ? { cc: input.cc } : {}),
         ...(input.bcc?.length ? { bcc: input.bcc } : {}),
+        ...(input.attachments?.length
+          ? {
+              attachments: input.attachments.map((file) => ({
+                filename: file.filename,
+                content: file.contentBase64,
+                contentType: file.contentType,
+                inlineContentId: file.contentId,
+              })),
+            }
+          : {}),
       });
       if (error) return { ok: false, error: error.message };
       return { ok: true };

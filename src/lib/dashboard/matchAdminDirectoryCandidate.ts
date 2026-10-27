@@ -4,6 +4,7 @@ import type {
   AdminDirectoryFilters,
   DirectoryBinaryFilter,
 } from "@/lib/dashboard/adminDirectoryFilters";
+import { directoryAgeBand } from "@/lib/dashboard/directoryAgeBand";
 
 export type MatchAdminDirectoryOptions = {
   now?: Date;
@@ -60,6 +61,7 @@ export function matchAdminDirectoryCandidate(
   const monthlyStatus = omit === "monthlyStatus" ? undefined : filters.monthlyStatus;
   const email = omit === "email" ? undefined : filters.email;
   const children = omit === "children" ? undefined : filters.children;
+  const age = omit === "age" ? undefined : filters.age;
 
   if (access === "never" && candidate.lastSessionStartAt) return false;
   if (access === "entered" && !candidate.lastSessionStartAt) return false;
@@ -76,6 +78,7 @@ export function matchAdminDirectoryCandidate(
   if (email === "deliverable" && !candidate.emailDeliverable) return false;
   if (email === "none" && candidate.emailDeliverable) return false;
   if (!matchBinary(candidate.hasChildren, children)) return false;
+  if (age && directoryAgeBand(candidate.ageYears) !== age) return false;
 
   const pool = teachingPool(candidate, teachingRole);
   if (teachingRole && pool.length === 0) return false;

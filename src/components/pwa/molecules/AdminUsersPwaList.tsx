@@ -11,6 +11,7 @@ import {
   type SortKey,
 } from "@/lib/dashboard/adminUsersTableHelpers";
 import { AdminUsersPwaListItem } from "@/components/pwa/molecules/AdminUsersPwaListItem";
+import { DirectoryBillingLegend } from "@/components/molecules/DirectoryBillingLegend";
 import { AdminUsersBulkBarMobile } from "@/components/pwa/molecules/AdminUsersBulkBarMobile";
 import { TablePagination } from "@/components/molecules/TablePagination";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
@@ -43,6 +44,7 @@ export interface AdminUsersPwaListProps {
     totalCount: number;
     onPageChange: (page: number) => void;
   };
+  listPending?: boolean;
   lockRole?: string;
   onDeleteSelected?: () => void;
   deleteDisabled?: boolean;
@@ -64,6 +66,7 @@ export function AdminUsersPwaList({
   onRequestDeleteOne,
   emptyMessage,
   pagination,
+  listPending = false,
   lockRole,
   onDeleteSelected,
   deleteDisabled = false,
@@ -87,7 +90,13 @@ export function AdminUsersPwaList({
   return (
     <div className="space-y-3">
       {toolbar}
-      <ul className="space-y-2" data-tour={ADMIN_TOUR_ANCHORS.usersTable}>
+      {studentsDirectory || parentsDirectory ? <DirectoryBillingLegend labels={labels} /> : null}
+      {listPending ? (
+        <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
+          {labels.listUpdating}
+        </p>
+      ) : null}
+      <ul className="space-y-3" aria-busy={listPending || undefined} data-tour={ADMIN_TOUR_ANCHORS.usersTable}>
         {rows.map((r) => (
           <AdminUsersPwaListItem
             key={r.id}

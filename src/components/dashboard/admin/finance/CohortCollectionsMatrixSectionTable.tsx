@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { SectionCollectionsStudentRow, SectionCollectionsView } from "@/types/sectionCollections";
 import { resolveMatrixScholarshipMarks } from "@/lib/billing/resolveMatrixScholarshipMarks";
@@ -99,19 +98,11 @@ export function CohortCollectionsMatrixSectionTable({
                 className="sticky left-0 z-10 bg-[var(--color-surface)] px-2 py-1.5 text-left font-medium text-[var(--color-foreground)]"
               >
                 <Link
-                  href={`/${locale}/dashboard/admin/users/${s.studentId}/billing`}
-                  className="group inline-flex max-w-full items-center gap-1 font-medium text-[var(--color-primary)] hover:underline"
+                  href={`/${locale}/dashboard/admin/users/${s.studentId}`}
+                  className="inline-flex max-w-full items-center font-medium text-[var(--color-primary)] hover:underline"
                   title={s.studentName}
-                  aria-label={collectionsDict.matrix.openStudentBillingAria.replace(
-                    "{name}",
-                    s.studentName,
-                  )}
                 >
                   <span className="block truncate">{s.studentName}</span>
-                  <ChevronRight
-                    className="h-3.5 w-3.5 shrink-0 opacity-100"
-                    aria-hidden
-                  />
                 </Link>
                 {s.documentLabel ? (
                   <span className="block text-[10px] text-[var(--color-muted-foreground)]">

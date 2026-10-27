@@ -6,6 +6,7 @@ import type { SectionAttendanceStatusDb } from "@/types/sectionAcademics";
 import type { TeacherAttendanceMatrixCells, TeacherAttendanceMatrixRow } from "@/types/teacherAttendanceMatrix";
 import { cyclePatAdmin, cyclePatTeacher } from "@/lib/academics/attendanceMatrixCellCycle";
 import type { AttendanceMatrixAutosaveVariant } from "@/hooks/useAttendanceMatrixAutosave";
+import { AdminUserNameLink } from "@/components/molecules/AdminUserNameLink";
 import { StudentCareBadge } from "@/components/molecules/StudentCareBadge";
 
 const STATUS_SURFACE: Record<"present" | "absent" | "late", string> = {
@@ -23,6 +24,7 @@ export interface TeacherAttendanceMatrixGridRowProps {
   onFocusChange: (next: { enrollmentId: string; dateIso: string } | null) => void;
   onCellStatus: (enrollmentId: string, dateIso: string, status: SectionAttendanceStatusDb) => void;
   matrixMode: AttendanceMatrixAutosaveVariant;
+  locale: string;
   isDateEditable: (d: string) => boolean;
   wrapRef: RefObject<HTMLDivElement | null>;
   dict: Dictionary["dashboard"]["teacherSectionAttendance"]["matrix"];
@@ -37,6 +39,7 @@ export function TeacherAttendanceMatrixGridRow({
   onFocusChange,
   onCellStatus,
   matrixMode,
+  locale,
   isDateEditable,
   wrapRef,
   dict,
@@ -49,7 +52,11 @@ export function TeacherAttendanceMatrixGridRow({
         className="sticky left-0 z-[1] bg-[var(--color-surface)] px-2 py-2 text-left text-xs font-medium text-[var(--color-foreground)]"
       >
         <span className="inline-flex items-center gap-1.5">
-          {row.studentLabel}
+          {matrixMode === "admin" && row.studentId ? (
+            <AdminUserNameLink locale={locale} userId={row.studentId} name={row.studentLabel} />
+          ) : (
+            row.studentLabel
+          )}
           {row.hasCareNotes ? <StudentCareBadge label={dict.careBadge} /> : null}
         </span>
       </th>

@@ -19,6 +19,7 @@ import {
 } from "@/lib/blog/integrations/google/loadGoogleTranslateCredentials";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -44,16 +45,13 @@ export default async function AdminSettingsPage({ params }: PageProps) {
   const googleCredentials = await loadGoogleTranslateCredentials(supabase);
 
   return (
-    <div>
-      <h1
-        className="mb-6 text-2xl font-bold text-[var(--color-secondary)]"
-        data-tour={ADMIN_TOUR_ANCHORS.settingsTitle}
-      >
-        {dict.admin.settings.title}
-      </h1>
-      <p className="mb-6 max-w-2xl text-sm leading-relaxed text-[var(--color-muted-foreground)]">
-        {dict.admin.settings.scopeLead}
-      </p>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title={dict.admin.settings.title}
+        lead={dict.admin.settings.scopeLead}
+        iconId="settings"
+        tourAnchor={ADMIN_TOUR_ANCHORS.settingsTitle}
+      />
       <div data-tour={ADMIN_TOUR_ANCHORS.settingsInscriptions}>
         <InscriptionsSettingsForm
           locale={locale}

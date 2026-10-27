@@ -82,5 +82,25 @@ describe("AdminUserProfileTabPanels", () => {
 
     expect(screen.queryByTestId("inline-birthDate")).not.toBeInTheDocument();
     expect(screen.queryByText(dictEn.admin.users.detailFieldAge)).not.toBeInTheDocument();
+    expect(screen.queryByText(dictEn.admin.users.detailAcademicNotesTitle)).not.toBeInTheDocument();
+    expect(screen.queryByText(dictEn.admin.users.detailAcademicExamsTitle)).not.toBeInTheDocument();
+  });
+
+  it("does not show a standalone assigned teacher row for a student", () => {
+    render(
+      <AdminUserAcademicPanel
+        locale="en"
+        detail={{ ...baseVm(), role: "student", assignedTeacherName: null }}
+        labels={dictEn.admin.users}
+        editable={false}
+        roleLabel={dictEn.admin.users.roleOptionStudent}
+        roleOptions={[{ value: "student", label: dictEn.admin.users.roleOptionStudent }]}
+        onFeedback={() => {}}
+      />,
+    );
+
+    expect(screen.queryByText(dictEn.admin.users.detailFieldTeacher)).not.toBeInTheDocument();
+    expect(screen.getByText(dictEn.admin.users.detailAcademicNotesTitle)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.admin.users.detailAcademicExamsTitle)).toBeInTheDocument();
   });
 });

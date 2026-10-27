@@ -97,7 +97,8 @@ export function AcademicSectionWeekScheduleGrid({
 
   return (
     <div role="region" aria-label={dict.gridAria} className="space-y-3">
-        <div className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-1.5">
+      <div className="overflow-x-auto pb-1">
+        <div className="grid min-w-[38rem] grid-cols-[2.5rem_minmax(0,1fr)] gap-x-1.5">
         <div aria-hidden />
         <div className="grid grid-cols-7 gap-0 border-b border-[var(--color-border)]/50 pb-2">
           {SECTION_WEEK_UI_DAY_ORDER.map((dayOfWeek) => (
@@ -160,6 +161,7 @@ export function AcademicSectionWeekScheduleGrid({
               />
             );
           })}
+        </div>
         </div>
       </div>
     </div>

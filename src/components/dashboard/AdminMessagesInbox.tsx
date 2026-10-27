@@ -11,10 +11,6 @@ interface AdminMessagesInboxProps {
   listTopMargin?: boolean;
   /** Overrides empty-state copy (e.g. when filters yield no rows). */
   emptyListLabel?: string;
-  showReadToggle?: boolean;
-  selectedIds?: ReadonlySet<string>;
-  onToggleSelected?: (id: string) => void;
-  selectionDisabled?: boolean;
 }
 
 export function AdminMessagesInbox({
@@ -23,10 +19,6 @@ export function AdminMessagesInbox({
   rows,
   listTopMargin = true,
   emptyListLabel,
-  showReadToggle = true,
-  selectedIds,
-  onToggleSelected,
-  selectionDisabled = false,
 }: AdminMessagesInboxProps) {
   const emptyMt = listTopMargin ? "mt-10" : "mt-4";
   const emptyCopy = emptyListLabel ?? labels.empty;
@@ -43,7 +35,6 @@ export function AdminMessagesInbox({
   }
 
   const listMt = listTopMargin ? "mt-8" : "mt-2 md:mt-4";
-  const selectionEnabled = Boolean(selectedIds && onToggleSelected);
 
   return (
     <ul className={`${listMt} list-none space-y-1.5 md:space-y-2.5`}>
@@ -54,16 +45,6 @@ export function AdminMessagesInbox({
             row={row}
             labels={labels}
             detailHref={`/${locale}/dashboard/admin/messages/${row.id}`}
-            showReadToggle={showReadToggle}
-            selected={selectionEnabled ? selectedIds!.has(row.id) : undefined}
-            onSelectedChange={
-              selectionEnabled
-                ? () => {
-                    onToggleSelected!(row.id);
-                  }
-                : undefined
-            }
-            selectionDisabled={selectionDisabled}
           />
         </li>
       ))}

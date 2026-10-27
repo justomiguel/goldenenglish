@@ -151,7 +151,8 @@ export function TeacherAttendanceMatrixTable({
               focused={focused}
               onFocusChange={onFocusChange}
               onCellStatus={onCellStatus}
-              matrixMode={matrixMode}
+              matrixMode={matrixMode ?? "teacher"}
+              locale={locale}
               isDateEditable={isDateEditable}
               wrapRef={wrapRef}
               dict={dict}

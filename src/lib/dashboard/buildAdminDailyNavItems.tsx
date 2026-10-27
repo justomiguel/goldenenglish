@@ -80,6 +80,13 @@ export function buildAdminDailyNavItems(
       tip: dict.tipRegistrations,
     },
     {
+      href: `${base}/messages`,
+      label: dict.messages,
+      iconId: "messages",
+      badge: badges.recentInboundMessages,
+      tip: dict.tipMessages,
+    },
+    {
       href: `${base}/academic`,
       label: dict.academics,
       iconId: "academic",

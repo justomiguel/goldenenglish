@@ -45,24 +45,39 @@ export function TeacherChromeHeader({
       className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface)]/95 shadow-[var(--shadow-soft)] backdrop-blur-md"
       aria-label={labels.ariaHeader}
     >
-      <div className="flex items-center justify-between gap-4 px-4 py-4 md:px-8">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          {mobileNav}
-          {compactBrand ? (
-            <div className="min-w-0">
-              {showAdminWorkspace || viewAs ? (
-                <StaffWorkspaceSwitch
-                  locale={locale}
-                  dict={dict}
-                  activeRole="teacher"
-                  viewAs={viewAs}
-                />
-              ) : null}
-              <p className="mt-1.5 hidden min-w-0 truncate text-xs text-[var(--color-muted-foreground)] sm:block">
-                {tagline}
-              </p>
-            </div>
-          ) : (
+      <div className="flex items-center gap-2 px-4 py-2 md:gap-4 md:px-8 md:py-4">
+        {mobileNav}
+        {compactBrand ? (
+          <Link
+            href={homeHref}
+            aria-label={brand.name}
+            className="shrink-0 rounded-[var(--layout-border-radius)] bg-[var(--color-background)] p-1 shadow-sm ring-1 ring-[var(--color-border)] md:hidden"
+          >
+            <Image
+              src={brand.logoPath}
+              alt={brand.logoAlt || brand.name}
+              width={32}
+              height={32}
+              unoptimized={bypassLogoOptimizer}
+              className="block h-8 w-8 rounded-[var(--layout-border-radius)] object-contain"
+            />
+          </Link>
+        ) : null}
+        {compactBrand ? (
+          <div className="hidden min-w-0 md:block">
+            {showAdminWorkspace || viewAs ? (
+              <StaffWorkspaceSwitch
+                locale={locale}
+                dict={dict}
+                activeRole="teacher"
+                viewAs={viewAs}
+              />
+            ) : null}
+            <p className="mt-1.5 hidden min-w-0 truncate text-xs text-[var(--color-muted-foreground)] sm:block">
+              {tagline}
+            </p>
+          </div>
+        ) : (
           <Link
             href={homeHref}
             className="group flex min-w-0 flex-1 items-center gap-3 rounded-[var(--layout-border-radius)] outline-none ring-[var(--color-primary)] transition hover:opacity-95 focus-visible:ring-2 focus-visible:ring-offset-2"
@@ -97,10 +112,9 @@ export function TeacherChromeHeader({
               </p>
             </div>
           </Link>
-          )}
-        </div>
+        )}
 
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <div className="ms-auto flex shrink-0 items-center gap-2 sm:gap-3">
           <Link
             href={`/${locale}`}
             aria-label={labels.backToSite}

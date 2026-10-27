@@ -1,15 +1,20 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import { AlertTriangle, ArrowRightLeft } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import { Button } from "@/components/atoms/Button";
 import { ScheduleConflictResolutionModal } from "@/components/molecules/ScheduleConflictResolutionModal";
+import { AcademicSectionRosterCards } from "@/components/organisms/AcademicSectionRosterCards";
+import {
+  AcademicSectionRosterMoveControls,
+  formatEnrollmentStatusLabel,
+} from "@/components/organisms/AcademicSectionRosterMoveControls";
 import {
   AcademicSectionRosterToolbar,
   type SectionRosterTabKey,
 } from "@/components/organisms/AcademicSectionRosterToolbar";
 import { SortableColumnHeader } from "@/components/molecules/SortableColumnHeader";
+import { AdminUserNameLink } from "@/components/molecules/AdminUserNameLink";
 import { StudentCareBadge } from "@/components/molecules/StudentCareBadge";
 import type { UniversalSortDir } from "@/types/universalListView";
 import {
@@ -18,6 +23,7 @@ import {
 } from "@/lib/academics/sortSectionRosterRows";
 import type { SectionRosterRow } from "@/types/sectionRoster";
 import { useAcademicSectionRosterMoves } from "@/hooks/useAcademicSectionRosterMoves";
+import { useAppSurface } from "@/hooks/useAppSurface";
 
 export type { SectionRosterRow };
 
@@ -55,6 +61,7 @@ export function AcademicSectionRosterTable({
   headerActions,
   embedded = false,
 }: AcademicSectionRosterTableProps) {
+  const narrow = useAppSurface() !== "web-desktop";
   const [tab, setTab] = useState<SectionRosterTabKey>("active");
   const [rosterSortKey, setRosterSortKey] = useState<SectionRosterSortKey>("label");
   const [rosterSortDir, setRosterSortDir] = useState<UniversalSortDir>("asc");
@@ -77,12 +84,21 @@ export function AcademicSectionRosterTable({
     confirmConflictMove,
   } = useAcademicSectionRosterMoves(locale, sectionId, rows, moveTargets, dict, errors);
 
+  const counts = useMemo(
+    () => ({
+      active: rows.filter((r) => rowInTab("active", r.status)).length,
+      dropped: rows.filter((r) => rowInTab("dropped", r.status)).length,
+      transferred: rows.filter((r) => rowInTab("transferred", r.status)).length,
+    }),
+    [rows],
+  );
   const filtered = useMemo(() => rows.filter((r) => rowInTab(tab, r.status)), [rows, tab]);
   const rosterSortLabels = dict.rosterTableSort;
   const sortedFiltered = useMemo(
     () => sortSectionRosterRows(filtered, rosterSortKey, rosterSortDir),
     [filtered, rosterSortKey, rosterSortDir],
   );
+  const canMoveInTab = tab === "active" && moveTargets.length > 0;
 
   const onRosterToggleSort = (columnId: string) => {
     const id = columnId as SectionRosterSortKey;
@@ -94,121 +110,98 @@ export function AcademicSectionRosterTable({
     setRosterSortDir((d) => (d === "asc" ? "desc" : "asc"));
   };
 
+  const moveProps = {
+    picks,
+    setPicks,
+    moveTargets,
+    busy,
+    movingStudentId: moveCtx?.studentId ?? null,
+    moveTitle: dict.moveTitle,
+    moveSelect: dict.moveSelect,
+    moveRun: dict.moveRun,
+    onMove: runMove,
+  };
+
   const tableBody = (
     <>
       {!embedded ? (
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.rosterTitle}</h2>
-          {headerActions ? <div className="flex flex-wrap items-center gap-2">{headerActions}</div> : null}
         </div>
-      ) : headerActions ? (
-        <div className="flex flex-wrap items-center justify-end gap-2">{headerActions}</div>
       ) : null}
       <AcademicSectionRosterToolbar
         dict={dict}
         tab={tab}
         onTab={setTab}
+        counts={counts}
+        headerActions={headerActions}
+        showCapacityOverride={canMoveInTab && sortedFiltered.length > 0}
         capacityOverride={capacityOverride}
         onCapacityOverride={setCapacityOverride}
         busy={busy}
         msg={msg}
       />
-      <div className="mt-3 overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-[var(--color-border)] text-xs uppercase text-[var(--color-muted-foreground)]">
-            <tr>
-              <th className="py-2 pr-3" scope="col" aria-sort={rosterSortKey === "label" ? (rosterSortDir === "asc" ? "ascending" : "descending") : "none"}>
-                <SortableColumnHeader
-                  columnId="label"
-                  label={dict.colStudent}
-                  sortKey={rosterSortKey}
-                  sortDir={rosterSortDir}
-                  onToggleSort={onRosterToggleSort}
-                  sortLabels={rosterSortLabels}
-                />
-              </th>
-              <th className="py-2 pr-3" scope="col" aria-sort={rosterSortKey === "status" ? (rosterSortDir === "asc" ? "ascending" : "descending") : "none"}>
-                <SortableColumnHeader
-                  columnId="status"
-                  label={dict.colStatus}
-                  sortKey={rosterSortKey}
-                  sortDir={rosterSortDir}
-                  onToggleSort={onRosterToggleSort}
-                  sortLabels={rosterSortLabels}
-                />
-              </th>
-              <th className="py-2" scope="col">
-                <span className="font-semibold text-[var(--color-muted-foreground)]">{dict.colActions}</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedFiltered.length === 0 ? (
+      {narrow ? (
+        <AcademicSectionRosterCards
+          locale={locale}
+          rows={sortedFiltered}
+          dict={dict}
+          debtByStudentId={debtByStudentId}
+          canMove={canMoveInTab}
+          {...moveProps}
+        />
+      ) : (
+        <div className="mt-3 overflow-x-auto">
+          <table className="min-w-full text-left text-sm">
+            <thead className="border-b border-[var(--color-border)] text-xs uppercase text-[var(--color-muted-foreground)]">
               <tr>
-                <td colSpan={3} className="py-4 text-[var(--color-muted-foreground)]">
-                  {dict.emptyTab}
-                </td>
+                <th className="py-2 pr-3" scope="col" aria-sort={rosterSortKey === "label" ? (rosterSortDir === "asc" ? "ascending" : "descending") : "none"}>
+                  <SortableColumnHeader columnId="label" label={dict.colStudent} sortKey={rosterSortKey} sortDir={rosterSortDir} onToggleSort={onRosterToggleSort} sortLabels={rosterSortLabels} />
+                </th>
+                <th className="py-2 pr-3" scope="col" aria-sort={rosterSortKey === "status" ? (rosterSortDir === "asc" ? "ascending" : "descending") : "none"}>
+                  <SortableColumnHeader columnId="status" label={dict.colStatus} sortKey={rosterSortKey} sortDir={rosterSortDir} onToggleSort={onRosterToggleSort} sortLabels={rosterSortLabels} />
+                </th>
+                <th className="py-2" scope="col">
+                  <span className="font-semibold text-[var(--color-muted-foreground)]">{dict.colActions}</span>
+                </th>
               </tr>
-            ) : (
-              sortedFiltered.map((r) => (
-                <tr key={r.enrollmentId} className="border-t border-[var(--color-border)]">
-                    <td className="py-2 pr-3 font-medium text-[var(--color-foreground)]">
+            </thead>
+            <tbody>
+              {sortedFiltered.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="py-4 text-[var(--color-muted-foreground)]">{dict.emptyTab}</td>
+                </tr>
+              ) : (
+                sortedFiltered.map((r) => (
+                  <tr key={r.enrollmentId} className="border-t border-[var(--color-border)]">
+                    <td className="py-2.5 pr-3 font-medium text-[var(--color-foreground)]">
                       <span className="inline-flex items-center gap-1.5">
-                        {r.label}
+                        <AdminUserNameLink locale={locale} userId={r.studentId} name={r.label} />
                         {debtByStudentId[r.studentId] ? (
-                          <span
-                            className="inline-flex shrink-0 rounded-full border border-[var(--color-error)] p-0.5 text-[var(--color-error)]"
-                            title={dict.debtBadge}
-                            aria-label={dict.debtBadge}
-                          >
+                          <span className="inline-flex shrink-0 rounded-full border border-[var(--color-error)] p-0.5 text-[var(--color-error)]" title={dict.debtBadge} aria-label={dict.debtBadge}>
                             <AlertTriangle className="h-3.5 w-3.5" aria-hidden />
                           </span>
                         ) : null}
                         {r.hasCareNotes ? <StudentCareBadge label={dict.careBadge} /> : null}
                       </span>
                     </td>
-                  <td className="py-2 pr-3 text-[var(--color-muted-foreground)]">{r.status}</td>
-                  <td className="py-2">
-                    {tab === "active" && moveTargets.length > 0 ? (
-                      <div className="flex flex-wrap items-center gap-2">
-                        <select
-                          className="max-w-[14rem] rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-2 py-1 text-xs"
-                          value={picks[r.studentId] ?? ""}
-                          onChange={(e) =>
-                            setPicks((prev) => ({ ...prev, [r.studentId]: e.target.value }))
-                          }
-                          disabled={busy}
-                        >
-                          <option value="">{dict.moveSelect}</option>
-                          {moveTargets.map((m) => (
-                            <option key={m.id} value={m.id}>
-                              {m.label}
-                            </option>
-                          ))}
-                        </select>
-                        <Button
-                          type="button"
-                          size="sm"
-                          disabled={busy || !picks[r.studentId]}
-                          isLoading={busy && moveCtx?.studentId === r.studentId}
-                          onClick={() => runMove(r.studentId)}
-                        >
-                          {!(busy && moveCtx?.studentId === r.studentId) ? (
-                            <ArrowRightLeft className="h-4 w-4 shrink-0" aria-hidden />
-                          ) : null}
-                          {dict.moveRun}
-                        </Button>
-                      </div>
-                    ) : (
-                      <span className="text-[var(--color-muted-foreground)]">—</span>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                    <td className="py-2.5 pr-3 text-[var(--color-muted-foreground)]">
+                      {formatEnrollmentStatusLabel(r.status, dict.lifecycle.enrollmentStatus)}
+                    </td>
+                    <td className="py-2.5">
+                      {canMoveInTab ? (
+                        <AcademicSectionRosterMoveControls studentId={r.studentId} fullWidth={false} {...moveProps} />
+                      ) : (
+                        <span className="text-[var(--color-muted-foreground)]">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
       <ScheduleConflictResolutionModal
         open={modalOpen && Boolean(conflicts?.length)}
         onClose={() => {
@@ -226,10 +219,7 @@ export function AcademicSectionRosterTable({
     </>
   );
 
-  if (embedded) {
-    return tableBody;
-  }
-
+  if (embedded) return tableBody;
   return (
     <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       {tableBody}

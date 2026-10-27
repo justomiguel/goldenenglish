@@ -230,6 +230,7 @@ export function SectionAttendanceMatrix({
             editableByDate={editableByDate}
             onCellStatus={onCellStatus}
             matrixMode={variant}
+            locale={locale}
             dict={matrixDict}
           />
           )}

@@ -137,11 +137,10 @@ describe("CohortCollectionsMatrixClient", () => {
     expect(screen.getAllByText("Section A").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Smith Ana")).toBeInTheDocument();
     expect(screen.getByText("Lopez Zara")).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", {
-        name: collectionsDict.matrix.openStudentBillingAria.replace("{name}", "Smith Ana"),
-      }),
-    ).toHaveAttribute("href", "/en/dashboard/admin/users/stu-ana/billing");
+    expect(screen.getByRole("link", { name: "Smith Ana" })).toHaveAttribute(
+      "href",
+      "/en/dashboard/admin/users/stu-ana",
+    );
     expect(screen.getByText(collectionsDict.benefits.enrollmentExempt)).toBeInTheDocument();
     expect(screen.getByText("Promo Welcome promo")).toBeInTheDocument();
     expect(

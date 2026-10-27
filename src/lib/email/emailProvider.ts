@@ -1,9 +1,17 @@
+export type SendEmailAttachment = {
+  filename: string;
+  contentBase64: string;
+  contentType: string;
+  contentId: string;
+};
+
 export type SendEmailInput = {
   to: string;
   subject: string;
   html: string;
   cc?: string[];
   bcc?: string[];
+  attachments?: SendEmailAttachment[];
 };
 
 export type SendEmailResult =

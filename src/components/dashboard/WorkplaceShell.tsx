@@ -89,32 +89,32 @@ export function WorkplaceShell({
           aria-label={headerAria}
           className="sticky top-0 z-40 border-b border-[var(--color-border)] bg-[var(--color-surface)]/95 shadow-[var(--shadow-soft)] backdrop-blur-md"
         >
-          <div className="flex items-center justify-between gap-3 px-4 py-3 md:px-8">
-            <div className="flex min-w-0 flex-1 items-center gap-3">
-              <WorkplaceMobileDrawer
-                locale={locale}
-                dict={dict}
-                brand={brand}
-                homeHref={homeHref}
-                roleBadge={roleBadge}
-                navAria={navAria}
-                mobileOpen={mobileOpen}
-                mobileClose={mobileClose}
-                backToSite={backToSite}
-                signOutTitle={signOutTitle}
-                navGroups={navGroups}
-                navTourId={mobileNavTourId}
-                profileDisplayName={profileDisplayName}
-                profileRoleLabel={profileRoleLabel}
-                profileAvatarUrl={profileAvatarUrl}
-                hideSignOut={hideSignOut}
-              />
-              <p className="truncate text-xs font-semibold uppercase tracking-wider text-[var(--color-muted-foreground)]">
-                {roleBadge}
-              </p>
-              {workspaceSwitch}
-            </div>
-            {headerExtras}
+          <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 px-4 py-2 md:flex md:items-center md:justify-between md:px-8 md:py-3">
+            <WorkplaceMobileDrawer
+              locale={locale}
+              dict={dict}
+              brand={brand}
+              homeHref={homeHref}
+              roleBadge={roleBadge}
+              navAria={navAria}
+              mobileOpen={mobileOpen}
+              mobileClose={mobileClose}
+              backToSite={backToSite}
+              signOutTitle={signOutTitle}
+              navGroups={navGroups}
+              navTourId={mobileNavTourId}
+              profileDisplayName={profileDisplayName}
+              profileRoleLabel={profileRoleLabel}
+              profileAvatarUrl={profileAvatarUrl}
+              hideSignOut={hideSignOut}
+            />
+            <p className="col-start-2 row-start-1 min-w-0 truncate text-xs font-semibold uppercase tracking-wider text-[var(--color-muted-foreground)] md:col-auto">
+              {roleBadge}
+            </p>
+            {workspaceSwitch ? (
+              <div className="col-span-3 row-start-2 hidden min-w-0 md:col-auto md:row-auto md:block">{workspaceSwitch}</div>
+            ) : null}
+            {headerExtras ? <div className="col-start-3 row-start-1 md:col-auto">{headerExtras}</div> : null}
           </div>
         </header>
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-4 py-5 md:px-8 md:py-5">

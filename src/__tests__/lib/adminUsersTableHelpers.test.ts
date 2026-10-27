@@ -191,4 +191,17 @@ describe("sortAdminUsers", () => {
       "a",
     ]);
   });
+
+  it("uses the next criterion when the first one ties", () => {
+    const tied: AdminUserRow[] = [
+      { ...rows[0], id: "late", lastName: "Same", firstName: "A", monthlyStatus: "no" },
+      { ...rows[0], id: "current", lastName: "Same", firstName: "A", monthlyStatus: "yes" },
+    ];
+    expect(
+      sortAdminUsers(tied, [
+        { key: "name", dir: "asc" },
+        { key: "monthlyStatus", dir: "desc" },
+      ]).map((row) => row.id),
+    ).toEqual(["current", "late"]);
+  });
 });

@@ -72,6 +72,7 @@ export default async function AdminStudentsPage({ params, searchParams }: PagePr
           roleCounts={roleCounts}
           sortKey={paginationParams.sort ?? "name"}
           sortDir={paginationParams.dir ?? "asc"}
+          sortCriteria={paginationParams.sortCriteria}
           locale={locale}
           currentUserId={currentUserId}
           labels={dict.admin.users}

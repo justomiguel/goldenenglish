@@ -52,4 +52,53 @@ describe("StaffWorkspaceSwitch", () => {
     expect(screen.getByRole("button", { name: dictEn.dashboard.viewAs.ownTeacher })).toBeTruthy();
     expect(container.querySelector('[data-tour="admin-chrome-teacher-portal"]')).not.toBeNull();
   });
+
+  it("puts the profile name on a full-width bar", () => {
+    render(
+      <StaffWorkspaceSwitch
+        locale="en"
+        dict={dictEn}
+        activeRole="admin"
+        viewAs={{ id: "stu-1", displayName: "García, Ana", role: "student" }}
+      />,
+    );
+    const trigger = screen.getByRole("button", { name: dictEn.dashboard.viewAs.ariaSelector });
+    expect(trigger.className).toContain("w-full");
+    expect(trigger).toHaveTextContent("García, Ana");
+    expect(trigger).toHaveTextContent(dictEn.admin.users.roleOptionStudent);
+    expect(trigger.textContent).not.toContain(dictEn.dashboard.viewAs.barEyebrow);
+  });
+
+  it("opens a bottom sheet on a narrow screen and hides search until a profile is chosen", async () => {
+    const original = window.matchMedia;
+    window.matchMedia = (query: string) =>
+      ({
+        matches: query.includes("max-width"),
+        media: query,
+        onchange: null,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList;
+    try {
+      const user = userEvent.setup();
+      render(
+        <StaffWorkspaceSwitch locale="en" dict={dictEn} activeRole="admin" viewAs={null} />,
+      );
+      await user.click(screen.getByRole("button", { name: dictEn.dashboard.viewAs.ariaSelector }));
+      expect(screen.getByRole("dialog", { name: dictEn.dashboard.viewAs.sheetTitle })).toBeTruthy();
+      expect(screen.queryByRole("searchbox")).toBeNull();
+      await user.click(screen.getByRole("option", { name: dictEn.admin.users.roleOptionStudent }));
+      expect(
+        screen.getByRole("searchbox", { name: dictEn.dashboard.viewAs.searchPlaceholder }),
+      ).toBeTruthy();
+      expect(
+        screen.queryByRole("option", { name: dictEn.dashboard.adminChrome.workspaceAdmin }),
+      ).toBeNull();
+    } finally {
+      window.matchMedia = original;
+    }
+  });
 });

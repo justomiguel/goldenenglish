@@ -85,21 +85,25 @@ export function PortalShell({ locale, brand, dict, config, children, viewAs = nu
     );
   }
 
+  const workspaceSwitch = viewAs ? (
+    <StaffWorkspaceSwitch locale={locale} dict={dict} activeRole={viewAs.role} viewAs={viewAs} />
+  ) : null;
+  const accountSheet = (
+    <PortalAccountSheet
+      locale={locale}
+      items={config.accountItems}
+      heading={config.accountHeading}
+      openLabel={config.accountOpenLabel}
+      closeLabel={config.accountCloseLabel}
+      localeLabels={dict.common.locale}
+      triggerTourAnchor={config.tourAnchors.account}
+      signOutTourAnchor={config.tourAnchors.signOut}
+    />
+  );
   const account = (
     <div className="flex min-w-0 items-center gap-2">
-      {viewAs ? (
-        <StaffWorkspaceSwitch locale={locale} dict={dict} activeRole={viewAs.role} viewAs={viewAs} />
-      ) : null}
-      <PortalAccountSheet
-        locale={locale}
-        items={config.accountItems}
-        heading={config.accountHeading}
-        openLabel={config.accountOpenLabel}
-        closeLabel={config.accountCloseLabel}
-        localeLabels={dict.common.locale}
-        triggerTourAnchor={config.tourAnchors.account}
-        signOutTourAnchor={config.tourAnchors.signOut}
-      />
+      {workspaceSwitch}
+      {accountSheet}
     </div>
   );
   const banner = viewAs ? <ViewAsBanner locale={locale} dict={dict} viewAs={viewAs} /> : null;
@@ -166,8 +170,10 @@ export function PortalShell({ locale, brand, dict, config, children, viewAs = nu
         style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top, 0px))" }}
       >
         <div className="mx-auto flex max-w-[var(--layout-max-width)] items-center justify-between gap-3 px-4 py-2.5">
-          <PortalBrand brand={brand} href={config.baseHref} badge={config.brandBadge} />
-          {account}
+          <div className="min-w-0 flex-1">
+            <PortalBrand brand={brand} href={config.baseHref} badge={config.brandBadge} />
+          </div>
+          {accountSheet}
         </div>
       </header>
 

@@ -8,6 +8,7 @@ import {
   resolveE2eIsolation,
 } from "./env";
 import { gotoIsolated } from "./helpers/gotoIsolated";
+import { rosterRowName } from "./helpers/scheduleOfferRoster";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -46,7 +47,7 @@ test.describe("@critical-section-unenroll", () => {
       timeout: 60_000,
     });
 
-    const activeRosterRow = page.getByRole("row", { name: /EnrolleeB\s+E2E.*\bactive\b/i });
+    const activeRosterRow = page.getByRole("row", { name: rosterRowName(STUDENT_B_LABEL, "active") });
     if (!(await activeRosterRow.count())) {
       const openEnroll = page
         .getByRole("region", { name: /Lista de la sección|Section roster|Section list/i })
@@ -115,8 +116,8 @@ test.describe("@critical-section-unenroll", () => {
       timeout: 60_000,
     });
 
-    await page.getByRole("button", { name: rosterTabs.dropped, exact: true }).click();
-    const droppedRow = page.getByRole("row", { name: /EnrolleeB\s+E2E.*\bdropped\b/i });
+    await page.getByRole("button", { name: new RegExp(`^${rosterTabs.dropped}(?:\\s*\\(|$)`) }).click();
+    const droppedRow = page.getByRole("row", { name: rosterRowName(STUDENT_B_LABEL, "dropped") });
     await expect(droppedRow.first()).toBeVisible({ timeout: 30_000 });
   });
 });

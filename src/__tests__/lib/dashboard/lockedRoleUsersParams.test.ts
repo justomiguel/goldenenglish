@@ -9,6 +9,7 @@ describe("lockedRoleUsersParams", () => {
       role: "student",
       sort: "name",
       dir: "asc",
+      sortCriteria: [{ key: "name", dir: "asc" }],
       lockedDirectory: true,
     });
   });

@@ -35,16 +35,12 @@ export default async function EditSectionContentPage({ params, searchParams }: P
     : await loadLearningRouteWorkspace(supabase, sectionId === "global" ? null : sectionId);
 
   return (
-    <main className="space-y-5">
-      <header className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-        <Link href={`/${locale}/dashboard/admin/academic/contents/sections`} className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-primary)]">
-          <ArrowLeft className="h-4 w-4" aria-hidden />
-          {labels.backToRepository}
-        </Link>
-        <div className="mt-3">
-          <AdminPageHeader title={labels.learningRoutesTitle} lead={labels.learningRoutesLead} iconId="contents" />
-        </div>
-      </header>
+    <main className="space-y-4">
+      <Link href={`/${locale}/dashboard/admin/academic/contents/sections`} className="inline-flex min-h-9 items-center gap-2 text-sm font-medium text-[var(--color-primary)] hover:underline">
+        <ArrowLeft className="h-4 w-4" aria-hidden />
+        {labels.backToRepository}
+      </Link>
+      <AdminPageHeader title={labels.learningRoutesTitle} lead={labels.learningRoutesLead} iconId="contents" />
       <AdminLearningRoutePlanner
         locale={locale}
         workspace={workspace}

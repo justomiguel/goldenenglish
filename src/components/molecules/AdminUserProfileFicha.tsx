@@ -223,7 +223,7 @@ export function AdminUserProfileFicha({
           id="student-dossier-panel"
           role="tabpanel"
           aria-labelledby={`student-dossier-tab-${visibleActiveTab}`}
-          className="bg-[var(--color-background)] p-4 sm:p-5"
+          className="bg-[var(--color-background)] p-3 sm:p-5"
           data-tour={
             visibleActiveTab === "security"
               ? ADMIN_TOUR_ANCHORS.userDetailSecurityPanel

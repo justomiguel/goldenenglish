@@ -28,15 +28,15 @@ interface TileProps {
 
 function Tile({ label, value, hint, accent }: TileProps) {
   return (
-    <div className="flex min-w-[8.75rem] shrink-0 snap-start flex-col gap-0.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-3 shadow-[var(--shadow-soft)] sm:min-w-0">
-      <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
+    <div className="flex min-w-0 flex-col gap-0.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-2 py-2 shadow-[var(--shadow-soft)] sm:rounded-2xl sm:px-3 sm:py-3">
+      <span className="truncate text-[10px] font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
         {label}
       </span>
-      <span className={`text-base font-semibold tabular-nums ${accent ?? "text-[var(--color-primary)]"}`}>
+      <span className={`truncate text-sm font-semibold tabular-nums sm:text-base ${accent ?? "text-[var(--color-primary)]"}`}>
         {value}
       </span>
       {hint ? (
-        <span className="text-[10px] text-[var(--color-muted-foreground)]">
+        <span className="hidden truncate text-[10px] text-[var(--color-muted-foreground)] sm:block">
           {hint}
         </span>
       ) : null}
@@ -62,7 +62,7 @@ export function FinanceHubKpiStrip({
   return (
     <section
       aria-label={dict.expectedYear}
-      className="flex gap-2.5 overflow-x-auto pb-1 snap-x snap-mandatory sm:grid sm:grid-cols-4 sm:overflow-visible lg:grid-cols-7"
+      className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7"
     >
       <Tile
         label={dict.expectedYear}

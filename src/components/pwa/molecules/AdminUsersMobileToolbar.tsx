@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { ArrowDown, ArrowUp, ArrowUpDown, Download, Search, SlidersHorizontal } from "lucide-react";
+import { ArrowUpDown, Download, Filter, Search } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { AdminUsersFilterSortSheet } from "@/components/pwa/molecules/AdminUsersFilterSortSheet";
+import { AdminUsersSortSheet } from "@/components/pwa/molecules/AdminUsersSortSheet";
 import type { AdminDirectoryFilterPanelProps } from "@/components/dashboard/AdminDirectoryFilterPanel";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { adminDirectoryFiltersActive } from "@/lib/dashboard/adminDirectoryFilters";
-import { adminUsersSortColumnLabel, adminUsersSortKeysForLock } from "@/lib/dashboard/adminUsersSortKeys";
+import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
+import { adminUsersSortKeysForLock } from "@/lib/dashboard/adminUsersSortKeys";
 import type { SortDir, SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
 import type { Dictionary } from "@/types/i18n";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
@@ -22,6 +24,8 @@ export interface AdminUsersMobileToolbarProps {
   sortKey: SortKey;
   sortDir: SortDir;
   onToggleSort: (key: SortKey) => void;
+  sortCriteria?: AdminUsersSortCriterion[];
+  onSortCriteriaChange?: (next: AdminUsersSortCriterion[]) => void;
   lockRole?: string;
   allVisibleSelected: boolean;
   onToggleSelectAllVisible: () => void;
@@ -42,7 +46,8 @@ export function AdminUsersMobileToolbar({
   totalCount,
   sortKey,
   sortDir,
-  onToggleSort,
+  sortCriteria,
+  onSortCriteriaChange,
   lockRole,
   allVisibleSelected,
   onToggleSelectAllVisible,
@@ -50,17 +55,15 @@ export function AdminUsersMobileToolbar({
   onExportUsers,
   directoryFilters,
 }: AdminUsersMobileToolbarProps) {
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
   const { localValue, setLocalValue, flushNow } = useDebouncedSearch({
     value: query,
     onDebouncedChange: onQueryChange,
   });
   const sortKeys = adminUsersSortKeysForLock(lockRole);
+  const criteria = sortCriteria ?? [{ key: sortKey, dir: sortDir }];
   const filterCount = activeFilterCount(directoryFilters);
-  const sortLabel = labels.mobileSortButton.replace(
-    "{{field}}",
-    adminUsersSortColumnLabel(labels, sortKey),
-  );
 
   function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -81,19 +84,28 @@ export function AdminUsersMobileToolbar({
           />
         </label>
         {directoryFilters ? (
-          <Button type="button" variant="secondary" className="min-h-11 px-3" onClick={() => setSheetOpen(true)}>
-            <SlidersHorizontal className="h-4 w-4" aria-hidden />
+          <Button
+            type="button"
+            variant="secondary"
+            className="min-h-11 px-3"
+            aria-label={labels.mobileFilterTitle}
+            onClick={() => setFilterOpen(true)}
+          >
+            <Filter className="h-4 w-4" aria-hidden />
+            {labels.mobileFilterTitle}
             {filterCount > 0 ? <span>{filterCount}</span> : null}
           </Button>
         ) : null}
-        <Button type="button" variant="secondary" className="min-h-11 px-3" onClick={() => setSheetOpen(true)}>
+        <Button
+          type="button"
+          variant="secondary"
+          className="min-h-11 px-3"
+          aria-label={labels.sortPanelTitle}
+          onClick={() => setSortOpen(true)}
+        >
           <ArrowUpDown className="h-4 w-4" aria-hidden />
-          <span className="max-w-[5.5rem] truncate text-xs">{sortLabel}</span>
-          {sortDir === "asc" ? (
-            <ArrowUp className="h-3.5 w-3.5" aria-hidden />
-          ) : (
-            <ArrowDown className="h-3.5 w-3.5" aria-hidden />
-          )}
+          {labels.sortPanelTitle}
+          {criteria.length > 1 ? <span>{criteria.length}</span> : null}
         </Button>
       </form>
       <div className="flex items-center justify-between gap-2">
@@ -121,14 +133,18 @@ export function AdminUsersMobileToolbar({
         </Button>
       ) : null}
       <AdminUsersFilterSortSheet
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
+        open={filterOpen}
+        onOpenChange={setFilterOpen}
+        labels={labels}
+        directoryFilters={directoryFilters}
+      />
+      <AdminUsersSortSheet
+        open={sortOpen}
+        onOpenChange={setSortOpen}
         labels={labels}
         sortKeys={sortKeys}
-        sortKey={sortKey}
-        sortDir={sortDir}
-        onToggleSort={onToggleSort}
-        directoryFilters={directoryFilters}
+        criteria={criteria}
+        onChange={(next) => onSortCriteriaChange?.(next)}
       />
     </div>
   );

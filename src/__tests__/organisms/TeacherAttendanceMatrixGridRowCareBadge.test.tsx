@@ -26,6 +26,7 @@ function renderRow(hasCareNotes: boolean) {
           onFocusChange={vi.fn()}
           onCellStatus={vi.fn()}
           matrixMode="teacher"
+          locale="en"
           isDateEditable={() => true}
           wrapRef={createRef<HTMLDivElement>()}
           dict={dict}
