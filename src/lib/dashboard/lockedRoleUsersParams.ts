@@ -1,6 +1,7 @@
 import type { PaginatedAdminUsersParams } from "@/lib/dashboard/loadPaginatedAdminUsers";
 import { parseAdminDirectoryFilters } from "@/lib/dashboard/adminDirectoryFilters";
 import { parseAdminUsersSortCriteria } from "@/lib/dashboard/adminUsersSortCriteria";
+import { parseAcademicDirectoryParams } from "@/lib/academic-profile/matchAcademicProfileDirectoryFilter";
 
 export function parseAdminUsersSearchParams(
   raw: Record<string, string | string[] | undefined>,
@@ -37,5 +38,6 @@ export function lockedRoleUsersParams(
     sort: parsed.sort,
     lockedDirectory: true,
     ...filters,
+    academicFieldFilters: lockedRole === "student" ? parseAcademicDirectoryParams(raw) : {},
   };
 }

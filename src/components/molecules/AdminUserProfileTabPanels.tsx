@@ -14,6 +14,8 @@ import { AdminUserDetailTutorCard } from "@/components/molecules/AdminUserDetail
 import { AdminUserDetailTutorFamilyCard } from "@/components/molecules/AdminUserDetailTutorFamilyCard";
 import { AdminUserInlineEditableField } from "@/components/molecules/AdminUserInlineEditableField";
 import { AdminUserHomeAddressField } from "@/components/molecules/AdminUserHomeAddressField";
+import { AdminAcademicProfileFields } from "@/components/molecules/AdminAcademicProfileFields";
+import type { AcademicProfileCardField } from "@/lib/academic-profile/academicProfileCard";
 
 type UserLabels = Dictionary["admin"]["users"];
 type BillingLabels = Dictionary["admin"]["billing"];
@@ -74,6 +76,7 @@ export function AdminUserAcademicPanel({
   roleLabel,
   roleOptions,
   onFeedback,
+  academicFields = [],
 }: {
   locale: Locale;
   detail: AdminUserDetailVM;
@@ -82,6 +85,7 @@ export function AdminUserAcademicPanel({
   roleLabel: string;
   roleOptions: RoleOption[];
   onFeedback: (text: string, ok: boolean) => void;
+  academicFields?: AcademicProfileCardField[];
 }) {
   const currentCohortAssignment = detail.role === "student" ? detail.currentCohortAssignment : null;
 
@@ -90,6 +94,15 @@ export function AdminUserAcademicPanel({
       <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)]">
         <CardShell title={labels.detailCardAcademic}>
           <AdminUserInlineEditableField locale={locale} userId={detail.userId} field="role" label={labels.detailFieldRole} displayValue={roleLabel} editInitial={detail.role} editable={editable} inputKind="select" selectOptions={roleOptions} labels={labels} onFeedback={onFeedback} />
+          {detail.role === "student" ? (
+            <AdminAcademicProfileFields
+              locale={locale}
+              studentId={detail.userId}
+              editable={editable}
+              fields={academicFields}
+              labels={labels.academicFields}
+            />
+          ) : null}
         </CardShell>
         {currentCohortAssignment ? (
           <AdminStudentCurrentCohortAssignmentCard

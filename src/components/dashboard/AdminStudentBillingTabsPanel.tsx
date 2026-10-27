@@ -12,6 +12,7 @@ import {
   type UnderlineTabItem,
 } from "@/components/molecules/UnderlineTabBar";
 import { ADMIN_TOUR_ANCHORS, ADMIN_TUTORIAL_ACTIVATE_SCHOLARSHIPS_TAB_EVENT } from "@/lib/admin-tutorials/selectors";
+import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import type {
   AdminBillingPaymentRow,
   AdminBillingScholarship,
@@ -21,6 +22,8 @@ import type { Dictionary, Locale } from "@/types/i18n";
 
 type BillingLabels = Dictionary["admin"]["billing"];
 type BillingTabId = "history" | "scholarships" | "enrollment";
+
+const BILLING_TABS: readonly BillingTabId[] = ["history", "scholarships", "enrollment"];
 
 export interface AdminStudentBillingTabsPanelProps {
   locale: Locale;
@@ -45,7 +48,11 @@ export function AdminStudentBillingTabsPanel({
   enrollmentExemptReason,
   lastEnrollmentPaidAt,
 }: AdminStudentBillingTabsPanelProps) {
-  const [active, setActive] = useState<BillingTabId>("history");
+  const { value: active, setValue: setActive } = usePersistentPageTab<BillingTabId>({
+    allowed: BILLING_TABS,
+    fallback: "history",
+    param: "billing",
+  });
   const [scholarshipBusy, setScholarshipBusy] = useState(false);
   const [scholarshipMsg, setScholarshipMsg] = useState<string | null>(null);
   const idPrefix = useId().replace(/:/g, "");

@@ -10,12 +10,14 @@ const {
   refreshMock,
   pushMock,
   saveMock,
+  saveHostsMock,
   toggleMock,
   testConnMock,
 } = vi.hoisted(() => ({
   refreshMock: vi.fn(),
   pushMock: vi.fn(),
   saveMock: vi.fn(),
+  saveHostsMock: vi.fn(),
   toggleMock: vi.fn(),
   testConnMock: vi.fn(),
 }));
@@ -29,6 +31,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/app/[locale]/admin/actions", () => ({
   savePulsarTenantAction: (...args: unknown[]) => saveMock(...args),
+  savePulsarPlatformHostsAction: (...args: unknown[]) => saveHostsMock(...args),
   togglePulsarTenantEnabledAction: (...args: unknown[]) => toggleMock(...args),
   testPulsarTenantConnectionAction: (...args: unknown[]) => testConnMock(...args),
   signOutPulsarStaffAction: vi.fn(),
@@ -151,6 +154,43 @@ describe("Pulsar admin screens", () => {
 
     await waitFor(() => {
       expect(saveMock).toHaveBeenCalled();
+      expect(refreshMock).toHaveBeenCalled();
+    });
+  });
+
+  // REGRESSION CHECK: Staff can edit and save Pulsar platform domains from the fleet screen without redeploying.
+  it("edits and saves Pulsar platform domains in PulsarAdminFleetScreen", async () => {
+    saveHostsMock.mockResolvedValue({
+      ok: true,
+      hosts: ["pulsarlab.cl", "nuevo.pulsarlab.cl"],
+    });
+    const user = userEvent.setup();
+
+    render(
+      <PulsarAdminFleetScreen
+        locale="es"
+        dict={dict}
+        staffEmail="admin@pulsarlab.cl"
+        sessionMode="pulsar-db"
+        tenants={[SAMPLE_TENANT]}
+        telemetryBySlug={TELEMETRY}
+        platformHosts={["pulsarlab.cl", "www.pulsarlab.cl"]}
+      />,
+    );
+
+    const input = screen.getByLabelText(dict.pulsar.admin.platformHosts.inputLabel);
+    await user.clear(input);
+    await user.type(input, "pulsarlab.cl, nuevo.pulsarlab.cl");
+
+    await user.click(
+      screen.getByRole("button", { name: dict.pulsar.admin.platformHosts.saveCta }),
+    );
+
+    await waitFor(() => {
+      expect(saveHostsMock).toHaveBeenCalledWith({
+        locale: "es",
+        rawHosts: "pulsarlab.cl, nuevo.pulsarlab.cl",
+      });
       expect(refreshMock).toHaveBeenCalled();
     });
   });

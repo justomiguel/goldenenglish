@@ -155,7 +155,9 @@ export async function submitSectionLinkRegistration(
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     let resolvedEmail: string;
     if (existingStudent) {
-      resolvedEmail = identity.email;
+      const candidateEmail = d.email.trim().toLowerCase();
+      resolvedEmail =
+        age >= legal && candidateEmail.includes("@") ? candidateEmail : identity.email;
     } else if (age < legal) {
       /** No options on the first attempt, so the address matches the public form's. */
       const coreSuffix =
@@ -182,18 +184,18 @@ export async function submitSectionLinkRegistration(
       last_name: d.last_name,
       dni: d.dni,
       email: resolvedEmail,
-      phone: existingStudent || age < legal ? null : d.phone.trim(),
+      phone: age < legal ? null : d.phone.trim() || null,
       birth_date: d.birth_date,
       preferred_section_id: sectionId,
       additional_section_ids: parsedSections.additionalSectionIds,
       source_section_link_id: sectionId,
       level_interest: sectionLabel || null,
       status: "new",
-      tutor_name: existingStudent ? null : d.tutor_name?.trim() || null,
-      tutor_dni: existingStudent ? null : d.tutor_dni?.trim() || null,
-      tutor_phone: existingStudent ? null : d.tutor_phone?.trim() || null,
-      tutor_email: existingStudent ? null : d.tutor_email?.trim() || null,
-      tutor_relationship: existingStudent ? null : d.tutor_relationship?.trim() || null,
+      tutor_name: d.tutor_name?.trim() || null,
+      tutor_dni: d.tutor_dni?.trim() || null,
+      tutor_phone: d.tutor_phone?.trim() || null,
+      tutor_email: d.tutor_email?.trim() || null,
+      tutor_relationship: d.tutor_relationship?.trim() || null,
       tenant_extras: stamped.extras,
       pay_token: quote.fields.pay_token,
       fee_snapshot: quote.fields.fee_snapshot,

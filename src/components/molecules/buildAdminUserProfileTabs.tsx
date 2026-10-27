@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { CreditCard, GraduationCap, HeartPulse, ShieldCheck, UserRound, UsersRound } from "lucide-react";
+import { CreditCard, GraduationCap, HeartPulse, History, ShieldCheck, UserRound, UsersRound } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminUserProfileTabId } from "@/components/molecules/AdminUserProfileTabButton";
@@ -64,6 +64,11 @@ export function buildAdminUserProfileTabs(input: {
         label: labels.detailTabCare,
         icon: <HeartPulse className="h-4 w-4" aria-hidden />,
         badge: detail.hasCareNotes ? "!" : null,
+      },
+      {
+        id: "history",
+        label: labels.detailTabHistory,
+        icon: <History className="h-4 w-4" aria-hidden />,
       },
     );
   }

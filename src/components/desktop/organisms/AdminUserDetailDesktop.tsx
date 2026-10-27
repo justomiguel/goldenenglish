@@ -9,6 +9,7 @@ import { AdminBackLink } from "@/components/dashboard/AdminBackLink";
 import { AdminUserDetailPanel } from "@/components/dashboard/AdminUserDetailPanel";
 import { adminPersonRecordListHref } from "@/lib/dashboard/adminPersonRecordListHref";
 import type { StudentCareNotes } from "@/lib/students/care/loadStudentCareNotes";
+import type { AcademicProfileCardField } from "@/lib/academic-profile/academicProfileCard";
 
 type UserLabels = Dictionary["admin"]["users"];
 type BillingLabels = Dictionary["admin"]["billing"];
@@ -21,6 +22,7 @@ export interface AdminUserDetailDesktopProps {
   billing: AdminStudentBillingTabData | null;
   fileUploadProgress: FileUploadProgressLabels;
   care?: StudentCareNotes | null;
+  academicFields?: AcademicProfileCardField[];
 }
 
 export function AdminUserDetailDesktop({
@@ -31,6 +33,7 @@ export function AdminUserDetailDesktop({
   billing,
   fileUploadProgress,
   care = null,
+  academicFields = [],
 }: AdminUserDetailDesktopProps) {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -49,6 +52,7 @@ export function AdminUserDetailDesktop({
         billing={billing}
         fileUploadProgress={fileUploadProgress}
         care={care}
+        academicFields={academicFields}
       />
     </div>
   );

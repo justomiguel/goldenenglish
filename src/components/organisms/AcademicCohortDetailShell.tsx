@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useId, useMemo, type ReactNode } from "react";
+import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import { Inbox, LayoutDashboard, Layers, TriangleAlert } from "lucide-react";
 import {
   UnderlineTabBar,
@@ -46,7 +47,10 @@ export function AcademicCohortDetailShell({
   transferInbox,
 }: AcademicCohortDetailShellProps) {
   const idPrefix = useId().replace(/:/g, "");
-  const [tab, setTab] = useState<AcademicCohortDetailTabId>(defaultTab);
+  const { value: tab, setValue: setTab } = usePersistentPageTab<AcademicCohortDetailTabId>({
+    allowed: ORDER,
+    fallback: defaultTab,
+  });
 
   useEffect(() => {
     const onActivateSections = () => setTab("sections");

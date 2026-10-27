@@ -1,11 +1,32 @@
 import { createClient } from "@/lib/supabase/server";
 import { normalizeRegistrationDocument } from "@/lib/register/normalizeRegistrationDocument";
+import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+
+export type LookupRegistrationStudentFound = {
+  ok: true;
+  found: true;
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  phone: string;
+  email: string;
+  tutorName: string;
+  tutorDni: string;
+  tutorEmail: string;
+  tutorPhone: string;
+  tutorRelationship: string;
+};
 
 export type LookupRegistrationStudentResult =
   | { ok: true; found: false }
-  | { ok: true; found: true; firstName: string; lastName: string }
+  | LookupRegistrationStudentFound
   | { ok: false };
+
+function cleanDeliverableEmail(raw: unknown): string {
+  const str = String(raw ?? "").trim();
+  return isDeliverableAuthEmail(str) ? str : "";
+}
 
 export async function lookupRegistrationStudent(
   dni: string,
@@ -34,5 +55,13 @@ export async function lookupRegistrationStudent(
     found: true,
     firstName: String(row.first_name ?? ""),
     lastName: String(row.last_name ?? ""),
+    birthDate: String(row.birth_date ?? "").slice(0, 10),
+    phone: String(row.phone ?? "").trim(),
+    email: cleanDeliverableEmail(row.email),
+    tutorName: String(row.tutor_name ?? "").trim(),
+    tutorDni: String(row.tutor_dni ?? "").trim(),
+    tutorEmail: cleanDeliverableEmail(row.tutor_email),
+    tutorPhone: String(row.tutor_phone ?? "").trim(),
+    tutorRelationship: String(row.tutor_relationship ?? "").trim(),
   };
 }

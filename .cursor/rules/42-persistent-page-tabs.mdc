@@ -1,0 +1,36 @@
+---
+description: Page-level tabs must remember the last tab through the URL and sessionStorage. A valid ?tab= (or a named query key) wins over storage.
+alwaysApply: true
+---
+
+# Persistent page tabs
+
+## Goal
+
+A person who leaves a screen and comes back must see the same tab. Do not keep that choice only in `useState`. A remount drops it.
+
+## Rule
+
+1. Page-level tabs use `usePersistentPageTab` (`src/hooks/usePersistentPageTab.ts`).
+2. A valid query value wins. Deep links and tutorials stay correct.
+3. If the query has no valid value, restore the last value for that pathname from `sessionStorage`, then write it back to the URL with `router.replace`.
+4. On a tab change, write storage and the query. Keep the other query keys.
+5. The default query key is `tab`. If the page already uses `tab` for a parent tab set, pick another key (`billing`, `insights`, `roster`).
+6. Unknown ids fall back to the screen default. Do not invent a tab id.
+
+## Do not use the hook for
+
+- Tabs inside a modal.
+- Wizard steps.
+- The academic section shell. That shell already writes `?tab=` with `pushState`. `router.replace` there refetches the page.
+
+## Pattern already in the repo
+
+Finance hub and event detail use a link with `?tab=`. That is valid. New client tab state still goes through the hook.
+
+## Checklist
+
+- [ ] The tab survives a remount of the same path.
+- [ ] A URL with a known tab opens that tab.
+- [ ] Nested tabs do not share one query key.
+- [ ] A test covers the URL win or the storage restore for a new tab set.

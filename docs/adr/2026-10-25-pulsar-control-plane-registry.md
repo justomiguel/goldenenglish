@@ -6,7 +6,7 @@
 
 ## Decision
 
-1. Treat `pulsarlab.cl` (`www.pulsarlab.cl`, `PULSAR_HOSTS`, and `DEV_TENANT_SLUG=pulsar` on `localhost`) as the **Pulsar platform host**, distinct from client institute hosts.
+1. Treat hosts in `public.platform_settings.pulsar_hosts` (with fallback to `PULSAR_HOSTS`, `DEFAULT_PULSAR_HOSTS`, and `DEV_TENANT_SLUG=pulsar` on `localhost`) as the **Pulsar platform host**, distinct from client institute hosts. When `platform_settings.pulsar_hosts` is loaded from the Pulsar database, that list replaces the environment and default host list so staff can add or remove Pulsar domains from `/[locale]/admin` without a Vercel redeploy.
 2. Store the canonical tenant registry in a dedicated Pulsar Supabase database (`public.platform_tenants`), guarded by `public.platform_staff` and audited in `public.platform_audit_log`.
 3. Cache active rows from `platform_tenants` in server memory for 60 seconds and flush the cache immediately when staff create or update a tenant. Keep `TENANTS_CONFIG_JSON` as the bootstrap seed source and runtime fallback when `PULSAR_SUPABASE_URL` is unset (unit tests and isolated E2E).
 4. Keep one Supabase project per client institute. On the Pulsar `/[locale]/admin` screen, query each institute in parallel (`Promise.allSettled` with a 4-second timeout) using its stored `service_role` key to check health (`site_themes` head count) and count 7-day / 30-day visits from `traffic_page_hits`.

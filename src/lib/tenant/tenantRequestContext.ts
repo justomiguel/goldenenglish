@@ -17,6 +17,8 @@ import {
 /** True when the current HTTP request targets the Pulsar platform host (`pulsarlab.cl` or `DEV_TENANT_SLUG=pulsar`). */
 export async function isPulsarPlatformRequest(): Promise<boolean> {
   if (getAlsTenant()) return false;
+  const { ensureTenantRegistryLoaded } = await import("@/lib/pulsar/pulsarTenantStore");
+  await ensureTenantRegistryLoaded();
   try {
     const headerStore = await headers();
     return isPulsarRequestFromHeaderGet((name) => headerStore.get(name));

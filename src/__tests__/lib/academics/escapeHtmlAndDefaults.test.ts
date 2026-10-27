@@ -5,6 +5,9 @@ import {
   defaultAssessmentRubric,
   normalizeRubricFromDb,
 } from "@/lib/academics/assessmentRubricDefaults";
+import { suggestedScoreFromRubric } from "@/lib/academics/rubricSuggestedScore";
+
+// REGRESSION CHECK: Default rubric values and fallback normalization must support the 1–10 scale.
 
 describe("escapeHtml", () => {
   it("escapes all dangerous characters", () => {
@@ -23,10 +26,10 @@ describe("escapeHtml", () => {
 });
 
 describe("defaultAssessmentRubric", () => {
-  it("returns 3 for every rubric key", () => {
+  it("returns 6 for every rubric key on the 1–10 scale", () => {
     const r = defaultAssessmentRubric();
     for (const k of ASSESSMENT_RUBRIC_KEYS) {
-      expect(r[k]).toBe(3);
+      expect(r[k]).toBe(6);
     }
   });
 });
@@ -42,20 +45,20 @@ describe("normalizeRubricFromDb", () => {
     expect(normalizeRubricFromDb([1, 2, 3])).toEqual(defaultAssessmentRubric());
   });
 
-  it("merges valid numeric values within range", () => {
+  it("merges valid numeric values within 1–10 range", () => {
     const result = normalizeRubricFromDb({
-      speaking: 5,
+      speaking: 10,
       grammar: 1,
-      vocabulary: 4,
-      listening: 2,
-      fluency: 3,
+      vocabulary: 8,
+      listening: 5,
+      fluency: 7,
     });
     expect(result).toEqual({
-      speaking: 5,
+      speaking: 10,
       grammar: 1,
-      vocabulary: 4,
-      listening: 2,
-      fluency: 3,
+      vocabulary: 8,
+      listening: 5,
+      fluency: 7,
     });
   });
 
@@ -67,5 +70,12 @@ describe("normalizeRubricFromDb", () => {
       listening: NaN,
     });
     expect(result).toEqual(defaultAssessmentRubric());
+  });
+
+  it("computes suggested score from 1–10 rubric fallback", () => {
+    expect(suggestedScoreFromRubric({ speaking: 8, grammar: 10 }, 10)).toBe(9);
+    expect(suggestedScoreFromRubric({}, 10)).toBeNull();
+    expect(suggestedScoreFromRubric({ speaking: 8 }, 0)).toBeNull();
+    expect(suggestedScoreFromRubric({ speaking: 8 }, Number.NaN)).toBeNull();
   });
 });

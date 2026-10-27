@@ -33,6 +33,7 @@ import type { AcademicRolloverWizardDict } from "@/components/organisms/Academic
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: vi.fn() }),
   usePathname: () => "/en/dashboard/admin",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("next/image", () => ({

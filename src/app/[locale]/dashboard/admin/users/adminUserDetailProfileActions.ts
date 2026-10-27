@@ -11,6 +11,7 @@ import {
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getDictionary, defaultLocale, locales, type AppLocale } from "@/lib/i18n/dictionaries";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
+import { recordStudentProfileFieldAudit } from "@/lib/dashboard/studentMutationAudit";
 import {
   logServerAuthzDenied,
   logServerActionException,
@@ -100,6 +101,12 @@ export async function updateAdminUserDetailFieldAction(
         resourceId: targetUserId,
         payload: {},
       });
+      void recordStudentProfileFieldAudit({
+        userId: targetUserId,
+        field: "email",
+        beforeValue: null,
+        afterValue: nextEmail,
+      });
       revalidatePath(`/${locale}/dashboard/admin/users/${targetUserId}`);
       return { ok: true, message: dict.admin.users.detailToastSaved };
     }
@@ -145,6 +152,12 @@ export async function updateAdminUserDetailFieldAction(
       resourceType: "profiles",
       resourceId: targetUserId,
       payload: { field },
+    });
+    void recordStudentProfileFieldAudit({
+      userId: targetUserId,
+      field,
+      beforeValue: null,
+      afterValue: parsedField.normalized != null ? String(parsedField.normalized) : null,
     });
     revalidatePath(`/${locale}/dashboard/admin/users/${targetUserId}`);
     return { ok: true, message: dict.admin.users.detailToastSaved };

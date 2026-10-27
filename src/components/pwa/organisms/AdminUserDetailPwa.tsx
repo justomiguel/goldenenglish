@@ -10,6 +10,7 @@ import { AdminBackLink } from "@/components/dashboard/AdminBackLink";
 import { adminPersonRecordListHref } from "@/lib/dashboard/adminPersonRecordListHref";
 import { AdminUserDetailPanel } from "@/components/dashboard/AdminUserDetailPanel";
 import type { StudentCareNotes } from "@/lib/students/care/loadStudentCareNotes";
+import type { AcademicProfileCardField } from "@/lib/academic-profile/academicProfileCard";
 
 type UserLabels = Dictionary["admin"]["users"];
 type BillingLabels = Dictionary["admin"]["billing"];
@@ -23,6 +24,7 @@ export interface AdminUserDetailPwaProps {
   billing: AdminStudentBillingTabData | null;
   fileUploadProgress: FileUploadProgressLabels;
   care?: StudentCareNotes | null;
+  academicFields?: AcademicProfileCardField[];
 }
 
 export function AdminUserDetailPwa({
@@ -34,6 +36,7 @@ export function AdminUserDetailPwa({
   billing,
   fileUploadProgress,
   care = null,
+  academicFields = [],
 }: AdminUserDetailPwaProps) {
   void surface;
   return (
@@ -53,6 +56,7 @@ export function AdminUserDetailPwa({
             billing={billing}
             fileUploadProgress={fileUploadProgress}
             care={care}
+            academicFields={academicFields}
           />
     </div>
   );

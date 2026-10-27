@@ -130,3 +130,38 @@ export function validatePulsarTenantInput(
     },
   };
 }
+
+export function validatePulsarPlatformHostsInput(
+  rawHostsInput: unknown,
+  existingTenants: readonly PulsarTenantRecord[],
+): { ok: true; hosts: string[] } | { ok: false; errorCode: string } {
+  const rawHosts = Array.isArray(rawHostsInput)
+    ? rawHostsInput
+    : typeof rawHostsInput === "string"
+      ? rawHostsInput.split(/[\n,]+/)
+      : [];
+
+  const hosts = Array.from(
+    new Set(
+      rawHosts
+        .filter((h): h is string => typeof h === "string")
+        .map((h) => normalizeHost(h))
+        .filter((h) => h.length > 0),
+    ),
+  );
+
+  if (hosts.length === 0) {
+    return { ok: false, errorCode: "missing_hosts" };
+  }
+
+  for (const host of hosts) {
+    const owner = existingTenants.find((t) =>
+      t.hosts.some((candidate) => normalizeHost(candidate) === host),
+    );
+    if (owner) {
+      return { ok: false, errorCode: "duplicate_host" };
+    }
+  }
+
+  return { ok: true, hosts };
+}

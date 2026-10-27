@@ -1,8 +1,11 @@
+// REGRESSION CHECK: Public registration cohort resolution must fall back to the is_current cohort when registration_cohort_id is unset or references an unknown/archived cohort.
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const chain = {
   select: vi.fn().mockReturnThis(),
   eq: vi.fn().mockReturnThis(),
+  is: vi.fn().mockReturnThis(),
+  order: vi.fn().mockReturnThis(),
   maybeSingle: vi.fn(),
 };
 
@@ -14,7 +17,11 @@ vi.mock("@/lib/supabase/server", () => ({
   })),
 }));
 
-import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
+import {
+  getInscriptionsEnabled,
+  parseConfiguredCohortId,
+  resolveRegistrationCohortState,
+} from "@/lib/settings/inscriptionsServer";
 
 describe("getInscriptionsEnabled", () => {
   beforeEach(() => {
@@ -42,5 +49,51 @@ describe("getInscriptionsEnabled", () => {
   it("defaults to true for unexpected value shapes", async () => {
     chain.maybeSingle.mockResolvedValue({ data: { value: "yes" } });
     await expect(getInscriptionsEnabled()).resolves.toBe(true);
+  });
+});
+
+describe("parseConfiguredCohortId & resolveRegistrationCohortState", () => {
+  const cohort2026 = {
+    id: "00000000-0000-4000-8000-000000002026",
+    name: "Ciclo 2026",
+    isCurrent: true,
+  };
+  const cohort2027 = {
+    id: "00000000-0000-4000-8000-000000002027",
+    name: "Ciclo 2027",
+    isCurrent: false,
+  };
+
+  it("parses valid UUID strings and objects and rejects invalid values", () => {
+    expect(parseConfiguredCohortId(cohort2027.id)).toBe(cohort2027.id);
+    expect(parseConfiguredCohortId({ cohortId: cohort2027.id })).toBe(cohort2027.id);
+    expect(parseConfiguredCohortId("not-a-uuid")).toBeNull();
+    expect(parseConfiguredCohortId(null)).toBeNull();
+  });
+
+  it("falls back to current cohort when no registration_cohort_id is configured", () => {
+    const state = resolveRegistrationCohortState([cohort2026, cohort2027], null);
+    expect(state.currentCohort).toEqual(cohort2026);
+    expect(state.activeCohort).toEqual(cohort2026);
+    expect(state.configuredCohortId).toBeNull();
+  });
+
+  it("selects the configured next-year cohort when present in non-archived cohorts", () => {
+    const state = resolveRegistrationCohortState(
+      [cohort2026, cohort2027],
+      cohort2027.id,
+    );
+    expect(state.currentCohort).toEqual(cohort2026);
+    expect(state.activeCohort).toEqual(cohort2027);
+    expect(state.configuredCohortId).toBe(cohort2027.id);
+  });
+
+  it("falls back to current cohort when configured cohort ID is not in active list", () => {
+    const state = resolveRegistrationCohortState(
+      [cohort2026, cohort2027],
+      "00000000-0000-4000-8000-000000009999",
+    );
+    expect(state.activeCohort).toEqual(cohort2026);
+    expect(state.configuredCohortId).toBeNull();
   });
 });

@@ -12,7 +12,11 @@ const adminId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const parentId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const teacherId = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
 
-function mockMailboxSupabase(msgs: Record<string, unknown>[], profiles: Record<string, unknown>[]) {
+function mockMailboxSupabase(
+  msgs: Record<string, unknown>[],
+  profiles: Record<string, unknown>[],
+  followUps: Record<string, unknown>[] = [],
+) {
   const order = vi.fn().mockReturnValue({
     limit: vi.fn().mockResolvedValue({ data: msgs, error: null }),
   });
@@ -30,6 +34,13 @@ function mockMailboxSupabase(msgs: Record<string, unknown>[], profiles: Record<s
       return {
         select: vi.fn().mockReturnValue({
           in: vi.fn().mockResolvedValue({ data: profiles, error: null }),
+        }),
+      };
+    }
+    if (table === "portal_message_follow_ups") {
+      return {
+        select: vi.fn().mockReturnValue({
+          in: vi.fn().mockResolvedValue({ data: followUps, error: null }),
         }),
       };
     }
@@ -240,5 +251,38 @@ describe("loadAdminPortalMessagesMailbox", () => {
     expect(sentRows).toHaveLength(1);
     expect(sentRows[0]?.toName).toBe("Visitor Name");
     expect(sentRows[0]?.toName).not.toMatch(/contact form/i);
+    expect(sentRows[0]?.statusLines).toEqual([]);
+  });
+
+  it("records an opened WhatsApp follow-up and clears needsReply", async () => {
+    const msgs = [
+      {
+        id: "m1",
+        sender_id: parentId,
+        recipient_id: adminId,
+        body_html: "<p>Help</p>",
+        created_at: "2026-07-11T12:00:00.000Z",
+        broadcast_batch_id: null,
+        read_at: "2026-07-11T13:00:00.000Z",
+        external_replied_at: null,
+      },
+    ];
+    const profiles = [
+      { id: parentId, first_name: "Pat", last_name: "Parent", role: "parent" },
+      { id: adminId, first_name: "Ada", last_name: "Admin", role: "admin" },
+    ];
+    const supabase = mockMailboxSupabase(msgs, profiles, [
+      {
+        message_id: "m1",
+        actor_id: adminId,
+        channel: "whatsapp",
+        created_at: "2026-07-11T14:00:00.000Z",
+      },
+    ]);
+    const { inboxRows } = await loadAdminPortalMessagesMailbox(supabase, adminId, dict);
+
+    expect(inboxRows[0]?.needsReply).toBe(false);
+    expect(inboxRows[0]?.statusLines?.map((line) => line.kind)).toEqual(["follow-up"]);
+    expect(inboxRows[0]?.statusLines?.[0]).toMatchObject({ channel: "whatsapp" });
   });
 });

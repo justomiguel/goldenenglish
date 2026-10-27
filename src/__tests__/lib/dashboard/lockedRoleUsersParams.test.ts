@@ -11,7 +11,16 @@ describe("lockedRoleUsersParams", () => {
       dir: "asc",
       sortCriteria: [{ key: "name", dir: "asc" }],
       lockedDirectory: true,
+      academicFieldFilters: {},
     });
+  });
+
+  it("keeps academic field filters on the student list", () => {
+    const fieldId = "11111111-1111-4111-8111-111111111111";
+    expect(lockedRoleUsersParams("student", { [`acf_${fieldId}`]: "B1" }).academicFieldFilters).toEqual({
+      [fieldId]: "B1",
+    });
+    expect(lockedRoleUsersParams("teacher", { [`acf_${fieldId}`]: "B1" }).academicFieldFilters).toEqual({});
   });
 
   it("forces teacher", () => {

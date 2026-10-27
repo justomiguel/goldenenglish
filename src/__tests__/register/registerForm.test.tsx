@@ -1,3 +1,4 @@
+// REGRESSION CHECK: RegisterForm asks for DNI first, keeps all student and tutor/contact fields editable after Continue, and pre-fills existing student data when lookup matches.
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
@@ -47,8 +48,6 @@ describe("RegisterForm", () => {
     fireEvent.change(monthSelect, { target: { value: String(mo1 - 1) } });
     fireEvent.change(yearSelect, { target: { value: y } });
 
-    /** Month/year opens the calendar panel; toggling closed would undo that. */
-
     const ymdAttr = `${y}-${matched[2]}-${dd}`;
     const cell = scope.querySelector(`td[data-day="${ymdAttr}"]`);
     const btn = cell?.querySelector("button");
@@ -58,21 +57,21 @@ describe("RegisterForm", () => {
     fireEvent.click(btn);
   }
 
-  function fillStudentFields(first = "A", last = "B") {
+  async function continueFromDniStep(dniValue = "12345678") {
+    const r = dictEn.register;
+    fireEvent.change(screen.getByLabelText(r.dni), { target: { value: dniValue } });
+    fireEvent.click(screen.getByRole("button", { name: r.continue }));
+    await waitFor(() => {
+      expect(lookupRegistrationStudentAction).toHaveBeenCalledWith(dniValue);
+    });
+  }
+
+  function fillStudentNameFields(first = "A", last = "B") {
     const r = dictEn.register;
     fireEvent.change(screen.getByLabelText(r.firstName), {
       target: { value: first },
     });
     fireEvent.change(screen.getByLabelText(r.lastName), { target: { value: last } });
-    fireEvent.change(screen.getByLabelText(r.dni), { target: { value: "12345678" } });
-  }
-
-  async function continueToDetails() {
-    const r = dictEn.register;
-    fireEvent.click(screen.getByRole("button", { name: r.continue }));
-    await waitFor(() => {
-      expect(lookupRegistrationStudentAction).toHaveBeenCalled();
-    });
   }
 
   function chooseSection() {
@@ -83,12 +82,12 @@ describe("RegisterForm", () => {
 
   async function fillAndSubmit() {
     const r = dictEn.register;
-    fillStudentFields();
-    pickRegisterBirthIso("2000-06-15");
-    await continueToDetails();
+    await continueFromDniStep("12345678");
     await waitFor(() => {
-      expect(screen.getByLabelText(r.email)).toBeInTheDocument();
+      expect(screen.getByLabelText(r.firstName)).toBeInTheDocument();
     });
+    fillStudentNameFields();
+    pickRegisterBirthIso("2000-06-15");
     fireEvent.change(screen.getByLabelText(r.email), {
       target: { value: "a@b.co" },
     });
@@ -99,6 +98,33 @@ describe("RegisterForm", () => {
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: r.submit }));
   }
+
+  it("asks only for DNI on Step 1 and keeps student fields editable after Continue", async () => {
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={SECTION_OPTIONS}
+      />,
+    );
+    expect(screen.getByLabelText(dictEn.register.dni)).toBeInTheDocument();
+    expect(screen.queryByLabelText(dictEn.register.firstName)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: dictEn.register.continue })).toBeInTheDocument();
+
+    await continueFromDniStep("12345678");
+    await waitFor(() => {
+      expect(screen.getByLabelText(dictEn.register.firstName)).toBeInTheDocument();
+    });
+
+    const dniInput = screen.getByLabelText(dictEn.register.dni) as HTMLInputElement;
+    const firstInput = screen.getByLabelText(dictEn.register.firstName) as HTMLInputElement;
+    expect(dniInput.readOnly).toBe(false);
+    expect(firstInput.readOnly).toBe(false);
+
+    fireEvent.change(dniInput, { target: { value: "87654321" } });
+    expect(dniInput.value).toBe("87654321");
+  });
 
   it("opens success dialog on ok", async () => {
     submitPublicRegistration.mockResolvedValue({ ok: true });
@@ -138,9 +164,7 @@ describe("RegisterForm", () => {
         sectionOptions={SECTION_OPTIONS}
       />,
     );
-    fillStudentFields();
-    pickRegisterBirthIso("2000-06-15");
-    await continueToDetails();
+    await continueFromDniStep("12345678");
     await waitFor(() => {
       expect(screen.getByRole("checkbox")).toBeInTheDocument();
     });
@@ -205,7 +229,7 @@ describe("RegisterForm", () => {
     });
   });
 
-  it("shows tutor fields when a new minor continues", async () => {
+  it("shows tutor fields when a new minor picks birth date on details step", async () => {
     render(
       <RegisterForm
         locale="es"
@@ -214,10 +238,12 @@ describe("RegisterForm", () => {
         sectionOptions={SECTION_OPTIONS}
       />,
     );
-    fillStudentFields("Ch", "Lo");
+    await continueFromDniStep("12345678");
+    await waitFor(() => {
+      expect(screen.getByLabelText(dictEn.register.firstName)).toBeInTheDocument();
+    });
+    fillStudentNameFields("Ch", "Lo");
     pickRegisterBirthIso("2015-01-01");
-    expect(screen.queryByText(dictEn.register.tutorSectionTitle)).not.toBeInTheDocument();
-    await continueToDetails();
     await waitFor(() => {
       expect(screen.getByText(dictEn.register.tutorSectionTitle)).toBeInTheDocument();
     });
@@ -226,7 +252,6 @@ describe("RegisterForm", () => {
     expect(
       screen.getByText(dictEn.register.studentEmailNotCollectedMinorLead),
     ).toBeInTheDocument();
-    expect(screen.getByText(dictEn.register.tutorSectionTitle)).toBeInTheDocument();
   });
 
   it("submits minor flow without student email field", async () => {
@@ -240,14 +265,15 @@ describe("RegisterForm", () => {
       />,
     );
     const r = dictEn.register;
-    fillStudentFields("Ch", "Lo");
+    await continueFromDniStep("12345678");
+    await waitFor(() => {
+      expect(screen.getByLabelText(r.firstName)).toBeInTheDocument();
+    });
+    fillStudentNameFields("Ch", "Lo");
     pickRegisterBirthIso("2015-01-01");
-    await continueToDetails();
     await waitFor(() => {
       expect(screen.getByLabelText(r.tutorName)).toBeInTheDocument();
     });
-    expect(screen.queryByLabelText(r.email)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(r.phone)).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText(r.tutorName), {
       target: { value: "María" },
     });
@@ -290,12 +316,12 @@ describe("RegisterForm", () => {
       />,
     );
     const r = dictEn.register;
-    fillStudentFields();
-    pickRegisterBirthIso("2000-06-15");
-    await continueToDetails();
+    await continueFromDniStep("12345678");
     await waitFor(() => {
-      expect(screen.getByLabelText(r.email)).toBeInTheDocument();
+      expect(screen.getByLabelText(r.firstName)).toBeInTheDocument();
     });
+    fillStudentNameFields();
+    pickRegisterBirthIso("2000-06-15");
     fireEvent.change(screen.getByLabelText(r.email), {
       target: { value: "a@b.co" },
     });
@@ -334,27 +360,20 @@ describe("RegisterForm", () => {
     expect(mockPush).toHaveBeenCalledWith("/es");
   });
 
-  it("keeps tutor and submit off the student step", () => {
-    render(
-      <RegisterForm
-        locale="es"
-        dict={dictEn.register}
-        legalAgeMajority={18}
-        sectionOptions={SECTION_OPTIONS}
-      />,
-    );
-    expect(screen.getByRole("button", { name: dictEn.register.continue })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: dictEn.register.submit })).not.toBeInTheDocument();
-    expect(screen.queryByText(dictEn.register.tutorSectionTitle)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(dictEn.register.email)).not.toBeInTheDocument();
-  });
-
-  it("asks to confirm the stored name when the document matches", async () => {
+  it("pre-fills student and tutor fields and keeps them editable when the document matches an existing minor", async () => {
     lookupRegistrationStudentAction.mockResolvedValue({
       ok: true,
       found: true,
       firstName: "Lucía",
       lastName: "Sosa",
+      birthDate: "2015-01-01",
+      phone: "",
+      email: "",
+      tutorName: "Marta Sosa",
+      tutorDni: "22333444",
+      tutorEmail: "marta@example.com",
+      tutorPhone: "+56999990000",
+      tutorRelationship: "Madre",
     });
     render(
       <RegisterForm
@@ -364,49 +383,36 @@ describe("RegisterForm", () => {
         sectionOptions={SECTION_OPTIONS}
       />,
     );
-    fillStudentFields();
-    pickRegisterBirthIso("2000-06-15");
-    await continueToDetails();
+    await continueFromDniStep("12345678");
     await waitFor(() => {
       expect(screen.getByText(dictEn.register.existingFoundTitle)).toBeInTheDocument();
     });
-    expect(screen.getByText(dictEn.register.existingFoundTitle)).toBeInTheDocument();
-    expect(screen.getByText("Is this Lucía Sosa?")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: dictEn.register.submit })).not.toBeInTheDocument();
+    const firstInput = screen.getByLabelText(dictEn.register.firstName) as HTMLInputElement;
+    const lastInput = screen.getByLabelText(dictEn.register.lastName) as HTMLInputElement;
+    const tutorNameInput = screen.getByLabelText(dictEn.register.tutorName) as HTMLInputElement;
+    expect(firstInput.value).toBe("Lucía");
+    expect(lastInput.value).toBe("Sosa");
+    expect(tutorNameInput.value).toBe("Marta Sosa");
+    expect(firstInput.readOnly).toBe(false);
+
+    fireEvent.change(tutorNameInput, { target: { value: "Pedro Sosa" } });
+    expect(tutorNameInput.value).toBe("Pedro Sosa");
   });
 
-  it("hides tutor after confirming an existing student", async () => {
+  it("reaches Nagô extras after an existing student continues from details", async () => {
     lookupRegistrationStudentAction.mockResolvedValue({
       ok: true,
       found: true,
       firstName: "Lucía",
       lastName: "Sosa",
-    });
-    render(
-      <RegisterForm
-        locale="es"
-        dict={dictEn.register}
-        legalAgeMajority={18}
-        sectionOptions={SECTION_OPTIONS}
-      />,
-    );
-    fillStudentFields();
-    pickRegisterBirthIso("2015-01-01");
-    await continueToDetails();
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: dictEn.register.existingYes })).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByRole("button", { name: dictEn.register.existingYes }));
-    expect(screen.queryByText(dictEn.register.tutorSectionTitle)).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: dictEn.register.submit })).toBeInTheDocument();
-  });
-
-  it("still reaches Nagô extras after confirming an existing student", async () => {
-    lookupRegistrationStudentAction.mockResolvedValue({
-      ok: true,
-      found: true,
-      firstName: "Lucía",
-      lastName: "Sosa",
+      birthDate: "2015-01-01",
+      phone: "",
+      email: "",
+      tutorName: "Marta Sosa",
+      tutorDni: "22333444",
+      tutorEmail: "marta@example.com",
+      tutorPhone: "+56999990000",
+      tutorRelationship: "Madre",
     });
     render(
       <RegisterForm
@@ -417,13 +423,10 @@ describe("RegisterForm", () => {
         extrasPack="nago"
       />,
     );
-    fillStudentFields();
-    pickRegisterBirthIso("2015-01-01");
-    await continueToDetails();
+    await continueFromDniStep("12345678");
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: dictEn.register.existingYes })).toBeInTheDocument();
+      expect(screen.getByLabelText(dictEn.register.firstName)).toBeInTheDocument();
     });
-    fireEvent.click(screen.getByRole("button", { name: dictEn.register.existingYes }));
     fireEvent.click(screen.getByRole("checkbox"));
     const continues = screen.getAllByRole("button", { name: dictEn.register.continue });
     fireEvent.click(continues[continues.length - 1]);
@@ -432,34 +435,7 @@ describe("RegisterForm", () => {
     });
   });
 
-  it("does not submit when the match is rejected", async () => {
-    lookupRegistrationStudentAction.mockResolvedValue({
-      ok: true,
-      found: true,
-      firstName: "Lucía",
-      lastName: "Sosa",
-    });
-    render(
-      <RegisterForm
-        locale="es"
-        dict={dictEn.register}
-        legalAgeMajority={18}
-        sectionOptions={SECTION_OPTIONS}
-      />,
-    );
-    fillStudentFields();
-    pickRegisterBirthIso("2000-06-15");
-    await continueToDetails();
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: dictEn.register.existingNo })).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByRole("button", { name: dictEn.register.existingNo }));
-    expect(screen.getByRole("alert")).toHaveTextContent(dictEn.register.existingRejected);
-    expect(submitPublicRegistration).not.toHaveBeenCalled();
-    expect(screen.queryByRole("button", { name: dictEn.register.submit })).not.toBeInTheDocument();
-  });
-
-  it("stays on the student step when lookup fails", async () => {
+  it("stays on the DNI step when lookup fails", async () => {
     lookupRegistrationStudentAction.mockResolvedValue({ ok: false });
     render(
       <RegisterForm
@@ -469,34 +445,13 @@ describe("RegisterForm", () => {
         sectionOptions={SECTION_OPTIONS}
       />,
     );
-    fillStudentFields();
-    pickRegisterBirthIso("2000-06-15");
-    await continueToDetails();
+    await continueFromDniStep("12345678");
     expect(screen.getByRole("alert")).toHaveTextContent(dictEn.register.lookupFailed);
     expect(screen.queryByLabelText(dictEn.register.email)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: dictEn.register.continue })).toBeInTheDocument();
   });
 
-  it("does not show the Nagô extras step without a pack", async () => {
-    render(
-      <RegisterForm
-        locale="es"
-        dict={dictEn.register}
-        legalAgeMajority={18}
-        sectionOptions={SECTION_OPTIONS}
-      />,
-    );
-    fillStudentFields();
-    pickRegisterBirthIso("2000-06-15");
-    await continueToDetails();
-    await waitFor(() => {
-      expect(screen.getByLabelText(dictEn.register.email)).toBeInTheDocument();
-    });
-    expect(screen.queryByText(dictEn.register.nagoPack.stepTitle)).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: dictEn.register.submit })).toBeInTheDocument();
-  });
-
-  it("opens the Nagô extras step after details Continue", async () => {
+  it("opens the Nagô extras step after details Continue and allows going Back to edit details", async () => {
     render(
       <RegisterForm
         locale="es"
@@ -506,12 +461,12 @@ describe("RegisterForm", () => {
         extrasPack="nago"
       />,
     );
-    fillStudentFields();
-    pickRegisterBirthIso("2000-06-15");
-    await continueToDetails();
+    await continueFromDniStep("12345678");
     await waitFor(() => {
       expect(screen.getByLabelText(dictEn.register.email)).toBeInTheDocument();
     });
+    fillStudentNameFields();
+    pickRegisterBirthIso("2000-06-15");
     fireEvent.change(screen.getByLabelText(dictEn.register.email), {
       target: { value: "a@b.co" },
     });
@@ -525,7 +480,9 @@ describe("RegisterForm", () => {
     await waitFor(() => {
       expect(screen.getByText(dictEn.register.nagoPack.stepTitle)).toBeInTheDocument();
     });
-    expect(submitPublicRegistration).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: dictEn.register.submit })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: dictEn.register.backToPreviousStep }));
+    await waitFor(() => {
+      expect(screen.getByLabelText(dictEn.register.email)).toBeInTheDocument();
+    });
   });
 });

@@ -1,4 +1,5 @@
 import type { AdminPortalMessageSource } from "@/lib/messaging/adminPortalMessageSource";
+import type { AdminMessageStatusLine } from "@/lib/messaging/adminMessageStatus";
 
 export type MessagingRecipient = {
   id: string;
@@ -20,4 +21,6 @@ export type AdminPortalMessageRow = {
   needsReply: boolean;
   /** Contact form vs portal peer — drives list icon. */
   source: AdminPortalMessageSource;
+  /** What happened. Empty on the sent list. */
+  statusLines?: AdminMessageStatusLine[];
 };

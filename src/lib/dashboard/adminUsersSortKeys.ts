@@ -37,7 +37,7 @@ export function adminUsersSortKeysForLock(lockRole?: string): SortKey[] {
   return DIRECTORY_SORT_KEYS;
 }
 
-export function adminUsersSortColumnLabel(labels: UserLabels, key: SortKey): string {
+export function adminUsersSortColumnLabel(labels: UserLabels, key: string): string {
   switch (key) {
     case "email":
       return labels.colEmail;

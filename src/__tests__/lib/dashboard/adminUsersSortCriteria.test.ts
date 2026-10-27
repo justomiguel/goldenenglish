@@ -29,6 +29,20 @@ describe("parseAdminUsersSortCriteria", () => {
       { key: "phone", dir: "desc" },
     ]);
   });
+
+  it("keeps a custom academic field in the order param", () => {
+    expect(
+      parseAdminUsersSortCriteria({
+        order: "acf:11111111-1111-4111-8111-111111111111:desc",
+      }),
+    ).toEqual([{ key: "acf:11111111-1111-4111-8111-111111111111", dir: "desc" }]);
+  });
+
+  it("ignores a custom field key that is not a uuid", () => {
+    expect(parseAdminUsersSortCriteria({ order: "acf:not-a-field:asc" })).toEqual([
+      { key: "name", dir: "asc" },
+    ]);
+  });
 });
 
 describe("adminUsersSortCriteriaToParams", () => {
@@ -89,6 +103,30 @@ describe("sort checklist edits", () => {
     expect(cycleAdminUsersSortCriterion([{ key: "name", dir: "asc" }], "name")).toEqual([
       { key: "name", dir: "desc" },
     ]);
+  });
+
+  it("replaces a stacked sort with the clicked column", () => {
+    expect(
+      cycleAdminUsersSortCriterion(
+        [
+          { key: "name", dir: "asc" },
+          { key: "monthlyStatus", dir: "desc" },
+        ],
+        "email",
+      ),
+    ).toEqual([{ key: "email", dir: "asc" }]);
+  });
+
+  it("starts ascending when the clicked column is not the only criterion", () => {
+    expect(
+      cycleAdminUsersSortCriterion(
+        [
+          { key: "email", dir: "desc" },
+          { key: "name", dir: "asc" },
+        ],
+        "email",
+      ),
+    ).toEqual([{ key: "email", dir: "asc" }]);
   });
 });
 

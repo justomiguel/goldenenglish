@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo } from "react";
+import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import { Inbox, SendHorizontal } from "lucide-react";
 import {
   UnderlineTabBar,
@@ -14,6 +15,8 @@ import type { Dictionary } from "@/types/i18n";
 import type { AdminPortalMessageRow } from "@/types/messaging";
 
 type TabId = "inbox" | "sent";
+
+const MESSAGE_TABS: readonly TabId[] = ["inbox", "sent"];
 
 interface AdminMessagesTabsProps {
   locale: string;
@@ -32,7 +35,10 @@ export function AdminMessagesTabs({
 }: AdminMessagesTabsProps) {
   const reactId = useId().replace(/:/g, "");
   const idPrefix = `admin-msg-${reactId}`;
-  const [tab, setTab] = useState<TabId>("inbox");
+  const { value: tab, setValue: setTab } = usePersistentPageTab<TabId>({
+    allowed: MESSAGE_TABS,
+    fallback: "inbox",
+  });
 
   const items: UnderlineTabItem[] = useMemo(
     () => [

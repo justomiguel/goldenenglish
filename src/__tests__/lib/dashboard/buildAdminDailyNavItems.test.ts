@@ -75,7 +75,7 @@ describe("buildAdminDailyNavItems", () => {
     ]);
   });
 
-  it("keeps the registration badge and lists messages with the inbox count", () => {
+  it("keeps the registration badge and lists messages with the unread count", () => {
     const items = buildAdminDailyNavItems(BASE, dictEn.dashboard.adminNav, {
       newRegistrations: 4,
       recentInboundMessages: 2,

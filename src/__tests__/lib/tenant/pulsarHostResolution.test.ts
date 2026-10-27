@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   GE_TENANT_HEADER,
+  getPulsarHosts,
+  isDynamicPulsarHostsCacheLoaded,
   isPulsarHost,
   isPulsarRequestFromHeaderGet,
   listTenants,
   resolveTenantByHost,
+  setDynamicPulsarHostsCache,
   setDynamicTenantsCache,
   tenantHostBlockStatus,
   type TenantConfig,
@@ -37,11 +40,14 @@ const SAMPLE_TENANT: TenantConfig = {
   skipInitialSiteSetup: false,
 };
 
+// REGRESSION CHECK: Changing Pulsar host resolution to support DB-backed platform_settings.pulsar_hosts
+// must preserve fallback to PULSAR_HOSTS and DEFAULT_PULSAR_HOSTS when DB cache is null.
 describe("Pulsar host resolution and dynamic tenant cache", () => {
   const prevEnv = { ...process.env };
 
   beforeEach(() => {
     setDynamicTenantsCache(null);
+    setDynamicPulsarHostsCache(null);
     process.env.TENANTS_CONFIG_JSON = JSON.stringify([SAMPLE_TENANT]);
     delete process.env.DEV_TENANT_SLUG;
     delete process.env.PULSAR_HOSTS;
@@ -49,6 +55,7 @@ describe("Pulsar host resolution and dynamic tenant cache", () => {
 
   afterEach(() => {
     setDynamicTenantsCache(null);
+    setDynamicPulsarHostsCache(null);
     process.env = { ...prevEnv };
   });
 
@@ -107,5 +114,19 @@ describe("Pulsar host resolution and dynamic tenant cache", () => {
     expect(listTenants().map((t) => t.slug)).toEqual(["nuevo"]);
     expect(resolveTenantByHost("nuevo.cl")?.supabaseUrl).toBe("https://nuevo.supabase.co");
     expect(resolveTenantByHost("capoeiranago.cl")).toBeNull();
+  });
+
+  it("overrides Pulsar hosts completely when dynamicPulsarHosts is loaded from DB", () => {
+    expect(isDynamicPulsarHostsCacheLoaded()).toBe(false);
+    process.env.PULSAR_HOSTS = "env-pulsar.cl";
+
+    setDynamicPulsarHostsCache(["  PulsarHQ.cl:443 ", "admin.pulsarlab.cl"]);
+
+    expect(isDynamicPulsarHostsCacheLoaded()).toBe(true);
+    expect(getPulsarHosts()).toEqual(["pulsarhq.cl", "admin.pulsarlab.cl"]);
+    expect(isPulsarHost("pulsarhq.cl")).toBe(true);
+    expect(isPulsarHost("admin.pulsarlab.cl")).toBe(true);
+    expect(isPulsarHost("env-pulsar.cl")).toBe(false);
+    expect(isPulsarHost("pulsarlab.cl")).toBe(false);
   });
 });

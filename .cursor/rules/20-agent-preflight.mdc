@@ -44,6 +44,7 @@ Then write or update:
 
 ## Alignment
 
+- **Screen / UI changes (Web vs PWA):** follow **`43-pwa-surface-spec-check.mdc`** and **`05-pwa-mobile-native.mdc`**. Before finishing the spec, inspect whether the screen has (or requires) a PWA/mobile tree, design Web and PWA separately in a **Surfaces (Web vs PWA)** section, and confirm shared hooks/props/actions do not break the PWA implementation.
 - Auth / data / public contracts → also satisfy **`10-engineering-governance.mdc`** (ADR when required). The spec **references** the ADR; it does not replace it.
 - **`990-tests-failure-confirmation.mdc`** still applies at commit/CI gates.
 - Tests for new/touched code → **`30-harness-self-contained-tests.mdc`** + **`02-testing-tdd.mdc`**.
@@ -67,6 +68,7 @@ to **`.cursor/sdd-gate0-approved`**. The referenced spec file must exist. Escape
 ## Checklist
 
 - [ ] Spec path on disk (mini or full)?
+- [ ] **Surfaces (Web vs PWA)** checked and documented per **`43-pwa-surface-spec-check.mdc`** when touching UI, routes, or shared hooks/actions?
 - [ ] User approved?
 - [ ] Approval marker written (`.cursor/sdd-gate0-approved`)?
 - [ ] Plan file or inline plan ready when scope > mini?

@@ -7,7 +7,10 @@ import { RegisterSectionPicker } from "@/components/register/RegisterSectionPick
 import type { RegistrationSectionPickerOption } from "@/lib/register/registrationSectionPicker";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import { RegisterPrivacyConsent } from "@/components/register/RegisterPrivacyConsent";
-import { RegisterTutorFieldset } from "@/components/register/RegisterTutorFieldset";
+import {
+  RegisterTutorFieldset,
+  type RegisterTutorPrefillValues,
+} from "@/components/register/RegisterTutorFieldset";
 import { SectionEnrollmentLinkCard } from "@/components/register/SectionEnrollmentLinkCard";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import type { Dictionary } from "@/types/i18n";
@@ -18,6 +21,10 @@ interface RegisterFormContactAndSectionsProps {
   busy: boolean;
   showTutor: boolean;
   showAdultContact: boolean;
+  contactRequired?: boolean;
+  defaultEmail?: string;
+  defaultPhone?: string;
+  tutorDefaultValues?: RegisterTutorPrefillValues | null;
   sectionOptions: Array<{ id: string; label: string } & Partial<RegistrationSectionPickerOption>>;
   selectedSectionIds: string[];
   onSelectedSectionIdsChange: (next: string[]) => void;
@@ -34,6 +41,10 @@ export function RegisterFormContactAndSections({
   busy,
   showTutor,
   showAdultContact,
+  contactRequired = true,
+  defaultEmail = "",
+  defaultPhone = "",
+  tutorDefaultValues = null,
   sectionOptions,
   selectedSectionIds,
   onSelectedSectionIdsChange,
@@ -44,7 +55,7 @@ export function RegisterFormContactAndSections({
   onContinue,
 }: RegisterFormContactAndSectionsProps) {
   return (
-    <div className={hidden ? "hidden" : undefined}>
+    <div className={hidden ? "hidden" : "space-y-4"}>
       {showTutor ? (
         <p className="text-xs text-[var(--color-muted-foreground)]" role="note">
           {dict.studentEmailNotCollectedMinorLead}
@@ -53,12 +64,27 @@ export function RegisterFormContactAndSections({
       {showAdultContact ? (
         <>
           <div>
-            <Label htmlFor="rg-em" required>{dict.email}</Label>
-            <Input id="rg-em" name="email" type="email" required autoComplete="email" className="mt-1 w-full" />
+            <Label htmlFor="rg-em" required={contactRequired}>{dict.email}</Label>
+            <Input
+              id="rg-em"
+              name="email"
+              type="email"
+              required={contactRequired}
+              autoComplete="email"
+              defaultValue={defaultEmail}
+              className="mt-1 w-full"
+            />
           </div>
           <div>
-            <Label htmlFor="rg-ph" required>{dict.phone}</Label>
-            <Input id="rg-ph" name="phone" required autoComplete="tel" className="mt-1 w-full" />
+            <Label htmlFor="rg-ph" required={contactRequired}>{dict.phone}</Label>
+            <Input
+              id="rg-ph"
+              name="phone"
+              required={contactRequired}
+              autoComplete="tel"
+              defaultValue={defaultPhone}
+              className="mt-1 w-full"
+            />
           </div>
         </>
       ) : (
@@ -67,7 +93,13 @@ export function RegisterFormContactAndSections({
           <input type="hidden" name="phone" value="" readOnly aria-hidden />
         </>
       )}
-      {showTutor ? <RegisterTutorFieldset dict={dict} required={showTutor} /> : null}
+      {showTutor ? (
+        <RegisterTutorFieldset
+          dict={dict}
+          required={contactRequired}
+          defaultValues={tutorDefaultValues}
+        />
+      ) : null}
       {enrollmentLink ? (
         <SectionEnrollmentLinkCard link={enrollmentLink} labels={dict.sectionLink} />
       ) : null}

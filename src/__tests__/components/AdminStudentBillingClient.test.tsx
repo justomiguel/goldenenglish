@@ -9,6 +9,7 @@ import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 vi.mock("next/navigation", () => ({
   usePathname: () => "/es",
   useRouter: () => ({ refresh: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 const billing: AdminStudentBillingTabData = {

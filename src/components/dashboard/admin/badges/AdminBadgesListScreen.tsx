@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo } from "react";
 import {
   Award,
   CalendarDays,
@@ -22,6 +22,8 @@ import {
   adminBadgeCriteriaLabel,
 } from "@/components/dashboard/admin/badges/adminBadgeListCopy";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { BADGE_CATEGORIES } from "@/lib/badges/badgeCatalog";
+import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { SortableTh } from "@/components/molecules/SortableTh";
 import { useClientTableSort } from "@/hooks/useClientTableSort";
@@ -43,6 +45,8 @@ type AdminBadgesDict = Dictionary["admin"]["badges"];
 
 export type AdminBadgeCategoryFilterTabId = "all" | BadgeCategory;
 
+const BADGE_FILTER_TABS = ["all", ...BADGE_CATEGORIES] as const satisfies readonly AdminBadgeCategoryFilterTabId[];
+
 export interface AdminBadgesListScreenProps {
   locale: string;
   rows: AdminBadgeRow[];
@@ -56,7 +60,11 @@ export function AdminBadgesListScreen({
   labels,
   adminNav: _adminNav,}: AdminBadgesListScreenProps) {
   const idPrefix = useId().replace(/:/g, "");
-  const [categoryTab, setCategoryTab] = useState<AdminBadgeCategoryFilterTabId>("all");
+  const { value: categoryTab, setValue: setCategoryTab } =
+    usePersistentPageTab<AdminBadgeCategoryFilterTabId>({
+      allowed: BADGE_FILTER_TABS,
+      fallback: "all",
+    });
 
   const tabItems: UnderlineTabItem[] = useMemo(
     () => [

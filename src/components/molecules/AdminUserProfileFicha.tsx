@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
@@ -18,8 +19,10 @@ import {
   AdminUserSummaryPanel,
 } from "@/components/molecules/AdminUserProfileTabPanels";
 import { AdminUserCarePanel } from "@/components/molecules/AdminUserCarePanel";
+import { AdminUserHistoryPanel } from "@/components/molecules/AdminUserHistoryPanel";
 import { buildAdminUserProfileTabs } from "@/components/molecules/buildAdminUserProfileTabs";
 import type { StudentCareNotes } from "@/lib/students/care/loadStudentCareNotes";
+import type { AcademicProfileCardField } from "@/lib/academic-profile/academicProfileCard";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import {
   ADMIN_TOUR_ANCHORS,
@@ -30,6 +33,8 @@ type UserLabels = Dictionary["admin"]["users"];
 type BillingLabels = Dictionary["admin"]["billing"];
 type TabId = AdminUserProfileTabId;
 
+const PROFILE_TABS: readonly TabId[] = ["summary", "academic", "payments", "family", "care", "history", "security"];
+
 export interface AdminUserProfileFichaProps {
   locale: Locale;
   labels: UserLabels;
@@ -39,6 +44,7 @@ export interface AdminUserProfileFichaProps {
   fileUploadProgress: FileUploadProgressLabels;
   /** `null` when the student has no care tab or the viewer may not read it. */
   care?: StudentCareNotes | null;
+  academicFields?: AcademicProfileCardField[];
 }
 
 export function AdminUserProfileFicha({
@@ -49,12 +55,16 @@ export function AdminUserProfileFicha({
   billing,
   fileUploadProgress,
   care = null,
+  academicFields = [],
 }: AdminUserProfileFichaProps) {
   const editable = detail.viewerMayInlineEdit;
   const displayName =
     formatProfileNameSurnameFirst(detail.firstName, detail.lastName) || detail.emailDisplay;
   const [toast, setToast] = useState<{ text: string; ok: boolean } | null>(null);
-  const [activeTab, setActiveTab] = useState<TabId>("summary");
+  const { value: activeTab, setValue: setActiveTab } = usePersistentPageTab<TabId>({
+    allowed: PROFILE_TABS,
+    fallback: "summary",
+  });
 
   const onFeedback = useCallback((text: string, ok: boolean) => {
     setToast({ text, ok });
@@ -71,7 +81,7 @@ export function AdminUserProfileFicha({
     window.addEventListener(ADMIN_TUTORIAL_ACTIVATE_SECURITY_TAB_EVENT, onSecurity);
     return () =>
       window.removeEventListener(ADMIN_TUTORIAL_ACTIVATE_SECURITY_TAB_EVENT, onSecurity);
-  }, []);
+  }, [setActiveTab]);
 
   const roleOptions = useMemo(
     () => [
@@ -100,15 +110,7 @@ export function AdminUserProfileFicha({
 
   const panel = (() => {
     if (visibleActiveTab === "summary") {
-      return (
-        <AdminUserSummaryPanel
-          locale={locale}
-          detail={detail}
-          labels={labels}
-          editable={editable}
-          onFeedback={onFeedback}
-        />
-      );
+      return <AdminUserSummaryPanel locale={locale} detail={detail} labels={labels} editable={editable} onFeedback={onFeedback} />;
     }
     if (visibleActiveTab === "academic") {
       return (
@@ -120,53 +122,23 @@ export function AdminUserProfileFicha({
           roleLabel={roleLabel}
           roleOptions={roleOptions}
           onFeedback={onFeedback}
+          academicFields={academicFields}
         />
       );
     }
     if (visibleActiveTab === "payments" && billing) {
-      return (
-        <AdminUserPaymentsPanel
-          locale={locale}
-          detail={detail}
-          billing={billing}
-          billingLabels={billingLabels}
-          studentName={displayName}
-        />
-      );
+      return <AdminUserPaymentsPanel locale={locale} detail={detail} billing={billing} billingLabels={billingLabels} studentName={displayName} />;
     }
     if (visibleActiveTab === "family") {
-      return (
-        <AdminUserFamilyPanel
-          locale={locale}
-          detail={detail}
-          labels={labels}
-          billingLabels={billingLabels}
-          editable={editable}
-          onFeedback={onFeedback}
-        />
-      );
+      return <AdminUserFamilyPanel locale={locale} detail={detail} labels={labels} billingLabels={billingLabels} editable={editable} onFeedback={onFeedback} />;
     }
     if (visibleActiveTab === "care") {
-      return (
-        <AdminUserCarePanel
-          locale={locale}
-          userId={detail.userId}
-          labels={labels}
-          editable={editable}
-          care={care}
-          onFeedback={onFeedback}
-        />
-      );
+      return <AdminUserCarePanel locale={locale} userId={detail.userId} labels={labels} editable={editable} care={care} onFeedback={onFeedback} />;
     }
-    return (
-      <AdminUserSecurityPanel
-        locale={locale}
-        detail={detail}
-        labels={labels}
-        editable={editable}
-        onFeedback={onFeedback}
-      />
-    );
+    if (visibleActiveTab === "history") {
+      return <AdminUserHistoryPanel detail={detail} labels={labels} />;
+    }
+    return <AdminUserSecurityPanel locale={locale} detail={detail} labels={labels} editable={editable} onFeedback={onFeedback} />;
   })();
 
   return (

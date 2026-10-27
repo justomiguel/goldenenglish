@@ -16,9 +16,14 @@ import {
   loadRegistrationStatusCounts,
 } from "@/lib/dashboard/loadRegistrationStatusCounts";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
+import { AdminRegistrationCohortBar } from "@/components/dashboard/AdminRegistrationCohortBar";
 import { AdminRegistrationCreateButton } from "@/components/dashboard/AdminRegistrationCreateButton";
 import { AdminRegistrationsStatsRow } from "@/components/dashboard/AdminRegistrationsStatsRow";
-import { loadRegistrationSectionPickerOptions } from "@/lib/register/loadRegistrationSectionPickerOptions";
+import {
+  loadRegistrationSectionPickerOptions,
+  loadRegistrationSectionPickerOptionsByCohort,
+} from "@/lib/register/loadRegistrationSectionPickerOptions";
+import { loadRegistrationCohortConfig } from "@/lib/settings/inscriptionsServer";
 import { extrasPackForTemplateKind } from "@/lib/register/packs/extrasPackForTemplateKind";
 import { registrationUsesCefrLevel } from "@/lib/register/packs/registrationUsesCefrLevel";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
@@ -77,11 +82,12 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
   const headerCountsPromise =
     listQuery.trim() === "" ? listCountsPromise : loadRegistrationStatusCounts(supabase, "");
 
-  const [result, legalAgeMajority, cohort, statusCounts, headerCounts, enrolledCount, inboxCounts, brand, sectionOptions, profile] =
+  const [result, legalAgeMajority, cohort, cohortConfig, statusCounts, headerCounts, enrolledCount, inboxCounts, brand, sectionOptions, profile] =
     await Promise.all([
       loadPaginatedRegistrations(supabase, paginationParams),
       Promise.resolve(getLegalAgeMajorityFromSystem()),
       loadCurrentCohort(supabase),
+      loadRegistrationCohortConfig(),
       listCountsPromise,
       headerCountsPromise,
       loadRegistrationEnrolledCount(supabase),
@@ -96,6 +102,9 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
         };
       }),
     ]);
+  const sectionOptionsByCohort = await loadRegistrationSectionPickerOptionsByCohort(
+    cohortConfig.cohorts.map((item) => item.id),
+  );
   const extrasPack = profile.extrasPack;
   const registrationLabels = profile.usesCefrLevel
     ? dict.admin.registrations
@@ -133,8 +142,16 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
             legalAgeMajority={legalAgeMajority}
             sectionOptions={sectionOptions}
             extrasPack={extrasPack}
+            cohorts={cohortConfig.cohorts}
+            defaultCohortId={cohortConfig.activeCohort?.id ?? cohort?.id ?? null}
+            sectionOptionsByCohort={sectionOptionsByCohort}
           />
         }
+      />
+      <AdminRegistrationCohortBar
+        locale={locale}
+        labels={dict.admin.registrations}
+        cohortConfig={cohortConfig}
       />
       <AdminRegistrationsStatsRow
         locale={locale}

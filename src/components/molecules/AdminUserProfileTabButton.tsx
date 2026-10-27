@@ -6,6 +6,7 @@ export type AdminUserProfileTabId =
   | "payments"
   | "family"
   | "care"
+  | "history"
   | "security";
 
 export interface AdminUserProfileTabButtonProps {

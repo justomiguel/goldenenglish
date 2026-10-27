@@ -9,11 +9,16 @@ import {
 import { probeSingleTenantConnection } from "@/lib/pulsar/loadPulsarFleetTelemetry";
 import { getPulsarStaffSession, type PulsarStaffSession } from "@/lib/pulsar/pulsarStaffAuth";
 import { mapPulsarTenantToDbPayload } from "@/lib/pulsar/pulsarTenantMapper";
-import { validatePulsarTenantInput } from "@/lib/pulsar/pulsarTenantSchema";
 import {
+  validatePulsarPlatformHostsInput,
+  validatePulsarTenantInput,
+} from "@/lib/pulsar/pulsarTenantSchema";
+import {
+  applyLocalMemoryPulsarHosts,
   applyLocalMemoryTenantUpsert,
   invalidateTenantRegistryCache,
   loadAllPulsarTenantsForAdmin,
+  loadPulsarPlatformHostsForAdmin,
 } from "@/lib/pulsar/pulsarTenantStore";
 import {
   createPulsarAdminClient,
@@ -172,5 +177,63 @@ export async function signOutPulsarStaffAction(locale: string): Promise<{ ok: bo
   } catch (err) {
     logServerActionException("signOutPulsarStaffAction", err);
     return { ok: false };
+  }
+}
+
+export async function savePulsarPlatformHostsAction(args: {
+  locale: string;
+  rawHosts: string;
+}): Promise<{ ok: true; hosts: string[] } | { ok: false; errorCode: string }> {
+  const session = await getPulsarStaffSession();
+  if (!session) {
+    return { ok: false, errorCode: "unauthorized" };
+  }
+  const blocked = passwordChangeBlock(session);
+  if (blocked) return blocked;
+
+  try {
+    const existing = await loadAllPulsarTenantsForAdmin();
+    const validated = validatePulsarPlatformHostsInput(args.rawHosts, existing);
+    if (!validated.ok) {
+      return validated;
+    }
+
+    const hosts = validated.hosts;
+    if (isPulsarSupabaseConfigured()) {
+      const admin = createPulsarAdminClient();
+      const { error } = await admin.from("platform_settings").upsert(
+        {
+          id: "default",
+          pulsar_hosts: hosts,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "id" },
+      );
+      if (error) {
+        logSupabaseError("savePulsarPlatformHostsAction:upsert", error);
+        return { ok: false, errorCode: "db_write_failed" };
+      }
+      await admin.from("platform_audit_log").insert({
+        actor_user_id: session.userId,
+        actor_email: session.email,
+        action: "platform.hosts_update",
+        tenant_slug: "pulsar",
+        changed_fields: ["pulsar_hosts"],
+      });
+      invalidateTenantRegistryCache();
+      await loadPulsarPlatformHostsForAdmin();
+    } else {
+      applyLocalMemoryPulsarHosts(hosts);
+    }
+
+    logServerInfo("savePulsarPlatformHostsAction:saved", {
+      actorUserId: session.userId,
+      hostCount: hosts.length,
+    });
+    revalidatePulsarAdminPaths(args.locale);
+    return { ok: true, hosts };
+  } catch (err) {
+    logServerActionException("savePulsarPlatformHostsAction:catch", err);
+    return { ok: false, errorCode: "db_write_failed" };
   }
 }

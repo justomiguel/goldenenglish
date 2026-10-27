@@ -101,8 +101,9 @@ Until manifest + SW exist, still implement **both trees** wherever Tier A requir
 
 ---
 
-## Agent checklist (when editing UI)
+## Agent checklist (when writing a spec or editing UI)
 
+0. **At spec time (Gate 0 — `43-pwa-surface-spec-check.mdc`):** Did you locate all surface trees (`src/components/pwa/`, `src/components/desktop/`, `*Mobile*`, `*Pwa*`), design Web and PWA separately in the spec, and verify the PWA tree is not broken by shared hook/prop/action changes?
 1. **Is this Tier A (student/parent/equivalent public) or Tier B (admin/internal)?**
 2. **Tier A:** is there **Web** and **mobile/PWA-native** (or a rare, documented exception)?
 3. **Tier B:** is desktop-only acceptable, or is mobile worth adding?

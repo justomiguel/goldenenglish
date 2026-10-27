@@ -2,6 +2,66 @@ import type { ProductChangelogEntry } from "@/lib/product-changelog/catalogTypes
 import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
+{
+    id: "mobile-stat-cards",
+    date: "2026-10-27",
+    area: "admin",
+    title: t(
+      "Las cifras del celular entran en la pantalla",
+      "Phone stats fit the screen",
+      "Os números do celular cabem na tela",
+    ),
+    summary: t(
+      "En el celular, las tarjetas de cifras quedan en una grilla compacta. Ya no hace falta deslizarlas de lado.",
+      "On a phone, the stat cards sit in a compact grid. You do not slide them sideways.",
+      "No celular, os cartões de números ficam numa grelha compacta. Já não é preciso deslizá-los para o lado.",
+    ),
+  },
+  {
+    id: "admin-directory-cards-age-sort",
+    date: "2026-10-27",
+    area: "admin",
+    title: t(
+      "Listas de personas más claras",
+      "Clearer people lists",
+      "Listas de pessoas mais claras",
+    ),
+    summary: t(
+      "Filtrar y ordenar van separados. Puedes acumular criterios de orden y filtrar alumnos y padres por edad. Las marcas de cuota tienen una leyenda.",
+      "Filter and sort are separate. You can stack sort criteria and filter students and parents by age. Fee marks have a legend.",
+      "Filtrar e ordenar ficam separados. Você pode acumular critérios de ordem e filtrar alunos e pais por idade. As marcas da mensalidade têm uma legenda.",
+    ),
+  },
+  {
+    id: "pwa-view-as-bar",
+    date: "2026-10-27",
+    area: "admin",
+    title: t(
+      "La barra del celular muestra el logo y las alertas",
+      "The phone bar shows the logo and alerts",
+      "A barra do celular mostra o logo e os alertas",
+    ),
+    summary: t(
+      "En el celular, la barra de admin lleva el logo chico y el icono de alertas. Elegir un perfil para ver queda en la pantalla ancha.",
+      "On a phone, the admin bar shows a small logo and the alerts icon. Choosing a profile to view stays on a wide screen.",
+      "No celular, a barra de admin leva o logo pequeno e o ícone de alertas. Escolher um perfil para ver fica na tela larga.",
+    ),
+  },
+  {
+    id: "admin-weekly-digest",
+    date: "2026-10-27",
+    area: "communications",
+    title: t(
+      "Reporte semanal para admins",
+      "Weekly admin report",
+      "Relatório semanal para admins",
+    ),
+    summary: t(
+      "Cada lunes los admins reciben un correo con lo que espera revisión y las cifras de la semana cerrada.",
+      "Each Monday, admins get a mail with waiting work and the closed week's numbers.",
+      "Cada segunda, os admins recebem um e-mail com o que espera revisão e os números da semana fechada.",
+    ),
+  },
   {
     id: "admin-review-and-placement-email",
     date: "2026-10-27",
@@ -180,51 +240,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "El sitio de Pulsar lista los institutos, su estado y las visitas. Un instituto nuevo no exige un nuevo deploy.",
       "The Pulsar site lists institutes, their status, and visits. A new institute does not need a new deploy.",
       "O site da Pulsar lista os institutos, o estado e as visitas. Um instituto novo não exige um novo deploy.",
-    ),
-  },
-  {
-    id: "event-phone-cards",
-    date: "2026-10-20",
-    area: "events",
-    title: t(
-      "En el teléfono cada evento es una tarjeta",
-      "On a phone each event is a card",
-      "No celular cada evento é um cartão",
-    ),
-    summary: t(
-      "Ves la fecha, el estado, el cupo y un botón Gestionar.",
-      "You see the date, the status, the capacity, and a Manage button.",
-      "Você vê a data, o status, a capacidade e um botão Gerenciar.",
-    ),
-  },
-  {
-    id: "admin-create-registration",
-    date: "2026-10-20",
-    area: "registrations",
-    title: t(
-      "Puedes cargar una inscripción desde el admin",
-      "You can add a registration from admin",
-      "Você pode criar uma inscrição no admin",
-    ),
-    summary: t(
-      "El formulario pide los mismos campos que el público de este instituto. El nivel CEFR aparece solo donde el instituto lo usa.",
-      "The form asks for the same fields as the public form of this institute. The CEFR level appears only where the institute uses it.",
-      "O formulário pede os mesmos campos do formulário público deste instituto. O nível CEFR aparece só onde o instituto o usa.",
-    ),
-  },
-  {
-    id: "shop-product-slugs",
-    date: "2026-10-20",
-    area: "site",
-    title: t(
-      "La tienda y el pedido usan una dirección con nombre",
-      "The shop and the order use an address with a name",
-      "A loja e o pedido usam um endereço com nome",
-    ),
-    summary: t(
-      "El producto y el pedido se abren con un nombre corto, no solo con un código.",
-      "The product and the order open with a short name, not only with a code.",
-      "O produto e o pedido abrem com um nome curto, não só com um código.",
     ),
   },
 ];

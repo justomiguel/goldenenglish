@@ -19,29 +19,17 @@ import { adminUsersSortKeysForLock } from "@/lib/dashboard/adminUsersSortKeys";
 import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
 import { AdminDirectoryFilterPanel } from "@/components/dashboard/AdminDirectoryFilterPanel";
 import type { AdminDirectoryFilterPanelProps } from "@/components/dashboard/AdminDirectoryFilterPanel";
+import {
+  deleteSelectedButtonLabel,
+  fillCount,
+  toolbarLabelCount,
+} from "@/components/dashboard/adminUsersToolbarCopy";
 
 type UserLabels = Dictionary["admin"]["users"];
 
 export type { AdminParentsToolbarChrome };
 
 const ROLES = ["admin", "teacher", "student", "parent", "assistant"] as const;
-
-function tpl(template: string, count: number): string {
-  return template.replace(/\{\{count\}\}/g, String(count));
-}
-
-function tplLabelCount(template: string, label: string, count: number): string {
-  return template.replace(/\{\{label\}\}/g, label).replace(/\{\{count\}\}/g, String(count));
-}
-
-function deleteSelectedButtonLabel(labels: UserLabels, selectedCount: number): string {
-  if (selectedCount === 0) return labels.deleteSelected;
-  const template = labels.deleteSelectedWithCount;
-  if (typeof template === "string" && template.length > 0) {
-    return tpl(template, selectedCount);
-  }
-  return `${labels.deleteSelected} (${selectedCount})`;
-}
 
 export interface AdminUsersToolbarProps {
   labels: UserLabels;
@@ -68,6 +56,7 @@ export interface AdminUsersToolbarProps {
     onClear: AdminDirectoryFilterPanelProps["onClear"];
   };
   sortCriteria?: AdminUsersSortCriterion[];
+  sortFieldLabels?: Record<string, string>;
   onSortCriteriaChange?: (next: AdminUsersSortCriterion[]) => void;
   listPending?: boolean;
 }
@@ -93,6 +82,7 @@ export function AdminUsersToolbar({
   parentsChrome,
   directoryFilters,
   sortCriteria = [],
+  sortFieldLabels,
   onSortCriteriaChange,
   listPending = false,
 }: AdminUsersToolbarProps) {
@@ -170,6 +160,7 @@ export function AdminUsersToolbar({
           labels={labels}
           sortKeys={adminUsersSortKeysForLock(lockRole)}
           criteria={sortCriteria}
+          fieldLabels={sortFieldLabels}
           onChange={onSortCriteriaChange}
         />
       ) : null}
@@ -191,11 +182,11 @@ export function AdminUsersToolbar({
             className="min-h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
           >
             <option value={ROLE_FILTER_ALL}>
-              {tpl(labels.roleFilterAllWithCount, roleCounts.total)}
+              {fillCount(labels.roleFilterAllWithCount, roleCounts.total)}
             </option>
             {ROLES.map((r) => (
               <option key={r} value={r}>
-                {tplLabelCount(
+                {toolbarLabelCount(
                   labels.roleFilterOptionWithCount,
                   adminUserRoleOptionLabel(labels, r),
                   roleCounts.byRole[r] ?? 0,
@@ -208,11 +199,11 @@ export function AdminUsersToolbar({
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <p className="text-sm text-[var(--color-muted-foreground)]">
-          {tpl(labels.countTotal, totalCount)}
+          {fillCount(labels.countTotal, totalCount)}
           <span aria-hidden> • </span>
           {showing}
           <span aria-hidden> • </span>
-          {tpl(labels.countSelected, selectedCount)}
+          {fillCount(labels.countSelected, selectedCount)}
         </p>
         <div className="flex flex-wrap gap-2">
           {onExportUsers && labels.spreadsheet ? (

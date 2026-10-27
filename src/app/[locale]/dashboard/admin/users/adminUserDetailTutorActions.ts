@@ -7,6 +7,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getDictionary, defaultLocale, locales, type AppLocale } from "@/lib/i18n/dictionaries";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import {
+  loadStudentTutorSummaryList,
+  recordStudentTutorAuditChange,
+} from "@/lib/dashboard/studentMutationAudit";
+import {
   upsertTutorStudentLink,
 } from "@/lib/register/ensureParentProfileByTutorDni";
 import { profileRoleEligibleAsLinkedStudentGuardian } from "@/lib/register/linkedStudentGuardianProfileRoles";
@@ -79,6 +83,7 @@ export async function upsertAdminStudentTutorLinkAction(
       return { ok: false, message: dict.admin.users.detailErrTutorNotParent };
     }
 
+    const beforeTutors = await loadStudentTutorSummaryList(admin, studentId);
     const linkRes = await upsertTutorStudentLink(admin, newTutorId, studentId, relationship);
     if (!linkRes.ok) {
       logSupabaseClientError(`${S}:tutorUpsert`, { message: linkRes.message ?? "link_failed" }, {
@@ -87,12 +92,20 @@ export async function upsertAdminStudentTutorLinkAction(
       });
       return { ok: false, message: dict.admin.users.detailErrSave };
     }
+    const afterTutors = await loadStudentTutorSummaryList(admin, studentId);
 
     void recordSystemAudit({
       action: "admin_user_detail_upsert_tutor_link",
       resourceType: "tutor_student_rel",
       resourceId: studentId,
       payload: { tutorId: newTutorId, relationship },
+    });
+    void recordStudentTutorAuditChange({
+      studentId,
+      action: "link_tutor",
+      summary: `Tutor vinculado (${relationship})`,
+      beforeTutors,
+      afterTutors: afterTutors.length > 0 ? afterTutors : [`${newTutorId} (${relationship})`],
     });
     revalidatePath(`/${locale}/dashboard/admin/users/${studentId}`);
     revalidatePath(`/${locale}/dashboard/admin/users/${newTutorId}`);
@@ -141,6 +154,7 @@ export async function removeAdminStudentTutorLinkAction(
       return { ok: false, message: dict.admin.users.detailErrTutorNotParent };
     }
 
+    const beforeTutors = await loadStudentTutorSummaryList(admin, studentId);
     const { data: removed, error: delErr } = await admin
       .from("tutor_student_rel")
       .delete()
@@ -154,12 +168,20 @@ export async function removeAdminStudentTutorLinkAction(
     if (!removed?.length) {
       return { ok: false, message: dict.admin.users.detailErrTutorLinkNotFound };
     }
+    const afterTutors = await loadStudentTutorSummaryList(admin, studentId);
 
     void recordSystemAudit({
       action: "admin_user_detail_remove_tutor_link",
       resourceType: "tutor_student_rel",
       resourceId: studentId,
       payload: { tutorId },
+    });
+    void recordStudentTutorAuditChange({
+      studentId,
+      action: "unlink_tutor",
+      summary: `Tutor desvinculado`,
+      beforeTutors: beforeTutors.length > 0 ? beforeTutors : [tutorId],
+      afterTutors,
     });
     revalidatePath(`/${locale}/dashboard/admin/users/${studentId}`);
     revalidatePath(`/${locale}/dashboard/admin/users/${tutorId}`);

@@ -1,7 +1,8 @@
 "use client";
 
 import { GraduationCap, History, Receipt, Settings2, Table2 } from "lucide-react";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId } from "react";
+import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import {
   UnderlineTabBar,
   underlinePanelId,
@@ -24,6 +25,14 @@ import { SectionCollectionsBillingSettingsTab } from "./SectionCollectionsBillin
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
 type TabId = "matrix" | "settings" | "history" | "scholarships" | "enrollment";
 
+const COLLECTION_TABS: readonly TabId[] = [
+  "matrix",
+  "settings",
+  "history",
+  "scholarships",
+  "enrollment",
+];
+
 export interface SectionCollectionsClientProps {
   view: SectionCollectionsView;
   sectionScholarships: SectionCollectionsScholarshipListRow[];
@@ -45,7 +54,10 @@ export function SectionCollectionsClient({
   monthlyFeeChargeEditorDict,
   advancePaymentEditorDict,
 }: SectionCollectionsClientProps) {
-  const [tab, setTab] = useState<TabId>("matrix");
+  const { value: tab, setValue: setTab } = usePersistentPageTab<TabId>({
+    allowed: COLLECTION_TABS,
+    fallback: "matrix",
+  });
   const idPrefix = useId().replace(/:/g, "");
   const t = dict.sectionTabs;
 

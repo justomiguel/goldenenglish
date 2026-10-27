@@ -8,7 +8,9 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadAdminPortalMessageDetail } from "@/lib/dashboard/loadAdminPortalMessageDetail";
 import { markAdminPortalMessageRead } from "@/lib/messaging/markAdminPortalMessageAttention";
 import { AdminPortalMessageDetailView } from "@/components/dashboard/AdminPortalMessageDetailView";
+import { AdminMessageContactActions } from "@/components/dashboard/AdminMessageContactActions";
 import { DeletePortalMessageButton } from "@/components/dashboard/DeletePortalMessageButton";
+import { loadAdminPortalMessageOutcome } from "@/lib/dashboard/loadAdminPortalMessageOutcome";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
@@ -47,6 +49,7 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
   if (!detail) notFound();
 
   await markAdminPortalMessageRead(supabase, messageId);
+  const outcome = await loadAdminPortalMessageOutcome(supabase, messageId, locale, dict);
 
   const listHref = `/${locale}/dashboard/admin/messages`;
   const replyHref = `/${locale}/dashboard/admin/messages/compose?replyTo=${detail.id}`;
@@ -70,7 +73,11 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
         />
       </div>
       <div className="mt-2 md:mt-9">
-        <AdminPortalMessageDetailView locale={locale} labels={dict.admin.messages} detail={detail} />
+        <AdminPortalMessageDetailView
+          locale={locale}
+          labels={dict.admin.messages}
+          detail={{ ...detail, statusLines: outcome.lines }}
+        />
       </div>
       <div
         className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end sm:gap-3 md:mt-8 md:border-t md:border-[var(--color-border)]/80 md:pt-7"
@@ -92,6 +99,12 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
           <ReplyAll className="h-4 w-4 shrink-0" aria-hidden />
           <span className="truncate">{dict.admin.messages.replyWithDefaultMessage}</span>
         </Link>
+        <AdminMessageContactActions
+          locale={locale}
+          messageId={detail.id}
+          labels={dict.admin.messages}
+          hrefs={outcome.hrefs}
+        />
         <div className="col-span-2 flex sm:col-span-1">
           <DeletePortalMessageButton
             locale={locale}

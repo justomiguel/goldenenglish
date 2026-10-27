@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
+import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import { AlertTriangle } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { ScheduleConflictResolutionModal } from "@/components/molecules/ScheduleConflictResolutionModal";
@@ -62,7 +63,11 @@ export function AcademicSectionRosterTable({
   embedded = false,
 }: AcademicSectionRosterTableProps) {
   const narrow = useAppSurface() !== "web-desktop";
-  const [tab, setTab] = useState<SectionRosterTabKey>("active");
+  const { value: tab, setValue: setTab } = usePersistentPageTab<SectionRosterTabKey>({
+    allowed: ["active", "dropped", "transferred"],
+    fallback: "active",
+    param: "roster",
+  });
   const [rosterSortKey, setRosterSortKey] = useState<SectionRosterSortKey>("label");
   const [rosterSortDir, setRosterSortDir] = useState<UniversalSortDir>("asc");
 

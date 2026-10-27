@@ -53,7 +53,7 @@ export function GradingForm({
       <div className="space-y-3">
         {dimensions.map((d) => {
           const v = rubric[d.key] ?? d.scaleMin;
-          const useToggle = span(d) <= 5;
+          const useToggle = span(d) <= 10;
           return (
             <div key={d.key} className="space-y-1">
               <div className="flex items-center justify-between gap-2">

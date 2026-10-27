@@ -12,6 +12,8 @@ import {
   sortAdminPortalMailboxAttentionFirst,
 } from "@/lib/messaging/adminPortalMessageAttention";
 import { adminPortalMessageSource } from "@/lib/messaging/adminPortalMessageSource";
+import { loadInboxStatusMap } from "@/lib/messaging/loadAdminMessageFollowUpFacts";
+import type { InboxMessageStatus } from "@/lib/messaging/adminMessageStatus";
 import { resolveSiteContactVisitorDisplayName } from "@/lib/messaging/siteContactVisitorDisplayName";
 
 /** One-line preview budget for dense admin list rows. */
@@ -110,6 +112,7 @@ function buildRow(
   dict: Dictionary,
   metaById: Map<string, { name: string; role: string }>,
   latestStaffReplyByPeer: Map<string, number>,
+  statusById: Map<string, InboxMessageStatus>,
 ): AdminPortalMessageRow {
   const s = metaById.get(m.sender_id as string);
   const r = metaById.get(m.recipient_id as string);
@@ -119,12 +122,16 @@ function buildRow(
   });
   const createdMs = new Date(m.created_at as string).getTime();
   const latestReply = latestStaffReplyByPeer.get(m.sender_id as string);
-  const hasLaterStaffReplyToPeer = latestReply != null && latestReply > createdMs;
+  const status = statusById.get(m.id as string);
+  const peerHit = latestReply != null && latestReply > createdMs;
+  const hasLaterStaffReplyToPeer =
+    (s?.role === "site_contact" ? false : peerHit) || Boolean(status?.hasStaffAnswer);
   const isUnread = m.read_at == null || m.read_at === "";
   const needsReply = adminPortalMessageNeedsReply({
     senderRole: s?.role ?? "",
     externalRepliedAt: (m.external_replied_at as string | null | undefined) ?? null,
     hasLaterStaffReplyToPeer,
+    hasFollowUp: status?.hasFollowUp ?? false,
   });
 
   return {
@@ -138,6 +145,7 @@ function buildRow(
     isUnread,
     needsReply,
     source: adminPortalMessageSource(s?.role ?? ""),
+    statusLines: status?.lines ?? [],
   };
 }
 
@@ -197,22 +205,29 @@ export async function loadAdminPortalMessagesMailbox(
 
   const list = (msgs ?? []) as MsgRow[];
   const latestStaffReplyByPeer = buildLatestStaffReplyByPeer(list, metaById);
+  const inboundList = list.filter((m) => {
+    if ((m.recipient_id as string) !== adminUserId) return false;
+    return isAdminInboxSender(metaById.get(m.sender_id as string), m.sender_id as string);
+  });
+  const statusById = await loadInboxStatusMap(
+    supabase,
+    list,
+    metaById,
+    new Set(inboundList.map((m) => m.id as string)),
+    dict.common.emptyValue,
+  );
 
   const inboxRows = sortAdminPortalMailboxAttentionFirst(
-    list
-      .filter((m) => {
-        if ((m.recipient_id as string) !== adminUserId) return false;
-        return isAdminInboxSender(metaById.get(m.sender_id as string), m.sender_id as string);
-      })
-      .map((m) => buildRow(m, dict, metaById, latestStaffReplyByPeer)),
+    inboundList.map((m) => buildRow(m, dict, metaById, latestStaffReplyByPeer, statusById)),
   );
 
   const sentRows = list
     .filter((m) => (m.sender_id as string) === adminUserId)
     .map((m) => ({
-      ...buildRow(m, dict, metaById, latestStaffReplyByPeer),
+      ...buildRow(m, dict, metaById, latestStaffReplyByPeer, statusById),
       isUnread: false,
       needsReply: false,
+      statusLines: [],
     }));
 
   return { inboxRows, sentRows };

@@ -2,13 +2,13 @@
 
 import type { ReactNode } from "react";
 import type { Dictionary } from "@/types/i18n";
+import type { AdminDirectorySortKey } from "@/lib/dashboard/adminUsersSortCriteria";
 import {
   isAdminParentsDirectory,
   isAdminStudentsDirectory,
   isAdminTeachersDirectory,
   type AdminUserRow,
   type SortDir,
-  type SortKey,
 } from "@/lib/dashboard/adminUsersTableHelpers";
 import { AdminUsersPwaListItem } from "@/components/pwa/molecules/AdminUsersPwaListItem";
 import { DirectoryBillingLegend } from "@/components/molecules/DirectoryBillingLegend";
@@ -27,9 +27,9 @@ export interface AdminUsersPwaListProps {
   listEmpty: boolean;
   rows: AdminUserRow[];
   currentUserId: string;
-  sortKey: SortKey;
+  sortKey: AdminDirectorySortKey;
   sortDir: SortDir;
-  onToggleSort: (key: SortKey) => void;
+  onToggleSort: (key: AdminDirectorySortKey) => void;
   selectedIds: Set<string>;
   onToggleRow: (id: string) => void;
   allVisibleSelected: boolean;
@@ -46,6 +46,7 @@ export interface AdminUsersPwaListProps {
   };
   listPending?: boolean;
   lockRole?: string;
+  academicColumns?: { id: string; label: string }[];
   onDeleteSelected?: () => void;
   deleteDisabled?: boolean;
   onBulkMail?: () => void;
@@ -68,6 +69,7 @@ export function AdminUsersPwaList({
   pagination,
   listPending = false,
   lockRole,
+  academicColumns = [],
   onDeleteSelected,
   deleteDisabled = false,
   onBulkMail,
@@ -107,6 +109,7 @@ export function AdminUsersPwaList({
             selected={selectedIds.has(r.id)}
             busy={busy}
             studentsDirectory={studentsDirectory}
+            academicColumns={academicColumns}
             teachersDirectory={teachersDirectory}
             parentsDirectory={parentsDirectory}
             emptyValue={emptyValue}

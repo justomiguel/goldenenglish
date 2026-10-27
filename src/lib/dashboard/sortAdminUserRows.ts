@@ -3,7 +3,8 @@ import {
   formatProfileNameSurnameFirst,
 } from "@/lib/profile/formatProfileDisplayName";
 import { directoryBillingMarkSortRank } from "@/lib/dashboard/directoryBillingStatus";
-import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
+import { isAcademicFieldSortKey } from "@/lib/academic-profile/academicDirectorySort";
+import type { AdminDirectorySortKey, AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
 import type { AdminUserRow, SortDir, SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
 import { compareSortValues } from "@/lib/sort/compareSortValues";
 
@@ -22,8 +23,11 @@ function monthlyDueSortValue(row: AdminUserRow): number {
   return row.monthlyDue.reduce((sum, line) => sum + line.amount, 0);
 }
 
-function compareAdminUserRow(a: AdminUserRow, b: AdminUserRow, key: SortKey, dir: SortDir): number {
+function compareAdminUserRow(a: AdminUserRow, b: AdminUserRow, key: AdminDirectorySortKey, dir: SortDir): number {
   const mult = dir === "asc" ? 1 : -1;
+  if (isAcademicFieldSortKey(key)) {
+    return compareSortValues(a.academicSortValues?.[key], b.academicSortValues?.[key], dir);
+  }
   if (key === "name") {
     return (
       compareProfileNamesByLastThenFirst(
@@ -73,9 +77,10 @@ function compareAdminUserRow(a: AdminUserRow, b: AdminUserRow, key: SortKey, dir
       dir,
     );
   }
-  const va = a[key];
-  const vb = b[key];
-  return String(va).localeCompare(String(vb), undefined, { sensitivity: "base" }) * mult;
+  if (key === "email" || key === "role" || key === "phone") {
+    return String(a[key]).localeCompare(String(b[key]), undefined, { sensitivity: "base" }) * mult;
+  }
+  return 0;
 }
 
 export function sortAdminUsers(

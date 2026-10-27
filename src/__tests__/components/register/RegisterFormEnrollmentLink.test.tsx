@@ -42,10 +42,12 @@ const dict = {
   dni: "DNI",
   documentIdFormatHint: "hint",
   studentSectionTitle: "Datos del alumno",
+  dniStepLead: "Ingresa primero el documento",
   continue: "Continuar",
   lookupFailed: "lookup fail",
   existingFoundTitle: "encontrado",
   existingFoundLead: "¿Es {firstName} {lastName}?",
+  existingPrefilledNotice: "Encontramos a {firstName} {lastName}.",
   existingYes: "Sí",
   existingNo: "No",
   existingRejected: "rechazado",
@@ -107,7 +109,6 @@ const dict = {
   },
 } as never;
 
-/** RFC 9562-valid v4 fixtures — zod 4 rejects the plan's all-ones / all-nines ids. */
 const link = {
   token: "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
   sectionId: "11111111-1111-4111-8111-111111111111",
@@ -156,12 +157,12 @@ describe("RegisterForm in enrollment-link mode", () => {
     const user = userEvent.setup();
     await renderForm({ sectionOptions: [], enrollmentLink: link });
 
+    await user.type(screen.getByLabelText("DNI"), "12345678");
+    await user.click(screen.getByRole("button", { name: "Continuar" }));
+    expect(await screen.findByLabelText("Nombre")).toBeInTheDocument();
     await user.type(screen.getByLabelText("Nombre"), "Ana");
     await user.type(screen.getByLabelText("Apellido"), "Pérez");
-    await user.type(screen.getByLabelText("DNI"), "12345678");
     await user.click(screen.getByText("set-birth-date"));
-    await user.click(screen.getByRole("button", { name: "Continuar" }));
-    expect(await screen.findByLabelText("Email")).toBeInTheDocument();
     await user.type(screen.getByLabelText("Email"), "ana@example.com");
     await user.type(screen.getByLabelText("Teléfono"), "3624000000");
     await user.click(screen.getByRole("checkbox"));
@@ -184,12 +185,12 @@ describe("RegisterForm in enrollment-link mode", () => {
       sectionOptions: [{ id: link.sectionId, label: "Ciclo — B" }],
     });
 
+    await user.type(screen.getByLabelText("DNI"), "12345678");
+    await user.click(screen.getByRole("button", { name: "Continuar" }));
+    expect(await screen.findByLabelText("Nombre")).toBeInTheDocument();
     await user.type(screen.getByLabelText("Nombre"), "Ana");
     await user.type(screen.getByLabelText("Apellido"), "Pérez");
-    await user.type(screen.getByLabelText("DNI"), "12345678");
     await user.click(screen.getByText("set-birth-date"));
-    await user.click(screen.getByRole("button", { name: "Continuar" }));
-    expect(await screen.findByLabelText("Email")).toBeInTheDocument();
     await user.type(screen.getByLabelText("Email"), "ana@example.com");
     await user.type(screen.getByLabelText("Teléfono"), "3624000000");
     await user.selectOptions(screen.getByRole("combobox", { name: "Sección" }), link.sectionId);

@@ -8,9 +8,9 @@ import { AdminUsersSortSheet } from "@/components/pwa/molecules/AdminUsersSortSh
 import type { AdminDirectoryFilterPanelProps } from "@/components/dashboard/AdminDirectoryFilterPanel";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { adminDirectoryFiltersActive } from "@/lib/dashboard/adminDirectoryFilters";
-import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
+import type { AdminDirectorySortKey, AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
 import { adminUsersSortKeysForLock } from "@/lib/dashboard/adminUsersSortKeys";
-import type { SortDir, SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
+import type { SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 import type { Dictionary } from "@/types/i18n";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 
@@ -21,10 +21,11 @@ export interface AdminUsersMobileToolbarProps {
   query: string;
   onQueryChange: (value: string) => void;
   totalCount: number;
-  sortKey: SortKey;
+  sortKey: AdminDirectorySortKey;
   sortDir: SortDir;
-  onToggleSort: (key: SortKey) => void;
+  onToggleSort: (key: AdminDirectorySortKey) => void;
   sortCriteria?: AdminUsersSortCriterion[];
+  sortFieldLabels?: Record<string, string>;
   onSortCriteriaChange?: (next: AdminUsersSortCriterion[]) => void;
   lockRole?: string;
   allVisibleSelected: boolean;
@@ -47,6 +48,7 @@ export function AdminUsersMobileToolbar({
   sortKey,
   sortDir,
   sortCriteria,
+  sortFieldLabels,
   onSortCriteriaChange,
   lockRole,
   allVisibleSelected,
@@ -144,6 +146,7 @@ export function AdminUsersMobileToolbar({
         labels={labels}
         sortKeys={sortKeys}
         criteria={criteria}
+        fieldLabels={sortFieldLabels}
         onChange={(next) => onSortCriteriaChange?.(next)}
       />
     </div>

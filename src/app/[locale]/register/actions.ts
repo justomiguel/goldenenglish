@@ -13,12 +13,8 @@ import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 import { composeSyntheticMinorStudentEmail } from "@/lib/register/composeSyntheticMinorStudentEmail";
 import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
 import { randomLowercaseAlphaString } from "@/lib/server/randomLowercaseAlphaString";
-import {
-  REGISTRATION_LEVEL_INTEREST_UNDECIDED,
-  REGISTRATION_UNDECIDED_FORM_VALUE,
-} from "@/lib/register/registrationSectionConstants";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { parseRequestedSectionIds } from "@/lib/register/parseRequestedSectionIds";
+import { resolvePublicRegistrationSections } from "@/lib/register/resolvePublicRegistrationSections";
 import { resolveExistingStudentByDni } from "@/lib/register/resolveExistingStudentByDni";
 import { resolveAndStampTenantExtras } from "@/lib/register/packs/resolveAndStampTenantExtras";
 import {
@@ -53,53 +49,12 @@ export async function submitPublicRegistration(
 
   const supabase = await createClient();
 
-  const candidateIds = [
-    d.preferred_section_id,
-    ...(d.additional_section_ids ?? []),
-  ].filter((id) => id && id !== REGISTRATION_UNDECIDED_FORM_VALUE);
-
-  const validPublicIds: string[] = [];
-  for (const id of candidateIds) {
-    const { data: sectionLabel, error: sectionRpcErr } = await supabase.rpc(
-      "registration_public_section_label",
-      { p_section_id: id },
-    );
-    if (!sectionRpcErr && sectionLabel != null && String(sectionLabel).trim() !== "") {
-      if (!validPublicIds.includes(id)) validPublicIds.push(id);
-    }
-  }
-
-  const parsedSections = parseRequestedSectionIds({
-    selectedIds: [d.preferred_section_id, ...(d.additional_section_ids ?? [])],
-    sectionOptionsOrder: validPublicIds,
-    allowUndecided: true,
+  const sections = await resolvePublicRegistrationSections(supabase, d, {
+    invalid: reg.invalidSectionOption,
+    validation: reg.validationError,
   });
-  if (!parsedSections.ok) {
-    return { ok: false, message: reg.validationError };
-  }
-
-  let sectionLabelForRow: string | null = null;
-  const preferredSectionId = parsedSections.preferredSectionId;
-  const additionalSectionIds = parsedSections.additionalSectionIds;
-
-  if (parsedSections.undecided) {
-    sectionLabelForRow = REGISTRATION_LEVEL_INTEREST_UNDECIDED;
-  } else if (preferredSectionId) {
-    const { data: sectionLabel, error: sectionRpcErr } = await supabase.rpc(
-      "registration_public_section_label",
-      { p_section_id: preferredSectionId },
-    );
-    if (
-      sectionRpcErr ||
-      sectionLabel == null ||
-      String(sectionLabel).trim() === ""
-    ) {
-      return { ok: false, message: reg.invalidSectionOption };
-    }
-    sectionLabelForRow = String(sectionLabel);
-  } else if (candidateIds.length > 0) {
-    return { ok: false, message: reg.invalidSectionOption };
-  }
+  if (!sections.ok) return sections;
+  const { sectionLabelForRow, preferredSectionId, additionalSectionIds } = sections;
 
   const identity = await resolveExistingStudentByDni(await createAdminClient(), d.dni);
   if (identity.kind === "occupied") {
@@ -163,7 +118,9 @@ export async function submitPublicRegistration(
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     let resolvedEmail: string;
     if (existingStudent) {
-      resolvedEmail = identity.email;
+      const candidateEmail = d.email.trim().toLowerCase();
+      resolvedEmail =
+        age >= legal && candidateEmail.includes("@") ? candidateEmail : identity.email;
     } else if (age < legal) {
       if (attempt === 0) {
         resolvedEmail = composeSyntheticMinorStudentEmail(
@@ -198,17 +155,17 @@ export async function submitPublicRegistration(
       last_name: d.last_name,
       dni: d.dni,
       email: resolvedEmail,
-      phone: existingStudent || age < legal ? null : d.phone.trim(),
+      phone: age < legal ? null : d.phone.trim() || null,
       birth_date: d.birth_date,
       preferred_section_id: preferredSectionId,
       additional_section_ids: additionalSectionIds,
       level_interest: sectionLabelForRow,
       status: "new",
-      tutor_name: existingStudent ? null : d.tutor_name?.trim() || null,
-      tutor_dni: existingStudent ? null : d.tutor_dni?.trim() || null,
-      tutor_phone: existingStudent ? null : d.tutor_phone?.trim() || null,
-      tutor_email: existingStudent ? null : d.tutor_email?.trim() || null,
-      tutor_relationship: existingStudent ? null : d.tutor_relationship?.trim() || null,
+      tutor_name: d.tutor_name?.trim() || null,
+      tutor_dni: d.tutor_dni?.trim() || null,
+      tutor_phone: d.tutor_phone?.trim() || null,
+      tutor_email: d.tutor_email?.trim() || null,
+      tutor_relationship: d.tutor_relationship?.trim() || null,
       tenant_extras: stamped.extras,
       pay_token: quote.fields.pay_token,
       fee_snapshot: quote.fields.fee_snapshot,

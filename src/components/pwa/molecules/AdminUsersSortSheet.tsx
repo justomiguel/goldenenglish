@@ -16,6 +16,7 @@ export function AdminUsersSortSheet({
   labels,
   sortKeys,
   criteria,
+  fieldLabels,
   onChange,
 }: {
   open: boolean;
@@ -23,6 +24,7 @@ export function AdminUsersSortSheet({
   labels: UserLabels;
   sortKeys: SortKey[];
   criteria: AdminUsersSortCriterion[];
+  fieldLabels?: Record<string, string>;
   onChange: (next: AdminUsersSortCriterion[]) => void;
 }) {
   return (
@@ -34,7 +36,13 @@ export function AdminUsersSortSheet({
       stackBelowTour
     >
       <div className="space-y-4">
-        <AdminUsersSortChecklist labels={labels} sortKeys={sortKeys} criteria={criteria} onChange={onChange} />
+        <AdminUsersSortChecklist
+          labels={labels}
+          sortKeys={sortKeys}
+          criteria={criteria}
+          fieldLabels={fieldLabels}
+          onChange={onChange}
+        />
         <Button type="button" className="min-h-11" onClick={() => onOpenChange(false)}>
           <Check className="h-4 w-4" aria-hidden />
           {labels.mobileApplyFilters}

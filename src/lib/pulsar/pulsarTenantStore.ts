@@ -7,16 +7,53 @@ import {
 } from "@/lib/pulsar/pulsarTenantMapper";
 import type { ValidatedPulsarTenantInput } from "@/lib/pulsar/pulsarTenantSchema";
 import { createPulsarAdminClient, isPulsarSupabaseConfigured } from "@/lib/supabase/pulsar";
-import { listTenants, setDynamicTenantsCache } from "@/lib/tenant/tenantRegistry";
+import {
+  getPulsarHosts,
+  listTenants,
+  normalizeHost,
+  setDynamicPulsarHostsCache,
+  setDynamicTenantsCache,
+} from "@/lib/tenant/tenantRegistry";
 
 const CACHE_TTL_MS = 60_000;
 
 let lastLoadedAt = 0;
 let cachedAllRecords: PulsarTenantRecord[] | null = null;
+let cachedPlatformHosts: string[] | null = null;
 
 export function invalidateTenantRegistryCache(): void {
   lastLoadedAt = 0;
   cachedAllRecords = null;
+  cachedPlatformHosts = null;
+}
+
+async function fetchPlatformSettingsHostsFromPulsarDb(): Promise<string[] | null> {
+  try {
+    const admin = createPulsarAdminClient();
+    const { data, error } = await admin
+      .from("platform_settings")
+      .select("pulsar_hosts")
+      .eq("id", "default")
+      .maybeSingle();
+    if (error) {
+      logSupabaseError("pulsarTenantStore:select_settings", error);
+      return null;
+    }
+    const rawHosts = (data as { pulsar_hosts?: unknown } | null)?.pulsar_hosts;
+    if (!Array.isArray(rawHosts)) return null;
+    const normalized = Array.from(
+      new Set(
+        rawHosts
+          .filter((h): h is string => typeof h === "string")
+          .map((h) => normalizeHost(h))
+          .filter((h) => h.length > 0),
+      ),
+    );
+    return normalized.length > 0 ? normalized : null;
+  } catch (err) {
+    logServerException("pulsarTenantStore:fetch_settings", err);
+    return null;
+  }
 }
 
 async function fetchPlatformTenantsFromPulsarDb(): Promise<PulsarTenantRecord[] | null> {
@@ -55,12 +92,43 @@ export async function ensureTenantRegistryLoaded(): Promise<void> {
   if (cachedAllRecords !== null && now - lastLoadedAt < CACHE_TTL_MS) {
     return;
   }
-  const records = await fetchPlatformTenantsFromPulsarDb();
+  const [records, settingsHosts] = await Promise.all([
+    fetchPlatformTenantsFromPulsarDb(),
+    fetchPlatformSettingsHostsFromPulsarDb(),
+  ]);
+  if (settingsHosts && settingsHosts.length > 0) {
+    cachedPlatformHosts = settingsHosts;
+    setDynamicPulsarHostsCache(settingsHosts);
+  }
   if (records && records.length > 0) {
     cachedAllRecords = records;
     lastLoadedAt = now;
     setDynamicTenantsCache(records.filter((r) => r.isEnabled));
   }
+}
+
+export async function loadPulsarPlatformHostsForAdmin(): Promise<string[]> {
+  if (isPulsarSupabaseConfigured()) {
+    const settingsHosts = await fetchPlatformSettingsHostsFromPulsarDb();
+    if (settingsHosts && settingsHosts.length > 0) {
+      cachedPlatformHosts = settingsHosts;
+      setDynamicPulsarHostsCache(settingsHosts);
+      return settingsHosts;
+    }
+  }
+  if (cachedPlatformHosts && cachedPlatformHosts.length > 0) {
+    return cachedPlatformHosts;
+  }
+  return getPulsarHosts();
+}
+
+export function applyLocalMemoryPulsarHosts(hosts: readonly string[]): string[] {
+  const normalized = Array.from(
+    new Set(hosts.map((h) => normalizeHost(h)).filter((h) => h.length > 0)),
+  );
+  cachedPlatformHosts = normalized;
+  setDynamicPulsarHostsCache(normalized);
+  return normalized;
 }
 
 export async function loadAllPulsarTenantsForAdmin(): Promise<PulsarTenantRecord[]> {

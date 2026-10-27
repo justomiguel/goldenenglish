@@ -2,8 +2,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 /**
- * Total portal messages addressed to this admin (sidebar Messages badge).
- * Unbounded by date — full inbound mailbox count for the recipient.
+ * Unread portal messages addressed to this admin.
+ * The same number feeds the sidebar, the header icon, and the phone tab.
+ * No date window. A read row (`read_at` set) is excluded.
  */
 export async function loadAdminRecentInboundMessageCount(
   supabase: SupabaseClient,
@@ -12,7 +13,8 @@ export async function loadAdminRecentInboundMessageCount(
   const { count, error } = await supabase
     .from("portal_messages")
     .select("id", { head: true, count: "exact" })
-    .eq("recipient_id", recipientUserId);
+    .eq("recipient_id", recipientUserId)
+    .is("read_at", null);
 
   if (error) {
     logSupabaseClientError("loadAdminRecentInboundMessageCount", error, {

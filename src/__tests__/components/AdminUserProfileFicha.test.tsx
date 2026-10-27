@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { AdminUserProfileFicha } from "@/components/molecules/AdminUserProfileFicha";
 import { dictEn } from "@/test/dictEn";
+import { mockReplace, mockSearchParams } from "@/test/navigationMock";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 
@@ -174,5 +176,103 @@ describe("AdminUserProfileFicha", () => {
     expect(
       screen.queryByRole("tab", { name: new RegExp(dictEn.admin.users.detailTabCare) }),
     ).not.toBeInTheDocument();
+  });
+
+  it("keeps the academic tab in the url", async () => {
+    const user = userEvent.setup();
+    render(
+      <AdminUserProfileFicha
+        locale="en"
+        labels={dictEn.admin.users}
+        billingLabels={dictEn.admin.billing}
+        detail={makeStudentDetail(true)}
+        billing={billing}
+      />,
+    );
+
+    await user.click(screen.getByRole("tab", { name: dictEn.admin.users.detailTabAcademic }));
+
+    expect(screen.getByText("Academic panel")).toBeInTheDocument();
+    expect(mockReplace).toHaveBeenCalledWith(expect.stringContaining("tab=academic"), {
+      scroll: false,
+    });
+  });
+
+  it("opens the tab named in the url", () => {
+    mockSearchParams.mockReturnValue(new URLSearchParams("tab=security"));
+    render(
+      <AdminUserProfileFicha
+        locale="en"
+        labels={dictEn.admin.users}
+        billingLabels={dictEn.admin.billing}
+        detail={makeStudentDetail(true)}
+        billing={billing}
+        fileUploadProgress={dictEn.common.fileUpload}
+      />,
+    );
+
+    expect(screen.getByText("Security panel")).toBeInTheDocument();
+  });
+
+  it("renders the history tab for students with cohort trajectory and tutor/profile audit events", async () => {
+    mockSearchParams.mockReturnValue(new URLSearchParams(""));
+    const user = userEvent.setup();
+    const detailWithHistory: AdminUserDetailVM = {
+      ...makeStudentDetail(true),
+      studentHistory: {
+        cohorts: [
+          {
+            enrollmentId: "enr-1",
+            cohortId: "coh-2026",
+            cohortName: "Cohort 2026",
+            cohortIsCurrent: true,
+            sectionId: "sec-1",
+            sectionName: "Kids 1",
+            teacherName: "Lovelace Ada",
+            status: "active",
+            enrolledAtDisplay: "Mar 1, 2026",
+          },
+        ],
+        auditEvents: [
+          {
+            id: "aud-tutor-1",
+            createdAtIso: "2026-10-27T12:00:00.000Z",
+            createdAtDisplay: "Oct 27, 2026",
+            actorName: "Admin Ana",
+            kind: "tutor",
+            action: "link_tutor",
+            summary: "Guardian updated",
+            changes: [
+              {
+                field: "tutor",
+                before: "Sosa Marta (mother)",
+                after: "Sosa Pedro (father)",
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    render(
+      <AdminUserProfileFicha
+        locale="en"
+        labels={dictEn.admin.users}
+        billingLabels={dictEn.admin.billing}
+        detail={detailWithHistory}
+        billing={billing}
+        fileUploadProgress={dictEn.common.fileUpload}
+      />,
+    );
+
+    await user.click(screen.getByRole("tab", { name: dictEn.admin.users.detailTabHistory }));
+
+    expect(screen.getByText("Cohort 2026 — Kids 1")).toBeInTheDocument();
+    expect(screen.getByText("Guardian updated")).toBeInTheDocument();
+    expect(screen.getByText("Sosa Marta (mother)")).toBeInTheDocument();
+    expect(screen.getByText("Sosa Pedro (father)")).toBeInTheDocument();
+    expect(mockReplace).toHaveBeenCalledWith(expect.stringContaining("tab=history"), {
+      scroll: false,
+    });
   });
 });

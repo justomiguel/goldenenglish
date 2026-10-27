@@ -4,11 +4,11 @@ export type AssessmentRubricKey = (typeof ASSESSMENT_RUBRIC_KEYS)[number];
 
 export function defaultAssessmentRubric(): Record<AssessmentRubricKey, number> {
   return {
-    speaking: 3,
-    grammar: 3,
-    vocabulary: 3,
-    listening: 3,
-    fluency: 3,
+    speaking: 6,
+    grammar: 6,
+    vocabulary: 6,
+    listening: 6,
+    fluency: 6,
   };
 }
 
@@ -18,7 +18,7 @@ export function normalizeRubricFromDb(raw: unknown): Record<AssessmentRubricKey,
     const o = raw as Record<string, unknown>;
     for (const k of ASSESSMENT_RUBRIC_KEYS) {
       const n = Number(o[k]);
-      if (Number.isFinite(n) && n >= 1 && n <= 5) base[k] = n;
+      if (Number.isFinite(n) && n >= 1 && n <= 10) base[k] = n;
     }
   }
   return base;

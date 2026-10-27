@@ -1,5 +1,8 @@
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
+import {
+  getInscriptionsEnabled,
+  loadRegistrationCohortConfig,
+} from "@/lib/settings/inscriptionsServer";
 import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
 import { PublicCtaModeSettingsForm } from "@/components/dashboard/PublicCtaModeSettingsForm";
 import { loadClassRemindersAdminPageModel } from "@/lib/settings/loadClassRemindersAdminPageModel";
@@ -33,9 +36,12 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function AdminSettingsPage({ params }: PageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
-  const enabled = await getInscriptionsEnabled();
-  const merchEnabled = await loadMerchEnabled();
-  const publicCtaMode = await getPublicCtaMode();
+  const [enabled, cohortConfig, merchEnabled, publicCtaMode] = await Promise.all([
+    getInscriptionsEnabled(),
+    loadRegistrationCohortConfig(),
+    loadMerchEnabled(),
+    getPublicCtaMode(),
+  ]);
   const emailSends = await loadEmailSendsAdminPageModel(locale as Locale, {
     inactivity: dict.admin.settings.emailSendsLabelInactivity,
     classReminder: dict.admin.settings.emailSendsLabelClassReminder,
@@ -57,6 +63,7 @@ export default async function AdminSettingsPage({ params }: PageProps) {
           locale={locale}
           initialEnabled={enabled}
           labels={dict.admin.settings}
+          cohortConfig={cohortConfig}
         />
         <PublicCtaModeSettingsForm
           locale={locale}

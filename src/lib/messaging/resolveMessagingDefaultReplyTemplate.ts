@@ -29,3 +29,11 @@ export function resolveMessagingDefaultReplyTemplate(
 
   return paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join("");
 }
+
+/** Plain text for mailto, Gmail, Outlook, and WhatsApp drafts. Same placeholders as the HTML helper. */
+export function resolveMessagingDefaultReplyPlain(input: ResolveMessagingDefaultReplyInput): string {
+  return input.template
+    .replaceAll("{{instituteName}}", input.instituteName)
+    .replaceAll("{{phone}}", input.phone.trim())
+    .trim();
+}

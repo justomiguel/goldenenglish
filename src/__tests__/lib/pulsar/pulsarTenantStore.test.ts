@@ -14,12 +14,19 @@ vi.mock("@/lib/supabase/pulsar", () => ({
 
 import { mapTenantConfigToPulsarRecord } from "@/lib/pulsar/pulsarTenantMapper";
 import {
+  applyLocalMemoryPulsarHosts,
   applyLocalMemoryTenantUpsert,
   ensureTenantRegistryLoaded,
   invalidateTenantRegistryCache,
   loadAllPulsarTenantsForAdmin,
+  loadPulsarPlatformHostsForAdmin,
 } from "@/lib/pulsar/pulsarTenantStore";
-import { listTenants, setDynamicTenantsCache } from "@/lib/tenant/tenantRegistry";
+import {
+  getPulsarHosts,
+  listTenants,
+  setDynamicPulsarHostsCache,
+  setDynamicTenantsCache,
+} from "@/lib/tenant/tenantRegistry";
 
 const DB_ROW = {
   slug: "nago",
@@ -51,17 +58,21 @@ const DB_ROW = {
   updated_at: "2026-10-25T12:00:00Z",
 };
 
+// REGRESSION CHECK: pulsarTenantStore loads both platform_tenants and platform_settings.pulsar_hosts
+// and falls back safely when platform_settings is unavailable.
 describe("pulsarTenantStore", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     invalidateTenantRegistryCache();
     setDynamicTenantsCache(null);
+    setDynamicPulsarHostsCache(null);
     isConfiguredMock.mockReturnValue(true);
   });
 
   afterEach(() => {
     invalidateTenantRegistryCache();
     setDynamicTenantsCache(null);
+    setDynamicPulsarHostsCache(null);
   });
 
   it("loads enabled tenants from platform_tenants and caches for subsequent calls", async () => {
@@ -154,5 +165,38 @@ describe("pulsarTenantStore", () => {
     });
     const all = await loadAllPulsarTenantsForAdmin();
     expect(all.some((t) => t.slug === saved.slug)).toBe(true);
+  });
+
+  it("loads pulsar_hosts from platform_settings and supports local memory override", async () => {
+    const orderMock = vi.fn().mockResolvedValue({
+      data: [DB_ROW],
+      error: null,
+    });
+    const maybeSingleMock = vi.fn().mockResolvedValue({
+      data: { pulsar_hosts: ["pulsarlab.cl", "nuevo.pulsarlab.cl"] },
+      error: null,
+    });
+    fromMock.mockImplementation((table: string) => {
+      if (table === "platform_settings") {
+        return {
+          select: () => ({
+            eq: () => ({ maybeSingle: maybeSingleMock }),
+          }),
+        };
+      }
+      return {
+        select: () => ({ order: orderMock }),
+      };
+    });
+
+    await ensureTenantRegistryLoaded();
+    expect(getPulsarHosts()).toEqual(["pulsarlab.cl", "nuevo.pulsarlab.cl"]);
+
+    const loaded = await loadPulsarPlatformHostsForAdmin();
+    expect(loaded).toEqual(["pulsarlab.cl", "nuevo.pulsarlab.cl"]);
+
+    const localHosts = applyLocalMemoryPulsarHosts(["  local.pulsar.cl:443 "]);
+    expect(localHosts).toEqual(["local.pulsar.cl"]);
+    expect(getPulsarHosts()).toEqual(["local.pulsar.cl"]);
   });
 });

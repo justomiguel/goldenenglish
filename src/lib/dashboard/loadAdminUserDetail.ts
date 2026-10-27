@@ -19,6 +19,10 @@ import {
   loadAdminStudentCurrentCohortAssignment,
   type AdminStudentCurrentCohortAssignment,
 } from "@/lib/dashboard/loadAdminStudentCurrentCohortAssignment";
+import {
+  loadAdminStudentHistory,
+  type AdminStudentHistoryData,
+} from "@/lib/dashboard/loadAdminStudentHistory";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
@@ -149,12 +153,14 @@ export async function loadAdminUserDetail(
   let currentCohortAssignment: AdminStudentCurrentCohortAssignment | null = null;
   let academicNotes: AdminStudentAcademicNote[] = [];
   let academicExams: StudentExamResult[] = [];
+  let studentHistory: AdminStudentHistoryData | null = null;
   if (role === "student" && includeStudentAcademicContext) {
-    [tutorLinks, currentCohortAssignment, academicNotes, academicExams] = await Promise.all([
+    [tutorLinks, currentCohortAssignment, academicNotes, academicExams, studentHistory] = await Promise.all([
       loadTutorLinksForStudent(admin, userId, emptyDisplay),
       loadAdminStudentCurrentCohortAssignment(admin, userId),
       loadAdminStudentAcademicNotes(admin, userId),
       loadStudentExamResults(admin, { studentId: userId }),
+      loadAdminStudentHistory(admin, userId, locale, emptyDisplay),
     ]);
   } else if (role === "student") {
     tutorLinks = await loadTutorLinksForStudent(admin, userId, emptyDisplay);
@@ -192,6 +198,7 @@ export async function loadAdminUserDetail(
     currentCohortAssignment,
     academicNotes,
     academicExams,
+    studentHistory,
     familyHomeAddressPeerIds,
     hasCareNotes: (profile as { has_care_notes?: boolean | null }).has_care_notes === true,
     viewerMayInlineEdit,

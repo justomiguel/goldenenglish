@@ -28,11 +28,7 @@ import {
   emptyAdminDirectoryFacets,
   type AdminDirectoryFacets,
 } from "@/lib/dashboard/countAdminDirectoryFacets";
-import {
-  ADMIN_DIRECTORY_FILTER_PARAM_KEYS,
-  type AdminDirectoryFilters,
-  type AdminDirectoryRole,
-} from "@/lib/dashboard/adminDirectoryFilters";
+import { type AdminDirectoryRole } from "@/lib/dashboard/adminDirectoryFilters";
 import type { PaginatedAdminUsersParams, PaginatedAdminUsersResult } from "@/lib/dashboard/loadPaginatedAdminUsers";
 import type { AdminUserRow, SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
 import {
@@ -41,6 +37,9 @@ import {
 } from "@/lib/dashboard/adminUsersTableHelpers";
 import { profileToAdminDirectorySortRow } from "@/lib/dashboard/profileToAdminDirectorySortRow";
 import { directoryBillingRowFields } from "@/lib/dashboard/directoryBillingStatus";
+import { resolveDirectorySortCriteria } from "@/lib/academic-profile/academicDirectorySort";
+import { applyAcademicProfileDirectoryFilter } from "@/lib/dashboard/applyAcademicProfileDirectoryFilter";
+import { directoryFiltersFromParams, emailsById } from "@/lib/dashboard/lockedDirectoryQueryHelpers";
 
 const PROFILE_COLUMNS =
   "id, role, first_name, last_name, phone, avatar_url, last_session_start_at, created_at, age_years";
@@ -48,6 +47,8 @@ const PROFILE_COLUMNS =
 export type AdminLockedRoleDirectoryResult = PaginatedAdminUsersResult & {
   facets: AdminDirectoryFacets;
   sectionOptions: { id: string; name: string }[];
+  academicColumns: { id: string; label: string; fieldType: string; selectOptions: string[] }[];
+  academicSelectFacets: Record<string, Record<string, number>>;
 };
 
 type ProfileStub = {
@@ -61,26 +62,6 @@ type ProfileStub = {
   created_at: string | null;
   age_years: number | null;
 };
-
-function directoryFiltersFromParams(params: PaginatedAdminUsersParams): AdminDirectoryFilters {
-  const out: AdminDirectoryFilters = {};
-  for (const key of ADMIN_DIRECTORY_FILTER_PARAM_KEYS) {
-    const value = params[key];
-    if (value) out[key] = value as never;
-  }
-  return out;
-}
-
-async function emailsById(admin: SupabaseClient, ids: string[]): Promise<Map<string, string>> {
-  const emailById = new Map<string, string>();
-  await Promise.all(
-    ids.map(async (id) => {
-      const { data } = await admin.auth.admin.getUserById(id);
-      if (data?.user?.email) emailById.set(id, data.user.email);
-    }),
-  );
-  return emailById;
-}
 
 export async function loadAdminLockedRoleDirectory(
   adminClient: SupabaseClient,
@@ -103,6 +84,8 @@ export async function loadAdminLockedRoleDirectory(
     pageSize,
     facets: emptyAdminDirectoryFacets(),
     sectionOptions: [] as { id: string; name: string }[],
+    academicColumns: [],
+    academicSelectFacets: {},
   };
   if (role !== "student" && role !== "teacher" && role !== "parent") return empty;
 
@@ -180,16 +163,35 @@ export async function loadAdminLockedRoleDirectory(
     deliverable,
   };
   const matchedProfiles = profiles.filter((p) => matchedIds.has(p.id));
-  const sortedIds = sortAdminUsers(
-    matchedProfiles.map((profile) => profileToAdminDirectorySortRow(profile, role, sortExtras)),
-    sortCriteria,
-  ).map((row) => row.id);
   const profileById = new Map(matchedProfiles.map((profile) => [profile.id, profile]));
-  const sorted = sortedIds
+  const academic = role === "student"
+    ? await applyAcademicProfileDirectoryFilter(
+        adminClient,
+        matchedProfiles.map((profile) => profile.id),
+        params.academicFieldFilters ?? {},
+      )
+    : null;
+  const activeCriteria = resolveDirectorySortCriteria(
+    sortCriteria,
+    new Set((academic?.columns ?? []).map((column) => column.id)),
+  );
+  const poolIds = academic ? academic.ids : matchedProfiles.map((profile) => profile.id);
+  const sortedIds = sortAdminUsers(
+    poolIds.flatMap((id) => {
+      const profile = profileById.get(id);
+      if (!profile) return [];
+      return [{
+        ...profileToAdminDirectorySortRow(profile, role, sortExtras),
+        academicSortValues: academic?.sortValuesByStudent.get(id),
+      }];
+    }),
+    activeCriteria,
+  ).map((row) => row.id);
+  const ordered = sortedIds
     .map((id) => profileById.get(id))
     .filter((profile): profile is ProfileStub => profile != null);
   const from = (page - 1) * pageSize;
-  const pageProfiles = sorted.slice(from, from + pageSize);
+  const pageProfiles = ordered.slice(from, from + pageSize);
 
   const rows: AdminUserRow[] = await Promise.all(
     pageProfiles.map(async (p) => {
@@ -218,13 +220,14 @@ export async function loadAdminLockedRoleDirectory(
         ...directoryBillingRowFields(billingFlagsByPerson.get(id)),
         lastSessionStartAt: p.last_session_start_at,
         emailDeliverable: deliverable.get(id) ?? false,
+        academicFieldCells: academic?.cellsByStudent.get(id) ?? [],
       };
     }),
   );
 
   return {
     rows,
-    totalCount: matched.length,
+    totalCount: ordered.length,
     page,
     pageSize,
     facets: countAdminDirectoryFacets(
@@ -233,6 +236,8 @@ export async function loadAdminLockedRoleDirectory(
       sectionOptions.map((s) => s.id),
     ),
     sectionOptions,
+    academicColumns: academic?.columns ?? [],
+    academicSelectFacets: academic?.selectFacets ?? {},
   };
 }
 

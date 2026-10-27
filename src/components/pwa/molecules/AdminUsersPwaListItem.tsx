@@ -26,6 +26,7 @@ export function AdminUsersPwaListItem(props: {
   emptyValue: string;
   onToggleRow: (id: string) => void;
   onRequestDeleteOne: (id: string) => void;
+  academicColumns?: { id: string; label: string }[];
 }) {
   const { row: r, labels, locale } = props;
   const [opening, setOpening] = useState(false);
@@ -89,6 +90,13 @@ export function AdminUsersPwaListItem(props: {
           <p className="mt-1 line-clamp-2 break-words text-xs leading-relaxed text-[var(--color-muted-foreground)] sm:text-sm">
             {summary || props.emptyValue}
           </p>
+          {props.studentsDirectory
+            ? (props.academicColumns ?? []).map((column, index) => (
+                <p key={column.id} className="mt-1 text-xs text-[var(--color-foreground)]">
+                  {column.label}: {(r.academicFieldCells ?? [])[index] || props.emptyValue}
+                </p>
+              ))
+            : null}
           {feeAlert ? (
             <p className="mt-1 truncate text-[11px] font-medium text-[var(--color-foreground)]">{feeAlert}</p>
           ) : null}

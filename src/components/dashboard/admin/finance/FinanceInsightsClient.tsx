@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import { BarChart3, Settings2, Target } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { FinanceMonthlyTrendPoint, FinanceProjection, FinanceReceiptProcessingStats, FinanceSectionRanked } from "@/types/financeAnalytics";
@@ -11,6 +11,8 @@ import { FinanceProjectionCard } from "./FinanceProjectionCard";
 import { FinanceSectionAlertsList } from "./FinanceSectionAlertsList";
 
 type InsightsSubTab = "trends" | "operations" | "projections";
+
+const INSIGHTS_TABS: readonly InsightsSubTab[] = ["trends", "operations", "projections"];
 
 const SUB_TABS: { id: InsightsSubTab; icon: typeof BarChart3 }[] = [
   { id: "trends", icon: BarChart3 },
@@ -39,7 +41,11 @@ export function FinanceInsightsClient({
   locale,
   dict,
 }: FinanceInsightsClientProps) {
-  const [active, setActive] = useState<InsightsSubTab>("trends");
+  const { value: active, setValue: setActive } = usePersistentPageTab<InsightsSubTab>({
+    allowed: INSIGHTS_TABS,
+    fallback: "trends",
+    param: "insights",
+  });
 
   return (
     <div className="space-y-5">

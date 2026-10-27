@@ -57,6 +57,8 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`37-commit-finished-work-ask-when-mixed.mdc`** | Al terminar una tarea, commitear. Nunca stash ni apartar WIP ajeno sin preguntar. Push solo si lo piden. |
 | **`39-commit-product-changelog.mdc`** | Antes de cada commit con cambio visible, agregar la entrada en `src/lib/product-changelog/catalog.ts` (Novedades del sistema). |
 | **`38-trunk-based-development.mdc`** | Trunk-based: solo `main`. Sin feature branches, worktrees ni stashes de aislamiento. |
+| **`42-persistent-page-tabs.mdc`** | Tabs de página persisten en URL (`?tab=` o clave propia) + `sessionStorage` vía `usePersistentPageTab`. |
+| **`43-pwa-surface-spec-check.mdc`** | Al escribir una spec (Gate 0) para una pantalla o UI compartida, revisar siempre el árbol nativo PWA y diseñar Web y PWA por separado sin romper la implementación PWA. |
 
 **Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`**, **`24-dashboard-list-filter-aggregates-rpc.mdc`** — agregados para filtros de listados en dashboard para **cualquier rol**, **`28-tenant-register-surface.mdc`** — `/register` con superficie dedicada por `SiteThemeKind`).
 

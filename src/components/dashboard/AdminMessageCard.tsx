@@ -2,6 +2,7 @@ import type { Dictionary } from "@/types/i18n";
 import type { AdminPortalMessageRow } from "@/types/messaging";
 import Link from "next/link";
 import { Globe, MessageSquare } from "lucide-react";
+import { AdminMessageStatusList } from "@/components/dashboard/AdminMessageStatusList";
 
 interface AdminMessageCardProps {
   locale: string;
@@ -120,6 +121,7 @@ export function AdminMessageCard({
           >
             {row.preview || "—"}
           </p>
+          <AdminMessageStatusList locale={locale} labels={labels} lines={row.statusLines ?? []} />
       </Link>
     </article>
   );

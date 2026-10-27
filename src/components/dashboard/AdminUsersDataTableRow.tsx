@@ -17,6 +17,7 @@ import {
   AdminStudentSectionsList,
 } from "@/components/molecules/AdminStudentDirectoryCells";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { AcademicProfileDirectoryCells } from "@/components/dashboard/AcademicProfileDirectoryCells";
 import { formatParentLastAccess } from "@/lib/parents/formatParentLastAccess";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -202,6 +203,7 @@ export function AdminUsersDataTableRow(props: {
           </td>
         </>
       )}
+      <AcademicProfileDirectoryCells values={r.academicFieldCells} emptyValue={props.emptyValue} />
       <td className="min-w-0 px-3 py-3.5 align-top whitespace-nowrap">
         <div className="flex items-center gap-1">
           <Link

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { AdminUserRow, SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
-import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
+import type { AdminUserRow } from "@/lib/dashboard/adminUsersTableHelpers";
+import type { AdminDirectorySortKey, AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
 import { adminUsersProfileSortColumns } from "@/lib/dashboard/adminUsersSortCriteria";
 import type { AdminDirectoryFilters } from "@/lib/dashboard/adminDirectoryFilters";
 import {
@@ -45,11 +45,13 @@ export interface PaginatedAdminUsersParams extends AdminDirectoryFilters {
   pageSize?: number;
   q?: string;
   role?: string;
-  sort?: SortKey;
+  sort?: AdminDirectorySortKey;
   dir?: "asc" | "desc";
   sortCriteria?: AdminUsersSortCriterion[];
   /** When true, load the locked-role directory (in-memory facets + relation filters). */
   lockedDirectory?: boolean;
+  /** Student custom-field filters. Keys are field ids. */
+  academicFieldFilters?: Record<string, string>;
 }
 
 export async function loadPaginatedAdminUsers(

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { BookOpen, GraduationCap, Users } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type {
   AdminStudentCurrentCohortEnrollment,
@@ -91,26 +92,44 @@ export function AdminStudentSectionsList({
             return (
               <li key={cs.enrollmentId} className="flex items-start justify-between gap-2 py-2">
                 <div className="min-w-0">
-                  <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
-                    {href ? (
-                      <Link
-                        href={href}
-                        title={labels.tipOpenAcademicSection}
-                        className="font-semibold text-[var(--color-primary)] underline-offset-2 hover:underline"
-                      >
-                        {cs.sectionName}
-                      </Link>
-                    ) : (
-                      <span className="font-semibold text-[var(--color-foreground)]">
-                        {cs.sectionName}
-                      </span>
-                    )}
+                  <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                    <span className="inline-flex min-w-0 items-center gap-1.5">
+                      <BookOpen
+                        className="h-4 w-4 shrink-0 text-[var(--color-primary)]"
+                        aria-hidden
+                      />
+                      <span className="sr-only">{labels.detailSectionAssignSection}</span>
+                      {href ? (
+                        <Link
+                          href={href}
+                          title={labels.tipOpenAcademicSection}
+                          className="font-semibold text-[var(--color-primary)] underline-offset-2 hover:underline"
+                        >
+                          {cs.sectionName}
+                        </Link>
+                      ) : (
+                        <span className="font-semibold text-[var(--color-foreground)]">
+                          {cs.sectionName}
+                        </span>
+                      )}
+                    </span>
                     {teacher ? (
-                      <AdminUserNameLink locale={locale} userId={teacher.id} name={teacher.name} />
+                      <span className="inline-flex min-w-0 items-center gap-1.5">
+                        <GraduationCap
+                          className="h-4 w-4 shrink-0 text-[var(--color-foreground)]"
+                          aria-hidden
+                        />
+                        <span className="sr-only">{labels.detailSectionAssignTeacher}</span>
+                        <AdminUserNameLink locale={locale} userId={teacher.id} name={teacher.name} />
+                      </span>
                     ) : null}
                   </p>
                   {assistants.length > 0 ? (
-                    <p className="mt-1 text-sm text-[var(--color-foreground)]">
+                    <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-[var(--color-foreground)]">
+                      <Users
+                        className="h-4 w-4 shrink-0 text-[var(--color-foreground)]"
+                        aria-hidden
+                      />
                       <span className="sr-only">{labels.detailSectionAssignAssistants}</span>
                       <StaffNames locale={locale} people={assistants} />
                     </p>

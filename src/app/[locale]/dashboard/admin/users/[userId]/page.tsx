@@ -9,6 +9,7 @@ import { AdminUserDetailEntry } from "@/components/dashboard/AdminUserDetailEntr
 import { loadStudentCareNotes } from "@/lib/students/care/loadStudentCareNotes";
 import type { Locale } from "@/types/i18n";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { loadAcademicProfileForStudent } from "@/lib/academic-profile/loadAcademicProfileForStudent";
 
 interface PageProps {
   params: Promise<{ locale: string; userId: string }>;
@@ -64,6 +65,10 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
     care = result.ok ? result.notes : null;
   }
 
+  const academicFields = detail.role === "student"
+    ? await loadAcademicProfileForStudent(supabase, userId)
+    : [];
+
   return (
     <AdminUserDetailEntry
       locale={locale as Locale}
@@ -73,6 +78,7 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
       billing={billing}
       fileUploadProgress={dict.common.fileUpload}
       care={care}
+      academicFields={academicFields}
     />
   );
 }

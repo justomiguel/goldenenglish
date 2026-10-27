@@ -3,8 +3,9 @@
 import { useState } from "react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
-import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
-import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
+import { academicFieldSortKey } from "@/lib/academic-profile/academicDirectorySort";
+import type { AdminDirectorySortKey, AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
+import type { AdminUserRow, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 import { useAdminUsersTable } from "@/hooks/useAdminUsersTable";
 import { AdminUsersToolbar } from "@/components/dashboard/AdminUsersToolbar";
 import { AdminUsersDataTable } from "@/components/dashboard/AdminUsersDataTable";
@@ -13,9 +14,11 @@ import { InfoNoticeModal } from "@/components/molecules/InfoNoticeModal";
 import { AdminUsersExportModal } from "@/components/molecules/AdminUsersExportModal";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type {
+  AcademicDirectoryChrome,
   AdminDirectoryFiltersChrome,
   AdminParentsDirectoryChrome,
 } from "@/components/organisms/AdminUsersScreen";
+import { AcademicProfileDirectoryFilters } from "@/components/dashboard/AcademicProfileDirectoryFilters";
 import {
   bindDirectoryFilterChange,
   bindDirectoryFilterClear,
@@ -34,7 +37,7 @@ interface AdminUsersTableDesktopProps {
   searchQuery: string;
   roleFilter: string;
   roleCounts: AdminUsersListRoleCounts;
-  sortKey: SortKey;
+  sortKey: AdminDirectorySortKey;
   sortDir: SortDir;
   sortCriteria?: AdminUsersSortCriterion[];
   locale: string;
@@ -44,6 +47,7 @@ interface AdminUsersTableDesktopProps {
   lockRole?: string;
   parentsDirectory?: AdminParentsDirectoryChrome;
   directoryFilters?: AdminDirectoryFiltersChrome;
+  academicDirectory?: AcademicDirectoryChrome;
 }
 
 export function AdminUsersTableDesktop({
@@ -64,6 +68,7 @@ export function AdminUsersTableDesktop({
   lockRole,
   parentsDirectory,
   directoryFilters,
+  academicDirectory,
 }: AdminUsersTableDesktopProps) {
   const [exportOpen, setExportOpen] = useState(false);
   const router = useRouter();
@@ -85,6 +90,13 @@ export function AdminUsersTableDesktop({
   return (
     <div className="space-y-4">
       <div data-tour={ADMIN_TOUR_ANCHORS.usersTable} aria-busy={u.isPending || undefined}>
+      {academicDirectory ? (
+        <AcademicProfileDirectoryFilters
+          columns={academicDirectory.columns}
+          selectFacets={academicDirectory.selectFacets}
+          labels={labels.academicFields}
+        />
+      ) : null}
       <AdminUsersDataTable
         locale={locale}
         toolbar={
@@ -108,6 +120,9 @@ export function AdminUsersTableDesktop({
             onExportUsers={() => setExportOpen(true)}
             lockRole={lockRole}
             sortCriteria={u.sortCriteria}
+            sortFieldLabels={Object.fromEntries(
+              (academicDirectory?.columns ?? []).map((column) => [academicFieldSortKey(column.id), column.label]),
+            )}
             onSortCriteriaChange={u.setSortCriteria}
             listPending={u.isPending}
             directoryFilters={
@@ -162,6 +177,7 @@ export function AdminUsersTableDesktop({
           onPageChange: u.setPage,
         }}
         lockRole={lockRole}
+        academicColumns={academicDirectory?.columns ?? []}
       />
       </div>
 

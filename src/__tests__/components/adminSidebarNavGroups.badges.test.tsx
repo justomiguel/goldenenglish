@@ -6,7 +6,7 @@ describe("buildAdminSidebarNavGroups — badges", () => {
   const base = "/en/dashboard/admin";
   const profile = "/en/dashboard/profile";
 
-  it("lists Messages on the daily rail with the inbox count", () => {
+  it("lists Messages on the daily rail with the unread count", () => {
     const groups = buildAdminSidebarNavGroups(base, profile, dictEn.dashboard.adminNav, {
       newRegistrations: 0,
       recentInboundMessages: 7,

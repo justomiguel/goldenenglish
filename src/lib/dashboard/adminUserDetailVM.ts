@@ -1,5 +1,6 @@
 import type { AdminStudentAcademicNote } from "@/lib/dashboard/adminStudentAcademicNotes";
 import type { AdminStudentCurrentCohortAssignment } from "@/lib/dashboard/loadAdminStudentCurrentCohortAssignment";
+import type { AdminStudentHistoryData } from "@/lib/dashboard/loadAdminStudentHistory";
 import type { StudentExamResult } from "@/types/studentExams";
 
 /** Linked guardian row for admin student profile. */
@@ -66,6 +67,8 @@ export type AdminUserDetailVM = {
   familyHomeAddressPeerIds: string[];
   /** Derived marker only: the note text lives behind `loadStudentCareNotes`. */
   hasCareNotes: boolean;
+  /** Cohort trajectory and audit trail for students. */
+  studentHistory?: AdminStudentHistoryData | null;
   /** Only `profiles.role === 'admin'` may edit inline fields and passwords (server + UI). */
   viewerMayInlineEdit: boolean;
 };

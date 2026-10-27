@@ -140,6 +140,8 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
         pendingStudentIds={model.pendingStudentIds}
         attendanceByStudent={model.attendanceByStudent}
         dict={d}
+        academicFieldLabels={dict.admin.users.academicFields}
+        canEditAcademicProfile
       />
     </div>
   );

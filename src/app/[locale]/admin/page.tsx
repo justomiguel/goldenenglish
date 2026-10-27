@@ -2,7 +2,10 @@ import { notFound, redirect } from "next/navigation";
 import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { loadPulsarFleetTelemetry } from "@/lib/pulsar/loadPulsarFleetTelemetry";
 import { getPulsarStaffSession } from "@/lib/pulsar/pulsarStaffAuth";
-import { loadAllPulsarTenantsForAdmin } from "@/lib/pulsar/pulsarTenantStore";
+import {
+  loadAllPulsarTenantsForAdmin,
+  loadPulsarPlatformHostsForAdmin,
+} from "@/lib/pulsar/pulsarTenantStore";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { PulsarAdminFleetScreen } from "@/components/organisms/pulsar/PulsarAdminFleetScreen";
 
@@ -25,9 +28,10 @@ export default async function PulsarAdminPage({ params }: PageProps) {
     redirect(`/${locale}/admin/password`);
   }
 
-  const [dict, tenants] = await Promise.all([
+  const [dict, tenants, platformHosts] = await Promise.all([
     getDictionary(locale as AppLocale),
     loadAllPulsarTenantsForAdmin(),
+    loadPulsarPlatformHostsForAdmin(),
   ]);
   const telemetryBySlug = await loadPulsarFleetTelemetry(tenants);
 
@@ -39,6 +43,7 @@ export default async function PulsarAdminPage({ params }: PageProps) {
       sessionMode={session.mode}
       tenants={tenants}
       telemetryBySlug={telemetryBySlug}
+      platformHosts={platformHosts}
     />
   );
 }

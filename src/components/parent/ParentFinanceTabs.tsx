@@ -1,7 +1,7 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useId, useMemo } from "react";
+import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import { Receipt, Wallet } from "lucide-react";
 import {
   UnderlineTabBar,
@@ -22,11 +22,12 @@ interface ParentFinanceTabsProps {
 }
 
 export function ParentFinanceTabs({ labels, payPanel, feesPanel }: ParentFinanceTabsProps) {
-  const searchParams = useSearchParams();
-  const initialTab = searchParams.get("tab") === PARENT_FINANCE_TAB_FEES ? PARENT_FINANCE_TAB_FEES : PARENT_FINANCE_TAB_PAY;
   const reactId = useId().replace(/:/g, "");
   const idPrefix = `parent-finance-${reactId}`;
-  const [tab, setTab] = useState(initialTab);
+  const { value: tab, setValue: setTab } = usePersistentPageTab({
+    allowed: [PARENT_FINANCE_TAB_PAY, PARENT_FINANCE_TAB_FEES] as const,
+    fallback: PARENT_FINANCE_TAB_PAY,
+  });
 
   const items: UnderlineTabItem[] = useMemo(
     () => [
@@ -43,7 +44,9 @@ export function ParentFinanceTabs({ labels, payPanel, feesPanel }: ParentFinance
         ariaLabel={labels.financeTabsAria}
         items={items}
         value={tab}
-        onChange={setTab}
+        onChange={(id) => {
+          if (id === PARENT_FINANCE_TAB_PAY || id === PARENT_FINANCE_TAB_FEES) setTab(id);
+        }}
       />
       <div
         id={underlinePanelId(idPrefix, PARENT_FINANCE_TAB_PAY)}

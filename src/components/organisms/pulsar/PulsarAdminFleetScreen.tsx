@@ -9,6 +9,7 @@ import {
   togglePulsarTenantEnabledAction,
 } from "@/app/[locale]/admin/actions";
 import { PulsarAdminFleetTable } from "@/components/organisms/pulsar/PulsarAdminFleetTable";
+import { PulsarAdminPlatformHostsCard } from "@/components/organisms/pulsar/PulsarAdminPlatformHostsCard";
 import type { TenantTelemetrySnapshot } from "@/lib/pulsar/loadPulsarFleetTelemetry";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
 import type { Dictionary } from "@/types/i18n";
@@ -20,6 +21,7 @@ export interface PulsarAdminFleetScreenProps {
   sessionMode: "pulsar-db" | "dev-local";
   tenants: readonly PulsarTenantRecord[];
   telemetryBySlug: Record<string, TenantTelemetrySnapshot>;
+  platformHosts?: readonly string[];
 }
 
 export function PulsarAdminFleetScreen({
@@ -29,6 +31,7 @@ export function PulsarAdminFleetScreen({
   sessionMode,
   tenants,
   telemetryBySlug,
+  platformHosts = [],
 }: PulsarAdminFleetScreenProps) {
   const router = useRouter();
   const copy = dict.pulsar.admin;
@@ -157,6 +160,12 @@ export function PulsarAdminFleetScreen({
             </p>
           </div>
         </div>
+
+        <PulsarAdminPlatformHostsCard
+          locale={locale}
+          dict={dict}
+          initialHosts={platformHosts}
+        />
 
         <PulsarAdminFleetTable
           locale={locale}

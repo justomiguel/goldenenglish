@@ -4,8 +4,9 @@ import { useState } from "react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
 import type { AppSurface } from "@/hooks/useAppSurface";
-import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
-import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
+import { academicFieldSortKey } from "@/lib/academic-profile/academicDirectorySort";
+import type { AdminDirectorySortKey, AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
+import type { AdminUserRow, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 import { useAdminUsersTable } from "@/hooks/useAdminUsersTable";
 import { useRouter } from "next/navigation";
 import { AdminUsersPwaList } from "@/components/pwa/molecules/AdminUsersPwaList";
@@ -14,9 +15,11 @@ import { DeleteUsersConfirmModal } from "@/components/dashboard/DeleteUsersConfi
 import { InfoNoticeModal } from "@/components/molecules/InfoNoticeModal";
 import { AdminUsersExportModal } from "@/components/molecules/AdminUsersExportModal";
 import type {
+  AcademicDirectoryChrome,
   AdminDirectoryFiltersChrome,
   AdminParentsDirectoryChrome,
 } from "@/components/organisms/AdminUsersScreen";
+import { AcademicProfileDirectoryFilters } from "@/components/dashboard/AcademicProfileDirectoryFilters";
 import {
   bindDirectoryFilterChange,
   bindDirectoryFilterClear,
@@ -34,7 +37,7 @@ interface AdminUsersScreenNarrowProps {
   searchQuery: string;
   roleFilter: string;
   roleCounts: AdminUsersListRoleCounts;
-  sortKey: SortKey;
+  sortKey: AdminDirectorySortKey;
   sortDir: SortDir;
   sortCriteria?: AdminUsersSortCriterion[];
   locale: string;
@@ -45,6 +48,7 @@ interface AdminUsersScreenNarrowProps {
   lockRole?: string;
   parentsDirectory?: AdminParentsDirectoryChrome;
   directoryFilters?: AdminDirectoryFiltersChrome;
+  academicDirectory?: AcademicDirectoryChrome;
 }
 
 export function AdminUsersScreenNarrow({
@@ -54,7 +58,6 @@ export function AdminUsersScreenNarrow({
   pageSize,
   searchQuery,
   roleFilter,
-  roleCounts: _roleCounts,
   sortKey,
   sortDir,
   sortCriteria,
@@ -66,6 +69,7 @@ export function AdminUsersScreenNarrow({
   lockRole,
   parentsDirectory,
   directoryFilters,
+  academicDirectory,
 }: AdminUsersScreenNarrowProps) {
   void surface;
   const [exportOpen, setExportOpen] = useState(false);
@@ -87,6 +91,13 @@ export function AdminUsersScreenNarrow({
 
   return (
     <div className="mx-auto max-w-[var(--layout-max-width)] space-y-3">
+          {academicDirectory ? (
+            <AcademicProfileDirectoryFilters
+              columns={academicDirectory.columns}
+              selectFacets={academicDirectory.selectFacets}
+              labels={labels.academicFields}
+            />
+          ) : null}
           <AdminUsersPwaList
             locale={locale}
             listPending={u.isPending}
@@ -100,6 +111,9 @@ export function AdminUsersScreenNarrow({
                 sortDir={u.sortDir}
                 onToggleSort={u.toggleSort}
                 sortCriteria={u.sortCriteria}
+                sortFieldLabels={Object.fromEntries(
+                  (academicDirectory?.columns ?? []).map((column) => [academicFieldSortKey(column.id), column.label]),
+                )}
                 onSortCriteriaChange={u.setSortCriteria}
                 lockRole={lockRole}
                 allVisibleSelected={u.allVisibleSelected}
@@ -144,6 +158,7 @@ export function AdminUsersScreenNarrow({
               onPageChange: u.setPage,
             }}
             lockRole={lockRole}
+            academicColumns={academicDirectory?.columns ?? []}
             onDeleteSelected={u.onDeleteSelected}
             deleteDisabled={u.deleteDisabled}
             onBulkMail={

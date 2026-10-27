@@ -85,6 +85,10 @@ export default async function AdminStudentsPage({ params, searchParams }: PagePr
             facets: result.facets,
             sectionOptions: result.sectionOptions,
           }}
+          academicDirectory={{
+            columns: result.academicColumns,
+            selectFacets: result.academicSelectFacets,
+          }}
         />
       </div>
     </div>

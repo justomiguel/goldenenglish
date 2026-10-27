@@ -34,6 +34,25 @@ describe("adminPortalMessageNeedsReply", () => {
     ).toBe(false);
   });
 
+  it("clears needsReply when a follow-up exists", () => {
+    expect(
+      adminPortalMessageNeedsReply({
+        senderRole: "parent",
+        externalRepliedAt: null,
+        hasLaterStaffReplyToPeer: false,
+        hasFollowUp: true,
+      }),
+    ).toBe(false);
+    expect(
+      adminPortalMessageNeedsReply({
+        senderRole: "site_contact",
+        externalRepliedAt: null,
+        hasLaterStaffReplyToPeer: false,
+        hasFollowUp: true,
+      }),
+    ).toBe(false);
+  });
+
   it("uses later staff reply for portal peers", () => {
     expect(
       adminPortalMessageNeedsReply({

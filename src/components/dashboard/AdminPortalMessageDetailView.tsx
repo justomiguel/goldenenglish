@@ -1,4 +1,6 @@
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminMessageStatusList } from "@/components/dashboard/AdminMessageStatusList";
+import type { AdminMessageStatusLine } from "@/lib/messaging/adminMessageStatus";
 import type { Dictionary } from "@/types/i18n";
 import { ArrowRight, CalendarClock, ChevronDown, Inbox, MessageSquareText, User } from "lucide-react";
 
@@ -34,6 +36,7 @@ interface AdminPortalMessageDetailViewProps {
     toName: string;
     fromRoleLabel: string;
     toRoleLabel: string;
+    statusLines?: AdminMessageStatusLine[];
   };
 }
 
@@ -136,6 +139,13 @@ export function AdminPortalMessageDetailView({
             <ParticipantPanel kind="to" labels={labels} name={detail.toName} roleLabel={detail.toRoleLabel} />
           </div>
         </div>
+
+        <AdminMessageStatusList
+          locale={locale}
+          labels={labels}
+          lines={detail.statusLines ?? []}
+          showHtml
+        />
 
         {contactMetaHtml ? (
           <div

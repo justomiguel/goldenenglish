@@ -2,12 +2,13 @@
 
 import type { ReactNode, RefObject } from "react";
 import type { Dictionary } from "@/types/i18n";
+import { academicFieldSortKey } from "@/lib/academic-profile/academicDirectorySort";
+import type { AdminDirectorySortKey } from "@/lib/dashboard/adminUsersSortCriteria";
 import {
   isAdminParentsDirectory,
   isAdminStudentsDirectory,
   isAdminTeachersDirectory,
   type AdminUserRow,
-  type SortKey,
   type SortDir,
 } from "@/lib/dashboard/adminUsersTableHelpers";
 import { AdminUsersDataTableRow } from "@/components/dashboard/AdminUsersDataTableRow";
@@ -24,9 +25,9 @@ export interface AdminUsersDataTableProps {
   tableLabels: TableLabels;
   rows: AdminUserRow[];
   currentUserId: string;
-  sortKey: SortKey;
+  sortKey: AdminDirectorySortKey;
   sortDir: SortDir;
-  onToggleSort: (key: SortKey) => void;
+  onToggleSort: (key: AdminDirectorySortKey) => void;
   selectedIds: Set<string>;
   onToggleRow: (id: string) => void;
   selectAllRef: RefObject<HTMLInputElement | null>;
@@ -45,6 +46,7 @@ export interface AdminUsersDataTableProps {
     onPageChange: (page: number) => void;
   };
   lockRole?: string;
+  academicColumns?: { id: string; label: string }[];
 }
 
 export function AdminUsersDataTable({
@@ -69,6 +71,7 @@ export function AdminUsersDataTable({
   listEmpty,
   pagination,
   lockRole,
+  academicColumns = [],
 }: AdminUsersDataTableProps) {
   const studentsDirectory = isAdminStudentsDirectory(lockRole);
   const teachersDirectory = isAdminTeachersDirectory(lockRole);
@@ -84,6 +87,11 @@ export function AdminUsersDataTable({
         { id: "enrollmentFee", label: labels.colEnrollmentFee, thClassName: colHead },
         { id: "lastEnrollment", label: labels.colLastEnrollment, thClassName: colHead },
         { id: "parent", label: labels.colParent, thClassName: colHead },
+        ...academicColumns.map((column) => ({
+          id: academicFieldSortKey(column.id),
+          label: column.label,
+          thClassName: colHead,
+        })),
       ]
     : parentsDirectory
       ? [
@@ -117,7 +125,7 @@ export function AdminUsersDataTable({
       columns={columns}
       sortKey={sortKey}
       sortDir={sortDir}
-      onToggleSort={(id) => onToggleSort(id as SortKey)}
+      onToggleSort={(id) => onToggleSort(id as AdminDirectorySortKey)}
       sortLabels={{
         sortAsc: tableLabels.sortAsc,
         sortDesc: tableLabels.sortDesc,

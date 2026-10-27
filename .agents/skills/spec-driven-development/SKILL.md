@@ -22,7 +22,7 @@ Writing or updating files under `docs/superpowers/specs/` is allowed before appr
 ## Steps
 
 1. Run Gate 0 deliverable (Understanding → DoD).
-2. Write mini or full spec to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`.
+2. Write mini or full spec to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`. When touching a screen or shared UI/hook/action, include a **Surfaces (Web vs PWA)** check per `.cursor/rules/43-pwa-surface-spec-check.mdc` (inspect the PWA tree, design Web and PWA separately, and verify the PWA tree is not broken).
 3. Stop for user approval.
 4. On approval, write `.cursor/sdd-gate0-approved` with `{ "spec": "docs/superpowers/specs/....md", "approvedAt": "<ISO>" }`.
 5. If scope >1 file or behavior: write plan via writing-plans to `docs/superpowers/plans/`.

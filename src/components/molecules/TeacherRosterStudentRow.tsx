@@ -1,6 +1,6 @@
 "use client";
 
-import { GraduationCap, MapPin } from "lucide-react";
+import { ClipboardList, GraduationCap, MapPin } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
 import { Button } from "@/components/atoms/Button";
@@ -16,6 +16,7 @@ export interface TeacherRosterStudentRowProps {
   narrow: boolean;
   dict: Dictionary["dashboard"]["teacherMySections"];
   onOpenContext: () => void;
+  onOpenAcademicProfile?: () => void;
   onSuggestSection: () => void;
   onSuggestCohort: () => void;
 }
@@ -30,6 +31,7 @@ export function TeacherRosterStudentRow({
   narrow,
   dict,
   onOpenContext,
+  onOpenAcademicProfile,
   onSuggestSection,
   onSuggestCohort,
 }: TeacherRosterStudentRowProps) {
@@ -54,6 +56,19 @@ export function TeacherRosterStudentRow({
             ) : null}
           </span>
         </button>
+        {onOpenAcademicProfile ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="min-h-[44px] min-w-[44px] shrink-0"
+            aria-label={dict.academicProfile}
+            title={dict.academicProfile}
+            onClick={onOpenAcademicProfile}
+          >
+            <ClipboardList className="h-4 w-4" aria-hidden />
+          </Button>
+        ) : null}
       </div>
       {showActions ? (
         <div className="flex flex-wrap items-center justify-end gap-2 sm:shrink-0">

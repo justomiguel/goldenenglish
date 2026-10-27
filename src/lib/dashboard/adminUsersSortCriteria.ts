@@ -1,6 +1,13 @@
+import {
+  academicFieldIdFromSortKey,
+  academicFieldSortKey,
+  isAcademicFieldSortKey,
+  type AcademicFieldSortKey,
+} from "@/lib/academic-profile/academicDirectorySort";
 import type { SortDir, SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
 
-export type AdminUsersSortCriterion = { key: SortKey; dir: SortDir };
+export type AdminDirectorySortKey = SortKey | AcademicFieldSortKey;
+export type AdminUsersSortCriterion = { key: AdminDirectorySortKey; dir: SortDir };
 
 const SORT_KEYS: readonly SortKey[] = [
   "email",
@@ -17,12 +24,18 @@ const SORT_KEYS: readonly SortKey[] = [
   "monthlyStatus",
 ];
 
-function isSortKey(value: string): value is SortKey {
-  return (SORT_KEYS as readonly string[]).includes(value);
+function isSortKey(value: string): value is AdminDirectorySortKey {
+  return isAcademicFieldSortKey(value) || (SORT_KEYS as readonly string[]).includes(value);
+}
+
+function normalizeSortKey(value: string): AdminDirectorySortKey {
+  const fieldId = academicFieldIdFromSortKey(value);
+  if (fieldId) return academicFieldSortKey(fieldId);
+  return value as SortKey;
 }
 
 function dedupe(criteria: AdminUsersSortCriterion[]): AdminUsersSortCriterion[] {
-  const seen = new Set<SortKey>();
+  const seen = new Set<string>();
   const out: AdminUsersSortCriterion[] = [];
   for (const criterion of criteria) {
     if (seen.has(criterion.key)) continue;
@@ -41,15 +54,17 @@ export function parseAdminUsersSortCriteria(raw: {
   if (order) {
     const parsed: AdminUsersSortCriterion[] = [];
     for (const part of order.split(",")) {
-      const [keyRaw, dirRaw] = part.split(":");
-      const key = keyRaw?.trim() ?? "";
+      const splitAt = part.lastIndexOf(":");
+      const key = (splitAt < 0 ? part : part.slice(0, splitAt)).trim();
+      const dirRaw = splitAt < 0 ? "" : part.slice(splitAt + 1).trim();
       if (!isSortKey(key)) continue;
-      parsed.push({ key, dir: dirRaw?.trim() === "desc" ? "desc" : "asc" });
+      parsed.push({ key: normalizeSortKey(key), dir: dirRaw === "desc" ? "desc" : "asc" });
     }
     const unique = dedupe(parsed);
     if (unique.length > 0) return unique;
   }
-  const sort = typeof raw.sort === "string" && isSortKey(raw.sort) ? raw.sort : "name";
+  const sort =
+    typeof raw.sort === "string" && isSortKey(raw.sort) ? normalizeSortKey(raw.sort) : "name";
   const dir: SortDir = raw.dir === "desc" ? "desc" : "asc";
   return [{ key: sort, dir }];
 }
@@ -76,18 +91,16 @@ export function adminUsersSortCriteriaToParams(criteria: AdminUsersSortCriterion
 
 export function cycleAdminUsersSortCriterion(
   criteria: AdminUsersSortCriterion[],
-  key: SortKey,
+  key: AdminUsersSortCriterion["key"],
 ): AdminUsersSortCriterion[] {
-  const index = criteria.findIndex((criterion) => criterion.key === key);
-  if (index < 0) return [...criteria, { key, dir: "asc" }];
-  const next = [...criteria];
-  next[index] = { key, dir: criteria[index].dir === "asc" ? "desc" : "asc" };
-  return next;
+  const sole = criteria.length === 1 && criteria[0]?.key === key;
+  if (!sole) return [{ key, dir: "asc" }];
+  return [{ key, dir: criteria[0].dir === "asc" ? "desc" : "asc" }];
 }
 
 export function setAdminUsersSortChecked(
   criteria: AdminUsersSortCriterion[],
-  key: SortKey,
+  key: AdminDirectorySortKey,
   checked: boolean,
 ): AdminUsersSortCriterion[] {
   if (!checked) {
@@ -100,7 +113,7 @@ export function setAdminUsersSortChecked(
 
 export function setAdminUsersSortDir(
   criteria: AdminUsersSortCriterion[],
-  key: SortKey,
+  key: AdminDirectorySortKey,
   dir: SortDir,
 ): AdminUsersSortCriterion[] {
   return criteria.map((criterion) => (criterion.key === key ? { key, dir } : criterion));
@@ -132,7 +145,7 @@ export function addAdminUsersSortCriterion(
 
 export function moveAdminUsersSortCriterion(
   criteria: AdminUsersSortCriterion[],
-  key: SortKey,
+  key: AdminDirectorySortKey,
   delta: -1 | 1,
 ): AdminUsersSortCriterion[] {
   const index = criteria.findIndex((criterion) => criterion.key === key);

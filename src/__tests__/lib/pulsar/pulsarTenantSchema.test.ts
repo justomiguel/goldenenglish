@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { validatePulsarTenantInput } from "@/lib/pulsar/pulsarTenantSchema";
+import {
+  validatePulsarPlatformHostsInput,
+  validatePulsarTenantInput,
+} from "@/lib/pulsar/pulsarTenantSchema";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
 
 const EXISTING: PulsarTenantRecord[] = [
@@ -195,5 +198,33 @@ describe("validatePulsarTenantInput", () => {
         EXISTING,
       ),
     ).toEqual({ ok: false, errorCode: "invalid_public_url" });
+  });
+});
+
+// REGRESSION CHECK: Validating platform_settings.pulsar_hosts must reject empty host lists
+// and any hostname already assigned to an institute in platform_tenants.
+describe("validatePulsarPlatformHostsInput", () => {
+  it("normalizes comma/newline separated hosts and deduplicates", () => {
+    const res = validatePulsarPlatformHostsInput(
+      "  PulsarLab.cl:443 , www.pulsarlab.cl\npulsar.nuevo.cl , pulsarlab.cl ",
+      EXISTING,
+    );
+    expect(res).toEqual({
+      ok: true,
+      hosts: ["pulsarlab.cl", "www.pulsarlab.cl", "pulsar.nuevo.cl"],
+    });
+  });
+
+  it("rejects empty input or collisions with existing tenant hosts", () => {
+    expect(validatePulsarPlatformHostsInput(" , \n ", EXISTING)).toEqual({
+      ok: false,
+      errorCode: "missing_hosts",
+    });
+    expect(
+      validatePulsarPlatformHostsInput(["pulsarlab.cl", "capoeiranago.cl"], EXISTING),
+    ).toEqual({
+      ok: false,
+      errorCode: "duplicate_host",
+    });
   });
 });

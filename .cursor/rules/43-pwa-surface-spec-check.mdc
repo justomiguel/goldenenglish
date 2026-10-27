@@ -1,0 +1,40 @@
+---
+description: Every Gate 0 spec for a screen or shared UI/hook/action must inspect the PWA/mobile tree and design Web and PWA surfaces separately.
+alwaysApply: true
+---
+
+# PWA surface check at spec time (Gate 0)
+
+## Goal
+
+When you work on a screen, do not break its native PWA implementation. Think about the Web surface and the PWA surface separately when you write the spec.
+
+## Mandatory check during Gate 0 (`20-agent-preflight.mdc`)
+
+Before you finish a spec that touches a route, screen, component, hook, or server action used by UI:
+
+1. **Find the surface entry and trees.** Search for `useAppSurface`, `SurfaceMountGate`, `src/components/pwa/`, `src/components/desktop/`, and paired files (`*Mobile*.tsx`, `*Pwa*.tsx`, `*Entry.tsx`).
+2. **Classify the screen** per `05-pwa-mobile-native.mdc`:
+   - **Tier A** (student, parent, public enrollment/registration/auth) or any screen that already has a PWA tree.
+   - **Tier B** (admin / internal desktop-only) with no PWA tree.
+3. **Write a `Surfaces (Web vs PWA)` section in the spec:**
+   - **If a PWA tree exists or is required (Tier A):**
+     - Describe the **Web (`web-desktop`)** change and the **PWA (`web-mobile` / `pwa-mobile`)** change as separate items.
+     - Do not assume a desktop table, modal, or toolbar fits the PWA tree. Use touch-first patterns (`≥44px` targets, safe areas, list rows, sheets, thumb-zone CTAs).
+     - If the task only changes one surface, verify that shared props, hooks, types, and server actions do not break the other surface.
+   - **If the screen is Tier B with no PWA tree:**
+     - State `Tier B — desktop-only (no PWA tree)`.
+     - Verify that no shared molecule, organism, hook, or action used by a Tier A PWA screen loses compatibility.
+
+## Forbidden
+
+- Writing a spec for a Tier A screen that only describes the desktop layout.
+- Changing props on a shared hook or component without checking its `src/components/pwa/` or `*Mobile*` callers.
+- Sharing one responsive JSX blob when the Web and PWA interactions differ (`05-pwa-mobile-native.mdc`).
+
+## Spec checklist
+
+- [ ] Did you inspect the route entry and check whether a PWA / mobile tree exists?
+- [ ] Does the spec include a **Surfaces (Web vs PWA)** section?
+- [ ] Are Web and PWA UX designed separately when a PWA tree exists?
+- [ ] Are existing PWA tests (`tierADashboard*`, `*Pwa*`, `*Mobile*`) listed in the test plan when affected?

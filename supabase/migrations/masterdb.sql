@@ -20518,3 +20518,388 @@ $$;
 
 REVOKE ALL ON FUNCTION public.admin_weekly_digest(timestamptz, timestamptz, date, date, timestamptz, text) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_weekly_digest(timestamptz, timestamptz, date, date, timestamptz, text) TO service_role;
+
+-- ========== 226_portal_message_follow_ups.sql ==========
+
+CREATE TABLE IF NOT EXISTS public.portal_message_follow_ups (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  message_id uuid NOT NULL REFERENCES public.portal_messages (id) ON DELETE CASCADE,
+  actor_id uuid NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  channel text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT portal_message_follow_ups_channel_chk
+    CHECK (channel IN ('whatsapp', 'mailto', 'gmail', 'outlook'))
+);
+
+CREATE INDEX IF NOT EXISTS portal_message_follow_ups_message_idx
+  ON public.portal_message_follow_ups (message_id, created_at);
+
+ALTER TABLE public.portal_message_follow_ups ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS portal_message_follow_ups_admin_select ON public.portal_message_follow_ups;
+CREATE POLICY portal_message_follow_ups_admin_select
+  ON public.portal_message_follow_ups
+  FOR SELECT TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS portal_message_follow_ups_admin_insert ON public.portal_message_follow_ups;
+CREATE POLICY portal_message_follow_ups_admin_insert
+  ON public.portal_message_follow_ups
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    actor_id = auth.uid()
+    AND public.is_admin(auth.uid())
+  );
+
+GRANT SELECT, INSERT ON public.portal_message_follow_ups TO authenticated, service_role;
+
+-- ========== 227_registration_cohort_and_student_lookup.sql ==========
+
+CREATE OR REPLACE FUNCTION public.resolve_public_registration_cohort_id()
+RETURNS uuid
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_raw jsonb;
+  v_text text;
+  v_candidate uuid;
+  v_resolved uuid;
+BEGIN
+  SELECT value INTO v_raw
+  FROM public.site_settings
+  WHERE key = 'registration_cohort_id'
+  LIMIT 1;
+
+  IF v_raw IS NOT NULL THEN
+    IF jsonb_typeof(v_raw) = 'string' THEN
+      v_text := trim(both FROM (v_raw #>> '{}'));
+    ELSIF jsonb_typeof(v_raw) = 'object' THEN
+      v_text := trim(both FROM COALESCE(v_raw ->> 'cohortId', ''));
+    END IF;
+
+    IF v_text IS NOT NULL AND v_text ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' THEN
+      v_candidate := v_text::uuid;
+      SELECT c.id INTO v_resolved
+      FROM public.academic_cohorts c
+      WHERE c.id = v_candidate
+        AND c.archived_at IS NULL
+      LIMIT 1;
+
+      IF v_resolved IS NOT NULL THEN
+        RETURN v_resolved;
+      END IF;
+    END IF;
+  END IF;
+
+  SELECT c.id INTO v_resolved
+  FROM public.academic_cohorts c
+  WHERE c.is_current = true
+    AND c.archived_at IS NULL
+  LIMIT 1;
+
+  RETURN v_resolved;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.resolve_public_registration_cohort_id() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.resolve_public_registration_cohort_id() TO anon, authenticated, service_role;
+
+DROP FUNCTION IF EXISTS public.list_registration_section_picker_options();
+DROP FUNCTION IF EXISTS public.list_registration_section_picker_options(uuid);
+
+CREATE OR REPLACE FUNCTION public.list_registration_section_picker_options(
+  p_cohort_id uuid DEFAULT NULL
+)
+RETURNS TABLE (
+  id uuid,
+  label text,
+  schedule_slots jsonb,
+  has_open_seat boolean,
+  offers_trial boolean
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT s.id,
+         c.name || ' — ' || s.name AS label,
+         COALESCE(s.schedule_slots, '[]'::jsonb) AS schedule_slots,
+         (
+           s.max_students IS NULL
+           OR (
+             (
+               SELECT count(*)
+               FROM public.section_enrollments se
+               WHERE se.section_id = s.id
+                 AND se.status = 'active'
+             ) + (
+               SELECT count(*)
+               FROM public.registration_trial_seats ts
+               WHERE ts.section_id = s.id
+                 AND ts.status IN ('booked', 'attended')
+             )
+           ) < s.max_students
+         ) AS has_open_seat,
+         COALESCE(s.offers_trial, c.offers_trial) AS offers_trial
+  FROM public.academic_sections s
+  INNER JOIN public.academic_cohorts c ON c.id = s.cohort_id
+  WHERE c.id = COALESCE(p_cohort_id, public.resolve_public_registration_cohort_id())
+    AND c.archived_at IS NULL
+    AND s.archived_at IS NULL
+  ORDER BY c.name, s.name;
+$$;
+
+REVOKE ALL ON FUNCTION public.list_registration_section_picker_options(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.list_registration_section_picker_options(uuid) TO anon;
+GRANT EXECUTE ON FUNCTION public.list_registration_section_picker_options(uuid) TO authenticated;
+
+DROP FUNCTION IF EXISTS public.lookup_registration_student(text);
+
+CREATE OR REPLACE FUNCTION public.lookup_registration_student(p_dni text)
+RETURNS TABLE (
+  found boolean,
+  first_name text,
+  last_name text,
+  birth_date text,
+  phone text,
+  email text,
+  tutor_name text,
+  tutor_dni text,
+  tutor_email text,
+  tutor_phone text,
+  tutor_relationship text
+)
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_norm text;
+  v_student_id uuid;
+  v_first text;
+  v_last text;
+  v_birth text;
+  v_phone text;
+  v_email text;
+  v_role public.user_role;
+  v_tutor_id uuid;
+  v_tutor_rel text;
+  v_tutor_first text;
+  v_tutor_last text;
+  v_tutor_name text;
+  v_tutor_dni text;
+  v_tutor_phone text;
+  v_tutor_email text;
+BEGIN
+  v_norm := lower(trim(both FROM replace(replace(COALESCE(p_dni, ''), '.', ''), ' ', '')));
+  IF v_norm = '' THEN
+    RETURN QUERY SELECT
+      false,
+      NULL::text, NULL::text, NULL::text, NULL::text, NULL::text,
+      NULL::text, NULL::text, NULL::text, NULL::text, NULL::text;
+    RETURN;
+  END IF;
+
+  SELECT
+    p.id,
+    p.first_name,
+    p.last_name,
+    CASE WHEN p.birth_date IS NOT NULL THEN to_char(p.birth_date, 'YYYY-MM-DD') ELSE NULL END,
+    NULLIF(trim(both FROM COALESCE(p.phone, '')), '—'),
+    p.role
+  INTO v_student_id, v_first, v_last, v_birth, v_phone, v_role
+  FROM public.profiles p
+  WHERE lower(trim(both FROM replace(replace(COALESCE(p.dni_or_passport, ''), '.', ''), ' ', ''))) = v_norm
+  LIMIT 1;
+
+  IF v_role IS DISTINCT FROM 'student' OR v_student_id IS NULL THEN
+    RETURN QUERY SELECT
+      false,
+      NULL::text, NULL::text, NULL::text, NULL::text, NULL::text,
+      NULL::text, NULL::text, NULL::text, NULL::text, NULL::text;
+    RETURN;
+  END IF;
+
+  SELECT u.email INTO v_email
+  FROM auth.users u
+  WHERE u.id = v_student_id
+  LIMIT 1;
+
+  IF v_email IS NOT NULL AND (
+    v_email LIKE '%@students.goldenenglish.local'
+    OR v_email LIKE '%@parents.%'
+  ) THEN
+    v_email := NULL;
+  END IF;
+
+  SELECT r.tutor_id, r.relationship
+  INTO v_tutor_id, v_tutor_rel
+  FROM public.tutor_student_rel r
+  WHERE r.student_id = v_student_id
+  ORDER BY r.tutor_id
+  LIMIT 1;
+
+  IF v_tutor_id IS NOT NULL THEN
+    SELECT
+      tp.first_name,
+      tp.last_name,
+      tp.dni_or_passport,
+      NULLIF(trim(both FROM COALESCE(tp.phone, '')), '—')
+    INTO v_tutor_first, v_tutor_last, v_tutor_dni, v_tutor_phone
+    FROM public.profiles tp
+    WHERE tp.id = v_tutor_id
+    LIMIT 1;
+
+    v_tutor_name := NULLIF(trim(both FROM COALESCE(v_tutor_first, '') || ' ' || COALESCE(v_tutor_last, '')), '');
+
+    SELECT tu.email INTO v_tutor_email
+    FROM auth.users tu
+    WHERE tu.id = v_tutor_id
+    LIMIT 1;
+
+    IF v_tutor_email IS NOT NULL AND (
+      v_tutor_email LIKE '%@students.goldenenglish.local'
+      OR v_tutor_email LIKE '%@parents.%'
+    ) THEN
+      v_tutor_email := NULL;
+    END IF;
+  END IF;
+
+  RETURN QUERY SELECT
+    true,
+    v_first,
+    v_last,
+    v_birth,
+    v_phone,
+    v_email,
+    v_tutor_name,
+    v_tutor_dni,
+    v_tutor_email,
+    v_tutor_phone,
+    v_tutor_rel;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.lookup_registration_student(text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.lookup_registration_student(text) TO anon, authenticated;
+
+-- ========== 228_academic_profile_fields.sql ==========
+
+-- Institute-defined academic fields and one value per student.
+-- Archive hides a field. Values stay. File and image cannot be a directory column.
+
+CREATE TABLE IF NOT EXISTS public.academic_profile_fields (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  label text NOT NULL,
+  field_type text NOT NULL,
+  select_options text[] NOT NULL DEFAULT '{}',
+  required boolean NOT NULL DEFAULT false,
+  show_in_directory boolean NOT NULL DEFAULT false,
+  sort_order integer NOT NULL DEFAULT 0,
+  archived_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT academic_profile_fields_type_check CHECK (
+    field_type IN ('text', 'textarea', 'number', 'date', 'email', 'phone', 'select', 'file', 'image')
+  ),
+  CONSTRAINT academic_profile_fields_label_check CHECK (char_length(btrim(label)) BETWEEN 1 AND 80),
+  CONSTRAINT academic_profile_fields_column_check CHECK (
+    show_in_directory = false OR field_type NOT IN ('file', 'image')
+  ),
+  CONSTRAINT academic_profile_fields_options_check CHECK (
+    (field_type = 'select' AND cardinality(select_options) >= 1)
+    OR (field_type <> 'select' AND cardinality(select_options) = 0)
+  )
+);
+
+CREATE TABLE IF NOT EXISTS public.academic_profile_field_values (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  field_id uuid NOT NULL REFERENCES public.academic_profile_fields (id) ON DELETE CASCADE,
+  student_id uuid NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  value_text text,
+  value_number numeric,
+  value_date date,
+  storage_path text,
+  updated_by uuid REFERENCES public.profiles (id),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (field_id, student_id)
+);
+
+CREATE INDEX IF NOT EXISTS academic_profile_field_values_text_idx
+  ON public.academic_profile_field_values (field_id, value_text);
+CREATE INDEX IF NOT EXISTS academic_profile_field_values_number_idx
+  ON public.academic_profile_field_values (field_id, value_number);
+CREATE INDEX IF NOT EXISTS academic_profile_field_values_date_idx
+  ON public.academic_profile_field_values (field_id, value_date);
+
+CREATE OR REPLACE FUNCTION public.academic_profile_value_visible(p_student_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT public.is_admin(auth.uid())
+    OR EXISTS (
+      SELECT 1
+      FROM public.section_enrollments e
+      JOIN public.academic_sections s ON s.id = e.section_id
+      WHERE e.student_id = p_student_id
+        AND s.archived_at IS NULL
+        AND (
+          s.teacher_id = auth.uid()
+          OR EXISTS (
+            SELECT 1
+            FROM public.academic_section_assistants a
+            WHERE a.section_id = s.id
+              AND a.assistant_id = auth.uid()
+          )
+        )
+    );
+$$;
+
+REVOKE ALL ON FUNCTION public.academic_profile_value_visible(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.academic_profile_value_visible(uuid) TO authenticated, service_role;
+
+ALTER TABLE public.academic_profile_fields ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.academic_profile_field_values ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS academic_profile_fields_select_staff ON public.academic_profile_fields;
+CREATE POLICY academic_profile_fields_select_staff
+  ON public.academic_profile_fields
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR EXISTS (
+      SELECT 1
+      FROM public.profiles p
+      WHERE p.id = auth.uid()
+        AND p.role IN ('teacher', 'assistant')
+    )
+  );
+
+DROP POLICY IF EXISTS academic_profile_fields_modify_admin ON public.academic_profile_fields;
+CREATE POLICY academic_profile_fields_modify_admin
+  ON public.academic_profile_fields
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS academic_profile_field_values_staff ON public.academic_profile_field_values;
+CREATE POLICY academic_profile_field_values_staff
+  ON public.academic_profile_field_values
+  FOR ALL TO authenticated
+  USING (public.academic_profile_value_visible(student_id))
+  WITH CHECK (public.academic_profile_value_visible(student_id));
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.academic_profile_fields TO authenticated, service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.academic_profile_field_values TO authenticated, service_role;
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('academic-profile-files', 'academic-profile-files', false)
+ON CONFLICT (id) DO NOTHING;

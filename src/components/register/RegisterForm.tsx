@@ -1,27 +1,25 @@
 "use client";
 
-import { type FormEvent, useRef, useState } from "react";
-import { submitSectionLinkRegistration } from "@/app/[locale]/i/actions";
-import { submitPublicRegistration } from "@/app/[locale]/register/actions";
-import { lookupRegistrationStudentAction } from "@/app/[locale]/register/lookupRegistrationStudentAction";
-import { Button } from "@/components/atoms/Button";
-import { RegisterExistingStudentConfirm } from "@/components/register/RegisterExistingStudentConfirm";
-import { RegisterFormContactAndSections } from "@/components/register/RegisterFormContactAndSections";
-import { RegisterStudentFieldset } from "@/components/register/RegisterStudentFieldset";
+import { useRef, useState } from "react";
+import {
+  continueRegistrationDni,
+  submitRegistrationForm,
+} from "@/components/register/registerFormHandlers";
+import { RegisterDniStep } from "@/components/register/RegisterDniStep";
+import { RegisterFormAfterDni } from "@/components/register/RegisterFormAfterDni";
+import type { RegisterTutorPrefillValues } from "@/components/register/RegisterTutorFieldset";
 import { RegisterSuccessDialog } from "@/components/molecules/RegisterSuccessDialog";
-import { SectionEnrollmentLinkCard } from "@/components/register/SectionEnrollmentLinkCard";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import type { Dictionary } from "@/types/i18n";
 import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
-import { RegisterNagoExtras } from "@/components/register/RegisterNagoExtras";
 import { collectRegisterExtrasPrefill } from "@/lib/register/packs/nago/collectRegisterExtrasPrefill";
-import { publicRegistrationInputFromFormData } from "@/lib/register/publicRegistrationInputFromFormData";
 
-const PUBLIC_FORM_CLASS = "w-full min-w-0 space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)] ring-1 ring-[var(--color-primary)]/[0.06]";
+const PUBLIC_FORM_CLASS =
+  "w-full min-w-0 space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)] ring-1 ring-[var(--color-primary)]/[0.06]";
 const EMBEDDED_FORM_CLASS = "w-full min-w-0 space-y-4";
-type RegisterStep = "student" | "confirm" | "details" | "extras";
+type RegisterStep = "dni" | "details" | "extras";
 
 interface RegisterFormProps {
   locale: string;
@@ -49,12 +47,18 @@ export function RegisterForm({
   onLeave,
 }: RegisterFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
-  const [step, setStep] = useState<RegisterStep>("student");
+  const [step, setStep] = useState<RegisterStep>("dni");
   const [msg, setMsg] = useState<string | null>(null);
   const [msgTone, setMsgTone] = useState<"error" | "muted">("error");
   const [busy, setBusy] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  const [dni, setDni] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [defaultEmail, setDefaultEmail] = useState("");
+  const [defaultPhone, setDefaultPhone] = useState("");
+  const [tutorDefaults, setTutorDefaults] = useState<RegisterTutorPrefillValues | null>(null);
   const [existingMatch, setExistingMatch] = useState<{ firstName: string; lastName: string } | null>(null);
   const [existingConfirmed, setExistingConfirmed] = useState(false);
   const [selectedSectionIds, setSelectedSectionIds] = useState<string[]>([]);
@@ -66,13 +70,19 @@ export function RegisterForm({
   const formDict = intent === "trial" ? { ...dict, submit: dict.trial.submit } : dict;
   const isMinor = birthDate.length === 10 && fullYearsFromIsoDate(birthDate) < legalAgeMajority;
   const onLaterStep = step === "details" || step === "extras";
-  const showTutor = onLaterStep && !existingConfirmed && isMinor;
-  const showAdultContact = onLaterStep && !existingConfirmed && !isMinor;
+  const showTutor = onLaterStep && isMinor;
+  const showAdultContact = onLaterStep && !isMinor;
 
   function resetOutcome() {
     setSuccessOpen(false);
+    setDni("");
+    setFirstName("");
+    setLastName("");
     setBirthDate("");
-    setStep("student");
+    setDefaultEmail("");
+    setDefaultPhone("");
+    setTutorDefaults(null);
+    setStep("dni");
     setExistingMatch(null);
     setExistingConfirmed(false);
     setSelectedSectionIds([]);
@@ -80,73 +90,50 @@ export function RegisterForm({
     setSignerPrefill({ name: "", dni: "" });
   }
 
-  async function onContinue() {
-    const form = formRef.current;
-    if (!form) return;
-    if (birthDate.length !== 10) {
-      setMsgTone("error");
-      setMsg(dict.birthDateIncomplete);
-      return;
-    }
-    if (!form.reportValidity()) return;
-    setBusy(true);
-    setMsg(null);
-    setMsgTone("error");
-    const dni = String(new FormData(form).get("dni") ?? "");
-    try {
-      const lookup = await lookupRegistrationStudentAction(dni);
-      if (!lookup.ok) {
-        setMsg(dict.lookupFailed);
-        return;
-      }
-      if (lookup.found) {
-        setExistingMatch({ firstName: lookup.firstName, lastName: lookup.lastName });
-        setExistingConfirmed(false);
-        setStep("confirm");
-        return;
-      }
-      setExistingMatch(null);
-      setExistingConfirmed(false);
-      setStep("details");
-    } finally {
-      setBusy(false);
-    }
+  function onContinueDni() {
+    return continueRegistrationDni({
+      form: formRef.current,
+      dni,
+      dict,
+      setBusy,
+      setMsg,
+      setMsgTone,
+      setFirstName,
+      setLastName,
+      setBirthDate,
+      setDefaultEmail,
+      setDefaultPhone,
+      setTutorDefaults,
+      setExistingMatch,
+      setExistingConfirmed,
+      setStep,
+    });
   }
 
-  async function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (step !== "details" && step !== "extras") return;
-    if (birthDate.length !== 10) {
-      setMsgTone("error");
-      setMsg(dict.birthDateIncomplete);
-      return;
-    }
-    setBusy(true);
-    setMsg(null);
-    setMsgTone("error");
-    const raw = publicRegistrationInputFromFormData(
-      new FormData(e.currentTarget),
+  function onSubmit(e: Parameters<typeof submitRegistrationForm>[0]) {
+    return submitRegistrationForm(e, {
+      step,
+      birthDate,
+      dict,
+      locale,
       extrasPack,
       intent,
-    );
-    try {
-      const res = enrollmentLink
-        ? await submitSectionLinkRegistration(locale, enrollmentLink.token, raw)
-        : await submitPublicRegistration(locale, raw);
-      if (res.ok) {
-        formRef.current?.reset();
-        resetOutcome();
-        setSuccessOpen(true);
-        onRegistered?.();
-        return;
-      }
-      const closed = res.message === dict.closed;
-      setMsgTone(closed ? "muted" : "error");
-      setMsg(closed ? dict.closed : res.message?.trim() || dict.error);
-    } finally {
-      setBusy(false);
-    }
+      enrollmentLink,
+      form: formRef.current,
+      setBusy,
+      setMsg,
+      setMsgTone,
+      resetOutcome,
+      setSuccessOpen,
+      onRegistered,
+    });
   }
+
+  const existingLeadText = existingMatch
+    ? (dict.existingPrefilledNotice ?? dict.existingFoundLead)
+        .replace("{firstName}", existingMatch.firstName)
+        .replace("{lastName}", existingMatch.lastName)
+    : "";
 
   return (
     <>
@@ -164,80 +151,73 @@ export function RegisterForm({
         className={embedded ? EMBEDDED_FORM_CLASS : PUBLIC_FORM_CLASS}
       >
         <input type="hidden" name="intent" value={intent} />
-        <RegisterStudentFieldset
-          locale={locale}
-          dict={formDict}
-          birthDate={birthDate}
-          onBirthDateChange={setBirthDate}
-          readOnly={step !== "student"}
-        />
-        {enrollmentLink && step !== "details" ? (
-          <SectionEnrollmentLinkCard link={enrollmentLink} labels={dict.sectionLink} />
-        ) : null}
-        {step === "student" ? (
-          <Button type="button" disabled={busy} isLoading={busy} onClick={() => void onContinue()}>
-            {dict.continue}
-          </Button>
-        ) : null}
-        {step === "confirm" && existingMatch ? (
-          <RegisterExistingStudentConfirm
-            dict={dict}
-            firstName={existingMatch.firstName}
-            lastName={existingMatch.lastName}
-            onYes={() => {
-              setExistingConfirmed(true);
-              setMsg(null);
-              setStep("details");
-            }}
-            onNo={() => {
-              setExistingConfirmed(false);
-              setExistingMatch(null);
-              setStep("student");
-              setMsgTone("error");
-              setMsg(dict.existingRejected);
-            }}
-          />
-        ) : null}
-        {step === "details" || step === "extras" ? (
-          <RegisterFormContactAndSections
-            locale={locale}
+        {step === "dni" ? (
+          <RegisterDniStep
             dict={formDict}
+            dni={dni}
+            onDniChange={setDni}
+            busy={busy}
+            enrollmentLink={enrollmentLink}
+            onContinue={() => void onContinueDni()}
+          />
+        ) : (
+          <RegisterFormAfterDni
+            locale={locale}
+            dict={dict}
+            formDict={formDict}
+            dni={dni}
+            onDniChange={setDni}
+            firstName={firstName}
+            onFirstNameChange={setFirstName}
+            lastName={lastName}
+            onLastNameChange={setLastName}
+            birthDate={birthDate}
+            onBirthDateChange={setBirthDate}
+            existingMatch={existingMatch}
+            existingLeadText={existingLeadText}
             busy={busy}
             showTutor={showTutor}
             showAdultContact={showAdultContact}
+            contactRequired={!existingConfirmed}
+            defaultEmail={defaultEmail}
+            defaultPhone={defaultPhone}
+            tutorDefaults={tutorDefaults}
             sectionOptions={sectionOptions}
             selectedSectionIds={selectedSectionIds}
             onSelectedSectionIdsChange={setSelectedSectionIds}
             enrollmentLink={enrollmentLink}
             intent={intent}
-            hidden={step === "extras"}
-            submitType={extrasPack === "nago" && step === "details" ? "button" : "submit"}
-            onContinue={() => {
+            step={step}
+            extrasPack={extrasPack}
+            isMinor={isMinor}
+            tutorPrefill={tutorPrefill}
+            signerPrefill={signerPrefill}
+            onBackToDetails={() => setStep("details")}
+            onContinueToExtras={() => {
+              if (birthDate.length !== 10) {
+                setMsgTone("error");
+                setMsg(dict.birthDateIncomplete);
+                return;
+              }
               const form = formRef.current;
               if (!form?.reportValidity()) return;
               const prefill = collectRegisterExtrasPrefill(form, {
                 isMinor,
-                existingConfirmed,
+                existingConfirmed: false,
               });
               setTutorPrefill(prefill.tutorPrefill);
               setSignerPrefill(prefill.signerPrefill);
               setStep("extras");
             }}
           />
-        ) : null}
-        {step === "extras" && extrasPack === "nago" ? (
-          <RegisterNagoExtras
-            dict={dict}
-            isMinor={isMinor}
-            busy={busy}
-            showUseTutor={Boolean(showTutor && tutorPrefill?.name)}
-            tutorPrefill={tutorPrefill}
-            signerPrefill={signerPrefill}
-          />
-        ) : null}
+        )}
         {msg ? (
           <p
-            className={msgTone === "muted" ? "text-sm text-[var(--color-muted-foreground)]" : "text-sm text-[var(--color-error)]"}
+            className={
+              msgTone === "muted"
+                ? "text-sm text-[var(--color-muted-foreground)]"
+                : "text-sm text-[var(--color-error)]"
+            }
             role="alert"
           >
             {msg}

@@ -20,7 +20,7 @@ export function parseCohortRubricDimensionsJson(raw: unknown): RubricDimensionDe
     const p = dimensionRow.safeParse(item);
     if (!p.success) continue;
     const min = p.data.scaleMin ?? 1;
-    const max = p.data.scaleMax ?? 5;
+    const max = p.data.scaleMax ?? 10;
     if (!(min < max) || min < 0 || max > 100) continue;
     out.push({
       key: p.data.key.trim(),
@@ -40,7 +40,7 @@ export function defaultRubricDimensionsFromI18n(labelsByKey: Record<string, stri
     key,
     label: labelsByKey[key] ?? key,
     scaleMin: 1,
-    scaleMax: 5,
+    scaleMax: 10,
   }));
 }
 
@@ -52,7 +52,7 @@ export function normalizeRubricValuesForDimensions(
   const next: Record<string, number> = {};
   for (const d of dimensions) {
     const n = Number(o[d.key]);
-    const mid = (d.scaleMin + d.scaleMax) / 2;
+    const mid = Math.round((d.scaleMin + d.scaleMax) / 2);
     if (Number.isFinite(n) && n >= d.scaleMin && n <= d.scaleMax) {
       next[d.key] = n;
     } else {

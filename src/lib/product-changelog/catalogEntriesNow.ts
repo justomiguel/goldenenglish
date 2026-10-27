@@ -3,6 +3,96 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "student-assessment-rubric-scale-1-to-10",
+    date: "2026-10-27",
+    area: "academic",
+    title: t(
+      "La rúbrica del examen va de 1 a 10",
+      "Exam rubric scores run from 1 to 10",
+      "A rubrica da prova vai de 1 a 10",
+    ),
+    summary: t(
+      "Cada criterio del examen de cohorte usa una escala de 1 a 10. Las notas ya guardadas de 1 a 5 siguen válidas.",
+      "Each cohort exam criterion uses a 1 to 10 scale. Saved scores from 1 to 5 stay valid.",
+      "Cada critério da prova da turma usa uma escala de 1 a 10. Notas já salvas de 1 a 5 continuam válidas.",
+    ),
+  },
+  {
+    id: "persistent-page-tabs",
+    date: "2026-10-27",
+    area: "portal",
+    title: t(
+      "Las pestañas se quedan donde las dejaste",
+      "Tabs stay where you left them",
+      "As abas ficam onde você as deixou",
+    ),
+    summary: t(
+      "Si sales de una pantalla y vuelves, ves la misma pestaña. Un enlace con la pestaña en la dirección sigue abriendo esa pestaña.",
+      "If you leave a screen and come back, you see the same tab. A link with the tab in the address still opens that tab.",
+      "Se você sai de uma tela e volta, vê a mesma aba. Um link com a aba no endereço ainda abre essa aba.",
+    ),
+  },
+  {
+    id: "academic-profile-custom-fields",
+    date: "2026-10-27",
+    area: "academic",
+    title: t(
+      "Campos académicos propios del instituto",
+      "Institute academic fields",
+      "Campos acadêmicos do instituto",
+    ),
+    summary: t(
+      "Puedes agregar campos en el estado académico del alumno, mostrarlos como columnas y filtrar u ordenar Alumnos. El docente de la sección también puede completarlos.",
+      "You can add fields on a student's academic status, show them as columns, and filter or sort Students. The section teacher can fill them too.",
+      "Você pode adicionar campos no status acadêmico do aluno, mostrá-los como colunas e filtrar ou ordenar Alunos. O professor da turma também pode preenchê-los.",
+    ),
+  },
+  {
+    id: "next-cohort-registration-and-student-history",
+    date: "2026-10-27",
+    area: "registrations",
+    title: t(
+      "Inscripciones web para el próximo año, autocompletado por documento e historial del alumno",
+      "Next-year web registrations, document autofill, and student history",
+      "Inscrições web para o próximo ano, preenchimento por documento e histórico do aluno",
+    ),
+    summary: t(
+      "Puedes elegir qué cohorte recibe las inscripciones públicas o nuevas inscripciones, autocompletar los datos ingresando primero el documento sin bloquear la edición, y consultar la pestaña Historial en la ficha de cada alumno.",
+      "You can select which cohort receives public or new registrations, autofill student and guardian fields from the document while keeping fields editable, and view the History tab on each student profile.",
+      "Você pode escolher qual coorte recebe as inscrições públicas ou novas inscrições, preencher os dados pelo documento mantendo a edição aberta e consultar a aba Histórico na ficha de cada aluno.",
+    ),
+  },
+  {
+    id: "publish-grade-without-email",
+    date: "2026-10-27",
+    area: "academic",
+    title: t(
+      "Publicar una nota sin enviar correo",
+      "Publish a grade without email",
+      "Publicar uma nota sem enviar e-mail",
+    ),
+    summary: t(
+      "Al calificar puedes publicar la nota solo en el portal, o publicarla y avisar a los tutores por correo.",
+      "When you grade, you can publish the grade in the portal only, or publish it and email guardians.",
+      "Ao avaliar, você pode publicar a nota só no portal, ou publicá-la e avisar os responsáveis por e-mail.",
+    ),
+  },
+  {
+    id: "admin-message-outcome",
+    date: "2026-10-27",
+    area: "communications",
+    title: t(
+      "Los mensajes muestran qué pasó y el menú cuenta los no leídos",
+      "Messages show what happened, and the menu counts unread",
+      "As mensagens mostram o que aconteceu e o menu conta as não lidas",
+    ),
+    summary: t(
+      "En cada mensaje ves si se leyó, si se respondió y quién abrió WhatsApp o el correo. El número del menú cuenta solo los no leídos.",
+      "Each message shows if it was read, if it was answered, and who opened WhatsApp or mail. The menu count includes unread messages only.",
+      "Em cada mensagem você vê se foi lida, se foi respondida e quem abriu o WhatsApp ou o e-mail. O número do menu conta só as não lidas.",
+    ),
+  },
+  {
     id: "teacher-birthdays-view-as",
     date: "2026-10-27",
     area: "academic",
@@ -150,81 +240,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "El menú lateral de admin incluye Mensajes. El número muestra los mensajes recientes.",
       "The admin side menu includes Messages. The number shows recent messages.",
       "O menu lateral de admin inclui Mensagens. O número mostra as mensagens recentes.",
-    ),
-  },
-  {
-    id: "admin-home-work-cards",
-    date: "2026-10-27",
-    area: "admin",
-    title: t(
-      "Pagos, inscripciones y mensajes más bajos",
-      "Shorter payments, registrations, and messages cards",
-      "Pagamentos, inscrições e mensagens mais baixos",
-    ),
-    summary: t(
-      "En el inicio, esas tres tarjetas ocupan menos alto. El enlace queda a la derecha.",
-      "On the home screen, those three cards use less height. The link sits on the right.",
-      "No início, esses três cartões ocupam menos altura. O link fica à direita.",
-    ),
-  },
-  {
-    id: "mobile-stat-cards",
-    date: "2026-10-27",
-    area: "admin",
-    title: t(
-      "Las cifras del celular entran en la pantalla",
-      "Phone stats fit the screen",
-      "Os números do celular cabem na tela",
-    ),
-    summary: t(
-      "En el celular, las tarjetas de cifras quedan en una grilla compacta. Ya no hace falta deslizarlas de lado.",
-      "On a phone, the stat cards sit in a compact grid. You do not slide them sideways.",
-      "No celular, os cartões de números ficam numa grelha compacta. Já não é preciso deslizá-los para o lado.",
-    ),
-  },
-  {
-    id: "admin-directory-cards-age-sort",
-    date: "2026-10-27",
-    area: "admin",
-    title: t(
-      "Listas de personas más claras",
-      "Clearer people lists",
-      "Listas de pessoas mais claras",
-    ),
-    summary: t(
-      "Filtrar y ordenar van separados. Puedes acumular criterios de orden y filtrar alumnos y padres por edad. Las marcas de cuota tienen una leyenda.",
-      "Filter and sort are separate. You can stack sort criteria and filter students and parents by age. Fee marks have a legend.",
-      "Filtrar e ordenar ficam separados. Você pode acumular critérios de ordem e filtrar alunos e pais por idade. As marcas da mensalidade têm uma legenda.",
-    ),
-  },
-  {
-    id: "pwa-view-as-bar",
-    date: "2026-10-27",
-    area: "admin",
-    title: t(
-      "La barra del celular muestra el logo y las alertas",
-      "The phone bar shows the logo and alerts",
-      "A barra do celular mostra o logo e os alertas",
-    ),
-    summary: t(
-      "En el celular, la barra de admin lleva el logo chico y el icono de alertas. Elegir un perfil para ver queda en la pantalla ancha.",
-      "On a phone, the admin bar shows a small logo and the alerts icon. Choosing a profile to view stays on a wide screen.",
-      "No celular, a barra de admin leva o logo pequeno e o ícone de alertas. Escolher um perfil para ver fica na tela larga.",
-    ),
-  },
-  {
-    id: "admin-weekly-digest",
-    date: "2026-10-27",
-    area: "communications",
-    title: t(
-      "Reporte semanal para admins",
-      "Weekly admin report",
-      "Relatório semanal para admins",
-    ),
-    summary: t(
-      "Cada lunes los admins reciben un correo con lo que espera revisión y las cifras de la semana cerrada.",
-      "Each Monday, admins get a mail with waiting work and the closed week's numbers.",
-      "Cada segunda, os admins recebem um e-mail com o que espera revisão e os números da semana fechada.",
     ),
   },
 ];

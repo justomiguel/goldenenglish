@@ -9,12 +9,14 @@ export function adminPortalMessageNeedsReply(params: {
   senderRole: string;
   externalRepliedAt: string | null | undefined;
   hasLaterStaffReplyToPeer: boolean;
+  hasFollowUp?: boolean;
 }): boolean {
   if (!NEEDS_REPLY_SENDER_ROLES.has(params.senderRole)) return false;
+  if (params.hasFollowUp || params.hasLaterStaffReplyToPeer) return false;
   if (params.senderRole === "site_contact") {
     return params.externalRepliedAt == null || params.externalRepliedAt === "";
   }
-  return !params.hasLaterStaffReplyToPeer;
+  return true;
 }
 
 export type AdminPortalAttentionSortable = {

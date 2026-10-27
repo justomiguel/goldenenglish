@@ -4,15 +4,19 @@ import { useMemo, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { Dictionary } from "@/types/i18n";
 import { useAppSurface } from "@/hooks/useAppSurface";
+import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import { TeacherSuggestionShell } from "@/components/molecules/TeacherSuggestionShell";
 import { TeacherTransferSuggestionForm } from "@/components/molecules/TeacherTransferSuggestionForm";
 import { TeacherStudentQuickContext } from "@/components/molecules/TeacherStudentQuickContext";
 import { TeacherRosterStudentRow } from "@/components/molecules/TeacherRosterStudentRow";
+import { TeacherAcademicProfilePanel } from "@/components/molecules/TeacherAcademicProfilePanel";
 import type { TeacherAttendancePreviewRow, TeacherRosterRow, TeacherTransferTargetOption } from "@/types/teacherPortal";
 
 export type { TeacherRosterRow } from "@/types/teacherPortal";
 
 type TabKey = "active" | "dropped" | "transferred";
+
+const ROSTER_TABS: readonly TabKey[] = ["active", "dropped", "transferred"];
 
 function rowInTab(tab: TabKey, status: string) {
   if (tab === "active") return status === "active" || status === "completed";
@@ -29,6 +33,8 @@ export interface TeacherSectionRosterProps {
   pendingStudentIds: string[];
   attendanceByStudent: Record<string, TeacherAttendancePreviewRow[]>;
   dict: Dictionary["dashboard"]["teacherMySections"];
+  academicFieldLabels: Dictionary["admin"]["users"]["academicFields"];
+  canEditAcademicProfile?: boolean;
 }
 
 export function TeacherSectionRoster({
@@ -40,17 +46,24 @@ export function TeacherSectionRoster({
   pendingStudentIds,
   attendanceByStudent,
   dict,
+  academicFieldLabels,
+  canEditAcademicProfile = false,
 }: TeacherSectionRosterProps) {
   const router = useRouter();
   const surface = useAppSurface();
   const narrow = surface === "web-mobile" || surface === "pwa-mobile";
-  const [tab, setTab] = useState<TabKey>("active");
+  const { value: tab, setValue: setTab } = usePersistentPageTab<TabKey>({
+    allowed: ROSTER_TABS,
+    fallback: "active",
+    param: "roster",
+  });
   const [suggestion, setSuggestion] = useState<{
     kind: "section" | "cohort";
     studentId: string;
     studentLabel: string;
   } | null>(null);
   const [context, setContext] = useState<{ studentId: string; label: string } | null>(null);
+  const [academicStudent, setAcademicStudent] = useState<{ studentId: string; label: string } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [formNonce, setFormNonce] = useState(0);
 
@@ -88,7 +101,7 @@ export function TeacherSectionRoster({
       ) : null}
 
       <div className="flex flex-wrap gap-2 border-b border-[var(--color-border)] pb-3">
-        {(["active", "dropped", "transferred"] as const).map((k) => (
+        {ROSTER_TABS.map((k) => (
           <button
             key={k}
             type="button"
@@ -120,6 +133,11 @@ export function TeacherSectionRoster({
               narrow={narrow}
               dict={dict}
               onOpenContext={() => setContext({ studentId: r.studentId, label: r.label })}
+              onOpenAcademicProfile={
+                canEditAcademicProfile
+                  ? () => setAcademicStudent({ studentId: r.studentId, label: r.label })
+                  : undefined
+              }
               onSuggestSection={() => {
                 setFormNonce((n) => n + 1);
                 setSuggestion({ kind: "section", studentId: r.studentId, studentLabel: r.label });
@@ -160,6 +178,17 @@ export function TeacherSectionRoster({
         ) : null}
       </TeacherSuggestionShell>
 
+      <TeacherAcademicProfilePanel
+        open={academicStudent !== null}
+        locale={locale}
+        sectionId={sectionId}
+        studentId={academicStudent?.studentId ?? null}
+        studentLabel={academicStudent?.label ?? dict.academicProfile}
+        labels={academicFieldLabels}
+        onOpenChange={(open) => {
+          if (!open) setAcademicStudent(null);
+        }}
+      />
       <TeacherStudentQuickContext
         open={context !== null}
         onOpenChange={(v) => {

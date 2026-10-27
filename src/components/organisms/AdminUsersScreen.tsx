@@ -6,8 +6,8 @@ import { AdminUsersTableDesktop } from "@/components/desktop/organisms/AdminUser
 import { AdminUsersScreenNarrow } from "@/components/pwa/organisms/AdminUsersScreenNarrow";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
-import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
-import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
+import type { AdminDirectorySortKey, AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
+import type { AdminUserRow, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 import type { AdminDirectoryFilters, AdminDirectoryRole } from "@/lib/dashboard/adminDirectoryFilters";
 import type { AdminDirectoryFacets } from "@/lib/dashboard/countAdminDirectoryFacets";
 
@@ -27,6 +27,11 @@ export type AdminDirectoryFiltersChrome = {
   sectionOptions: { id: string; name: string }[];
 };
 
+export type AcademicDirectoryChrome = {
+  columns: { id: string; label: string; fieldType: string; selectOptions: string[] }[];
+  selectFacets: Record<string, Record<string, number>>;
+};
+
 export interface AdminUsersScreenProps {
   rows: AdminUserRow[];
   totalCount: number;
@@ -35,7 +40,7 @@ export interface AdminUsersScreenProps {
   searchQuery: string;
   roleFilter: string;
   roleCounts: AdminUsersListRoleCounts;
-  sortKey: SortKey;
+  sortKey: AdminDirectorySortKey;
   sortDir: SortDir;
   sortCriteria?: AdminUsersSortCriterion[];
   locale: string;
@@ -45,6 +50,7 @@ export interface AdminUsersScreenProps {
   lockRole?: string;
   parentsDirectory?: AdminParentsDirectoryChrome;
   directoryFilters?: AdminDirectoryFiltersChrome;
+  academicDirectory?: AcademicDirectoryChrome;
 }
 
 export function AdminUsersScreen(props: AdminUsersScreenProps) {

@@ -47,6 +47,58 @@ export async function setInscriptionsEnabled(
   return { ok: true };
 }
 
+const registrationCohortSchema = z.union([
+  z.null(),
+  z.literal(""),
+  z.string().uuid(),
+]);
+
+export async function setRegistrationCohortAction(
+  locale: string,
+  cohortId: string | null,
+): Promise<{ ok: boolean }> {
+  try {
+    await assertAdmin();
+  } catch {
+    logServerAuthzDenied("setRegistrationCohortAction");
+    return { ok: false };
+  }
+
+  const parsed = registrationCohortSchema.safeParse(cohortId);
+  if (!parsed.success) return { ok: false };
+  const normalized = parsed.data && parsed.data.trim().length > 0 ? parsed.data.trim() : null;
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("site_settings").upsert(
+    {
+      key: "registration_cohort_id",
+      value: normalized as never,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "key" },
+  );
+
+  if (error) {
+    logSupabaseClientError("setRegistrationCohortAction", error, {
+      key: "registration_cohort_id",
+    });
+    return { ok: false };
+  }
+
+  void recordSystemAudit({
+    action: "site_settings_upsert",
+    resourceType: "site_settings",
+    resourceId: "registration_cohort_id",
+    payload: { cohortId: normalized },
+  });
+
+  revalidatePath(`/${locale}`);
+  revalidatePath(`/${locale}/register`);
+  revalidatePath(`/${locale}/dashboard/admin/settings`);
+  revalidatePath(`/${locale}/dashboard/admin/registrations`);
+  return { ok: true };
+}
+
 const classReminderGlobalsSchema = z.object({
   enabled: z.boolean(),
   prepMinutes: z.coerce.number().int().min(30).max(10080),

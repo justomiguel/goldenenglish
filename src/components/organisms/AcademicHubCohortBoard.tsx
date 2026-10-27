@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, type ReactNode } from "react";
+import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import { Archive, Layers, Sparkles } from "lucide-react";
 import type { AcademicHubCohortSummary, AcademicHubCohortRowLabels } from "@/components/molecules/AcademicHubCohortRow";
 import { AcademicHubCohortRow } from "@/components/molecules/AcademicHubCohortRow";
@@ -44,6 +45,8 @@ export interface AcademicHubCohortBoardProps {
 
 type HubTab = "current" | "active" | "archived";
 
+const HUB_TABS: readonly HubTab[] = ["current", "active", "archived"];
+
 export function AcademicHubCohortBoard({
   locale,
   current,
@@ -54,7 +57,10 @@ export function AcademicHubCohortBoard({
   hasAnyCohort,
 }: AcademicHubCohortBoardProps) {
   const idPrefix = useId().replace(/:/g, "");
-  const [tab, setTab] = useState<HubTab>(() => (current ? "current" : "active"));
+  const { value: tab, setValue: setTab } = usePersistentPageTab<HubTab>({
+    allowed: HUB_TABS,
+    fallback: current ? "current" : "active",
+  });
 
   const tabItems: UnderlineTabItem[] = [
     { id: "current", label: boardDict.tabs.current, Icon: Sparkles },

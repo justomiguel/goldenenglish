@@ -1,19 +1,19 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import type { Dictionary } from "@/types/i18n";
 import type { AssessmentMatrixRosterRow } from "@/types/assessmentGrades";
 import type { RubricDimensionDef } from "@/types/rubricDimensions";
 import {
-  publishGradeWithNotification,
   upsertGradeAction,
   type UpsertGradeActionState,
 } from "@/app/[locale]/dashboard/teacher/sections/assessmentGradeActions";
+import { AssessmentGradePublishActions } from "@/components/molecules/AssessmentGradePublishActions";
 import { normalizeRubricValuesForDimensions } from "@/lib/academics/cohortRubricDimensions";
 import { suggestedScoreForGrading } from "@/lib/academics/rubricSuggestedScoreFromDimensions";
-import { Save, Send, X } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { GradingForm } from "@/components/molecules/GradingForm";
 
@@ -78,13 +78,12 @@ export function AssessmentGradingEditor({
   const [scoreLocked, setScoreLocked] = useState(() => hydrated);
   const [feedback, setFeedback] = useState(() => row.teacherFeedback ?? "");
   const [draftState, draftAction] = useActionState(upsertGradeAction, null as UpsertGradeActionState | null);
-  const [pubPending, startPub] = useTransition();
   const [pubErr, setPubErr] = useState<string | null>(null);
 
   const payload = useMemo(() => {
     const rubricPayload: Record<string, number> = {};
     for (const d of dimensions) {
-      rubricPayload[d.key] = rubric[d.key] ?? (d.scaleMin + d.scaleMax) / 2;
+      rubricPayload[d.key] = rubric[d.key] ?? Math.round((d.scaleMin + d.scaleMax) / 2);
     }
     const score = Number(scoreStr);
     return JSON.stringify({
@@ -160,35 +159,24 @@ export function AssessmentGradingEditor({
         chipDict={dict.chips}
       />
       <input type="hidden" name="payload" value={payload} readOnly />
-      <div className="mt-4 flex flex-col gap-2 border-t border-[var(--color-border)] pt-4 sm:flex-row">
-        <DraftSubmitRow label={dict.saveDraft} />
-        <Button
-          type="button"
-          className="min-h-[44px] w-full sm:flex-1"
-          isLoading={pubPending}
-          disabled={pubPending}
-          onClick={() => {
-            setPubErr(null);
-            const el = formRef.current;
-            if (!el) return;
-            const fd = new FormData(el);
-            startPub(() => {
-              void publishGradeWithNotification(fd).then((r) => {
-                if (r.ok) {
-                  onSaved(row.enrollmentId, "published");
-                  router.refresh();
-                } else {
-                  setPubErr(r.ok === false ? r.code : "save");
-                }
-              });
-            });
+      <div className="mt-4 flex flex-col gap-3 border-t border-[var(--color-border)] pt-4 sm:flex-row sm:items-start">
+        <div className="w-full sm:flex-1">
+          <DraftSubmitRow label={dict.saveDraft} />
+        </div>
+        <AssessmentGradePublishActions
+          formRef={formRef}
+          enrollmentId={row.enrollmentId}
+          publishLabel={dict.publish}
+          publishHelp={dict.publishHelp}
+          notifyLabel={dict.publishNotify}
+          notifyHelp={dict.publishNotifyHelp}
+          onPublished={(enrollmentId) => {
+            onSaved(enrollmentId, "published");
+            router.refresh();
           }}
-        >
-          {!pubPending ? (
-            <Send className="h-4 w-4 shrink-0" aria-hidden />
-          ) : null}
-          {dict.publishNotify}
-        </Button>
+          onBegin={() => setPubErr(null)}
+          onError={(code) => setPubErr(code)}
+        />
       </div>
       <Button type="button" variant="ghost" className="mt-3 min-h-[44px] w-full" onClick={onClose}>
         <X className="h-4 w-4 shrink-0" aria-hidden />

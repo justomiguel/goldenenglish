@@ -24,11 +24,13 @@ export function AdminUsersSortChecklist({
   labels,
   sortKeys,
   criteria,
+  fieldLabels,
   onChange,
 }: {
   labels: UserLabels;
   sortKeys: SortKey[];
   criteria: AdminUsersSortCriterion[];
+  fieldLabels?: Record<string, string>;
   onChange: (next: AdminUsersSortCriterion[]) => void;
 }) {
   const canAdd = criteria.length < sortKeys.length;
@@ -42,7 +44,8 @@ export function AdminUsersSortChecklist({
       <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.sortPanelLead}</p>
       <ul className="mt-3 space-y-2">
         {criteria.map((criterion, index) => {
-          const name = adminUsersSortColumnLabel(labels, criterion.key);
+          const name = fieldLabels?.[criterion.key] ?? adminUsersSortColumnLabel(labels, criterion.key);
+          const inList = sortKeys.some((key) => key === criterion.key);
           const dirLabel = criterion.dir === "asc" ? labels.sortDirAsc : labels.sortDirDesc;
           return (
             <li key={criterion.key} className="flex items-center gap-1">
@@ -57,6 +60,7 @@ export function AdminUsersSortChecklist({
                 }
                 className="min-h-11 min-w-0 flex-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
               >
+                {inList ? null : <option value={criterion.key}>{name}</option>}
                 {sortKeys.map((key) => (
                   <option key={key} value={key}>
                     {adminUsersSortColumnLabel(labels, key)}

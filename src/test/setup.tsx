@@ -92,6 +92,11 @@ vi.mock("next/navigation", () => ({
 }));
 
 beforeEach(() => {
+  try {
+    sessionStorage.clear();
+  } catch {
+    /* Some Node test workers have no storage file. */
+  }
   mockPathname.mockReset();
   mockPathname.mockReturnValue("/es");
   mockPush.mockClear();

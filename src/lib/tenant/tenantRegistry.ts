@@ -55,6 +55,7 @@ export type TenantPublicEnv = {
 const ENV_KEY = "TENANTS_CONFIG_JSON";
 
 let dynamicTenants: TenantConfig[] | null = null;
+let dynamicPulsarHosts: string[] | null = null;
 let cachedRaw: string | undefined;
 let cachedTenants: TenantConfig[] = [];
 let cachedError: string | null = null;
@@ -67,6 +68,23 @@ export function setDynamicTenantsCache(tenants: TenantConfig[] | null): void {
 /** True after this process has stored rows from Pulsar `platform_tenants`. */
 export function isDynamicTenantCacheLoaded(): boolean {
   return dynamicTenants !== null;
+}
+
+/** Populates or clears the DB-backed Pulsar host list from Pulsar `platform_settings.pulsar_hosts`. */
+export function setDynamicPulsarHostsCache(hosts: string[] | null): void {
+  if (!hosts) {
+    dynamicPulsarHosts = null;
+    return;
+  }
+  const normalized = Array.from(
+    new Set(hosts.map((h) => normalizeHost(h)).filter((h) => h.length > 0)),
+  );
+  dynamicPulsarHosts = normalized.length > 0 ? normalized : null;
+}
+
+/** True after this process has stored Pulsar hosts from `platform_settings.pulsar_hosts`. */
+export function isDynamicPulsarHostsCacheLoaded(): boolean {
+  return dynamicPulsarHosts !== null;
 }
 
 export function isMultiTenantEnabled(): boolean {
@@ -109,6 +127,9 @@ export function isLocalDevHost(host: string): boolean {
 }
 
 export function getPulsarHosts(): string[] {
+  if (dynamicPulsarHosts && dynamicPulsarHosts.length > 0) {
+    return [...dynamicPulsarHosts];
+  }
   const raw = process.env.PULSAR_HOSTS?.trim();
   if (!raw) return [...DEFAULT_PULSAR_HOSTS];
   const parsed = raw

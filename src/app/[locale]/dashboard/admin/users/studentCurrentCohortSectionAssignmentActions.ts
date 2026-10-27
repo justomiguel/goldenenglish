@@ -4,17 +4,17 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { revalidateAcademicSurfaces } from "@/app/[locale]/dashboard/admin/academic/revalidatePaths";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
+import { recordStudentEnrollmentAudit } from "@/lib/dashboard/studentMutationAudit";
 import { buildSectionEnrollmentPreview } from "@/lib/academics/buildSectionEnrollmentPreview";
 import { commitSectionEnrollmentRpc } from "@/lib/academics/commitSectionEnrollmentRpc";
 import { cancelReminderJobsForEnrollmentId } from "@/lib/notifications/cancelReminderJobsAdmin";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import {
-  loadAdminStudentCurrentCohortAssignment,
-  type AdminStudentCurrentCohortAssignment,
-} from "@/lib/dashboard/loadAdminStudentCurrentCohortAssignment";
+  isStudentProfile,
+  prepareStudentCurrentCohortSectionAdd,
+} from "@/lib/dashboard/prepareStudentCurrentCohortSectionAdd";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import type { PreviewSectionEnrollmentResult } from "@/types/academics";
-import type { SupabaseClient } from "@supabase/supabase-js";
 
 const uuid = z.string().uuid();
 
@@ -30,24 +30,6 @@ export type StudentCurrentCohortAssignmentCode =
   | "NOT_ENROLLED"
   | "LAST_SECTION"
   | "RPC";
-
-type PreparedAdd =
-  | {
-      ok: true;
-      supabase: SupabaseClient;
-      studentId: string;
-      sectionId: string;
-      assignment: AdminStudentCurrentCohortAssignment;
-    }
-  | {
-      ok: false;
-      code:
-        | "PARSE"
-        | "NOT_STUDENT"
-        | "NO_CURRENT_COHORT"
-        | "SECTION_NOT_CURRENT"
-        | "ALREADY_ACTIVE";
-    };
 
 export type StudentCurrentCohortAssignmentPreviewResult =
   | PreviewSectionEnrollmentResult
@@ -69,45 +51,13 @@ export type StudentSectionRemoveResult =
   | { ok: true }
   | { ok: false; code: StudentCurrentCohortAssignmentCode };
 
-async function isStudentProfile(supabase: SupabaseClient, studentId: string): Promise<boolean> {
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", studentId)
-    .maybeSingle();
-  return !error && data?.role === "student";
-}
-
-async function prepareAdd(input: {
-  studentId: string;
-  sectionId: string;
-}): Promise<PreparedAdd> {
-  const student = uuid.safeParse(input.studentId);
-  const section = uuid.safeParse(input.sectionId);
-  if (!student.success || !section.success) return { ok: false, code: "PARSE" };
-
-  const { supabase } = await assertAdmin();
-  const isStudent = await isStudentProfile(supabase, student.data);
-  if (!isStudent) return { ok: false, code: "NOT_STUDENT" };
-
-  const assignment = await loadAdminStudentCurrentCohortAssignment(supabase, student.data);
-  if (!assignment.cohortId) return { ok: false, code: "NO_CURRENT_COHORT" };
-  if (!assignment.sections.some((option) => option.id === section.data)) {
-    return { ok: false, code: "SECTION_NOT_CURRENT" };
-  }
-  const alreadyIn = assignment.currentSections.some((cs) => cs.sectionId === section.data);
-  if (alreadyIn) return { ok: false, code: "ALREADY_ACTIVE" };
-
-  return { ok: true, supabase, studentId: student.data, sectionId: section.data, assignment };
-}
-
 export async function previewStudentCurrentCohortSectionAssignmentAction(input: {
   studentId: string;
   sectionId: string;
   allowCapacityOverride?: boolean;
 }): Promise<StudentCurrentCohortAssignmentPreviewResult> {
   try {
-    const prepared = await prepareAdd(input);
+    const prepared = await prepareStudentCurrentCohortSectionAdd(input);
     if (!prepared.ok) return prepared;
 
     return await buildSectionEnrollmentPreview(prepared.supabase, {
@@ -129,7 +79,7 @@ export async function addStudentToSectionAction(input: {
   allowCapacityOverride?: boolean;
 }): Promise<StudentCurrentCohortAssignmentCommitResult> {
   try {
-    const prepared = await prepareAdd(input);
+    const prepared = await prepareStudentCurrentCohortSectionAdd(input);
     if (!prepared.ok) return prepared;
 
     const preview = await buildSectionEnrollmentPreview(prepared.supabase, {
@@ -159,6 +109,21 @@ export async function addStudentToSectionAction(input: {
         sectionId: prepared.sectionId,
         allowCapacityOverride: Boolean(input.allowCapacityOverride),
       },
+    });
+    const addedSectionName =
+      prepared.assignment.sections.find((s) => s.id === prepared.sectionId)?.name ??
+      prepared.sectionId;
+    void recordStudentEnrollmentAudit({
+      studentId: prepared.studentId,
+      action: "add_section",
+      summary: `Alta en sección ${addedSectionName}`,
+      beforeSection:
+        prepared.assignment.currentSections.map((s) => s.sectionName).join(", ") || "—",
+      afterSection: [
+        ...prepared.assignment.currentSections.map((s) => s.sectionName),
+        addedSectionName,
+      ].join(", "),
+      cohortName: prepared.assignment.cohortName,
     });
 
     revalidateAcademicSurfaces(input.locale);
@@ -221,6 +186,13 @@ export async function removeStudentFromSectionAction(input: {
       resourceType: "section_enrollment",
       resourceId: enrollmentParsed.data,
       payload: { studentId: studentParsed.data },
+    });
+    void recordStudentEnrollmentAudit({
+      studentId: studentParsed.data,
+      action: "remove_section",
+      summary: `Baja de sección`,
+      beforeSection: enrollmentParsed.data,
+      afterSection: "—",
     });
 
     revalidateAcademicSurfaces(input.locale);

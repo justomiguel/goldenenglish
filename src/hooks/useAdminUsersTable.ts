@@ -8,6 +8,7 @@ import { useAdminUserDeleteConfirmation } from "@/hooks/useAdminUserDeleteConfir
 import {
   adminUsersSortCriteriaToParams,
   cycleAdminUsersSortCriterion,
+  type AdminDirectorySortKey,
   type AdminUsersSortCriterion,
 } from "@/lib/dashboard/adminUsersSortCriteria";
 import {
@@ -15,7 +16,6 @@ import {
   applyUserRowToggle,
   type AdminUserRow,
   type SortDir,
-  type SortKey,
 } from "@/lib/dashboard/adminUsersTableHelpers";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -31,7 +31,7 @@ export interface UseAdminUsersTableParams {
   pageSize: number;
   searchQuery: string;
   roleFilter: string;
-  sortKey: SortKey;
+  sortKey: AdminDirectorySortKey;
   sortDir: SortDir;
   sortCriteria?: AdminUsersSortCriterion[];
   locale: string;
@@ -69,6 +69,11 @@ export function useAdminUsersTable({
   const pushParams = useCallback(
     (updates: Record<string, string | undefined>) => {
       const sp = new URLSearchParams(currentParams.toString());
+      if ("acf_clear" in updates) {
+        for (const key of [...sp.keys()]) {
+          if (key.startsWith("acf_")) sp.delete(key);
+        }
+      }
       for (const [k, v] of Object.entries(updates)) {
         if (v === undefined || v === "") {
           sp.delete(k);
@@ -106,7 +111,7 @@ export function useAdminUsersTable({
   );
 
   const toggleSort = useCallback(
-    (key: SortKey) => {
+    (key: AdminDirectorySortKey) => {
       pushSort(cycleAdminUsersSortCriterion(criteria, key));
     },
     [criteria, pushSort],

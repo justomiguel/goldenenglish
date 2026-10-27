@@ -14,7 +14,7 @@ export function bindDirectoryFilterChange(
 export function bindDirectoryFilterClear(
   replaceParams: (updates: Record<string, string | undefined>) => void,
 ): () => void {
-  return () => replaceParams({ ...clearedDirectoryFilterParams(), page: undefined });
+  return () => replaceParams({ ...clearedDirectoryFilterParams(), page: undefined, acf_clear: undefined });
 }
 
 export function parentComposeFilterQuery(

@@ -3,6 +3,12 @@ import { normalizeDni } from "@/lib/import/studentImportUtils";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 import { createAcceptedStudentWithOptionalTutor } from "@/lib/register/createAcceptedStudentWithOptionalTutor";
+import {
+  ensureParentProfileByTutorDni,
+  upsertTutorStudentLink,
+} from "@/lib/register/ensureParentProfileByTutorDni";
+import { splitTutorDisplayName } from "@/lib/register/tutorDisplayNameParts";
+import { auditIdentityAction } from "@/lib/audit";
 import { insertEnrollmentIfMissing } from "@/lib/import/bulkImportEnrollment";
 import { resolveCourseIdForRegistrationAccept } from "@/lib/register/resolveCourseIdForRegistrationAccept";
 import { isRegistrationUndecidedStored } from "@/lib/register/registrationSectionConstants";
@@ -107,6 +113,42 @@ export async function acceptRegistrationLead(input: {
   let studentId: string;
   if (reuseStudent) {
     studentId = identity.studentId;
+    if (isMinor && tutorDni && tutorDni.toLowerCase() !== String(reg.dni).trim().toLowerCase()) {
+      const { firstName: tf, lastName: tl } = splitTutorDisplayName(tutorNameRaw, {
+        defaultFirstName: dict.admin.registrations.tutorAccountDefaultFirst,
+        emptyLastName: dict.admin.registrations.emptyValue,
+      });
+      const parentRes = await ensureParentProfileByTutorDni(admin, {
+        tutorDniRaw: tutorDni,
+        tutorEmail: reg.tutor_email != null ? String(reg.tutor_email) : null,
+        tutorPhone: reg.tutor_phone != null ? String(reg.tutor_phone) : null,
+        tutorFirstName: tf,
+        tutorLastName: tl,
+      });
+      if (parentRes.ok) {
+        await upsertTutorStudentLink(
+          admin,
+          parentRes.parentId,
+          studentId,
+          reg.tutor_relationship != null ? String(reg.tutor_relationship) : null,
+        );
+        void auditIdentityAction({
+          actorId: input.actorId ?? null,
+          actorRole: "admin",
+          action: "update_student_tutor",
+          resourceType: "student_tutor",
+          resourceId: studentId,
+          summary: `Tutor vinculado en reinscripción: ${tutorNameRaw.trim() || tutorDni}`,
+          afterValues: {
+            tutor_id: parentRes.parentId,
+            tutor_name: tutorNameRaw.trim() || `${tf} ${tl}`.trim(),
+            tutor_dni: tutorDni,
+            relationship:
+              reg.tutor_relationship != null ? String(reg.tutor_relationship) : null,
+          },
+        });
+      }
+    }
   } else {
     const created = await createAcceptedStudentWithOptionalTutor({
       admin,

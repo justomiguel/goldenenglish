@@ -33,6 +33,10 @@ export type AdminUserRow = {
   lastEnrollmentAt: string | null;
   lastSessionStartAt: string | null;
   emailDeliverable: boolean;
+  /** Custom academic column values, same order as the directory columns. */
+  academicFieldCells?: string[];
+  /** Sort payload keyed by `acf:<field id>`. Empty values are null. */
+  academicSortValues?: Record<string, string | number | null | undefined>;
 };
 
 export type SortKey =
