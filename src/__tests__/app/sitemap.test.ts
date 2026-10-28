@@ -47,12 +47,58 @@ describe("app/sitemap", () => {
     mockCreateClient.mockReturnValue({ from });
 
     const entries = await sitemap();
-    expect(entries).toHaveLength(locales.length * 6);
+    expect(entries).toHaveLength(locales.length * 7);
     expect(entries[0]?.url).toContain("/");
     expect(entries.some((e) => e.url.includes("/login"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/contact"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/privacidad"))).toBe(true);
+    expect(entries.some((e) => e.url.includes("/preguntas"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/blog"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/events"))).toBe(true);
+  });
+
+  it("omits the answer page on the platform host", async () => {
+    mockGetPublicSiteUrl.mockReturnValue(new URL("https://centrolisto.cl"));
+    const limit = vi.fn().mockResolvedValue({ data: [] });
+    const lte = vi.fn().mockReturnValue({ limit });
+    const not = vi.fn().mockReturnValue({ lte });
+    const eq = vi.fn().mockReturnValue({ not });
+    const select = vi.fn().mockReturnValue({ eq });
+    const eventsLimit = vi.fn().mockResolvedValue({ data: [] });
+    const eventsIs = vi.fn().mockReturnValue({ limit: eventsLimit });
+    const eventsEq = vi.fn().mockReturnValue({ is: eventsIs });
+    const eventsSelect = vi.fn().mockReturnValue({ eq: eventsEq });
+    mockCreateClient.mockReturnValue({
+      from: (table: string) => {
+        if (table === "events") return { select: eventsSelect };
+        return { select };
+      },
+    });
+
+    const entries = await sitemap();
+    expect(entries).toHaveLength(locales.length * 4);
+    expect(entries.some((e) => e.url.includes("/producto"))).toBe(true);
+    expect(entries.some((e) => e.url.includes("/clientes"))).toBe(true);
+    expect(entries.some((e) => e.url.includes("/contacto"))).toBe(true);
+    expect(entries.some((e) => e.url.includes("/login"))).toBe(false);
+    expect(entries.some((e) => e.url.includes("/preguntas"))).toBe(false);
+    expect(entries.some((e) => e.url.includes("/blog"))).toBe(false);
+    expect(entries.some((e) => e.url.includes("/events"))).toBe(false);
+    expect(mockCreateClient).not.toHaveBeenCalled();
+  });
+
+  it("lists the public pages on localhost when the dev target is pulsar", async () => {
+    const previous = process.env.DEV_TENANT_SLUG;
+    process.env.DEV_TENANT_SLUG = "pulsar";
+    try {
+      mockGetPublicSiteUrl.mockReturnValue(new URL("http://localhost:3000/"));
+      const entries = await sitemap();
+      expect(entries).toHaveLength(locales.length * 4);
+      expect(entries.some((e) => e.url.includes("localhost:3000/es/producto"))).toBe(true);
+      expect(mockCreateClient).not.toHaveBeenCalled();
+    } finally {
+      if (previous === undefined) delete process.env.DEV_TENANT_SLUG;
+      else process.env.DEV_TENANT_SLUG = previous;
+    }
   });
 });

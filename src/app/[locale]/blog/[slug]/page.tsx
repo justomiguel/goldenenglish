@@ -25,6 +25,7 @@ import { getBrandForRequest } from "@/lib/brand/server";
 import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { buildPublicShareMetadata } from "@/lib/site/buildPublicShareMetadata";
+import { resolveInstituteOpenGraphLocale } from "@/lib/site/buildResolvedPublicShareMetadata";
 import { buildPublicShareTitle, clipShareDescription } from "@/lib/site/publicShareText";
 import { blogMediaPublicUrl } from "@/lib/blog/blogMedia";
 import { resolveBlogCoverImageUrl } from "@/lib/rich-content/resolvePublicContentCoverUrl";
@@ -54,18 +55,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = translation.seoTitle ?? translation.title;
   const description = clipShareDescription(translation.seoDescription ?? translation.excerpt);
   const shareTitle = buildPublicShareTitle(translation.title, brand.name);
+  const path = `/${locale}/blog/${translation.slug}`;
   const share = await buildPublicShareMetadata({
     title: shareTitle,
     description,
-    path: `/${locale}/blog/${translation.slug}`,
+    path,
     deferShareImageToFileMetadata: true,
     ogType: "article",
+    locale: await resolveInstituteOpenGraphLocale(path),
   });
   return {
     title,
     description,
     alternates: {
-      canonical: `/${locale}/blog/${translation.slug}`,
+      canonical: path,
       languages: buildBlogArticleLanguageAlternates(localeSlugs, article.defaultLocale),
     },
     ...share,

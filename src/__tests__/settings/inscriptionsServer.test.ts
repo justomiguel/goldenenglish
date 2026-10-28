@@ -19,7 +19,9 @@ vi.mock("@/lib/supabase/server", () => ({
 
 import {
   getInscriptionsEnabled,
+  getRegisterShowAllSections,
   parseConfiguredCohortId,
+  parseSiteSettingsBoolean,
   resolveRegistrationCohortState,
 } from "@/lib/settings/inscriptionsServer";
 
@@ -49,6 +51,30 @@ describe("getInscriptionsEnabled", () => {
   it("defaults to true for unexpected value shapes", async () => {
     chain.maybeSingle.mockResolvedValue({ data: { value: "yes" } });
     await expect(getInscriptionsEnabled()).resolves.toBe(true);
+  });
+});
+
+describe("parseSiteSettingsBoolean", () => {
+  it("uses the fallback for missing or unexpected values", () => {
+    expect(parseSiteSettingsBoolean(undefined, false)).toBe(false);
+    expect(parseSiteSettingsBoolean("yes", false)).toBe(false);
+    expect(parseSiteSettingsBoolean({ enabled: true }, false)).toBe(true);
+  });
+});
+
+describe("getRegisterShowAllSections", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    chain.maybeSingle.mockResolvedValue({ data: null });
+  });
+
+  it("returns false when the row is missing", async () => {
+    await expect(getRegisterShowAllSections()).resolves.toBe(false);
+  });
+
+  it("reads a true boolean", async () => {
+    chain.maybeSingle.mockResolvedValue({ data: { value: true } });
+    await expect(getRegisterShowAllSections()).resolves.toBe(true);
   });
 });
 

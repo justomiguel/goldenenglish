@@ -6,6 +6,7 @@ import type { RegisterTutorPrefillValues } from "@/components/register/RegisterT
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
 import { publicRegistrationInputFromFormData } from "@/lib/register/publicRegistrationInputFromFormData";
+import { readRegisterDniFromForm } from "@/lib/register/readRegisterDniFromForm";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import type { Dictionary } from "@/types/i18n";
 
@@ -19,6 +20,7 @@ export async function continueRegistrationDni(input: {
   setBusy: (value: boolean) => void;
   setMsg: (value: string | null) => void;
   setMsgTone: (value: "error" | "muted") => void;
+  setDni: (value: string) => void;
   setFirstName: (value: string) => void;
   setLastName: (value: string) => void;
   setBirthDate: (value: string) => void;
@@ -30,11 +32,13 @@ export async function continueRegistrationDni(input: {
   setStep: (value: RegisterStep) => void;
 }): Promise<void> {
   if (!input.form || !input.form.reportValidity()) return;
+  const dni = readRegisterDniFromForm(input.form, input.dni);
+  input.setDni(dni);
   input.setBusy(true);
   input.setMsg(null);
   input.setMsgTone("error");
   try {
-    const lookup = await lookupRegistrationStudentAction(input.dni);
+    const lookup = await lookupRegistrationStudentAction(dni);
     if (!lookup.ok) {
       input.setMsg(input.dict.lookupFailed);
       return;

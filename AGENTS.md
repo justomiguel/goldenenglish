@@ -38,7 +38,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`41-asd-ste100-english.mdc`** | Inglés principal del agente (estilo ASD-STE100): frases cortas, una idea por frase, términos técnicos intactos. |
 | **`08-analytics-observability.mdc`** | Métricas: `user_events`, ingestión cliente/API, `recordSystemAudit`, sin features “silenciosas”; fiabilidad tipo SRE (SLI/SLO, alertas accionables) donde aplique. |
 | **`09-i18n-copy.mdc`** | Copy visible: `src/dictionaries/en.json` + `es.json`, sin literales en UI; `Intl` para fechas/números; skill **`i18n-localization`**. |
-| **`40-neutral-spanish-copy.mdc`** | Español visible en tuteo neutro latinoamericano (*tienes*, *haz clic*). Prohibido el voseo (*tenés*, *hacé*) y el español de España (*vosotros*). |
+| **`40-neutral-spanish-copy.mdc`** | Español visible en tuteo neutro latinoamericano para todos los tenants (*tienes*, *haz clic*, *inscríbete*). Prohibido el voseo (*tenés*, *hacé*, *inscribite*, *sumate*) y el español de España (*vosotros*). |
 | **`10-engineering-governance.mdc`** | ADR / mini diseño para auth, datos, integraciones y contratos públicos; enlaces con TDD, DDD y terceros. |
 | **`11-long-running-jobs-ui.mdc`** | Jobs largos: `LongJobActivityModal` (log desde backend) + `LongJobLoader` + `useLongJobPoll` / SSE + `pollLongJob`. |
 | **`12-supabase-app-boundaries.mdc`** | Supabase solo vía la app: fábricas de cliente en `src/lib/supabase/`; sin PostgREST/Postgres ad hoc para negocio; alineado con DDD y `03-architecture`. |
@@ -59,6 +59,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`38-trunk-based-development.mdc`** | Trunk-based: solo `main`. Sin feature branches, worktrees ni stashes de aislamiento. |
 | **`42-persistent-page-tabs.mdc`** | Tabs de página persisten en URL (`?tab=` o clave propia) + `sessionStorage` vía `usePersistentPageTab`. |
 | **`43-pwa-surface-spec-check.mdc`** | Al escribir una spec (Gate 0) para una pantalla o UI compartida, revisar siempre el árbol nativo PWA y diseñar Web y PWA por separado sin romper la implementación PWA. |
+| **`44-no-ai-slop-design.mdc`** | Prohibido el diseño genérico de IA (spam de chips/pills, eyebrows en mayúsculas repetidos en cada sección, grillas de tarjetas idénticas con ícono en caja, 3 cajitas de métricas en hero, logos con ícono de Lucide). Exige topología variada, líneas arquitectónicas y transiciones con intención (`<ViewTransition>`, `--ease-out-expo`). |
 
 **Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`**, **`24-dashboard-list-filter-aggregates-rpc.mdc`** — agregados para filtros de listados en dashboard para **cualquier rol**, **`28-tenant-register-surface.mdc`** — `/register` con superficie dedicada por `SiteThemeKind`).
 

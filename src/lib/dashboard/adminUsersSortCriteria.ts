@@ -122,7 +122,7 @@ export function setAdminUsersSortDir(
 export function replaceAdminUsersSortKey(
   criteria: AdminUsersSortCriterion[],
   index: number,
-  nextKey: SortKey,
+  nextKey: AdminDirectorySortKey,
 ): AdminUsersSortCriterion[] {
   if (index < 0 || index >= criteria.length) return criteria;
   if (criteria[index].key === nextKey) return criteria;
@@ -135,7 +135,7 @@ export function replaceAdminUsersSortKey(
 
 export function addAdminUsersSortCriterion(
   criteria: AdminUsersSortCriterion[],
-  sortKeys: readonly SortKey[],
+  sortKeys: readonly AdminDirectorySortKey[],
 ): AdminUsersSortCriterion[] {
   const used = new Set(criteria.map((criterion) => criterion.key));
   const key = sortKeys.find((candidate) => !used.has(candidate));

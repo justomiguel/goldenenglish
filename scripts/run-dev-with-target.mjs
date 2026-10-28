@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Elige el instituto en local a partir de `TENANTS_CONFIG_JSON` en `.env.local`
- * y levanta `next dev` con `DEV_TENANT_SLUG=<slug>` y `GE_DEV_TARGET=<slug>`,
- * sin copiar ni pisar `.env.local` (mismo contrato que el proyecto único de Vercel).
+ * Levanta `next dev` con `DEV_TENANT_SLUG` for bare `localhost`.
+ * Institute sites resolve from Pulsar `platform_tenants` via `{slug}.localhost`.
+ * `TENANTS_CONFIG_JSON` is optional and not required to start.
  */
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -37,56 +37,43 @@ function envWithDevHttpHeaders(env) {
   return { ...env, NODE_OPTIONS };
 }
 
-function loadTenantsFromEnvLocal() {
-  if (!existsSync(ENV_LOCAL)) {
-    console.error("No existe .env.local en la raíz del proyecto.");
-    console.error("  Crealo desde .env.example y definí TENANTS_CONFIG_JSON.");
-    process.exit(1);
-  }
-  const parsedEnv = readEnvFile(ENV_LOCAL);
-  const raw = (parsedEnv.TENANTS_CONFIG_JSON || process.env.TENANTS_CONFIG_JSON || "").trim();
-  if (!raw) {
-    console.error("Falta TENANTS_CONFIG_JSON en .env.local.");
-    process.exit(1);
-  }
-  let list;
-  try {
-    list = JSON.parse(raw);
-  } catch {
-    console.error("TENANTS_CONFIG_JSON en .env.local no es JSON válido.");
-    process.exit(1);
-  }
-  if (!Array.isArray(list) || list.length === 0) {
-    console.error("TENANTS_CONFIG_JSON debe ser un array no vacío.");
-    process.exit(1);
-  }
-  const configured = list
-    .filter((row) => row && typeof row === "object" && typeof row.slug === "string")
-    .map((row) => {
-      const slug = row.slug.trim().toLowerCase();
-      const hostHint = Array.isArray(row.hosts) && row.hosts[0] ? ` (${row.hosts[0]})` : "";
-      const label = DEFAULT_LABELS[slug]
-        ? `${slug} — ${DEFAULT_LABELS[slug]}${hostHint}`
-        : `${slug}${hostHint}`;
-      return {
-        slug,
-        label,
-        supabaseUrl: typeof row.supabaseUrl === "string" ? row.supabaseUrl.trim() : "",
-        supabaseAnonKey: typeof row.supabaseAnonKey === "string" ? row.supabaseAnonKey.trim() : "",
-        supabaseServiceRoleKey:
-          typeof row.supabaseServiceRoleKey === "string" ? row.supabaseServiceRoleKey.trim() : "",
-      };
+function isSlug(value) {
+  return /^[a-z0-9][a-z0-9-]*$/.test(value);
+}
+
+function loadKnownTargets() {
+  const bySlug = new Map();
+  bySlug.set("pulsar", {
+    slug: "pulsar",
+    label: "pulsar — Centro Listo (localhost / pulsar.localhost)",
+  });
+  for (const [slug, name] of Object.entries(DEFAULT_LABELS)) {
+    if (slug === "pulsar") continue;
+    bySlug.set(slug, {
+      slug,
+      label: `${slug} — ${name} (http://${slug}.localhost:3000)`,
     });
-  return [
-    {
-      slug: "pulsar",
-      label: `pulsar — ${DEFAULT_LABELS.pulsar} (pulsarlab.cl)`,
-      supabaseUrl: "",
-      supabaseAnonKey: "",
-      supabaseServiceRoleKey: "",
-    },
-    ...configured,
-  ];
+  }
+  if (existsSync(ENV_LOCAL)) {
+    const parsedEnv = readEnvFile(ENV_LOCAL);
+    const raw = (parsedEnv.TENANTS_CONFIG_JSON || process.env.TENANTS_CONFIG_JSON || "").trim();
+    if (raw) {
+      try {
+        const list = JSON.parse(raw);
+        if (Array.isArray(list)) {
+          for (const row of list) {
+            if (!row || typeof row !== "object" || typeof row.slug !== "string") continue;
+            const slug = row.slug.trim().toLowerCase();
+            if (!isSlug(slug) || bySlug.has(slug)) continue;
+            bySlug.set(slug, { slug, label: `${slug} (http://${slug}.localhost:3000)` });
+          }
+        }
+      } catch {
+        /* JSON is not the runtime registry */
+      }
+    }
+  }
+  return [...bySlug.values()];
 }
 
 function parseTarget(argv, envTarget, validSlugs) {
@@ -99,8 +86,8 @@ function parseTarget(argv, envTarget, validSlugs) {
     const m = /^--target=(.+)$/.exec(a);
     if (m) {
       const t = m[1].trim().toLowerCase();
-      if (validSlugs.includes(t)) return t;
-      console.error(`Valor inválido para --target: ${m[1]} (usa ${validSlugs.join(", ")})`);
+      if (validSlugs.includes(t) || isSlug(t)) return t;
+      console.error(`Valor inválido para --target: ${m[1]}`);
       process.exit(1);
     }
   }
@@ -120,7 +107,7 @@ function promptTarget(tenants) {
     const rl = createInterface({ input: process.stdin, output: process.stdout });
     const choices = tenants.map((t) => t.slug).join(", ");
     console.log("");
-    console.log("Instituto local (desde TENANTS_CONFIG_JSON en .env.local):");
+    console.log("Instituto local (Pulsar platform_tenants; {slug}.localhost):");
     tenants.forEach((tenant, i) => {
       console.log(`  [${i + 1}] ${tenant.label}`);
     });
@@ -140,7 +127,7 @@ function promptTarget(tenants) {
 
 async function main() {
   const args = process.argv.slice(2);
-  const tenants = loadTenantsFromEnvLocal();
+  const tenants = loadKnownTargets();
   const validSlugs = tenants.map((t) => t.slug);
   let target = parseTarget(
     args,
@@ -159,9 +146,10 @@ async function main() {
   }
 
   console.log("");
-  console.log(`→ Instituto activo (DEV_TENANT_SLUG): ${target}`);
-  console.log("→ Fuente: TENANTS_CONFIG_JSON en .env.local (sin copiar archivos)");
-  console.log("→ next dev — http://localhost:3000 (Ctrl+C para detener)");
+  console.log(`→ Bare localhost (DEV_TENANT_SLUG): ${target}`);
+  console.log("→ Fuente: Pulsar platform_tenants");
+  console.log("→ Centro Listo — http://localhost:3000");
+  console.log("→ Institutos — http://<slug>.localhost:3000 (mismo proceso)");
   console.log("");
 
   const nextCli = path.join(ROOT, "node_modules", "next", "dist", "bin", "next");

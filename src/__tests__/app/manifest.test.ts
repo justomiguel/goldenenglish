@@ -29,6 +29,7 @@ vi.mock("next/headers", () => ({
   ),
 }));
 
+import { getBrandForRequest } from "@/lib/brand/server";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { NAGO_BUNDLED_LOGO } from "@/lib/landing/nagoLogo";
 import manifest from "@/app/manifest";
@@ -47,6 +48,17 @@ describe("app/manifest", () => {
     expect(m.shortcuts?.some((item) => item.url === "/en/dashboard/student")).toBe(true);
     expect(m.shortcuts?.some((item) => item.url === "/en/dashboard/parent/payments")).toBe(true);
     expect(m.icons?.some((i) => i.src.includes("android-chrome"))).toBe(true);
+  });
+
+  it("omits family shortcuts on the Centro Listo host", async () => {
+    vi.mocked(getBrandForRequest).mockResolvedValueOnce({
+      ...mockBrandPublic,
+      name: "CentroListo",
+      faviconPath: "/centrolisto/favicon.ico",
+    });
+    const m = await manifest();
+    expect(m.shortcuts).toBeUndefined();
+    expect(m.name).toBe("CentroListo");
   });
 
   it("uses the Nagô home mark for the installed icon", async () => {

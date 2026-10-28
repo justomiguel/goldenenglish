@@ -67,9 +67,24 @@ describe("getRequestPublicSiteUrl", () => {
     const url = await getRequestPublicSiteUrl();
     expect(url?.origin).toBe("https://pulsarlab.vercel.app");
 
+    headerGet.mockImplementation((name: string) =>
+      name === "host" ? "www.centrolisto.cl" : null,
+    );
+    expect((await getRequestPublicSiteUrl())?.origin).toBe("https://www.centrolisto.cl");
+
+    headerGet.mockImplementation((name: string) =>
+      name === "host" ? "nago.localhost:3000" : null,
+    );
+    expect((await getRequestPublicSiteUrl())?.origin).toBe("http://nago.localhost:3000");
+
+    headerGet.mockImplementation((name: string) =>
+      name === "host" ? "nago.centrolisto.cl" : null,
+    );
+    expect((await getRequestPublicSiteUrl())?.origin).toBe("https://nago.centrolisto.cl");
+
     process.env.PULSAR_HOSTS = "bad host";
     headerGet.mockImplementation((name: string) => (name === "host" ? "bad host" : null));
-    expect((await getRequestPublicSiteUrl())?.origin).toBe("https://pulsarlab.cl");
+    expect((await getRequestPublicSiteUrl())?.origin).toBe("https://centrolisto.cl");
   });
 
   it("falls back when the tenant origin is missing or not a URL", async () => {

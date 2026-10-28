@@ -22,9 +22,17 @@ vi.mock("@/lib/theme/loadActiveTheme", () => ({
   loadActiveTheme: () => loadActiveTheme(),
 }));
 
+const isPulsarPlatformRequest = vi.fn(async () => false);
+
+vi.mock("@/lib/tenant/tenantRequestContext", () => ({
+  isPulsarPlatformRequest: () => isPulsarPlatformRequest(),
+}));
+
 beforeEach(() => {
   loadProperties.mockReset();
   loadActiveTheme.mockReset();
+  isPulsarPlatformRequest.mockReset();
+  isPulsarPlatformRequest.mockResolvedValue(false);
 });
 
 describe("loadEffectiveProperties", () => {
@@ -74,5 +82,18 @@ describe("loadEffectiveProperties", () => {
     expect(out.properties["color.secondary"]).toBe("#A31A22");
     /** legal.age.majority is outside the override whitelist and stays default. */
     expect(out.properties["legal.age.majority"]).toBe("18");
+  });
+
+  it("returns CentroListo logo and favicon paths on the platform host", async () => {
+    isPulsarPlatformRequest.mockResolvedValue(true);
+    const { loadEffectiveProperties } = await import(
+      "@/lib/theme/loadEffectiveProperties"
+    );
+    const out = await loadEffectiveProperties();
+    expect(out.properties["app.favicon.path"]).toBe("/centrolisto/favicon.ico");
+    expect(out.properties["app.logo.path"]).toBe(
+      "/centrolisto/android-chrome-512x512.png",
+    );
+    expect(loadActiveTheme).not.toHaveBeenCalled();
   });
 });

@@ -1,8 +1,28 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { BrandPublic } from "@/lib/brand/server";
 import { dictEn } from "@/test/dictEn";
+import { mockPathname } from "@/test/navigationMock";
 import { AdminMobileDrawer } from "@/components/dashboard/AdminMobileDrawer";
+
+const hiddenBrand = {
+  name: "Hidden Brand",
+  legalName: "Hidden Brand",
+  tagline: "Hidden tagline",
+  taglineEn: "Hidden tagline",
+  legalRegistry: "",
+  logoPath: "/images/logo.png",
+  logoAlt: "Hidden Brand",
+  faviconPath: "/favicon.ico",
+  faviconBundlePrefix: null,
+  contactEmail: "",
+  contactPhone: "",
+  contactAddress: "",
+  socialFacebook: "",
+  socialInstagram: "",
+  socialWhatsapp: "",
+} as BrandPublic;
 
 describe("AdminMobileDrawer", () => {
   const mqListeners: Array<(e: Event) => void> = [];
@@ -103,5 +123,75 @@ describe("AdminMobileDrawer", () => {
       "/es",
     );
     expect(screen.getByRole("navigation", { name: dictEn.common.locale.label })).toBeInTheDocument();
+  });
+
+  it("shows the institute logo and the signed-in person", async () => {
+    const user = userEvent.setup();
+    render(
+      <AdminMobileDrawer
+        locale="es"
+        dict={dictEn}
+        newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
+        brand={hiddenBrand}
+        profileDisplayName="Ana Pérez"
+        profileRoleLabel="Admin"
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: dictEn.dashboard.adminNav.mobileOpen }));
+
+    const profile = screen.getByRole("link", { name: dictEn.dashboard.adminNav.myProfile });
+    expect(profile).toHaveAttribute("href", "/es/dashboard/profile");
+    expect(profile).toHaveTextContent("Ana Pérez");
+    expect(profile).toHaveTextContent("Admin");
+    expect(screen.getByRole("img", { name: "Hidden Brand" })).toBeInTheDocument();
+    expect(screen.getByText("Hidden Brand")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Hidden Brand/ })).toHaveAttribute(
+      "href",
+      "/es/dashboard/admin",
+    );
+    expect(screen.queryByRole("link", { name: dictEn.dashboard.adminNav.home })).toBeNull();
+    expect(screen.queryByRole("link", { name: dictEn.dashboard.adminNav.students })).toBeNull();
+  });
+
+  it("filters tiles and shows an empty line when nothing matches", async () => {
+    const user = userEvent.setup();
+    render(
+      <AdminMobileDrawer
+        locale="es"
+        dict={dictEn}
+        newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: dictEn.dashboard.adminNav.mobileOpen }));
+    await user.type(screen.getByRole("searchbox", { name: dictEn.dashboard.adminNav.mobileMenuSearch }), "zzz");
+
+    expect(screen.getByText(dictEn.dashboard.adminNav.mobileMenuEmpty)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: dictEn.dashboard.adminNav.parents })).toBeNull();
+  });
+
+  it("closes the menu when a tile is chosen", async () => {
+    const user = userEvent.setup();
+    mockPathname.mockReturnValue("/es/dashboard/admin/parents");
+    render(
+      <AdminMobileDrawer
+        locale="es"
+        dict={dictEn}
+        newRegistrationsCount={0}
+        recentInboundMessagesCount={3}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: dictEn.dashboard.adminNav.mobileOpen }));
+    const parents = screen.getByRole("link", { name: dictEn.dashboard.adminNav.parents });
+    expect(parents).toHaveAttribute("aria-current", "page");
+    const messages = screen.getByRole("link", { name: new RegExp(dictEn.dashboard.adminNav.messages) });
+    expect(messages).toHaveTextContent("3");
+
+    await user.click(parents);
+    expect(screen.queryByRole("dialog", { name: dictEn.dashboard.adminNav.aria })).toBeNull();
   });
 });

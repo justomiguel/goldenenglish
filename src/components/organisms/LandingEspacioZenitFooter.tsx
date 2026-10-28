@@ -168,6 +168,10 @@ export function LandingEspacioZenitFooter({
         <Link href={`/${locale}/privacidad`} className="underline decoration-white/30 underline-offset-2 hover:text-white">
           {dict.privacy.footerLink}
         </Link>
+        {" · "}
+        <Link href={`/${locale}/preguntas`} className="underline decoration-white/30 underline-offset-2 hover:text-white">
+          {dict.publicAnswers.footerLink}
+        </Link>
       </p>
     </footer>
   );

@@ -4,8 +4,7 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Modal } from "@/components/atoms/Modal";
 import { AdminUsersSortChecklist } from "@/components/dashboard/AdminUsersSortChecklist";
-import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
-import type { SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
+import type { AdminDirectorySortKey, AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
 import type { Dictionary } from "@/types/i18n";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -22,7 +21,7 @@ export function AdminUsersSortSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   labels: UserLabels;
-  sortKeys: SortKey[];
+  sortKeys: AdminDirectorySortKey[];
   criteria: AdminUsersSortCriterion[];
   fieldLabels?: Record<string, string>;
   onChange: (next: AdminUsersSortCriterion[]) => void;

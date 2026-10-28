@@ -27,6 +27,8 @@
     "sql:apply-migration:all-tenants": "node scripts/apply-migration-all-tenants.mjs",
     "sql:apply-migration:all-tenants:pg": "node scripts/apply-migration-all-tenants-pg.mjs",
     "migrate:public-assets": "node scripts/migrate-public-assets.mjs",
+    "videos:centrolisto": "node scripts/record-centrolisto-flow-videos.mjs",
+    "previews:centrolisto": "node scripts/capture-centrolisto-client-previews.mjs",
     "deploy:vercel": "node scripts/deploy-vercel.mjs",
     "deploy:vercel:all:prod": "node scripts/deploy-vercel.mjs --all --prod",
     "pull:env:golden": "node scripts/pull-vercel-env.mjs golden -y",

@@ -13,7 +13,7 @@ const SAFE = new Set([
   "está", "esté", "estás", "estés", "qué", "así", "sí", "aquí", "ahí", "allá",
   "quizá", "bebé", "canadá", "mié", "hé", "llegué", "sé", "más", "además", "demás",
   "atrás", "después", "través", "inglés", "francés", "portugués", "interés", "bebés",
-  "quizás", "caché",
+  "quizás", "caché", "jamás", "país", "solís",
 ]);
 
 /**
@@ -28,6 +28,8 @@ const VOSEO_FUTURE_LOOKALIKE_STEMS = new Set([
 const VOSEO_WORDS = new Set([
   "vos", "acá", "sos", "escribinos", "escribiles", "pedile", "contanos", "seguinos", "dejanos",
   "usalo", "usala", "ingresalo", "archivalo", "asignalo", "marcala", "vinculalo", "mantenla",
+  "inscribite", "anotate", "sumate", "animate", "fijate", "enterate",
+  "sentís", "decís", "venís", "salís", "volvés", "querés", "podés", "tenés", "cedés",
 ]);
 
 const ARGENTINE_PARTICIPLES = new Set(["inscripto", "inscripta", "inscriptos", "inscriptas"]);
@@ -45,7 +47,7 @@ function voseoToken(word: string): boolean {
   const w = word.toLowerCase();
   if (ARGENTINE_PARTICIPLES.has(w)) return true;
   if (SAFE.has(w) || isFuture(w)) return false;
-  if (/(?:ás|és|[áéí])$/.test(w)) return true;
+  if (/(?:ás|és|ís|[áéí])$/.test(w)) return true;
   return VOSEO_WORDS.has(w);
 }
 

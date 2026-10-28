@@ -9,6 +9,7 @@ import {
   resolveTenantByHost,
   setDynamicPulsarHostsCache,
   setDynamicTenantsCache,
+  tenantFromHeaderGet,
   tenantHostBlockStatus,
   type TenantConfig,
 } from "@/lib/tenant/tenantRegistry";
@@ -59,10 +60,12 @@ describe("Pulsar host resolution and dynamic tenant cache", () => {
     process.env = { ...prevEnv };
   });
 
-  it("identifies pulsarlab.cl and www.pulsarlab.cl as Pulsar platform hosts", () => {
+  it("identifies pulsarlab.cl, www.pulsarlab.cl, and centrolisto.cl as Pulsar platform hosts", () => {
     expect(isPulsarHost("pulsarlab.cl")).toBe(true);
     expect(isPulsarHost("www.pulsarlab.cl:443")).toBe(true);
     expect(isPulsarHost("pulsarlab.vercel.app")).toBe(true);
+    expect(isPulsarHost("centrolisto.cl")).toBe(true);
+    expect(isPulsarHost("www.centrolisto.cl:443")).toBe(true);
     expect(isPulsarHost("capoeiranago.cl")).toBe(false);
   });
 
@@ -100,6 +103,18 @@ describe("Pulsar host resolution and dynamic tenant cache", () => {
         "/es",
       ),
     ).toBeNull();
+    expect(
+      tenantHostBlockStatus(
+        (name) => (name === "host" ? "centrolisto.cl" : null),
+        "/es",
+      ),
+    ).toBeNull();
+    expect(
+      tenantHostBlockStatus(
+        (name) => (name === "host" ? "www.centrolisto.cl" : null),
+        "/es",
+      ),
+    ).toBeNull();
   });
 
   it("serves dynamic DB tenants when cache is populated without redeploying env", () => {
@@ -128,5 +143,38 @@ describe("Pulsar host resolution and dynamic tenant cache", () => {
     expect(isPulsarHost("admin.pulsarlab.cl")).toBe(true);
     expect(isPulsarHost("env-pulsar.cl")).toBe(false);
     expect(isPulsarHost("pulsarlab.cl")).toBe(false);
+  });
+
+  it("binds {slug}.localhost and {slug}.centrolisto.cl from the Pulsar cache", () => {
+    setDynamicTenantsCache([SAMPLE_TENANT]);
+    expect(
+      tenantFromHeaderGet((name) => (name === "host" ? "nago.localhost:3000" : null))?.slug,
+    ).toBe("nago");
+    expect(
+      tenantFromHeaderGet((name) => (name === "host" ? "nago.centrolisto.cl" : null))?.slug,
+    ).toBe("nago");
+    expect(
+      tenantFromHeaderGet((name) => (name === "host" ? "acme.centrolisto.cl" : null)),
+    ).toBeNull();
+    expect(
+      isPulsarRequestFromHeaderGet((name) =>
+        name === "host" ? "pulsar.localhost:3000" : null,
+      ),
+    ).toBe(true);
+    expect(
+      isPulsarRequestFromHeaderGet((name) => (name === "host" ? "centrolisto.cl" : null)),
+    ).toBe(true);
+    expect(
+      tenantHostBlockStatus(
+        (name) => (name === "host" ? "foo.localhost:3000" : null),
+        "/es",
+      ),
+    ).toBe(404);
+    expect(
+      tenantHostBlockStatus(
+        (name) => (name === "host" ? "nago.localhost:3000" : null),
+        "/es",
+      ),
+    ).toBeNull();
   });
 });

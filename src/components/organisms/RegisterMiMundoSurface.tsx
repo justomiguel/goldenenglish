@@ -24,6 +24,7 @@ export interface RegisterMiMundoSurfaceProps {
   extrasPack?: "nago" | null;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
+  showAllSections?: boolean;
 }
 
 /**
@@ -45,6 +46,7 @@ export function RegisterMiMundoSurface({
   extrasPack = null,
   intent = "reserve",
   sessionEmail = null,
+  showAllSections = false,
 }: RegisterMiMundoSurfaceProps) {
   const prefix = `/${locale}`;
   const t = (path: string) => marketingLandingCopy(dict, "mm", path);
@@ -202,6 +204,7 @@ export function RegisterMiMundoSurface({
                 enrollmentLink={enrollmentLink}
                 extrasPack={extrasPack}
                 intent={intent}
+                showAllSections={showAllSections}
               />
             </div>
 

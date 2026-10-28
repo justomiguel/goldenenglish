@@ -64,6 +64,14 @@
   font-family: var(--font-heading);
 }
 
+.cl-surface,
+.cl-surface .font-display,
+.cl-surface h1,
+.cl-surface h2,
+.cl-surface h3 {
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+}
+
 body {
   font-family: var(--font-body);
   color: var(--color-foreground);
@@ -746,6 +754,46 @@ body.driver-active .ge-modal-stacked-scrim {
 
 body.driver-active dialog.ge-modal-stacked {
   z-index: 50 !important;
+}
+
+:root {
+  --cl-vt-exit: 150ms;
+  --cl-vt-enter: 210ms;
+}
+
+@keyframes cl-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.cl-chronicle-enter {
+  animation: var(--cl-vt-enter) cubic-bezier(0.22, 1, 0.36, 1) both cl-fade;
+}
+
+::view-transition-old(.cl-fade-out) {
+  animation: var(--cl-vt-exit) cubic-bezier(0.22, 1, 0.36, 1) both cl-fade reverse;
+}
+
+::view-transition-new(.cl-fade-in) {
+  animation: var(--cl-vt-enter) cubic-bezier(0.22, 1, 0.36, 1) var(--cl-vt-exit)
+    both cl-fade;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+
+  .cl-chronicle-enter {
+    animation: none;
+  }
 }
 
 @media (display-mode: standalone) {

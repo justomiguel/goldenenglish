@@ -5,7 +5,17 @@ vi.mock("@/lib/theme/loadEffectiveProperties", () => ({
   loadEffectiveProperties: vi.fn(),
 }));
 
+vi.mock("@/lib/tenant/tenantRequestContext", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/lib/tenant/tenantRequestContext")>();
+  return {
+    ...actual,
+    isPulsarPlatformRequest: vi.fn(async () => false),
+  };
+});
+
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
+import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import type { ThemeProperties } from "@/lib/theme/themeParser";
 
 describe("getBrandPublic", () => {
@@ -22,6 +32,7 @@ describe("getBrandForRequest", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
+    vi.mocked(isPulsarPlatformRequest).mockResolvedValue(false);
   });
 
   it("uses merged properties from loadEffectiveProperties", async () => {
@@ -52,5 +63,14 @@ describe("getBrandForRequest", () => {
 
     const b2 = await getBrandForRequest();
     expect(b2).toStrictEqual(b);
+  });
+
+  it("uses CentroListo bundled icons on the platform host", async () => {
+    vi.mocked(isPulsarPlatformRequest).mockResolvedValue(true);
+    const { getBrandForRequest } = await import("@/lib/brand/server");
+    const b = await getBrandForRequest();
+    expect(b.faviconPath).toBe("/centrolisto/favicon.ico");
+    expect(b.logoPath).toBe("/centrolisto/android-chrome-512x512.png");
+    expect(loadEffectiveProperties).not.toHaveBeenCalled();
   });
 });

@@ -4,6 +4,7 @@ import {
   getDictionary,
   type AppLocale,
 } from "@/lib/i18n/dictionaries";
+import { buildLocalePageAlternates } from "@/lib/metadata/buildHomePageMetadata";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
@@ -32,6 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: pc.metaTitle,
     description: pc.metaDescription,
+    alternates: buildLocalePageAlternates(locale, "/contact"),
     robots: { index: true, follow: true },
   };
 }

@@ -67,6 +67,7 @@ const dict = {
   tutorPhone: "Tel tutor",
   tutorRelationship: "Relación",
   level: "Sección",
+  assignedSectionLine: "Te inscribes en {section}.",
   sectionPlaceholder: "Elegí",
   sectionUndecidedOption: "No sé",
   sectionUndecidedHint: "pista",
@@ -128,6 +129,7 @@ async function renderForm(props: Record<string, unknown>) {
 
 describe("RegisterForm in enrollment-link mode", () => {
   beforeEach(() => {
+    sessionStorage.clear();
     vi.resetModules();
     submitPublicRegistration.mockReset();
     submitSectionLinkRegistration.mockReset();
@@ -160,6 +162,7 @@ describe("RegisterForm in enrollment-link mode", () => {
     await user.type(screen.getByLabelText("DNI"), "12345678");
     await user.click(screen.getByRole("button", { name: "Continuar" }));
     expect(await screen.findByLabelText("Nombre")).toBeInTheDocument();
+    expect(screen.queryByText("Te inscribes en Sección B.")).not.toBeInTheDocument();
     await user.type(screen.getByLabelText("Nombre"), "Ana");
     await user.type(screen.getByLabelText("Apellido"), "Pérez");
     await user.click(screen.getByText("set-birth-date"));
@@ -188,12 +191,12 @@ describe("RegisterForm in enrollment-link mode", () => {
     await user.type(screen.getByLabelText("DNI"), "12345678");
     await user.click(screen.getByRole("button", { name: "Continuar" }));
     expect(await screen.findByLabelText("Nombre")).toBeInTheDocument();
+    expect(screen.getByText("Te inscribes en Ciclo — B.")).toBeInTheDocument();
     await user.type(screen.getByLabelText("Nombre"), "Ana");
     await user.type(screen.getByLabelText("Apellido"), "Pérez");
     await user.click(screen.getByText("set-birth-date"));
     await user.type(screen.getByLabelText("Email"), "ana@example.com");
     await user.type(screen.getByLabelText("Teléfono"), "3624000000");
-    await user.selectOptions(screen.getByRole("combobox", { name: "Sección" }), link.sectionId);
     await user.click(screen.getByRole("checkbox"));
     await user.click(screen.getByRole("button", { name: "Enviar" }));
 

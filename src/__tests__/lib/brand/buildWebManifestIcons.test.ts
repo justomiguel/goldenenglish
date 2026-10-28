@@ -3,6 +3,18 @@ import { buildWebManifestIcons } from "@/lib/brand/buildWebManifestIcons";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
 describe("buildWebManifestIcons", () => {
+  it("uses CentroListo sibling PNGs when the favicon lives under /centrolisto", () => {
+    const icons = buildWebManifestIcons({
+      ...mockBrandPublic,
+      faviconPath: "/centrolisto/favicon.ico",
+      logoPath: "/centrolisto/android-chrome-512x512.png",
+    });
+    expect(icons.some((i) => i.src === "/centrolisto/android-chrome-192x192.png")).toBe(true);
+    expect(icons.some((i) => i.src === "/centrolisto/android-chrome-512x512.png")).toBe(true);
+    expect(icons.some((i) => i.src.includes("favicon_io"))).toBe(false);
+    expect(icons.some((i) => i.src === "/images/logo.png")).toBe(false);
+  });
+
   it("uses favicon_io sibling PNGs for relative paths", () => {
     const icons = buildWebManifestIcons(mockBrandPublic);
     expect(icons.some((i) => i.src.includes("android-chrome-192x192"))).toBe(true);

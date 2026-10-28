@@ -7,6 +7,7 @@ import {
 } from "@/lib/pulsar/pulsarTenantMapper";
 import type { ValidatedPulsarTenantInput } from "@/lib/pulsar/pulsarTenantSchema";
 import { createPulsarAdminClient, isPulsarSupabaseConfigured } from "@/lib/supabase/pulsar";
+import { mergeTenantPreviewHosts } from "@/lib/tenant/pulsarSubdomain";
 import {
   getPulsarHosts,
   listTenants,
@@ -14,6 +15,14 @@ import {
   setDynamicPulsarHostsCache,
   setDynamicTenantsCache,
 } from "@/lib/tenant/tenantRegistry";
+
+function attachPreviewHosts(records: PulsarTenantRecord[]): PulsarTenantRecord[] {
+  const pulsarHosts = getPulsarHosts();
+  return records.map((record) => ({
+    ...record,
+    hosts: mergeTenantPreviewHosts(record.hosts, record.slug, pulsarHosts),
+  }));
+}
 
 const CACHE_TTL_MS = 60_000;
 
@@ -101,9 +110,9 @@ export async function ensureTenantRegistryLoaded(): Promise<void> {
     setDynamicPulsarHostsCache(settingsHosts);
   }
   if (records && records.length > 0) {
-    cachedAllRecords = records;
+    cachedAllRecords = attachPreviewHosts(records);
     lastLoadedAt = now;
-    setDynamicTenantsCache(records.filter((r) => r.isEnabled));
+    setDynamicTenantsCache(cachedAllRecords.filter((r) => r.isEnabled));
   }
 }
 
@@ -135,10 +144,10 @@ export async function loadAllPulsarTenantsForAdmin(): Promise<PulsarTenantRecord
   if (isPulsarSupabaseConfigured()) {
     const records = await fetchPlatformTenantsFromPulsarDb();
     if (records && records.length > 0) {
-      cachedAllRecords = records;
+      cachedAllRecords = attachPreviewHosts(records);
       lastLoadedAt = Date.now();
-      setDynamicTenantsCache(records.filter((r) => r.isEnabled));
-      return records;
+      setDynamicTenantsCache(cachedAllRecords.filter((r) => r.isEnabled));
+      return cachedAllRecords;
     }
   }
   if (cachedAllRecords && cachedAllRecords.length > 0) {
@@ -162,6 +171,7 @@ export function applyLocalMemoryTenantUpsert(input: ValidatedPulsarTenantInput):
   const base = cachedAllRecords ?? listTenants().map(mapTenantConfigToPulsarRecord);
   const record: PulsarTenantRecord = {
     ...input,
+    hosts: mergeTenantPreviewHosts(input.hosts, input.slug, getPulsarHosts()),
     updatedAt: new Date().toISOString(),
   };
   const next = base.some((t) => t.slug === record.slug)

@@ -77,7 +77,7 @@ export const trialMissedTemplate: EmailTemplateDefinition = {
 export const trialInviteTemplate: EmailTemplateDefinition = {
   key: "registration.trial_invite",
   category: "notifications",
-  label: { es: "Clase de prueba: sumate", en: "Trial class: join us" },
+  label: { es: "Clase de prueba: súmate", en: "Trial class: join us" },
   description: {
     es: "Tras marcar presente: enlace de 3 meses para unirse (matrícula o cuota del mes).",
     en: "After present: 3-month link to join (enrollment fee or this month’s tuition).",

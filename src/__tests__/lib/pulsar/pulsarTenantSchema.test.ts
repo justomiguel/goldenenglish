@@ -57,7 +57,13 @@ describe("validatePulsarTenantInput", () => {
 
     expect(res.ok).toBe(true);
     if (res.ok) {
-      expect(res.value.hosts).toEqual(["liorastudio.cl", "www.liorastudio.cl"]);
+      expect(res.value.hosts).toEqual([
+        "liorastudio.cl",
+        "www.liorastudio.cl",
+        "liora.centrolisto.cl",
+        "liora.pulsarlab.cl",
+        "liora.pulsarlab.vercel.app",
+      ]);
       expect(res.value.paymentGatewaySecretEncryptionKey).toBe(VALID_32B_KEY);
     }
   });
@@ -90,6 +96,20 @@ describe("validatePulsarTenantInput", () => {
       EXISTING,
     );
     expect(badHost).toEqual({ ok: false, errorCode: "reserved_pulsar_host" });
+
+    const badCentroListoHost = validatePulsarTenantInput(
+      {
+        slug: "instituto",
+        displayName: "Instituto",
+        isEnabled: true,
+        hosts: ["centrolisto.cl"],
+        supabaseUrl: "https://x.supabase.co",
+        supabaseAnonKey: "anon",
+        supabaseServiceRoleKey: "srv",
+      },
+      EXISTING,
+    );
+    expect(badCentroListoHost).toEqual({ ok: false, errorCode: "reserved_pulsar_host" });
   });
 
   it("rejects host collisions with another tenant but allows own hosts when editing", () => {

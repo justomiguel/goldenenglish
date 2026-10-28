@@ -24,7 +24,7 @@ Follow **`.agents/skills/i18n-localization/SKILL.md`** for mindset (keys not lit
 
 ## Formatting & grammar in translated strings
 
-- **Spanish register** — user-facing `es` copy is neutral Latin American tuteo. Follow **`40-neutral-spanish-copy.mdc`** (*tienes*, *haz clic*). Do not write Argentine voseo (*tenés*, *hacé*) or Peninsular Spanish (*vosotros*, *ordenador*).
+- **Spanish register** — user-facing `es` copy is neutral Latin American tuteo for every tenant. Follow **`40-neutral-spanish-copy.mdc`** (*tienes*, *haz clic*, *inscríbete*). Do not write Argentine voseo (*tenés*, *hacé*, *inscribite*, *sumate*) or Peninsular Spanish (*vosotros*, *ordenador*).
 - **Dates, times, numbers, currency, lists** — use **`Intl.*`** (`Intl.DateTimeFormat`, `Intl.NumberFormat`, `Intl.ListFormat`, etc.) with the active locale, not hand-built locale-specific strings in code.
 - **Pluralization & gender** — avoid naive string concatenation of translated fragments; use ICU-style patterns or per-locale full sentences as agreed in the project (if the codebase adds ICU later, follow it; until then, separate keys per plural branch are acceptable).
 - **RTL** — layout uses logical properties / `dir`-aware patterns where relevant; do not assume left-to-right only for mirrored concepts.

@@ -20,6 +20,7 @@ export interface RegisterLioraSurfaceProps {
   extrasPack?: "nago" | null;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
+  showAllSections?: boolean;
 }
 
 export function RegisterLioraSurface({
@@ -32,6 +33,7 @@ export function RegisterLioraSurface({
   extrasPack = null,
   intent = "reserve",
   sessionEmail = null,
+  showAllSections = false,
 }: RegisterLioraSurfaceProps) {
   const prefix = `/${locale}`;
   const t = (path: string) => marketingLandingCopy(dict, "liora", path);
@@ -94,6 +96,7 @@ export function RegisterLioraSurface({
               enrollmentLink={enrollmentLink}
               extrasPack={extrasPack}
               intent={intent}
+              showAllSections={showAllSections}
             />
           </div>
           <p className="mt-8 flex justify-center md:justify-start">

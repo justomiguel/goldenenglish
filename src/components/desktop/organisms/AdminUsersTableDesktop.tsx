@@ -18,7 +18,6 @@ import type {
   AdminDirectoryFiltersChrome,
   AdminParentsDirectoryChrome,
 } from "@/components/organisms/AdminUsersScreen";
-import { AcademicProfileDirectoryFilters } from "@/components/dashboard/AcademicProfileDirectoryFilters";
 import {
   bindDirectoryFilterChange,
   bindDirectoryFilterClear,
@@ -90,13 +89,6 @@ export function AdminUsersTableDesktop({
   return (
     <div className="space-y-4">
       <div data-tour={ADMIN_TOUR_ANCHORS.usersTable} aria-busy={u.isPending || undefined}>
-      {academicDirectory ? (
-        <AcademicProfileDirectoryFilters
-          columns={academicDirectory.columns}
-          selectFacets={academicDirectory.selectFacets}
-          labels={labels.academicFields}
-        />
-      ) : null}
       <AdminUsersDataTable
         locale={locale}
         toolbar={
@@ -129,6 +121,13 @@ export function AdminUsersTableDesktop({
               directoryFilters
                 ? {
                     ...directoryFilters,
+                    academicFields: academicDirectory
+                      ? {
+                          columns: academicDirectory.columns,
+                          selectFacets: academicDirectory.selectFacets,
+                          labels: labels.academicFields,
+                        }
+                      : undefined,
                     onChange: bindDirectoryFilterChange(u.replaceParams),
                     onClear: bindDirectoryFilterClear(u.replaceParams),
                   }

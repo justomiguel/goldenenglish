@@ -23,6 +23,7 @@ export interface RegisterMozarthitosSurfaceProps {
   mediaMap?: LandingMediaMap;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
+  showAllSections?: boolean;
 }
 
 export function RegisterMozarthitosSurface({
@@ -36,6 +37,7 @@ export function RegisterMozarthitosSurface({
   extrasPack = null,
   intent = "reserve",
   sessionEmail = null,
+  showAllSections = false,
 }: RegisterMozarthitosSurfaceProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveLandingImageSrcForTheme(
@@ -130,6 +132,7 @@ export function RegisterMozarthitosSurface({
               enrollmentLink={enrollmentLink}
               extrasPack={extrasPack}
               intent={intent}
+              showAllSections={showAllSections}
             />
           </div>
           <p className="mt-8 flex justify-center md:justify-start">

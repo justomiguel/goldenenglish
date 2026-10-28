@@ -52,25 +52,29 @@ export function resolveRegistrationCohortState(
   };
 }
 
+export function parseSiteSettingsBoolean(raw: unknown, fallback: boolean): boolean {
+  if (raw === undefined || raw === null) return fallback;
+  if (typeof raw === "boolean") return raw;
+  if (typeof raw === "object" && raw !== null && "enabled" in raw) {
+    return Boolean((raw as { enabled?: boolean }).enabled);
+  }
+  return fallback;
+}
+
+async function readSiteSettingsBoolean(key: string, fallback: boolean): Promise<boolean> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("site_settings").select("value").eq("key", key).maybeSingle();
+  return parseSiteSettingsBoolean(data?.value, fallback);
+}
+
 /** Reads `site_settings.inscriptions_enabled` (defaults to true if missing). */
 export async function getInscriptionsEnabled(): Promise<boolean> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("site_settings")
-    .select("value")
-    .eq("key", "inscriptions_enabled")
-    .maybeSingle();
+  return readSiteSettingsBoolean("inscriptions_enabled", true);
+}
 
-  if (data?.value === undefined || data.value === null) return true;
-  if (typeof data.value === "boolean") return data.value;
-  if (
-    typeof data.value === "object" &&
-    data.value !== null &&
-    "enabled" in data.value
-  ) {
-    return Boolean((data.value as { enabled?: boolean }).enabled);
-  }
-  return true;
+/** Reads `site_settings.register_show_all_sections` (defaults to false if missing). */
+export async function getRegisterShowAllSections(): Promise<boolean> {
+  return readSiteSettingsBoolean("register_show_all_sections", false);
 }
 
 /** Loads non-archived cohorts and resolves the cohort active for public web registrations. */

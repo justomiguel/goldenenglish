@@ -1,15 +1,17 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { ArrowUpDown, Download, Filter, Search } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { AdminUsersFilterSortSheet } from "@/components/pwa/molecules/AdminUsersFilterSortSheet";
 import { AdminUsersSortSheet } from "@/components/pwa/molecules/AdminUsersSortSheet";
 import type { AdminDirectoryFilterPanelProps } from "@/components/dashboard/AdminDirectoryFilterPanel";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { academicDirectoryFilterCount } from "@/lib/academic-profile/matchAcademicProfileDirectoryFilter";
 import { adminDirectoryFiltersActive } from "@/lib/dashboard/adminDirectoryFilters";
 import type { AdminDirectorySortKey, AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
-import { adminUsersSortKeysForLock } from "@/lib/dashboard/adminUsersSortKeys";
+import { adminDirectorySortKeys } from "@/lib/dashboard/adminUsersSortKeys";
 import type { SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 import type { Dictionary } from "@/types/i18n";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
@@ -63,9 +65,14 @@ export function AdminUsersMobileToolbar({
     value: query,
     onDebouncedChange: onQueryChange,
   });
-  const sortKeys = adminUsersSortKeysForLock(lockRole);
+  const searchParams = useSearchParams();
+  const academicCount = academicDirectoryFilterCount(searchParams);
+  const sortKeys = adminDirectorySortKeys(lockRole, sortFieldLabels);
   const criteria = sortCriteria ?? [{ key: sortKey, dir: sortDir }];
-  const filterCount = activeFilterCount(directoryFilters);
+  const filterCount = activeFilterCount(directoryFilters) + academicCount;
+  const filtersActive =
+    directoryFilters != null &&
+    (adminDirectoryFiltersActive(directoryFilters.values) || academicCount > 0);
 
   function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -129,7 +136,7 @@ export function AdminUsersMobileToolbar({
           </Button>
         ) : null}
       </div>
-      {directoryFilters && adminDirectoryFiltersActive(directoryFilters.values) ? (
+      {filtersActive && directoryFilters ? (
         <Button type="button" variant="ghost" className="min-h-9 px-2 text-xs" onClick={directoryFilters.onClear}>
           {labels.mobileClearSelection}
         </Button>

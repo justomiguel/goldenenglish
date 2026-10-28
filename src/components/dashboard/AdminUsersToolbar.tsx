@@ -15,7 +15,7 @@ import {
   type AdminParentsToolbarChrome,
 } from "@/components/dashboard/AdminParentsToolbarFields";
 import { AdminUsersSortChecklist } from "@/components/dashboard/AdminUsersSortChecklist";
-import { adminUsersSortKeysForLock } from "@/lib/dashboard/adminUsersSortKeys";
+import { adminDirectorySortKeys } from "@/lib/dashboard/adminUsersSortKeys";
 import type { AdminUsersSortCriterion } from "@/lib/dashboard/adminUsersSortCriteria";
 import { AdminDirectoryFilterPanel } from "@/components/dashboard/AdminDirectoryFilterPanel";
 import type { AdminDirectoryFilterPanelProps } from "@/components/dashboard/AdminDirectoryFilterPanel";
@@ -158,7 +158,7 @@ export function AdminUsersToolbar({
       {sortOpen && onSortCriteriaChange ? (
         <AdminUsersSortChecklist
           labels={labels}
-          sortKeys={adminUsersSortKeysForLock(lockRole)}
+          sortKeys={adminDirectorySortKeys(lockRole, sortFieldLabels)}
           criteria={sortCriteria}
           fieldLabels={sortFieldLabels}
           onChange={onSortCriteriaChange}

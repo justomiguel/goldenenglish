@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" fill="#FAF8F5"/>
+  <g transform="translate(108,115) scale(6.25)">
+    <path
+      d="M46 17.5C36.5 7.5 18 10 14.5 26.5C11 43 26 56.5 44 48.5"
+      stroke="#2D5A47"
+      stroke-width="7"
+      stroke-linecap="round"
+    />
+    <circle cx="33" cy="32" r="6" fill="#C87D55"/>
+  </g>
+  <text x="560" y="300" font-family="Georgia, Palatino, 'Times New Roman', serif" font-size="78" fill="#1C2420">centrolisto</text>
+  <text x="564" y="368" font-family="Georgia, Palatino, 'Times New Roman', serif" font-size="28" fill="#2D5A47">centrolisto.cl</text>
+</svg>

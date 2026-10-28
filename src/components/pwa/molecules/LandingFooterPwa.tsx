@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogIn, Mail, MessageSquare, Phone } from "lucide-react";
+import { CircleHelp, LogIn, Mail, MessageSquare, Phone } from "lucide-react";
 import { BrandFacebookIcon, BrandInstagramIcon } from "@/components/atoms/BrandSocialIcons";
 import type { Dictionary } from "@/types/i18n";
 import type { BrandPublic } from "@/lib/brand/server";
@@ -110,6 +110,10 @@ export function LandingFooterPwa({
           </Link>
           <Link href={`/${locale}/privacidad`} className={secondaryBtnClass}>
             {dict.privacy.footerLink}
+          </Link>
+          <Link href={`/${locale}/preguntas`} className={secondaryBtnClass}>
+            <CircleHelp className="h-4 w-4 opacity-95" aria-hidden strokeWidth={stroke} />
+            {dict.publicAnswers.footerLink}
           </Link>
           {brand.socialInstagram ? (
             <a

@@ -19,6 +19,7 @@ describe("buildPublicShareMetadata", () => {
         { url: "https://cdn.example/cover.jpg", alt: "Workshop" },
       ]);
       expect(meta.twitter?.card).toBe("summary_large_image");
+      expect(meta.openGraph?.locale).toBeUndefined();
     } finally {
       process.env.NEXT_PUBLIC_APP_URL = prev;
     }
@@ -35,6 +36,16 @@ describe("buildPublicShareMetadata", () => {
     expect(meta.openGraph?.images).toBeUndefined();
     expect(meta.twitter?.images).toBeUndefined();
     expect(meta.twitter?.card).toBe("summary_large_image");
+  });
+
+  it("keeps an Open Graph locale when the caller passes one", async () => {
+    const meta = await buildPublicShareMetadata({
+      title: "Home",
+      description: "Studio",
+      path: "/es",
+      locale: "es_CL",
+    });
+    expect(meta.openGraph?.locale).toBe("es_CL");
   });
 
   it("resolves site-relative fallback urls", async () => {

@@ -1,6 +1,7 @@
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import {
   getInscriptionsEnabled,
+  getRegisterShowAllSections,
   loadRegistrationCohortConfig,
 } from "@/lib/settings/inscriptionsServer";
 import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
@@ -36,8 +37,9 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function AdminSettingsPage({ params }: PageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
-  const [enabled, cohortConfig, merchEnabled, publicCtaMode] = await Promise.all([
+  const [enabled, showAllSections, cohortConfig, merchEnabled, publicCtaMode] = await Promise.all([
     getInscriptionsEnabled(),
+    getRegisterShowAllSections(),
     loadRegistrationCohortConfig(),
     loadMerchEnabled(),
     getPublicCtaMode(),
@@ -62,6 +64,7 @@ export default async function AdminSettingsPage({ params }: PageProps) {
         <InscriptionsSettingsForm
           locale={locale}
           initialEnabled={enabled}
+          initialShowAllSections={showAllSections}
           labels={dict.admin.settings}
           cohortConfig={cohortConfig}
         />

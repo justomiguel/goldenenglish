@@ -6,6 +6,9 @@ import type { Dictionary } from "@/types/i18n";
 type Column = { id: string; label: string; fieldType: string; selectOptions: string[] };
 type Labels = Dictionary["admin"]["users"]["academicFields"];
 
+const controlClass =
+  "min-h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm";
+
 export function AcademicProfileDirectoryFilters({
   columns,
   selectFacets,
@@ -30,15 +33,15 @@ export function AcademicProfileDirectoryFilters({
   }
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <>
       {columns.map((column) => {
         const current = searchParams.get(`acf_${column.id}`) ?? "";
         if (column.fieldType === "select") {
           return (
-            <label key={column.id} className="grid gap-1 text-sm">
-              <span className="font-medium text-[var(--color-foreground)]">{column.label}</span>
+            <label key={column.id} className="block text-sm">
+              <span className="mb-1 block text-[var(--color-muted-foreground)]">{column.label}</span>
               <select
-                className="min-h-11 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3"
+                className={controlClass}
                 value={current}
                 aria-label={column.label}
                 onChange={(event) => setField(column.id, event.target.value)}
@@ -55,10 +58,10 @@ export function AcademicProfileDirectoryFilters({
         }
         const inputType = column.fieldType === "number" ? "number" : column.fieldType === "date" ? "date" : "text";
         return (
-          <label key={column.id} className="grid gap-1 text-sm">
-            <span className="font-medium text-[var(--color-foreground)]">{column.label}</span>
+          <label key={column.id} className="block text-sm">
+            <span className="mb-1 block text-[var(--color-muted-foreground)]">{column.label}</span>
             <input
-              className="min-h-11 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3"
+              className={controlClass}
               type={inputType}
               defaultValue={current}
               aria-label={column.label}
@@ -72,6 +75,6 @@ export function AcademicProfileDirectoryFilters({
           </label>
         );
       })}
-    </div>
+    </>
   );
 }

@@ -2,7 +2,37 @@ import type { ProductChangelogEntry } from "@/lib/product-changelog/catalogTypes
 import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
-{
+  {
+    id: "person-name-opens-profile",
+    date: "2026-10-27",
+    area: "admin",
+    title: t(
+      "El nombre abre el perfil",
+      "The name opens the profile",
+      "O nome abre o perfil",
+    ),
+    summary: t(
+      "En las listas de admin, el nombre de un alumno, padre u otro usuario abre su perfil.",
+      "In admin lists, the name of a student, parent, or other user opens that profile.",
+      "Nas listas de admin, o nome de um aluno, responsável ou outro usuário abre o perfil.",
+    ),
+  },
+  {
+    id: "section-area-opens-on-click",
+    date: "2026-10-27",
+    area: "academic",
+    title: t(
+      "Estudiantes abre al hacer clic",
+      "Students opens on click",
+      "Estudantes abre ao clicar",
+    ),
+    summary: t(
+      "En una sección, Estudiantes y las otras áreas abren al instante. La página ya no se queda en el inicio.",
+      "In a section, Students and the other areas open at once. The page no longer stays on the hub.",
+      "Numa turma, Estudantes e as outras áreas abrem na hora. A página já não fica no início.",
+    ),
+  },
+  {
     id: "mobile-stat-cards",
     date: "2026-10-27",
     area: "admin",
@@ -210,36 +240,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "Elige la cuenta 1, la cuenta 2 y la cuenta de Finanzas. La opción de la persona define a cuál paga.",
       "Choose account 1, account 2, and the Finance account. The buyer's option sets which one they pay.",
       "Escolha a conta 1, a conta 2 e a conta de Finanças. A opção da pessoa define qual ela paga.",
-    ),
-  },
-  {
-    id: "page-error-support-code",
-    date: "2026-10-25",
-    area: "site",
-    title: t(
-      "Un error de página muestra un código de soporte",
-      "A page error shows a support code",
-      "Um erro de página mostra um código de suporte",
-    ),
-    summary: t(
-      "Si una página falla, ves un código para buscar el mismo fallo en los logs.",
-      "If a page fails, you see a code to find the same failure in the logs.",
-      "Se uma página falha, você vê um código para achar a mesma falha nos logs.",
-    ),
-  },
-  {
-    id: "pulsar-control-plane",
-    date: "2026-10-25",
-    area: "admin",
-    title: t(
-      "Pulsar Lab administra los institutos desde su base",
-      "Pulsar Lab manages institutes from its database",
-      "Pulsar Lab administra os institutos a partir da sua base",
-    ),
-    summary: t(
-      "El sitio de Pulsar lista los institutos, su estado y las visitas. Un instituto nuevo no exige un nuevo deploy.",
-      "The Pulsar site lists institutes, their status, and visits. A new institute does not need a new deploy.",
-      "O site da Pulsar lista os institutos, o estado e as visitas. Um instituto novo não exige um novo deploy.",
     ),
   },
 ];

@@ -90,6 +90,15 @@ describe("sort checklist edits", () => {
     ).toEqual([{ key: "monthlyStatus", dir: "asc" }]);
   });
 
+  it("accepts a custom academic field", () => {
+    const key = "acf:11111111-1111-4111-8111-111111111111" as const;
+    expect(addAdminUsersSortCriterion([{ key: "name", dir: "asc" }], ["name", key])).toEqual([
+      { key: "name", dir: "asc" },
+      { key, dir: "asc" },
+    ]);
+    expect(replaceAdminUsersSortKey([{ key: "name", dir: "asc" }], 0, key)).toEqual([{ key, dir: "asc" }]);
+  });
+
   it("appends the next unused field", () => {
     expect(
       addAdminUsersSortCriterion([{ key: "monthlyStatus", dir: "desc" }], ["name", "monthlyStatus", "sections"]),

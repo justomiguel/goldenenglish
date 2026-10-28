@@ -13,8 +13,13 @@ import { JsonLdOrganization } from "@/components/molecules/JsonLdOrganization";
 import { AnalyticsRoot } from "@/components/analytics/AnalyticsRoot";
 import { PwaInstallPromptHost } from "@/components/molecules/PwaInstallPromptHost";
 import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
+import { openGraphLocaleForInstitute } from "@/lib/metadata/buildHomePageMetadata";
+import { lioraPlacesFromSedes } from "@/lib/public/instituteAnswerPages";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
+import { centrolistoLayoutIcons } from "@/lib/pulsar/centrolistoFavicon";
+import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
+import { CentroListoJsonLd } from "@/components/organisms/pulsar/CentroListoJsonLd";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 
 interface LocaleLayoutProps {
@@ -35,12 +40,20 @@ export async function generateMetadata({
   const loc = locale as AppLocale;
   if (await isPulsarPlatformRequest()) {
     const dict = await getDictionary(loc);
+    const share = await centrolistoShareMetadata({
+      title: dict.pulsar.meta.brandName,
+      description: dict.pulsar.meta.brandTagline,
+      siteName: dict.pulsar.meta.brandName,
+      locale: loc,
+    });
     return {
       title: {
         default: dict.pulsar.meta.brandName,
         template: `%s | ${dict.pulsar.meta.brandName}`,
       },
       description: dict.pulsar.meta.description,
+      icons: centrolistoLayoutIcons(),
+      ...share,
     };
   }
   const { brand, needsInitialSiteSetup, dict } =
@@ -84,7 +97,7 @@ export async function generateMetadata({
     },
     openGraph: {
       type: "website",
-      locale: locale === "en" ? "en_US" : "es_AR",
+      locale: openGraphLocaleForInstitute(activeTheme?.theme.templateKind, locale),
       url: path,
       siteName: brand.name,
       title: brand.name,
@@ -115,16 +128,38 @@ export default async function LocaleLayout({
 
   const loc = locale as AppLocale;
   if (await isPulsarPlatformRequest()) {
-    return <div className="min-h-screen">{children}</div>;
+    const dict = await getDictionary(loc);
+    const origin = (await getRequestPublicSiteUrl())?.origin ?? "https://centrolisto.cl";
+    return (
+      <div className="min-h-screen">
+        <CentroListoJsonLd
+          name={dict.pulsar.meta.brandName}
+          description={dict.pulsar.meta.description}
+          url={`${origin}/${loc}`}
+          logoUrl={`${origin}/centrolisto/android-chrome-512x512.png`}
+        />
+        {children}
+      </div>
+    );
   }
   const { brand, needsInitialSiteSetup, dict } =
     await resolvePublicBrandWithSetup(loc);
   const siteOrigin = (await getRequestPublicSiteUrl())?.origin ?? null;
+  const activeTheme = needsInitialSiteSetup ? null : await loadActiveTheme();
+  const templateKind = activeTheme?.theme.templateKind ?? "classic";
+  const places =
+    templateKind === "liora" ? lioraPlacesFromSedes(dict.landing.liora.sedes) : [];
 
   return (
     <div className="min-h-screen">
       {needsInitialSiteSetup ? null : (
-        <JsonLdOrganization locale={locale} brand={brand} siteOrigin={siteOrigin} />
+        <JsonLdOrganization
+          locale={locale}
+          brand={brand}
+          siteOrigin={siteOrigin}
+          templateKind={templateKind}
+          places={places}
+        />
       )}
       <AnalyticsRoot>{children}</AnalyticsRoot>
       {needsInitialSiteSetup ? null : (

@@ -1,5 +1,11 @@
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
-import { isPulsarHost, normalizeHost, PULSAR_SLUG } from "@/lib/tenant/tenantRegistry";
+import { mergeTenantPreviewHosts } from "@/lib/tenant/pulsarSubdomain";
+import {
+  getPulsarHosts,
+  isPulsarHost,
+  normalizeHost,
+  PULSAR_SLUG,
+} from "@/lib/tenant/tenantRegistry";
 
 export type ValidatedPulsarTenantInput = Omit<PulsarTenantRecord, "updatedAt">;
 
@@ -69,7 +75,9 @@ export function validatePulsarTenantInput(
     return { ok: false, errorCode: "missing_hosts" };
   }
 
-  for (const host of hosts) {
+  const mergedHosts = mergeTenantPreviewHosts(hosts, slug, getPulsarHosts());
+
+  for (const host of mergedHosts) {
     if (isPulsarHost(host)) {
       return { ok: false, errorCode: "reserved_pulsar_host" };
     }
@@ -104,7 +112,7 @@ export function validatePulsarTenantInput(
       slug,
       displayName,
       isEnabled: raw.isEnabled !== false,
-      hosts,
+      hosts: mergedHosts,
       supabaseUrl,
       supabaseAnonKey,
       supabaseServiceRoleKey,

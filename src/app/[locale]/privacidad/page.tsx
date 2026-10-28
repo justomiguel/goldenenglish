@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
+import { buildLocalePageAlternates } from "@/lib/metadata/buildHomePageMetadata";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
@@ -20,6 +21,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: dict.privacy.metaTitle,
     description: dict.privacy.metaDescription,
+    alternates: buildLocalePageAlternates(locale, "/privacidad"),
     robots: { index: true, follow: true },
   };
 }

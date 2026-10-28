@@ -13,7 +13,9 @@ import { GE_REQUEST_LOCALE_HEADER } from "@/lib/i18n/requestLocaleHeader";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
 import { cssRootBlock } from "@/lib/theme/themeOverrides";
-import { getProperty, loadProperties } from "@/lib/theme/themeParser";
+import { getProperty } from "@/lib/theme/themeParser";
+import { centrolistoLayoutIcons } from "@/lib/pulsar/centrolistoFavicon";
+import { CENTROLISTO_THEME_COLOR, loadPulsarPlatformProperties } from "@/lib/pulsar/pulsarBrandProperties";
 import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import { readPulsarSupabasePublicEnv } from "@/lib/supabase/pulsar";
 import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
@@ -40,6 +42,15 @@ const fraunces = Fraunces({
 });
 
 export async function generateViewport(): Promise<Viewport> {
+  if (await isPulsarPlatformRequest()) {
+    return {
+      width: "device-width",
+      initialScale: 1,
+      maximumScale: 5,
+      viewportFit: "cover",
+      themeColor: CENTROLISTO_THEME_COLOR,
+    };
+  }
   const [{ properties }, snapshot] = await Promise.all([
     loadEffectiveProperties(),
     loadActiveTheme(),
@@ -58,14 +69,16 @@ export async function generateViewport(): Promise<Viewport> {
 
 export async function generateMetadata(): Promise<Metadata> {
   if (await isPulsarPlatformRequest()) {
-    const metadataBase = (await getRequestPublicSiteUrl()) ?? new URL("https://pulsarlab.cl");
+    const metadataBase = (await getRequestPublicSiteUrl()) ?? new URL("https://centrolisto.cl");
     return {
       metadataBase,
       title: {
-        default: "Pulsar Lab",
-        template: "%s | Pulsar Lab",
+        default: "CentroListo",
+        template: "%s | CentroListo",
       },
-      description: "Infraestructura digital y control plane para institutos y academias.",
+      description:
+        "Un lugar propio para tu escuela o centro, donde las familias se inscriben, pagan y siguen el avance sin ruido.",
+      icons: centrolistoLayoutIcons(),
     };
   }
   const [{ properties }, snapshot, { url: supabaseUrl }, metadataBaseRaw] = await Promise.all([
@@ -103,7 +116,7 @@ export default async function RootLayout({
 }) {
   const isPulsar = await isPulsarPlatformRequest();
   const properties = isPulsar
-    ? loadProperties()
+    ? loadPulsarPlatformProperties()
     : (await loadEffectiveProperties()).properties;
   /** `:root` token block (color/layout/shadow) is injected from the merged
    *  `SYSTEM_PROPERTIES_DEFAULTS + active site_themes.properties` so changing a theme
@@ -119,7 +132,7 @@ export default async function RootLayout({
       : defaultLocale;
   const pulsarEnv = isPulsar ? readPulsarSupabasePublicEnv() : null;
   const pulsarOrigin = isPulsar
-    ? ((await getRequestPublicSiteUrl())?.origin ?? "https://pulsarlab.cl")
+    ? ((await getRequestPublicSiteUrl())?.origin ?? "https://centrolisto.cl")
     : null;
   const tenant = !isPulsar && isMultiTenantEnabled() ? await resolveRequestTenant() : null;
   const tenantPublic =

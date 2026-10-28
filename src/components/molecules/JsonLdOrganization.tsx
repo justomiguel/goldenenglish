@@ -1,5 +1,11 @@
 import type { BrandPublic } from "@/lib/brand/server";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
+import {
+  buildInstituteAddress,
+  buildInstituteDepartments,
+  isPublishablePublicContact,
+  type InstitutePlace,
+} from "@/lib/public/instituteAnswerPages";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 
 interface JsonLdOrganizationProps {
@@ -7,6 +13,8 @@ interface JsonLdOrganizationProps {
   brand: BrandPublic;
   /** Request origin. When omitted, the env public URL is used. */
   siteOrigin?: string | null;
+  templateKind?: string;
+  places?: readonly InstitutePlace[];
 }
 
 function baseUrlFromOrigin(siteOrigin: string | null | undefined): URL | null {
@@ -20,7 +28,13 @@ function baseUrlFromOrigin(siteOrigin: string | null | undefined): URL | null {
 }
 
 /** Schema.org EducationalOrganization — home / marketing only (omit if no public base URL). */
-export function JsonLdOrganization({ locale, brand, siteOrigin }: JsonLdOrganizationProps) {
+export function JsonLdOrganization({
+  locale,
+  brand,
+  siteOrigin,
+  templateKind = "",
+  places = [],
+}: JsonLdOrganizationProps) {
   const base = baseUrlFromOrigin(siteOrigin);
   if (!base) return null;
 
@@ -42,14 +56,17 @@ export function JsonLdOrganization({ locale, brand, siteOrigin }: JsonLdOrganiza
   };
 
   if (sameAs.length) payload.sameAs = sameAs;
-  if (brand.contactEmail) payload.email = brand.contactEmail;
-  if (brand.contactPhone) payload.telephone = brand.contactPhone;
-  if (brand.contactAddress) {
-    payload.address = {
-      "@type": "PostalAddress",
-      streetAddress: brand.contactAddress,
-    };
+  if (isPublishablePublicContact("email", brand.contactEmail)) {
+    payload.email = brand.contactEmail.trim();
   }
+  if (isPublishablePublicContact("phone", brand.contactPhone)) {
+    payload.telephone = brand.contactPhone.trim();
+  }
+  if (isPublishablePublicContact("address", brand.contactAddress)) {
+    payload.address = buildInstituteAddress(brand.contactAddress);
+  }
+  const departments = buildInstituteDepartments(templateKind, places);
+  if (departments.length) payload.department = departments;
 
   return (
     <script

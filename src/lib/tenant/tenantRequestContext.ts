@@ -3,14 +3,9 @@ import { headers } from "next/headers";
 import { getAlsTenant } from "@/lib/tenant/alsTenantAccessor";
 import {
   type TenantConfig,
-  GE_TENANT_HEADER,
-  getTenantBySlug,
-  isLocalDevHost,
   isMultiTenantEnabled,
   isPulsarRequestFromHeaderGet,
-  listTenants,
-  normalizeHost,
-  resolveTenantByHost,
+  tenantFromHeaderGet,
   tenantRegistryError,
 } from "@/lib/tenant/tenantRegistry";
 
@@ -39,30 +34,12 @@ export async function resolveRequestTenant(): Promise<TenantConfig | null> {
   await ensureTenantRegistryLoaded();
   if (!isMultiTenantEnabled() || tenantRegistryError()) return null;
 
-  let host: string | null = null;
-  let slugHeader: string | null = null;
   try {
     const headerStore = await headers();
-    if (isPulsarRequestFromHeaderGet((name) => headerStore.get(name))) {
-      return null;
-    }
-    slugHeader = headerStore.get(GE_TENANT_HEADER)?.trim() ?? null;
-    const raw = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
-    host = raw ? normalizeHost(raw) : null;
+    return tenantFromHeaderGet((name) => headerStore.get(name));
   } catch {
     return null;
   }
-
-  if (slugHeader) {
-    const bySlug = getTenantBySlug(slugHeader);
-    if (bySlug) return bySlug;
-  }
-  if (host && isLocalDevHost(host)) {
-    const devSlug = process.env.DEV_TENANT_SLUG?.trim();
-    if (devSlug) return getTenantBySlug(devSlug);
-    return listTenants()[0] ?? null;
-  }
-  return resolveTenantByHost(host);
 }
 
 /** Raw `Host` header, including the port. Null outside a request. */

@@ -14,6 +14,7 @@ import { defaultLocale, getDictionary, locales } from "@/lib/i18n/dictionaries";
 import { GE_REQUEST_LOCALE_HEADER } from "@/lib/i18n/requestLocaleHeader";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
+import { CENTROLISTO_FAVICON_PATH } from "@/lib/pulsar/centrolistoFavicon";
 import { getProperty } from "@/lib/theme/themeParser";
 
 export const dynamic = "force-dynamic";
@@ -55,7 +56,8 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     theme_color: installIcon ? NAGO_INSTALL_CHROME : theme,
     lang,
     icons,
-    shortcuts: shortcutIcon
+    shortcuts:
+      shortcutIcon && brand.faviconPath !== CENTROLISTO_FAVICON_PATH
       ? [
           {
             name: dict.pwa.shortcuts.parentPayments,

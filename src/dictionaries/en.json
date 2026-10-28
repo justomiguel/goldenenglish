@@ -462,6 +462,14 @@
         "Students and a teacher celebrating exams with certificates in front of an institute banner."
       ]
     },
+    "classic": {
+      "register": {
+        "shellTitle": "Enrollment request",
+        "shellLead": "These details are the student's. If they are under the legal age, we ask for the parent or guardian next.",
+        "figureTitle": "The classroom already has a place for you.",
+        "figureLead": "Leave the document and the student's details. The team confirms the group and writes back."
+      }
+    },
     "studentGallery": {
       "title": "Our students",
       "intro": "Tap an album to browse photos from class and celebrations.",
@@ -717,23 +725,23 @@
         "sectionSubtitle": "Find us at"
       },
       "sede": {
-        "title": "Main studio",
-        "subtitle": "City center — replace with your address"
+        "title": "Studio in Ñuñoa",
+        "subtitle": "Tegualda 1566, Ñuñoa, Santiago"
       },
       "map": {
-        "embedSrc": "",
-        "iframeTitle": "Map"
+        "embedSrc": "https://maps.google.com/maps?q=Tegualda%201566%2C%20%C3%91u%C3%B1oa%2C%20Santiago%2C%20Chile&t=m&z=15&output=embed&iwloc=near",
+        "iframeTitle": "Map — Tegualda 1566, Ñuñoa"
       },
       "contact": {
         "title": "Contact",
         "subtitle": "Enrollment and questions",
-        "phoneDisplay": "+56 9 0000 0000",
+        "phoneDisplay": "+56 9 3534 7563",
         "instagramTitle": "Instagram",
         "instagramCta": "Follow",
-        "instagramUrl": "https://www.instagram.com/",
+        "instagramUrl": "https://www.instagram.com/espaciozenit.cl/",
         "facebookUrl": "",
         "facebookAria": "Facebook",
-        "emailPlaceholder": "hello@yourstudio.com",
+        "emailPlaceholder": "espaciozenit.cl@gmail.com",
         "formHint": "Reach the team through your usual institute channels or the registration flow when it is enabled."
       },
       "footer": {
@@ -1822,6 +1830,9 @@
       "inscriptions": "Public registrations",
       "inscriptionsHint": "When off, the enrollment button is hidden from the landing page.",
       "inscriptionsToggleTooltip": "Turn the public enrollment form on or off for families visiting the website.",
+      "registerShowAllSections": "Show all sections",
+      "registerShowAllSectionsHint": "When this is on and there is more than one open section, the public form lists them. When it is off, families do not see a section list and we send the first open section.",
+      "registerShowAllSectionsTooltip": "Show every open section on the public registration form.",
       "registrationCohortLabel": "Public registration cohort",
       "registrationCohortHint": "Choose which cohort receives public web registrations. You can open next year's registrations while the current cohort stays active.",
       "registrationCohortCurrentBadge": "Current cohort: {name}",
@@ -5379,6 +5390,7 @@
     "tutorPhone": "Guardian phone",
     "tutorRelationship": "Relationship",
     "level": "Section",
+    "assignedSectionLine": "You are registering for {section}.",
     "sectionPlaceholder": "Choose a section…",
     "sectionUndecidedOption": "I'm not sure — please help me choose",
     "sectionUndecidedHint": "If you pick this, staff will suggest the best section when they contact you. You can still submit when no sections are listed yet.",
@@ -5633,6 +5645,283 @@
       "noStaff": "We could not reach the team right now. Please try again later or use another contact channel."
     }
   },
+  "publicAnswers": {
+    "footerLink": "Questions",
+    "pageTitle": "Questions families ask",
+    "lead": "Short answers about {{brand}}. For a fee, a timetable, or a place in a group, use the contact on this site.",
+    "contactQuestion": "How can I contact the institute?",
+    "contactLine": "Write to {{email}} or call {{phone}}.",
+    "contactEmailOnly": "Write to {{email}}.",
+    "contactPhoneOnly": "Call {{phone}}.",
+    "kinds": {
+      "classic": {
+        "metaTitle": "Questions about English classes",
+        "metaDescription": "Ages, in-person and live online classes, levels, and Cambridge preparation.",
+        "items": [
+          {
+            "id": "age",
+            "q": "From what age can a student start?",
+            "a": "Children start at age 5. Teens start at age 11. Adults can start too."
+          },
+          {
+            "id": "beginner",
+            "q": "Can I start with no English?",
+            "a": "Yes. You can start with no English. Children start at age 5. Teens start at age 11. Adults can start too."
+          },
+          {
+            "id": "modality",
+            "q": "Are classes in person or online?",
+            "a": "In-person classes meet at the Riacho He Hé site in Formosa. Remote classes are live, not recorded. Remote groups usually meet twice a week for 60 minutes. The goals match the in-person course."
+          },
+          {
+            "id": "live",
+            "q": "Are remote classes recorded?",
+            "a": "No. Remote classes are live, not recorded. The goals match the in-person course."
+          },
+          {
+            "id": "groups",
+            "q": "Are the groups small?",
+            "a": "In-person groups are small. Students practice speaking, and teachers follow each student. Remote groups are small too."
+          },
+          {
+            "id": "levels",
+            "q": "Which levels do you teach?",
+            "a": "Levels follow the Common European Framework, from A1 to C2."
+          },
+          {
+            "id": "cambridge",
+            "q": "Do you prepare students for Cambridge?",
+            "a": "We prepare students for Cambridge B2 First."
+          },
+          {
+            "id": "national",
+            "q": "Is there a national certificate?",
+            "a": "A national certificate is available through the UTN agreement. The institute is registered under Formosa ministerial resolution 1297/05."
+          },
+          {
+            "id": "where",
+            "q": "Where is the school?",
+            "a": "{{brand}} has taught in Riacho He Hé, Formosa, since 2005."
+          },
+          {
+            "id": "enroll",
+            "q": "How do I enroll?",
+            "a": "Use the enrollment page on this site. For a timetable or a fee, use the contact form."
+          }
+        ]
+      },
+      "mozarthitos": {
+        "metaTitle": "Questions about early music classes",
+        "metaDescription": "Starting age, session length, the Mago Diapasón method, and the Las Condes site.",
+        "items": [
+          {
+            "id": "age",
+            "q": "From what age can a baby start?",
+            "a": "Sessions start from 6 months of age."
+          },
+          {
+            "id": "length",
+            "q": "How long is a session?",
+            "a": "Each session lasts 30 minutes. From age 3, children start to follow scores."
+          },
+          {
+            "id": "method",
+            "q": "What method do you use?",
+            "a": "We use the Mago Diapasón method by Paqui Castro. The story is «Viajando al país de la música». Children work with song, play, and percussion."
+          },
+          {
+            "id": "musician",
+            "q": "Is this class only for future musicians?",
+            "a": "The class is music education for babies and young children. It also works memory, creativity, attention, and social skills."
+          },
+          {
+            "id": "where",
+            "q": "Where are the in-person sessions?",
+            "a": "The in-person site is in Las Condes, at República Árabe de Egipto 670."
+          },
+          {
+            "id": "online",
+            "q": "Do you offer online classes?",
+            "a": "The site lists an online option in the courses section."
+          },
+          {
+            "id": "enroll",
+            "q": "How do I reserve a place?",
+            "a": "Reserve a place from the enrollment page or from the published contact."
+          }
+        ]
+      },
+      "espaciozenit": {
+        "metaTitle": "Questions about dance classes",
+        "metaDescription": "Ballet, Hip Hop for Kids, groups by age, and how to reserve a class.",
+        "items": [
+          {
+            "id": "styles",
+            "q": "Which dance styles do you teach?",
+            "a": "We teach classical ballet and Hip Hop for Kids."
+          },
+          {
+            "id": "groups",
+            "q": "How are the groups organized?",
+            "a": "Weekly groups are formed by age and level. The team confirms the group when you write."
+          },
+          {
+            "id": "experience",
+            "q": "Do I need previous experience?",
+            "a": "No. The group is formed by age and level."
+          },
+          {
+            "id": "trial",
+            "q": "Can I reserve a class?",
+            "a": "Enrollment is open all year. You can reserve a class."
+          },
+          {
+            "id": "firstclass",
+            "q": "What do I bring to the first class?",
+            "a": "Wear comfortable clothes. The studio tells you the dress code if you continue."
+          },
+          {
+            "id": "shows",
+            "q": "Are there shows?",
+            "a": "The studio holds presentations and events."
+          },
+          {
+            "id": "families",
+            "q": "Is the studio set up for children and families?",
+            "a": "Classes run with dedicated teachers in a setting made for families."
+          },
+          {
+            "id": "contact",
+            "q": "Where is the studio?",
+            "a": "The studio is at Tegualda 1566, Ñuñoa, Santiago. For the timetable or the fee, use the contact form."
+          }
+        ]
+      },
+      "nago": {
+        "metaTitle": "Questions about capoeira classes",
+        "metaDescription": "Experience, ages, music and sport, and how to book a class in Santiago and other regions.",
+        "items": [
+          {
+            "id": "experience",
+            "q": "Do I need previous experience?",
+            "a": "You do not need previous experience."
+          },
+          {
+            "id": "ages",
+            "q": "Which ages can train?",
+            "a": "Children are 4 to 12. Youth are 13 to 17. Adults start at 18. Older adults start at 55."
+          },
+          {
+            "id": "whojoins",
+            "q": "Are classes only for boys?",
+            "a": "No. Girls, boys, youth, and adults train. The class joins sport, music, and culture."
+          },
+          {
+            "id": "more",
+            "q": "Is capoeira only a fight?",
+            "a": "The class joins sport, movement, discipline, music, and culture."
+          },
+          {
+            "id": "who",
+            "q": "Who leads the classes?",
+            "a": "Mestre Fagulha leads the group. He has Brazilian training and more than 20 years of capoeira in Chile."
+          },
+          {
+            "id": "where",
+            "q": "Where do you train?",
+            "a": "The group works in Santiago and in other regions."
+          },
+          {
+            "id": "book",
+            "q": "How do I book a class?",
+            "a": "Book a class or ask for a trial class from this site."
+          }
+        ]
+      },
+      "mimundo": {
+        "metaTitle": "Questions about the kindergarten",
+        "metaDescription": "Ages, the Reggio Emilia and Pikler approach, the Resistencia site, and the holiday colony.",
+        "items": [
+          {
+            "id": "ages",
+            "q": "From what age until what age do you welcome children?",
+            "a": "We welcome children from 45 days old until age 5."
+          },
+          {
+            "id": "approach",
+            "q": "What approach do you follow?",
+            "a": "The proposal follows Reggio Emilia and Pikler. Children work with art, nature, music, early reading, and free movement."
+          },
+          {
+            "id": "where",
+            "q": "Where is the kindergarten?",
+            "a": "The kindergarten is at Av. Avalos 555, Resistencia, Chaco."
+          },
+          {
+            "id": "colony",
+            "q": "Do you run a holiday colony?",
+            "a": "During school holidays there is a colony for children aged 3 to 12. Families can choose a full day or a half day. Dates and fees are published each season."
+          },
+          {
+            "id": "team",
+            "q": "Who works with the children?",
+            "a": "The team has more than 20 specialists in early childhood, educational psychology, music, and arts."
+          },
+          {
+            "id": "reserve",
+            "q": "How do I reserve a place?",
+            "a": "Reserve a place from this site."
+          }
+        ]
+      },
+      "liora": {
+        "metaTitle": "Questions about ballet classes",
+        "metaDescription": "Ages, adults who return, three metro sites in Santiago, Saturday classes, and trial classes.",
+        "items": [
+          {
+            "id": "ages",
+            "q": "Which ages do you teach?",
+            "a": "Pre Ballet is ages 3 to 5. Ballet Infantil is ages 6 to 9. Ballet Juvenil is ages 10 to 14. Ballet Adulto starts at age 15."
+          },
+          {
+            "id": "adults",
+            "q": "Can an adult start or return to ballet?",
+            "a": "Ballet Adulto is for beginners and for people who return. The pace respects the body."
+          },
+          {
+            "id": "sites",
+            "q": "Where are the sites?",
+            "a": "There are three sites in Santiago, next to the metro: Providencia (Parque Bustamante), Maipú (Plaza Maipú), and San Miguel."
+          },
+          {
+            "id": "day",
+            "q": "Which day are the published classes?",
+            "a": "Published times are on Saturdays. For another day, write to the studio."
+          },
+          {
+            "id": "trial",
+            "q": "Can I take a trial class?",
+            "a": "You can ask for a trial class. The team confirms the site, the time, and the level."
+          },
+          {
+            "id": "uniform",
+            "q": "Do I buy the uniform before I go?",
+            "a": "No. Ask for the trial class first. The studio tells you the uniform."
+          },
+          {
+            "id": "competitive",
+            "q": "Are the shows competitive?",
+            "a": "There are yearly shows for the family, without competitive pressure."
+          },
+          {
+            "id": "groups",
+            "q": "Are the groups small?",
+            "a": "Places are limited, with individual correction."
+          }
+        ]
+      }
+    }
+  },
   "privacy": {
     "metaTitle": "Privacy and terms",
     "metaDescription": "How the institute looks after family data when you reserve a place or book a trial class.",
@@ -5769,6 +6058,9 @@
       "mobileSelect": "Section",
       "mobileOpen": "Open menu",
       "mobileClose": "Close menu",
+      "mobileMenuTitle": "Menu",
+      "mobileMenuSearch": "Search",
+      "mobileMenuEmpty": "No destination matches.",
       "pwaTabBarAria": "Quick admin navigation",
       "pwaTabHome": "Home",
       "pwaTabRegistrations": "Admissions",
@@ -12250,93 +12542,370 @@
   },
   "pulsar": {
     "meta": {
-      "brandName": "Pulsar Lab",
-      "homeTitle": "Pulsar Lab — Platform for academies and institutes",
-      "productoTitle": "Product",
-      "clientesTitle": "Clients",
-      "contactoTitle": "Contact",
-      "adminTitle": "Control Plane — Pulsar Lab",
-      "description": "Websites, family and student portals, payments, and academic operations with an isolated database for each institute."
+      "brandName": "CentroListo",
+      "brandTagline": "For those who opened a school for the love of teaching",
+      "homeTitle": "CentroListo.cl — When administration grows quiet, your school teaches again",
+      "productoTitle": "The craft behind the calm",
+      "clientesTitle": "Schools and communities",
+      "contactoTitle": "A conversation without hurry",
+      "adminTitle": "Control Plane — CentroListo",
+      "description": "A quiet home for your school where families learn your offer, reserve a schedule, follow their children, and stay current without late-night chats or spreadsheets."
     },
     "nav": {
-      "home": "Home",
-      "product": "Product",
-      "clients": "Clients",
-      "contact": "Contact",
+      "home": "The day",
+      "product": "How it works",
+      "clients": "Schools",
+      "contact": "Talk",
       "admin": "Control Plane",
-      "cta": "Request a demo",
-      "footerRights": "Pulsar Lab. Dedicated infrastructure for academies and institutes."
+      "cta": "Talk about your school",
+      "footerTagline": "Made for directors, teachers, and founders who want their evenings back and a human bond with each family.",
+      "footerPrivacyBadge": "100% isolated database per institution · Built for Chile Law 21.719 compliance",
+      "footerRights": "CentroListo.cl · Dedicated infrastructure and growth software for academies, centers, and institutes."
     },
     "home": {
-      "eyebrow": "INFRASTRUCTURE FOR ACADEMIES AND INSTITUTES",
-      "title": "Your institute with its own platform, mobile portal, and isolated database",
-      "lead": "We run the website, enrollments, billing, attendance, and installed app for each institution on a multi-tenant architecture with strict per-client isolation.",
-      "primaryCta": "Talk to us about your institute",
-      "secondaryCta": "Explore product modules",
-      "stats": {
-        "tenantsLabel": "Configured institutes",
-        "isolationValue": "100% isolated",
-        "isolationLabel": "Dedicated Supabase database per client",
-        "edgeValue": "1 deploy",
-        "edgeLabel": "Unified Vercel compute with zero-redeploy onboarding"
+      "eyebrow": "For those who opened a school for the love of teaching, not spreadsheets",
+      "title": "When administration stops making noise, your school gets back time for what matters.",
+      "lead": "A quiet digital home where a family discovers your school on Sunday night, picks a schedule without waiting on your phone, follows their children's progress, and keeps tuition up to date without awkward reminders.",
+      "primaryCta": "Talk about your school",
+      "secondaryCta": "Walk through how it works",
+      "generativeStage": {
+        "noiseCaption": "late-night chats · loose spreadsheets · pending slips",
+        "resolvedCaption": "everything in its place",
+        "replayLabel": "Untangle the thread again"
       },
-      "pillarsTitle": "Why institutes choose Pulsar Lab",
-      "pillarsLead": "Each institution keeps its domain, visual identity, and own database while receiving continuous upgrades from a shared core.",
-      "pillar1Title": "Complete data isolation",
-      "pillar1Body": "Each client runs on its own Supabase project (independent Auth, Postgres, and Storage).",
-      "pillar2Title": "Custom brand and PWA",
-      "pillar2Body": "Editorial landing page, web manifest, and install icons tailored to each domain.",
-      "pillar3Title": "Academic operations and billing",
-      "pillar3Body": "Registrations, sections, attendance, messaging, events, shop, and payment gateways."
+      "verticals": [
+        "Language schools",
+        "Dance, music, and arts studios",
+        "Dojos and sports academies",
+        "Early childhood spaces",
+        "Therapeutic and wellness centers",
+        "Trade and continuing education schools"
+      ],
+      "stats": {
+        "tenantsLabel": "schools and centers cultivating their community today",
+        "isolationValue": "Own home",
+        "isolationLabel": "Each institution lives in its own isolated database",
+        "edgeValue": "One thread",
+        "edgeLabel": "From the first visit to every weekly class"
+      },
+      "portals": {
+        "eyebrow": "Chronicle of a quiet week",
+        "title": "Four moments when you notice the knot is gone",
+        "lead": "Choose a moment of the week to see how the director, the teacher, and the family experience a school in calm.",
+        "modulesBadge": "What works quietly behind the scenes",
+        "videoSurfaceDesktop": "Desktop",
+        "videoSurfaceMobile": "Mobile PWA",
+        "tabs": [
+          {
+            "id": "sunday-night",
+            "label": "Sunday, 21:40",
+            "badge": "At home",
+            "headline": "A family finds an open seat and enrolls while you rest.",
+            "description": "Sunday nights used to mean answering voice notes about schedules, tuition, and open seats. Now a family reads your page, sees live availability, and reserves their spot or trial class without interrupting your dinner.",
+            "bullets": [
+              "Section capacity updates automatically so a schedule never overbooks.",
+              "The family receives a warm welcome email under your school's name.",
+              "On Monday morning, the new student is already on the teacher's roster."
+            ],
+            "modules": [
+              "Your school's editorial website",
+              "Live trial classes and seat reservations",
+              "Direct links ready to share on WhatsApp"
+            ]
+          },
+          {
+            "id": "tuesday-class",
+            "label": "Tuesday, 16:58",
+            "badge": "Before class",
+            "headline": "The teacher walks into the room to teach, not to fill out paper sheets.",
+            "description": "Two minutes before class, the teacher opens their phone, taps the names of the students present, and saves attendance in seconds. If someone is absent, the family receives a gentle note automatically.",
+            "bullets": [
+              "Clear attendance roster on any phone or classroom computer.",
+              "Weekly materials, tasks, and short practice checks ready for each group.",
+              "Digital progress badges that students can proudly share at home."
+            ],
+            "modules": [
+              "Fast section attendance",
+              "Learning paths, tasks, and mini-checks",
+              "Shareable student achievement badges"
+            ]
+          },
+          {
+            "id": "fifth-day",
+            "label": "Day 5 of the month",
+            "badge": "Morning",
+            "headline": "You never have to message a family to chase a payment again.",
+            "description": "Chasing tuition is often the hardest part of running a school. When polite reminders go out on time and parents can pay from their phone or upload a transfer in one tap, conversations at the door return to learning.",
+            "bullets": [
+              "Direct online payment via Flow or Mercado Pago, or simple bank transfer review.",
+              "Handles family scholarships, sibling discounts, and coupons automatically.",
+              "Every family downloads their signed receipt whenever they need it."
+            ],
+            "modules": [
+              "Online tuition and calm reconciliation",
+              "Family and sibling scholarships",
+              "Instant signed receipts"
+            ]
+          },
+          {
+            "id": "friday-evening",
+            "label": "Friday, 19:15",
+            "badge": "With the family",
+            "headline": "Your school lives on every family's phone under your own crest.",
+            "description": "Families do not open a generic directory crowded with other businesses. They install the web app with your school's icon and colors, check the calendar, reserve recital tickets, or order their child's uniform.",
+            "bullets": [
+              "A parent with two or three children switches profiles in a single tap.",
+              "Recital tickets, weekend workshops, and the uniform store live in the same place.",
+              "Timely reminders arrive via WhatsApp, email, and mobile notifications."
+            ],
+            "modules": [
+              "Installable app (PWA) with your crest",
+              "Recitals, workshops, and school store",
+              "WhatsApp reminders and synced calendar"
+            ]
+          }
+        ]
+      },
+      "beforeAfter": {
+        "eyebrow": "The quiet change",
+        "title": "From holding everything in your head to feeling the school walk with you",
+        "lead": "This is not about more screens. It is about dropping the repeating tasks that steal energy from students and teachers.",
+        "beforeTitle": "When everything depends on you staying on top",
+        "beforeItems": [
+          "Answering the same schedule and tuition questions many times each week.",
+          "Matching bank slips from chats against a spreadsheet at month end.",
+          "Using salon schedulers that do not know an annual group or a family with several children.",
+          "Keeping student records spread across disconnected tools."
+        ],
+        "afterTitle": "When each thing finds its place",
+        "afterItems": [
+          "Someone who finds your school understands the offer, sees real hours, and enrolls in calm.",
+          "Tuition, sibling scholarships, and receipts stay ordered without wearing down the parent bond.",
+          "Groups, levels, attendance, and progress follow the real rhythm of your center.",
+          "The memory of your institution lives in a database that belongs only to you."
+        ]
+      },
+      "pillarsTitle": "Three silences that protect what you built",
+      "pillarsLead": "Behind a simple family experience sit craft decisions that protect the identity and rest of your school.",
+      "pillar1Title": "Your own digital home, never borrowed ground",
+      "pillar1Body": "Each school has its own isolated database. Student and minor data never mix with another business.",
+      "pillar2Title": "Your identity in every detail, on the web and on the phone",
+      "pillar2Body": "A visitor sees your domain, your look, your words, and your school icon on the home screen. CentroListo stays behind your brand.",
+      "pillar3Title": "One thread from the first greeting to the last day of the year",
+      "pillar3Body": "The public page, trial classes, groups, attendance, tasks, recitals, and monthly tuition talk to each other in silence.",
+      "bottomCta": {
+        "title": "Would you like to see how your school would feel with everything in its place?",
+        "lead": "We can talk for half an hour, hear how you organize groups today, and show the space under your school's identity.",
+        "primaryCta": "Write to talk",
+        "secondaryCta": "See in detail how it works"
+      }
     },
     "product": {
-      "eyebrow": "ARCHITECTURE AND MODULES",
-      "title": "Everything a modern institute needs in one platform",
-      "lead": "From public acquisition on the web to daily tracking for every student and parent.",
-      "m1Title": "Public site, CMS, events, and blog",
-      "m1Body": "High-impact templates, event ticketing, and an SEO-ready institutional blog.",
-      "m2Title": "Admissions, trial classes, and enrollments",
-      "m2Body": "Schedule-based registration flows, trial class booking, and direct section links.",
-      "m3Title": "Academic management and attendance",
-      "m3Body": "Cohorts, sections, learning routes, badges, attendance matrix, and automated email and WhatsApp reminders.",
-      "m4Title": "Family and student portal (Web + PWA)",
-      "m4Body": "Installable mobile experience with calendar, progress, tasks, shop, and monthly tuition payments.",
-      "m5Title": "Finance, payment gateways, and receipts",
-      "m5Body": "Flow and Mercado Pago integration, family scholarships, transfer review, and signed receipts.",
-      "m6Title": "Zero-redeploy Control Plane",
-      "m6Body": "Provision new institutes and custom domains live from the central Pulsar Lab database."
+      "eyebrow": "The craft behind the calm",
+      "title": "Twelve pieces that work in silence so you only have to lead and teach",
+      "lead": "You do not need twelve separate programs. It is one quiet space that follows the everyday life of your school.",
+      "stages": {
+        "stage1": "1. Acquisition and Digital Presence",
+        "stage2": "2. 24/7 Admissions and Conversion",
+        "stage3": "3. Academic Life and Community",
+        "stage4": "4. Finance, Store, and Dedicated Cloud"
+      },
+      "m1Title": "Editorial public site and visual CMS",
+      "m1Body": "Industry-tailored templates, block editing, optimized image galleries, and native Spanish, English, and Portuguese support.",
+      "m2Title": "Public events and ticket sales",
+      "m2Body": "Publish free or paid workshops and recitals with seat limits, homepage promo popups, and dual bank account support.",
+      "m3Title": "SEO institutional blog and surveys",
+      "m3Body": "Tagged articles, automatic OpenGraph metadata, dynamic sitemaps, and public questionnaires to capture leads.",
+      "m4Title": "Trial classes and admission funnel",
+      "m4Body": "Let prospects book trial classes based on real availability and convert them into regular students in one click.",
+      "m5Title": "Online enrollment and direct section links",
+      "m5Body": "Short links (/i/section and /matricula/slug) ready for WhatsApp or Instagram with instant seat validation.",
+      "m6Title": "Cohorts, sections, and attendance matrix",
+      "m6Body": "Organize school years, shifts, schedules, and holidays. Record attendance in seconds from any device.",
+      "m7Title": "Learning routes, tasks, and mini-tests",
+      "m7Body": "Structure learning materials, homework submissions with teacher feedback, auto-graded assessments, and shareable badges.",
+      "m8Title": "Installable PWA for families and students",
+      "m8Body": "Native-like mobile experience on iOS and Android. Parents switch between children, check schedules, and pay tuition.",
+      "m9Title": "Flow, Mercado Pago, and transfer billing",
+      "m9Body": "Automated online payments, bank transfer review, family scholarships, discount coupons, and signed receipts.",
+      "m10Title": "School store for uniforms and kits",
+      "m10Body": "Integrated catalog with size/color stock control, online payment, and in-center pickup assigned to the student.",
+      "m11Title": "Automated WhatsApp, Email, and Web Push",
+      "m11Body": "Automated class reminders via WhatsApp Cloud API, segmented email campaigns, and mobile push notifications.",
+      "m12Title": "Isolated DB, audit log, retention, and tours",
+      "m12Body": "Dedicated Supabase project per client, churn inactivity alerts, system audit trails, and interactive Driver.js tours.",
+      "comparison": {
+        "eyebrow": "MARKET COMPARISON 2026",
+        "title": "Why CentroListo outperforms traditional alternatives",
+        "lead": "Compare CentroListo against stitching together separate tools or using software built for another industry.",
+        "colFeature": "Core capability for your center",
+        "colCentroListo": "CentroListo.cl",
+        "colSchedulers": "Appointment schedulers (Spa / Gym)",
+        "colSchoolErp": "K-12 school systems",
+        "colSpreadsheets": "WordPress + Excel + WhatsApp",
+        "rows": [
+          {
+            "feature": "Institutional website + CMS + SEO blog + Ticketed events",
+            "centroListo": "Included and synced with live seats",
+            "schedulers": "Basic booking page only",
+            "schoolErp": "No commercial site or event ticketing",
+            "spreadsheets": "Disconnected and manual"
+          },
+          {
+            "feature": "Section enrollment, direct links (/i/...), and trial classes",
+            "centroListo": "Full 24/7 flow by schedule and level",
+            "schedulers": "Built for single appointments",
+            "schoolErp": "Rigid annual admission only",
+            "spreadsheets": "Manual forms and copy-pasting"
+          },
+          {
+            "feature": "Multi-child parent portal + PWA app with your own logo",
+            "centroListo": "Branded PWA with your center icon",
+            "schedulers": "Shared app listing competitors",
+            "schoolErp": "School portal without store or growth",
+            "spreadsheets": "None (handled over chat)"
+          },
+          {
+            "feature": "Learning routes, homework, mini-tests, and shareable badges",
+            "centroListo": "Included to track and motivate progress",
+            "schedulers": "No academic modules",
+            "schoolErp": "Rigid K-12 curriculum focus",
+            "spreadsheets": "Loose PDFs over email"
+          },
+          {
+            "feature": "Flow, Mercado Pago, family scholarships, and uniform store",
+            "centroListo": "Integrated with reconciliation and receipts",
+            "schedulers": "Session checkout without family rules",
+            "schoolErp": "Complex and expensive add-ons",
+            "spreadsheets": "Manual bank slip checks"
+          },
+          {
+            "feature": "Automated WhatsApp, Email, and Web Push class reminders",
+            "centroListo": "Automated per section schedule",
+            "schedulers": "Basic appointment alerts only",
+            "schoolErp": "Broad notices without WhatsApp class reminders",
+            "spreadsheets": "Sent manually one by one"
+          },
+          {
+            "feature": "100% isolated database per institution (Chile Law 21.719 ready)",
+            "centroListo": "Dedicated Supabase project per client",
+            "schedulers": "Shared multi-tenant database",
+            "schoolErp": "Shared multi-tenant database",
+            "spreadsheets": "Unprotected spreadsheets without audit logs"
+          }
+        ]
+      }
     },
     "clients": {
       "eyebrow": "PRODUCTION ECOSYSTEM",
-      "title": "Institutions running on Pulsar Lab",
-      "lead": "Cultural academies, dance studios, early childhood centers, and language institutes in active operation.",
-      "visitSite": "Visit site",
-      "activeBadge": "Active",
-      "hostsLabel": "Domains"
+      "title": "Institutions operating and growing on CentroListo",
+      "lead": "From cultural academies and dance studios to early childhood centers and language institutes in daily operation.",
+      "visitSite": "Visit live site",
+      "visitSiteNamed": "Visit the {name} site",
+      "activeBadge": "Live in production",
+      "hostsLabel": "Institutional domain",
+      "verticalsEyebrow": "BUILT FOR INSTITUTIONS THAT TEACH AND BUILD COMMUNITY",
+      "verticalsTitle": "An engine tailored to your industry",
+      "verticalsLead": "We configure terminology, visual templates, legal age rules, and billing workflows for your institution type.",
+      "verticals": [
+        {
+          "title": "Language institutes and academic centers",
+          "body": "Levels, annual or semester cohorts, learning routes, diagnostic mini-tests, shareable badges, and automated monthly billing.",
+          "highlight": "Ideal for language schools, tutoring, and test prep"
+        },
+        {
+          "title": "Dance, music, and performing arts schools",
+          "body": "Schedule and style enrollment, trial classes, recital ticket sales, and an integrated costume and merch store.",
+          "highlight": "Ideal for dance studios, conservatories, and theater"
+        },
+        {
+          "title": "Martial arts academies, sports clubs, and dojos",
+          "body": "Fast mobile attendance from the mat or court, digital belt/grade badges, special seminars, and uniform sales.",
+          "highlight": "Ideal for capoeira, martial arts, tennis, and clubs"
+        },
+        {
+          "title": "Early childhood centers, kindergartens, and after-schools",
+          "body": "Multi-child parent portal, guardian verification, safe announcements, editorial galleries, and activity calendars.",
+          "highlight": "Ideal for preschools, daycares, and kids workshops"
+        },
+        {
+          "title": "Therapeutic, wellness, and holistic learning centers",
+          "body": "Warm editorial website, group cycle registrations, participant tracking, and automated WhatsApp class reminders.",
+          "highlight": "Ideal for wellness studios, yoga, and learning therapy"
+        },
+        {
+          "title": "OTEC, trade schools, and continuing education",
+          "body": "Modular programs, strict attendance and assessment tracking, system audit trails, and an isolated database.",
+          "highlight": "Ideal for professional training and technical institutes"
+        }
+      ]
     },
     "contact": {
-      "eyebrow": "DIRECT CONTACT",
-      "title": "Bring your institute to Pulsar Lab",
-      "lead": "Contact us to activate a new tenant with its own Supabase project, custom domain, and guided onboarding.",
-      "emailLabel": "Direct email",
-      "emailValue": "contacto@pulsarlab.cl",
+      "eyebrow": "GUIDED ONBOARDING",
+      "title": "Get your center ready to operate in days, not months",
+      "lead": "We do not hand you an empty login. Our team provisions your dedicated infrastructure, imports your initial catalog, and configures your website and payment gateways.",
+      "stepsEyebrow": "3-STEP ACTIVATION PROCESS",
+      "stepsTitle": "How we launch your institution on CentroListo.cl",
+      "steps": [
+        {
+          "step": "Step 1 · 25 min",
+          "title": "Live demo and operational diagnosis",
+          "body": "We review how you attract students, organize schedules, and collect payments while showing you all four live portals."
+        },
+        {
+          "step": "Step 2 · 48 to 72 hrs",
+          "title": "Dedicated cloud and brand activation",
+          "body": "We provision your isolated Supabase project, connect your custom domain, apply your brand, and wire Flow or Mercado Pago."
+        },
+        {
+          "step": "Step 3 · Launch",
+          "title": "Student import and guided takeoff",
+          "body": "We import your current sections and students via CSV, and your staff gets interactive in-app tutorials from day one."
+        }
+      ],
+      "emailLabel": "Direct team email",
+      "emailValue": "contacto@centrolisto.cl",
       "emailCta": "Send an email",
-      "whatsappCta": "Talk to the team",
-      "checklistTitle": "What new client onboarding includes",
-      "check1": "Dedicated Supabase project (independent Postgres, Auth, Storage, and backups).",
-      "check2": "Custom domain connected to the Pulsar Lab cluster without redeploying.",
-      "check3": "Brand setup, Resend transactional email, and payment gateways."
+      "whatsappLabel": "Fast commercial inquiry",
+      "whatsappValue": "Book your demo or ask a question on WhatsApp",
+      "whatsappHref": "https://wa.me/56900000000?text=Hello%2C%20I%20want%20to%20learn%20about%20CentroListo.cl",
+      "whatsappCta": "Chat on WhatsApp",
+      "checklistTitle": "What turnkey onboarding includes",
+      "check1": "100% dedicated Supabase project (independent Postgres, Auth, Storage, and backups).",
+      "check2": "Custom domain connected to the CentroListo cluster without redeploying.",
+      "check3": "Brand identity setup, Resend transactional email, and payment gateways (Flow / Mercado Pago / Transfers).",
+      "check4": "Installable mobile PWA with your center's official name and icon.",
+      "check5": "Interactive step-by-step guided tours built into the dashboard for staff and families.",
+      "faqTitle": "Frequently asked questions from directors",
+      "faqs": [
+        {
+          "q": "How long does it take to launch my center on CentroListo.cl?",
+          "a": "Technical infrastructure and your domain go live in under 24 hours. With your logos, schedules, and payment credentials, full onboarding takes 3 to 5 business days."
+        },
+        {
+          "q": "Do students and parents see the CentroListo brand or my academy's brand?",
+          "a": "They see 100% your institution's brand: your custom domain, your logo, your colors, your email sender, and your academy icon when they install the PWA."
+        },
+        {
+          "q": "What if I already have active students mid-year?",
+          "a": "Our background CSV importer and enrollment tools let you migrate cohorts, sections, students, and guardians without interrupting classes."
+        },
+        {
+          "q": "Why does an isolated database matter for my center?",
+          "a": "Your student roster, minor records, and financial data are never mixed in shared tables with other companies. You get independent backups and strong technical alignment with Chile Law 21.719."
+        }
+      ]
     },
     "admin": {
-      "eyebrow": "PULSAR LAB CONTROL PLANE",
+      "eyebrow": "CENTROLISTO CONTROL PLANE",
       "title": "Tenant administration",
       "lead": "Live availability monitoring, traffic (7 and 30 days), and credentials per institute.",
       "newTenantCta": "New tenant",
       "editTenantCta": "Edit",
       "backToFleet": "Back to list",
       "signOut": "Sign out",
-      "devModeBanner": "Local development mode active. Configure PULSAR_SUPABASE_URL and PULSAR_SUPABASE_SERVICE_ROLE_KEY to persist in the Pulsar database.",
-      "pulsarDbBanner": "Connected to the Pulsar Lab control database (changes apply without redeploy).",
+      "devModeBanner": "Local development mode active. Configure PULSAR_SUPABASE_URL and PULSAR_SUPABASE_SERVICE_ROLE_KEY to persist in the CentroListo database.",
+      "pulsarDbBanner": "Connected to the CentroListo control database (changes apply without redeploy).",
       "summary": {
         "totalTenants": "Configured tenants",
         "onlineTenants": "Online (DB healthy)",
@@ -12344,12 +12913,12 @@
         "visits30d": "Visits last 30 days"
       },
       "platformHosts": {
-        "title": "Pulsar Lab domains (platform_settings)",
-        "lead": "These domains serve the Pulsar Lab website and control plane without redeploying.",
-        "inputLabel": "Active Pulsar Lab domains (comma separated)",
+        "title": "CentroListo domains (platform_settings)",
+        "lead": "These domains serve the CentroListo website and control plane without redeploying.",
+        "inputLabel": "Active CentroListo domains (comma separated)",
         "saveCta": "Save domains",
         "saving": "Saving...",
-        "savedNotice": "Pulsar domains updated in the database and in memory."
+        "savedNotice": "CentroListo domains updated in the database and in memory."
       },
       "table": {
         "tenant": "Institute",
@@ -12368,14 +12937,14 @@
         "disableAction": "Pause"
       },
       "login": {
-        "title": "Sign in to Pulsar Control Plane",
-        "lead": "Restricted to accounts registered in Pulsar Lab platform_staff.",
+        "title": "Sign in to CentroListo Control Plane",
+        "lead": "Restricted to accounts registered in CentroListo platform_staff.",
         "emailLabel": "Email address",
         "passwordLabel": "Password",
         "submit": "Sign in to control plane",
         "submitting": "Verifying...",
         "notConfigured": "PULSAR_SUPABASE_URL is not configured in this environment.",
-        "unauthorized": "Your account is not registered in Pulsar Lab platform_staff.",
+        "unauthorized": "Your account is not registered in CentroListo platform_staff.",
         "invalidCredentials": "Invalid credentials. Check your email and password."
       },
       "password": {
@@ -12443,13 +13012,13 @@
           "duplicate_slug": "A tenant with that slug already exists.",
           "missing_display_name": "Enter the institute display name.",
           "missing_hosts": "Enter at least one domain for the tenant.",
-          "reserved_pulsar_host": "You cannot assign the primary Pulsar Lab domain to an institute.",
+          "reserved_pulsar_host": "You cannot assign the primary CentroListo domain to an institute.",
           "duplicate_host": "One of the domains is already assigned to another tenant.",
           "invalid_supabase_credentials": "Provide a valid Supabase URL, Anon Key, and Service Role Key.",
           "invalid_public_url": "The canonical public URL must start with http:// or https://.",
           "invalid_payment_key": "The payment key must encode exactly 32 bytes in base64.",
-          "unauthorized": "Your Pulsar staff session is not valid.",
-          "db_write_failed": "Could not save the tenant in the Pulsar database."
+          "unauthorized": "Your CentroListo staff session is not valid.",
+          "db_write_failed": "Could not save the tenant in the CentroListo database."
         }
       }
     }

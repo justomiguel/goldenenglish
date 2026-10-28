@@ -19,7 +19,6 @@ import type {
   AdminDirectoryFiltersChrome,
   AdminParentsDirectoryChrome,
 } from "@/components/organisms/AdminUsersScreen";
-import { AcademicProfileDirectoryFilters } from "@/components/dashboard/AcademicProfileDirectoryFilters";
 import {
   bindDirectoryFilterChange,
   bindDirectoryFilterClear,
@@ -91,13 +90,6 @@ export function AdminUsersScreenNarrow({
 
   return (
     <div className="mx-auto max-w-[var(--layout-max-width)] space-y-3">
-          {academicDirectory ? (
-            <AcademicProfileDirectoryFilters
-              columns={academicDirectory.columns}
-              selectFacets={academicDirectory.selectFacets}
-              labels={labels.academicFields}
-            />
-          ) : null}
           <AdminUsersPwaList
             locale={locale}
             listPending={u.isPending}
@@ -128,6 +120,13 @@ export function AdminUsersScreenNarrow({
                         values: directoryFilters.values,
                         facets: directoryFilters.facets,
                         sectionOptions: directoryFilters.sectionOptions,
+                        academicFields: academicDirectory
+                          ? {
+                              columns: academicDirectory.columns,
+                              selectFacets: academicDirectory.selectFacets,
+                              labels: labels.academicFields,
+                            }
+                          : undefined,
                         onChange: bindDirectoryFilterChange(u.replaceParams),
                         onClear: bindDirectoryFilterClear(u.replaceParams),
                       }

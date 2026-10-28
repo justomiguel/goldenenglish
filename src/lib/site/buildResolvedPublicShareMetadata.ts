@@ -10,6 +10,10 @@ import {
 import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
 import { resolveSharePreviewLogoAbsoluteUrl } from "@/lib/landing/resolveSharePreviewLogoUrl";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
+import {
+  openGraphLocaleForInstitute,
+  pageLocaleFromPublicPath,
+} from "@/lib/metadata/buildHomePageMetadata";
 import { buildPublicShareMetadata, toAbsoluteShareUrl } from "@/lib/site/buildPublicShareMetadata";
 import { pickHomeSharePhotoUrl } from "@/lib/site/pickHomeSharePhotoUrl";
 import { pickShareImageUrl } from "@/lib/site/pickShareImageUrl";
@@ -52,6 +56,14 @@ export async function loadShareLogoUrl(): Promise<string | null> {
   return resolveSharePreviewLogoAbsoluteUrl(origin, bundle, brand);
 }
 
+export async function resolveInstituteOpenGraphLocale(path: string): Promise<string> {
+  const theme = await loadActiveTheme();
+  return openGraphLocaleForInstitute(
+    theme?.theme.templateKind,
+    pageLocaleFromPublicPath(path),
+  );
+}
+
 export async function loadShareImageChain(pageImage?: string | null): Promise<string | null> {
   const [home, logo] = await Promise.all([loadHomeSharePhotoUrl(), loadShareLogoUrl()]);
   return pickShareImageUrl(pageImage, home, logo);
@@ -86,6 +98,7 @@ export async function buildResolvedPublicShareMetadata(input: {
       path: input.path,
       coverImageUrl: image,
       ogType: input.ogType,
+      locale: await resolveInstituteOpenGraphLocale(input.path),
       deferShareImageToFileMetadata: input.deferShareImageToFileMetadata,
     })),
   };

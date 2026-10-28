@@ -200,11 +200,47 @@ describe("proxy", () => {
     expect(updateSession).not.toHaveBeenCalled();
   });
 
+  it("does not prefix CentroListo chronicle webm assets with locale", async () => {
+    const req = new NextRequest(
+      new URL("http://localhost/videos/centrolisto/flow-0-desktop.webm"),
+    );
+    const res = await proxy(req, stubEvent());
+    expect(updateSession).not.toHaveBeenCalled();
+    expect(res.status).not.toBe(307);
+  });
+
+  it("rewrites locale-prefixed chronicle webm assets back to root path", async () => {
+    const req = new NextRequest(
+      new URL("http://localhost/es/videos/centrolisto/flow-0-desktop.webm"),
+    );
+    const res = await proxy(req, stubEvent());
+    expect(updateSession).not.toHaveBeenCalled();
+    expect(res.headers.get("x-middleware-rewrite")).toContain(
+      "/videos/centrolisto/flow-0-desktop.webm",
+    );
+  });
+
+  it("rewrites the default favicon to the Centro Listo icon on pulsar localhost", async () => {
+    const previous = process.env.DEV_TENANT_SLUG;
+    process.env.DEV_TENANT_SLUG = "pulsar";
+    try {
+      const req = new NextRequest(new URL("http://localhost/favicon.ico"));
+      const res = await proxy(req, stubEvent());
+      expect(res.headers.get("x-middleware-rewrite")).toContain("/centrolisto/favicon.ico");
+      expect(updateSession).not.toHaveBeenCalled();
+    } finally {
+      if (previous === undefined) delete process.env.DEV_TENANT_SLUG;
+      else process.env.DEV_TENANT_SLUG = previous;
+    }
+  });
+
   it("keeps static asset exclusions in proxy path matcher", () => {
     expect(proxyPathMatcher).toContain("_next/");
     expect(proxyPathMatcher).toContain("favicon_io");
     expect(proxyPathMatcher).toContain("sw\\.js$");
     expect(proxyPathMatcher).toContain("geojson");
+    expect(proxyPathMatcher).toContain("webm");
+    expect(proxyPathMatcher).toContain("videos/");
   });
 
   it("middleware config.matcher[0] matches proxyPathMatcher export (keep both in sync)", () => {

@@ -100,6 +100,11 @@ export function LandingNagoFooter({
               </Link>
             </li>
             <li>
+              <Link href={`/${locale}/preguntas`} className="hover:text-[var(--nago-gold)]">
+                {dict.publicAnswers.footerLink}
+              </Link>
+            </li>
+            <li>
               <Link
                 href={sessionEmail ? `/${locale}/dashboard` : `/${locale}/login`}
                 className="hover:text-[var(--nago-gold)]"

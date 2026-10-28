@@ -89,6 +89,9 @@ describe("pulsarTenantStore", () => {
 
     expect(orderMock).toHaveBeenCalledTimes(1);
     expect(listTenants().map((t) => t.slug)).toEqual(["nago"]);
+    expect(listTenants()[0]?.hosts).toEqual(
+      expect.arrayContaining(["capoeiranago.cl", "nago.centrolisto.cl"]),
+    );
 
     invalidateTenantRegistryCache();
     await ensureTenantRegistryLoaded();

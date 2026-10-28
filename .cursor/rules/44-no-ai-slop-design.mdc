@@ -1,0 +1,45 @@
+---
+description: Ban generic AI design patterns (pill spam, repeated eyebrows, icon-box card grids, coarse tech-bro boxes, and pushy self-referential sales copy) and require warm, tactile, indirect storytelling and organic motion.
+alwaysApply: true
+---
+
+# Anti-AI-Slop & Indirect Storytelling Design Rules
+
+If a person can look at a screen and tell an AI generated it—or feel aggressively pitched by a coarse software brochure—the design has failed. Apply these rules to every landing page, brand surface, and new UI layout.
+
+## Absolute Bans (Match and Refuse)
+
+1. **Do not spam decorative chips or pills.** Do not render rows of non-interactive `rounded-full` badges for industries, features, or section tags.
+2. **Do not repeat uppercase tracked eyebrows on every section.** Use at most one subtle kicker on the page. Do not stack `text-xs font-bold uppercase tracking-widest` above every `<h2>`.
+3. **Do not use the 3-box hero metric template.** Do not place three identical bordered stat cards (`big number + muted label`) at the bottom of a hero section.
+4. **Do not repeat identical icon-in-a-box card grids.** Do not build section after section of `rounded-xl border p-6` cards topped with a `h-10 w-10 rounded-lg` Lucide icon square.
+5. **Do not use a Lucide icon inside a colored square as a brand logo.** Design an organic, refined custom SVG mark with fluid curves and human proportion.
+6. **Do not use red-vs-green "Before / After" confrontation boxes.** Never lecture the user with a crimson `XCircle` card next to a green `CheckCircle2` card.
+7. **Do not use coarse, heavy-handed "tech-bro" boxes (`tosco`).** Avoid thick black borders, cold developer-terminal dark blocks, and monospace jargon (`// 01 MODULE`) when the audience is human-centered (educators, directors, families, creatives). Use warm, tactile paper tones, soft contrast, and generous whitespace.
+8. **Do not write self-referential, pushy sales copy.** Do not brag about "our 12 modules", "our multi-tenant architecture", or shout "Buy now / Schedule a sales call". Use **indirect persuasion**: narrate a calm, recognizable moment in the user's day and let the product's value be felt through the scene.
+
+```tsx
+// ❌ BAD — Coarse, self-referential AI SaaS pitch
+<div className="rounded-xl border-2 border-black bg-slate-900 p-6 text-white">
+  <span className="rounded-full bg-emerald-500 px-3 py-1 text-xs">GROWTH 24/7</span>
+  <h3>Módulo de Matrículas y Cobranza Automática</h3>
+  <p>Nuestro software tiene 12 módulos para que dejes de usar Excel y cobres con Flow.</p>
+</div>
+
+// ✅ GOOD — Warm, indirect storytelling (scene first, quiet proof second)
+<article className="py-12">
+  <p className="text-sm text-[var(--color-muted-foreground)]">Domingo, 21:40</p>
+  <h3 className="mt-2 text-2xl font-medium tracking-tight text-[var(--color-foreground)]">
+    Una familia encuentra cupo y se inscribe mientras tú descansas.
+  </h3>
+  <p className="mt-3 max-w-xl text-base leading-relaxed text-[var(--color-muted-foreground)]">
+    El lunes por la mañana, la alumna ya aparece en la lista del profesor y su comprobante quedó registrado sin un solo mensaje de WhatsApp.
+  </p>
+</article>
+```
+
+## Required Spatial, Copy & Motion Craft
+
+1. **Sell the calm outcome, not the machinery.** Show how a school or center feels when administration becomes invisible: a quiet Sunday evening, a teacher who starts class on time without paper sheets, a parent who checks schedules in one tap.
+2. **Organic, quiet visual weight.** Prefer generous breathing room (`py-20` to `py-28`), warm tinted neutrals (warm alabaster / stone / sage / deep forest ink), subtle hairline dividers, and soft elevation over heavy boxes.
+3. **Fluid, unhurried motion.** Use smooth exponential deceleration (`cubic-bezier(0.22, 1, 0.36, 1)`), SVG stroke drawing, and React `<ViewTransition>` cross-fades. Never use jarring bounces or aggressive flashes. Gate all motion behind `prefers-reduced-motion: reduce`.

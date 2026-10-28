@@ -64,4 +64,46 @@ describe("JsonLdOrganization", () => {
     });
     expect(json.sameAs).toEqual(["https://fb.example"]);
   });
+
+  it("omits placeholder phone, email, and address from JSON-LD", () => {
+    mockBase.mockReturnValue("https://example.org");
+    const brand: BrandPublic = {
+      ...brandBase,
+      contactEmail: "hola@tuestudio.cl",
+      contactPhone: "+56 9 0000 0000",
+      contactAddress: "Centro urbano — reemplaza con tu dirección",
+    };
+    const { container } = render(
+      <JsonLdOrganization locale="es" brand={brand} />,
+    );
+    const script = container.querySelector("script[type='application/ld+json']");
+    const json = JSON.parse(script!.textContent!);
+    expect(json.email).toBeUndefined();
+    expect(json.telephone).toBeUndefined();
+    expect(json.address).toBeUndefined();
+  });
+
+  it("adds Liora department places without invented streets", () => {
+    mockBase.mockReturnValue("https://example.org");
+    const { container } = render(
+      <JsonLdOrganization
+        locale="es"
+        brand={brandBase}
+        templateKind="liora"
+        places={[
+          { name: "Providencia", description: "A pasos del Metro Parque Bustamante" },
+          { name: "Maipú", description: "A pasos del Metro Plaza Maipú" },
+          { name: "San Miguel", description: "A pasos del Metro San Miguel" },
+        ]}
+      />,
+    );
+    const script = container.querySelector("script[type='application/ld+json']");
+    const json = JSON.parse(script!.textContent!);
+    expect(json.department).toHaveLength(3);
+    expect(json.department[0]).toMatchObject({
+      "@type": "Place",
+      name: "Providencia",
+    });
+    expect(JSON.stringify(json.department)).not.toMatch(/streetAddress/);
+  });
 });

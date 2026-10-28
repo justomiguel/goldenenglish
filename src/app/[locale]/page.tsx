@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { PulsarLandingHome } from "@/components/organisms/pulsar/PulsarLandingHome";
 import { loadAllPulsarTenantsForAdmin } from "@/lib/pulsar/pulsarTenantStore";
+import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { LandingSurfaceGate } from "@/components/organisms/LandingSurfaceGate";
 import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
@@ -30,6 +31,7 @@ import { LandingQuestionnairesSection } from "@/components/organisms/LandingQues
 import { HomeEventPopup } from "@/components/organisms/HomeEventPopup";
 import { loadHomeEventPopup } from "@/lib/dashboard/events/loadHomeEventPopup";
 import { buildHomePageMetadata } from "@/lib/metadata/buildHomePageMetadata";
+import { taglineForLocale } from "@/lib/brand/taglineForLocale";
 import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
 import { buildResolvedPublicShareMetadata } from "@/lib/site/buildResolvedPublicShareMetadata";
 import type { SiteThemeKind } from "@/types/theming";
@@ -57,9 +59,16 @@ export async function generateMetadata({
   const { locale } = await params;
   if (await isPulsarPlatformRequest()) {
     const dict = await getDictionary(locale as AppLocale);
+    const share = await centrolistoShareMetadata({
+      title: dict.pulsar.meta.brandTagline,
+      description: dict.pulsar.meta.description,
+      siteName: dict.pulsar.meta.brandName,
+      locale,
+    });
     return {
       title: { absolute: dict.pulsar.meta.homeTitle },
       description: dict.pulsar.meta.description,
+      ...share,
     };
   }
   const { brand, dict } = await resolvePublicBrandWithSetup(locale as AppLocale);
@@ -67,6 +76,10 @@ export async function generateMetadata({
   const bundle = sharePreviewBundleKeyFromTemplateKind(theme?.theme.templateKind);
   const description =
     dict.socialShare.byKind[bundle]?.shareContext ?? dict.socialShare.homeFallback;
+  const homeTitle = buildHomePageMetadata(
+    brand.name,
+    taglineForLocale(brand, locale),
+  );
   const share = await buildResolvedPublicShareMetadata({
     what: brand.name,
     academyName: brand.name,
@@ -75,9 +88,8 @@ export async function generateMetadata({
     absoluteTitle: true,
   });
   return {
-    ...buildHomePageMetadata(brand.name),
     ...share,
-    title: { absolute: brand.name },
+    ...homeTitle,
   };
 }
 

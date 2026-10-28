@@ -11,7 +11,7 @@ import {
   setAdminUsersSortDir,
   type AdminUsersSortCriterion,
 } from "@/lib/dashboard/adminUsersSortCriteria";
-import type { SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
+import type { AdminDirectorySortKey } from "@/lib/dashboard/adminUsersSortCriteria";
 import type { Dictionary } from "@/types/i18n";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -28,7 +28,7 @@ export function AdminUsersSortChecklist({
   onChange,
 }: {
   labels: UserLabels;
-  sortKeys: SortKey[];
+  sortKeys: AdminDirectorySortKey[];
   criteria: AdminUsersSortCriterion[];
   fieldLabels?: Record<string, string>;
   onChange: (next: AdminUsersSortCriterion[]) => void;
@@ -56,14 +56,14 @@ export function AdminUsersSortChecklist({
                 aria-label={fieldLabel(labels.sortFieldLabel, index)}
                 value={criterion.key}
                 onChange={(event) =>
-                  onChange(replaceAdminUsersSortKey(criteria, index, event.target.value as SortKey))
+                  onChange(replaceAdminUsersSortKey(criteria, index, event.target.value as AdminDirectorySortKey))
                 }
                 className="min-h-11 min-w-0 flex-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
               >
                 {inList ? null : <option value={criterion.key}>{name}</option>}
                 {sortKeys.map((key) => (
                   <option key={key} value={key}>
-                    {adminUsersSortColumnLabel(labels, key)}
+                    {fieldLabels?.[key] ?? adminUsersSortColumnLabel(labels, key)}
                   </option>
                 ))}
               </select>

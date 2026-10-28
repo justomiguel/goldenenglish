@@ -16,7 +16,7 @@ import { defaultLocale, locales } from "@/lib/i18n/dictionaries";
 const localeAlternation = locales.join("|");
 
 const localeAwareStaticPathPattern =
-  "(?:(?:_next\\/.*)|(?:favicon\\.ico$)|(?:favicon_io\\/.*)|(?:images\\/.*)|(?:geo\\/.*)|(?:sw\\.js$)|(?:robots\\.txt$)|(?:sitemap\\.xml$)|(?:manifest\\.webmanifest$)|(?:.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map|geojson|webmanifest|txt|xml|woff2?|ttf|otf)$))";
+  "(?:(?:_next\\/.*)|(?:favicon\\.ico$)|(?:favicon_io\\/.*)|(?:images\\/.*)|(?:videos\\/.*)|(?:geo\\/.*)|(?:sw\\.js$)|(?:robots\\.txt$)|(?:sitemap\\.xml$)|(?:manifest\\.webmanifest$)|(?:.*\\.(?:svg|png|jpg|jpeg|gif|webp|webm|mp4|ico|css|js|map|geojson|webmanifest|txt|xml|woff2?|ttf|otf)$))";
 
 const rootStaticAssetPattern = new RegExp(
   `^\\/(?!(?:${localeAlternation})\\/)${localeAwareStaticPathPattern}`,
@@ -50,6 +50,14 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
     if (blocked) return blocked;
     const { response } = await updateSession(request);
     return response;
+  }
+
+  if (pathname === "/favicon.ico") {
+    const pulsarIcon = isPulsarRequestFromHeaderGet((name) => request.headers.get(name));
+    if (pulsarIcon) {
+      request.nextUrl.pathname = "/centrolisto/favicon.ico";
+      return NextResponse.rewrite(request.nextUrl);
+    }
   }
 
   if (rootStaticAssetPattern.test(pathname)) {

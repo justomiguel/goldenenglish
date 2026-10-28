@@ -32,6 +32,16 @@ export function parseAcademicDirectoryParams(
   return out;
 }
 
+export function academicDirectoryFilterCount(params: {
+  forEach(fn: (value: string, key: string) => void): void;
+}): number {
+  const raw: Record<string, string> = {};
+  params.forEach((value, key) => {
+    raw[key] = value;
+  });
+  return Object.keys(parseAcademicDirectoryParams(raw)).length;
+}
+
 function isColumnType(fieldType: AcademicProfileFieldType): boolean {
   return fieldType !== "file" && fieldType !== "image";
 }

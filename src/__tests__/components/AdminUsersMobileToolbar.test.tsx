@@ -79,4 +79,29 @@ describe("AdminUsersMobileToolbar", () => {
     await user.click(screen.getByRole("button", { name: `${labels.sortDirAsc}: ${labels.colEmail}` }));
     expect(onSortCriteriaChange).toHaveBeenCalledWith([{ key: "email", dir: "desc" }]);
   });
+
+  it("lists a custom academic column in the sort menu", async () => {
+    const user = userEvent.setup();
+    const fieldKey = "acf:11111111-1111-4111-8111-111111111111";
+    render(
+      <AdminUsersMobileToolbar
+        labels={labels}
+        query=""
+        onQueryChange={() => {}}
+        totalCount={1}
+        sortKey="name"
+        sortDir="asc"
+        onToggleSort={() => {}}
+        lockRole="student"
+        sortFieldLabels={{ [fieldKey]: "Level" }}
+        onSortCriteriaChange={() => {}}
+        allVisibleSelected={false}
+        onToggleSelectAllVisible={() => {}}
+        selectAllDisabled={false}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: labels.sortPanelTitle }));
+    expect(screen.getByRole("option", { name: "Level" })).toBeInTheDocument();
+  });
 });

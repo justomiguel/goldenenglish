@@ -462,6 +462,14 @@
         "Alunos e um professor celebrando provas com certificados em frente a um banner do instituto."
       ]
     },
+    "classic": {
+      "register": {
+        "shellTitle": "Pedido de inscrição",
+        "shellLead": "Estes dados são do aluno. Se for menor de idade, depois pedimos os do responsável.",
+        "figureTitle": "A sala já tem um lugar para você.",
+        "figureLead": "Deixe o documento e os dados do aluno. A equipe confirma o grupo e escreve."
+      }
+    },
     "studentGallery": {
       "title": "Nossos alunos",
       "intro": "Toque em um álbum para navegar pelas fotos das aulas e comemorações.",
@@ -717,23 +725,23 @@
         "sectionSubtitle": "Encontre-nos em"
       },
       "sede": {
-        "title": "Estúdio principal",
-        "subtitle": "Centro da cidade – substitua pelo seu endereço"
+        "title": "Estúdio em Ñuñoa",
+        "subtitle": "Tegualda 1566, Ñuñoa, Santiago"
       },
       "map": {
-        "embedSrc": "",
-        "iframeTitle": "Mapa"
+        "embedSrc": "https://maps.google.com/maps?q=Tegualda%201566%2C%20%C3%91u%C3%B1oa%2C%20Santiago%2C%20Chile&t=m&z=15&output=embed&iwloc=near",
+        "iframeTitle": "Mapa — Tegualda 1566, Ñuñoa"
       },
       "contact": {
         "title": "Contato",
         "subtitle": "Inscrições e dúvidas",
-        "phoneDisplay": "+56 9 0000 0000",
+        "phoneDisplay": "+56 9 3534 7563",
         "instagramTitle": "Instagram",
         "instagramCta": "Seguir",
-        "instagramUrl": "https://www.instagram.com/",
+        "instagramUrl": "https://www.instagram.com/espaciozenit.cl/",
         "facebookUrl": "",
         "facebookAria": "Facebook",
-        "emailPlaceholder": "olá@seuestúdio.com",
+        "emailPlaceholder": "espaciozenit.cl@gmail.com",
         "formHint": "Entre em contato com a equipe pelos canais habituais do instituto ou pelo fluxo de inscrição quando estiver habilitado."
       },
       "footer": {
@@ -1822,6 +1830,9 @@
       "inscriptions": "Cadastros públicos",
       "inscriptionsHint": "Quando desativado, o botão de inscrição fica oculto na página inicial.",
       "inscriptionsToggleTooltip": "Ative ou desative o formulário de inscrição pública para famílias que visitam o site.",
+      "registerShowAllSections": "Mostrar todas as seções",
+      "registerShowAllSectionsHint": "Se estiver ativo e houver mais de uma seção com vaga, o formulário público lista elas. Se não, a família não vê a lista e enviamos a primeira seção com vaga.",
+      "registerShowAllSectionsTooltip": "Mostra todas as seções com vaga no formulário público de inscrição.",
       "registrationCohortLabel": "Coorte para inscrições web",
       "registrationCohortHint": "Escolha qual coorte recebe as inscrições do site público. Você pode abrir o próximo ano enquanto a coorte atual segue ativa.",
       "registrationCohortCurrentBadge": "Coorte vigente: {name}",
@@ -5216,6 +5227,7 @@
     "tutorPhone": "Telefone do guardião",
     "tutorRelationship": "Relação",
     "level": "Seção",
+    "assignedSectionLine": "Você se inscreve em {section}.",
     "sectionPlaceholder": "Escolha uma seção…",
     "sectionUndecidedOption": "Não tenho certeza. Por favor, me ajude a escolher",
     "sectionUndecidedHint": "Se você escolher esta opção, a equipe irá sugerir a melhor seção quando entrar em contato com você. Você ainda pode enviar quando nenhuma seção estiver listada ainda.",
@@ -5470,6 +5482,283 @@
       "noStaff": "Não conseguimos entrar em contato com a equipe agora. Tente novamente mais tarde ou use outro canal de contato."
     }
   },
+  "publicAnswers": {
+    "footerLink": "Perguntas",
+    "pageTitle": "Perguntas que as famílias fazem",
+    "lead": "Respostas curtas sobre {{brand}}. Para um valor, um horário ou uma vaga, use o contato do site.",
+    "contactQuestion": "Como falo com o instituto?",
+    "contactLine": "Escreva para {{email}} ou ligue para {{phone}}.",
+    "contactEmailOnly": "Escreva para {{email}}.",
+    "contactPhoneOnly": "Ligue para {{phone}}.",
+    "kinds": {
+      "classic": {
+        "metaTitle": "Perguntas sobre as aulas de inglês",
+        "metaDescription": "Idades, aulas presenciais e ao vivo, níveis e preparação Cambridge.",
+        "items": [
+          {
+            "id": "age",
+            "q": "A partir de que idade é possível começar?",
+            "a": "As crianças começam a partir dos 5 anos. Os adolescentes, a partir dos 11. Os adultos também podem começar."
+          },
+          {
+            "id": "beginner",
+            "q": "Posso começar sem saber inglês?",
+            "a": "Sim. Você pode começar sem saber inglês. As crianças começam a partir dos 5 anos. Os adolescentes, a partir dos 11. Os adultos também podem começar."
+          },
+          {
+            "id": "modality",
+            "q": "As aulas são presenciais ou online?",
+            "a": "As aulas presenciais são na sede de Riacho He Hé, Formosa. As aulas remotas são ao vivo, não gravadas. Em geral são duas aulas de 60 minutos por semana. Os objetivos são os mesmos da sede."
+          },
+          {
+            "id": "live",
+            "q": "As aulas remotas são gravadas?",
+            "a": "Não. As aulas remotas são ao vivo, não gravadas. Os objetivos são os mesmos da sede."
+          },
+          {
+            "id": "groups",
+            "q": "Os grupos são pequenos?",
+            "a": "Os grupos presenciais são pequenos. Há prática oral e acompanhamento do professor. Os grupos remotos também são pequenos."
+          },
+          {
+            "id": "levels",
+            "q": "Quais níveis vocês ensinam?",
+            "a": "Os níveis seguem o Quadro Europeu Comum de Referência, de A1 a C2."
+          },
+          {
+            "id": "cambridge",
+            "q": "Vocês preparam Cambridge?",
+            "a": "Preparamos o B2 First de Cambridge."
+          },
+          {
+            "id": "national",
+            "q": "Há um certificado nacional?",
+            "a": "Há certificação nacional pelo convênio com a UTN. O instituto está inscrito com a resolução ministerial 1297/05 de Formosa."
+          },
+          {
+            "id": "where",
+            "q": "Onde fica o instituto?",
+            "a": "{{brand}} dá aulas em Riacho He Hé, Formosa, desde 2005."
+          },
+          {
+            "id": "enroll",
+            "q": "Como me inscrevo?",
+            "a": "Use a página de inscrição do site. Para um horário ou um valor, use o formulário de contato."
+          }
+        ]
+      },
+      "mozarthitos": {
+        "metaTitle": "Perguntas sobre as aulas de música inicial",
+        "metaDescription": "Idade de início, duração da sessão, método Mago Diapasón e sede em Las Condes.",
+        "items": [
+          {
+            "id": "age",
+            "q": "A partir de que idade um bebê pode começar?",
+            "a": "As sessões começam a partir dos 6 meses de vida."
+          },
+          {
+            "id": "length",
+            "q": "Quanto tempo dura uma sessão?",
+            "a": "Cada sessão dura 30 minutos. A partir dos 3 anos as crianças começam a seguir partituras."
+          },
+          {
+            "id": "method",
+            "q": "Qual método vocês usam?",
+            "a": "Usamos o método Mago Diapasón, criado por Paqui Castro. O conto é «Viajando al país de la música». As crianças trabalham canto, jogo e percussão."
+          },
+          {
+            "id": "musician",
+            "q": "A aula é só para futuros músicos?",
+            "a": "A aula é educação musical para bebês e crianças pequenas. Também trabalha memória, criatividade, atenção e habilidades sociais."
+          },
+          {
+            "id": "where",
+            "q": "Onde são as sessões presenciais?",
+            "a": "A sede presencial fica em Las Condes, República Árabe de Egipto 670."
+          },
+          {
+            "id": "online",
+            "q": "Há modalidade online?",
+            "a": "O site oferece modalidade online na seção de cursos."
+          },
+          {
+            "id": "enroll",
+            "q": "Como reservo uma vaga?",
+            "a": "Reserve sua vaga pela inscrição do site ou pelo contato publicado."
+          }
+        ]
+      },
+      "espaciozenit": {
+        "metaTitle": "Perguntas sobre as aulas de dança",
+        "metaDescription": "Ballet, Hip Hop for Kids, grupos por idade e como reservar uma aula.",
+        "items": [
+          {
+            "id": "styles",
+            "q": "Quais estilos de dança vocês ensinam?",
+            "a": "Ensinamos balé clássico e Hip Hop for Kids."
+          },
+          {
+            "id": "groups",
+            "q": "Como os grupos são formados?",
+            "a": "Os grupos são semanais e se formam por idade e nível. A equipe confirma o grupo quando você escreve."
+          },
+          {
+            "id": "experience",
+            "q": "Preciso de experiência anterior?",
+            "a": "Não. O grupo se forma por idade e nível."
+          },
+          {
+            "id": "trial",
+            "q": "Posso reservar uma aula?",
+            "a": "As inscrições ficam abertas o ano todo. Você pode reservar uma aula."
+          },
+          {
+            "id": "firstclass",
+            "q": "O que levo na primeira aula?",
+            "a": "Use roupa confortável. O estúdio indica o figurino se você continuar."
+          },
+          {
+            "id": "shows",
+            "q": "Há apresentações?",
+            "a": "O estúdio faz apresentações e eventos."
+          },
+          {
+            "id": "families",
+            "q": "O estúdio é pensado para crianças e famílias?",
+            "a": "As aulas são com professores dedicados, em um ambiente pensado para as famílias."
+          },
+          {
+            "id": "contact",
+            "q": "Onde fica o estúdio?",
+            "a": "O estúdio fica em Tegualda 1566, Ñuñoa, Santiago. Para o horário ou o valor, use o formulário de contato."
+          }
+        ]
+      },
+      "nago": {
+        "metaTitle": "Perguntas sobre as aulas de capoeira",
+        "metaDescription": "Experiência, idades, música e esporte, e como agendar uma aula em Santiago e regiões.",
+        "items": [
+          {
+            "id": "experience",
+            "q": "Preciso de experiência anterior?",
+            "a": "Você não precisa de experiência anterior."
+          },
+          {
+            "id": "ages",
+            "q": "Quais idades podem treinar?",
+            "a": "Crianças de 4 a 12 anos, jovens de 13 a 17, adultos a partir dos 18 e adultos mais velhos a partir dos 55."
+          },
+          {
+            "id": "whojoins",
+            "q": "As aulas são só para meninos?",
+            "a": "Não. Entram meninas, meninos, jovens e adultos. A aula junta esporte, música e cultura."
+          },
+          {
+            "id": "more",
+            "q": "A capoeira é só uma luta?",
+            "a": "A aula junta esporte, movimento, disciplina, música e cultura."
+          },
+          {
+            "id": "who",
+            "q": "Quem conduz as aulas?",
+            "a": "Mestre Fagulha conduz o grupo. Ele tem formação brasileira e mais de 20 anos de capoeira no Chile."
+          },
+          {
+            "id": "where",
+            "q": "Onde vocês treinam?",
+            "a": "O grupo trabalha em Santiago e em regiões."
+          },
+          {
+            "id": "book",
+            "q": "Como agendo uma aula?",
+            "a": "Você pode agendar uma aula ou pedir uma aula experimental pelo site."
+          }
+        ]
+      },
+      "mimundo": {
+        "metaTitle": "Perguntas sobre o jardim",
+        "metaDescription": "Idades, abordagem Reggio Emilia e Pikler, sede em Resistencia e colônia de férias.",
+        "items": [
+          {
+            "id": "ages",
+            "q": "A partir de que idade e até que idade vocês recebem crianças?",
+            "a": "Acompanhamos dos 45 dias até os 5 anos."
+          },
+          {
+            "id": "approach",
+            "q": "Qual abordagem vocês seguem?",
+            "a": "A proposta se inspira em Reggio Emilia e Pikler. Há arte, natureza, música, iniciação à leitura e movimento livre."
+          },
+          {
+            "id": "where",
+            "q": "Onde fica o jardim?",
+            "a": "O jardim fica na Av. Avalos 555, Resistencia, Chaco."
+          },
+          {
+            "id": "colony",
+            "q": "Há colônia de férias?",
+            "a": "Nas férias escolares há colônia para crianças de 3 a 12 anos, jornada completa ou meio período. As datas e os valores são publicados a cada temporada."
+          },
+          {
+            "id": "team",
+            "q": "Quem acompanha as crianças?",
+            "a": "A equipe tem mais de 20 profissionais de primeira infância, psicologia educacional, música e artes."
+          },
+          {
+            "id": "reserve",
+            "q": "Como reservo uma vaga?",
+            "a": "Você pode reservar uma vaga pelo site."
+          }
+        ]
+      },
+      "liora": {
+        "metaTitle": "Perguntas sobre as aulas de balé",
+        "metaDescription": "Idades, adultos que retomam, três sedes junto ao metrô em Santiago, sábados e aula experimental.",
+        "items": [
+          {
+            "id": "ages",
+            "q": "Quais idades vocês ensinam?",
+            "a": "Pre Ballet é dos 3 aos 5 anos. Ballet Infantil é dos 6 aos 9. Ballet Juvenil é dos 10 aos 14. Ballet Adulto começa a partir dos 15."
+          },
+          {
+            "id": "adults",
+            "q": "Um adulto pode começar ou retomar o balé?",
+            "a": "Ballet Adulto é para quem começa e para quem retoma. O ritmo respeita o corpo."
+          },
+          {
+            "id": "sites",
+            "q": "Onde ficam as sedes?",
+            "a": "Há três sedes em Santiago, junto ao metrô: Providencia (Parque Bustamante), Maipú (Plaza Maipú) e San Miguel."
+          },
+          {
+            "id": "day",
+            "q": "Em que dia são as aulas publicadas?",
+            "a": "Os horários publicados são aos sábados. Se você busca outro dia, escreva para o estúdio."
+          },
+          {
+            "id": "trial",
+            "q": "Posso fazer uma aula experimental?",
+            "a": "Você pode pedir uma aula experimental. A equipe confirma a sede, o horário e o nível."
+          },
+          {
+            "id": "uniform",
+            "q": "Compro o uniforme antes de ir?",
+            "a": "Não. Primeiro peça a aula experimental. O estúdio indica o uniforme."
+          },
+          {
+            "id": "competitive",
+            "q": "As apresentações são competitivas?",
+            "a": "Há apresentações anuais para a família, sem pressão competitiva."
+          },
+          {
+            "id": "groups",
+            "q": "Os grupos são pequenos?",
+            "a": "As vagas são limitadas, com correção individual."
+          }
+        ]
+      }
+    }
+  },
   "privacy": {
     "metaTitle": "Privacidade e termos",
     "metaDescription": "Como o instituto cuida dos dados das famílias na pré-inscrição e na aula experimental.",
@@ -5606,6 +5895,9 @@
       "mobileSelect": "Seção",
       "mobileOpen": "Abrir menu",
       "mobileClose": "Fechar menu",
+      "mobileMenuTitle": "Menu",
+      "mobileMenuSearch": "Buscar",
+      "mobileMenuEmpty": "Nenhum destino corresponde.",
       "pwaTabBarAria": "Navegação rápida da administração",
       "pwaTabHome": "Início",
       "pwaTabRegistrations": "Admissões",
@@ -12082,6 +12374,489 @@
       "catalogLink": "Loja",
       "ordersLink": "Encomendas",
       "studentLead": "Encomendas atribuídas a ti para levantamento no instituto."
+    }
+  },
+  "pulsar": {
+    "meta": {
+      "brandName": "CentroListo",
+      "brandTagline": "Para quem abriu uma escola por amor a ensinar",
+      "homeTitle": "CentroListo.cl — Quando a administração fica quieta, a escola volta a ensinar",
+      "productoTitle": "O ofício por trás da calma",
+      "clientesTitle": "Escolas e comunidades",
+      "contactoTitle": "Conversar sem pressa",
+      "adminTitle": "Control Plane — CentroListo",
+      "description": "Um lugar próprio para a sua escola, onde as famílias conhecem a proposta, reservam o horário, acompanham os filhos e ficam em dia sem conversas de madrugada nem planilhas."
+    },
+    "nav": {
+      "home": "O dia",
+      "product": "Como funciona",
+      "clients": "Escolas",
+      "contact": "Conversar",
+      "admin": "Control Plane",
+      "cta": "Conversar sobre a sua escola",
+      "footerTagline": "Feito para diretores, docentes e fundadores que querem recuperar as tardes e cuidar do vínculo com cada família.",
+      "footerPrivacyBadge": "Arquitetura com banco de dados 100% isolado por instituição · Preparada para a Lei 21.719 (Chile)",
+      "footerRights": "CentroListo.cl · Infraestrutura dedicada e software de crescimento para academias, centros e institutos."
+    },
+    "home": {
+      "eyebrow": "Para quem abriu uma escola por amor a ensinar, não por amor às planilhas",
+      "title": "Quando a administração deixa de fazer barulho, a sua escola volta a ter tempo para o que importa.",
+      "lead": "Um lugar próprio onde uma família descobre a sua proposta no domingo à noite, escolhe o horário sem esperar no telefone, acompanha o caminho dos filhos e mantém os pagamentos em dia sem conversas desconfortáveis.",
+      "primaryCta": "Conversar sobre a sua escola",
+      "secondaryCta": "Percorrer como funciona por dentro",
+      "generativeStage": {
+        "noiseCaption": "mensagens fora de hora · planilhas soltas · comprovantes pendentes",
+        "resolvedCaption": "tudo em seu lugar",
+        "replayLabel": "Desenrolar o traço novamente"
+      },
+      "verticals": [
+        "Institutos de idiomas",
+        "Escolas de dança, música e artes",
+        "Academias esportivas e dojos",
+        "Educação infantil e contraturno",
+        "Centros terapêuticos e psicopedagogia",
+        "OTEC e centros de capacitação"
+      ],
+      "stats": {
+        "tenantsLabel": "Instituições operando ao vivo",
+        "isolationValue": "100% isolado",
+        "isolationLabel": "Banco de dados Supabase exclusivo por centro",
+        "edgeValue": "4 portais",
+        "edgeLabel": "Site público, Direção, Docente e App Família sincronizados"
+      },
+      "portals": {
+        "eyebrow": "Crônica de uma semana em calma",
+        "title": "Quatro momentos em que você nota que o emaranhado desapareceu",
+        "lead": "Escolha um momento da semana para ver como vive quem dirige, quem ensina e a família que acompanha de casa.",
+        "modulesBadge": "O que acontece em silêncio por trás",
+        "videoSurfaceDesktop": "Computador",
+        "videoSurfaceMobile": "Celular PWA",
+        "tabs": [
+          {
+            "id": "sunday-night",
+            "label": "Domingo, 21:40",
+            "badge": "Na sua casa",
+            "headline": "Uma família encontra vaga e se inscreve enquanto você descansa.",
+            "description": "Antes, o domingo à noite significava responder áudios sobre horários, preços e vagas. Agora a família percorre a sua página, vê os lugares disponíveis e reserva a vaga ou a aula experimental sem interromper o seu jantar.",
+            "bullets": [
+              "A vaga da turma se desconta sozinha e um horário nunca é vendido duas vezes.",
+              "A família recebe na hora a boas-vindas com o nome e a voz da sua escola.",
+              "Na segunda de manhã, o novo aluno já aparece na lista do professor."
+            ],
+            "modules": [
+              "Página editorial da sua escola",
+              "Reserva de aula experimental e horários ao vivo",
+              "Links diretos para compartilhar no WhatsApp"
+            ]
+          },
+          {
+            "id": "tuesday-class",
+            "label": "Terça, 16:58",
+            "badge": "Antes da aula",
+            "headline": "O professor entra na sala para ensinar, não para preencher papéis.",
+            "description": "Dois minutos antes de começar, quem ensina abre o telefone, toca os nomes de quem chegou e guarda a frequência em segundos. Se alguém faltou, a família recebe um aviso calmo sem a secretaria ligar um a um.",
+            "bullets": [
+              "Lista de frequência clara no celular ou no computador da sala.",
+              "Materiais da semana, tarefas e práticas prontas para cada grupo.",
+              "Reconhecimentos e insígnias que o aluno pode mostrar em casa."
+            ],
+            "modules": [
+              "Frequência rápida por turma",
+              "Trilhas de aprendizagem, tarefas e práticas",
+              "Insígnias de avanço para cada estudante"
+            ]
+          },
+          {
+            "id": "fifth-day",
+            "label": "Dia 5 do mês",
+            "badge": "Pela manhã",
+            "headline": "Você nunca mais precisa escrever para uma família lembrar um pagamento.",
+            "description": "Cobrar numa escola costuma ser a parte mais ingrata do ofício. Quando os avisos saem no tempo certo e cada responsável pode pagar do telefone ou enviar a transferência num toque, a conversa na porta volta a ser sobre aprender.",
+            "bullets": [
+              "Pagamento direto com Flow ou Mercado Pago, ou revisão simples de transferências.",
+              "Bolsas familiares, irmãos e descontos sem contas manuais.",
+              "Cada família baixa o comprovante assinado quando precisa."
+            ],
+            "modules": [
+              "Pagamentos online e conciliação calma",
+              "Bolsas familiares e irmãos",
+              "Recibos assinados na hora"
+            ]
+          },
+          {
+            "id": "friday-evening",
+            "label": "Sexta, 19:15",
+            "badge": "Na família",
+            "headline": "A sua escola vive no telefone de cada família com o seu próprio escudo.",
+            "description": "As famílias não entram num diretório alheio cheio de outras academias. Instalam o acesso direto com o ícone e as cores do seu centro, consultam o calendário, reservam ingressos da mostra anual ou pedem o uniforme.",
+            "bullets": [
+              "Um pai ou mãe com dois ou três filhos muda de perfil com um toque.",
+              "Ingressos de mostras, oficinas de fim de semana e loja de materiais no mesmo lugar.",
+              "Lembretes pontuais por WhatsApp, e-mail e avisos no celular."
+            ],
+            "modules": [
+              "Aplicativo instalável (PWA) com o seu escudo",
+              "Agenda de mostras, oficinas e loja",
+              "Avisos por WhatsApp e calendário sincronizado"
+            ]
+          }
+        ]
+      },
+      "beforeAfter": {
+        "eyebrow": "A mudança silenciosa",
+        "title": "Passar de sustentar tudo na cabeça a sentir que a escola caminha com você",
+        "lead": "Não se trata de somar mais telas, e sim de soltar as tarefas repetidas que tiram energia para acompanhar alunos e docentes.",
+        "beforeTitle": "Quando tudo depende de estar em cima",
+        "beforeItems": [
+          "Responder as mesmas perguntas de horários e mensalidades dezenas de vezes por semana.",
+          "Cruzar à mão comprovantes soltos do WhatsApp contra uma planilha no fim do mês.",
+          "Usar agendas pensadas para salões que não entendem um grupo anual nem uma família com vários filhos.",
+          "Ter a informação sensível dos alunos espalhada em ferramentas desconectadas."
+        ],
+        "afterTitle": "Quando cada coisa encontra o seu curso",
+        "afterItems": [
+          "Quem busca a sua escola compreende a proposta, vê horários reais e se inscreve com calma.",
+          "Os pagamentos, bolsas de irmãos e recibos se ordenam sozinhos sem desgastar a relação com os pais.",
+          "Os grupos, níveis, frequências e avanços acompanham o ritmo pedagógico real do seu centro.",
+          "Toda a memória da sua instituição vive numa base de dados exclusiva sob o seu próprio nome."
+        ]
+      },
+      "pillarsTitle": "Três silêncios que cuidam do que você construiu",
+      "pillarsLead": "Por trás de uma experiência simples para as famílias há decisões de ofício pensadas para proteger a identidade e a tranquilidade da sua instituição.",
+      "pillar1Title": "A sua própria casa digital, nunca um terreno emprestado",
+      "pillar1Body": "Cada instituição tem a sua própria base de dados isolada. Os dados dos seus alunos e menores jamais se misturam com os de outras empresas.",
+      "pillar2Title": "A sua identidade em cada detalhe, na web e no telefone",
+      "pillar2Body": "Quem entra vê o seu domínio, a sua estética, as suas palavras e o ícone da sua escola na tela inicial. O CentroListo permanece invisível atrás da sua marca.",
+      "pillar3Title": "Um só fio desde o primeiro cumprimento até o último dia do ano",
+      "pillar3Body": "A página pública, as aulas experimentais, os grupos, a frequência do professor, as tarefas, as mostras com ingressos e as mensalidades conversam em silêncio entre si.",
+      "bottomCta": {
+        "title": "Gostaria de ver como a sua escola se sentiria com tudo no seu lugar?",
+        "lead": "Podemos conversar meia hora sem compromisso, ouvir como você organiza hoje os grupos e mostrar ao vivo como funcionaria com a identidade do seu centro.",
+        "primaryCta": "Escrever para conversar",
+        "secondaryCta": "Ver em detalhe como funciona"
+      }
+    },
+    "product": {
+      "eyebrow": "O ofício por trás da calma",
+      "title": "Doze peças que trabalham em silêncio para que você só precise dirigir e ensinar",
+      "lead": "Você não precisa aprender doze programas distintos. Tudo faz parte de um mesmo espaço sereno que acompanha a vida cotidiana da sua escola.",
+      "stages": {
+        "stage1": "1. Atração e Presença Digital",
+        "stage2": "2. Admissão e Conversão 24/7",
+        "stage3": "3. Vida Acadêmica e Comunidade",
+        "stage4": "4. Finanças, Loja e Nuvem Dedicada"
+      },
+      "m1Title": "Site público editorial e CMS visual",
+      "m1Body": "Templates de alto impacto por segmento, edição de blocos, galerias otimizadas e suporte nativo em espanhol, inglês e português.",
+      "m2Title": "Eventos públicos e venda de ingressos",
+      "m2Body": "Publique seminários, mostras ou oficinas gratuitas e pagas com limite de vagas, popups promocionais e suporte a dupla conta bancária.",
+      "m3Title": "Blog institucional SEO e pesquisas",
+      "m3Body": "Artigos com tags, metadados OpenGraph automáticos, sitemaps dinâmicos e questionários públicos para captar leads.",
+      "m4Title": "Aulas experimentais e funil de admissão",
+      "m4Body": "Permita agendar aulas experimentais conforme disponibilidade real e converta o candidato em aluno regular com um clique.",
+      "m5Title": "Matrícula online e links por turma",
+      "m5Body": "Links curtos (/i/turma e /matricula/slug) prontos para compartilhar no WhatsApp ou Instagram com validação instantânea de vagas.",
+      "m6Title": "Coortes, turmas e matriz de frequência",
+      "m6Body": "Organize anos letivos, turnos, horários e feriados. Registre frequência em segundos de qualquer dispositivo.",
+      "m7Title": "Trilhas de aprendizagem, tarefas e mini-testes",
+      "m7Body": "Estruture conteúdos pedagógicos, entregas de tarefas com feedback docente, avaliações digitais e insígnias compartilháveis.",
+      "m8Title": "App móvel PWA para famílias e alunos",
+      "m8Body": "Experiência nativa instalável no iOS e Android: o responsável alterna entre vários filhos, consulta horários, notas e paga em segundos.",
+      "m9Title": "Cobrança com Flow, Mercado Pago e transferências",
+      "m9Body": "Arrecadação online automatizada, revisão de comprovantes bancários, bolsas familiares, cupons de desconto e recibos assinados.",
+      "m10Title": "Loja escolar de uniformes e materiais",
+      "m10Body": "Catálogo integrado com controle de estoque por tamanho/cor, pagamento online e fluxo de retirada no instituto.",
+      "m11Title": "WhatsApp automático, E-mail e Web Push",
+      "m11Body": "Lembretes automáticos de aulas via WhatsApp Cloud API, campanhas segmentadas e avisos push no celular.",
+      "m12Title": "Banco isolado, auditoria, retenção e tours",
+      "m12Body": "Projeto Supabase dedicado por cliente, alertas automáticos de inatividade (churn), log de auditoria e tutoriais interativos.",
+      "comparison": {
+        "eyebrow": "COMPARATIVO DE MERCADO 2026",
+        "title": "Por que o CentroListo supera as alternativas tradicionais",
+        "lead": "Compare o que você obtém com o CentroListo frente a juntar ferramentas separadas ou usar softwares feitos para outro segmento.",
+        "colFeature": "Capacidade essencial para o seu centro",
+        "colCentroListo": "CentroListo.cl",
+        "colSchedulers": "Agendadores de horários (Spa / Gym)",
+        "colSchoolErp": "Sistemas escolares (K-12)",
+        "colSpreadsheets": "WordPress + Excel + WhatsApp",
+        "rows": [
+          {
+            "feature": "Site institucional + CMS + Blog SEO + Eventos com ingressos",
+            "centroListo": "Incluído e conectado às vagas reais",
+            "schedulers": "Apenas página básica de reserva",
+            "schoolErp": "Sem site comercial nem eventos",
+            "spreadsheets": "Separado, lento e sem sincronia"
+          },
+          {
+            "feature": "Matrícula por turma, links diretos (/i/...) e aulas experimentais",
+            "centroListo": "Fluxo completo 24/7 por horário e nível",
+            "schedulers": "Pensado para sessões avulsas",
+            "schoolErp": "Admissão anual rígida",
+            "spreadsheets": "Formulários manuais e copiar/colar"
+          },
+          {
+            "feature": "Portal de responsáveis multi-filhos + App PWA com o seu logo",
+            "centroListo": "App PWA próprio com o ícone do seu centro",
+            "schedulers": "App genérico compartilhado com concorrentes",
+            "schoolErp": "Portal escolar sem foco comercial nem loja",
+            "spreadsheets": "Inexistente (tudo por chat)"
+          },
+          {
+            "feature": "Trilhas de aprendizagem, tarefas, mini-testes e insígnias",
+            "centroListo": "Incluído para motivar e medir avanço",
+            "schedulers": "Sem módulos pedagógicos",
+            "schoolErp": "Foco curricular escolar rígido",
+            "spreadsheets": "PDFs soltos por e-mail"
+          },
+          {
+            "feature": "Pagamentos com Flow, Mercado Pago, bolsas familiares e loja",
+            "centroListo": "Integrado com conciliação e recibos",
+            "schedulers": "Cobrança de sessões sem bolsas familiares",
+            "schoolErp": "Módulos financeiros caros e complexos",
+            "spreadsheets": "Conferência manual de transferências"
+          },
+          {
+            "feature": "Lembretes automáticos por WhatsApp, E-mail e Web Push",
+            "centroListo": "Automatizado conforme horário da turma",
+            "schedulers": "Lembrete básico de consulta individual",
+            "schoolErp": "Comunicados gerais sem WhatsApp de aula",
+            "spreadsheets": "Mensagens enviadas uma a uma à mão"
+          },
+          {
+            "feature": "Banco de dados 100% isolado por instituição (padrão Lei 21.719)",
+            "centroListo": "Projeto Supabase exclusivo por cliente",
+            "schedulers": "Banco multi-tenant compartilhado",
+            "schoolErp": "Banco multi-tenant compartilhado",
+            "spreadsheets": "Planilhas vulneráveis sem auditoria"
+          }
+        ]
+      }
+    },
+    "clients": {
+      "eyebrow": "ECOSSISTEMA EM PRODUÇÃO",
+      "title": "Instituições que já operam e crescem com o CentroListo",
+      "lead": "De escolas culturais e estúdios de dança a centros infantis e institutos de idiomas com operação ativa todos os dias.",
+      "visitSite": "Visitar site ao vivo",
+      "visitSiteNamed": "Visitar o site de {name}",
+      "activeBadge": "Operando ao vivo",
+      "hostsLabel": "Domínio institucional",
+      "verticalsEyebrow": "PROJETADO PARA INSTITUIÇÕES QUE ENSINAM E FORMAM COMUNIDADE",
+      "verticalsTitle": "Um motor adaptável à realidade do seu segmento",
+      "verticalsLead": "Configuramos a terminologia, os templates visuais, as regras de maioridade e os fluxos de cobrança conforme o tipo de instituição.",
+      "verticals": [
+        {
+          "title": "Institutos de idiomas e centros acadêmicos",
+          "body": "Níveis, coortes anuais ou semestrais, trilhas de aprendizagem, mini-testes diagnósticos, insígnias certificáveis e cobrança mensal automatizada.",
+          "highlight": "Ideal para inglês, idiomas, pré-vestibulares e reforço escolar"
+        },
+        {
+          "title": "Escolas de dança, música e artes cênicas",
+          "body": "Matrícula por horários e estilos, aulas experimentais, venda de ingressos para mostras ou espetáculos e loja de figurinos.",
+          "highlight": "Ideal para academias de dança, conservatórios e teatro"
+        },
+        {
+          "title": "Academias de artes marciais, esportes e dojos",
+          "body": "Controle de frequência rápido pelo celular, graduações com insígnias digitais, seminários especiais e venda de uniformes.",
+          "highlight": "Ideal para capoeira, artes marciais, tênis, natação e clubes"
+        },
+        {
+          "title": "Educação infantil, jardins e contraturno escolar",
+          "body": "Portal de responsáveis com gestão multi-filhos, validação de adultos autorizados, comunicados seguros, galeria editorial e calendário.",
+          "highlight": "Ideal para jardins de infância, creches e oficinas infantis"
+        },
+        {
+          "title": "Centros terapêuticos, bem-estar e formação integral",
+          "body": "Site acolhedor, inscrição em oficinas e ciclos em grupo, acompanhamento personalizado de participantes e lembretes por WhatsApp.",
+          "highlight": "Ideal para centros integrais, yoga, mindfulness e psicopedagogia"
+        },
+        {
+          "title": "OTEC, escolas profissionalizantes e capacitação",
+          "body": "Programas estruturados por módulos, controle rigoroso de frequência e avaliações, trilha de auditoria e banco de dados isolado.",
+          "highlight": "Ideal para capacitação profissional e formação técnica"
+        }
+      ]
+    },
+    "contact": {
+      "eyebrow": "IMPLANTAÇÃO GUIADA",
+      "title": "Deixe o seu centro pronto para operar em dias, não em meses",
+      "lead": "Não entregamos um login vazio para você descobrir sozinho. A nossa equipe ativa a sua infraestrutura dedicada, importa o seu catálogo inicial e configura o seu site e meios de pagamento.",
+      "stepsEyebrow": "PROCESSO DE ATIVAÇÃO EM 3 PASSOS",
+      "stepsTitle": "Como levamos a sua instituição para o CentroListo.cl",
+      "steps": [
+        {
+          "step": "Passo 1 · 25 min",
+          "title": "Demo ao vivo e diagnóstico da sua operação",
+          "body": "Revisamos como você capta alunos hoje, como organiza horários e como cobra, mostrando os 4 portais ao vivo."
+        },
+        {
+          "step": "Passo 2 · 48 a 72 hrs",
+          "title": "Ativação da sua nuvem dedicada e marca",
+          "body": "Criamos o seu projeto Supabase isolado, conectamos o seu domínio próprio, aplicamos a sua identidade visual e configuramos Flow ou Mercado Pago."
+        },
+        {
+          "step": "Passo 3 · Lançamento",
+          "title": "Importação de alunos e decolagem assistida",
+          "body": "Importamos as suas turmas e alunos atuais por CSV e a sua equipe conta com tutoriais interativos dentro do painel desde o primeiro dia."
+        }
+      ],
+      "emailLabel": "E-mail direto da equipe",
+      "emailValue": "contacto@centrolisto.cl",
+      "emailCta": "Escrever por e-mail",
+      "whatsappLabel": "Atendimento comercial rápido",
+      "whatsappValue": "Agende a sua demo ou tire dúvidas pelo WhatsApp",
+      "whatsappHref": "https://wa.me/56900000000?text=Ol%C3%A1%2C%20quero%20conhecer%20o%20CentroListo.cl",
+      "whatsappCta": "Falar no WhatsApp",
+      "checklistTitle": "O que inclui a implantação chave na mão da sua instituição",
+      "check1": "Projeto Supabase 100% dedicado (Postgres, Auth, Storage e backups exclusivos).",
+      "check2": "Domínio próprio conectado ao cluster do CentroListo sem esperas nem redeploys.",
+      "check3": "Configuração de identidade visual, e-mail transacional Resend e meios de pagamento (Flow / Mercado Pago / Transferências).",
+      "check4": "App móvel PWA instalável com o nome e ícone oficial do seu centro.",
+      "check5": "Tutoriais interativos passo a passo integrados no painel para diretores, docentes e famílias.",
+      "faqTitle": "Perguntas frequentes de diretores e fundadores",
+      "faqs": [
+        {
+          "q": "Quanto tempo leva para ter o meu centro operando no CentroListo.cl?",
+          "a": "A infraestrutura técnica e o seu domínio ficam ativos em menos de 24 horas. Com os seus logos, horários e dados de pagamento, a implantação completa leva entre 3 e 5 dias úteis."
+        },
+        {
+          "q": "Os meus alunos e responsáveis veem a marca CentroListo ou a marca da minha academia?",
+          "a": "Eles veem 100% a marca da sua instituição: o seu domínio web, o seu logo, as suas cores, o seu remetente de e-mail e o ícone da sua academia ao instalar o App PWA."
+        },
+        {
+          "q": "E se eu já tiver alunos ativos no meio do ano?",
+          "a": "Temos um importador em massa inteligente por CSV e ferramentas de matrícula que permitem migrar coortes, turmas, alunos e responsáveis sem interromper as aulas."
+        },
+        {
+          "q": "Por que é tão importante que o meu banco de dados seja isolado?",
+          "a": "Porque a sua lista de alunos, dados de menores e registros financeiros não se misturam nas mesmas tabelas com outras empresas. Você tem soberania total, backups próprios e alinhamento técnico com a Lei 21.719."
+        }
+      ]
+    },
+    "admin": {
+      "eyebrow": "CENTROLISTO CONTROL PLANE",
+      "title": "Administração de tenants",
+      "lead": "Monitoramento ao vivo de disponibilidade, tráfego (7 e 30 dias) e credenciais por instituto.",
+      "newTenantCta": "Novo tenant",
+      "editTenantCta": "Editar",
+      "backToFleet": "Voltar à lista",
+      "signOut": "Sair",
+      "devModeBanner": "Modo de desenvolvimento local ativo. Configure PULSAR_SUPABASE_URL e PULSAR_SUPABASE_SERVICE_ROLE_KEY para persistir no banco do CentroListo.",
+      "pulsarDbBanner": "Conectado ao banco de controle do CentroListo (alterações ativas sem redeploy).",
+      "summary": {
+        "totalTenants": "Tenants configurados",
+        "onlineTenants": "Online (DB ativa)",
+        "visits7d": "Visitas últimos 7 dias",
+        "visits30d": "Visitas últimos 30 dias"
+      },
+      "platformHosts": {
+        "title": "Domínios do CentroListo (platform_settings)",
+        "lead": "Estes domínios servem o site e o painel do CentroListo sem redeploy.",
+        "inputLabel": "Domínios ativos do CentroListo (separados por vírgula)",
+        "saveCta": "Salvar domínios",
+        "saving": "Salvando...",
+        "savedNotice": "Domínios do CentroListo atualizados no banco de dados e em memória."
+      },
+      "table": {
+        "tenant": "Instituto",
+        "hosts": "Domínios",
+        "status": "Status DB",
+        "visits7d": "Visitas (7d)",
+        "visits30d": "Visitas (30d)",
+        "lastHit": "Última visita",
+        "actions": "Ações",
+        "statusOnline": "Online",
+        "statusError": "Erro",
+        "statusDisabled": "Desativado",
+        "noHits": "Sem registros",
+        "openPublicSite": "Abrir site",
+        "enableAction": "Ativar",
+        "disableAction": "Pausar"
+      },
+      "login": {
+        "title": "Acesso ao CentroListo Control Plane",
+        "lead": "Acesso exclusivo para contas registradas em platform_staff do CentroListo.",
+        "emailLabel": "E-mail",
+        "passwordLabel": "Senha",
+        "submit": "Entrar no painel",
+        "submitting": "Verificando...",
+        "notConfigured": "PULSAR_SUPABASE_URL não está configurado neste ambiente.",
+        "unauthorized": "A sua conta não pertence à equipe de staff do CentroListo.",
+        "invalidCredentials": "Credenciais inválidas. Verifique o seu e-mail e senha."
+      },
+      "password": {
+        "title": "Altere a sua senha",
+        "lead": "Esta senha é temporária. Escolha uma nova antes de acessar o painel.",
+        "newPasswordLabel": "Nova senha",
+        "confirmPasswordLabel": "Confirme a nova senha",
+        "submit": "Salvar senha",
+        "submitting": "Salvando...",
+        "tooShort": "Use pelo menos 8 caracteres.",
+        "mismatch": "As senhas não coincidem.",
+        "errors": {
+          "unauthorized": "A sua sessão não é válida. Faça login novamente.",
+          "not_required": "Esta conta já possui uma senha definitiva.",
+          "too_short": "Use pelo menos 8 caracteres.",
+          "update_failed": "Não foi possível alterar a senha. Tente novamente."
+        }
+      },
+      "form": {
+        "createTitle": "Adicionar novo tenant",
+        "editTitle": "Editar tenant",
+        "lead": "Ao salvar, o cache de registro é atualizado imediatamente sem redeploy na Vercel.",
+        "saveCta": "Salvar tenant",
+        "saving": "Salvando...",
+        "testConnectionCta": "Testar conexão com Supabase",
+        "testingConnection": "Testando...",
+        "testOk": "Conexão bem-sucedida com o projeto Supabase",
+        "testFail": "Não foi possível conectar ao projeto Supabase",
+        "savedNotice": "Tenant salvo e registro atualizado em memória.",
+        "sectionIdentity": "Identidade e domínios",
+        "sectionSupabase": "Projeto Supabase do instituto",
+        "sectionEmail": "E-mail transacional (Resend)",
+        "sectionPaymentsKv": "Criptografia de pagamentos e KV / Redis",
+        "sectionIntegrations": "WhatsApp, Web Push VAPID e Google Maps",
+        "fields": {
+          "slug": "Slug do tenant (ex. nago, liora)",
+          "displayName": "Nome visível do instituto",
+          "isEnabled": "Tenant habilitado para receber tráfego",
+          "hosts": "Domínios (separados por vírgula ou quebra de linha)",
+          "publicUrl": "URL pública canônica (https://...)",
+          "brandThemeSlug": "Slug do tema em site_themes (opcional)",
+          "skipInitialSiteSetup": "Pular assistente de configuração inicial",
+          "debugLogin": "Ativar logs de depuração de login no navegador",
+          "supabaseUrl": "Supabase URL (https://xxx.supabase.co)",
+          "supabaseAnonKey": "Supabase Anon / Publishable Key",
+          "supabaseServiceRoleKey": "Supabase Service Role Key (segredo do servidor)",
+          "databaseUrl": "Postgres Database URL (opcional, para migrações CLI)",
+          "mailTenant": "Domínio de e-mail interno (mailTenant)",
+          "resendFromEmail": "Remetente verificado no Resend",
+          "resendApiKey": "Resend API Key",
+          "paymentGatewaySecretEncryptionKey": "Chave AES de 32 bytes em base64 (pagamentos)",
+          "kvRestApiUrl": "Upstash KV REST API URL",
+          "kvRestApiToken": "Upstash KV REST API Token",
+          "googleMapsApiKey": "Google Maps API Key",
+          "googleMapsMapId": "Google Maps Map ID",
+          "vapidPublicKey": "VAPID Public Key",
+          "vapidPrivateKey": "VAPID Private Key",
+          "vapidContactEmail": "Contato VAPID (mailto:...)",
+          "whatsappAccessToken": "WhatsApp Cloud API Access Token",
+          "whatsappPhoneNumberId": "WhatsApp Phone Number ID",
+          "whatsappClassReminderTemplateName": "Nome do template de lembrete WhatsApp"
+        },
+        "errors": {
+          "invalid_slug": "Informe um slug válido em minúsculas (sem usar pulsar).",
+          "duplicate_slug": "Já existe um tenant com esse slug.",
+          "missing_display_name": "Informe o nome visível do instituto.",
+          "missing_hosts": "Informe pelo menos um domínio para o tenant.",
+          "reserved_pulsar_host": "Você não pode atribuir o domínio principal do CentroListo a um instituto.",
+          "duplicate_host": "Um dos domínios já está atribuído a outro tenant.",
+          "invalid_supabase_credentials": "Preencha uma URL válida, a Anon Key e a Service Role Key do Supabase.",
+          "invalid_public_url": "A URL pública canônica deve começar com http:// ou https://.",
+          "invalid_payment_key": "A chave de pagamentos deve codificar exatamente 32 bytes em base64.",
+          "unauthorized": "A sua sessão de staff do CentroListo não é válida.",
+          "db_write_failed": "Não foi possível salvar o tenant no banco de dados do CentroListo."
+        }
+      }
     }
   }
 }

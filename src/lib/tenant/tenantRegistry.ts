@@ -4,12 +4,20 @@
  * `TENANTS_CONFIG_JSON` (or single-tenant env when neither is configured).
  */
 import { normalizeHost, parseTenantConfigJson } from "./parseTenantConfigJson";
+import {
+  isBareLocalDevHost,
+  tenantSlugFromPulsarSubdomain,
+} from "./pulsarSubdomain";
+
+export { isBareLocalDevHost, isLocalDevHost } from "./pulsarSubdomain";
 
 export { normalizeHost };
 
 export const GE_TENANT_HEADER = "x-ge-tenant";
 export const PULSAR_SLUG = "pulsar";
 export const DEFAULT_PULSAR_HOSTS = [
+  "centrolisto.cl",
+  "www.centrolisto.cl",
   "pulsarlab.cl",
   "www.pulsarlab.cl",
   "pulsarlab.vercel.app",
@@ -116,16 +124,6 @@ export function tenantRegistryError(): string | null {
   return readTenantRegistry().error;
 }
 
-export function isLocalDevHost(host: string): boolean {
-  const normalized = normalizeHost(host);
-  return (
-    normalized === "localhost" ||
-    normalized === "127.0.0.1" ||
-    normalized === "[::1]" ||
-    normalized === "::1"
-  );
-}
-
 export function getPulsarHosts(): string[] {
   if (dynamicPulsarHosts && dynamicPulsarHosts.length > 0) {
     return [...dynamicPulsarHosts];
@@ -146,6 +144,16 @@ export function isPulsarHost(host: string | null | undefined): boolean {
   return getPulsarHosts().includes(normalized);
 }
 
+/** Platform host, or bare localhost while `dev:pulsar` is the selected target. */
+export function isPulsarCrawlHost(host: string | null | undefined): boolean {
+  if (isPulsarHost(host)) return true;
+  if (!host || !isBareLocalDevHost(host)) return false;
+  const slug = (process.env.DEV_TENANT_SLUG ?? process.env.GE_DEV_TARGET ?? "")
+    .trim()
+    .toLowerCase();
+  return slug === PULSAR_SLUG;
+}
+
 export function isPulsarRequestFromHeaderGet(
   headerGet: (name: string) => string | null,
 ): boolean {
@@ -158,7 +166,8 @@ export function isPulsarRequestFromHeaderGet(
     return process.env.DEV_TENANT_SLUG?.trim().toLowerCase() === PULSAR_SLUG;
   }
   if (isPulsarHost(raw)) return true;
-  if (isLocalDevHost(raw)) {
+  if (tenantSlugFromPulsarSubdomain(raw, getPulsarHosts()) === PULSAR_SLUG) return true;
+  if (isBareLocalDevHost(raw)) {
     return process.env.DEV_TENANT_SLUG?.trim().toLowerCase() === PULSAR_SLUG;
   }
   return false;
@@ -180,20 +189,7 @@ export function getTenantBySlug(slug: string): TenantConfig | null {
   return listTenants().find((tenant) => tenant.slug === slug) ?? null;
 }
 
-export function tenantPublicEnv(tenant: TenantConfig): TenantPublicEnv {
-  const origin =
-    tenant.publicUrl ??
-    (tenant.hosts[0] ? `https://${normalizeHost(tenant.hosts[0])}` : null);
-  return {
-    url: tenant.supabaseUrl,
-    anonKey: tenant.supabaseAnonKey,
-    origin,
-    ...(tenant.googleMapsApiKey ? { googleMapsApiKey: tenant.googleMapsApiKey } : {}),
-    ...(tenant.googleMapsMapId ? { googleMapsMapId: tenant.googleMapsMapId } : {}),
-    ...(tenant.vapidPublicKey ? { vapidPublicKey: tenant.vapidPublicKey } : {}),
-    ...(tenant.debugLogin ? { debugLogin: true } : {}),
-  };
-}
+export { tenantPublicEnv } from "./tenantPublicEnv";
 
 export function knownMailTenantDomains(): string[] {
   const domains = new Set<string>();
@@ -214,7 +210,7 @@ export function tenantHostBlockStatus(
   if (tenantRegistryError()) return 503;
   if (tenantFromHeaderGet(headerGet)) return null;
   const host = headerGet("x-forwarded-host") ?? headerGet("host") ?? "";
-  if (host && isLocalDevHost(host)) return null;
+  if (host && isBareLocalDevHost(host)) return null;
   return 404;
 }
 
@@ -230,7 +226,11 @@ export function tenantFromHeaderGet(
   }
   const raw = headerGet("x-forwarded-host") ?? headerGet("host");
   if (!raw) return null;
-  if (isLocalDevHost(raw)) {
+  const subdomainSlug = tenantSlugFromPulsarSubdomain(raw, getPulsarHosts());
+  if (subdomainSlug && subdomainSlug !== PULSAR_SLUG) {
+    return getTenantBySlug(subdomainSlug);
+  }
+  if (isBareLocalDevHost(raw)) {
     const devSlug = process.env.DEV_TENANT_SLUG?.trim();
     if (devSlug) return getTenantBySlug(devSlug);
     return listTenants()[0] ?? null;

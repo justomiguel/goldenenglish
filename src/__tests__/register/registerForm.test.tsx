@@ -2,8 +2,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
-import { REGISTRATION_UNDECIDED_FORM_VALUE } from "@/lib/register/registrationSectionConstants";
 import { mockPush } from "@/test/navigationMock";
+import { registerDniDraftKey, writeRegisterDniDraft } from "@/lib/register/registerDniDraft";
 
 const submitPublicRegistration = vi.hoisted(() => vi.fn());
 const lookupRegistrationStudentAction = vi.hoisted(() => vi.fn());
@@ -23,6 +23,7 @@ const SECTION_OPTIONS = [{ id: SECTION_ID, label: "2026 — B1 Morning" }];
 
 describe("RegisterForm", () => {
   beforeEach(() => {
+    sessionStorage.clear();
     submitPublicRegistration.mockReset();
     lookupRegistrationStudentAction.mockReset();
     lookupRegistrationStudentAction.mockResolvedValue({ ok: true, found: false });
@@ -74,12 +75,6 @@ describe("RegisterForm", () => {
     fireEvent.change(screen.getByLabelText(r.lastName), { target: { value: last } });
   }
 
-  function chooseSection() {
-    fireEvent.change(screen.getByRole("combobox", { name: dictEn.register.level }), {
-      target: { value: SECTION_ID },
-    });
-  }
-
   async function fillAndSubmit() {
     const r = dictEn.register;
     await continueFromDniStep("12345678");
@@ -94,10 +89,48 @@ describe("RegisterForm", () => {
     fireEvent.change(screen.getByLabelText(r.phone), {
       target: { value: "+100" },
     });
-    chooseSection();
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: r.submit }));
   }
+
+  it("keeps an autofilled document after Continue", async () => {
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={SECTION_OPTIONS}
+      />,
+    );
+    const input = screen.getByLabelText(dictEn.register.dni) as HTMLInputElement;
+    input.value = "87654321";
+    fireEvent.click(screen.getByRole("button", { name: dictEn.register.continue }));
+    await waitFor(() => {
+      expect(lookupRegistrationStudentAction).toHaveBeenCalledWith("87654321");
+    });
+    await waitFor(() => {
+      expect((screen.getByLabelText(dictEn.register.dni) as HTMLInputElement).value).toBe("87654321");
+    });
+  });
+
+  it("restores the document and details step after a remount", async () => {
+    writeRegisterDniDraft(registerDniDraftKey("es", "reserve"), {
+      dni: "12345678",
+      step: "details",
+    });
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={SECTION_OPTIONS}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByLabelText(dictEn.register.firstName)).toBeInTheDocument();
+    });
+    expect((screen.getByLabelText(dictEn.register.dni) as HTMLInputElement).value).toBe("12345678");
+  });
 
   it("asks only for DNI on Step 1 and keeps student fields editable after Continue", async () => {
     render(
@@ -287,7 +320,6 @@ describe("RegisterForm", () => {
     fireEvent.change(screen.getByLabelText(r.tutorRelationship), {
       target: { value: "Madre" },
     });
-    chooseSection();
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: r.submit }));
     await waitFor(() => {
@@ -305,7 +337,7 @@ describe("RegisterForm", () => {
     );
   });
 
-  it("submits undecided choice when help-me option is selected", async () => {
+  it("hides the section combo and submits the only open section", async () => {
     submitPublicRegistration.mockResolvedValue({ ok: true });
     render(
       <RegisterForm
@@ -320,6 +352,11 @@ describe("RegisterForm", () => {
     await waitFor(() => {
       expect(screen.getByLabelText(r.firstName)).toBeInTheDocument();
     });
+    expect(screen.queryByRole("combobox", { name: r.level })).not.toBeInTheDocument();
+    expect(screen.queryByText(r.sectionUndecidedOption)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(r.assignedSectionLine.replace("{section}", SECTION_OPTIONS[0].label)),
+    ).toBeInTheDocument();
     fillStudentNameFields();
     pickRegisterBirthIso("2000-06-15");
     fireEvent.change(screen.getByLabelText(r.email), {
@@ -328,9 +365,6 @@ describe("RegisterForm", () => {
     fireEvent.change(screen.getByLabelText(r.phone), {
       target: { value: "+100" },
     });
-    fireEvent.change(screen.getByRole("combobox", { name: r.level }), {
-      target: { value: REGISTRATION_UNDECIDED_FORM_VALUE },
-    });
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: r.submit }));
     await waitFor(() => {
@@ -338,8 +372,60 @@ describe("RegisterForm", () => {
     });
     expect(submitPublicRegistration).toHaveBeenCalledWith(
       "es",
-      expect.objectContaining({ preferred_section_id: REGISTRATION_UNDECIDED_FORM_VALUE }),
+      expect.objectContaining({ preferred_section_id: SECTION_ID }),
     );
+  });
+
+  it("lists open sections only when show-all is on and two or more exist", async () => {
+    const secondId = "00000000-0000-4000-8000-000000000002";
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={[
+          ...SECTION_OPTIONS,
+          { id: secondId, label: "2026 — B1 Afternoon" },
+        ]}
+        showAllSections
+      />,
+    );
+    await continueFromDniStep("12345678");
+    await waitFor(() => {
+      expect(screen.getByLabelText(dictEn.register.firstName)).toBeInTheDocument();
+    });
+    expect(screen.getByRole("combobox", { name: dictEn.register.level })).toBeInTheDocument();
+    expect(screen.queryByText(dictEn.register.sectionUndecidedOption)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        dictEn.register.assignedSectionLine.replace("{section}", SECTION_OPTIONS[0].label),
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it("names the first open section when show-all is off and more than one exists", async () => {
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={[
+          ...SECTION_OPTIONS,
+          { id: "00000000-0000-4000-8000-000000000002", label: "2026 — B1 Afternoon" },
+        ]}
+      />,
+    );
+    await continueFromDniStep("12345678");
+    await waitFor(() => {
+      expect(screen.getByLabelText(dictEn.register.firstName)).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("combobox", { name: dictEn.register.level })).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        dictEn.register.assignedSectionLine.replace("{section}", SECTION_OPTIONS[0].label),
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("2026 — B1 Afternoon")).not.toBeInTheDocument();
   });
 
   it("routes home from success dialog", async () => {
@@ -473,7 +559,6 @@ describe("RegisterForm", () => {
     fireEvent.change(screen.getByLabelText(dictEn.register.phone), {
       target: { value: "+100" },
     });
-    chooseSection();
     fireEvent.click(screen.getByRole("checkbox"));
     const continues = screen.getAllByRole("button", { name: dictEn.register.continue });
     fireEvent.click(continues[continues.length - 1]);

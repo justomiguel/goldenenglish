@@ -22,6 +22,7 @@ interface RegisterSurfaceByTemplateProps {
   enrollmentLink?: SectionEnrollmentLinkContext;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
+  showAllSections?: boolean;
 }
 
 /**

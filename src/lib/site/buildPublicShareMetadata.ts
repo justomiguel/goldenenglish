@@ -15,6 +15,7 @@ export async function buildPublicShareMetadata(input: {
   coverImageUrl?: string | null;
   fallbackImageUrl?: string | null;
   ogType?: "website" | "article";
+  locale?: string;
   /** Route-level `opengraph-image.tsx` supplies the image; keep large card without inline URLs. */
   deferShareImageToFileMetadata?: boolean;
 }): Promise<Pick<Metadata, "openGraph" | "twitter">> {
@@ -32,6 +33,7 @@ export async function buildPublicShareMetadata(input: {
       title: input.title,
       description: input.description,
       url: pageUrl,
+      ...(input.locale ? { locale: input.locale } : {}),
       ...(shareImage ? { images: [{ url: shareImage, alt: input.title }] } : {}),
     },
     twitter: {

@@ -88,6 +88,20 @@ export function getBrandPublic(): BrandPublic {
  * `site_themes` row (same merge as CSS tokens). Cached per React request via `cache()`.
  */
 export const getBrandForRequest = cache(async (): Promise<BrandPublic> => {
+  const { isPulsarPlatformRequest } = await import(
+    "@/lib/tenant/tenantRequestContext"
+  );
+  if (await isPulsarPlatformRequest()) {
+    const [
+      { loadPulsarPlatformProperties },
+      { readRequestSupabasePublicEnv },
+    ] = await Promise.all([
+      import("@/lib/pulsar/pulsarBrandProperties"),
+      import("@/lib/supabase/requestPublicEnv"),
+    ]);
+    const { url } = await readRequestSupabasePublicEnv();
+    return brandPublicFromProperties(loadPulsarPlatformProperties(), url);
+  }
   const [{ loadEffectiveProperties }, { readRequestSupabasePublicEnv }] =
     await Promise.all([
       import("@/lib/theme/loadEffectiveProperties"),

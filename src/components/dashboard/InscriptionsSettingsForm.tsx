@@ -6,6 +6,7 @@ import {
   setInscriptionsEnabled,
   setRegistrationCohortAction,
 } from "@/app/[locale]/dashboard/admin/settings/actions";
+import { setRegisterShowAllSections } from "@/app/[locale]/dashboard/admin/settings/setRegisterShowAllSections";
 import { Label } from "@/components/atoms/Label";
 import type { RegistrationCohortConfig } from "@/lib/settings/inscriptionsServer";
 import type { Dictionary } from "@/types/i18n";
@@ -13,6 +14,7 @@ import type { Dictionary } from "@/types/i18n";
 interface InscriptionsSettingsFormProps {
   locale: string;
   initialEnabled: boolean;
+  initialShowAllSections?: boolean;
   labels: Dictionary["admin"]["settings"];
   cohortConfig?: RegistrationCohortConfig;
 }
@@ -20,10 +22,12 @@ interface InscriptionsSettingsFormProps {
 export function InscriptionsSettingsForm({
   locale,
   initialEnabled,
+  initialShowAllSections = false,
   labels,
   cohortConfig,
 }: InscriptionsSettingsFormProps) {
   const [enabled, setEnabled] = useState(initialEnabled);
+  const [showAllSections, setShowAllSections] = useState(initialShowAllSections);
   const [selectedCohortId, setSelectedCohortId] = useState<string>(
     cohortConfig?.configuredCohortId ?? "",
   );
@@ -35,6 +39,18 @@ export function InscriptionsSettingsForm({
     const res = await setInscriptionsEnabled(locale, next);
     if (res.ok) {
       setEnabled(next);
+      setMsg(labels.saved);
+      router.refresh();
+    } else {
+      setMsg(labels.error);
+    }
+  }
+
+  async function onToggleShowAllSections(next: boolean) {
+    setMsg(null);
+    const res = await setRegisterShowAllSections(locale, next);
+    if (res.ok) {
+      setShowAllSections(next);
       setMsg(labels.saved);
       router.refresh();
     } else {
@@ -84,6 +100,25 @@ export function InscriptionsSettingsForm({
         />
         <span className="font-medium text-[var(--color-foreground)]">
           {labels.inscriptions}
+        </span>
+      </label>
+      <label
+        className="mt-4 flex cursor-pointer items-start gap-3"
+        title={labels.registerShowAllSectionsTooltip}
+      >
+        <input
+          type="checkbox"
+          className="mt-0.5 h-5 w-5 rounded border-[var(--color-border)]"
+          checked={showAllSections}
+          onChange={(e) => void onToggleShowAllSections(e.target.checked)}
+        />
+        <span>
+          <span className="block font-medium text-[var(--color-foreground)]">
+            {labels.registerShowAllSections}
+          </span>
+          <span className="mt-1 block text-xs text-[var(--color-muted-foreground)]">
+            {labels.registerShowAllSectionsHint}
+          </span>
         </span>
       </label>
 

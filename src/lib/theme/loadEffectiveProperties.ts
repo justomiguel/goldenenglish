@@ -12,6 +12,18 @@ import type { EffectiveProperties } from "@/types/theming";
  * branching paths sit in unit-tested places.
  */
 export async function loadEffectiveProperties(): Promise<EffectiveProperties> {
+  const { isPulsarPlatformRequest } = await import(
+    "@/lib/tenant/tenantRequestContext"
+  );
+  if (await isPulsarPlatformRequest()) {
+    const { loadPulsarPlatformProperties } = await import(
+      "@/lib/pulsar/pulsarBrandProperties"
+    );
+    return {
+      properties: loadPulsarPlatformProperties(),
+      activeThemeSlug: null,
+    };
+  }
   const defaults: ThemeProperties = loadProperties();
   const active = await loadActiveTheme();
   if (!active) {

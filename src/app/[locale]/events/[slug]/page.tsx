@@ -20,7 +20,10 @@ import { normalizeEventPaymentBannerStatus } from "@/lib/events/buildEventPaymen
 import { resolveEventCoverImageUrl } from "@/lib/rich-content/resolvePublicContentCoverUrl";
 import { stripFirstImageFromHtml } from "@/lib/rich-content/stripFirstImageFromHtml";
 import { buildPublicShareMetadata } from "@/lib/site/buildPublicShareMetadata";
-import { loadShareImageChain } from "@/lib/site/buildResolvedPublicShareMetadata";
+import {
+  loadShareImageChain,
+  resolveInstituteOpenGraphLocale,
+} from "@/lib/site/buildResolvedPublicShareMetadata";
 import { buildPublicShareTitle, clipShareDescription } from "@/lib/site/publicShareText";
 import { loadPublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
 
@@ -43,17 +46,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const brand = await getBrandForRequest();
   const coverImageUrl = resolveEventCoverImageUrl(event.description);
   const shareTitle = buildPublicShareTitle(event.title, brand.name);
+  const path = `/${locale}/events/${slug}`;
   const share = await buildPublicShareMetadata({
     title: shareTitle,
     description,
-    path: `/${locale}/events/${slug}`,
+    path,
     coverImageUrl: await loadShareImageChain(coverImageUrl),
     ogType: "website",
+    locale: await resolveInstituteOpenGraphLocale(path),
   });
   return {
     title: `${event.title} · ${dict.events.public.metaTitle}`,
     description,
-    alternates: { canonical: `/${locale}/events/${slug}` },
+    alternates: { canonical: path },
     ...share,
   };
 }

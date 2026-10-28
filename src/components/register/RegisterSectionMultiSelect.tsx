@@ -32,25 +32,17 @@ export function RegisterSectionMultiSelect({
     selectedIds,
     sectionOptionsOrder: order,
     lockedPreferredId,
-    allowUndecided: !lockedPreferredId,
+    allowUndecided: false,
   });
   const preferred = parsed.ok ? parsed.preferredSectionId : lockedPreferredId;
   const additional = parsed.ok ? parsed.additionalSectionIds : [];
-  const undecided = parsed.ok && parsed.undecided;
   const remaining = extras.filter((o) => !selectedIds.includes(o.id) && o.id !== preferred);
-  const showAddAnother =
-    remaining.length > 0 && Boolean(lockedPreferredId || (preferred && !undecided));
-  const primaryValue = undecided
-    ? REGISTRATION_UNDECIDED_FORM_VALUE
-    : (preferred ?? "");
+  const showAddAnother = remaining.length > 0 && Boolean(lockedPreferredId || preferred);
+  const primaryValue = preferred ?? "";
 
   function setPrimary(value: string) {
     if (!value) {
       onChange([]);
-      return;
-    }
-    if (value === REGISTRATION_UNDECIDED_FORM_VALUE) {
-      onChange([REGISTRATION_UNDECIDED_FORM_VALUE]);
       return;
     }
     onChange([value, ...additional.filter((id) => id !== value)]);
@@ -97,12 +89,10 @@ export function RegisterSectionMultiSelect({
             id="rg-section"
             className={`${REGISTER_NATIVE_SELECT_CN} min-h-11`}
             value={primaryValue}
+            required
             onChange={(e) => setPrimary(e.target.value)}
           >
             <option value="">{dict.sectionPlaceholder}</option>
-            <option value={REGISTRATION_UNDECIDED_FORM_VALUE}>
-              {dict.sectionUndecidedOption}
-            </option>
             {extras.map((o) => (
               <option key={o.id} value={o.id}>
                 {o.label}

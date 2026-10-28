@@ -5,6 +5,11 @@ import { Label } from "@/components/atoms/Label";
 import { RegisterSectionMultiSelect } from "@/components/register/RegisterSectionMultiSelect";
 import { RegisterSectionPicker } from "@/components/register/RegisterSectionPicker";
 import type { RegistrationSectionPickerOption } from "@/lib/register/registrationSectionPicker";
+import {
+  resolveRegisterAssignedSectionLabel,
+  resolveRegisterChoosableIds,
+  resolveRegisterSectionPickerView,
+} from "@/lib/register/resolveRegisterSectionPickerView";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import { RegisterPrivacyConsent } from "@/components/register/RegisterPrivacyConsent";
 import {
@@ -29,6 +34,7 @@ interface RegisterFormContactAndSectionsProps {
   selectedSectionIds: string[];
   onSelectedSectionIdsChange: (next: string[]) => void;
   enrollmentLink?: SectionEnrollmentLinkContext;
+  showAllSections?: boolean;
   intent?: RegisterIntent;
   hidden?: boolean;
   submitType?: "submit" | "button";
@@ -49,11 +55,23 @@ export function RegisterFormContactAndSections({
   selectedSectionIds,
   onSelectedSectionIdsChange,
   enrollmentLink,
+  showAllSections = false,
   intent = "reserve",
   hidden = false,
   submitType = "submit",
   onContinue,
 }: RegisterFormContactAndSectionsProps) {
+  const pickerView = resolveRegisterSectionPickerView({
+    choosableIds: resolveRegisterChoosableIds(sectionOptions, intent),
+    showAllSections,
+  });
+  const assignedSectionLabel = resolveRegisterAssignedSectionLabel({
+    sectionOptions,
+    hiddenPreferredSectionId: pickerView.hiddenPreferredSectionId,
+    showPicker: pickerView.showPicker,
+    hasEnrollmentLink: Boolean(enrollmentLink),
+  });
+
   return (
     <div className={hidden ? "hidden" : "space-y-4"}>
       {showTutor ? (
@@ -111,7 +129,7 @@ export function RegisterFormContactAndSections({
           onChange={onSelectedSectionIdsChange}
           lockedPreferredId={enrollmentLink.sectionId}
         />
-      ) : (
+      ) : pickerView.showPicker ? (
         <RegisterSectionPicker
           dict={dict}
           options={sectionOptions}
@@ -119,6 +137,20 @@ export function RegisterFormContactAndSections({
           selectedIds={selectedSectionIds}
           onChange={onSelectedSectionIdsChange}
         />
+      ) : (
+        <>
+          <input
+            type="hidden"
+            name="preferred_section_id"
+            value={pickerView.hiddenPreferredSectionId}
+            readOnly
+          />
+          {assignedSectionLabel ? (
+            <p className="text-sm text-[var(--color-muted-foreground)]" role="note">
+              {dict.assignedSectionLine.replace("{section}", assignedSectionLabel)}
+            </p>
+          ) : null}
+        </>
       )}
       <RegisterPrivacyConsent
         locale={locale}

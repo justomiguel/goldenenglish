@@ -1,6 +1,14 @@
 import "server-only";
 import { readRequestHostRaw, resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
-import { isLocalDevHost, isPulsarHost, normalizeHost, tenantPublicEnv } from "@/lib/tenant/tenantRegistry";
+import { tenantSlugFromPulsarSubdomain } from "@/lib/tenant/pulsarSubdomain";
+import {
+  getPulsarHosts,
+  isLocalDevHost,
+  isPulsarHost,
+  normalizeHost,
+  PULSAR_SLUG,
+  tenantPublicEnv,
+} from "@/lib/tenant/tenantRegistry";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 
 /** Public origin for this host. Local dev keeps `http://localhost:<port>`. */
@@ -17,7 +25,17 @@ export async function getRequestPublicSiteUrl(): Promise<URL | null> {
     try {
       return new URL(`https://${normalizeHost(rawHost)}`);
     } catch {
-      return new URL("https://pulsarlab.cl");
+      return new URL("https://centrolisto.cl");
+    }
+  }
+  const previewSlug = rawHost
+    ? tenantSlugFromPulsarSubdomain(rawHost, getPulsarHosts())
+    : null;
+  if (rawHost && previewSlug && previewSlug !== PULSAR_SLUG) {
+    try {
+      return new URL(`https://${normalizeHost(rawHost)}`);
+    } catch {
+      /* fall through to tenant publicUrl */
     }
   }
   const tenant = await resolveRequestTenant();

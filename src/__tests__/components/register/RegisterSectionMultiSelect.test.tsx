@@ -2,7 +2,6 @@ import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { RegisterSectionMultiSelect } from "@/components/register/RegisterSectionMultiSelect";
-import { REGISTRATION_UNDECIDED_FORM_VALUE } from "@/lib/register/registrationSectionConstants";
 import { dictEn } from "@/test/dictEn";
 
 const A = "11111111-1111-4111-8111-111111111111";
@@ -47,12 +46,9 @@ describe("RegisterSectionMultiSelect", () => {
     expect(onChange).toHaveBeenCalledWith([A]);
   });
 
-  it("selects the undecided option from the same combobox", () => {
-    const { onChange } = renderSelect();
-    fireEvent.change(screen.getByRole("combobox", { name: dictEn.register.level }), {
-      target: { value: REGISTRATION_UNDECIDED_FORM_VALUE },
-    });
-    expect(onChange).toHaveBeenCalledWith([REGISTRATION_UNDECIDED_FORM_VALUE]);
+  it("does not offer the undecided option", () => {
+    renderSelect();
+    expect(screen.queryByRole("option", { name: dictEn.register.sectionUndecidedOption })).not.toBeInTheDocument();
   });
 
   it("adds another section from a second compact combobox", () => {

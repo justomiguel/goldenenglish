@@ -5,9 +5,11 @@ alwaysApply: true
 
 # Neutral Spanish copy (es-419 tuteo)
 
-The `es` locale is the default for every tenant. Spanish that a parent, student, teacher, or admin can read must be **neutral Latin American Spanish with tuteo**. Rioplatense voseo and Peninsular Spanish are both wrong for this product.
+The `es` locale is the default for **every** tenant. Chile and Argentina sites share one register. Spanish that a parent, student, teacher, or admin can read must be **neutral Latin American Spanish with tuteo**. Rioplatense voseo and Peninsular Spanish are both wrong for this product.
 
 Applies to `src/dictionaries/es.json`, email HTML users read, the Spanish argument of product-changelog `t()`, tutorial steps, toasts, `aria-label`s, and SEO descriptions.
+
+The Vitest lock is `src/__tests__/i18n/neutralSpanishCopy.test.ts`. It must stay red when a banned token returns.
 
 ## Register
 
@@ -15,15 +17,21 @@ Applies to `src/dictionaries/es.json`, email HTML users read, the Spanish argume
 |---|---|
 | vos / tenés / podés / querés | tú (omit when natural) / tienes / puedes / quieres |
 | Hacé clic / Usá / Ingresá / Intentá / Probá | Haz clic / Usa / Ingresa / Intenta / Prueba |
+| Inscribite / Anotate / Sumate / Animate / Fijate / Enterate | Inscríbete / Anótate / Súmate / Anímate / Fíjate / Entérate |
+| sentís / decís / volvés / querés / cedés | sientes / dices / vuelves / quieres / cedes |
 | acá | aquí |
 | escribinos | escríbenos |
 | te vamos a pedir | te pediremos |
 | un pedido (meaning a request) | una solicitud |
 | inscripto / inscripta | inscrito / inscrita |
 
+Unaccented voseo still counts. `Inscribite` and `Sumate` are voseo. Do not treat the missing accent as tuteo.
+
 ```text
 ❌ No tenés permiso. Hacé clic para continuar.
+❌ Inscribite ya. Sumate a la roda.
 ✅ No tienes permiso. Haz clic para continuar.
+✅ Inscríbete ya. Súmate a la roda.
 ```
 
 ## Keep
@@ -38,5 +46,5 @@ If a string you touch still uses voseo, convert **that string** in the same chan
 
 ## Checklist
 
-- [ ] New or edited Spanish uses tuteo (*tienes*, *haz*, *ingresa*)?
-- [ ] No *vos*, *tenés*, *podés*, *hacé*, *ingresá*, *escribinos*, or *inscripto* left in the lines you changed?
+- [ ] New or edited Spanish uses tuteo (*tienes*, *haz*, *ingresa*, *inscríbete*)?
+- [ ] No *vos*, *tenés*, *podés*, *hacé*, *ingresá*, *inscribite*, *anotate*, *sumate*, *escribinos*, or *inscripto* left in the lines you changed?

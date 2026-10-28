@@ -1,3 +1,5 @@
+import { isAcademicFieldSortKey, type AcademicFieldSortKey } from "@/lib/academic-profile/academicDirectorySort";
+import type { AdminDirectorySortKey } from "@/lib/dashboard/adminUsersSortCriteria";
 import type { Dictionary } from "@/types/i18n";
 import {
   isAdminParentsDirectory,
@@ -35,6 +37,17 @@ export function adminUsersSortKeysForLock(lockRole?: string): SortKey[] {
   if (isAdminParentsDirectory(lockRole)) return PARENT_SORT_KEYS;
   if (isAdminTeachersDirectory(lockRole)) return TEACHER_SORT_KEYS;
   return DIRECTORY_SORT_KEYS;
+}
+
+export function adminDirectorySortKeys(
+  lockRole: string | undefined,
+  fieldLabels?: Record<string, string>,
+): AdminDirectorySortKey[] {
+  const base = adminUsersSortKeysForLock(lockRole);
+  const extra = Object.keys(fieldLabels ?? {}).filter(
+    (key): key is AcademicFieldSortKey => isAcademicFieldSortKey(key),
+  );
+  return [...base, ...extra];
 }
 
 export function adminUsersSortColumnLabel(labels: UserLabels, key: string): string {

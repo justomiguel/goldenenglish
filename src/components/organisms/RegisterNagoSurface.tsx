@@ -20,6 +20,7 @@ export interface RegisterNagoSurfaceProps {
   extrasPack?: "nago" | null;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
+  showAllSections?: boolean;
 }
 
 export function RegisterNagoSurface({
@@ -32,6 +33,7 @@ export function RegisterNagoSurface({
   extrasPack = null,
   intent = "reserve",
   sessionEmail = null,
+  showAllSections = false,
 }: RegisterNagoSurfaceProps) {
   const prefix = `/${locale}`;
   const nago = dict.landing.nago;
@@ -87,6 +89,7 @@ export function RegisterNagoSurface({
               enrollmentLink={enrollmentLink}
               extrasPack={extrasPack}
               intent={intent}
+              showAllSections={showAllSections}
             />
           </div>
           <p className="mt-8 flex justify-center md:justify-start">

@@ -15,6 +15,8 @@ import type { Dictionary } from "@/types/i18n";
 import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import { collectRegisterExtrasPrefill } from "@/lib/register/packs/nago/collectRegisterExtrasPrefill";
+import { initialRegisterSelectedSectionIds, resolveRegisterChoosableIds } from "@/lib/register/resolveRegisterSectionPickerView";
+import { useRegisterDniDraft } from "@/hooks/useRegisterDniDraft";
 
 const PUBLIC_FORM_CLASS =
   "w-full min-w-0 space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)] ring-1 ring-[var(--color-primary)]/[0.06]";
@@ -32,6 +34,7 @@ interface RegisterFormProps {
   embedded?: boolean;
   onRegistered?: () => void;
   onLeave?: () => void;
+  showAllSections?: boolean;
 }
 
 export function RegisterForm({
@@ -45,14 +48,14 @@ export function RegisterForm({
   embedded = false,
   onRegistered,
   onLeave,
+  showAllSections = false,
 }: RegisterFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
-  const [step, setStep] = useState<RegisterStep>("dni");
+  const { dni, setDni, step, setStep, clearDraft } = useRegisterDniDraft(locale, intent);
   const [msg, setMsg] = useState<string | null>(null);
   const [msgTone, setMsgTone] = useState<"error" | "muted">("error");
   const [busy, setBusy] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
-  const [dni, setDni] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -61,7 +64,13 @@ export function RegisterForm({
   const [tutorDefaults, setTutorDefaults] = useState<RegisterTutorPrefillValues | null>(null);
   const [existingMatch, setExistingMatch] = useState<{ firstName: string; lastName: string } | null>(null);
   const [existingConfirmed, setExistingConfirmed] = useState(false);
-  const [selectedSectionIds, setSelectedSectionIds] = useState<string[]>([]);
+  const [selectedSectionIds, setSelectedSectionIds] = useState<string[]>(() =>
+    initialRegisterSelectedSectionIds({
+      choosableIds: resolveRegisterChoosableIds(sectionOptions, intent),
+      showAllSections,
+      hasEnrollmentLink: Boolean(enrollmentLink),
+    }),
+  );
   const [tutorPrefill, setTutorPrefill] = useState<
     ReturnType<typeof collectRegisterExtrasPrefill>["tutorPrefill"] | null
   >(null);
@@ -75,14 +84,13 @@ export function RegisterForm({
 
   function resetOutcome() {
     setSuccessOpen(false);
-    setDni("");
+    clearDraft();
     setFirstName("");
     setLastName("");
     setBirthDate("");
     setDefaultEmail("");
     setDefaultPhone("");
     setTutorDefaults(null);
-    setStep("dni");
     setExistingMatch(null);
     setExistingConfirmed(false);
     setSelectedSectionIds([]);
@@ -98,6 +106,7 @@ export function RegisterForm({
       setBusy,
       setMsg,
       setMsgTone,
+      setDni,
       setFirstName,
       setLastName,
       setBirthDate,
@@ -186,6 +195,7 @@ export function RegisterForm({
             selectedSectionIds={selectedSectionIds}
             onSelectedSectionIdsChange={setSelectedSectionIds}
             enrollmentLink={enrollmentLink}
+            showAllSections={showAllSections}
             intent={intent}
             step={step}
             extrasPack={extrasPack}

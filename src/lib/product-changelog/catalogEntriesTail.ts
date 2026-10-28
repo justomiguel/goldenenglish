@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "event-list-creator",
+    date: "2026-10-20",
+    area: "events",
+    title: t(
+      "La lista de eventos muestra quién los creó",
+      "The events list shows who created them",
+      "A lista de eventos mostra quem os criou",
+    ),
+    summary: t(
+      "En Eventos ves el nombre de la persona que creó cada evento.",
+      "On Events you see the name of the person who created each event.",
+      "Em Eventos você vê o nome de quem criou cada evento.",
+    ),
+  },
+  {
     id: "event-family-discount",
     date: "2026-10-19",
     area: "events",

@@ -36,6 +36,7 @@ export function RegisterFormAfterDni({
   selectedSectionIds,
   onSelectedSectionIdsChange,
   enrollmentLink,
+  showAllSections,
   intent,
   step,
   extrasPack,
@@ -69,6 +70,7 @@ export function RegisterFormAfterDni({
   selectedSectionIds: string[];
   onSelectedSectionIdsChange: (ids: string[]) => void;
   enrollmentLink?: SectionEnrollmentLinkContext;
+  showAllSections: boolean;
   intent: RegisterIntent;
   step: "details" | "extras";
   extrasPack: RegistrationExtrasPackId | null;
@@ -116,6 +118,7 @@ export function RegisterFormAfterDni({
         selectedSectionIds={selectedSectionIds}
         onSelectedSectionIdsChange={onSelectedSectionIdsChange}
         enrollmentLink={enrollmentLink}
+        showAllSections={showAllSections}
         intent={intent}
         hidden={step === "extras"}
         submitType={extrasPack === "nago" && step === "details" ? "button" : "submit"}

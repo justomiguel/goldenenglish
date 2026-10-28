@@ -3,6 +3,66 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "page-error-support-code",
+    date: "2026-10-25",
+    area: "site",
+    title: t(
+      "Un error de página muestra un código de soporte",
+      "A page error shows a support code",
+      "Um erro de página mostra um código de suporte",
+    ),
+    summary: t(
+      "Si una página falla, ves un código para buscar el mismo fallo en los logs.",
+      "If a page fails, you see a code to find the same failure in the logs.",
+      "Se uma página falha, você vê um código para achar a mesma falha nos logs.",
+    ),
+  },
+  {
+    id: "pulsar-control-plane",
+    date: "2026-10-25",
+    area: "admin",
+    title: t(
+      "Pulsar Lab administra los institutos desde su base",
+      "Pulsar Lab manages institutes from its database",
+      "Pulsar Lab administra os institutos a partir da sua base",
+    ),
+    summary: t(
+      "El sitio de Pulsar lista los institutos, su estado y las visitas. Un instituto nuevo no exige un nuevo deploy.",
+      "The Pulsar site lists institutes, their status, and visits. A new institute does not need a new deploy.",
+      "O site da Pulsar lista os institutos, o estado e as visitas. Um instituto novo não exige um novo deploy.",
+    ),
+  },
+  {
+    id: "admin-messages-list-only",
+    date: "2026-10-27",
+    area: "communications",
+    title: t(
+      "La lista de mensajes muestra solo los mensajes",
+      "The message list shows only the messages",
+      "A lista de mensagens mostra só as mensagens",
+    ),
+    summary: t(
+      "En la lista ya no aparecen responder, borrar ni la barra de acciones. Esas acciones quedan en el mensaje abierto.",
+      "The list no longer shows reply, delete, or the action bar. Those actions stay on the open message.",
+      "Na lista já não aparecem responder, apagar nem a barra de ações. Essas ações ficam na mensagem aberta.",
+    ),
+  },
+  {
+    id: "admin-sidebar-messages",
+    date: "2026-10-27",
+    area: "admin",
+    title: t(
+      "Mensajes en el menú lateral",
+      "Messages in the side menu",
+      "Mensagens no menu lateral",
+    ),
+    summary: t(
+      "El menú lateral de admin incluye Mensajes. El número muestra los mensajes recientes.",
+      "The admin side menu includes Messages. The number shows recent messages.",
+      "O menu lateral de admin inclui Mensagens. O número mostra as mensagens recentes.",
+    ),
+  },
+  {
     id: "admin-home-work-cards",
     date: "2026-10-27",
     area: "admin",
@@ -182,19 +242,4 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "Você carrega códigos um a um, com Excel ou com o gerador. A inscrição reserva um uso e o pagamento aprovado o consome.",
     ),
   },
-  {
-    id: "event-list-creator",
-    date: "2026-10-20",
-    area: "events",
-    title: t(
-      "La lista de eventos muestra quién los creó",
-      "The events list shows who created them",
-      "A lista de eventos mostra quem os criou",
-    ),
-    summary: t(
-      "En Eventos ves el nombre de la persona que creó cada evento.",
-      "On Events you see the name of the person who created each event.",
-      "Em Eventos você vê o nome de quem criou cada evento.",
-    ),
-  }
 ];

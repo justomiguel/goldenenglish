@@ -30,6 +30,7 @@ export function LandingLioraFooter({
     { href: `/${locale}/events`, label: t("nav.eventos") },
     { href: `/${locale}#contacto`, label: t("nav.contacto") },
     { href: `/${locale}/privacidad`, label: dict.privacy.footerLink },
+    { href: `/${locale}/preguntas`, label: dict.publicAnswers.footerLink },
     {
       href: sessionEmail ? `/${locale}/dashboard` : `/${locale}/login`,
       label: sessionEmail ? dict.nav.myPortal : dict.nav.login,

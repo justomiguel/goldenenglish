@@ -32,6 +32,7 @@ const baseProps = {
 
 describe("AdminRegistrationCreateButton", () => {
   beforeEach(() => {
+    sessionStorage.clear();
     HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
       this.setAttribute("open", "");
     };

@@ -23,6 +23,7 @@ export interface RegisterEspacioZenitSurfaceProps {
   mediaMap?: LandingMediaMap;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
+  showAllSections?: boolean;
 }
 
 export function RegisterEspacioZenitSurface({
@@ -36,6 +37,7 @@ export function RegisterEspacioZenitSurface({
   extrasPack = null,
   intent = "reserve",
   sessionEmail = null,
+  showAllSections = false,
 }: RegisterEspacioZenitSurfaceProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveEspacioZenitHeaderLogo(brand, mediaMap);
@@ -103,6 +105,7 @@ export function RegisterEspacioZenitSurface({
               enrollmentLink={enrollmentLink}
               extrasPack={extrasPack}
               intent={intent}
+              showAllSections={showAllSections}
             />
           </div>
 
