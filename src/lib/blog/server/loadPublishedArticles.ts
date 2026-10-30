@@ -16,6 +16,7 @@ interface LoadPublishedArticlesInput {
   pageSize: number;
   tag?: string;
   query?: string;
+  includeMembers?: boolean;
 }
 
 export async function loadPublishedArticles(
@@ -30,7 +31,7 @@ export async function loadPublishedArticles(
   let query = supabase
     .from("blog_articles")
     .select(
-      "id, default_locale, status, published_at, scheduled_for, cover_storage_path, tags, is_pinned, pinned_at, comments_enabled, author_id, view_count, created_at, updated_at, updated_by",
+      "id, default_locale, status, published_at, scheduled_for, cover_storage_path, tags, is_pinned, pinned_at, comments_enabled, visibility, author_id, view_count, created_at, updated_at, updated_by",
       { count: "exact" },
     )
     .eq("status", "published")
@@ -40,6 +41,10 @@ export async function loadPublishedArticles(
     .order("pinned_at", { ascending: false, nullsFirst: false })
     .order("published_at", { ascending: false, nullsFirst: false })
     .range(from, to);
+
+  if (!input.includeMembers) {
+    query = query.eq("visibility", "public");
+  }
 
   if (input.tag) {
     query = query.contains("tags", [input.tag]);

@@ -22,12 +22,15 @@ import {
   LIORA_LANDING_COPY_KEYS_BY_SECTION,
   LIORA_MEDIA_SLOTS_BY_SECTION,
 } from "@/lib/cms/landingLioraCatalog";
+import { genericLandingCopyKeys } from "@/lib/cms/genericLandingCopyKeys";
+import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import type { LandingSectionSlug, SiteThemeKind } from "@/types/theming";
 
 export function landingCopyKeysForTheme(
   kind: SiteThemeKind,
   section: LandingSectionSlug,
 ): ReadonlyArray<string> {
+  if (isGenericInstituteKind(kind)) return genericLandingCopyKeys(kind, section);
   if (kind === "mozarthitos") {
     return MOZARTHITOS_LANDING_COPY_KEYS_BY_SECTION[section];
   }
@@ -50,6 +53,7 @@ export function landingMediaSlotsForTheme(
   kind: SiteThemeKind,
   section: LandingSectionSlug,
 ): number {
+  if (isGenericInstituteKind(kind)) return 1;
   if (kind === "mozarthitos") {
     return MOZARTHITOS_MEDIA_SLOTS_BY_SECTION[section];
   }

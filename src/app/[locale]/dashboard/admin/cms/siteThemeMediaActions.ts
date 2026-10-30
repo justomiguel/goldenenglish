@@ -11,6 +11,8 @@ import {
   uploadSiteThemeMediaInputSchema,
 } from "@/lib/cms/siteThemeLandingInputSchemas";
 import { landingMediaSlotsForTheme } from "@/lib/cms/landingThemeEditorCatalog";
+import { publishGenericInstituteUpload } from "@/lib/tenant/publishInstitutePublicImages";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 import { isSiteThemeKind } from "@/lib/cms/landingBlocksCatalog";
 import {
   fetchSiteThemeById,
@@ -141,6 +143,19 @@ export async function uploadSiteThemeMediaAction(
     await admin.supabase.storage
       .from(LANDING_MEDIA_BUCKET)
       .remove([existingRow.storage_path]);
+  }
+
+  if (parsed.data.section === "inicio" && parsed.data.position === 1) {
+    const tenant = await resolveRequestTenant();
+    await publishGenericInstituteUpload({
+      slug: tenant?.slug,
+      theme: existing,
+      supabase: admin.supabase,
+      locale: parsed.data.locale,
+      replaceFaviconPath: false,
+      persist: true,
+      hero: { bytes, contentType: mime },
+    });
   }
 
   void recordSystemAudit({

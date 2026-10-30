@@ -31,7 +31,8 @@ describe("app/sitemap", () => {
     const blogLimit = vi.fn().mockResolvedValue({ data: [] });
     const blogLte = vi.fn().mockReturnValue({ limit: blogLimit });
     const blogNot = vi.fn().mockReturnValue({ lte: blogLte });
-    const blogEq = vi.fn().mockReturnValue({ not: blogNot });
+    const blogEqVisibility = vi.fn().mockReturnValue({ not: blogNot });
+    const blogEq = vi.fn().mockReturnValue({ eq: blogEqVisibility });
     const blogSelect = vi.fn().mockReturnValue({ eq: blogEq });
 
     const eventsLimit = vi.fn().mockResolvedValue({ data: [] });

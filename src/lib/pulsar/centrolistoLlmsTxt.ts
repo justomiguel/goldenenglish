@@ -13,7 +13,6 @@ export function buildCentrolistoLlmsTxt(input: {
   name: string;
   tagline: string;
   description: string;
-  contactEmail: string;
   locales: readonly CentrolistoLlmsLocaleBlock[];
   faqs: readonly { q: string; a: string }[];
 }): string {
@@ -25,7 +24,7 @@ export function buildCentrolistoLlmsTxt(input: {
     "",
     input.description,
     "",
-    `Contact: ${input.contactEmail}`,
+    `Contact: ${origin}/es/contacto`,
     "",
     "## Pages",
     "",

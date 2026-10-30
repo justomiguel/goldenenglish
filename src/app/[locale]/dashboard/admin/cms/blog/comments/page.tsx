@@ -31,14 +31,27 @@ export default async function AdminBlogCommentsPage({ params }: PageProps) {
 
   const { data } = await supabase
     .from("blog_article_comments")
-    .select("id, article_id, author_id, parent_comment_id, body_text, status, created_at, updated_at")
+    .select("id, article_id, author_id, guest_display_name, parent_comment_id, body_text, status, created_at, updated_at")
     .order("created_at", { ascending: false })
     .limit(50);
+  const rows = (data ?? []).map((row) => mapCommentRow(row));
+  const ids = rows.map((row) => row.id);
+  const { data: emails } =
+    ids.length === 0
+      ? { data: [] }
+      : await supabase
+          .from("blog_comment_guest_emails")
+          .select("comment_id, email")
+          .in("comment_id", ids);
+  const emailByComment = new Map((emails ?? []).map((row) => [row.comment_id, row.email]));
   const dict = await getDictionary(locale);
 
   return (
     <BlogCommentsModeration
-      comments={(data ?? []).map((row) => mapCommentRow(row))}
+      comments={rows.map((row) => ({
+        ...row,
+        guestEmail: emailByComment.get(row.id) ?? null,
+      }))}
       labels={dict.admin.cms.blog.comments}
     />
   );

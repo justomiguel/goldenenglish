@@ -111,6 +111,29 @@ describe("importJobKv", () => {
     expect(getMock).toHaveBeenCalledWith("import:job:nago:job-2");
   });
 
+  it("uses the shared KV env when the active institute has no KV fields", async () => {
+    process.env.TENANTS_CONFIG_JSON = "[]";
+    const bare = { ...nagoTenant, kvRestApiUrl: null, kvRestApiToken: null };
+    expect(isKvImportConfigured(bare)).toBe(true);
+    getMock.mockResolvedValue(null);
+    await mergeImportJob(
+      "job-3",
+      {
+        ownerId: "user-1",
+        status: "queued",
+        phase: "queued",
+        message: "",
+        current: 0,
+        total: 1,
+      },
+      bare,
+    );
+    expect(createClientMock).toHaveBeenCalledWith({
+      url: "https://kv.shared.test",
+      token: "tok_shared",
+    });
+  });
+
   it("ignores shared KV env while multi-tenant mode is on and no tenant is active", () => {
     process.env.TENANTS_CONFIG_JSON = "[]";
     process.env.KV_REST_API_URL = "https://kv.shared.test";

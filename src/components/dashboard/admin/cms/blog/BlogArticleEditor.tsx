@@ -12,6 +12,7 @@ import { useBlogArticleEditorActions } from "@/hooks/useBlogArticleEditorActions
 import { draftMaterialsToBlogAttachments } from "@/lib/blog/mapDraftMaterials";
 import { pickBlogMaterialsPanelLabels } from "@/lib/blog/pickBlogMaterialsPanelLabels";
 import type { BlogLocale } from "@/lib/blog/domain";
+import type { BlogVisibility } from "@/lib/blog/articleVisibility";
 import type { BlogArticleAdminShareLink } from "@/lib/blog/server/resolveBlogArticleAdminShareLinks";
 import type { AdminGlobalDraftMaterial } from "@/components/admin/AdminGlobalContentMaterialsPanel";
 import type { Dictionary } from "@/types/i18n";
@@ -30,6 +31,8 @@ interface BlogArticleEditorProps {
   initial: {
     defaultLocale: BlogLocale;
     status: string;
+    visibility: BlogVisibility;
+    commentsEnabled: boolean;
     tags: string[];
     scheduledFor: string;
     isPinned: boolean;
@@ -42,6 +45,8 @@ interface BlogArticleEditorProps {
           excerpt: string;
           bodyHtml: string;
           materials?: AdminGlobalDraftMaterial[];
+          ctaLabel?: string;
+          ctaUrl?: string;
         }
       >
     >;
@@ -69,6 +74,10 @@ export function BlogArticleEditor({
     setBodyHtml,
     materials,
     setMaterials,
+    ctaLabel,
+    setCtaLabel,
+    ctaUrl,
+    setCtaUrl,
     syncMediaToAllLocales,
     appendMaterialToAllLocales,
     applyTranslatedLocale,
@@ -82,6 +91,8 @@ export function BlogArticleEditor({
   const [tagsCsv, setTagsCsv] = useState(initial.tags.join(", "));
   const [scheduledFor, setScheduledFor] = useState(initial.scheduledFor);
   const [isPinned, setIsPinned] = useState(initial.isPinned);
+  const [visibility, setVisibility] = useState<BlogVisibility>(initial.visibility);
+  const [commentsEnabled, setCommentsEnabled] = useState(initial.commentsEnabled);
 
   const tags = useMemo(
     () =>
@@ -115,6 +126,8 @@ export function BlogArticleEditor({
     initial,
     tags,
     isPinned,
+    visibility,
+    commentsEnabled,
     scheduledFor,
     editingLocale,
     title,
@@ -144,10 +157,14 @@ export function BlogArticleEditor({
         excerpt={excerpt}
         bodyHtml={bodyHtml}
         materials={materials}
+        ctaLabel={ctaLabel}
+        ctaUrl={ctaUrl}
         onTitleChange={setTitle}
         onExcerptChange={setExcerpt}
         onBodyHtmlChange={setBodyHtml}
         onMaterialsChange={setMaterials}
+        onCtaLabelChange={setCtaLabel}
+        onCtaUrlChange={setCtaUrl}
         syncMediaToAllLocales={syncMediaToAllLocales}
         syncMaterialToAllLocales={appendMaterialToAllLocales}
         onError={setMsg}
@@ -160,15 +177,23 @@ export function BlogArticleEditor({
             tagsCsv: labels.metaTags,
             scheduledFor: labels.metaScheduled,
             pinned: labels.metaPinned,
+            visibility: labels.visibility,
+            visibilityPublic: labels.visibilityPublic,
+            visibilityMembers: labels.visibilityMembers,
+            comments: labels.comments,
           }}
           status={status}
           tagsCsv={tagsCsv}
           scheduledFor={scheduledFor}
           isPinned={isPinned}
+          visibility={visibility}
+          commentsEnabled={commentsEnabled}
           onStatusChange={setStatus}
           onTagsCsvChange={setTagsCsv}
           onScheduledForChange={setScheduledFor}
           onPinnedChange={setIsPinned}
+          onVisibilityChange={setVisibility}
+          onCommentsEnabledChange={setCommentsEnabled}
         />
       </div>
 

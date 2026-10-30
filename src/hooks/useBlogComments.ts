@@ -18,7 +18,7 @@ const client = createClient();
 async function fetchComments(articleId: string): Promise<BlogArticleComment[]> {
   const { data, error } = await client
     .from("blog_article_comments")
-    .select("id, article_id, author_id, parent_comment_id, body_text, status, created_at, updated_at")
+    .select("id, article_id, author_id, guest_display_name, parent_comment_id, body_text, status, created_at, updated_at")
     .eq("article_id", articleId)
     .eq("status", "visible")
     .order("created_at", { ascending: true });
@@ -27,6 +27,7 @@ async function fetchComments(articleId: string): Promise<BlogArticleComment[]> {
     id: row.id,
     articleId: row.article_id,
     authorId: row.author_id,
+    guestDisplayName: row.guest_display_name ?? null,
     parentCommentId: row.parent_comment_id,
     bodyText: row.body_text,
     status: row.status,

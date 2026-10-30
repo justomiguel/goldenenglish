@@ -3,6 +3,7 @@ import {
   mapDbRowToPulsarTenantRecord,
   mapTenantConfigToPulsarRecord,
   PLATFORM_TENANTS_SELECT_COLUMNS,
+  PLATFORM_TENANTS_SELECT_WITH_DATA_PLANE,
   type PulsarTenantRecord,
 } from "@/lib/pulsar/pulsarTenantMapper";
 import type { ValidatedPulsarTenantInput } from "@/lib/pulsar/pulsarTenantSchema";
@@ -68,16 +69,26 @@ async function fetchPlatformSettingsHostsFromPulsarDb(): Promise<string[] | null
 async function fetchPlatformTenantsFromPulsarDb(): Promise<PulsarTenantRecord[] | null> {
   try {
     const admin = createPulsarAdminClient();
-    const { data, error } = await admin
+    const first = await admin
       .from("platform_tenants")
-      .select(PLATFORM_TENANTS_SELECT_COLUMNS)
+      .select(PLATFORM_TENANTS_SELECT_WITH_DATA_PLANE)
       .order("slug", { ascending: true });
+    let rows: unknown[] | null = first.data;
+    let error = first.error;
+    if (error && /data_mode|postgres_schema/i.test(error.message)) {
+      const fallback = await admin
+        .from("platform_tenants")
+        .select(PLATFORM_TENANTS_SELECT_COLUMNS)
+        .order("slug", { ascending: true });
+      rows = fallback.data;
+      error = fallback.error;
+    }
     if (error) {
       logSupabaseError("pulsarTenantStore:select_all", error);
       return null;
     }
     const records: PulsarTenantRecord[] = [];
-    for (const row of (data ?? []) as unknown as Record<string, unknown>[]) {
+    for (const row of (rows ?? []) as Record<string, unknown>[]) {
       const mapped = mapDbRowToPulsarTenantRecord(row);
       if (mapped) records.push(mapped);
     }
@@ -181,4 +192,12 @@ export function applyLocalMemoryTenantUpsert(input: ValidatedPulsarTenantInput):
   lastLoadedAt = Date.now();
   setDynamicTenantsCache(next.filter((r) => r.isEnabled));
   return record;
+}
+
+export function applyLocalMemoryTenantRemove(slug: string): void {
+  const base = cachedAllRecords ?? [];
+  const next = base.filter((row) => row.slug !== slug);
+  cachedAllRecords = next;
+  lastLoadedAt = Date.now();
+  setDynamicTenantsCache(next.filter((row) => row.isEnabled));
 }

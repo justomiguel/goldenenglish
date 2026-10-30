@@ -29,6 +29,8 @@ function hookInput() {
     status: "draft",
     tags: [] as string[],
     isPinned: false,
+    visibility: "public" as const,
+    commentsEnabled: true,
     scheduledFor: "",
     editingLocale: "es" as const,
     title: "Hola",

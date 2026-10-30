@@ -6,6 +6,7 @@ import { calculateReadingTimeMinutes } from "@/lib/blog/readingTime";
 import { sanitizeBlogHtml } from "@/lib/blog/sanitizeBlogHtml";
 import { blogAttachmentsSchema } from "@/lib/blog/attachments";
 import { normalizeTags } from "@/lib/blog/tags";
+import { normalizeArticleWrite } from "@/lib/blog/normalizeArticleWrite";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { resolveBlogArticleAdminShareLinks } from "@/lib/blog/server/resolveBlogArticleAdminShareLinks";
 import type { BlogArticleAdminShareLink } from "@/lib/blog/server/resolveBlogArticleAdminShareLinks";
@@ -79,6 +80,21 @@ export async function saveArticleAction(
       return { ok: false, code: "forbidden" };
     }
 
+    const ctaByLocale = new Map<string, { cta_label: string | null; cta_url: string | null }>();
+    for (const translation of normalizedPayload.translations) {
+      const normalized = normalizeArticleWrite({
+        visibility: normalizedPayload.visibility,
+        commentsEnabled: normalizedPayload.commentsEnabled,
+        ctaLabel: translation.ctaLabel,
+        ctaUrl: translation.ctaUrl,
+      });
+      if (!normalized.ok) return { ok: false, code: normalized.code };
+      ctaByLocale.set(translation.locale, {
+        cta_label: normalized.cta_label,
+        cta_url: normalized.cta_url,
+      });
+    }
+
     const rowInput = {
       default_locale: normalizedPayload.defaultLocale,
       status: normalizedPayload.status,
@@ -86,6 +102,7 @@ export async function saveArticleAction(
       cover_storage_path: normalizedPayload.coverStoragePath ?? null,
       tags: normalizedTags,
       comments_enabled: normalizedPayload.commentsEnabled,
+      visibility: normalizedPayload.visibility,
       is_pinned: normalizedPayload.isPinned,
       updated_by: actorId,
       ...(normalizedPayload.status === "published"
@@ -128,6 +145,8 @@ export async function saveArticleAction(
         attachments,
         seo_title: translation.seoTitle ?? null,
         seo_description: translation.seoDescription ?? null,
+        cta_label: ctaByLocale.get(translation.locale)?.cta_label ?? null,
+        cta_url: ctaByLocale.get(translation.locale)?.cta_url ?? null,
       };
     });
 

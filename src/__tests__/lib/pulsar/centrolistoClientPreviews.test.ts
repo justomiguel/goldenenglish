@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   attachClientPreviewMedia,
   centrolistoClientPreviewPaths,
+  pickHomeClientPreviews,
 } from "@/lib/pulsar/centrolistoClientPreviews";
 
 describe("centrolistoClientPreviews", () => {
@@ -47,5 +48,25 @@ describe("centrolistoClientPreviews", () => {
       previewPosterSrc: undefined,
       logoSrc: "/images/nago/logo/logo.png",
     });
+  });
+
+  it("picks two linked schools and puts media first", () => {
+    const picked = pickHomeClientPreviews([
+      { slug: "plain", publicUrl: "https://plain.example", hosts: [] },
+      {
+        slug: "golden",
+        publicUrl: "https://golden.example",
+        hosts: ["golden.example"],
+        previewVideoSrc: "/centrolisto/clients/golden.webm",
+      },
+      { slug: "orphan", publicUrl: null, hosts: [] },
+      {
+        slug: "zenit",
+        publicUrl: null,
+        hosts: ["zenit.example"],
+        previewPosterSrc: "/centrolisto/clients/espaciozenit.jpg",
+      },
+    ]);
+    expect(picked.map((row) => row.slug)).toEqual(["golden", "zenit"]);
   });
 });

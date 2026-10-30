@@ -6,9 +6,9 @@ import {
   ADMIN_SESSION_FORBIDDEN,
   ADMIN_SESSION_UNAUTHORIZED,
 } from "@/lib/dashboard/adminSessionErrors";
-import { loadAdminArticles } from "@/lib/blog/server";
-import { canDeleteArticle } from "@/lib/blog/permissions";
-import { BlogAdminListShell } from "@/components/dashboard/admin/cms/blog/BlogAdminListShell";
+import { loadAdminArticles, loadBlogAdminStats, loadBlogHubSettings } from "@/lib/blog/server";
+import { canDeleteArticle, canReviewArticles } from "@/lib/blog/permissions";
+import { BlogHub } from "@/components/dashboard/admin/cms/blog/BlogHub";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -32,18 +32,47 @@ export default async function AdminBlogPage({ params }: PageProps) {
   }
 
   const dict = await getDictionary(locale);
+  const blog = dict.admin.cms.blog;
+  const canConfigure = canReviewArticles(role);
   const list = await loadAdminArticles(supabase, {
     locale: locale as "en" | "es" | "pt",
     page: 1,
     pageSize: 24,
   });
+  const settings = canConfigure ? await loadBlogHubSettings() : null;
+  const stats = canConfigure
+    ? await loadBlogAdminStats(supabase, locale as "en" | "es" | "pt")
+    : null;
 
   return (
-    <BlogAdminListShell
+    <BlogHub
       locale={locale}
+      canConfigure={canConfigure}
       rows={list.rows}
       canDelete={canDeleteArticle(role)}
-      labels={dict.admin.cms.blog.list}
+      listLabels={blog.list}
+      hubLabels={blog.hub}
+      config={
+        settings
+          ? {
+              ...settings,
+              labels: blog.config,
+            }
+          : null
+      }
+      stats={
+        stats
+          ? {
+              locale,
+              reading: stats.reading,
+              listToArticle: stats.listToArticle,
+              ctaRate: stats.ctaRate,
+              commentRate: stats.commentRate,
+              rows: stats.rows,
+              labels: blog.stats,
+            }
+          : null
+      }
     />
   );
 }

@@ -1,4 +1,5 @@
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
+import { postgresSchemaForInstituteSlug } from "@/lib/tenant/postgresSchemaForInstituteSlug";
 import { mergeTenantPreviewHosts } from "@/lib/tenant/pulsarSubdomain";
 import {
   getPulsarHosts,
@@ -10,6 +11,13 @@ import {
 export type ValidatedPulsarTenantInput = Omit<PulsarTenantRecord, "updatedAt">;
 
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{0,62})$/u;
+
+export type SharedPulsarCredentials = {
+  url: string;
+  anonKey: string;
+  serviceRoleKey: string;
+  databaseUrl: string;
+};
 
 function optString(v: unknown): string | null {
   if (typeof v !== "string") return null;
@@ -39,11 +47,13 @@ export function validatePulsarTenantInput(
   input: unknown,
   existingTenants: readonly PulsarTenantRecord[],
   editingSlug?: string,
+  sharedCredentials?: SharedPulsarCredentials | null,
 ): { ok: true; value: ValidatedPulsarTenantInput } | { ok: false; errorCode: string } {
   if (!input || typeof input !== "object") {
     return { ok: false, errorCode: "invalid_input" };
   }
   const raw = input as Record<string, unknown>;
+  const dataMode = raw.dataMode === "shared_schema" ? "shared_schema" : "project";
   const slug = optString(raw.slug)?.toLowerCase() ?? "";
   if (!slug || slug === PULSAR_SLUG || !SLUG_RE.test(slug)) {
     return { ok: false, errorCode: "invalid_slug" };
@@ -71,11 +81,14 @@ export function validatePulsarTenantInput(
         .filter((h) => h.length > 0),
     ),
   );
-  if (hosts.length === 0) {
+  if (hosts.length === 0 && dataMode !== "shared_schema") {
     return { ok: false, errorCode: "missing_hosts" };
   }
 
   const mergedHosts = mergeTenantPreviewHosts(hosts, slug, getPulsarHosts());
+  if (mergedHosts.length === 0) {
+    return { ok: false, errorCode: "missing_hosts" };
+  }
 
   for (const host of mergedHosts) {
     if (isPulsarHost(host)) {
@@ -89,10 +102,35 @@ export function validatePulsarTenantInput(
     }
   }
 
-  const supabaseUrl = optString(raw.supabaseUrl);
-  const supabaseAnonKey = optString(raw.supabaseAnonKey);
-  const supabaseServiceRoleKey = optString(raw.supabaseServiceRoleKey);
-  if (!supabaseUrl || !isValidHttpUrl(supabaseUrl) || !supabaseAnonKey || !supabaseServiceRoleKey) {
+  let supabaseUrl = optString(raw.supabaseUrl);
+  let supabaseAnonKey = optString(raw.supabaseAnonKey);
+  let supabaseServiceRoleKey = optString(raw.supabaseServiceRoleKey);
+  let databaseUrl = optString(raw.databaseUrl);
+  let postgresSchema = "public";
+  if (dataMode === "shared_schema") {
+    if (
+      !sharedCredentials?.url ||
+      !sharedCredentials.anonKey ||
+      !sharedCredentials.serviceRoleKey ||
+      !sharedCredentials.databaseUrl
+    ) {
+      return { ok: false, errorCode: "pulsar_shared_db_unconfigured" };
+    }
+    supabaseUrl = sharedCredentials.url;
+    supabaseAnonKey = sharedCredentials.anonKey;
+    supabaseServiceRoleKey = sharedCredentials.serviceRoleKey;
+    databaseUrl = sharedCredentials.databaseUrl;
+    try {
+      postgresSchema = postgresSchemaForInstituteSlug(slug);
+    } catch {
+      return { ok: false, errorCode: "invalid_slug" };
+    }
+  } else if (
+    !supabaseUrl ||
+    !isValidHttpUrl(supabaseUrl) ||
+    !supabaseAnonKey ||
+    !supabaseServiceRoleKey
+  ) {
     return { ok: false, errorCode: "invalid_supabase_credentials" };
   }
 
@@ -101,10 +139,24 @@ export function validatePulsarTenantInput(
     return { ok: false, errorCode: "invalid_public_url" };
   }
 
-  const paymentKey = optString(raw.paymentGatewaySecretEncryptionKey);
-  if (paymentKey && !isValid32ByteBase64Key(paymentKey)) {
+  const previous = editingSlug
+    ? existingTenants.find((tenant) => tenant.slug === editingSlug)
+    : undefined;
+  const submittedPaymentKey = editingSlug
+    ? optString(raw.paymentGatewaySecretEncryptionKey)
+    : null;
+  if (submittedPaymentKey && !isValid32ByteBase64Key(submittedPaymentKey)) {
     return { ok: false, errorCode: "invalid_payment_key" };
   }
+  const paymentKey = editingSlug
+    ? (submittedPaymentKey ?? previous?.paymentGatewaySecretEncryptionKey ?? null)
+    : null;
+  const kvRestApiUrl = editingSlug
+    ? (optString(raw.kvRestApiUrl) ?? previous?.kvRestApiUrl ?? null)
+    : null;
+  const kvRestApiToken = editingSlug
+    ? (optString(raw.kvRestApiToken) ?? previous?.kvRestApiToken ?? null)
+    : null;
 
   return {
     ok: true,
@@ -116,7 +168,9 @@ export function validatePulsarTenantInput(
       supabaseUrl,
       supabaseAnonKey,
       supabaseServiceRoleKey,
-      databaseUrl: optString(raw.databaseUrl),
+      databaseUrl,
+      dataMode,
+      postgresSchema,
       brandThemeSlug: optString(raw.brandThemeSlug),
       mailTenant: optString(raw.mailTenant),
       resendFromEmail: optString(raw.resendFromEmail),
@@ -131,8 +185,8 @@ export function validatePulsarTenantInput(
       vapidContactEmail: optString(raw.vapidContactEmail),
       googleMapsApiKey: optString(raw.googleMapsApiKey),
       googleMapsMapId: optString(raw.googleMapsMapId),
-      kvRestApiUrl: optString(raw.kvRestApiUrl),
-      kvRestApiToken: optString(raw.kvRestApiToken),
+      kvRestApiUrl,
+      kvRestApiToken,
       debugLogin: Boolean(raw.debugLogin),
       skipInitialSiteSetup: Boolean(raw.skipInitialSiteSetup),
     },

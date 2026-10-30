@@ -413,6 +413,71 @@
       "cta": "Continuar a instalação",
       "footerNote": "A marca do instituto é configurada no assistente de configuração. Software de plataforma da Sistemas MV."
     },
+    "genericContact": {
+      "email": "E-mail",
+      "phone": "Telefone",
+      "address": "Endereço",
+      "whatsapp": "WhatsApp"
+    },
+    "genericSectionLabels": {
+      "historia": "História",
+      "oferta": "O que o dia inclui",
+      "modalidades": "Formas de participar",
+      "niveles": "Grupos",
+      "certificaciones": "Progresso"
+    },
+    "genericLandings": {
+      "deportes": {
+        "name": "Esportes",
+        "scene": "Sábado, 9:10",
+        "title": "O grupo já está na quadra quando você chega.",
+        "body": "A lista do dia e o aviso às famílias ficam no mesmo lugar.",
+        "imageAlt": "Quadra de manhã, antes do treino",
+        "laterTitle": "A segunda-feira não começa com uma planilha.",
+        "laterBody": "Quem treina vê quem veio. Quem administra vê as vagas.",
+        "cta": "Escrever ao instituto"
+      },
+      "jardin": {
+        "name": "Jardim",
+        "scene": "Segunda, 8:05",
+        "title": "A sala abre e cada família sabe o horário de chegada.",
+        "body": "O horário do dia e o recado ficam visíveis antes de sair de casa.",
+        "imageAlt": "Sala quieta no início do dia",
+        "laterTitle": "A tarde fecha sem uma corrente de mensagens.",
+        "laterBody": "Quem cuida da sala vê a presença. A família vê a hora da saída.",
+        "cta": "Escrever ao jardim"
+      },
+      "colegio": {
+        "name": "Colégio",
+        "scene": "Terça, 7:40",
+        "title": "A aula começa e a lista já está pronta.",
+        "body": "Famílias, docentes e a secretaria olham o mesmo horário.",
+        "imageAlt": "Pátio da escola antes do primeiro sinal",
+        "laterTitle": "O intervalo não começa com uma dúvida.",
+        "laterBody": "A turma, a sala e o aviso do dia já estão publicados.",
+        "cta": "Escrever ao colégio"
+      },
+      "musica": {
+        "name": "Música",
+        "scene": "Quinta, 18:20",
+        "title": "A sala de ensaio está pronta antes de o grupo chegar.",
+        "body": "O horário da aula e o aviso às famílias ficam em um só lugar.",
+        "imageAlt": "Sala de ensaio antes da aula",
+        "laterTitle": "Depois da aula, ninguém procura o papel.",
+        "laterBody": "Quem ensina vê quem veio. A família vê a próxima hora.",
+        "cta": "Escrever à escola"
+      },
+      "idiomas": {
+        "name": "Idiomas",
+        "scene": "Quarta, 19:05",
+        "title": "A aula começa na hora, com o grupo já anotado.",
+        "body": "O nível, o horário e as vagas aparecem antes da porta.",
+        "imageAlt": "Sala antes da aula da tarde",
+        "laterTitle": "Ao sair, a próxima aula já tem data.",
+        "laterBody": "Quem ensina vê a lista. Quem estuda vê o horário.",
+        "cta": "Escrever ao instituto"
+      }
+    },
     "questionnaires": {
       "title": "Questionários",
       "cta": "Abrir",
@@ -2020,7 +2085,9 @@
           "pin": "Fixar",
           "unpin": "Desafixar",
           "edit": "Editar",
-          "views": "Visualizações"
+          "views": "Visualizações",
+          "publicRead": "Público",
+          "membersOnly": "Só com conta"
         },
         "editor": {
           "title": "Título",
@@ -2059,6 +2126,13 @@
           "metaTags": "Tags CSV",
           "metaScheduled": "Agendado para",
           "metaPinned": "Fixado",
+          "visibility": "Quem pode ler",
+          "visibilityPublic": "Público",
+          "visibilityMembers": "Só com conta",
+          "comments": "Comentários",
+          "ctaLabel": "Texto do botão",
+          "ctaUrl": "Link do botão",
+          "ctaError": "Escreva o texto do botão e um link válido.",
           "fileError": "O arquivo é muito grande ou não é suportado.",
           "attach": {
             "clipTooltip": "Anexar mídia",
@@ -2089,7 +2163,28 @@
           "empty": "Não há comentários para moderar.",
           "hide": "Ocultar",
           "show": "Mostrar",
-          "flag": "Sinalizar"
+          "flag": "Sinalizar",
+          "approve": "Aprovar",
+          "pending": "Pendente de revisão"
+        },
+        "hub": {
+          "articles": "Artigos",
+          "config": "Configuração",
+          "stats": "Estatísticas"
+        },
+        "config": {
+          "save": "Salvar",
+          "blogEnabled": "O blog é público",
+          "comments": "Comentários",
+          "guestComments": "Pessoas sem conta podem comentar"
+        },
+        "stats": {
+          "reading": "Leitura",
+          "listToArticle": "Lista ao artigo",
+          "ctaRate": "Botão",
+          "commentRate": "Comentários",
+          "empty": "Não há leitura nos últimos 30 dias.",
+          "emDash": "—"
         }
       },
       "templates": {
@@ -2364,7 +2459,12 @@
               "espaciozenit": "Espaço Zenit",
               "nago": "Capoeira Nagô",
               "mimundo": "Mi Mundo",
-              "liora": "Liora Studio"
+              "liora": "Liora Studio",
+              "deportes": "Esportes",
+              "jardin": "Jardim",
+              "colegio": "Colégio",
+              "musica": "Música",
+              "idiomas": "Idiomas"
             },
             "saveCta": "Aplicar estilo",
             "saveSuccess": "Estilo aplicado.",
@@ -5491,6 +5591,32 @@
     "contactEmailOnly": "Escreva para {{email}}.",
     "contactPhoneOnly": "Ligue para {{phone}}.",
     "kinds": {
+      "generic": {
+        "metaTitle": "Perguntas sobre este instituto",
+        "metaDescription": "Idade de início, horário, tamanho do grupo e como se inscrever.",
+        "items": [
+          {
+            "id": "age",
+            "q": "A partir de qual idade é possível começar?",
+            "a": "O instituto define a idade de início. A ficha do grupo mostra a faixa."
+          },
+          {
+            "id": "schedule",
+            "q": "Onde vejo o horário?",
+            "a": "O horário do grupo está neste site. Você também pode escrever pela página de contato."
+          },
+          {
+            "id": "group",
+            "q": "Qual é o tamanho de um grupo?",
+            "a": "Cada grupo mostra as vagas abertas. Se houver lugar, você pode pedir a inscrição."
+          },
+          {
+            "id": "enroll",
+            "q": "Como me inscrevo?",
+            "a": "Use a página de inscrição deste site. Para um horário ou um valor, escreva pelo contato."
+          }
+        ]
+      },
       "classic": {
         "metaTitle": "Perguntas sobre as aulas de inglês",
         "metaDescription": "Idades, aulas presenciais e ao vivo, níveis e preparação Cambridge.",
@@ -6164,6 +6290,36 @@
       "sectionModeLead": "Crie rotas globais e ordene o conteúdo do repositório como etapas de rota.",
       "learningRoutesTitle": "Rotas de aprendizagem",
       "learningRoutesLead": "Crie rotas globais ordenadas a partir do conteúdo do repositório. As seções escolhem uma mais tarde ou permanecem no modo de fluxo livre.",
+      "coursesTab": "Cursos",
+      "coursesLead": "Empacote itens do repositório em módulos e aulas. Publique um preço para mostrar o curso na loja.",
+      "coursesEmpty": "Ainda não há cursos.",
+      "courseTitle": "Título do curso",
+      "courseMode": "Progresso",
+      "courseModeOpen": "Aberto",
+      "courseModeSequential": "Uma aula de cada vez",
+      "coursePrice": "Preço",
+      "courseListed": "Mostrar na loja",
+      "courseModuleTitle": "Título do módulo",
+      "courseLessonTitle": "Título da aula",
+      "courseLessonItem": "Item do repositório",
+      "courseAddLesson": "Adicionar aula",
+      "courseAddModule": "Adicionar módulo",
+      "courseCreate": "Criar curso",
+      "courseCreating": "Salvando",
+      "courseCreateFailed": "Não conseguimos criar este curso.",
+      "courseNeedItem": "Adicione um item do repositório antes de criar um curso.",
+      "courseStatusDraft": "Rascunho",
+      "courseStatusPublished": "Publicado",
+      "courseShopYes": "Na loja",
+      "courseShopNo": "Fora da loja",
+      "coursePrev": "Cursos anteriores",
+      "courseNext": "Próximos cursos",
+      "courseAssignSection": "Turma",
+      "courseAssign": "Atribuir à turma",
+      "courseAssignFailed": "Não conseguimos atribuir este curso.",
+      "courseGrantEmail": "E-mail do aluno",
+      "courseGrant": "Atribuir ao aluno",
+      "courseGrantFailed": "Não conseguimos atribuir este curso a esse aluno.",
       "globalRouteOption": "Rota reutilizável global",
       "globalRouteLead": "Projete a rota reutilizável uma vez; atribua-o posteriormente na guia Rota de aprendizagem de uma seção.",
       "newLearningRouteOption": "Nova rota de aprendizagem",
@@ -10592,6 +10748,16 @@
     "student": {
       "title": "Meu progresso",
       "kicker": "Área estudantil",
+      "courses": {
+        "originSection": "Da sua turma",
+        "originPurchase": "Você comprou",
+        "originAssignment": "Atribuído a você",
+        "locked": "Termine a aula anterior para abrir esta",
+        "complete": "Marcar como feita",
+        "completed": "Feita",
+        "completing": "Salvando",
+        "completeFailed": "Não conseguimos salvar. Tente de novo."
+      },
       "badges": {
         "title": "Conquistas",
         "kicker": "Conquistas",
@@ -11426,6 +11592,9 @@
         "feedbackMany": "{count} comentários",
         "badgesOne": "1 conquista",
         "badgesMany": "{count} conquistas",
+        "sectionCourses": "Cursos",
+        "coursesOne": "1 curso",
+        "coursesMany": "{count} cursos",
         "emptyTitle": "Ainda não há nada para mostrar",
         "emptyBody": "Avaliações, tarefas, comentários do professor e conquistas aparecem aqui assim que a escola publica.",
         "loadFailedCount": "Não foi possível carregar",
@@ -12317,7 +12486,12 @@
       "send": "Enviar",
       "signInRequired": "Faça login para comentar",
       "report": "Denunciar",
-      "rateLimited": "Comentários em excesso. Tente novamente mais tarde."
+      "rateLimited": "Comentários em excesso. Tente novamente mais tarde.",
+      "guestName": "Nome",
+      "guestEmail": "E-mail",
+      "guestSend": "Enviar comentário",
+      "guestPending": "Seu comentário fica pendente de revisão.",
+      "guestOpen": "Escreva um comentário"
     }
   },
   "shop": {
@@ -12326,7 +12500,22 @@
       "lead": "Uniformes, livros e kits. Levantamento no instituto.",
       "empty": "Não há produtos disponíveis agora.",
       "soldOut": "Esgotado",
-      "viewProduct": "Ver produto"
+      "viewProduct": "Ver produto",
+      "coursesTitle": "Cursos"
+    },
+    "course": {
+      "back": "Voltar à loja",
+      "enrollFree": "Inscrever-me",
+      "payFlow": "Pagar com Flow",
+      "payMercadoPago": "Pagar com Mercado Pago",
+      "signIn": "Entre para se inscrever",
+      "wardLabel": "Aluno",
+      "minor": "Um aluno menor de idade não pode pagar. Um responsável pode comprar este curso.",
+      "missingBirthDate": "Adicione sua data de nascimento antes de pagar por si.",
+      "notStudent": "Só um aluno ou um responsável pode se inscrever.",
+      "notLinked": "Escolha um aluno vinculado à sua conta.",
+      "failed": "Não conseguimos iniciar esta inscrição. Tente de novo.",
+      "saving": "Salvando"
     },
     "product": {
       "back": "Voltar à loja",
@@ -12399,8 +12588,10 @@
       "footerRights": "CentroListo.cl · Infraestrutura dedicada e software de crescimento para academias, centros e institutos."
     },
     "home": {
-      "eyebrow": "Para quem abriu uma escola por amor a ensinar, não por amor às planilhas",
-      "title": "Quando a administração deixa de fazer barulho, a sua escola volta a ter tempo para o que importa.",
+      "eyebrow": "Quando a administração deixa de fazer barulho.",
+      "title": "A matrícula, os horários e os pagamentos da sua escola, na sua própria casa.",
+      "heroImageAlt": "A mesa de uma escola: alunos, pagamentos e inscrições.",
+      "heroImageCaption": "Alunos, pagamentos e inscrições, com o nome da escola.",
       "lead": "Um lugar próprio onde uma família descobre a sua proposta no domingo à noite, escolhe o horário sem esperar no telefone, acompanha o caminho dos filhos e mantém os pagamentos em dia sem conversas desconfortáveis.",
       "primaryCta": "Conversar sobre a sua escola",
       "secondaryCta": "Percorrer como funciona por dentro",
@@ -12429,6 +12620,10 @@
         "title": "Quatro momentos em que você nota que o emaranhado desapareceu",
         "lead": "Escolha um momento da semana para ver como vive quem dirige, quem ensina e a família que acompanha de casa.",
         "modulesBadge": "O que acontece em silêncio por trás",
+        "marksAria": "Canais que este momento nomeia",
+        "markWhatsapp": "WhatsApp",
+        "markFlow": "Flow",
+        "markMercadoPago": "Mercado Pago",
         "videoSurfaceDesktop": "Computador",
         "videoSurfaceMobile": "Celular PWA",
         "tabs": [
@@ -12529,6 +12724,32 @@
       "pillar2Body": "Quem entra vê o seu domínio, a sua estética, as suas palavras e o ícone da sua escola na tela inicial. O CentroListo permanece invisível atrás da sua marca.",
       "pillar3Title": "Um só fio desde o primeiro cumprimento até o último dia do ano",
       "pillar3Body": "A página pública, as aulas experimentais, os grupos, a frequência do professor, as tarefas, as mostras com ingressos e as mensalidades conversam em silêncio entre si.",
+      "craftsLine": "Institutos de idiomas, escolas de dança e música, dojos e espaços de primeira infância.",
+      "offerStrip": "Meia hora. Nessa conversa você vê o seu domínio, a sua marca e como entra a sua lista atual.",
+      "whatsappCta": "Conversar pelo WhatsApp",
+      "schoolsTitle": "Escolas que já ensinam com a casa em ordem",
+      "schoolsLead": "Cada uma conserva o nome, o site e a marca.",
+      "schoolsNamed": "{name} já ensina com o nome, o site e a marca.",
+      "schoolsMore": "Ver todas as escolas",
+      "startTitle": "Como a casa fica pronta",
+      "startLead": "Você conta como trabalha. Nós preparamos a casa e trazemos a sua lista atual.",
+      "faqTitle": "Antes de mudar de ferramenta",
+      "faq": [
+        {
+          "q": "Serve para uma família com vários filhos e uma bolsa?",
+          "a": "Irmãos, bolsas e descontos ficam na mesma mensalidade."
+        },
+        {
+          "q": "O que a família vê no telefone?",
+          "a": "O acesso leva o escudo, o nome e as cores da sua escola."
+        },
+        {
+          "q": "O que acontece com a planilha e o WhatsApp deste mês?",
+          "a": "Trazemos a sua lista atual. O WhatsApp fica para a conversa próxima. Horários, vagas e pagamentos vivem na sua casa."
+        }
+      ],
+      "freeSiteNote": "Uma conta grátis abre só a página pública. A matrícula, os pagamentos e o app das famílias seguem na conversa. Você pode abrir até três sites.",
+      "freeSiteCta": "Abrir a página pública",
       "bottomCta": {
         "title": "Gostaria de ver como a sua escola se sentiria com tudo no seu lugar?",
         "lead": "Podemos conversar meia hora sem compromisso, ouvir como você organiza hoje os grupos e mostrar ao vivo como funcionaria com a identidade do seu centro.",
@@ -12704,7 +12925,7 @@
       "emailCta": "Escrever por e-mail",
       "whatsappLabel": "Atendimento comercial rápido",
       "whatsappValue": "Agende a sua demo ou tire dúvidas pelo WhatsApp",
-      "whatsappHref": "https://wa.me/56900000000?text=Ol%C3%A1%2C%20quero%20conhecer%20o%20CentroListo.cl",
+      "whatsappHref": "https://wa.me/56965789862?text=Ol%C3%A1%2C%20quero%20conhecer%20o%20CentroListo.cl",
       "whatsappCta": "Falar no WhatsApp",
       "checklistTitle": "O que inclui a implantação chave na mão da sua instituição",
       "check1": "Projeto Supabase 100% dedicado (Postgres, Auth, Storage e backups exclusivos).",
@@ -12732,7 +12953,109 @@
         }
       ]
     },
+    "account": {
+      "registerTitle": "Crie sua conta",
+      "registerLead": "Um admin revisa a conta. Depois você pode abrir até 3 sites grátis.",
+      "loginTitle": "Entrar",
+      "loginLead": "Use o e-mail e a senha da sua conta Pulsar.",
+      "email": "E-mail",
+      "password": "Senha",
+      "submitRegister": "Criar conta",
+      "submitLogin": "Entrar",
+      "homeTitle": "Seus sites",
+      "homeLead": "Cada conta grátis pode abrir 3 sites.",
+      "pageOnly": "Esta conta abre a página pública. Não inclui alunos, cobranças nem inscrição.",
+      "openPage": "Ver página",
+      "previewLabel": "Prévia",
+      "dnsCname": "Crie um CNAME de {name} para {target}.",
+      "dnsApex": "Crie um registro A de {name} para {target}.",
+      "domainSave": "Salvar domínio",
+      "domainSaved": "Domínio salvo.",
+      "empty": "Você ainda não tem um site.",
+      "create": "Novo site",
+      "signOut": "Sair",
+      "closeSite": "Fechar site",
+      "editSite": "Editar site",
+      "createTitle": "Abrir um site",
+      "createLead": "Um site grátis usa um modelo e o banco compartilhado. Você pode adicionar seu domínio. Você pode abrir 3.",
+      "displayName": "Nome do lugar",
+      "slug": "Endereço curto",
+      "customDomain": "Seu domínio",
+      "customDomainHint": "Opcional. Exemplo: meuinstituto.com",
+      "domainFailed": "O site ficou aberto, mas o domínio não entrou na Vercel.",
+      "domainTaken": "Esse domínio já está em uso.",
+      "domainInvalid": "Confira o domínio. Use um host como meuinstituto.com.",
+      "template": "Modelo",
+      "submitCreate": "Abrir site",
+      "limitReached": "Esta conta já tem 3 sites grátis.",
+      "emailTaken": "Esse e-mail já tem uma conta.",
+      "invalidInput": "Revise o e-mail e use uma senha de pelo menos 8 caracteres.",
+      "createFailed": "Não foi possível abrir o site. Tente de novo.",
+      "slugTaken": "Esse endereço curto já está em uso.",
+      "backToSites": "Voltar aos seus sites",
+      "basicsTitle": "Texto e contato da página",
+      "basicsLead": "Estes campos mudam a página pública.",
+      "seoTitle": "Título no Google",
+      "seoDescription": "Descrição no Google",
+      "hideSections": "Ocultar uma seção",
+      "faviconMode": "Ícone",
+      "faviconImage": "Usar a imagem enviada",
+      "faviconLetter": "Usar a primeira letra",
+      "saveBasics": "Salvar página",
+      "saved": "Salvo.",
+      "pendingLead": "Um admin ainda precisa aprovar esta conta. Vamos avisar por e-mail.",
+      "rejectedLead": "Um admin não aprovou esta conta."
+    },
+    "mail": {
+      "requestedAdminSubject": "Nova conta no Pulsar",
+      "requestedAdminBody": "{email} pediu uma conta.",
+      "requestedUserSubject": "Recebemos sua conta",
+      "requestedUserBody": "Um admin vai revisar. Vamos escrever quando estiver aprovada.",
+      "approvedSubject": "Sua conta já pode abrir sites",
+      "approvedBody": "Você já pode entrar e abrir até 3 sites grátis.",
+      "rejectedSubject": "Sua conta não foi aprovada",
+      "rejectedBody": "Um admin não aprovou esta conta.",
+      "siteSubject": "Seu site já está aberto",
+      "siteBody": "{name} ficou pronto em {slug}.",
+      "siteAdminSubject": "Um site grátis foi aberto",
+      "siteAdminBody": "{email} abriu {name} ({slug}).",
+      "testSubject": "Teste de e-mail do Pulsar",
+      "testBody": "Esta é uma mensagem de teste. Se você consegue ler isto, o envio funcionou."
+    },
     "admin": {
+      "owners": {
+        "title": "Contas em espera",
+        "empty": "Não há contas em espera.",
+        "approve": "Aprovar",
+        "reject": "Recusar",
+        "pending": "Em espera",
+        "approved": "Aprovada",
+        "rejected": "Recusada"
+      },
+      "mail": {
+        "title": "E-mail do Pulsar",
+        "lead": "O Resend envia os avisos de contas e sites. A chave não aparece de novo.",
+        "fromEmail": "Remetente",
+        "notifyEmail": "E-mail do admin",
+        "apiKey": "Chave do Resend",
+        "apiKeyKeep": "Deixe isto vazio para manter a chave salva.",
+        "save": "Salvar e-mail",
+        "saved": "Salvo.",
+        "keySaved": "A chave está salva.",
+        "keyMissing": "Falta a chave do Resend.",
+        "sendTest": "Enviar teste",
+        "testSent": "O teste saiu para o e-mail do admin.",
+        "testLead": "O teste usa o remetente e o e-mail do admin já salvos.",
+        "lastSent": "O último envio funcionou.",
+        "unconfigured": "Falta a chave ou o remetente.",
+        "rejected": "O Resend recusou o envio.",
+        "failed": "O envio não terminou.",
+        "notifyMissing": "Falta o e-mail do admin.",
+        "saveFailed": "Não foi possível salvar."
+      },
+      "tabSites": "Sites",
+      "tabAccounts": "Contas",
+      "tabMail": "E-mail",
       "eyebrow": "CENTROLISTO CONTROL PLANE",
       "title": "Administração de tenants",
       "lead": "Monitoramento ao vivo de disponibilidade, tráfego (7 e 30 dias) e credenciais por instituto.",
@@ -12770,7 +13093,38 @@
         "noHits": "Sem registros",
         "openPublicSite": "Abrir site",
         "enableAction": "Ativar",
-        "disableAction": "Pausar"
+        "disableAction": "Pausar",
+        "columnBase": "Base",
+        "columnMigration": "Migração",
+        "columnOwner": "Dono",
+        "dataModeProject": "Própria",
+        "dataModeShared": "Partilhada",
+        "migrationCurrent": "Em dia",
+        "migrationBehind": "Atrasada",
+        "migrationUnknown": "Sem registo",
+        "ownerStaff": "Staff",
+        "ownerSlots": "{used} de 3",
+        "previewRole": "Pré-visualização",
+        "customRole": "Domínio próprio",
+        "dnsCname": "CNAME {name} → {target}",
+        "dnsApex": "A {name} → {target}",
+        "vercelAttached": "Na Vercel",
+        "vercelMissing": "Fora da Vercel",
+        "vercelSkipped": "Sem token da Vercel",
+        "vercelFailed": "A Vercel não respondeu",
+        "chartTitle": "Visitas por dia",
+        "chartEmpty": "Não foi possível ler as visitas deste instituto.",
+        "chartVisits": "Visitas",
+        "fleetChartTitle": "Visitas dos últimos 7 dias",
+        "partnersTitle": "Serviços conectados",
+        "partnerFlow": "Flow",
+        "partnerMercadoPago": "Mercado Pago",
+        "partnerWhatsapp": "WhatsApp",
+        "partnerResend": "Resend",
+        "partnerMaps": "Google Maps",
+        "partnerUpstash": "Upstash",
+        "partnerSupabase": "Supabase",
+        "partnerVercel": "Vercel"
       },
       "login": {
         "title": "Acesso ao CentroListo Control Plane",
@@ -12811,6 +13165,23 @@
         "testFail": "Não foi possível conectar ao projeto Supabase",
         "savedNotice": "Tenant salvo e registro atualizado em memória.",
         "sectionIdentity": "Identidade e domínios",
+        "dataModeLegend": "Banco de dados",
+        "dataModeProject": "Projeto Supabase próprio",
+        "dataModeShared": "Banco do Pulsar",
+        "dataModeSharedLead": "Este instituto recebe o próprio schema no banco do Pulsar. O host de pré-visualização é adicionado sozinho.",
+        "templateLead": "A primeira visita abre o assistente. Se você não enviar um favicon, o ícone do modelo permanece.",
+        "closeCta": "Fechar site",
+        "closeTitle": "Fechar este site",
+        "closeLead": "Isto apaga o registro do site e a pasta de imagens. Se o site usa a base do Pulsar, o schema também é apagado. Uma base externa fica nesse projeto. Você não pode desfazer.",
+        "closeSlugLabel": "Digite o identificador do site",
+        "closeSlugMismatch": "O identificador não confere.",
+        "closeCancel": "Cancelar",
+        "closeConfirm": "Apagar o site",
+        "themeCta": "Editar o site",
+        "themePhotosCta": "Fotos de cada seção",
+        "themeBack": "Voltar ao instituto",
+        "themeMissing": "Este instituto ainda não tem um tema ativo.",
+        "templateUnset": "Sem modelo",
         "sectionSupabase": "Projeto Supabase do instituto",
         "sectionEmail": "E-mail transacional (Resend)",
         "sectionPaymentsKv": "Criptografia de pagamentos e KV / Redis",
@@ -12821,7 +13192,7 @@
           "isEnabled": "Tenant habilitado para receber tráfego",
           "hosts": "Domínios (separados por vírgula ou quebra de linha)",
           "publicUrl": "URL pública canônica (https://...)",
-          "brandThemeSlug": "Slug do tema em site_themes (opcional)",
+          "brandThemeSlug": "Modelo da página inicial",
           "skipInitialSiteSetup": "Pular assistente de configuração inicial",
           "debugLogin": "Ativar logs de depuração de login no navegador",
           "supabaseUrl": "Supabase URL (https://xxx.supabase.co)",
@@ -12854,7 +13225,9 @@
           "invalid_public_url": "A URL pública canônica deve começar com http:// ou https://.",
           "invalid_payment_key": "A chave de pagamentos deve codificar exatamente 32 bytes em base64.",
           "unauthorized": "A sua sessão de staff do CentroListo não é válida.",
-          "db_write_failed": "Não foi possível salvar o tenant no banco de dados do CentroListo."
+          "db_write_failed": "Não foi possível salvar o tenant no banco de dados do CentroListo.",
+          "pulsar_shared_db_unconfigured": "Configure PULSAR_SUPABASE_URL, a anon key, a service role key e PULSAR_DATABASE_URL antes de salvar um instituto compartilhado.",
+          "schema_provision_failed": "O schema do instituto não foi criado. Revise o log do servidor e tente de novo."
         }
       }
     }

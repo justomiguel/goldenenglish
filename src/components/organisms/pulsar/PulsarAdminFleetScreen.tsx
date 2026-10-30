@@ -3,12 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Activity, Layers, LogOut, Plus } from "lucide-react";
+import { Activity, Building2, Eye, Layers, LogOut, Mail, Plus, Users } from "lucide-react";
+import { PulsarAdminMailSettings } from "@/components/organisms/pulsar/PulsarAdminMailSettings";
+import { PulsarAdminOwnerReview } from "@/components/organisms/pulsar/PulsarAdminOwnerReview";
+import { UnderlineTabBar, type UnderlineTabItem } from "@/components/molecules/UnderlineTabBar";
+import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import {
   signOutPulsarStaffAction,
   togglePulsarTenantEnabledAction,
 } from "@/app/[locale]/admin/actions";
 import { PulsarAdminFleetTable } from "@/components/organisms/pulsar/PulsarAdminFleetTable";
+import { PulsarAdminFleetVisitChart } from "@/components/organisms/pulsar/PulsarAdminFleetVisitChart";
 import { PulsarAdminPlatformHostsCard } from "@/components/organisms/pulsar/PulsarAdminPlatformHostsCard";
 import type { TenantTelemetrySnapshot } from "@/lib/pulsar/loadPulsarFleetTelemetry";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
@@ -22,7 +27,16 @@ export interface PulsarAdminFleetScreenProps {
   tenants: readonly PulsarTenantRecord[];
   telemetryBySlug: Record<string, TenantTelemetrySnapshot>;
   platformHosts?: readonly string[];
+  owners?: readonly { userId: string; email: string; status: "pending" | "approved" | "rejected" }[];
+  mailSettings?: {
+    fromEmail: string;
+    notifyEmail: string;
+    hasApiKey: boolean;
+    last: { ok: boolean; code: string; detail: string; at: string } | null;
+  };
 }
+
+const ADMIN_TABS = ["sites", "accounts", "mail"] as const;
 
 export function PulsarAdminFleetScreen({
   locale,
@@ -32,9 +46,20 @@ export function PulsarAdminFleetScreen({
   tenants,
   telemetryBySlug,
   platformHosts = [],
+  owners = [],
+  mailSettings = { fromEmail: "", notifyEmail: "", hasApiKey: false, last: null },
 }: PulsarAdminFleetScreenProps) {
   const router = useRouter();
   const copy = dict.pulsar.admin;
+  const { value: tab, setValue: setTab } = usePersistentPageTab({
+    allowed: ADMIN_TABS,
+    fallback: "sites",
+  });
+  const adminTabs: UnderlineTabItem[] = [
+    { id: "sites", label: copy.tabSites, Icon: Building2 },
+    { id: "accounts", label: copy.tabAccounts, Icon: Users },
+    { id: "mail", label: copy.tabMail, Icon: Mail },
+  ];
   const [busySlug, setBusySlug] = useState<string | null>(null);
   const numFmt = new Intl.NumberFormat(locale);
 
@@ -81,9 +106,6 @@ export function PulsarAdminFleetScreen({
               <Layers className="h-5 w-5 text-[var(--color-primary)]" aria-hidden />
               <span>{dict.pulsar.meta.brandName}</span>
             </Link>
-            <span className="rounded-md bg-[var(--color-muted)] px-2.5 py-1 text-xs font-semibold text-[var(--color-primary)]">
-              {copy.eyebrow}
-            </span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -125,41 +147,54 @@ export function PulsarAdminFleetScreen({
           {copy.title}
         </h1>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{copy.lead}</p>
-
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-            <p className="text-xs font-medium text-[var(--color-muted-foreground)]">
-              {copy.summary.totalTenants}
-            </p>
-            <p className="mt-2 text-2xl font-extrabold text-[var(--color-foreground)]">
-              {numFmt.format(tenants.length)}
-            </p>
-          </div>
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-            <p className="text-xs font-medium text-[var(--color-muted-foreground)]">
-              {copy.summary.onlineTenants}
-            </p>
-            <p className="mt-2 text-2xl font-extrabold text-[var(--color-primary)]">
-              {numFmt.format(onlineCount)} / {numFmt.format(tenants.length)}
-            </p>
-          </div>
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-            <p className="text-xs font-medium text-[var(--color-muted-foreground)]">
-              {copy.summary.visits7d}
-            </p>
-            <p className="mt-2 text-2xl font-extrabold text-[var(--color-foreground)]">
-              {numFmt.format(total7d)}
-            </p>
-          </div>
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-            <p className="text-xs font-medium text-[var(--color-muted-foreground)]">
-              {copy.summary.visits30d}
-            </p>
-            <p className="mt-2 text-2xl font-extrabold text-[var(--color-foreground)]">
-              {numFmt.format(total30d)}
-            </p>
-          </div>
+        <div className="mt-6">
+          <UnderlineTabBar
+            idPrefix="pulsar-admin"
+            ariaLabel={copy.title}
+            items={adminTabs}
+            value={tab}
+            onChange={(id) => {
+              if (id === "sites" || id === "accounts" || id === "mail") setTab(id);
+            }}
+          />
         </div>
+        {tab === "accounts" ? <div className="mt-6"><PulsarAdminOwnerReview locale={locale} owners={owners} copy={copy.owners} /></div> : null}
+        {tab === "mail" ? <div className="mt-6"><PulsarAdminMailSettings locale={locale} settings={mailSettings} copy={copy.mail} /></div> : null}
+        {tab === "sites" ? (
+        <>
+        <ul className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm text-[var(--color-muted-foreground)]">
+          <li className="inline-flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-[var(--color-primary)]" aria-hidden />
+            <span>{copy.summary.totalTenants}</span>
+            <span className="font-semibold text-[var(--color-foreground)]">{numFmt.format(tenants.length)}</span>
+          </li>
+          <li className="inline-flex items-center gap-2">
+            <Activity className="h-4 w-4 text-[var(--color-primary)]" aria-hidden />
+            <span>{copy.summary.onlineTenants}</span>
+            <span className="font-semibold text-[var(--color-foreground)]">
+              {numFmt.format(onlineCount)} / {numFmt.format(tenants.length)}
+            </span>
+          </li>
+          <li className="inline-flex items-center gap-2">
+            <Eye className="h-4 w-4 text-[var(--color-primary)]" aria-hidden />
+            <span>{copy.summary.visits7d}</span>
+            <span className="font-semibold text-[var(--color-foreground)]">{numFmt.format(total7d)}</span>
+          </li>
+          <li className="inline-flex items-center gap-2">
+            <Eye className="h-4 w-4 text-[var(--color-primary)]" aria-hidden />
+            <span>{copy.summary.visits30d}</span>
+            <span className="font-semibold text-[var(--color-foreground)]">{numFmt.format(total30d)}</span>
+          </li>
+        </ul>
+        <PulsarAdminFleetVisitChart
+          locale={locale}
+          title={copy.table.fleetChartTitle}
+          visitsLabel={copy.table.chartVisits}
+          rows={tenants.map((tenant) => ({
+            name: tenant.displayName,
+            visits: telemetryBySlug[tenant.slug]?.visits7d ?? 0,
+          }))}
+        />
 
         <PulsarAdminPlatformHostsCard
           locale={locale}
@@ -175,6 +210,8 @@ export function PulsarAdminFleetScreen({
           busySlug={busySlug}
           onToggleTenant={handleToggle}
         />
+        </>
+        ) : null}
       </main>
     </div>
   );

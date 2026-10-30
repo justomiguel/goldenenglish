@@ -617,6 +617,8 @@ describe("tourAnchorDomPresence (L2 isolated)", () => {
     initial: {
       defaultLocale: "en" as const,
       status: "draft",
+      visibility: "public" as const,
+      commentsEnabled: true,
       tags: [] as string[],
       scheduledFor: "",
       isPinned: false,

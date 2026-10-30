@@ -97,6 +97,17 @@ describe("readRequestSupabaseEnvDiagnosis", () => {
     expect(errorSpy).not.toHaveBeenCalled();
   });
 
+  it("does not log when localhost is the pulsar dev target", async () => {
+    process.env.DEV_TENANT_SLUG = "pulsar";
+    headerGet.mockImplementation((name) => (name === "host" ? "localhost:3000" : null));
+
+    const diag = await readRequestSupabaseEnvDiagnosis();
+
+    expect(diag.reason).toBe("pulsar_host");
+    expect(diag.host).toBe("localhost");
+    expect(errorSpy).not.toHaveBeenCalled();
+  });
+
   it("does not log when the host is Pulsar", async () => {
     headerGet.mockImplementation((name) => (name === "host" ? "pulsarlab.cl" : null));
 

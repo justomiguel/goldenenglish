@@ -13,6 +13,7 @@ import { JsonLdOrganization } from "@/components/molecules/JsonLdOrganization";
 import { AnalyticsRoot } from "@/components/analytics/AnalyticsRoot";
 import { PwaInstallPromptHost } from "@/components/molecules/PwaInstallPromptHost";
 import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
+import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import { openGraphLocaleForInstitute } from "@/lib/metadata/buildHomePageMetadata";
 import { lioraPlacesFromSedes } from "@/lib/public/instituteAnswerPages";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
@@ -64,11 +65,11 @@ export async function generateMetadata({
   const activeTheme = needsInitialSiteSetup
     ? null
     : await loadActiveTheme();
-  const shareBundleKey = sharePreviewBundleKeyFromTemplateKind(
-    activeTheme?.theme.templateKind,
-  );
-  const shareContext =
-    dict.socialShare.byKind[shareBundleKey]?.shareContext ?? null;
+  const templateKind = activeTheme?.theme.templateKind;
+  const shareBundleKey = sharePreviewBundleKeyFromTemplateKind(templateKind);
+  const shareContext = isGenericInstituteKind(templateKind)
+    ? null
+    : dict.socialShare.byKind[shareBundleKey]?.shareContext ?? null;
   const description =
     needsInitialSiteSetup
       ? taglinePart

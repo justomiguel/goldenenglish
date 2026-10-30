@@ -53,6 +53,7 @@ export interface CentroListoGenerativeStageProps {
   replayLabel: string;
   activeTenantsCount: number;
   tenantsLabel: string;
+  compact?: boolean;
 }
 
 /**
@@ -65,13 +66,15 @@ export function CentroListoGenerativeStage({
   replayLabel,
   activeTenantsCount,
   tenantsLabel,
+  compact = false,
 }: CentroListoGenerativeStageProps) {
+  const markSize = compact ? 120 : 210;
   const [cycle, setCycle] = useState(0);
 
   return (
     <div
       data-testid="centrolisto-generative-logo"
-      className="relative flex flex-col items-center justify-between rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/65 p-6 sm:p-8"
+      className={`relative flex flex-col items-center justify-between rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/65 ${compact ? "p-4" : "p-6 sm:p-8"}`}
     >
       <style>{`
         @keyframes cl-tangle-dissolve-a {
@@ -114,8 +117,8 @@ export function CentroListoGenerativeStage({
 
       <div key={cycle} className="my-4 flex items-center justify-center">
         <svg
-          width="210"
-          height="210"
+          width={markSize}
+          height={markSize}
           viewBox="0 0 220 220"
           fill="none"
           role="img"
@@ -178,12 +181,14 @@ export function CentroListoGenerativeStage({
             {resolvedCaption}
           </span>
         </p>
-        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-          <strong className="font-semibold text-[var(--color-foreground)]">
-            {activeTenantsCount}
-          </strong>{" "}
-          {tenantsLabel}
-        </p>
+        {compact ? null : (
+          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+            <strong className="font-semibold text-[var(--color-foreground)]">
+              {activeTenantsCount}
+            </strong>{" "}
+            {tenantsLabel}
+          </p>
+        )}
       </div>
     </div>
   );

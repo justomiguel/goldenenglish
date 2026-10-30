@@ -86,20 +86,22 @@ export function PulsarProductoView({ locale, dict }: PulsarProductoViewProps) {
               </div>
             ))}
           </div>
-
-          <div className="mt-14">
-            <Link
-              href={`/${locale}/contacto`}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)]"
-            >
-              <ArrowRight className="h-4 w-4" aria-hidden />
-              <span>{dict.pulsar.nav.cta}</span>
-            </Link>
-          </div>
         </div>
       </section>
 
       <PulsarCompetitorComparisonSection dict={dict} />
+
+      <section className="border-t border-[var(--color-border)] py-16 md:py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <Link
+            href={`/${locale}/contacto`}
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)]"
+          >
+            <ArrowRight className="h-4 w-4" aria-hidden />
+            <span>{dict.pulsar.nav.cta}</span>
+          </Link>
+        </div>
+      </section>
     </PulsarSiteChrome>
   );
 }

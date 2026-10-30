@@ -9,6 +9,19 @@ export function readPulsarSupabasePublicEnv(): { url: string; anonKey: string } 
   return { url, anonKey };
 }
 
+export function readSharedPulsarCredentials(): {
+  url: string;
+  anonKey: string;
+  serviceRoleKey: string;
+  databaseUrl: string;
+} | null {
+  const { url, anonKey } = readPulsarSupabasePublicEnv();
+  const serviceRoleKey = process.env.PULSAR_SUPABASE_SERVICE_ROLE_KEY?.trim() ?? "";
+  const databaseUrl = process.env.PULSAR_DATABASE_URL?.trim() ?? "";
+  if (!url || !anonKey || !serviceRoleKey || !databaseUrl) return null;
+  return { url, anonKey, serviceRoleKey, databaseUrl };
+}
+
 export function isPulsarSupabaseConfigured(): boolean {
   const { url } = readPulsarSupabasePublicEnv();
   const serviceKey = process.env.PULSAR_SUPABASE_SERVICE_ROLE_KEY?.trim() ?? "";

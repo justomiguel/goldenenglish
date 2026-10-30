@@ -38,14 +38,14 @@ export default async function AdminBlogEditPage({ params }: PageProps) {
 
   const { data: article } = await supabase
     .from("blog_articles")
-    .select("id, status, tags, is_pinned, scheduled_for")
+    .select("id, status, tags, is_pinned, scheduled_for, visibility, comments_enabled")
     .eq("id", id)
     .maybeSingle();
   if (!article) redirect(`/${locale}/dashboard/admin/cms/blog`);
 
   const { data: translationRows } = await supabase
     .from("blog_article_translations")
-    .select("locale, title, excerpt, body_html, attachments, slug")
+    .select("locale, title, excerpt, body_html, attachments, slug, cta_label, cta_url")
     .eq("article_id", id);
 
   const translationsByLocale: Partial<
@@ -56,6 +56,8 @@ export default async function AdminBlogEditPage({ params }: PageProps) {
         excerpt: string;
         bodyHtml: string;
         materials: ReturnType<typeof blogAttachmentsToDraftMaterials>;
+        ctaLabel: string;
+        ctaUrl: string;
       }
     >
   > = {};
@@ -67,6 +69,8 @@ export default async function AdminBlogEditPage({ params }: PageProps) {
       excerpt: row.excerpt ?? "",
       bodyHtml: row.body_html ?? "<p></p>",
       materials: blogAttachmentsToDraftMaterials(parseBlogAttachmentsFromDb(row.attachments)),
+      ctaLabel: row.cta_label ?? "",
+      ctaUrl: row.cta_url ?? "",
     };
   }
 
@@ -97,6 +101,8 @@ export default async function AdminBlogEditPage({ params }: PageProps) {
       initial={{
         defaultLocale,
         status: article.status,
+        visibility: article.visibility === "members" ? "members" : "public",
+        commentsEnabled: article.comments_enabled !== false,
         tags: article.tags ?? [],
         scheduledFor: article.scheduled_for
           ? new Date(article.scheduled_for).toISOString().slice(0, 16)

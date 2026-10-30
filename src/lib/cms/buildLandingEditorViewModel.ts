@@ -18,6 +18,10 @@ import { mozarthitosSectionImageSrc } from "@/lib/landing/mozarthitosLandingImag
 import { nagoSectionImageSrc } from "@/lib/landing/nagoLandingImages";
 import { lioraSectionImageSrc } from "@/lib/landing/lioraLandingImages";
 import { sectionImageSrc } from "@/lib/landing/sectionLandingImages";
+import {
+  genericSectionStockPath,
+  isGenericInstituteKind,
+} from "@/lib/theme/genericInstituteTemplates";
 
 /** Resolves a Storage object path to its public URL. The server caller
  *  injects this so the pure builder stays free of Supabase env access; in
@@ -132,8 +136,9 @@ export function buildLandingSectionEditorViewModel(
       position,
       current,
       currentPublicUrl: current ? resolveUrl(current.storagePath) : null,
-      fallbackPublicUrl:
-        kind === "mozarthitos"
+      fallbackPublicUrl: isGenericInstituteKind(kind)
+        ? genericSectionStockPath(kind, section)
+        : kind === "mozarthitos"
           ? mozarthitosSectionImageSrc(section, `${position}.png`)
           : kind === "espaciozenit"
             ? espaciozenitSectionImageSrc(section, `${position}.png`)
@@ -156,7 +161,7 @@ export function buildLandingSectionEditorViewModel(
 export function buildLandingEditorOverview(
   args: BuildArgs,
 ): ReadonlyArray<LandingEditorOverviewItem> {
-  return LANDING_SECTION_SLUGS.map((section) => {
+  const items = LANDING_SECTION_SLUGS.map((section) => {
     const view = buildLandingSectionEditorViewModel(section, args);
     const copyOverrides = view.copy.reduce((acc, field) => {
       const has =
@@ -178,4 +183,6 @@ export function buildLandingEditorOverview(
       blocksCount: view.blocks.length,
     };
   });
+  if (!isGenericInstituteKind(args.templateKind)) return items;
+  return items.filter((item) => item.mediaSlotsTotal > 0 || item.copyFieldsTotal > 0);
 }

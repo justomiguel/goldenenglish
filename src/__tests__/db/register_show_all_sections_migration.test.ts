@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-describe("227_register_show_all_sections.sql", () => {
+describe("227_registration_cohort_and_student_lookup.sql register picker", () => {
   const sql = readFileSync(
-    resolve(process.cwd(), "supabase/migrations/227_register_show_all_sections.sql"),
+    resolve(process.cwd(), "supabase/migrations/227_registration_cohort_and_student_lookup.sql"),
     "utf-8",
   );
 

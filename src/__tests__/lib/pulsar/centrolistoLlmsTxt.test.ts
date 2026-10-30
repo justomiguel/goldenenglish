@@ -8,7 +8,6 @@ describe("buildCentrolistoLlmsTxt", () => {
       name: "centrolisto",
       tagline: "Para quienes abrieron una escuela por amor a enseñar",
       description: "Un lugar propio para tu escuela.",
-      contactEmail: "contacto@centrolisto.cl",
       locales: [
         {
           code: "es",
@@ -26,7 +25,8 @@ describe("buildCentrolistoLlmsTxt", () => {
     expect(text).toContain("# centrolisto");
     expect(text).toContain("[La jornada](https://centrolisto.cl/es)");
     expect(text).toContain("[El oficio detrás de la calma](https://centrolisto.cl/es/producto)");
-    expect(text).toContain("contacto@centrolisto.cl");
+    expect(text).toContain("Contact: https://centrolisto.cl/es/contacto");
+    expect(text).not.toContain("@");
     expect(text).toContain("### ¿Ven el nombre de mi escuela?");
     expect(text).not.toContain("/admin");
     expect(text).not.toContain("wa.me");

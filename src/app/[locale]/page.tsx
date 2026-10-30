@@ -3,7 +3,8 @@ import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { PulsarLandingHome } from "@/components/organisms/pulsar/PulsarLandingHome";
-import { loadAllPulsarTenantsForAdmin } from "@/lib/pulsar/pulsarTenantStore";
+import { pickHomeClientPreviews } from "@/lib/pulsar/centrolistoClientPreviews";
+import { loadCentrolistoPublicClients } from "@/lib/pulsar/loadCentrolistoPublicClients";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { LandingSurfaceGate } from "@/components/organisms/LandingSurfaceGate";
@@ -33,6 +34,8 @@ import { loadHomeEventPopup } from "@/lib/dashboard/events/loadHomeEventPopup";
 import { buildHomePageMetadata } from "@/lib/metadata/buildHomePageMetadata";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
 import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
+import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
+import { seoTextForLocale } from "@/lib/theme/seoTextForLocale";
 import { buildResolvedPublicShareMetadata } from "@/lib/site/buildResolvedPublicShareMetadata";
 import type { SiteThemeKind } from "@/types/theming";
 
@@ -73,12 +76,18 @@ export async function generateMetadata({
   }
   const { brand, dict } = await resolvePublicBrandWithSetup(locale as AppLocale);
   const theme = await loadActiveTheme();
-  const bundle = sharePreviewBundleKeyFromTemplateKind(theme?.theme.templateKind);
+  const kind = theme?.theme.templateKind;
+  const bundle = sharePreviewBundleKeyFromTemplateKind(kind);
+  const seoDescription = seoTextForLocale(theme?.theme.properties, locale, "description");
+  const seoTitle = seoTextForLocale(theme?.theme.properties, locale, "title");
   const description =
-    dict.socialShare.byKind[bundle]?.shareContext ?? dict.socialShare.homeFallback;
+    seoDescription ||
+    (isGenericInstituteKind(kind)
+      ? taglineForLocale(brand, locale)
+      : dict.socialShare.byKind[bundle]?.shareContext ?? dict.socialShare.homeFallback);
   const homeTitle = buildHomePageMetadata(
     brand.name,
-    taglineForLocale(brand, locale),
+    seoTitle || taglineForLocale(brand, locale),
   );
   const share = await buildResolvedPublicShareMetadata({
     what: brand.name,
@@ -97,15 +106,16 @@ export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
   const loc = locale as AppLocale;
   if (await isPulsarPlatformRequest()) {
-    const [dict, tenants] = await Promise.all([
+    const [dict, clients] = await Promise.all([
       getDictionary(loc),
-      loadAllPulsarTenantsForAdmin(),
+      loadCentrolistoPublicClients(),
     ]);
     return (
       <PulsarLandingHome
         locale={locale}
         dict={dict}
-        activeTenantCount={tenants.filter((t) => t.isEnabled).length}
+        activeTenantCount={clients.length}
+        featuredClients={pickHomeClientPreviews(clients)}
       />
     );
   }
@@ -169,6 +179,7 @@ export default async function HomePage({ params }: HomePageProps) {
         blogEnabled={blogEnabled}
         merchEnabled={merchEnabled}
         sessionEmail={sessionEmail}
+        themeProperties={activeTheme?.theme.properties}
         publicCtaMode={publicCtaMode}
         inscriptionsEnabled={inscriptionsEnabled}
       />

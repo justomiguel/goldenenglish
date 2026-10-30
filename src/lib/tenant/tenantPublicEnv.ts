@@ -13,6 +13,9 @@ export function tenantPublicEnv(tenant: TenantConfig): TenantPublicEnv {
     ...(tenant.googleMapsMapId ? { googleMapsMapId: tenant.googleMapsMapId } : {}),
     ...(tenant.vapidPublicKey ? { vapidPublicKey: tenant.vapidPublicKey } : {}),
     ...(tenant.debugLogin ? { debugLogin: true } : {}),
+    ...(tenant.dataMode === "shared_schema" && tenant.postgresSchema
+      ? { postgresSchema: tenant.postgresSchema }
+      : {}),
   };
 }
 

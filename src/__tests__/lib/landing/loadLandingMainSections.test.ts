@@ -31,6 +31,9 @@ vi.mock("@/components/organisms/LandingMainSectionsMimundo", () => ({
 vi.mock("@/components/organisms/LandingMainSectionsLiora", () => ({
   LandingMainSectionsLiora: stub("LandingMainSectionsLiora"),
 }));
+vi.mock("@/components/organisms/LandingMainSectionsGeneric", () => ({
+  LandingMainSectionsGeneric: stub("LandingMainSectionsGeneric"),
+}));
 
 import { loadLandingMainSections } from "@/lib/landing/loadLandingMainSections";
 
@@ -43,6 +46,11 @@ const EXPECTED_NAME: Record<(typeof SITE_THEME_KINDS)[number], string> = {
   nago: "LandingMainSectionsNago",
   mimundo: "LandingMainSectionsMimundo",
   liora: "LandingMainSectionsLiora",
+  deportes: "LandingMainSectionsGenericBound",
+  jardin: "LandingMainSectionsGenericBound",
+  colegio: "LandingMainSectionsGenericBound",
+  musica: "LandingMainSectionsGenericBound",
+  idiomas: "LandingMainSectionsGenericBound",
 };
 
 describe("loadLandingMainSections", () => {

@@ -6,6 +6,7 @@ import { useBlogComments } from "@/hooks/useBlogComments";
 
 interface BlogCommentsSectionProps {
   articleId: string;
+  mode?: "account" | "guest" | "hidden";
   labels: {
     title: string;
     placeholder: string;
@@ -15,7 +16,7 @@ interface BlogCommentsSectionProps {
   };
 }
 
-export function BlogCommentsSection({ articleId, labels }: BlogCommentsSectionProps) {
+export function BlogCommentsSection({ articleId, labels, mode = "account" }: BlogCommentsSectionProps) {
   const { comments, createComment, reportComment } = useBlogComments(articleId);
   const [draft, setDraft] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
@@ -29,6 +30,8 @@ export function BlogCommentsSection({ articleId, labels }: BlogCommentsSectionPr
     }
     setDraft("");
   }
+
+  if (mode !== "account") return null;
 
   return (
     <section className="border-t border-[var(--color-border)] pt-6">
@@ -44,6 +47,9 @@ export function BlogCommentsSection({ articleId, labels }: BlogCommentsSectionPr
           {comments.map((comment) => (
             <li key={comment.id} className="flex flex-wrap items-baseline justify-between gap-2 py-2.5">
               <p className="min-w-0 flex-1 text-sm leading-relaxed text-[var(--color-foreground)]">
+                {comment.guestDisplayName ? (
+                  <span className="mr-2 font-medium">{comment.guestDisplayName}</span>
+                ) : null}
                 {comment.bodyText}
               </p>
               <button

@@ -27,6 +27,10 @@ vi.mock("next/cache", () => ({
   updateTag,
 }));
 
+vi.mock("next/headers", () => ({
+  headers: async () => ({ get: () => null }),
+}));
+
 const VALID_ID = "00000000-0000-4000-8000-000000000001";
 
 interface MakeSupabaseInput {

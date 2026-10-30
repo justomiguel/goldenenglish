@@ -9,6 +9,7 @@ import { finalizeEventPaymentFromMercadoPago } from "@/lib/events/server/finaliz
 import { finalizeEnrollmentPaymentFromMercadoPago } from "@/lib/register/finalizeEnrollmentPaymentFromMercadoPago";
 import { finalizeTrialPaymentFromMercadoPago } from "@/lib/register/finalizeTrialPaymentFromMercadoPago";
 import { finalizeShopOrderFromMercadoPago } from "@/lib/shop/finalizeShopOrderFromMercadoPago";
+import { finalizeCourseOrderFromMercadoPago } from "@/lib/courses/finalizeCourseOrderFromMercadoPago";
 
 function parseCountry(raw: string | null): PaymentGatewayCountryCode | null {
   const c = raw?.trim().toUpperCase();
@@ -92,6 +93,8 @@ export async function POST(req: Request): Promise<Response> {
     const result =
       purpose === "merch"
         ? await finalizeShopOrderFromMercadoPago(mpInput)
+        : purpose === "course"
+          ? await finalizeCourseOrderFromMercadoPago(mpInput)
         : purpose === "event"
           ? await finalizeEventPaymentFromMercadoPago(mpInput)
           : purpose === "enrollment"

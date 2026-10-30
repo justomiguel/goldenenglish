@@ -10,8 +10,12 @@ import {
   incrementArticleViewCount,
   loadArticleBySlug,
   loadRelatedArticles,
+  membersSlugRedirectForAnonymous,
 } from "@/lib/blog/server";
 import type { BlogLocale } from "@/lib/blog/domain";
+import { commentInsertKind } from "@/lib/blog/commentEligibility";
+import { membersArticleRedirectPath } from "@/lib/blog/articleVisibility";
+import { loadBlogHubSettings } from "@/lib/blog/server/loadBlogHubSettings";
 import {
   buildBlogArticleLanguageAlternates,
   buildBlogArticleLocalePaths,
@@ -39,12 +43,22 @@ import {
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
+  searchParams: Promise<{ from?: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
   const blogLocale = locale as BlogLocale;
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const membersPath = await membersSlugRedirectForAnonymous({
+    locale,
+    slug,
+    isSignedIn: Boolean(user),
+  });
+  if (membersPath) redirect(membersPath);
   const { article, translation, localeSlugs } = await loadArticleBySlug(
     supabase,
     blogLocale,
@@ -75,20 +89,39 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function BlogDetailPage({ params }: PageProps) {
+export default async function BlogDetailPage({ params, searchParams }: PageProps) {
   const { locale, slug } = await params;
+  const search = await searchParams;
   const blogLocale = locale as BlogLocale;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const membersPath = await membersSlugRedirectForAnonymous({
+    locale,
+    slug,
+    isSignedIn: Boolean(user),
+  });
+  if (membersPath) redirect(membersPath);
+
   const dict = await getDictionary(locale);
   const detailLabels = dict.blog.detail;
   const listLabels = dict.blog.list;
   const commentLabels = dict.blog.comments;
-  const supabase = await createClient();
   const { article, translation, localeSlugs } = await loadArticleBySlug(
     supabase,
     blogLocale,
     slug,
   );
   if (!article || !translation) notFound();
+  const commentFlags = await loadBlogHubSettings();
+  const commentMode = commentInsertKind({
+    commentsGloballyEnabled: commentFlags.commentsEnabled,
+    guestCommentsEnabled: commentFlags.guestCommentsEnabled,
+    articleCommentsEnabled: article.commentsEnabled,
+    visibility: article.visibility,
+    isSignedIn: Boolean(user),
+  });
 
   if (translation.slug !== slug) {
     redirect(`/${locale}/blog/${translation.slug}`);
@@ -96,9 +129,14 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
   const localeHrefMap = buildBlogArticleLocalePaths(localeSlugs);
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const loginPath = membersArticleRedirectPath({
+    locale,
+    slug: translation.slug,
+    visibility: article.visibility,
+    isSignedIn: Boolean(user),
+  });
+  if (loginPath) redirect(loginPath);
+
   const viewerSessionId = await getContentViewViewerSessionId();
   const viewIncrement = await incrementArticleViewCount(supabase, {
     articleId: article.id,
@@ -121,6 +159,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
     tags: article.tags,
     locale: blogLocale,
     limit: 3,
+    includeMembers: Boolean(user),
   });
   const [publicUrl, { url: supabaseUrl }] = await Promise.all([
     getRequestPublicSiteUrl(),
@@ -169,6 +208,15 @@ export default async function BlogDetailPage({ params }: PageProps) {
           shareUrl={`${publicUrl}/${locale}/blog/${translation.slug}`}
           shareLabel={detailLabels.share}
           shareCopiedLabel={detailLabels.shareCopied}
+          publicExtras={{
+            locale,
+            articleId: article.id,
+            ctaLabel: translation.ctaLabel,
+            ctaUrl: translation.ctaUrl,
+            guestCommentsEnabled: commentMode === "guest_pending",
+            fromIndex: search.from === "index",
+            guestLabels: commentLabels,
+          }}
         />
 
         <JsonLdArticle
@@ -187,8 +235,8 @@ export default async function BlogDetailPage({ params }: PageProps) {
           />
         ) : null}
 
-        {user && article.commentsEnabled ? (
-          <BlogCommentsSection articleId={article.id} labels={commentLabels} />
+        {commentMode === "account_visible" ? (
+          <BlogCommentsSection articleId={article.id} labels={commentLabels} mode="account" />
         ) : null}
       </div>
     </BlogArticleLocaleHrefProvider>

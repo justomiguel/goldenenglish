@@ -3,7 +3,7 @@
  * env vars KV_REST_API_URL / KV_REST_API_TOKEN still work when linked from Vercel.
  */
 import { getAlsTenant } from "@/lib/tenant/alsTenantAccessor";
-import { preferTenantValue } from "@/lib/tenant/preferTenantValue";
+import { preferSharedPlatformSecret } from "@/lib/tenant/preferTenantValue";
 import { isMultiTenantEnabled, type TenantConfig } from "@/lib/tenant/tenantRegistry";
 import type { ImportJobState, MergeImportJobPatch } from "@/types/importJob";
 
@@ -15,8 +15,16 @@ const TTL_SEC = 3600;
 function kvCredentials(tenant?: TenantConfig | null): { url: string; token: string } {
   const active = tenant ?? getAlsTenant();
   return {
-    url: preferTenantValue(active?.kvRestApiUrl, process.env.KV_REST_API_URL),
-    token: preferTenantValue(active?.kvRestApiToken, process.env.KV_REST_API_TOKEN),
+    url: preferSharedPlatformSecret(
+      Boolean(active),
+      active?.kvRestApiUrl,
+      process.env.KV_REST_API_URL,
+    ),
+    token: preferSharedPlatformSecret(
+      Boolean(active),
+      active?.kvRestApiToken,
+      process.env.KV_REST_API_TOKEN,
+    ),
   };
 }
 

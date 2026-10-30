@@ -7,6 +7,7 @@ import { finalizeEventPaymentFromFlowGateway } from "@/lib/events/server/finaliz
 import { finalizeEnrollmentPaymentFromFlowGateway } from "@/lib/register/finalizeEnrollmentPaymentFromFlowGateway";
 import { finalizeTrialPaymentFromFlowGateway } from "@/lib/register/finalizeTrialPaymentFromFlowGateway";
 import { finalizeShopOrderFromFlowGateway } from "@/lib/shop/finalizeShopOrderFromFlowGateway";
+import { finalizeCourseOrderFromFlowGateway } from "@/lib/courses/finalizeCourseOrderFromFlowGateway";
 
 export async function POST(req: Request): Promise<Response> {
   try {
@@ -44,6 +45,8 @@ export async function POST(req: Request): Promise<Response> {
     const result =
       purpose === "merch"
         ? await finalizeShopOrderFromFlowGateway(flowInput)
+        : purpose === "course"
+          ? await finalizeCourseOrderFromFlowGateway(flowInput)
         : purpose === "event"
           ? await finalizeEventPaymentFromFlowGateway(flowInput)
           : purpose === "enrollment"

@@ -8,15 +8,24 @@ export type PublicShopCatalogLabels = {
   empty: string;
   soldOut: string;
   viewProduct: string;
+  coursesTitle?: string;
+};
+
+export type PublicShopCourseCard = {
+  id: string;
+  slug: string;
+  title: string;
+  priceLabel: string;
 };
 
 interface PublicShopCatalogProps {
   locale: string;
   rows: PublicCatalogCard[];
+  courses?: PublicShopCourseCard[];
   labels: PublicShopCatalogLabels;
 }
 
-export function PublicShopCatalog({ locale, rows, labels }: PublicShopCatalogProps) {
+export function PublicShopCatalog({ locale, rows, courses = [], labels }: PublicShopCatalogProps) {
   return (
     <main className="space-y-6">
       <header className="space-y-2">
@@ -69,6 +78,26 @@ export function PublicShopCatalog({ locale, rows, labels }: PublicShopCatalogPro
           ))}
         </ul>
       )}
+      {courses.length > 0 ? (
+        <section className="space-y-3">
+          <h2 className="font-display text-2xl font-semibold text-[var(--color-foreground)]">
+            {labels.coursesTitle}
+          </h2>
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {courses.map((course) => (
+              <li key={course.id}>
+                <Link
+                  href={`/${locale}/tienda/curso/${course.slug}`}
+                  className="flex min-h-11 flex-col gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)] outline-none ring-[var(--color-primary)] hover:border-[var(--color-primary)]/40 focus-visible:ring-2"
+                >
+                  <span className="font-display text-lg font-semibold text-[var(--color-foreground)]">{course.title}</span>
+                  <span className="text-sm text-[var(--color-muted-foreground)]">{course.priceLabel}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </main>
   );
 }

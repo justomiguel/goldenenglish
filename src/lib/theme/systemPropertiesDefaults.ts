@@ -28,6 +28,14 @@ const IDENTITY = {
   "app.logo.path": "/images/logo.png",
   "app.logo.alt": "Logo GE Golden English",
   "app.favicon.path": "/favicon_io/favicon.ico",
+  "app.favicon.mode": "image",
+  "app.landing.hidden": "",
+  "app.seo.title": "",
+  "app.seo.title.en": "",
+  "app.seo.title.pt": "",
+  "app.seo.description": "",
+  "app.seo.description.en": "",
+  "app.seo.description.pt": "",
 } as const;
 
 /* ---------- Paleta primaria ---------- */

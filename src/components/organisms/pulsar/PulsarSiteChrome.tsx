@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Mail } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 import { CentroListoLogoMark } from "@/components/organisms/pulsar/CentroListoLogoMark";
 import type { Dictionary } from "@/types/i18n";
 
@@ -80,6 +80,16 @@ export function PulsarSiteChrome({
       </header>
 
       <main className="flex-1">{children}</main>
+      <a
+        href={dict.pulsar.contact.whatsappHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={dict.pulsar.home.whatsappCta}
+        title={dict.pulsar.home.whatsappCta}
+        className="fixed right-4 z-50 inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-primary)] text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)] bottom-[max(1rem,env(safe-area-inset-bottom))]"
+      >
+        <MessageCircle className="h-5 w-5" aria-hidden />
+      </a>
 
       <footer className="border-t border-[var(--color-border)] py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -111,13 +121,6 @@ export function PulsarSiteChrome({
                   {nav.admin}
                 </Link>
               </div>
-              <a
-                href={`mailto:${dict.pulsar.contact.emailValue}`}
-                className="inline-flex items-center gap-2 text-sm text-[var(--color-primary)] transition-colors hover:text-[var(--color-primary-dark)]"
-              >
-                <Mail className="h-4 w-4" aria-hidden />
-                <span>{dict.pulsar.contact.emailValue}</span>
-              </a>
             </div>
           </div>
           <p className="mt-12 border-t border-[var(--color-border)] pt-6 text-xs text-[var(--color-muted-foreground)]">

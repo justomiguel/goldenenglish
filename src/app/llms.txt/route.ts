@@ -24,7 +24,6 @@ export async function GET() {
     name: es.pulsar.meta.brandName,
     tagline: es.pulsar.meta.brandTagline,
     description: es.pulsar.meta.description,
-    contactEmail: es.pulsar.contact.emailValue,
     locales: dictionaries.map((dict, index) => ({
       code: locales[index] as AppLocale,
       pages: [

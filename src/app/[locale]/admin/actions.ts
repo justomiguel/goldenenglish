@@ -7,8 +7,10 @@ import {
   logSupabaseError,
 } from "@/lib/logging/serverActionLog";
 import { probeSingleTenantConnection } from "@/lib/pulsar/loadPulsarFleetTelemetry";
+import { finishStaffTenantSave } from "@/lib/pulsar/finishStaffTenantSave";
 import { getPulsarStaffSession, type PulsarStaffSession } from "@/lib/pulsar/pulsarStaffAuth";
 import { mapPulsarTenantToDbPayload } from "@/lib/pulsar/pulsarTenantMapper";
+import { prepareInstituteDataPlane } from "@/lib/pulsar/provisionSharedInstituteSchema";
 import {
   validatePulsarPlatformHostsInput,
   validatePulsarTenantInput,
@@ -24,6 +26,7 @@ import {
   createPulsarAdminClient,
   createPulsarServerClient,
   isPulsarSupabaseConfigured,
+  readSharedPulsarCredentials,
 } from "@/lib/supabase/pulsar";
 
 function passwordChangeBlock(
@@ -73,15 +76,22 @@ export async function savePulsarTenantAction(args: {
       args.payload,
       existing,
       args.editingSlug,
+      readSharedPulsarCredentials(),
     );
     if (!validated.ok) {
       return validated;
     }
 
     const record = validated.value;
+    const prepared = await prepareInstituteDataPlane(record);
+    if (!prepared.ok) return prepared;
     if (isPulsarSupabaseConfigured()) {
       const admin = createPulsarAdminClient();
       const dbRow = mapPulsarTenantToDbPayload(record);
+      if (!prepared.pulsarDatabaseUrl) {
+        delete dbRow.data_mode;
+        delete dbRow.postgres_schema;
+      }
       const { error } = await admin
         .from("platform_tenants")
         .upsert(dbRow, { onConflict: "slug" });
@@ -108,7 +118,7 @@ export async function savePulsarTenantAction(args: {
       mode: session.mode,
     });
     revalidatePulsarAdminPaths(args.locale, record.slug);
-    return { ok: true, slug: record.slug };
+    return finishStaffTenantSave(record);
   } catch (err) {
     logServerActionException("savePulsarTenantAction:catch", err);
     return { ok: false, errorCode: "db_write_failed" };

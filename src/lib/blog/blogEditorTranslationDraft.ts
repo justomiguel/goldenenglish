@@ -8,12 +8,14 @@ export interface BlogEditorTranslationDraft {
   excerpt: string;
   bodyHtml: string;
   materials: AdminGlobalDraftMaterial[];
+  ctaLabel?: string;
+  ctaUrl?: string;
 }
 
 export type BlogEditorTranslationsByLocale = Record<BlogLocale, BlogEditorTranslationDraft>;
 
 export function emptyBlogEditorTranslationDraft(): BlogEditorTranslationDraft {
-  return { title: "", excerpt: "", bodyHtml: "<p></p>", materials: [] };
+  return { title: "", excerpt: "", bodyHtml: "<p></p>", materials: [], ctaLabel: "", ctaUrl: "" };
 }
 
 export function createBlogEditorTranslationsMap(
@@ -27,6 +29,8 @@ export function createBlogEditorTranslationsMap(
       excerpt: fromSeed?.excerpt ?? "",
       bodyHtml: fromSeed?.bodyHtml?.trim() ? fromSeed.bodyHtml : "<p></p>",
       materials: fromSeed?.materials ?? [],
+      ctaLabel: fromSeed?.ctaLabel ?? "",
+      ctaUrl: fromSeed?.ctaUrl ?? "",
     };
   }
   return map;

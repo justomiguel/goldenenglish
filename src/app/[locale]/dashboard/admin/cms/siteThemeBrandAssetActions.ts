@@ -18,6 +18,8 @@ import {
 } from "@/lib/site/siteSetupCompletionSchema";
 import { uploadFaviconZipBundleToStorage } from "@/lib/site/uploadFaviconZipBundleToStorage";
 import { LANDING_MEDIA_BUCKET } from "@/lib/cms/landingMediaBucket";
+import { publishGenericInstituteUpload } from "@/lib/tenant/publishInstitutePublicImages";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 import {
   fetchSiteThemeById,
   resolveAdminContext,
@@ -65,7 +67,19 @@ export async function uploadSiteThemeLogoFromEditorAction(
     return { ok: false, code: "persist_failed" };
   }
 
-  const patch: Record<string, string> = { "app.logo.path": storagePath };
+  const tenant = await resolveRequestTenant();
+  const published = await publishGenericInstituteUpload({
+    slug: tenant?.slug,
+    theme: existing,
+    supabase: admin.supabase,
+    locale: parsed.data.locale,
+    replaceFaviconPath: false,
+    logo: { bytes, contentType: mime },
+  });
+  const patch: Record<string, string> = {
+    "app.logo.path": published?.logoPath ?? storagePath,
+  };
+  if (published?.sharePath) patch["app.share.image"] = published.sharePath;
   const alt = parsed.data.logoAlt?.trim();
   if (alt) patch["app.logo.alt"] = alt;
 
@@ -115,6 +129,7 @@ export async function uploadSiteThemeFaviconFromEditorAction(
   let uploadedPaths: string[] = [];
   let favPath: string;
   let bundlePrefix: string | undefined;
+  let singleFav: { bytes: Uint8Array; contentType: string } | null = null;
 
   if (parsed.data.faviconKind === "zip") {
     const zipBytes = decodeSiteSetupFileBase64(parsed.data.faviconZipBase64);
@@ -159,9 +174,24 @@ export async function uploadSiteThemeFaviconFromEditorAction(
     }
     favPath = path;
     uploadedPaths = [path];
+    singleFav = { bytes: favBytes, contentType: favMime };
   }
 
-  const patch: Record<string, string> = { "app.favicon.path": favPath };
+  const tenant = await resolveRequestTenant();
+  const published = singleFav
+    ? await publishGenericInstituteUpload({
+        slug: tenant?.slug,
+        theme: existing,
+        supabase: admin.supabase,
+        locale: parsed.data.locale,
+        replaceFaviconPath: true,
+        favicon: singleFav,
+      })
+    : null;
+  const patch: Record<string, string> = {
+    "app.favicon.path": published?.faviconPath ?? favPath,
+  };
+  if (published?.sharePath) patch["app.share.image"] = published.sharePath;
   const removeKeys =
     parsed.data.faviconKind === "zip"
       ? []

@@ -43,6 +43,8 @@ export default async function AdminBlogNewPage({ params }: PageProps) {
       initial={{
         defaultLocale: blogEditorNativeLocale(),
         status: "draft",
+        visibility: "public",
+        commentsEnabled: true,
         tags: [],
         scheduledFor: "",
         isPinned: false,

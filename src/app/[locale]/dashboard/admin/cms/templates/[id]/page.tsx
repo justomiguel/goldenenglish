@@ -10,6 +10,8 @@ import {
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadSiteThemeForEditor } from "@/lib/cms/loadSiteThemeForEditor";
 import { SiteThemeEditorShell } from "@/components/dashboard/admin/cms/SiteThemeEditorShell";
+import { GenericSiteBasicsForm } from "@/components/organisms/pulsar/GenericSiteBasicsForm";
+import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -58,11 +60,33 @@ export default async function AdminCmsTemplateEditorPage({ params }: PageProps) 
   }
 
   return (
-    <SiteThemeEditorShell
-      locale={locale}
-      labels={editorLabels}
-      theme={viewModel.theme}
-      groups={viewModel.groups}
-    />
+    <div className="space-y-6">
+      <SiteThemeEditorShell
+        locale={locale}
+        labels={editorLabels}
+        theme={viewModel.theme}
+        groups={viewModel.groups}
+      />
+      {isGenericInstituteKind(viewModel.theme.templateKind) ? (
+        <GenericSiteBasicsForm
+          locale={locale}
+          themeId={viewModel.theme.id}
+          properties={viewModel.theme.properties}
+          sectionLabels={dict.landing.genericSectionLabels}
+          labels={{
+            title: dict.pulsar.account.basicsTitle,
+            lead: dict.pulsar.account.basicsLead,
+            seoTitle: dict.pulsar.account.seoTitle,
+            seoDescription: dict.pulsar.account.seoDescription,
+            hideSections: dict.pulsar.account.hideSections,
+            faviconMode: dict.pulsar.account.faviconMode,
+            faviconImage: dict.pulsar.account.faviconImage,
+            faviconLetter: dict.pulsar.account.faviconLetter,
+            save: dict.pulsar.account.saveBasics,
+            saved: dict.pulsar.account.saved,
+          }}
+        />
+      ) : null}
+    </div>
   );
 }

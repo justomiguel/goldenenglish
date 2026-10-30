@@ -64,7 +64,64 @@ describe("validatePulsarTenantInput", () => {
         "liora.pulsarlab.cl",
         "liora.pulsarlab.vercel.app",
       ]);
+      expect(res.value.paymentGatewaySecretEncryptionKey).toBeNull();
+      expect(res.value.kvRestApiUrl).toBeNull();
+      expect(res.value.kvRestApiToken).toBeNull();
+    }
+  });
+
+  it("stores null for payment and KV secrets on create even when the payload sets them", () => {
+    const res = validatePulsarTenantInput(
+      {
+        slug: "liora",
+        displayName: "Liora Studio",
+        isEnabled: true,
+        hosts: ["liorastudio.cl"],
+        supabaseUrl: "https://liora.supabase.co",
+        supabaseAnonKey: "anon-liora",
+        supabaseServiceRoleKey: "srv-liora",
+        paymentGatewaySecretEncryptionKey: VALID_32B_KEY,
+        kvRestApiUrl: "https://kv.example.test",
+        kvRestApiToken: "tok",
+      },
+      EXISTING,
+    );
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      expect(res.value.paymentGatewaySecretEncryptionKey).toBeNull();
+      expect(res.value.kvRestApiUrl).toBeNull();
+      expect(res.value.kvRestApiToken).toBeNull();
+    }
+  });
+
+  it("keeps stored payment and KV secrets when an edit omits them", () => {
+    const stored = {
+      ...EXISTING[0],
+      paymentGatewaySecretEncryptionKey: VALID_32B_KEY,
+      kvRestApiUrl: "https://kv.nago.test",
+      kvRestApiToken: "tok-nago",
+    };
+    const res = validatePulsarTenantInput(
+      {
+        slug: "nago",
+        displayName: "Capoeira Nago Chile",
+        isEnabled: true,
+        hosts: ["capoeiranago.cl"],
+        supabaseUrl: "https://nago.supabase.co",
+        supabaseAnonKey: "anon-nago",
+        supabaseServiceRoleKey: "srv-nago",
+        paymentGatewaySecretEncryptionKey: "",
+        kvRestApiUrl: "",
+        kvRestApiToken: "",
+      },
+      [stored],
+      "nago",
+    );
+    expect(res.ok).toBe(true);
+    if (res.ok) {
       expect(res.value.paymentGatewaySecretEncryptionKey).toBe(VALID_32B_KEY);
+      expect(res.value.kvRestApiUrl).toBe("https://kv.nago.test");
+      expect(res.value.kvRestApiToken).toBe("tok-nago");
     }
   });
 
@@ -143,8 +200,26 @@ describe("validatePulsarTenantInput", () => {
     expect(ownEdit.ok).toBe(true);
   });
 
-  it("rejects payment encryption keys that do not decode to 32 bytes", () => {
+  it("rejects a new payment key on edit when it does not decode to 32 bytes", () => {
     const badKey = validatePulsarTenantInput(
+      {
+        slug: "nago",
+        displayName: "Capoeira Nago",
+        isEnabled: true,
+        hosts: ["capoeiranago.cl"],
+        supabaseUrl: "https://nago.supabase.co",
+        supabaseAnonKey: "anon-nago",
+        supabaseServiceRoleKey: "srv-nago",
+        paymentGatewaySecretEncryptionKey: "dG9vLXNob3J0",
+      },
+      EXISTING,
+      "nago",
+    );
+    expect(badKey).toEqual({ ok: false, errorCode: "invalid_payment_key" });
+  });
+
+  it("ignores an invalid payment key on create and stores null", () => {
+    const res = validatePulsarTenantInput(
       {
         slug: "liora",
         displayName: "Liora",
@@ -157,7 +232,10 @@ describe("validatePulsarTenantInput", () => {
       },
       EXISTING,
     );
-    expect(badKey).toEqual({ ok: false, errorCode: "invalid_payment_key" });
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      expect(res.value.paymentGatewaySecretEncryptionKey).toBeNull();
+    }
   });
 
   it("rejects empty input, duplicate slugs, and bad URLs", () => {
@@ -218,6 +296,31 @@ describe("validatePulsarTenantInput", () => {
         EXISTING,
       ),
     ).toEqual({ ok: false, errorCode: "invalid_public_url" });
+
+    const shared = validatePulsarTenantInput(
+      { slug: "acme-norte", displayName: "Acme Norte", hosts: "", dataMode: "shared_schema" },
+      EXISTING,
+      undefined,
+      {
+        url: "https://pulsar.supabase.co",
+        anonKey: "anon-pulsar",
+        serviceRoleKey: "srv-pulsar",
+        databaseUrl: "postgresql://postgres:secret@db.example:5432/postgres",
+      },
+    );
+    expect(shared.ok).toBe(true);
+    if (shared.ok) {
+      expect(shared.value.dataMode).toBe("shared_schema");
+      expect(shared.value.postgresSchema).toBe("tenant_acme_norte");
+      expect(shared.value.supabaseUrl).toBe("https://pulsar.supabase.co");
+      expect(shared.value.hosts).toContain("acme-norte.centrolisto.cl");
+    }
+    expect(
+      validatePulsarTenantInput(
+        { slug: "acme", displayName: "Acme", dataMode: "shared_schema" },
+        EXISTING,
+      ),
+    ).toEqual({ ok: false, errorCode: "pulsar_shared_db_unconfigured" });
   });
 });
 

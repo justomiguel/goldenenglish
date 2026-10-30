@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { bindInstituteDataPlane } from "@/lib/supabase/bindInstituteDataPlane";
 import { readSupabasePublicEnv } from "@/lib/supabase/publicEnv";
 import { getAlsTenant } from "@/lib/tenant/alsTenantAccessor";
 import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
@@ -23,15 +24,18 @@ export function createAdminClientFromCredentials(
 export async function createAdminClient(): Promise<SupabaseClient> {
   const als = getAlsTenant();
   if (als) {
-    return createAdminClientFromCredentials(als.supabaseUrl, als.supabaseServiceRoleKey);
+    return bindInstituteDataPlane(
+      createAdminClientFromCredentials(als.supabaseUrl, als.supabaseServiceRoleKey),
+      als,
+    );
   }
   if (isMultiTenantEnabled()) {
     if (tenantRegistryError()) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
     const tenant = await resolveRequestTenant();
     if (!tenant) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
-    return createAdminClientFromCredentials(
-      tenant.supabaseUrl,
-      tenant.supabaseServiceRoleKey,
+    return bindInstituteDataPlane(
+      createAdminClientFromCredentials(tenant.supabaseUrl, tenant.supabaseServiceRoleKey),
+      tenant,
     );
   }
   const { url } = readSupabasePublicEnv();

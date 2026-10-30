@@ -48,6 +48,8 @@ export type TenantConfig = {
   kvRestApiToken: string | null;
   debugLogin: boolean;
   skipInitialSiteSetup: boolean;
+  dataMode?: "project" | "shared_schema";
+  postgresSchema?: string | null;
 };
 
 export type TenantPublicEnv = {
@@ -58,6 +60,7 @@ export type TenantPublicEnv = {
   googleMapsMapId?: string;
   vapidPublicKey?: string;
   debugLogin?: boolean;
+  postgresSchema?: string;
 };
 
 const ENV_KEY = "TENANTS_CONFIG_JSON";

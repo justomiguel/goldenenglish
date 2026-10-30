@@ -37,6 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .from("blog_article_translations")
     .select("locale, slug, blog_articles!inner(status, published_at)")
     .eq("blog_articles.status", "published")
+    .eq("blog_articles.visibility", "public")
     .not("blog_articles.published_at", "is", null)
     .lte("blog_articles.published_at", new Date().toISOString())
     .limit(1000);

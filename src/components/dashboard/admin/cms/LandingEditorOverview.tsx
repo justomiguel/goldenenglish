@@ -13,6 +13,8 @@ export interface LandingEditorOverviewProps {
   labels: Labels;
   theme: SiteThemeRow;
   sections: ReadonlyArray<LandingEditorOverviewItem>;
+  backHref?: string;
+  sectionBaseHref?: string;
 }
 
 function formatSummary(template: string, count: number, total: number): string {
@@ -26,11 +28,16 @@ export function LandingEditorOverview({
   labels,
   theme,
   sections,
+  backHref,
+  sectionBaseHref,
 }: LandingEditorOverviewProps) {
+  const back = backHref ?? `/${locale}/dashboard/admin/cms/templates`;
+  const sectionBase =
+    sectionBaseHref ?? `/${locale}/dashboard/admin/cms/templates/${theme.id}/landing`;
   return (
     <section className="space-y-6">
       <Link
-        href={`/${locale}/dashboard/admin/cms/templates`}
+        href={back}
         className="inline-flex items-center text-sm font-semibold text-[var(--color-primary)] hover:underline"
       >
         <ArrowLeft aria-hidden className="mr-1 h-4 w-4" />
@@ -50,14 +57,16 @@ export function LandingEditorOverview({
         labels={labels.kindPicker}
       />
 
-      <Link
-        href={`/${locale}/dashboard/admin/cms/templates/${theme.id}/hero`}
-        className="flex items-center gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/5 px-4 py-3 text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary)]/10"
-      >
-        <Sparkles aria-hidden className="h-5 w-5" />
-        <span className="flex-1">{labels.heroEditor.openCta}</span>
-        <ArrowRight aria-hidden className="h-4 w-4" />
-      </Link>
+      {sectionBaseHref ? null : (
+        <Link
+          href={`/${locale}/dashboard/admin/cms/templates/${theme.id}/hero`}
+          className="flex items-center gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/5 px-4 py-3 text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary)]/10"
+        >
+          <Sparkles aria-hidden className="h-5 w-5" />
+          <span className="flex-1">{labels.heroEditor.openCta}</span>
+          <ArrowRight aria-hidden className="h-4 w-4" />
+        </Link>
+      )}
 
       <ul className="grid gap-3 sm:grid-cols-2">
         {sections.map((item) => {
@@ -79,7 +88,7 @@ export function LandingEditorOverview({
           return (
             <li key={item.section}>
               <Link
-                href={`/${locale}/dashboard/admin/cms/templates/${theme.id}/landing/${item.section}`}
+                href={`${sectionBase}/${item.section}`}
                 className="flex h-full flex-col justify-between rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)] transition-colors hover:border-[var(--color-primary)]"
               >
                 <div className="space-y-2">

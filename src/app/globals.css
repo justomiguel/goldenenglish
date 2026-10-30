@@ -774,6 +774,10 @@ body.driver-active dialog.ge-modal-stacked {
   animation: var(--cl-vt-enter) cubic-bezier(0.22, 1, 0.36, 1) both cl-fade;
 }
 
+.cl-chronicle-video {
+  animation: 250ms cubic-bezier(0.22, 1, 0.36, 1) both cl-fade;
+}
+
 ::view-transition-old(.cl-fade-out) {
   animation: var(--cl-vt-exit) cubic-bezier(0.22, 1, 0.36, 1) both cl-fade reverse;
 }
@@ -791,7 +795,8 @@ body.driver-active dialog.ge-modal-stacked {
     animation-delay: 0s !important;
   }
 
-  .cl-chronicle-enter {
+  .cl-chronicle-enter,
+  .cl-chronicle-video {
     animation: none;
   }
 }

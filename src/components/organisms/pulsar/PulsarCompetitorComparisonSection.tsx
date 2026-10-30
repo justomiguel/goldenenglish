@@ -8,53 +8,50 @@ export function PulsarCompetitorComparisonSection({
   dict,
 }: PulsarCompetitorComparisonSectionProps) {
   const cmp = dict.pulsar.product.comparison;
+  const others = [
+    { label: cmp.colSchedulers, key: "schedulers" as const },
+    { label: cmp.colSchoolErp, key: "schoolErp" as const },
+    { label: cmp.colSpreadsheets, key: "spreadsheets" as const },
+  ];
 
   return (
     <section className="border-t border-[var(--color-border)] py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <p className="font-display text-sm italic text-[var(--color-muted-foreground)]">
-          {cmp.eyebrow}
-        </p>
-        <h2 className="mt-3 max-w-2xl font-display text-3xl font-medium tracking-tight text-[var(--color-foreground)]">
+        <h2 className="max-w-2xl font-display text-3xl font-medium tracking-tight text-[var(--color-foreground)]">
           {cmp.title}
         </h2>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-[var(--color-muted-foreground)]">
           {cmp.lead}
         </p>
+        <p className="mt-8 max-w-3xl text-sm leading-relaxed text-[var(--color-muted-foreground)]">
+          <span className="font-medium text-[var(--color-primary)]">{cmp.colCentroListo}</span>
+          {" · "}
+          {others.map((item) => item.label).join(" · ")}
+        </p>
 
-        <div className="mt-12 overflow-x-auto">
-          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
-            <thead>
-              <tr className="border-b border-[var(--color-border)]">
-                <th className="py-4 pr-6 font-medium text-[var(--color-foreground)]">
-                  {cmp.colFeature}
-                </th>
-                <th className="py-4 pr-6 font-display text-[var(--color-primary)]">
-                  {cmp.colCentroListo}
-                </th>
-                <th className="py-4 pr-6 font-medium text-[var(--color-muted-foreground)]">
-                  {cmp.colSchedulers}
-                </th>
-                <th className="py-4 pr-6 font-medium text-[var(--color-muted-foreground)]">
-                  {cmp.colSchoolErp}
-                </th>
-                <th className="py-4 font-medium text-[var(--color-muted-foreground)]">
-                  {cmp.colSpreadsheets}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[var(--color-border)]">
-              {cmp.rows.map((row) => (
-                <tr key={row.feature}>
-                  <td className="py-4 pr-6 text-[var(--color-foreground)]">{row.feature}</td>
-                  <td className="py-4 pr-6 text-[var(--color-foreground)]">{row.centroListo}</td>
-                  <td className="py-4 pr-6 text-[var(--color-muted-foreground)]">{row.schedulers}</td>
-                  <td className="py-4 pr-6 text-[var(--color-muted-foreground)]">{row.schoolErp}</td>
-                  <td className="py-4 text-[var(--color-muted-foreground)]">{row.spreadsheets}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mt-6 divide-y divide-[var(--color-border)] border-y border-[var(--color-border)]">
+          {cmp.rows.map((row) => (
+            <article key={row.feature} className="grid gap-6 py-8 md:grid-cols-12 md:gap-10 md:py-10">
+              <div className="md:col-span-7">
+                <h3 className="font-display text-lg font-medium text-[var(--color-foreground)]">
+                  {row.feature}
+                </h3>
+                <p className="mt-3 border-l border-[var(--color-primary)] pl-4 text-base leading-relaxed text-[var(--color-foreground)]">
+                  {row.centroListo}
+                </p>
+              </div>
+              <dl className="space-y-4 md:col-span-5">
+                {others.map((item) => (
+                  <div key={item.key}>
+                    <dt className="text-sm font-medium text-[var(--color-foreground)]">{item.label}</dt>
+                    <dd className="mt-1 text-sm leading-relaxed text-[var(--color-muted-foreground)]">
+                      {row[item.key]}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </article>
+          ))}
         </div>
       </div>
     </section>

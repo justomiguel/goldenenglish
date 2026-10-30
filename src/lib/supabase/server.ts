@@ -1,9 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { bindInstituteDataPlane } from "@/lib/supabase/bindInstituteDataPlane";
 import {
   missingSupabaseEnvMessage,
   readRequestSupabaseEnvDiagnosis,
 } from "@/lib/supabase/requestPublicEnv";
+import { getAlsTenant } from "@/lib/tenant/alsTenantAccessor";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -13,7 +16,7 @@ export async function createClient() {
   }
   const { url, anonKey } = diag;
 
-  return createServerClient(url, anonKey, {
+  const client = createServerClient(url, anonKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -29,4 +32,6 @@ export async function createClient() {
       },
     },
   });
+  const tenant = getAlsTenant() ?? (await resolveRequestTenant());
+  return bindInstituteDataPlane(client, tenant);
 }

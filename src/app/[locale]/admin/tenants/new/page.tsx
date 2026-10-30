@@ -5,6 +5,7 @@ import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { PulsarAdminTenantForm } from "@/components/organisms/pulsar/PulsarAdminTenantForm";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 300;
 
 interface PageProps {
   params: Promise<{ locale: string }>;

@@ -19,7 +19,7 @@ export function BlogIndexMobile({ locale, rows, labels }: BlogIndexMobileProps) 
       ) : null}
       <div className="grid gap-3">
         {rows.map((row) => (
-          <BlogArticleCard key={row.id} locale={locale} article={row} labels={labels} />
+          <BlogArticleCard key={row.id} locale={locale} article={row} labels={labels} fromIndex />
         ))}
       </div>
     </section>

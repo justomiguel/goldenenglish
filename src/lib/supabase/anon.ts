@@ -1,8 +1,10 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { bindInstituteDataPlane } from "@/lib/supabase/bindInstituteDataPlane";
 import {
   hasSupabasePublicEnv,
   readSupabasePublicEnv,
 } from "@/lib/supabase/publicEnv";
+import { getAlsTenant } from "@/lib/tenant/alsTenantAccessor";
 
 /**
  * Cookieless / read-only client suitable for `unstable_cache`-wrapped reads
@@ -14,7 +16,7 @@ import {
 export function createAnonReadOnlyClient(): SupabaseClient | null {
   if (!hasSupabasePublicEnv()) return null;
   const { url, anonKey } = readSupabasePublicEnv();
-  return createAnonClientFromCredentials(url, anonKey);
+  return bindInstituteDataPlane(createAnonClientFromCredentials(url, anonKey), getAlsTenant());
 }
 
 export function createAnonClientFromCredentials(

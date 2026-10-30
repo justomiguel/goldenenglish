@@ -1,6 +1,6 @@
 "use client";
 
-import { Hash, CalendarDays, Pin } from "lucide-react";
+import { Hash, CalendarDays, Eye, MessageSquare, Pin } from "lucide-react";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface BlogArticleMetaFormProps {
@@ -9,15 +9,23 @@ interface BlogArticleMetaFormProps {
     tagsCsv: string;
     scheduledFor: string;
     pinned: string;
+    visibility: string;
+    visibilityPublic: string;
+    visibilityMembers: string;
+    comments: string;
   };
   status: string;
   tagsCsv: string;
   scheduledFor: string;
   isPinned: boolean;
+  visibility: "public" | "members";
+  commentsEnabled: boolean;
   onStatusChange: (value: string) => void;
   onTagsCsvChange: (value: string) => void;
   onScheduledForChange: (value: string) => void;
   onPinnedChange: (value: boolean) => void;
+  onVisibilityChange: (value: "public" | "members") => void;
+  onCommentsEnabledChange: (value: boolean) => void;
 }
 
 export function BlogArticleMetaForm(props: BlogArticleMetaFormProps) {
@@ -65,6 +73,33 @@ export function BlogArticleMetaForm(props: BlogArticleMetaFormProps) {
           value={props.scheduledFor}
           onChange={(event) => props.onScheduledForChange(event.target.value)}
         />
+      </label>
+
+      <label className="grid gap-1 text-sm">
+        <span className="inline-flex items-center gap-2 font-medium">
+          <Eye aria-hidden className="h-4 w-4" />
+          {props.labels.visibility}
+        </span>
+        <select
+          className="rounded-md border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2"
+          value={props.visibility}
+          onChange={(event) =>
+            props.onVisibilityChange(event.target.value === "members" ? "members" : "public")
+          }
+        >
+          <option value="public">{props.labels.visibilityPublic}</option>
+          <option value="members">{props.labels.visibilityMembers}</option>
+        </select>
+      </label>
+
+      <label className="inline-flex items-center gap-2 text-sm">
+        <MessageSquare aria-hidden className="h-4 w-4" />
+        <input
+          type="checkbox"
+          checked={props.commentsEnabled}
+          onChange={(event) => props.onCommentsEnabledChange(event.target.checked)}
+        />
+        {props.labels.comments}
       </label>
 
       <label className="inline-flex items-center gap-2 text-sm">

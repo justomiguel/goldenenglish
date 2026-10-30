@@ -5,7 +5,7 @@ import { readRequestHostRaw, resolveRequestTenant } from "@/lib/tenant/tenantReq
 import {
   isDynamicTenantCacheLoaded,
   isMultiTenantEnabled,
-  isPulsarHost,
+  isPulsarCrawlHost,
   listTenants,
   normalizeHost,
   tenantRegistryError,
@@ -91,7 +91,7 @@ export async function readRequestSupabaseEnvDiagnosis(): Promise<RequestSupabase
     logMissingSupabaseEnv(diag);
     return diag;
   }
-  if (host && isPulsarHost(host)) {
+  if (host && isPulsarCrawlHost(host)) {
     return { ...counts, url: "", anonKey: "", host, tenantSlug: null, reason: "pulsar_host" };
   }
   if (!tenant) {

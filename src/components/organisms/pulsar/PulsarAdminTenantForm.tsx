@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { DEFAULT_GENERIC_THEME_SLUG } from "@/lib/theme/genericInstituteTemplates";
 import {
   AlertCircle,
   ArrowLeft,
@@ -18,6 +19,8 @@ import {
   PulsarAdminTenantFieldGroups,
   type PulsarTenantFormValues,
 } from "@/components/organisms/pulsar/PulsarAdminTenantFieldGroups";
+import { PulsarAdminTenantDataMode } from "@/components/organisms/pulsar/PulsarAdminTenantDataMode";
+import { PulsarAdminCloseTenant } from "@/components/organisms/pulsar/PulsarAdminCloseTenant";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
 import type { Dictionary } from "@/types/i18n";
 
@@ -25,6 +28,7 @@ export interface PulsarAdminTenantFormProps {
   locale: string;
   dict: Dictionary;
   initialTenant?: PulsarTenantRecord | null;
+  masthead?: React.ReactNode;
 }
 
 function toInitialValues(tenant?: PulsarTenantRecord | null): PulsarTenantFormValues {
@@ -34,7 +38,7 @@ function toInitialValues(tenant?: PulsarTenantRecord | null): PulsarTenantFormVa
     isEnabled: tenant ? tenant.isEnabled : true,
     hosts: tenant?.hosts.join(", ") ?? "",
     publicUrl: tenant?.publicUrl ?? "",
-    brandThemeSlug: tenant?.brandThemeSlug ?? "",
+    brandThemeSlug: tenant ? (tenant.brandThemeSlug ?? "") : DEFAULT_GENERIC_THEME_SLUG,
     skipInitialSiteSetup: tenant?.skipInitialSiteSetup ?? false,
     debugLogin: tenant?.debugLogin ?? false,
     supabaseUrl: tenant?.supabaseUrl ?? "",
@@ -55,6 +59,7 @@ function toInitialValues(tenant?: PulsarTenantRecord | null): PulsarTenantFormVa
     whatsappAccessToken: tenant?.whatsappAccessToken ?? "",
     whatsappPhoneNumberId: tenant?.whatsappPhoneNumberId ?? "",
     whatsappClassReminderTemplateName: tenant?.whatsappClassReminderTemplateName ?? "",
+    dataMode: tenant?.dataMode === "shared_schema" ? "shared_schema" : "project",
   };
 }
 
@@ -62,6 +67,7 @@ export function PulsarAdminTenantForm({
   locale,
   dict,
   initialTenant = null,
+  masthead = null,
 }: PulsarAdminTenantFormProps) {
   const router = useRouter();
   const isEditing = Boolean(initialTenant);
@@ -130,7 +136,7 @@ export function PulsarAdminTenantForm({
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)]">
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      <div className={`mx-auto px-4 py-8 sm:px-6 ${masthead ? "max-w-6xl" : "max-w-4xl"}`}>
         <div className="flex items-center justify-between gap-4">
           <Link
             href={`/${locale}/admin`}
@@ -140,6 +146,7 @@ export function PulsarAdminTenantForm({
             <span>{copy.backToFleet}</span>
           </Link>
 
+          {values.dataMode === "project" ? (
           <button
             type="button"
             disabled={isTesting}
@@ -151,12 +158,19 @@ export function PulsarAdminTenantForm({
               {isTesting ? formCopy.testingConnection : formCopy.testConnectionCta}
             </span>
           </button>
+          ) : null}
         </div>
 
-        <h1 className="mt-6 text-2xl font-extrabold tracking-tight text-[var(--color-foreground)]">
-          {isEditing ? `${formCopy.editTitle}: ${initialTenant?.slug}` : formCopy.createTitle}
-        </h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{formCopy.lead}</p>
+        {masthead ? (
+          <div className="mt-8">{masthead}</div>
+        ) : (
+          <h1 className="mt-6 text-2xl font-extrabold tracking-tight text-[var(--color-foreground)]">
+            {isEditing ? `${formCopy.editTitle}: ${initialTenant?.slug}` : formCopy.createTitle}
+          </h1>
+        )}
+        <p className={`text-sm text-[var(--color-muted-foreground)] ${masthead ? "mt-10" : "mt-1"}`}>
+          {formCopy.lead}
+        </p>
 
         {probeBanner ? (
           <div
@@ -201,6 +215,12 @@ export function PulsarAdminTenantForm({
         ) : null}
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+          <PulsarAdminTenantDataMode
+            dict={dict}
+            value={values.dataMode}
+            disabled={isEditing}
+            onChange={(mode) => handleFieldChange("dataMode", mode)}
+          />
           <PulsarAdminTenantFieldGroups
             dict={dict}
             values={values}
@@ -219,6 +239,9 @@ export function PulsarAdminTenantForm({
             </button>
           </div>
         </form>
+        {isEditing && initialTenant ? (
+          <PulsarAdminCloseTenant locale={locale} slug={initialTenant.slug} copy={formCopy} />
+        ) : null}
       </div>
     </div>
   );

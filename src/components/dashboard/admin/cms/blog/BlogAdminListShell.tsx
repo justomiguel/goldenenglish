@@ -49,6 +49,8 @@ interface BlogAdminListShellProps {
     unpin: string;
     edit: string;
     views: string;
+    publicRead: string;
+    membersOnly: string;
   };
 }
 
@@ -134,6 +136,9 @@ export function BlogAdminListShell({
                   {row.translation?.title ?? row.id}
                 </p>
                 <p className="text-xs text-[var(--color-muted-foreground)]">{row.status}</p>
+                <p className="text-xs text-[var(--color-muted-foreground)]">
+                  {row.visibility === "members" ? labels.membersOnly : labels.publicRead}
+                </p>
                 <p className="mt-1 inline-flex items-center gap-1 text-xs text-[var(--color-muted-foreground)]">
                   <ChartNoAxesColumn aria-hidden className="h-3.5 w-3.5" />
                   {labels.views}: {row.viewCount.toLocaleString(locale)}

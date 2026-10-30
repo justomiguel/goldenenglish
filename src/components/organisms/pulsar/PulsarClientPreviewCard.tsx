@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 import { PulsarClientInstituteMark } from "@/components/organisms/pulsar/PulsarClientInstituteMark";
+import { PulsarNearFilm } from "@/components/organisms/pulsar/PulsarNearFilm";
 
 export interface PulsarClientPreviewCardProps {
   displayName: string;
@@ -10,6 +11,7 @@ export interface PulsarClientPreviewCardProps {
   previewVideoSrc?: string;
   previewPosterSrc?: string;
   logoSrc?: string;
+  deferVideo?: boolean;
 }
 
 export function PulsarClientPreviewCard({
@@ -20,6 +22,7 @@ export function PulsarClientPreviewCard({
   previewVideoSrc,
   previewPosterSrc,
   logoSrc,
+  deferVideo = false,
 }: PulsarClientPreviewCardProps) {
   return (
     <a
@@ -33,17 +36,25 @@ export function PulsarClientPreviewCard({
         <div className="relative aspect-video bg-[var(--color-muted)]">
           {previewVideoSrc ? (
             <>
-              <video
-                className="h-full w-full object-cover object-top motion-reduce:hidden"
-                autoPlay
-                muted
-                loop
-                playsInline
-                poster={previewPosterSrc}
-                aria-hidden
-              >
-                <source src={previewVideoSrc} type="video/webm" />
-              </video>
+              {deferVideo ? (
+                <PulsarNearFilm
+                  src={previewVideoSrc}
+                  poster={previewPosterSrc}
+                  className="h-full w-full object-cover object-top motion-reduce:hidden"
+                />
+              ) : (
+                <video
+                  className="h-full w-full object-cover object-top motion-reduce:hidden"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  poster={previewPosterSrc}
+                  aria-hidden
+                >
+                  <source src={previewVideoSrc} type="video/webm" />
+                </video>
+              )}
               {previewPosterSrc ? (
                 <Image
                   src={previewPosterSrc}

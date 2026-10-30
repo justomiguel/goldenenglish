@@ -10,10 +10,10 @@ import {
 import { logSupabaseError } from "@/lib/logging/serverActionLog";
 
 const TRANSLATION_COLUMNS =
-  "article_id, locale, slug, title, excerpt, body_html, body_text_plain, reading_time_minutes, seo_title, seo_description, attachments";
+  "article_id, locale, slug, title, excerpt, body_html, body_text_plain, reading_time_minutes, seo_title, seo_description, attachments, cta_label, cta_url";
 
 const ARTICLE_COLUMNS =
-  "id, default_locale, status, published_at, scheduled_for, cover_storage_path, tags, is_pinned, pinned_at, comments_enabled, author_id, view_count, created_at, updated_at, updated_by";
+  "id, default_locale, status, published_at, scheduled_for, cover_storage_path, tags, is_pinned, pinned_at, comments_enabled, visibility, author_id, view_count, created_at, updated_at, updated_by";
 
 export type BlogArticleBySlugResult = {
   article: ReturnType<typeof mapArticleRow> | null;

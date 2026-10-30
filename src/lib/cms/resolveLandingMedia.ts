@@ -12,6 +12,10 @@ import { mozarthitosSectionImageSrc } from "@/lib/landing/mozarthitosLandingImag
 import { nagoSectionImageSrc } from "@/lib/landing/nagoLandingImages";
 import { mimundoSectionImageSrc } from "@/lib/landing/mimundoLandingImages";
 import { lioraSectionImageSrc } from "@/lib/landing/lioraLandingImages";
+import {
+  genericSectionStockPath,
+  isGenericInstituteKind,
+} from "@/lib/theme/genericInstituteTemplates";
 
 /**
  * Pure helpers for landing media overrides.
@@ -94,6 +98,9 @@ export function resolveLandingImageSrcForTheme(
       const override = media.get(makeKey(section, position));
       if (override) return override;
     }
+  }
+  if (isGenericInstituteKind(kind)) {
+    return genericSectionStockPath(kind, section);
   }
   if (kind === "mozarthitos") {
     return mozarthitosSectionImageSrc(section, filename);

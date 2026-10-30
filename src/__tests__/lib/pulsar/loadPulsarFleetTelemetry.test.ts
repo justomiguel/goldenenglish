@@ -65,7 +65,20 @@ describe("loadPulsarFleetTelemetry", () => {
         from: (table: string) => {
           if (table === "site_themes") {
             return {
-              select: () => Promise.resolve({ count: 1, error: null }),
+              select: (_cols: string, opts?: { head?: boolean }) => {
+                if (opts?.head) return Promise.resolve({ count: 1, error: null });
+                return {
+                  eq: () => ({
+                    limit: () => ({
+                      maybeSingle: () =>
+                        Promise.resolve({
+                          data: { properties: { "app.logo.path": "/images/nago/logo.png" } },
+                          error: null,
+                        }),
+                    }),
+                  }),
+                };
+              },
             };
           }
           return {
@@ -104,6 +117,7 @@ describe("loadPulsarFleetTelemetry", () => {
     expect(map.nago?.visits7d).toBe(115);
     expect(map.nago?.visits30d).toBe(420);
     expect(map.nago?.lastHitAt).toBe("2026-10-25T18:00:00Z");
+    expect(map.nago?.logoUrl).toBe("/images/nago/logo/logo.png");
 
     expect(map.broken?.status).toBe("error");
     expect(map.broken?.errorCode).toBe("PGRST301");

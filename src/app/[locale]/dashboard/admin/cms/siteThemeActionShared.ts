@@ -6,6 +6,7 @@ import {
 } from "@/types/theming";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { logSupabaseError } from "@/lib/logging/serverActionLog";
+import { pulsarThemeEditorContext } from "@/lib/pulsar/pulsarThemeEditorContext";
 import { getAlsTenant } from "@/lib/tenant/alsTenantAccessor";
 
 /** Result shape shared by every site theme action. Stable codes (not localized
@@ -60,6 +61,8 @@ export type AdminContext = Awaited<ReturnType<typeof assertAdmin>>;
 export async function resolveAdminContext(): Promise<
   { ok: true; admin: AdminContext } | { ok: false; code: "forbidden" }
 > {
+  const pulsar = await pulsarThemeEditorContext();
+  if (pulsar) return { ok: true, admin: pulsar };
   try {
     const admin = await assertAdmin();
     return { ok: true, admin };

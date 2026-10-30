@@ -2,6 +2,10 @@ import { BlogArticleAttachments } from "@/components/organisms/BlogArticleAttach
 import { BlogArticleBodyHtml } from "@/components/organisms/BlogArticleBodyHtml";
 import { BlogArticleDetailHero } from "@/components/molecules/BlogArticleDetailHero";
 import { BlogArticleShareButton } from "@/components/molecules/BlogArticleShareButton";
+import {
+  BlogArticlePublicExtras,
+  type BlogArticlePublicExtrasProps,
+} from "@/components/molecules/BlogArticlePublicExtras";
 import type { BlogAttachment } from "@/lib/blog/attachments";
 import type { RichContentDisplayLabels } from "@/lib/rich-content/richContentDisplayTypes";
 
@@ -26,6 +30,7 @@ interface BlogArticleDetailDesktopProps {
   shareUrl?: string;
   shareLabel?: string;
   shareCopiedLabel?: string;
+  publicExtras?: Omit<BlogArticlePublicExtrasProps, "fullWidth">;
 }
 
 export function BlogArticleDetailDesktop({
@@ -45,6 +50,7 @@ export function BlogArticleDetailDesktop({
   shareUrl,
   shareLabel,
   shareCopiedLabel,
+  publicExtras,
 }: BlogArticleDetailDesktopProps) {
   return (
     <article className="mx-auto w-full max-w-3xl space-y-8">
@@ -71,6 +77,7 @@ export function BlogArticleDetailDesktop({
         </div>
       ) : null}
       <BlogArticleAttachments attachments={attachments} title={attachmentsTitle} />
+      {publicExtras ? <BlogArticlePublicExtras {...publicExtras} /> : null}
     </article>
   );
 }

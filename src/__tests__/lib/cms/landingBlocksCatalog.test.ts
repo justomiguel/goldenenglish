@@ -43,6 +43,11 @@ describe("type guards", () => {
     expect(isSiteThemeKind("nago")).toBe(true);
     expect(isSiteThemeKind("mimundo")).toBe(true);
     expect(isSiteThemeKind("liora")).toBe(true);
+    expect(isSiteThemeKind("deportes")).toBe(true);
+    expect(isSiteThemeKind("jardin")).toBe(true);
+    expect(isSiteThemeKind("colegio")).toBe(true);
+    expect(isSiteThemeKind("musica")).toBe(true);
+    expect(isSiteThemeKind("idiomas")).toBe(true);
     expect(isSiteThemeKind("brutalist")).toBe(false);
   });
 });

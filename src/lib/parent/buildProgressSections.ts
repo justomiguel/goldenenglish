@@ -1,3 +1,4 @@
+import type { StudentCourseCard } from "@/types/studentCourses";
 import type { StudentLearningTaskRow } from "@/types/learningTasks";
 import type { StudentMiniTestAssessment } from "@/types/learningContent";
 import type { ParentFeedbackTimeline } from "@/types/parentFeedback";
@@ -6,6 +7,7 @@ import type { StudentExamResult } from "@/types/studentExams";
 
 export const PROGRESS_SECTION_EXAMS = "exams";
 export const PROGRESS_SECTION_TASKS = "tasks";
+export const PROGRESS_SECTION_COURSES = "courses";
 export const PROGRESS_SECTION_ASSESSMENTS = "assessments";
 export const PROGRESS_SECTION_FEEDBACK = "feedback";
 export const PROGRESS_SECTION_BADGES = "badges";
@@ -13,6 +15,7 @@ export const PROGRESS_SECTION_BADGES = "badges";
 export type ProgressSectionId =
   | typeof PROGRESS_SECTION_EXAMS
   | typeof PROGRESS_SECTION_TASKS
+  | typeof PROGRESS_SECTION_COURSES
   | typeof PROGRESS_SECTION_ASSESSMENTS
   | typeof PROGRESS_SECTION_FEEDBACK
   | typeof PROGRESS_SECTION_BADGES;
@@ -32,6 +35,7 @@ export type BuildProgressSectionsInput = {
   assessments: StudentMiniTestAssessment[];
   feedback: ParentFeedbackTimeline;
   badgeRows: StudentBadgeRowModel[];
+  courses?: StudentCourseCard[];
   /** Sections whose server read failed; they stay offered so the family can retry them. */
   failedSections?: ProgressSectionId[];
 };
@@ -54,6 +58,7 @@ export function buildProgressSections(input: BuildProgressSectionsInput): Progre
       count: input.tasks.length,
       itemKeys: input.tasks.map((row) => `${row.taskInstanceId}:${row.status}`),
     },
+    coursesSection(input.courses ?? []),
     {
       id: PROGRESS_SECTION_ASSESSMENTS,
       count: input.assessments.length,
@@ -72,6 +77,20 @@ export function buildProgressSections(input: BuildProgressSectionsInput): Progre
   return candidates
     .map((section) => (failed.has(section.id) ? { ...section, failed: true } : section))
     .filter((section) => section.count > 0 || section.failed);
+}
+
+function coursesSection(courses: StudentCourseCard[]): ProgressSection {
+  return {
+    id: PROGRESS_SECTION_COURSES,
+    count: courses.length,
+    itemKeys: courses.map((course) => {
+      const done = course.modules.reduce(
+        (total, module) => total + module.lessons.filter((lesson) => lesson.completed).length,
+        0,
+      );
+      return `${course.id}:${done}`;
+    }),
+  };
 }
 
 /** Locked catalog rows ship with every response, so only earned grants count as content. */

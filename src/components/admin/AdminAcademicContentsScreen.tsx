@@ -2,7 +2,9 @@
 
 import { useId } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Library, Route } from "lucide-react";
+import { GraduationCap, Library, Route } from "lucide-react";
+import { AdminCoursesPanel } from "@/components/admin/AdminCoursesPanel";
+import type { AdminCourseListPage } from "@/lib/courses/loadAdminCourses";
 import {
   AdminGlobalContentRepository,
   type GlobalContentRepositoryPagination,
@@ -20,7 +22,9 @@ import type { LearningRouteContentTemplateOption } from "@/types/learningContent
 import type { Dictionary } from "@/types/i18n";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
-export type AcademicContentsTab = "repository" | "routes";
+export type AcademicContentsTab = "repository" | "routes" | "courses";
+
+const EMPTY_COURSES: AdminCourseListPage = { rows: [], page: 1, pageSize: 20, totalCount: 0 };
 
 interface AdminAcademicContentsScreenProps {
   locale: string;
@@ -28,6 +32,8 @@ interface AdminAcademicContentsScreenProps {
   routes: LearningRouteContentTemplateOption[];
   globalContents: ContentTemplateLibraryRow[];
   repositoryPagination: GlobalContentRepositoryPagination;
+  courses?: AdminCourseListPage;
+  sections?: { id: string; name: string }[];
   labels: Dictionary["dashboard"]["adminContents"];
 }
 
@@ -37,8 +43,8 @@ export function buildAcademicContentsHubPath(
   updates: { tab: AcademicContentsTab },
 ): string {
   const next = new URLSearchParams(searchParams.toString());
-  if (updates.tab === "routes") next.set("tab", "routes");
-  else next.delete("tab");
+  if (updates.tab === "repository") next.delete("tab");
+  else next.set("tab", updates.tab);
   const qs = next.toString();
   return `/${locale}/dashboard/admin/academic/contents${qs ? `?${qs}` : ""}`;
 }
@@ -49,6 +55,8 @@ export function AdminAcademicContentsScreen({
   routes,
   globalContents,
   repositoryPagination,
+  courses = EMPTY_COURSES,
+  sections = [],
   labels,
 }: AdminAcademicContentsScreenProps) {
   const idPrefix = useId().replace(/:/g, "");
@@ -69,10 +77,15 @@ export function AdminAcademicContentsScreen({
       Icon: Route,
       tourId: ADMIN_TOUR_ANCHORS.contentsTabRoutes,
     },
+    {
+      id: "courses",
+      label: labels.coursesTab,
+      Icon: GraduationCap,
+    },
   ];
 
   const onTabChange = (id: string) => {
-    const next = id === "routes" ? "routes" : "repository";
+    const next = id === "routes" || id === "courses" ? id : "repository";
     router.replace(buildAcademicContentsHubPath(locale, searchParams, { tab: next }));
   };
 
@@ -123,6 +136,23 @@ export function AdminAcademicContentsScreen({
           >
             <p className="text-sm text-[var(--color-muted-foreground)]">{labels.learningRoutesLead}</p>
             <AdminLearningRoutesGrid locale={locale} routes={routes} labels={labels} />
+          </div>
+
+          <div
+            id={underlinePanelId(idPrefix, "courses")}
+            role="tabpanel"
+            aria-labelledby={underlineTabId(idPrefix, "courses")}
+            hidden={tab !== "courses"}
+            tabIndex={0}
+            className="outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+          >
+            <AdminCoursesPanel
+              locale={locale}
+              list={courses}
+              templates={globalContents.map((row) => ({ id: row.id, title: row.title }))}
+              sections={sections}
+              labels={labels}
+            />
           </div>
         </div>
       </div>

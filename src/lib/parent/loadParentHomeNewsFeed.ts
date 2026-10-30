@@ -76,6 +76,7 @@ export async function loadParentHomeNewsFeed(
       locale: blogLocale,
       page: 1,
       pageSize: NEWS_BLOG_LIMIT,
+      includeMembers: true,
     }),
     loadUpcomingInstituteEventsForParent(supabase, {
       locale: params.locale,

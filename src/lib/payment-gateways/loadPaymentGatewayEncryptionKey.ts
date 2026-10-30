@@ -2,7 +2,7 @@ import "server-only";
 
 import { Buffer } from "node:buffer";
 import { getAlsTenant } from "@/lib/tenant/alsTenantAccessor";
-import { preferTenantValue } from "@/lib/tenant/preferTenantValue";
+import { preferSharedPlatformSecret } from "@/lib/tenant/preferTenantValue";
 import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 /** Base64-encoded 32-byte key; generate with `openssl rand -base64 32`. */
@@ -10,7 +10,8 @@ export async function loadPaymentGatewayEncryptionKeyRaw32(
   tenantKeyOverride?: string | null,
 ): Promise<Buffer> {
   const tenant = getAlsTenant() ?? (await resolveRequestTenant());
-  const b64 = preferTenantValue(
+  const b64 = preferSharedPlatformSecret(
+    Boolean(tenant),
     tenantKeyOverride ?? tenant?.paymentGatewaySecretEncryptionKey,
     process.env.PAYMENT_GATEWAY_SECRET_ENCRYPTION_KEY,
   );

@@ -1,6 +1,7 @@
-import { Mail, MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { JsonLdFaqPage } from "@/components/molecules/JsonLdFaqPage";
+import { PublicContactForm } from "@/components/molecules/PublicContactForm";
 import { PulsarSiteChrome } from "@/components/organisms/pulsar/PulsarSiteChrome";
 
 export interface PulsarContactoViewProps {
@@ -27,6 +28,10 @@ export function PulsarContactoView({ locale, dict }: PulsarContactoViewProps) {
             {copy.lead}
           </p>
 
+          <div className="mt-10 max-w-lg">
+            <PublicContactForm locale={locale} labels={dict.publicContact} embedded />
+          </div>
+
           <h2 className="mt-16 font-display text-2xl font-medium text-[var(--color-foreground)]">
             {copy.stepsTitle}
           </h2>
@@ -48,20 +53,7 @@ export function PulsarContactoView({ locale, dict }: PulsarContactoViewProps) {
             ))}
           </ol>
 
-          <div className="mt-14 grid gap-10 md:grid-cols-2">
-            <div>
-              <p className="text-sm text-[var(--color-muted-foreground)]">{copy.emailLabel}</p>
-              <p className="mt-1 font-display text-xl text-[var(--color-foreground)]">
-                {copy.emailValue}
-              </p>
-              <a
-                href={`mailto:${copy.emailValue}`}
-                className="mt-4 inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)]"
-              >
-                <Mail className="h-4 w-4" aria-hidden />
-                <span>{copy.emailCta}</span>
-              </a>
-            </div>
+          <div className="mt-14">
             <div>
               <p className="text-sm text-[var(--color-muted-foreground)]">{copy.whatsappLabel}</p>
               <p className="mt-1 font-display text-xl text-[var(--color-foreground)]">

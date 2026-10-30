@@ -19,7 +19,7 @@ export function BlogIndexDesktop({ locale, rows, labels }: BlogIndexDesktopProps
       ) : null}
       <div className="grid gap-4 md:grid-cols-2">
         {rows.map((row) => (
-          <BlogArticleCard key={row.id} locale={locale} article={row} labels={labels} />
+          <BlogArticleCard key={row.id} locale={locale} article={row} labels={labels} fromIndex />
         ))}
       </div>
     </section>

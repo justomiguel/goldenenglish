@@ -66,8 +66,19 @@ export function tokenGroupFromKey(key: string): TokenGroupId | null {
   return null;
 }
 
+const DEDICATED_SITE_KEYS = new Set([
+  "app.favicon.mode",
+  "app.landing.hidden",
+  "app.seo.title",
+  "app.seo.title.en",
+  "app.seo.title.pt",
+  "app.seo.description",
+  "app.seo.description.en",
+  "app.seo.description.pt",
+]);
+
 function isEditableKey(key: string): boolean {
-  return tokenGroupFromKey(key) !== null;
+  return tokenGroupFromKey(key) !== null && !DEDICATED_SITE_KEYS.has(key);
 }
 
 /**

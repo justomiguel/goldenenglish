@@ -19,12 +19,13 @@ interface BlogArticleCardProps {
   locale: string;
   article: BlogArticleListItem;
   labels: BlogArticleCardLabels;
+  fromIndex?: boolean;
 }
 
-export function BlogArticleCard({ locale, article, labels }: BlogArticleCardProps) {
+export function BlogArticleCard({ locale, article, labels, fromIndex = false }: BlogArticleCardProps) {
   if (!article.translation) return null;
 
-  const detailHref = `/${locale}/blog/${article.translation.slug}`;
+  const detailHref = `/${locale}/blog/${article.translation.slug}${fromIndex ? "?from=index" : ""}`;
   const coverImageUrl = resolveBlogCoverImageUrl(
     article.translation.bodyHtml,
     article.coverStoragePath,

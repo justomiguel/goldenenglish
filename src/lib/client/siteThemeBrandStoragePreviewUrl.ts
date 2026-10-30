@@ -4,6 +4,6 @@ import { LANDING_MEDIA_BUCKET } from "@/lib/cms/landingMediaBucket";
 export function siteThemeBrandStoragePreviewUrl(path: string): string {
   const t = path.trim();
   if (!t) return "";
-  if (t.startsWith("http")) return t;
+  if (t.startsWith("http") || t.startsWith("/")) return t;
   return `/geo/${LANDING_MEDIA_BUCKET}/${encodeURI(t)}`;
 }

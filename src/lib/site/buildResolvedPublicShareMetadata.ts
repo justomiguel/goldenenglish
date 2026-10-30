@@ -9,6 +9,8 @@ import {
 } from "@/lib/cms/resolveLandingMedia";
 import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
 import { resolveSharePreviewLogoAbsoluteUrl } from "@/lib/landing/resolveSharePreviewLogoUrl";
+import { resolveBrandLogoAbsoluteUrl } from "@/lib/brand/resolveBrandLogoUrl";
+import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import {
   openGraphLocaleForInstitute,
@@ -52,6 +54,13 @@ export async function loadShareLogoUrl(): Promise<string | null> {
   const origin = (await getRequestPublicSiteUrl())?.origin;
   if (!origin) return null;
   const [brand, theme] = await Promise.all([getBrandForRequest(), loadActiveTheme()]);
+  if (isGenericInstituteKind(theme?.theme.templateKind)) {
+    const share = theme?.theme.properties["app.share.image"];
+    if (typeof share === "string" && share.startsWith("/")) {
+      return `${origin}${share}`;
+    }
+    return resolveBrandLogoAbsoluteUrl(brand, origin);
+  }
   const bundle = sharePreviewBundleKeyFromTemplateKind(theme?.theme.templateKind);
   return resolveSharePreviewLogoAbsoluteUrl(origin, bundle, brand);
 }

@@ -5,6 +5,7 @@ import {
   createAnonReadOnlyClient,
 } from "@/lib/supabase/anon";
 import { createAdminClient, createAdminClientFromCredentials } from "@/lib/supabase/admin";
+import { bindInstituteDataPlane } from "@/lib/supabase/bindInstituteDataPlane";
 import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 import {
   getTenantBySlug,
@@ -204,16 +205,19 @@ async function loadThemeSnapshotForTenant(slug: string): Promise<ActiveThemeSnap
   const brandSlug = tenant.brandThemeSlug?.trim() ?? "";
   try {
     if (brandSlug) {
-      const admin = createAdminClientFromCredentials(
-        tenant.supabaseUrl,
-        tenant.supabaseServiceRoleKey,
+      const admin = bindInstituteDataPlane(
+        createAdminClientFromCredentials(
+          tenant.supabaseUrl,
+          tenant.supabaseServiceRoleKey,
+        ),
+        tenant,
       );
       const bySlug = await loadThemeBySlugWithClient(admin, brandSlug);
       if (bySlug) return bySlug;
     }
-    const anon = createAnonClientFromCredentials(
-      tenant.supabaseUrl,
-      tenant.supabaseAnonKey,
+    const anon = bindInstituteDataPlane(
+      createAnonClientFromCredentials(tenant.supabaseUrl, tenant.supabaseAnonKey),
+      tenant,
     );
     return loadActiveThemeRowAnon(anon);
   } catch (err) {

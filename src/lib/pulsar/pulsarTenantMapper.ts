@@ -9,6 +9,8 @@ export type PulsarTenantRecord = TenantConfig & {
 export const PLATFORM_TENANTS_SELECT_COLUMNS =
   "slug, display_name, is_enabled, hosts, supabase_url, supabase_anon_key, supabase_service_role_key, database_url, brand_theme_slug, mail_tenant, resend_from_email, resend_api_key, public_url, payment_gateway_secret_encryption_key, whatsapp_access_token, whatsapp_phone_number_id, whatsapp_class_reminder_template_name, vapid_public_key, vapid_private_key, vapid_contact_email, google_maps_api_key, google_maps_map_id, kv_rest_api_url, kv_rest_api_token, debug_login, skip_initial_site_setup, updated_at";
 
+export const PLATFORM_TENANTS_SELECT_WITH_DATA_PLANE = `${PLATFORM_TENANTS_SELECT_COLUMNS}, data_mode, postgres_schema`;
+
 function strOrNull(v: unknown): string | null {
   if (typeof v !== "string") return null;
   const t = v.trim();
@@ -59,6 +61,11 @@ export function mapDbRowToPulsarTenantRecord(row: Record<string, unknown>): Puls
     kvRestApiToken: strOrNull(row.kv_rest_api_token),
     debugLogin: Boolean(row.debug_login),
     skipInitialSiteSetup: Boolean(row.skip_initial_site_setup),
+    dataMode: row.data_mode === "shared_schema" ? "shared_schema" : "project",
+    postgresSchema:
+      row.data_mode === "shared_schema"
+        ? strOrNull(row.postgres_schema) ?? "public"
+        : "public",
   };
 }
 
@@ -90,6 +97,9 @@ export function mapPulsarTenantToDbPayload(record: Omit<PulsarTenantRecord, "upd
     kv_rest_api_token: record.kvRestApiToken,
     debug_login: record.debugLogin,
     skip_initial_site_setup: record.skipInitialSiteSetup,
+    data_mode: record.dataMode === "shared_schema" ? "shared_schema" : "project",
+    postgres_schema:
+      record.dataMode === "shared_schema" ? record.postgresSchema ?? "public" : "public",
     updated_at: new Date().toISOString(),
   };
 }

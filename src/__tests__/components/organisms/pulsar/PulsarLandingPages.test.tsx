@@ -2,7 +2,11 @@
 // numbered product ledger, school directory, and a calm conversation page.
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/app/[locale]/contact/actions", () => ({
+  submitPublicContactForm: vi.fn().mockResolvedValue({ ok: true }),
+}));
 import es from "@/dictionaries/es.json";
 import type { Dictionary } from "@/types/i18n";
 import { PulsarLandingHome } from "@/components/organisms/pulsar/PulsarLandingHome";
@@ -13,11 +17,19 @@ import { PulsarContactoView } from "@/components/organisms/pulsar/PulsarContacto
 const dict = es as unknown as Dictionary;
 
 describe("CentroListo multi-page growth & marketing views", () => {
+  beforeEach(() => {
+    Object.defineProperty(HTMLVideoElement.prototype, "play", {
+      configurable: true,
+      value: () => Promise.resolve(),
+    });
+  });
+
   it("renders Logo A, the four quiet week moments, and the three silences", async () => {
     const user = userEvent.setup();
     render(<PulsarLandingHome locale="es" dict={dict} activeTenantCount={6} />);
 
     expect(screen.getByRole("heading", { name: dict.pulsar.home.title })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: dict.pulsar.home.heroImageAlt })).toBeInTheDocument();
     expect(screen.getByTestId("centrolisto-generative-logo")).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.home.generativeStage.resolvedCaption)).toBeInTheDocument();
     expect(screen.getByText("6")).toBeInTheDocument();
@@ -25,6 +37,7 @@ describe("CentroListo multi-page growth & marketing views", () => {
     expect(
       screen.getByRole("heading", { name: dict.pulsar.home.portals.tabs[0].headline }),
     ).toBeInTheDocument();
+    expect(document.querySelector('img[src="/pulsar/partners/whatsapp.svg"]')).toBeTruthy();
     expect(screen.getByTestId("pulsar-portal-video")).toHaveAttribute(
       "src",
       "/videos/centrolisto/flow-0-desktop.webm",
@@ -35,6 +48,12 @@ describe("CentroListo multi-page growth & marketing views", () => {
       "src",
       "/videos/centrolisto/flow-0-mobile.webm",
     );
+
+    await user.click(
+      screen.getByRole("tab", { name: dict.pulsar.home.portals.tabs[2].label }),
+    );
+    expect(document.querySelector('img[src="/pulsar/partners/flow.svg"]')).toBeTruthy();
+    expect(document.querySelector('img[src="/pulsar/partners/mercadopago.svg"]')).toBeTruthy();
 
     await user.click(
       screen.getByRole("tab", { name: dict.pulsar.home.portals.tabs[3].label }),
@@ -55,6 +74,56 @@ describe("CentroListo multi-page growth & marketing views", () => {
     expect(
       screen.getAllByRole("link", { name: dict.pulsar.nav.admin })[0],
     ).toHaveAttribute("href", "/es/admin");
+
+    const video = screen.getByTestId("pulsar-portal-video");
+    const sunday = screen.getByRole("heading", {
+      name: dict.pulsar.home.portals.tabs[3].headline,
+    });
+    expect(video.compareDocumentPosition(sunday) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByRole("link", { name: dict.pulsar.account.registerTitle })).toBeNull();
+    expect(screen.getByText(dict.pulsar.home.craftsLine)).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.home.offerStrip)).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.home.faq[0].q)).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.contact.steps[0].title)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: dict.pulsar.home.freeSiteCta })).toHaveAttribute(
+      "href",
+      "/es/cuenta/registro",
+    );
+    for (const link of screen.getAllByRole("link", { name: dict.pulsar.home.whatsappCta })) {
+      expect(link).toHaveAttribute("href", dict.pulsar.contact.whatsappHref);
+    }
+  });
+
+  it("shows two live schools on the home when they have a public link", () => {
+    render(
+      <PulsarLandingHome
+        locale="es"
+        dict={dict}
+        activeTenantCount={2}
+        featuredClients={[
+          {
+            slug: "golden",
+            displayName: "Golden English",
+            hosts: ["goldenenglish.cl"],
+            publicUrl: "https://www.goldenenglish.cl",
+            previewVideoSrc: "/centrolisto/clients/golden.webm",
+            previewPosterSrc: "/centrolisto/clients/golden.jpg",
+            logoSrc: "/images/golden/logo/1.png",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Golden English")).toBeInTheDocument();
+    expect(
+      screen.getByText(dict.pulsar.home.schoolsNamed.replace("{name}", "Golden English")),
+    ).toBeInTheDocument();
+    const visit = screen.getByRole("link", {
+      name: dict.pulsar.clients.visitSiteNamed.replace("{name}", "Golden English"),
+    });
+    expect(visit.querySelector("source")?.getAttribute("src")).toBe(
+      "/centrolisto/clients/golden.webm",
+    );
   });
 
   it("renders the Producto view with all 12 platform modules and the competitor comparison matrix", () => {
@@ -118,12 +187,12 @@ describe("CentroListo multi-page growth & marketing views", () => {
       "/centrolisto/clients/golden.webm",
     );
     const goldenHeading = screen.getByRole("heading", { name: "Golden English" });
-    expect(goldenHeading.previousElementSibling).toHaveAttribute(
+    expect(goldenHeading.previousElementSibling?.querySelector("img")).toHaveAttribute(
       "src",
       expect.stringContaining("/images/golden/logo/1.png"),
     );
     expect(goldenLink).toHaveTextContent(dict.pulsar.clients.visitSite);
-    expect(nagoHeading.previousElementSibling).toHaveAttribute(
+    expect(nagoHeading.previousElementSibling?.querySelector("img")).toHaveAttribute(
       "src",
       expect.stringContaining("/images/nago/logo/logo.png"),
     );
@@ -135,7 +204,7 @@ describe("CentroListo multi-page growth & marketing views", () => {
     expect(screen.getByText(dict.pulsar.clients.verticals[5].title)).toBeInTheDocument();
   });
 
-  it("renders the Contacto view with accompaniment steps, email, checklist, and FAQs", () => {
+  it("renders the Contacto view with accompaniment steps, WhatsApp, checklist, and FAQs", () => {
     render(<PulsarContactoView locale="es" dict={dict} />);
 
     expect(screen.getByRole("heading", { name: dict.pulsar.contact.title })).toBeInTheDocument();
@@ -143,7 +212,10 @@ describe("CentroListo multi-page growth & marketing views", () => {
       screen.getByRole("heading", { name: dict.pulsar.contact.stepsTitle }),
     ).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.contact.steps[0].title)).toBeInTheDocument();
-    expect(screen.getAllByText(dict.pulsar.contact.emailValue).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText(dict.pulsar.contact.emailValue)).toBeNull();
+    expect(document.querySelector('a[href^="mailto:"]')).toBeNull();
+    expect(screen.getByLabelText(dict.publicContact.fullName)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: dict.publicContact.submit })).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.contact.check1)).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.contact.check5)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: dict.pulsar.contact.faqTitle })).toBeInTheDocument();

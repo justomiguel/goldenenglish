@@ -8,6 +8,8 @@ export interface WrapEmailHtmlInput {
   locale: Locale;
   /** HTML del cuerpo del email (sin layout/header). Lo inyecta el caller. */
   bodyHtml: string;
+  /** Cuadrado visible del logo. Sin esto, el alto fijo recorta un PNG grande. */
+  logoSize?: number;
 }
 
 const FOOTER_LABELS: Record<Locale, { contactPrefix: string; address: string }> = {
@@ -44,6 +46,10 @@ function absoluteLogoSrc(brand: BrandPublic, origin: string): string {
  */
 export function wrapEmailHtml(input: WrapEmailHtmlInput): string {
   const { brand, origin, locale, bodyHtml } = input;
+  const logoSize = input.logoSize && input.logoSize > 0 ? Math.round(input.logoSize) : 0;
+  const logoAttrs = logoSize
+    ? `width="${logoSize}" height="${logoSize}" style="display:block;width:${logoSize}px;height:${logoSize}px;border:0;"`
+    : `height="40" style="display:block;height:40px;width:auto;border:0;"`;
   const labels = FOOTER_LABELS[locale];
   const logoSrc = absoluteLogoSrc(brand, origin);
   const safeBrandName = escape(brand.name || "");
@@ -80,7 +86,7 @@ export function wrapEmailHtml(input: WrapEmailHtmlInput): string {
             <table role="presentation" cellpadding="0" cellspacing="0" border="0">
               <tr>
                 <td style="vertical-align:middle;">
-                  <img src="${logoSrc}" alt="${safeBrandAlt}" height="40" style="display:block;height:40px;width:auto;border:0;" />
+                  <img src="${logoSrc}" alt="${safeBrandAlt}" ${logoAttrs} />
                 </td>
                 <td style="vertical-align:middle;padding-left:14px;font-weight:600;font-size:16px;color:#103A5C;">
                   ${safeBrandName}

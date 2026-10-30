@@ -9,6 +9,7 @@ import { loadStudentMiniTests } from "@/lib/learning-content/loadStudentMiniTest
 import { loadStudentFeedbackTimeline } from "@/lib/parent/loadStudentFeedbackTimeline";
 import { loadStudentExamResults } from "@/lib/parent/loadStudentExamResults";
 import { loadStudentBadgeDisplayRows } from "@/lib/badges/loadStudentBadgeDisplayRows";
+import { loadStudentCourses } from "@/lib/courses/loadStudentCourses";
 import { createProgressFailureTracker } from "@/lib/parent/progressFailureTracker";
 import { ParentProgressEntry } from "@/components/parent/ParentProgressEntry";
 import { requirePortalPageActor } from "@/lib/dashboard/requirePortalPageActor";
@@ -59,7 +60,7 @@ export default async function StudentProgressPage({ params, searchParams }: Page
     if (!shareOrigin) return path;
     return new URL(path, shareOrigin).toString();
   };
-  const [exams, tasks, assessments, feedback, badgeRows] = await Promise.all([
+  const [exams, tasks, assessments, feedback, badgeRows, courses] = await Promise.all([
     loadStudentExamResults(supabase, {
       studentId,
       onLoadError: failures.reporterFor("exams"),
@@ -72,6 +73,7 @@ export default async function StudentProgressPage({ params, searchParams }: Page
       onLoadError: failures.reporterFor("feedback"),
     }),
     loadStudentBadgeDisplayRows(studentId, badgeShareUrl, failures.reporterFor("badges")),
+    loadStudentCourses(supabase, studentId, failures.reporterFor("courses")),
   ]);
 
   return (
@@ -85,6 +87,7 @@ export default async function StudentProgressPage({ params, searchParams }: Page
         assessments={assessments}
         feedback={feedback}
         badgeRows={badgeRows}
+        courses={courses}
         failedSections={failures.failedSections()}
         parentLabels={dict.dashboard.parent}
         studentLabels={dict.dashboard.student}

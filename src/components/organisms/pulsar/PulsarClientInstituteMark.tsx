@@ -6,12 +6,14 @@ export interface PulsarClientInstituteMarkProps {
 
 export function PulsarClientInstituteMark({ src }: PulsarClientInstituteMarkProps) {
   return (
-    <Image
-      src={src}
-      alt=""
-      width={360}
-      height={112}
-      className="h-28 w-auto max-w-[18rem] shrink-0 object-contain object-left"
-    />
+    <span className="relative inline-block h-24 w-56 shrink-0">
+      <Image
+        src={src}
+        alt=""
+        fill
+        sizes="14rem"
+        className="object-contain object-left"
+      />
+    </span>
   );
 }

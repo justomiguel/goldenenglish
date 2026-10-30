@@ -54,6 +54,14 @@ export function useBlogArticleEditorLocales({
     (materials: BlogEditorTranslationDraft["materials"]) => patchCurrentDraft({ materials }),
     [patchCurrentDraft],
   );
+  const setCtaLabel = useCallback(
+    (ctaLabel: string) => patchCurrentDraft({ ctaLabel }),
+    [patchCurrentDraft],
+  );
+  const setCtaUrl = useCallback(
+    (ctaUrl: string) => patchCurrentDraft({ ctaUrl }),
+    [patchCurrentDraft],
+  );
 
   const syncMediaToAllLocales = useCallback(
     ({ insertHtml, blockIndex }: MediaSyncToAllLocalesPayload) => {
@@ -127,6 +135,10 @@ export function useBlogArticleEditorLocales({
     setBodyHtml,
     materials: currentDraft.materials,
     setMaterials,
+    ctaLabel: currentDraft.ctaLabel ?? "",
+    setCtaLabel,
+    ctaUrl: currentDraft.ctaUrl ?? "",
+    setCtaUrl,
     syncMediaToAllLocales,
     appendMaterialToAllLocales,
     applyTranslatedLocale,

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Monitor, Smartphone } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import { PulsarQuietFilm } from "@/components/organisms/pulsar/PulsarQuietFilm";
+import { homeMomentMarks, PARTNER_SRC, type HomeMarkId } from "@/lib/pulsar/connectedPartners";
 
 export interface PulsarInteractivePortalShowcaseProps {
   dict: Dictionary;
@@ -16,6 +18,12 @@ export function PulsarInteractivePortalShowcase({
   const [activeIndex, setActiveIndex] = useState(0);
   const [videoSurface, setVideoSurface] = useState<"desktop" | "mobile">("desktop");
   const currentTab = tabs[activeIndex] ?? tabs[0];
+  const marks = homeMomentMarks(currentTab?.id ?? "");
+  const markLabel: Record<HomeMarkId, string> = {
+    flow: portals.markFlow,
+    mercadopago: portals.markMercadoPago,
+    whatsapp: portals.markWhatsapp,
+  };
   const videoSrc = `/videos/centrolisto/flow-${activeIndex}-${videoSurface}.webm`;
 
   return (
@@ -67,12 +75,52 @@ export function PulsarInteractivePortalShowcase({
           </div>
 
           <div className="lg:col-span-8">
+            <div className="mb-3 flex flex-wrap items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setVideoSurface("desktop")}
+                aria-pressed={videoSurface === "desktop"}
+                className={`inline-flex min-h-[44px] items-center gap-1.5 px-2 text-xs transition-colors ${
+                  videoSurface === "desktop"
+                    ? "text-[var(--color-foreground)]"
+                    : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+                }`}
+              >
+                <Monitor className="h-3.5 w-3.5" aria-hidden />
+                <span>{portals.videoSurfaceDesktop}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setVideoSurface("mobile")}
+                aria-pressed={videoSurface === "mobile"}
+                className={`inline-flex min-h-[44px] items-center gap-1.5 px-2 text-xs transition-colors ${
+                  videoSurface === "mobile"
+                    ? "text-[var(--color-foreground)]"
+                    : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+                }`}
+              >
+                <Smartphone className="h-3.5 w-3.5" aria-hidden />
+                <span>{portals.videoSurfaceMobile}</span>
+              </button>
+            </div>
+            <div key={videoSrc} className="cl-chronicle-video">
+              <PulsarQuietFilm
+                src={videoSrc}
+                testId="pulsar-portal-video"
+                deferUntilVisible
+                className={
+                  videoSurface === "mobile"
+                    ? "mx-auto max-h-[420px] w-auto object-contain"
+                    : "aspect-video w-full rounded-lg border border-[var(--color-border)] object-cover"
+                }
+              />
+            </div>
             <article
               key={currentTab.id}
               role="tabpanel"
               id={`portal-panel-${currentTab.id}`}
               aria-labelledby={`portal-tab-${currentTab.id}`}
-              className="cl-chronicle-enter"
+              className="cl-chronicle-enter mt-8"
             >
                 <p className="text-sm text-[var(--color-muted-foreground)]">{currentTab.badge}</p>
                 <h3 className="mt-2 font-display text-2xl font-medium tracking-tight text-[var(--color-foreground)]">
@@ -91,6 +139,16 @@ export function PulsarInteractivePortalShowcase({
                     </li>
                   ))}
                 </ul>
+                {marks.length > 0 ? (
+                  <ul className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3" aria-label={portals.marksAria}>
+                    {marks.map((id) => (
+                      <li key={id} className="flex items-center gap-2.5">
+                        <img src={PARTNER_SRC[id]} alt="" className="h-7 w-auto max-w-[5.5rem] object-contain" />
+                        <span className="text-sm text-[var(--color-foreground)]">{markLabel[id]}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
                 <p className="mt-8 text-xs text-[var(--color-muted-foreground)]">
                   {portals.modulesBadge}
                 </p>
@@ -105,52 +163,6 @@ export function PulsarInteractivePortalShowcase({
                   ))}
                 </ol>
             </article>
-
-            <div className="mt-8">
-              <div className="mb-3 flex flex-wrap items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setVideoSurface("desktop")}
-                  aria-pressed={videoSurface === "desktop"}
-                  className={`inline-flex min-h-[36px] items-center gap-1.5 px-2 text-xs transition-colors ${
-                    videoSurface === "desktop"
-                      ? "text-[var(--color-foreground)]"
-                      : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
-                  }`}
-                >
-                  <Monitor className="h-3.5 w-3.5" aria-hidden />
-                  <span>{portals.videoSurfaceDesktop}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setVideoSurface("mobile")}
-                  aria-pressed={videoSurface === "mobile"}
-                  className={`inline-flex min-h-[36px] items-center gap-1.5 px-2 text-xs transition-colors ${
-                    videoSurface === "mobile"
-                      ? "text-[var(--color-foreground)]"
-                      : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
-                  }`}
-                >
-                  <Smartphone className="h-3.5 w-3.5" aria-hidden />
-                  <span>{portals.videoSurfaceMobile}</span>
-                </button>
-              </div>
-              <video
-                key={videoSrc}
-                data-testid="pulsar-portal-video"
-                src={videoSrc}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                className={
-                  videoSurface === "mobile"
-                    ? "mx-auto max-h-[420px] w-auto object-contain"
-                    : "aspect-video w-full object-cover"
-                }
-              />
-            </div>
           </div>
         </div>
       </div>

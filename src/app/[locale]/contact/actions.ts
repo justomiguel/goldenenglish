@@ -6,6 +6,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { deliverPublicSiteContactToAdmins } from "@/lib/messaging/deliverPublicSiteContactToAdmins";
 import { publicSiteContactSubjectSchema } from "@/lib/messaging/publicSiteContactSubjects";
 import { logServerException } from "@/lib/logging/serverActionLog";
+import { pulsarMailMessage } from "@/lib/pulsar/pulsarMailMessage";
+import { loadPulsarMailSettings, sendPulsarMail } from "@/lib/pulsar/pulsarMail";
+import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
+import type { Locale } from "@/types/i18n";
 
 const formSchema = z.object({
   fullName: z.string().trim().min(1, "name").max(200),
@@ -51,6 +55,23 @@ export async function submitPublicContactForm(
   ];
 
   try {
+    if (await isPulsarPlatformRequest()) {
+      const mailLocale: Locale = locale === "en" || locale === "pt" ? locale : "es";
+      const settings = await loadPulsarMailSettings();
+      const draft = pulsarMailMessage({
+        to: settings.notifyEmail,
+        subject: subjectLabel,
+        body: "{name} · {email} · {phone}\n\n{text}",
+        vars: { name: fullName, email, phone: phone ?? "", text: body },
+        locale: mailLocale,
+        brandName: dict.pulsar.meta.brandName,
+      });
+      if (!draft) return { ok: false, message: err.noStaff };
+      const sent = await sendPulsarMail([draft]);
+      if (!sent.ok) return { ok: false, message: err.persist };
+      return { ok: true };
+    }
+
     const admin = await createAdminClient();
     const result = await deliverPublicSiteContactToAdmins(admin, {
       locale,

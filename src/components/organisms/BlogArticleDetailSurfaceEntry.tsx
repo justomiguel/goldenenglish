@@ -4,6 +4,7 @@ import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { BlogArticleDetailDesktop } from "@/components/desktop/organisms/BlogArticleDetailDesktop";
 import { BlogArticleDetailMobile } from "@/components/pwa/organisms/BlogArticleDetailMobile";
 import type { BlogAttachment } from "@/lib/blog/attachments";
+import type { BlogArticlePublicExtrasProps } from "@/components/molecules/BlogArticlePublicExtras";
 import type { RichContentDisplayLabels } from "@/lib/rich-content/richContentDisplayTypes";
 
 interface BlogArticleDetailSurfaceEntryProps {
@@ -27,6 +28,7 @@ interface BlogArticleDetailSurfaceEntryProps {
   shareUrl?: string;
   shareLabel?: string;
   shareCopiedLabel?: string;
+  publicExtras?: Omit<BlogArticlePublicExtrasProps, "fullWidth">;
 }
 
 export function BlogArticleDetailSurfaceEntry({
@@ -46,6 +48,7 @@ export function BlogArticleDetailSurfaceEntry({
   shareUrl,
   shareLabel,
   shareCopiedLabel,
+  publicExtras,
 }: BlogArticleDetailSurfaceEntryProps) {
   const detailProps = {
     locale,
@@ -64,6 +67,7 @@ export function BlogArticleDetailSurfaceEntry({
     shareUrl,
     shareLabel,
     shareCopiedLabel,
+    publicExtras,
   };
 
   return (

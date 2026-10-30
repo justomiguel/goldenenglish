@@ -11,6 +11,10 @@ import {
 import { mustRedirectToResetPassword } from "@/lib/supabase/mustRedirectToResetPassword";
 import { defaultLocale, locales } from "@/lib/i18n/dictionaries";
 import { GE_REQUEST_LOCALE_HEADER } from "@/lib/i18n/requestLocaleHeader";
+import {
+  GE_PULSAR_THEME_SLUG_HEADER,
+  pulsarThemeSlugFromPath,
+} from "@/lib/pulsar/pulsarThemeSlugHeader";
 
 export type UpdateSessionResult = {
   response: NextResponse;
@@ -30,6 +34,8 @@ function nextWithLocaleHeader(request: NextRequest, tenantSlug: string | null): 
   const headers = new Headers(request.headers);
   headers.set(GE_REQUEST_LOCALE_HEADER, extractLocaleFromPathname(request.nextUrl.pathname));
   if (tenantSlug) headers.set(GE_TENANT_HEADER, tenantSlug);
+  const themeSlug = pulsarThemeSlugFromPath(request.nextUrl.pathname);
+  if (themeSlug) headers.set(GE_PULSAR_THEME_SLUG_HEADER, themeSlug);
   return NextResponse.next({ request: { headers } });
 }
 

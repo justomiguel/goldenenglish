@@ -1,3 +1,4 @@
+import type { BlogVisibility } from "@/lib/blog/articleVisibility";
 import type { BlogAttachment } from "@/lib/blog/attachments";
 
 export const BLOG_LOCALES = ["en", "es", "pt"] as const;
@@ -12,7 +13,7 @@ export const BLOG_ARTICLE_STATUSES = [
 ] as const;
 export type BlogArticleStatus = (typeof BLOG_ARTICLE_STATUSES)[number];
 
-export const BLOG_COMMENT_STATUSES = ["visible", "hidden", "flagged"] as const;
+export const BLOG_COMMENT_STATUSES = ["visible", "hidden", "flagged", "pending"] as const;
 export type BlogCommentStatus = (typeof BLOG_COMMENT_STATUSES)[number];
 
 export interface BlogArticle {
@@ -26,6 +27,7 @@ export interface BlogArticle {
   isPinned: boolean;
   pinnedAt: string | null;
   commentsEnabled: boolean;
+  visibility: BlogVisibility;
   authorId: string;
   viewCount: number;
   createdAt: string;
@@ -45,12 +47,15 @@ export interface BlogArticleTranslation {
   attachments: BlogAttachment[];
   seoTitle: string | null;
   seoDescription: string | null;
+  ctaLabel: string | null;
+  ctaUrl: string | null;
 }
 
 export interface BlogArticleComment {
   id: string;
   articleId: string;
-  authorId: string;
+  authorId: string | null;
+  guestDisplayName: string | null;
   parentCommentId: string | null;
   bodyText: string;
   status: BlogCommentStatus;

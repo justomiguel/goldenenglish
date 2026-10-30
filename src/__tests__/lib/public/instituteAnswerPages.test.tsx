@@ -42,6 +42,7 @@ const EXPECTED_IDS: Record<InstituteAnswerKindKey, readonly string[]> = {
   nago: ["experience", "ages", "whojoins", "more", "who", "where", "book"],
   mimundo: ["ages", "approach", "where", "colony", "team", "reserve"],
   liora: ["ages", "adults", "sites", "day", "trial", "uniform", "competitive", "groups"],
+  generic: ["age", "schedule", "group", "enroll"],
 };
 
 const LOCALES = { en, es, pt } as const;
@@ -57,6 +58,8 @@ describe("institute answer pages", () => {
     expect(instituteAnswerKindKey("classic")).toBe("classic");
     expect(instituteAnswerKindKey("editorial")).toBe("classic");
     expect(instituteAnswerKindKey("minimal")).toBe("classic");
+    expect(instituteAnswerKindKey("deportes")).toBe("generic");
+    expect(instituteAnswerKindKey("jardin")).toBe("generic");
     expect(instituteAnswerKindKey("mozarthitos")).toBe("mozarthitos");
   });
 

@@ -1,16 +1,12 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ParentWardPicker, type ParentWardOption } from "@/components/parent/ParentWardPicker";
 import { ParentRouteSurfaceGate } from "@/components/parent/ParentRouteSurfaceGate";
 import { useAppSurface } from "@/hooks/useAppSurface";
-import { ParentTasksListScreen } from "@/components/parent/ParentTasksListScreen";
-import { ParentAssessmentsScreen } from "@/components/parent/ParentAssessmentsScreen";
-import { ParentBadgesScreen } from "@/components/parent/ParentBadgesScreen";
-import { ParentFeedbackSurface } from "@/components/parent/ParentFeedbackSurface";
-import { StudentExamResultsSurface } from "@/components/parent/StudentExamResultsSurface";
 import { ProgressSectionPicker } from "@/components/parent/ProgressSectionPicker";
+import { progressSectionPanels } from "@/components/parent/progressSectionPanels";
 import { ProgressSectionLoadFailed } from "@/components/parent/ProgressSectionLoadFailed";
 import { ParentProgressEmptyState } from "@/components/parent/ParentProgressEmptyState";
 import { buildProgressPickerOptions } from "@/components/parent/buildProgressPickerOptions";
@@ -30,6 +26,7 @@ import type { StudentMiniTestAssessment } from "@/types/learningContent";
 import type { ParentFeedbackTimeline } from "@/types/parentFeedback";
 import type { StudentExamResult } from "@/types/studentExams";
 import type { StudentBadgeRowModel } from "@/components/student/StudentBadgesScreen";
+import type { StudentCourseCard } from "@/types/studentCourses";
 import type { Dictionary } from "@/types/i18n";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
@@ -42,6 +39,7 @@ interface ParentProgressEntryProps {
   assessments: StudentMiniTestAssessment[];
   feedback: ParentFeedbackTimeline;
   badgeRows: StudentBadgeRowModel[];
+  courses?: StudentCourseCard[];
   /** Sections whose server read failed; offered with a retry rather than hidden as empty. */
   failedSections?: ProgressSectionId[];
   parentLabels: Dictionary["dashboard"]["parent"];
@@ -62,6 +60,7 @@ export function ParentProgressEntry({
   assessments,
   feedback,
   badgeRows,
+  courses = [],
   failedSections,
   parentLabels,
   studentLabels,
@@ -85,11 +84,12 @@ export function ParentProgressEntry({
         assessments,
         feedback,
         badgeRows,
+        courses,
         failedSections,
       }),
     // `failedSections` is a fresh array on every server render; its content is what matters.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [exams, tasks, assessments, feedback, badgeRows, failedKey],
+    [exams, tasks, assessments, feedback, badgeRows, courses, failedKey],
   );
   const hasFailure = sections.some((section) => section.failed);
 
@@ -119,47 +119,20 @@ export function ParentProgressEntry({
     copy: pickerCopy,
   });
 
-  const panels: Record<string, ReactNode> = {
-    exams: (
-      <StudentExamResultsSurface locale={locale} exams={exams} copy={parentLabels.exams} />
-    ),
-    tasks: (
-      <ParentTasksListScreen
-        locale={locale}
-        tasks={tasks}
-        wardOptions={wardOptions}
-        selectedStudentId={selectedStudentId}
-        parentLabels={parentLabels}
-        studentLabels={studentLabels}
-        embedded
-      />
-    ),
-    assessments: (
-      <ParentAssessmentsScreen
-        locale={locale}
-        assessments={assessments}
-        wardOptions={wardOptions}
-        selectedStudentId={selectedStudentId}
-        parentLabels={parentLabels}
-        studentLabels={studentLabels}
-        embedded
-      />
-    ),
-    feedback: (
-      <ParentFeedbackSurface locale={locale} timeline={feedback} copy={parentLabels.feedback} />
-    ),
-    badges: (
-      <ParentBadgesScreen
-        locale={locale}
-        rows={badgeRows}
-        wardOptions={wardOptions}
-        selectedStudentId={selectedStudentId}
-        parentLabels={parentLabels}
-        badgesDict={badgesDict}
-        embedded
-      />
-    ),
-  };
+  const panels = progressSectionPanels({
+    locale,
+    wardOptions,
+    selectedStudentId,
+    exams,
+    tasks,
+    assessments,
+    feedback,
+    badgeRows,
+    courses,
+    parentLabels,
+    studentLabels,
+    badgesDict,
+  });
 
   const activeFailed = sections.some(
     (section) => section.id === activeSectionId && section.failed,

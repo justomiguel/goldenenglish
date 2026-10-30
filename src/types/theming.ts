@@ -62,6 +62,11 @@ export const SITE_THEME_KINDS = [
   "nago",
   "mimundo",
   "liora",
+  "deportes",
+  "jardin",
+  "colegio",
+  "musica",
+  "idiomas",
 ] as const;
 
 export type SiteThemeKind = (typeof SITE_THEME_KINDS)[number];

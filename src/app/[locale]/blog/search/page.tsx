@@ -14,6 +14,9 @@ export default async function BlogSearchPage({ params, searchParams }: PageProps
   const { locale } = await params;
   const search = await searchParams;
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const [dict, list, { url: supabaseUrl }] = await Promise.all([
     getDictionary(locale),
     loadPublishedArticles(supabase, {
@@ -21,6 +24,7 @@ export default async function BlogSearchPage({ params, searchParams }: PageProps
       page: Number.parseInt(search.page ?? "1", 10) || 1,
       pageSize: 12,
       query: search.q ?? "",
+      includeMembers: Boolean(user),
     }),
     readRequestSupabasePublicEnv(),
   ]);

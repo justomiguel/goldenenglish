@@ -16,6 +16,8 @@ function renderEditor() {
       initial={{
         defaultLocale: "es",
         status: "draft",
+        visibility: "public",
+        commentsEnabled: true,
         tags: [],
         scheduledFor: "",
         isPinned: false,

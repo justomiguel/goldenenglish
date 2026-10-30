@@ -3,6 +3,66 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "pulsar-institute-panel",
+    date: "2026-10-30",
+    area: "admin",
+    title: t(
+      "El panel muestra cada instituto con su logo",
+      "The panel shows each institute with its logo",
+      "O painel mostra cada instituto com seu logo",
+    ),
+    summary: t(
+      "La lista trae el logo, las visitas y el estado de la base. En el instituto ves dominios, servicios conectados y las visitas de 14 días.",
+      "The list shows the logo, visits, and database status. On an institute you see domains, connected services, and the 14-day visits.",
+      "A lista traz o logo, as visitas e o estado da base. No instituto você vê domínios, serviços conectados e as visitas de 14 dias.",
+    ),
+  },
+  {
+    id: "pulsar-free-public-page",
+    date: "2026-10-30",
+    area: "site",
+    title: t(
+      "Una cuenta aprobada puede abrir su página pública",
+      "An approved account can open its public page",
+      "Uma conta aprovada pode abrir sua página pública",
+    ),
+    summary: t(
+      "Después de la aprobación puedes crear hasta tres páginas con una plantilla, tu dominio y el aviso por correo.",
+      "After approval you can create up to three pages with a template, your domain, and the email notice.",
+      "Depois da aprovação você pode criar até três páginas com um modelo, seu domínio e o aviso por e-mail.",
+    ),
+  },
+  {
+    id: "packaged-courses",
+    date: "2026-10-28",
+    area: "academic",
+    title: t(
+      "Los cursos se arman y se pueden vender",
+      "Courses can be built and sold",
+      "Os cursos podem ser montados e vendidos",
+    ),
+    summary: t(
+      "El admin arma un curso con clases del repositorio, lo asigna a una sección o a un alumno, y puede publicarlo en la tienda.",
+      "An admin builds a course from repository lessons, assigns it to a section or a student, and can list it in the shop.",
+      "O admin monta um curso com aulas do repositório, atribui a uma seção ou a um aluno, e pode publicar na loja.",
+    ),
+  },
+  {
+    id: "blog-hub-config-stats",
+    date: "2026-10-28",
+    area: "cms",
+    title: t(
+      "El blog separa notas públicas y notas para cuentas",
+      "The blog separates public notes and account notes",
+      "O blog separa notas públicas e notas para contas",
+    ),
+    summary: t(
+      "El blog ahora separa notas públicas y notas para cuentas, y muestra comentarios y lectura en una pestaña.",
+      "The blog now separates public notes and account notes, and shows comments and reading in a tab.",
+      "O blog agora separa notas públicas e notas para contas, e mostra comentários e leitura numa aba.",
+    ),
+  },
+  {
     id: "centrolisto-client-previews",
     date: "2026-10-28",
     area: "site",

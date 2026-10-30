@@ -28,6 +28,22 @@ export function centrolistoClientLogoCandidates(slug: string): readonly string[]
   );
 }
 
+export function pickHomeClientPreviews<
+  T extends {
+    previewVideoSrc?: string;
+    previewPosterSrc?: string;
+    publicUrl?: string | null;
+    hosts?: readonly string[];
+  },
+>(clients: readonly T[], limit = 2): T[] {
+  const linked = clients.filter((client) => client.publicUrl || client.hosts?.[0]);
+  const withMedia = linked.filter(
+    (client) => client.previewVideoSrc || client.previewPosterSrc,
+  );
+  const rest = linked.filter((client) => !withMedia.includes(client));
+  return [...withMedia, ...rest].slice(0, limit);
+}
+
 export function attachClientPreviewMedia<T extends { slug: string }>(
   clients: readonly T[],
   fileExists: (publicPath: string) => boolean,

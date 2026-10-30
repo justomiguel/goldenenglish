@@ -26,7 +26,10 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({
     refresh: refreshMock,
     push: pushMock,
+    replace: vi.fn(),
   }),
+  usePathname: () => "/es/admin",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/app/[locale]/admin/actions", () => ({
@@ -39,6 +42,8 @@ vi.mock("@/app/[locale]/admin/actions", () => ({
 
 import { PulsarAdminFleetScreen } from "@/components/organisms/pulsar/PulsarAdminFleetScreen";
 import { PulsarAdminTenantForm } from "@/components/organisms/pulsar/PulsarAdminTenantForm";
+import { PulsarAdminTenantSummary } from "@/components/organisms/pulsar/PulsarAdminTenantSummary";
+import { buildFleetSiteReview } from "@/lib/pulsar/fleetSiteReview";
 
 const dict = es as unknown as Dictionary;
 
@@ -81,12 +86,14 @@ const TELEMETRY: Record<string, TenantTelemetrySnapshot> = {
     visits30d: 540,
     lastHitAt: "2026-10-25T15:30:00Z",
     errorCode: null,
+    logoUrl: null,
   },
 };
 
 describe("Pulsar admin screens", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    sessionStorage.clear();
   });
 
   it("renders fleet overview metrics, status badge, and refreshes after toggling a tenant", async () => {
@@ -106,6 +113,7 @@ describe("Pulsar admin screens", () => {
 
     expect(screen.getByText("Capoeira Nagô Chile")).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.admin.table.statusOnline)).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.admin.table.fleetChartTitle)).toBeInTheDocument();
     expect(screen.getAllByText("128").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("540").length).toBeGreaterThanOrEqual(1);
 
@@ -121,6 +129,81 @@ describe("Pulsar admin screens", () => {
       });
       expect(refreshMock).toHaveBeenCalled();
     });
+  });
+
+  it("shows the database, migration, domain, and owner on the institute page", () => {
+    const review = buildFleetSiteReview({
+      dataMode: "shared_schema",
+      postgresSchema: "tenant_nago",
+      hosts: ["nago.pulsarlab.cl", "capoeiranago.cl"],
+      slug: "nago",
+      platformHosts: ["pulsarlab.cl"],
+      migrationHead: "233_generic_institute_theme_seeds.sql",
+      ledgerVersions: ["232_generic_institute_theme_kinds.sql"],
+      markerVersion: null,
+      vercelNames: [],
+      vercelConfigured: true,
+      ownerEmail: "owner@example.com",
+      ownerUsed: 1,
+    });
+    render(
+      <PulsarAdminTenantSummary
+        locale="es"
+        name="Capoeira Nagô Chile"
+        slug="nago"
+        enabled
+        hosts={["nago.pulsarlab.cl", "capoeiranago.cl"]}
+        snap={{ ...TELEMETRY.nago, logoUrl: "https://nago.cl/logo.png" }}
+        review={review}
+        series={[
+          { day: "2026-10-29", visits: 3 },
+          { day: "2026-10-30", visits: 5 },
+        ]}
+        copy={dict.pulsar.admin.table}
+        themeHref="/es/admin/tenants/nago/theme"
+        themeLabel={dict.pulsar.admin.form.themeCta}
+        openHref="https://www.capoeiranago.cl"
+        openLabel={dict.pulsar.admin.table.openPublicSite}
+        partners={["flow", "whatsapp", "supabase"]}
+      />,
+    );
+    expect(document.querySelector("img")?.getAttribute("src")).toBe("https://nago.cl/logo.png");
+    expect(screen.getByText(dict.pulsar.admin.table.partnerFlow)).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.admin.table.partnerWhatsapp)).toBeInTheDocument();
+    expect(screen.queryByText(dict.pulsar.admin.table.partnerMercadoPago)).not.toBeInTheDocument();
+    expect(document.querySelector('img[src="/pulsar/partners/flow.svg"]')).toBeTruthy();
+    expect(screen.getByText(dict.pulsar.admin.table.dataModeShared)).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.admin.table.migrationBehind)).toBeInTheDocument();
+    expect(screen.getByText("owner@example.com")).toBeInTheDocument();
+    expect(screen.getByText("1 de 3")).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.admin.table.chartTitle)).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.admin.table.vercelMissing)).toBeInTheDocument();
+  });
+
+  it("does not ask for payment encryption or KV on create or edit", () => {
+    const { unmount } = render(
+      <PulsarAdminTenantForm locale="es" dict={dict} />,
+    );
+    expect(
+      screen.queryByRole("heading", { name: dict.pulsar.admin.form.sectionPaymentsKv }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(dict.pulsar.admin.form.fields.paymentGatewaySecretEncryptionKey),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(dict.pulsar.admin.form.fields.kvRestApiUrl),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(dict.pulsar.admin.form.fields.kvRestApiToken),
+    ).not.toBeInTheDocument();
+    unmount();
+
+    render(
+      <PulsarAdminTenantForm locale="es" dict={dict} initialTenant={SAMPLE_TENANT} />,
+    );
+    expect(
+      screen.queryByRole("heading", { name: dict.pulsar.admin.form.sectionPaymentsKv }),
+    ).not.toBeInTheDocument();
   });
 
   it("tests connection and saves a tenant in PulsarAdminTenantForm", async () => {
@@ -193,5 +276,28 @@ describe("Pulsar admin screens", () => {
       });
       expect(refreshMock).toHaveBeenCalled();
     });
+  });
+
+  it("shows the mail status and an approved account on their tabs", async () => {
+    const user = userEvent.setup();
+    render(
+      <PulsarAdminFleetScreen
+        locale="es"
+        dict={dict}
+        staffEmail="admin@pulsarlab.cl"
+        sessionMode="pulsar-db"
+        tenants={[SAMPLE_TENANT]}
+        telemetryBySlug={TELEMETRY}
+        owners={[{ userId: "00000000-0000-0000-0000-000000000001", email: "owner@example.com", status: "approved" }]}
+        mailSettings={{ fromEmail: "hola@example.com", notifyEmail: "admin@example.com", hasApiKey: true, last: null }}
+      />,
+    );
+
+    expect(screen.queryByText(dict.pulsar.admin.eyebrow)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: dict.pulsar.admin.tabMail }));
+    expect(screen.getByText(dict.pulsar.admin.mail.keySaved)).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: dict.pulsar.admin.tabAccounts }));
+    expect(screen.getByText("owner@example.com")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: dict.pulsar.admin.owners.approved })).toBeInTheDocument();
   });
 });

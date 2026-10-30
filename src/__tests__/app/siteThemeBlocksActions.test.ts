@@ -22,6 +22,9 @@ vi.mock("@/lib/analytics/server/recordSystemAudit", () => ({
   recordSystemAudit,
 }));
 vi.mock("next/cache", () => ({ revalidatePath, updateTag }));
+vi.mock("next/headers", () => ({
+  headers: async () => ({ get: () => null }),
+}));
 vi.mock("node:crypto", async () => {
   const actual = await vi.importActual<typeof import("node:crypto")>("node:crypto");
   return { ...actual, randomUUID: () => randomUuid() };

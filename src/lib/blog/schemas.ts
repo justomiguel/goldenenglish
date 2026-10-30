@@ -14,6 +14,8 @@ export const articleTranslationInputSchema = z.object({
   attachments: blogAttachmentsSchema.optional().default([]),
   seoTitle: z.string().max(180).nullable().optional(),
   seoDescription: z.string().max(320).nullable().optional(),
+  ctaLabel: z.string().max(80).optional(),
+  ctaUrl: z.string().max(500).optional(),
 });
 
 export const articleCreateInputSchema = z.object({
@@ -23,6 +25,7 @@ export const articleCreateInputSchema = z.object({
   coverStoragePath: z.string().nullable().optional(),
   scheduledFor: z.string().datetime().nullable().optional(),
   commentsEnabled: z.boolean().default(true),
+  visibility: z.enum(["public", "members"]).default("public"),
   isPinned: z.boolean().default(false),
   translations: z.array(articleTranslationInputSchema).min(1),
 });

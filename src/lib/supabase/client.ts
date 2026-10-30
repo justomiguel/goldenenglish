@@ -2,7 +2,9 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 import { parse, serialize, type SerializeOptions } from "cookie";
+import { bindInstituteDataPlane } from "@/lib/supabase/bindInstituteDataPlane";
 import { readSupabasePublicEnv } from "@/lib/supabase/publicEnv";
+import { readBrowserPostgresSchema } from "@/lib/tenant/instituteAuthEmail";
 
 const STORAGE_KEY = "ge_auth_remember";
 
@@ -59,7 +61,11 @@ function browserCookieMethods() {
 
 export function createClient() {
   const { url, anonKey } = readSupabasePublicEnv();
-  return createBrowserClient(url, anonKey, {
+  const postgresSchema = readBrowserPostgresSchema();
+  return bindInstituteDataPlane(createBrowserClient(url, anonKey, {
     cookies: browserCookieMethods(),
+  }), {
+    dataMode: postgresSchema === "public" ? "project" : "shared_schema",
+    postgresSchema,
   });
 }

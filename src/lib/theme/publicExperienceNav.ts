@@ -18,6 +18,11 @@ const COURSES_ANCHOR: Record<string, string> = {
   nago: "clases",
   mimundo: "salas",
   liora: "clases",
+  deportes: "dia",
+  jardin: "dia",
+  colegio: "dia",
+  musica: "dia",
+  idiomas: "dia",
 };
 
 const THEMED: ReadonlySet<string> = new Set([

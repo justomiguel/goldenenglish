@@ -25,6 +25,10 @@ vi.mock("@/lib/analytics/server/recordSystemAudit", () => ({
   recordSystemAudit,
 }));
 
+vi.mock("next/headers", () => ({
+  headers: async () => ({ get: () => null }),
+}));
+
 vi.mock("next/cache", () => ({
   revalidatePath,
   updateTag,

@@ -1,6 +1,11 @@
 import { parseBlogAttachmentsFromDb } from "@/lib/blog/attachments";
 import type { BlogArticle, BlogArticleComment, BlogArticleTranslation, BlogLocale } from "@/lib/blog/domain";
 
+function readArticleVisibility(value: unknown): BlogArticle["visibility"] {
+  if (value === "public" || value === "members") return value;
+  return "public";
+}
+
 export interface BlogArticleListItem extends BlogArticle {
   translation: BlogArticleTranslation | null;
 }
@@ -29,6 +34,8 @@ type TranslationRow = {
   seo_title: string | null;
   seo_description: string | null;
   attachments?: unknown;
+  cta_label?: string | null;
+  cta_url?: string | null;
 };
 
 export function pickTranslationForLocale(
@@ -56,6 +63,8 @@ export function pickTranslationForLocale(
     attachments: parseBlogAttachmentsFromDb(selected.attachments),
     seoTitle: selected.seo_title,
     seoDescription: selected.seo_description,
+    ctaLabel: selected.cta_label?.trim() ? selected.cta_label : null,
+    ctaUrl: selected.cta_url?.trim() ? selected.cta_url : null,
   };
 }
 
@@ -70,6 +79,7 @@ export type BlogArticleRowFromDb = {
   is_pinned: boolean;
   pinned_at: string | null;
   comments_enabled: boolean;
+  visibility: string | null;
   author_id: string;
   view_count: number;
   created_at: string;
@@ -89,6 +99,7 @@ export function mapArticleRow(row: BlogArticleRowFromDb): BlogArticle {
     isPinned: row.is_pinned,
     pinnedAt: row.pinned_at,
     commentsEnabled: row.comments_enabled,
+    visibility: readArticleVisibility(row.visibility),
     authorId: row.author_id,
     viewCount: row.view_count,
     createdAt: row.created_at,
@@ -102,7 +113,8 @@ export type BlogTranslationRowFromDb = TranslationRow;
 export type BlogCommentRowFromDb = {
   id: string;
   article_id: string;
-  author_id: string;
+  author_id: string | null;
+  guest_display_name?: string | null;
   parent_comment_id: string | null;
   body_text: string;
   status: BlogArticleComment["status"];
@@ -115,6 +127,7 @@ export function mapCommentRow(row: BlogCommentRowFromDb): BlogArticleComment {
     id: row.id,
     articleId: row.article_id,
     authorId: row.author_id,
+    guestDisplayName: row.guest_display_name ?? null,
     parentCommentId: row.parent_comment_id,
     bodyText: row.body_text,
     status: row.status,

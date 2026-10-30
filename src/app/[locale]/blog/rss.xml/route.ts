@@ -9,11 +9,15 @@ interface RouteContext {
 export async function GET(_request: Request, context: RouteContext) {
   const { locale } = await context.params;
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const publicUrl = await getRequestPublicSiteUrl();
   const feed = await loadPublishedArticles(supabase, {
     locale: locale as "en" | "es" | "pt",
     page: 1,
     pageSize: 50,
+    includeMembers: Boolean(user),
   });
 
   const items = feed.rows

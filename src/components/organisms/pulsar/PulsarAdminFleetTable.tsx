@@ -7,6 +7,7 @@ import {
   PauseCircle,
   PlayCircle,
 } from "lucide-react";
+import { PulsarFleetLogo } from "@/components/organisms/pulsar/PulsarFleetLogo";
 import type { TenantTelemetrySnapshot } from "@/lib/pulsar/loadPulsarFleetTelemetry";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
 import type { Dictionary } from "@/types/i18n";
@@ -30,22 +31,15 @@ export function PulsarAdminFleetTable({
 }: PulsarAdminFleetTableProps) {
   const copy = dict.pulsar.admin;
   const numFmt = new Intl.NumberFormat(locale);
-  const dateFmt = new Intl.DateTimeFormat(locale, {
-    dateStyle: "short",
-    timeStyle: "short",
-  });
 
   return (
     <div className="mt-8 overflow-x-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
-      <table className="w-full min-w-[780px] border-collapse text-left text-sm">
+      <table className="w-full min-w-[640px] border-collapse text-left text-sm">
         <thead>
           <tr className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/60 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted-foreground)]">
             <th className="px-4 py-3.5">{copy.table.tenant}</th>
-            <th className="px-4 py-3.5">{copy.table.hosts}</th>
             <th className="px-4 py-3.5">{copy.table.status}</th>
             <th className="px-4 py-3.5 text-right">{copy.table.visits7d}</th>
-            <th className="px-4 py-3.5 text-right">{copy.table.visits30d}</th>
-            <th className="px-4 py-3.5">{copy.table.lastHit}</th>
             <th className="px-4 py-3.5 text-right">{copy.table.actions}</th>
           </tr>
         </thead>
@@ -59,15 +53,23 @@ export function PulsarAdminFleetTable({
             return (
               <tr key={tenant.slug} className="hover:bg-[var(--color-muted)]/30">
                 <td className="px-4 py-4">
-                  <div className="font-bold text-[var(--color-foreground)]">
-                    {tenant.displayName}
+                  <div className="flex items-center gap-3">
+                    <PulsarFleetLogo
+                      src={snap?.logoUrl ?? null}
+                      fallback={tenant.displayName.slice(0, 1).toUpperCase()}
+                    />
+                    <div>
+                      <Link
+                        href={`/${locale}/admin/tenants/${tenant.slug}`}
+                        className="font-bold text-[var(--color-foreground)] hover:underline"
+                      >
+                        {tenant.displayName}
+                      </Link>
+                      <div className="font-mono text-xs text-[var(--color-muted-foreground)]">
+                        {tenant.slug}
+                      </div>
+                    </div>
                   </div>
-                  <div className="font-mono text-xs text-[var(--color-muted-foreground)]">
-                    {tenant.slug}
-                  </div>
-                </td>
-                <td className="px-4 py-4 font-mono text-xs text-[var(--color-muted-foreground)]">
-                  {tenant.hosts.join(", ")}
                 </td>
                 <td className="px-4 py-4">
                   {!tenant.isEnabled ? (
@@ -97,14 +99,6 @@ export function PulsarAdminFleetTable({
                 </td>
                 <td className="px-4 py-4 text-right font-mono font-semibold">
                   {snap?.visits7d != null ? numFmt.format(snap.visits7d) : "—"}
-                </td>
-                <td className="px-4 py-4 text-right font-mono font-semibold">
-                  {snap?.visits30d != null ? numFmt.format(snap.visits30d) : "—"}
-                </td>
-                <td className="px-4 py-4 text-xs text-[var(--color-muted-foreground)]">
-                  {snap?.lastHitAt
-                    ? dateFmt.format(new Date(snap.lastHitAt))
-                    : copy.table.noHits}
                 </td>
                 <td className="px-4 py-4">
                   <div className="flex items-center justify-end gap-2">

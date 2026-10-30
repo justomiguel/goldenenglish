@@ -20,6 +20,8 @@ interface SavableTranslation {
   excerpt: string;
   bodyHtml: string;
   materials: AdminGlobalDraftMaterial[];
+  ctaLabel?: string;
+  ctaUrl?: string;
 }
 
 interface UseBlogArticleEditorActionsInput {
@@ -32,6 +34,8 @@ interface UseBlogArticleEditorActionsInput {
   };
   tags: string[];
   isPinned: boolean;
+  visibility: "public" | "members";
+  commentsEnabled: boolean;
   scheduledFor: string;
   editingLocale: BlogLocale;
   title: string;
@@ -68,7 +72,8 @@ export function useBlogArticleEditorActions(input: UseBlogArticleEditorActionsIn
         defaultLocale: input.initial.defaultLocale,
         status: nextStatus,
         tags: input.tags,
-        commentsEnabled: true,
+        commentsEnabled: input.commentsEnabled,
+        visibility: input.visibility,
         isPinned: input.isPinned,
         scheduledFor: input.scheduledFor ? new Date(input.scheduledFor).toISOString() : null,
         translations: input.savableTranslations.map((row) => ({
@@ -77,13 +82,19 @@ export function useBlogArticleEditorActions(input: UseBlogArticleEditorActionsIn
           title: row.title,
           excerpt: row.excerpt,
           bodyHtml: row.bodyHtml,
+          ctaLabel: row.ctaLabel ?? "",
+          ctaUrl: row.ctaUrl ?? "",
           attachments: input.draftMaterialsToBlogAttachments(row.materials),
         })),
       },
     });
     setBusy(false);
     if (!result.ok) {
-      setMsg(input.labels.saveError);
+      setMsg(
+        result.code === "cta_incomplete" || result.code === "cta_url"
+          ? input.labels.ctaError
+          : input.labels.saveError,
+      );
       return;
     }
     input.onStatusSaved?.(nextStatus);

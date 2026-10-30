@@ -22,10 +22,14 @@ interface BlogArticleLocaleFieldsProps {
   excerpt: string;
   bodyHtml: string;
   materials: AdminGlobalDraftMaterial[];
+  ctaLabel: string;
+  ctaUrl: string;
   onTitleChange: (value: string) => void;
   onExcerptChange: (value: string) => void;
   onBodyHtmlChange: (value: string) => void;
   onMaterialsChange: (materials: AdminGlobalDraftMaterial[]) => void;
+  onCtaLabelChange: (value: string) => void;
+  onCtaUrlChange: (value: string) => void;
   syncMediaToAllLocales: (payload: MediaSyncToAllLocalesPayload) => void;
   syncMaterialToAllLocales?: (material: AdminGlobalDraftMaterial) => void;
   onError: (message: string | null) => void;
@@ -41,10 +45,14 @@ export function BlogArticleLocaleFields({
   excerpt,
   bodyHtml,
   materials,
+  ctaLabel,
+  ctaUrl,
   onTitleChange,
   onExcerptChange,
   onBodyHtmlChange,
   onMaterialsChange,
+  onCtaLabelChange,
+  onCtaUrlChange,
   syncMediaToAllLocales,
   syncMaterialToAllLocales,
   onError,
@@ -94,6 +102,22 @@ export function BlogArticleLocaleFields({
           syncMediaToAllLocales={syncMediaToAllLocales}
         />
       </div>
+      <label className="grid gap-1 text-sm">
+        <span className="font-medium">{labels.ctaLabel}</span>
+        <input
+          className="rounded-md border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2"
+          value={ctaLabel}
+          onChange={(event) => onCtaLabelChange(event.target.value)}
+        />
+      </label>
+      <label className="grid gap-1 text-sm">
+        <span className="font-medium">{labels.ctaUrl}</span>
+        <input
+          className="rounded-md border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2"
+          value={ctaUrl}
+          onChange={(event) => onCtaUrlChange(event.target.value)}
+        />
+      </label>
       <BlogArticleMaterialsSection
         labels={materialsLabels}
         fileUploadProgress={fileUploadProgress}

@@ -8,6 +8,8 @@ import {
 } from "@/lib/pulsar/pulsarTenantStore";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { PulsarAdminFleetScreen } from "@/components/organisms/pulsar/PulsarAdminFleetScreen";
+import { loadPulsarMailSettings } from "@/lib/pulsar/pulsarMail";
+import { listPulsarOwners } from "@/lib/pulsar/pulsarOwnerAccount";
 
 export const dynamic = "force-dynamic";
 
@@ -28,10 +30,12 @@ export default async function PulsarAdminPage({ params }: PageProps) {
     redirect(`/${locale}/admin/password`);
   }
 
-  const [dict, tenants, platformHosts] = await Promise.all([
+  const [dict, tenants, platformHosts, owners, mailSettings] = await Promise.all([
     getDictionary(locale as AppLocale),
     loadAllPulsarTenantsForAdmin(),
     loadPulsarPlatformHostsForAdmin(),
+    listPulsarOwners(),
+    loadPulsarMailSettings(),
   ]);
   const telemetryBySlug = await loadPulsarFleetTelemetry(tenants);
 
@@ -44,6 +48,8 @@ export default async function PulsarAdminPage({ params }: PageProps) {
       tenants={tenants}
       telemetryBySlug={telemetryBySlug}
       platformHosts={platformHosts}
+      owners={owners}
+      mailSettings={mailSettings}
     />
   );
 }

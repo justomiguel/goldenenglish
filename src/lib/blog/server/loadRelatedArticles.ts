@@ -16,6 +16,7 @@ export async function loadRelatedArticles(
     tags: string[];
     locale: BlogLocale;
     limit?: number;
+    includeMembers?: boolean;
   },
 ): Promise<BlogArticleListItem[]> {
   const limit = Math.max(1, Math.min(6, input.limit ?? 3));
@@ -23,7 +24,7 @@ export async function loadRelatedArticles(
   let query = supabase
     .from("blog_articles")
     .select(
-      "id, default_locale, status, published_at, scheduled_for, cover_storage_path, tags, is_pinned, pinned_at, comments_enabled, author_id, view_count, created_at, updated_at, updated_by",
+      "id, default_locale, status, published_at, scheduled_for, cover_storage_path, tags, is_pinned, pinned_at, comments_enabled, visibility, author_id, view_count, created_at, updated_at, updated_by",
     )
     .eq("status", "published")
     .not("published_at", "is", null)
@@ -31,6 +32,10 @@ export async function loadRelatedArticles(
     .neq("id", input.articleId)
     .order("published_at", { ascending: false })
     .limit(limit);
+
+  if (!input.includeMembers) {
+    query = query.eq("visibility", "public");
+  }
 
   if (input.tags.length > 0) {
     query = query.overlaps("tags", input.tags);

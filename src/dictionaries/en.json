@@ -413,6 +413,71 @@
       "cta": "Continue installation",
       "footerNote": "Institute branding is configured in the setup wizard. Platform software by Sistemas MV."
     },
+    "genericContact": {
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "whatsapp": "WhatsApp"
+    },
+    "genericSectionLabels": {
+      "historia": "History",
+      "oferta": "What the day includes",
+      "modalidades": "Ways to take part",
+      "niveles": "Groups",
+      "certificaciones": "Proof of progress"
+    },
+    "genericLandings": {
+      "deportes": {
+        "name": "Sports",
+        "scene": "Saturday, 9:10",
+        "title": "The group is already on the field when you arrive.",
+        "body": "The day's list and the note to families stay in one place.",
+        "imageAlt": "Morning field before practice",
+        "laterTitle": "Monday does not start with a spreadsheet.",
+        "laterBody": "The coach sees who came. The office sees the open places.",
+        "cta": "Write to the institute"
+      },
+      "jardin": {
+        "name": "Kindergarten",
+        "scene": "Monday, 8:05",
+        "title": "The room opens, and each family knows the arrival time.",
+        "body": "The day's hours and the note are visible before anyone leaves home.",
+        "imageAlt": "Quiet classroom at the start of the day",
+        "laterTitle": "The afternoon closes without a chain of messages.",
+        "laterBody": "The room sees attendance. The family sees the pickup time.",
+        "cta": "Write to the kindergarten"
+      },
+      "colegio": {
+        "name": "School",
+        "scene": "Tuesday, 7:40",
+        "title": "Class starts, and the list is already done.",
+        "body": "Families, teachers, and the office look at the same timetable.",
+        "imageAlt": "School courtyard before the first bell",
+        "laterTitle": "Break does not start with a question.",
+        "laterBody": "The class, the room, and the day's note are already posted.",
+        "cta": "Write to the school"
+      },
+      "musica": {
+        "name": "Music",
+        "scene": "Thursday, 18:20",
+        "title": "The practice room is ready before the group arrives.",
+        "body": "The class time and the note to families stay in one place.",
+        "imageAlt": "Practice room before the lesson",
+        "laterTitle": "After class, nobody looks for the paper.",
+        "laterBody": "The teacher sees who attended. The family sees the next hour.",
+        "cta": "Write to the school"
+      },
+      "idiomas": {
+        "name": "Languages",
+        "scene": "Wednesday, 19:05",
+        "title": "Class starts on time, with the group already listed.",
+        "body": "The level, the hour, and the open places are visible before the door.",
+        "imageAlt": "Classroom before the evening lesson",
+        "laterTitle": "When you leave, the next class already has a date.",
+        "laterBody": "The teacher sees the list. The student sees the timetable.",
+        "cta": "Write to the institute"
+      }
+    },
     "questionnaires": {
       "title": "Questionnaires",
       "cta": "Open",
@@ -2020,7 +2085,9 @@
           "pin": "Pin",
           "unpin": "Unpin",
           "edit": "Edit",
-          "views": "Views"
+          "views": "Views",
+          "publicRead": "Public",
+          "membersOnly": "Account only"
         },
         "editor": {
           "title": "Title",
@@ -2059,6 +2126,13 @@
           "metaTags": "Tags CSV",
           "metaScheduled": "Scheduled for",
           "metaPinned": "Pinned",
+          "visibility": "Who can read",
+          "visibilityPublic": "Public",
+          "visibilityMembers": "Account only",
+          "comments": "Comments",
+          "ctaLabel": "Button text",
+          "ctaUrl": "Button link",
+          "ctaError": "Add both the button text and a valid link.",
           "fileError": "The file is too large or not supported.",
           "attach": {
             "clipTooltip": "Attach media",
@@ -2089,7 +2163,28 @@
           "empty": "No comments pending moderation.",
           "hide": "Hide",
           "show": "Show",
-          "flag": "Flag"
+          "flag": "Flag",
+          "approve": "Approve",
+          "pending": "Pending review"
+        },
+        "hub": {
+          "articles": "Articles",
+          "config": "Settings",
+          "stats": "Statistics"
+        },
+        "config": {
+          "save": "Save",
+          "blogEnabled": "Blog is public",
+          "comments": "Comments",
+          "guestComments": "People without an account can comment"
+        },
+        "stats": {
+          "reading": "Reading",
+          "listToArticle": "List to article",
+          "ctaRate": "Button",
+          "commentRate": "Comments",
+          "empty": "No reading in the last 30 days.",
+          "emDash": "—"
         }
       },
       "templates": {
@@ -2364,7 +2459,12 @@
               "espaciozenit": "Espacio Zenit",
               "nago": "Capoeira Nago",
               "mimundo": "Mi Mundo",
-              "liora": "Liora Studio"
+              "liora": "Liora Studio",
+              "deportes": "Sports",
+              "jardin": "Kindergarten",
+              "colegio": "School",
+              "musica": "Music",
+              "idiomas": "Languages"
             },
             "saveCta": "Apply style",
             "saveSuccess": "Style applied.",
@@ -5654,6 +5754,32 @@
     "contactEmailOnly": "Write to {{email}}.",
     "contactPhoneOnly": "Call {{phone}}.",
     "kinds": {
+      "generic": {
+        "metaTitle": "Questions about this institute",
+        "metaDescription": "Starting age, schedule, group size, and how to enroll.",
+        "items": [
+          {
+            "id": "age",
+            "q": "From what age can a student start?",
+            "a": "The institute sets the starting age. The group page shows the range."
+          },
+          {
+            "id": "schedule",
+            "q": "Where do I see the schedule?",
+            "a": "The group schedule is on this site. You can also write from the contact page."
+          },
+          {
+            "id": "group",
+            "q": "How big is a group?",
+            "a": "Each group shows its open places. If there is room, you can ask to enroll."
+          },
+          {
+            "id": "enroll",
+            "q": "How do I enroll?",
+            "a": "Use the enrollment page on this site. For a timetable or a fee, use the contact page."
+          }
+        ]
+      },
       "classic": {
         "metaTitle": "Questions about English classes",
         "metaDescription": "Ages, in-person and live online classes, levels, and Cambridge preparation.",
@@ -6327,6 +6453,36 @@
       "sectionModeLead": "Create global routes and order repository content as route steps.",
       "learningRoutesTitle": "Learning routes",
       "learningRoutesLead": "Create ordered global routes from repository content. Sections choose one later, or stay in free-flow mode.",
+      "coursesTab": "Courses",
+      "coursesLead": "Package repository items into modules and lessons. Publish a price to list the course in the shop.",
+      "coursesEmpty": "No courses yet.",
+      "courseTitle": "Course title",
+      "courseMode": "Progress",
+      "courseModeOpen": "Open",
+      "courseModeSequential": "One lesson at a time",
+      "coursePrice": "Price",
+      "courseListed": "Show in the shop",
+      "courseModuleTitle": "Module title",
+      "courseLessonTitle": "Lesson title",
+      "courseLessonItem": "Repository item",
+      "courseAddLesson": "Add lesson",
+      "courseAddModule": "Add module",
+      "courseCreate": "Create course",
+      "courseCreating": "Saving",
+      "courseCreateFailed": "We could not create this course.",
+      "courseNeedItem": "Add a repository item before you create a course.",
+      "courseStatusDraft": "Draft",
+      "courseStatusPublished": "Published",
+      "courseShopYes": "In the shop",
+      "courseShopNo": "Not in the shop",
+      "coursePrev": "Previous courses",
+      "courseNext": "Next courses",
+      "courseAssignSection": "Section",
+      "courseAssign": "Assign to section",
+      "courseAssignFailed": "We could not assign this course.",
+      "courseGrantEmail": "Student email",
+      "courseGrant": "Assign to student",
+      "courseGrantFailed": "We could not assign this course to that student.",
       "globalRouteOption": "Global reusable route",
       "globalRouteLead": "Design the reusable route once; assign it later from a section’s Learning route tab.",
       "newLearningRouteOption": "New learning route",
@@ -10755,6 +10911,16 @@
     "student": {
       "title": "My progress",
       "kicker": "Student area",
+      "courses": {
+        "originSection": "From your section",
+        "originPurchase": "You bought this",
+        "originAssignment": "Assigned to you",
+        "locked": "Finish the previous lesson to open this one",
+        "complete": "Mark as done",
+        "completed": "Done",
+        "completing": "Saving",
+        "completeFailed": "We could not save this. Try again."
+      },
       "badges": {
         "title": "Achievements",
         "kicker": "Milestones",
@@ -11590,6 +11756,9 @@
         "feedbackMany": "{count} comments",
         "badgesOne": "1 achievement",
         "badgesMany": "{count} achievements",
+        "sectionCourses": "Courses",
+        "coursesOne": "1 course",
+        "coursesMany": "{count} courses",
         "emptyTitle": "Nothing to show yet",
         "emptyBody": "Exams, tasks, teacher feedback, and achievements appear here as soon as the school publishes them.",
         "loadFailedCount": "Could not load",
@@ -12481,7 +12650,12 @@
       "send": "Send",
       "signInRequired": "Sign in to comment",
       "report": "Report",
-      "rateLimited": "Too many comments. Try again later."
+      "rateLimited": "Too many comments. Try again later.",
+      "guestName": "Name",
+      "guestEmail": "Email",
+      "guestSend": "Send comment",
+      "guestPending": "Your comment is waiting for review.",
+      "guestOpen": "Write a comment"
     }
   },
   "shop": {
@@ -12490,7 +12664,22 @@
       "lead": "Uniforms, books, and kits. Pickup at the institute.",
       "empty": "No products available right now.",
       "soldOut": "Sold out",
-      "viewProduct": "View product"
+      "viewProduct": "View product",
+      "coursesTitle": "Courses"
+    },
+    "course": {
+      "back": "Back to shop",
+      "enrollFree": "Enroll",
+      "payFlow": "Pay with Flow",
+      "payMercadoPago": "Pay with Mercado Pago",
+      "signIn": "Sign in to enroll",
+      "wardLabel": "Student",
+      "minor": "A student under the age of majority cannot pay. A parent can buy this course.",
+      "missingBirthDate": "Add a birth date before you pay for yourself.",
+      "notStudent": "Only a student or a parent can enroll.",
+      "notLinked": "Choose a student linked to your account.",
+      "failed": "We could not start this enrollment. Try again.",
+      "saving": "Saving"
     },
     "product": {
       "back": "Back to shop",
@@ -12563,8 +12752,10 @@
       "footerRights": "CentroListo.cl · Dedicated infrastructure and growth software for academies, centers, and institutes."
     },
     "home": {
-      "eyebrow": "For those who opened a school for the love of teaching, not spreadsheets",
-      "title": "When administration stops making noise, your school gets back time for what matters.",
+      "eyebrow": "When administration stops making noise.",
+      "title": "Enrollment, schedules, and tuition for your school, in your own house.",
+      "heroImageAlt": "A school desk: students, payments, and enrollments.",
+      "heroImageCaption": "Students, payments, and enrollments, under the school name.",
       "lead": "A quiet digital home where a family discovers your school on Sunday night, picks a schedule without waiting on your phone, follows their children's progress, and keeps tuition up to date without awkward reminders.",
       "primaryCta": "Talk about your school",
       "secondaryCta": "Walk through how it works",
@@ -12593,6 +12784,10 @@
         "title": "Four moments when you notice the knot is gone",
         "lead": "Choose a moment of the week to see how the director, the teacher, and the family experience a school in calm.",
         "modulesBadge": "What works quietly behind the scenes",
+        "marksAria": "Channels named in this moment",
+        "markWhatsapp": "WhatsApp",
+        "markFlow": "Flow",
+        "markMercadoPago": "Mercado Pago",
         "videoSurfaceDesktop": "Desktop",
         "videoSurfaceMobile": "Mobile PWA",
         "tabs": [
@@ -12693,6 +12888,32 @@
       "pillar2Body": "A visitor sees your domain, your look, your words, and your school icon on the home screen. CentroListo stays behind your brand.",
       "pillar3Title": "One thread from the first greeting to the last day of the year",
       "pillar3Body": "The public page, trial classes, groups, attendance, tasks, recitals, and monthly tuition talk to each other in silence.",
+      "craftsLine": "Language institutes, dance and music schools, dojos, and early childhood spaces.",
+      "offerStrip": "Half an hour. In that conversation you see your domain, your brand, and how your current list comes in.",
+      "whatsappCta": "Talk on WhatsApp",
+      "schoolsTitle": "Schools that already teach with the house in order",
+      "schoolsLead": "Each one keeps its name, its site, and its mark.",
+      "schoolsNamed": "{name} already teaches with its name, its site, and its mark.",
+      "schoolsMore": "See every school",
+      "startTitle": "How the house gets ready",
+      "startLead": "You tell us how you work. We prepare the house and bring your current list.",
+      "faqTitle": "Before you change tools",
+      "faq": [
+        {
+          "q": "Does it fit a family with several children and a scholarship?",
+          "a": "Siblings, scholarships, and discounts stay on the same monthly tuition."
+        },
+        {
+          "q": "What does the family see on the phone?",
+          "a": "The shortcut carries your crest, your name, and your school colors."
+        },
+        {
+          "q": "What happens to this month's spreadsheet and WhatsApp?",
+          "a": "We bring your current list. WhatsApp stays for the close conversation. Hours, seats, and payments live in your house."
+        }
+      ],
+      "freeSiteNote": "A free account opens the public page only. Enrollment, payments, and the family app stay in the conversation. You can open up to three sites.",
+      "freeSiteCta": "Open the public page",
       "bottomCta": {
         "title": "Would you like to see how your school would feel with everything in its place?",
         "lead": "We can talk for half an hour, hear how you organize groups today, and show the space under your school's identity.",
@@ -12868,7 +13089,7 @@
       "emailCta": "Send an email",
       "whatsappLabel": "Fast commercial inquiry",
       "whatsappValue": "Book your demo or ask a question on WhatsApp",
-      "whatsappHref": "https://wa.me/56900000000?text=Hello%2C%20I%20want%20to%20learn%20about%20CentroListo.cl",
+      "whatsappHref": "https://wa.me/56965789862?text=Hello%2C%20I%20want%20to%20learn%20about%20CentroListo.cl",
       "whatsappCta": "Chat on WhatsApp",
       "checklistTitle": "What turnkey onboarding includes",
       "check1": "100% dedicated Supabase project (independent Postgres, Auth, Storage, and backups).",
@@ -12896,7 +13117,109 @@
         }
       ]
     },
+    "account": {
+      "registerTitle": "Create your account",
+      "registerLead": "An admin reviews the account. Then you can open up to 3 free sites.",
+      "loginTitle": "Sign in",
+      "loginLead": "Use the email and password of your Pulsar account.",
+      "email": "Email",
+      "password": "Password",
+      "submitRegister": "Create account",
+      "submitLogin": "Sign in",
+      "homeTitle": "Your sites",
+      "homeLead": "Each free account can open 3 sites.",
+      "pageOnly": "This account opens the public page. It does not include students, payments, or enrollment.",
+      "openPage": "Open page",
+      "previewLabel": "Preview",
+      "dnsCname": "Create a CNAME for {name} to {target}.",
+      "dnsApex": "Create an A record for {name} to {target}.",
+      "domainSave": "Save domain",
+      "domainSaved": "Domain saved.",
+      "empty": "You have no site yet.",
+      "create": "New site",
+      "signOut": "Sign out",
+      "closeSite": "Close site",
+      "editSite": "Edit site",
+      "createTitle": "Open a site",
+      "createLead": "A free site uses a template and the shared database. You can add your own domain. You can open 3.",
+      "displayName": "Name of the place",
+      "slug": "Short address",
+      "customDomain": "Your domain",
+      "customDomainHint": "Optional. Example: myinstitute.com",
+      "domainFailed": "The site is open, but the domain was not added in Vercel.",
+      "domainTaken": "That domain is already in use.",
+      "domainInvalid": "Check the domain. Use a host such as myinstitute.com.",
+      "template": "Template",
+      "submitCreate": "Open site",
+      "limitReached": "This account already has 3 free sites.",
+      "emailTaken": "That email already has an account.",
+      "invalidInput": "Check the email and use a password of at least 8 characters.",
+      "createFailed": "The site could not be opened. Try again.",
+      "slugTaken": "That short address is already in use.",
+      "backToSites": "Back to your sites",
+      "basicsTitle": "Page text and contact",
+      "basicsLead": "These fields change the public home page.",
+      "seoTitle": "Title on Google",
+      "seoDescription": "Description on Google",
+      "hideSections": "Hide a section",
+      "faviconMode": "Icon",
+      "faviconImage": "Use the uploaded image",
+      "faviconLetter": "Use the first letter",
+      "saveBasics": "Save page",
+      "saved": "Saved.",
+      "pendingLead": "An admin still needs to approve this account. We will email you.",
+      "rejectedLead": "An admin did not approve this account."
+    },
+    "mail": {
+      "requestedAdminSubject": "New Pulsar account",
+      "requestedAdminBody": "{email} asked for an account.",
+      "requestedUserSubject": "We received your account",
+      "requestedUserBody": "An admin will review it. We will email you when it is approved.",
+      "approvedSubject": "Your account can open sites",
+      "approvedBody": "You can sign in and open up to 3 free sites.",
+      "rejectedSubject": "Your account was not approved",
+      "rejectedBody": "An admin did not approve this account.",
+      "siteSubject": "Your site is open",
+      "siteBody": "{name} is ready at {slug}.",
+      "siteAdminSubject": "A free site was opened",
+      "siteAdminBody": "{email} opened {name} ({slug}).",
+      "testSubject": "Pulsar mail test",
+      "testBody": "This is a test message. If you can read it, sending works."
+    },
     "admin": {
+      "owners": {
+        "title": "Accounts waiting",
+        "empty": "No account is waiting.",
+        "approve": "Approve",
+        "reject": "Reject",
+        "pending": "Waiting",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "mail": {
+        "title": "Pulsar email",
+        "lead": "Resend sends account and site notices. The key is not shown again.",
+        "fromEmail": "From address",
+        "notifyEmail": "Admin email",
+        "apiKey": "Resend key",
+        "apiKeyKeep": "Leave this empty to keep the saved key.",
+        "save": "Save email",
+        "saved": "Saved.",
+        "keySaved": "The key is saved.",
+        "keyMissing": "The Resend key is missing.",
+        "sendTest": "Send test",
+        "testSent": "The test went to the admin address.",
+        "testLead": "The test uses the saved sender and admin address.",
+        "lastSent": "The last send worked.",
+        "unconfigured": "The key or the sender is missing.",
+        "rejected": "Resend rejected the send.",
+        "failed": "The send did not finish.",
+        "notifyMissing": "The admin address is missing.",
+        "saveFailed": "The settings could not be saved."
+      },
+      "tabSites": "Sites",
+      "tabAccounts": "Accounts",
+      "tabMail": "Mail",
       "eyebrow": "CENTROLISTO CONTROL PLANE",
       "title": "Tenant administration",
       "lead": "Live availability monitoring, traffic (7 and 30 days), and credentials per institute.",
@@ -12934,7 +13257,38 @@
         "noHits": "No records",
         "openPublicSite": "Open site",
         "enableAction": "Enable",
-        "disableAction": "Pause"
+        "disableAction": "Pause",
+        "columnBase": "Database",
+        "columnMigration": "Migration",
+        "columnOwner": "Owner",
+        "dataModeProject": "Own",
+        "dataModeShared": "Shared",
+        "migrationCurrent": "Current",
+        "migrationBehind": "Behind",
+        "migrationUnknown": "No record",
+        "ownerStaff": "Staff",
+        "ownerSlots": "{used} of 3",
+        "previewRole": "Preview",
+        "customRole": "Custom domain",
+        "dnsCname": "CNAME {name} → {target}",
+        "dnsApex": "A {name} → {target}",
+        "vercelAttached": "On Vercel",
+        "vercelMissing": "Not on Vercel",
+        "vercelSkipped": "No Vercel token",
+        "vercelFailed": "Vercel did not answer",
+        "chartTitle": "Visits by day",
+        "chartEmpty": "We could not read this institute's visits.",
+        "chartVisits": "Visits",
+        "fleetChartTitle": "Visits for the last 7 days",
+        "partnersTitle": "Connected services",
+        "partnerFlow": "Flow",
+        "partnerMercadoPago": "Mercado Pago",
+        "partnerWhatsapp": "WhatsApp",
+        "partnerResend": "Resend",
+        "partnerMaps": "Google Maps",
+        "partnerUpstash": "Upstash",
+        "partnerSupabase": "Supabase",
+        "partnerVercel": "Vercel"
       },
       "login": {
         "title": "Sign in to CentroListo Control Plane",
@@ -12975,6 +13329,23 @@
         "testFail": "Could not connect to the Supabase project",
         "savedNotice": "Tenant saved and registry updated in memory.",
         "sectionIdentity": "Identity and domains",
+        "dataModeLegend": "Database",
+        "dataModeProject": "Own Supabase project",
+        "dataModeShared": "Pulsar database",
+        "dataModeSharedLead": "This institute gets its own schema on the Pulsar database. A preview host is added for you.",
+        "templateLead": "The first visit opens the setup wizard. If you skip the favicon, the template icon stays.",
+        "templateUnset": "No template",
+        "closeCta": "Close site",
+        "closeTitle": "Close this site",
+        "closeLead": "This deletes the site record and its image folder. A site on the Pulsar database also loses its schema. An external database stays in that project. You cannot undo this.",
+        "closeSlugLabel": "Type the site id",
+        "closeSlugMismatch": "The site id does not match.",
+        "closeCancel": "Cancel",
+        "closeConfirm": "Delete the site",
+        "themeCta": "Edit the site",
+        "themePhotosCta": "Photos for each section",
+        "themeBack": "Back to the institute",
+        "themeMissing": "This institute has no active theme yet.",
         "sectionSupabase": "Institute Supabase project",
         "sectionEmail": "Transactional email (Resend)",
         "sectionPaymentsKv": "Payment encryption and KV / Redis",
@@ -12985,7 +13356,7 @@
           "isEnabled": "Tenant enabled to receive traffic",
           "hosts": "Domains (comma or newline separated)",
           "publicUrl": "Canonical public URL (https://...)",
-          "brandThemeSlug": "Theme slug in site_themes (optional)",
+          "brandThemeSlug": "Landing template",
           "skipInitialSiteSetup": "Skip initial site setup wizard",
           "debugLogin": "Enable browser login debug traces",
           "supabaseUrl": "Supabase URL (https://xxx.supabase.co)",
@@ -13018,7 +13389,9 @@
           "invalid_public_url": "The canonical public URL must start with http:// or https://.",
           "invalid_payment_key": "The payment key must encode exactly 32 bytes in base64.",
           "unauthorized": "Your CentroListo staff session is not valid.",
-          "db_write_failed": "Could not save the tenant in the CentroListo database."
+          "db_write_failed": "Could not save the tenant in the CentroListo database.",
+          "pulsar_shared_db_unconfigured": "Set PULSAR_SUPABASE_URL, the anon key, the service role key, and PULSAR_DATABASE_URL before you save a shared institute.",
+          "schema_provision_failed": "The institute schema was not created. Check the server log and try again."
         }
       }
     }

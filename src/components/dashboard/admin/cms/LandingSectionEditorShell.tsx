@@ -37,6 +37,7 @@ export interface LandingSectionEditorShellProps {
   fileUploadProgress: FileUploadProgressLabels;
   theme: SiteThemeRow;
   section: LandingSectionEditorViewModel;
+  backHref?: string;
 }
 
 export function LandingSectionEditorShell({
@@ -45,6 +46,7 @@ export function LandingSectionEditorShell({
   fileUploadProgress,
   theme,
   section,
+  backHref,
 }: LandingSectionEditorShellProps) {
   const router = useRouter();
   const [draft, setDraft] = useState<LandingCopyDraft>(() =>
@@ -111,7 +113,7 @@ export function LandingSectionEditorShell({
   return (
     <section className="space-y-6">
       <Link
-        href={`/${locale}/dashboard/admin/cms/templates/${theme.id}/landing`}
+        href={backHref ?? `/${locale}/dashboard/admin/cms/templates/${theme.id}/landing`}
         className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)] hover:underline"
       >
         <ArrowLeft aria-hidden className="h-4 w-4 shrink-0" />

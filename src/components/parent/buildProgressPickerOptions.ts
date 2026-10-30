@@ -1,4 +1,4 @@
-import { Award, BookOpenCheck, ClipboardCheck, GraduationCap, ScrollText } from "lucide-react";
+import { Award, BookOpenCheck, ClipboardCheck, GraduationCap, Library, ScrollText } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ProgressSection, ProgressSectionId } from "@/lib/parent/buildProgressSections";
 import {
@@ -13,6 +13,7 @@ import type { ProgressPickerOption } from "@/components/parent/progressPickerOpt
 const SECTION_ICONS: Record<ProgressSectionId, LucideIcon> = {
   exams: GraduationCap,
   tasks: BookOpenCheck,
+  courses: Library,
   assessments: ClipboardCheck,
   feedback: ScrollText,
   badges: Award,

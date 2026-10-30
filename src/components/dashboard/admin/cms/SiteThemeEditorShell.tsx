@@ -39,6 +39,8 @@ export interface SiteThemeEditorShellProps {
   labels: Labels;
   theme: SiteThemeRow;
   groups: ReadonlyArray<TokenGroup>;
+  /** Defaults to the institute template list. Pulsar passes the tenant page. */
+  backHref?: string;
 }
 
 /**
@@ -56,6 +58,7 @@ export function SiteThemeEditorShell({
   labels,
   theme,
   groups,
+  backHref,
 }: SiteThemeEditorShellProps) {
   const router = useRouter();
   const [draft, setDraft] = useState<Record<string, string>>(() =>
@@ -139,7 +142,7 @@ export function SiteThemeEditorShell({
   return (
     <section className="space-y-6">
       <SiteThemeEditorBackLink
-        href={`/${locale}/dashboard/admin/cms/templates`}
+        href={backHref ?? `/${locale}/dashboard/admin/cms/templates`}
         label={labels.backToTemplates}
       />
 

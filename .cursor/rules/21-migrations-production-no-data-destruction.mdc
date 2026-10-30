@@ -36,6 +36,7 @@ Compliance/legal nukes requiring irreversible wipes demand **explicit human proc
 
 ## Cross-links
 
+- **`45-institute-migration-apply.mdc`** — one apply command. External projects get the file unchanged. Shared schemas get an in-memory rewrite.
 - **`foundation-rules.mdc`** — authoritative migration pathway.
 - **`10-engineering-governance.mdc`** — documenting sensitive/IRREVERSIBLE deltas.
 - **`20-agent-preflight.mdc`** — align before sweeping model ambiguity.

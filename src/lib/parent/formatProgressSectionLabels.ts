@@ -6,6 +6,7 @@ export type ProgressPickerCopy = Dictionary["dashboard"]["parent"]["progressPick
 const COUNT_KEYS: Record<ProgressSectionId, { one: keyof ProgressPickerCopy; many: keyof ProgressPickerCopy }> = {
   exams: { one: "examsOne", many: "examsMany" },
   tasks: { one: "tasksOne", many: "tasksMany" },
+  courses: { one: "coursesOne", many: "coursesMany" },
   assessments: { one: "miniTestsOne", many: "miniTestsMany" },
   feedback: { one: "feedbackOne", many: "feedbackMany" },
   badges: { one: "badgesOne", many: "badgesMany" },
@@ -14,6 +15,7 @@ const COUNT_KEYS: Record<ProgressSectionId, { one: keyof ProgressPickerCopy; man
 const LABEL_KEYS: Record<ProgressSectionId, keyof ProgressPickerCopy> = {
   exams: "sectionExams",
   tasks: "sectionTasks",
+  courses: "sectionCourses",
   assessments: "sectionMiniTests",
   feedback: "sectionFeedback",
   badges: "sectionBadges",

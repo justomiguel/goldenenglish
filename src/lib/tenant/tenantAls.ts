@@ -12,3 +12,8 @@ export { getAlsTenant };
 export function runWithTenant<T>(tenant: TenantConfig, work: () => T): T {
   return tenantAls.run(tenant, work);
 }
+
+/** Stays set for the rest of this request. Use it when a later await must see the institute. */
+export function enterTenant(tenant: TenantConfig): void {
+  tenantAls.enterWith(tenant);
+}

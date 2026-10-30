@@ -1,4 +1,6 @@
 import { logServerWarn } from "@/lib/logging/serverActionLog";
+import { chooseFleetLogo } from "@/lib/pulsar/fleetSiteReview";
+import { localInstituteLogo, publicLogoFileExists } from "@/lib/pulsar/localInstituteLogo";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
 import { createAdminClientFromCredentials } from "@/lib/supabase/admin";
 
@@ -10,6 +12,7 @@ export type TenantTelemetrySnapshot = {
   visits30d: number | null;
   lastHitAt: string | null;
   errorCode: string | null;
+  logoUrl: string | null;
 };
 
 const PROBE_TIMEOUT_MS = 4_000;
@@ -59,6 +62,34 @@ export async function probeSingleTenantConnection(
   }
 }
 
+function logoPathFromProperties(properties: unknown): string {
+  if (!properties || typeof properties !== "object") return "";
+  const value = (properties as Record<string, unknown>)["app.logo.path"];
+  return typeof value === "string" ? value.trim() : "";
+}
+
+async function readLogoUrl(
+  client: ReturnType<typeof createAdminClientFromCredentials>,
+  tenant: PulsarTenantRecord,
+): Promise<string | null> {
+  const brandSlug = tenant.brandThemeSlug?.trim() ?? "";
+  const theme = await client
+    .from("site_themes")
+    .select("properties")
+    .eq(brandSlug ? "slug" : "is_active", brandSlug || true)
+    .limit(1)
+    .maybeSingle();
+  const rawPath = theme.error || !theme.data ? "" : logoPathFromProperties(theme.data.properties);
+  const origin = tenant.publicUrl ?? (tenant.hosts[0] ? `https://${tenant.hosts[0]}` : "");
+  return chooseFleetLogo({
+    rawPath,
+    origin,
+    supabaseUrl: tenant.supabaseUrl,
+    localExact: rawPath.startsWith("/") && publicLogoFileExists(rawPath),
+    localFallback: localInstituteLogo(tenant.slug),
+  });
+}
+
 async function probeTenantTelemetry(tenant: PulsarTenantRecord): Promise<TenantTelemetrySnapshot> {
   const start = Date.now();
   const now = Date.now();
@@ -90,6 +121,7 @@ async function probeTenantTelemetry(tenant: PulsarTenantRecord): Promise<TenantT
         visits30d: null,
         lastHitAt: null,
         errorCode: code,
+        logoUrl: localInstituteLogo(tenant.slug),
       };
     }
 
@@ -121,6 +153,7 @@ async function probeTenantTelemetry(tenant: PulsarTenantRecord): Promise<TenantT
           ? lastHitRes.data.created_at
           : null,
       errorCode: null,
+      logoUrl: await readLogoUrl(client, tenant).catch(() => localInstituteLogo(tenant.slug)),
     };
   };
 
@@ -155,6 +188,7 @@ export async function loadPulsarFleetTelemetry(
         visits30d: null,
         lastHitAt: null,
         errorCode: reason,
+        logoUrl: localInstituteLogo(tenant.slug),
       };
     }
   });

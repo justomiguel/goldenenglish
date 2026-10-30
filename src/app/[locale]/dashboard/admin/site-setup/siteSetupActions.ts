@@ -8,7 +8,12 @@ import { cleanThemeOverridesForPersistence } from "@/lib/cms/cleanThemeOverrides
 import { logSupabaseError } from "@/lib/logging/serverActionLog";
 import { loadProperties } from "@/lib/theme/themeParser";
 import { coerceInitialSiteSetupSocialFields } from "@/lib/site/coerceSiteSetupSocialUrl";
-import { completeInitialSiteSetupInputSchema } from "@/lib/site/siteSetupCompletionSchema";
+import {
+  completeInitialSiteSetupInputSchema,
+  decodeSiteSetupFileBase64,
+} from "@/lib/site/siteSetupCompletionSchema";
+import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
+import { publishInstitutePublicImages } from "@/lib/tenant/publishInstitutePublicImages";
 import { buildSiteSetupOverrideMap } from "@/lib/site/buildSiteSetupOverrideMap";
 import {
   buildSiteSetupOperationalRows,
@@ -88,13 +93,42 @@ export async function completeInitialSiteSetupAction(
   const assets = await uploadInitialSiteSetupWizardAssets(admin.supabase, data, mode);
   if (!assets.ok) return { ok: false, code: assets.code };
 
-  const {
-    logoPath,
-    favPath,
-    favUploadedPaths,
-    faviconBundlePrefixStored,
-    clearFaviconBundlePrefix,
-  } = assets;
+  let { logoPath, favPath } = assets;
+  const { favUploadedPaths, faviconBundlePrefixStored, clearFaviconBundlePrefix } = assets;
+  let sharePath: string | null = null;
+
+  const kind = String(existing.template_kind);
+  if (tenant && isGenericInstituteKind(kind)) {
+    const logoBytes =
+      data.logoBase64 && data.logoContentType
+        ? decodeSiteSetupFileBase64(data.logoBase64)
+        : null;
+    let faviconFile: { bytes: Uint8Array; contentType: string } | null = null;
+    if (data.faviconKind === "single" && data.faviconBase64 && data.faviconContentType) {
+      const bytes = decodeSiteSetupFileBase64(data.faviconBase64);
+      if (bytes) faviconFile = { bytes, contentType: data.faviconContentType };
+    }
+    const published = await publishInstitutePublicImages({
+      slug: tenant.slug,
+      themeId: data.themeId,
+      themeKind: kind,
+      properties: existing.properties,
+      name: data.appName,
+      description: data.tagline,
+      supabase: admin.supabase,
+      locale: data.locale,
+      persist: false,
+      replaceFaviconPath: data.faviconKind !== "zip",
+      logo:
+        logoBytes && data.logoContentType
+          ? { bytes: logoBytes, contentType: data.logoContentType }
+          : null,
+      favicon: faviconFile,
+    });
+    if (published?.logoPath) logoPath = published.logoPath;
+    if (published?.faviconPath && data.faviconKind !== "zip") favPath = published.faviconPath;
+    sharePath = published?.sharePath ?? null;
+  }
 
   const existingFlat = parseSiteThemePropertyStrings(existing.properties);
   const wizardFlat = buildSiteSetupOverrideMap({
@@ -106,6 +140,7 @@ export async function completeInitialSiteSetupAction(
   });
 
   const mergedRaw = { ...existingFlat, ...wizardFlat };
+  if (sharePath) mergedRaw["app.share.image"] = sharePath;
   if (clearFaviconBundlePrefix) delete mergedRaw["app.favicon.bundle.prefix"];
 
   const cleaned = cleanThemeOverridesForPersistence(loadProperties(), mergedRaw);

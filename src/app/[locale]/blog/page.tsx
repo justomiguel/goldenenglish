@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { blogMediaPublicUrl } from "@/lib/blog/blogMedia";
 import { loadPublishedArticles, type BlogArticleListItem } from "@/lib/blog/server";
 import { BlogIndexSurfaceEntry } from "@/components/organisms/BlogIndexSurfaceEntry";
+import { BlogMetricBeacon } from "@/components/blog/BlogMetricBeacon";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { buildResolvedPublicShareMetadata } from "@/lib/site/buildResolvedPublicShareMetadata";
 import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
@@ -41,6 +42,9 @@ export default async function BlogIndexPage({ params, searchParams }: PageProps)
   const search = await searchParams;
   const dict = await getDictionary(locale);
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const page = Number.parseInt(search.page ?? "1", 10) || 1;
   const [list, { url: supabaseUrl }] = await Promise.all([
     loadPublishedArticles(supabase, {
@@ -49,14 +53,18 @@ export default async function BlogIndexPage({ params, searchParams }: PageProps)
       pageSize: 12,
       query: search.q ?? "",
       tag: search.tag,
+      includeMembers: Boolean(user),
     }),
     readRequestSupabasePublicEnv(),
   ]);
   return (
-    <BlogIndexSurfaceEntry
-      locale={locale}
-      rows={withResolvedBlogCovers(list.rows, supabaseUrl)}
-      labels={dict.blog.list}
-    />
+    <>
+      <BlogMetricBeacon kind="list_view" locale={locale} />
+      <BlogIndexSurfaceEntry
+        locale={locale}
+        rows={withResolvedBlogCovers(list.rows, supabaseUrl)}
+        labels={dict.blog.list}
+      />
+    </>
   );
 }

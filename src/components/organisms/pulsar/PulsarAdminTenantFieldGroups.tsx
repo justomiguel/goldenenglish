@@ -1,4 +1,5 @@
 import type { Dictionary } from "@/types/i18n";
+import { PulsarAdminTemplateSelect } from "@/components/organisms/pulsar/PulsarAdminTemplateSelect";
 
 export interface PulsarTenantFormValues {
   slug: string;
@@ -27,6 +28,7 @@ export interface PulsarTenantFormValues {
   whatsappAccessToken: string;
   whatsappPhoneNumberId: string;
   whatsappClassReminderTemplateName: string;
+  dataMode: "project" | "shared_schema";
 }
 
 export interface PulsarAdminTenantFieldGroupsProps {
@@ -43,7 +45,6 @@ const TEXT_SECTIONS: Array<{
   sectionKey:
     | "sectionSupabase"
     | "sectionEmail"
-    | "sectionPaymentsKv"
     | "sectionIntegrations";
   fields: Array<keyof PulsarTenantFormValues>;
 }> = [
@@ -54,10 +55,6 @@ const TEXT_SECTIONS: Array<{
   {
     sectionKey: "sectionEmail",
     fields: ["mailTenant", "resendFromEmail", "resendApiKey"],
-  },
-  {
-    sectionKey: "sectionPaymentsKv",
-    fields: ["paymentGatewaySecretEncryptionKey", "kvRestApiUrl", "kvRestApiToken"],
   },
   {
     sectionKey: "sectionIntegrations",
@@ -142,18 +139,14 @@ export function PulsarAdminTenantFieldGroups({
               className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 font-mono text-sm"
             />
           </div>
-          <div>
-            <label htmlFor="field-brandThemeSlug" className="block text-xs font-semibold">
-              {labels.brandThemeSlug}
-            </label>
-            <input
-              id="field-brandThemeSlug"
-              type="text"
-              value={values.brandThemeSlug}
-              onChange={(e) => onChange("brandThemeSlug", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 font-mono text-sm"
-            />
-          </div>
+          <PulsarAdminTemplateSelect
+            label={labels.brandThemeSlug}
+            lead={formCopy.templateLead}
+            unsetLabel={formCopy.templateUnset}
+            value={values.brandThemeSlug}
+            names={dict.landing.genericLandings}
+            onChange={(slug) => onChange("brandThemeSlug", slug)}
+          />
           <label className="flex items-center gap-2 text-xs font-semibold">
             <input
               type="checkbox"
@@ -181,7 +174,10 @@ export function PulsarAdminTenantFieldGroups({
         </div>
       </section>
 
-      {TEXT_SECTIONS.map(({ sectionKey, fields }) => (
+      {TEXT_SECTIONS.filter(
+        (section) =>
+          values.dataMode !== "shared_schema" || section.sectionKey !== "sectionSupabase",
+      ).map(({ sectionKey, fields }) => (
         <section
           key={sectionKey}
           className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6"

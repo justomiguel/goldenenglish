@@ -1,0 +1,47 @@
+---
+description: Product migrations are written for public and applied by one command that branches per institute.
+alwaysApply: true
+---
+
+# Institute migrations — one file, one apply command
+
+## Objective
+
+A product migration under `supabase/migrations/` is written once for schema `public`. The apply command decides what each institute receives. Do not keep a second rewritten SQL file.
+
+## Command
+
+```bash
+npm run sql:apply-migration:all-tenants:pg -- supabase/migrations/<file>.sql
+```
+
+`npm run sql:apply-migration:all-tenants` calls that same script. Do not run `psql` once per institute. Do not paste the file into the Supabase SQL editor for each institute.
+
+## What the command does
+
+Targets come from Pulsar `platform_tenants` when `PULSAR_DATABASE_URL` is set. Otherwise they come from `TENANTS_CONFIG_JSON`.
+
+| `data_mode` | What runs |
+|---|---|
+| `project` (default) | The git file, unchanged, on that institute `database_url`. Success is stored in `institute_migration_ledger.applied` with `schema_name` `public`. |
+| `shared_schema` | An in-memory rewrite: `public.` and `search_path = public` become `postgres_schema` (`tenant_<slug>`). `auth.` and `storage.` stay. Success is stored in `institute_migration_ledger.applied` on that database with `schema_name` `postgres_schema`. |
+
+Brand-data files still run on `project` targets. They are skipped on `shared_schema`. A brand-data file name contains a brand slug (`nago`, `golden`, `liora`, `mimundo`, `mozarthitos`, `espaciozenit`) plus `seed`, `tagline`, or `brand`. Enum and kind migrations are product SQL. They are not brand data.
+
+A shared-schema target rejects the file when a `table`, `function`, `view`, `type`, or `sequence` is created without a `public.` qualifier. Policies, indexes, and triggers may stay unqualified when their `ON` target is qualified.
+
+## When you add a migration
+
+1. Write the SQL for `public`. Qualify product tables, functions, views, types, and sequences with `public.`.
+2. Keep the file additive (`21-migrations-production-no-data-destruction.mdc`).
+3. Run the command above for that file.
+4. Do not edit the file into `tenant_*` form.
+5. Do not put this logic in `supabase/pulsar-migrations/`. Those files are the control plane only.
+
+`data_mode` and `postgres_schema` live on `platform_tenants` (`supabase/pulsar-migrations/006_institute_data_plane.sql`). Missing columns mean every row is `project` / `public`.
+
+## Checklist
+
+- [ ] New product objects use `public.`?
+- [ ] Apply went through `sql:apply-migration:all-tenants:pg`?
+- [ ] Shared-schema failure names the institute and the code (`unqualified_public`, `invalid_tenant_schema`)?

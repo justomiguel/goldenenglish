@@ -1,5 +1,8 @@
+import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
+
 export const INSTITUTE_ANSWER_KIND_KEYS = [
   "classic",
+  "generic",
   "mozarthitos",
   "espaciozenit",
   "nago",
@@ -15,8 +18,9 @@ export interface InstituteAnswerItem {
   a: string;
 }
 
-/** Editorial and minimal share the classic English answers. */
+/** Editorial and minimal share the classic English answers. Generic kinds share one set. */
 export function instituteAnswerKindKey(templateKind: string): InstituteAnswerKindKey {
+  if (isGenericInstituteKind(templateKind)) return "generic";
   if (
     templateKind === "mozarthitos" ||
     templateKind === "espaciozenit" ||

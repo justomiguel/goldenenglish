@@ -3,6 +3,7 @@ import { ESPACIO_ZENIT_EDITABLE_COPY_KEYS } from "@/lib/cms/landingEspacioZenitC
 import { MIMUNDO_EDITABLE_COPY_KEYS } from "@/lib/cms/landingMimundoCatalog";
 import { MOZARTHITOS_EDITABLE_COPY_KEYS } from "@/lib/cms/landingMozarthitosCatalog";
 import { NAGO_EDITABLE_COPY_KEYS } from "@/lib/cms/landingNagoCatalog";
+import { isGenericLandingCopyKey } from "@/lib/cms/genericLandingCopyKeys";
 import { LIORA_EDITABLE_COPY_KEYS } from "@/lib/cms/landingLioraCatalog";
 
 /**
@@ -88,7 +89,7 @@ const ALL_KEYS: ReadonlySet<string> = new Set([
 
 /** Whether a dotted dict path under `landing.*` is editable from the CMS. */
 export function isEditableLandingCopyKey(path: string): boolean {
-  return ALL_KEYS.has(path);
+  return ALL_KEYS.has(path) || isGenericLandingCopyKey(path);
 }
 
 /** How many media slots an admin can manage per section. Mirrors the in-code

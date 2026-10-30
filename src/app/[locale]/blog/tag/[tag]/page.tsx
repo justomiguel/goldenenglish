@@ -12,6 +12,9 @@ interface PageProps {
 export default async function BlogTagPage({ params }: PageProps) {
   const { locale, tag } = await params;
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const [dict, list, { url: supabaseUrl }] = await Promise.all([
     getDictionary(locale),
     loadPublishedArticles(supabase, {
@@ -19,6 +22,7 @@ export default async function BlogTagPage({ params }: PageProps) {
       page: 1,
       pageSize: 12,
       tag,
+      includeMembers: Boolean(user),
     }),
     readRequestSupabasePublicEnv(),
   ]);
