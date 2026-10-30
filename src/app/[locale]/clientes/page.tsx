@@ -6,6 +6,7 @@ import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { attachClientPreviewMedia } from "@/lib/pulsar/centrolistoClientPreviews";
 import { loadAllPulsarTenantsForAdmin } from "@/lib/pulsar/pulsarTenantStore";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
+import { getPulsarCookieSession } from "@/lib/pulsar/pulsarStaffAuth";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { PulsarClientesView } from "@/components/organisms/pulsar/PulsarClientesView";
 
@@ -42,9 +43,10 @@ export default async function PulsarClientesPage({ params }: PageProps) {
     notFound();
   }
   const { locale } = await params;
-  const [dict, tenants] = await Promise.all([
+  const [dict, tenants, session] = await Promise.all([
     getDictionary(locale as AppLocale),
     loadAllPulsarTenantsForAdmin(),
+    getPulsarCookieSession(),
   ]);
   const clients = attachClientPreviewMedia(
     tenants
@@ -57,5 +59,7 @@ export default async function PulsarClientesPage({ params }: PageProps) {
       })),
     publicAssetExists,
   );
-  return <PulsarClientesView locale={locale} dict={dict} clients={clients} />;
+  return (
+    <PulsarClientesView locale={locale} dict={dict} clients={clients} email={session?.email ?? null} />
+  );
 }

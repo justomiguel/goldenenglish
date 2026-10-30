@@ -4,54 +4,78 @@ export interface PulsarCompetitorComparisonSectionProps {
   dict: Dictionary;
 }
 
+const OTHERS = [
+  { key: "schedulers", label: "colSchedulers" },
+  { key: "schoolErp", label: "colSchoolErp" },
+  { key: "spreadsheets", label: "colSpreadsheets" },
+] as const;
+
 export function PulsarCompetitorComparisonSection({
   dict,
 }: PulsarCompetitorComparisonSectionProps) {
   const cmp = dict.pulsar.product.comparison;
-  const others = [
-    { label: cmp.colSchedulers, key: "schedulers" as const },
-    { label: cmp.colSchoolErp, key: "schoolErp" as const },
-    { label: cmp.colSpreadsheets, key: "spreadsheets" as const },
-  ];
 
   return (
-    <section className="border-t border-[var(--color-border)] py-20 md:py-28">
+    <section className="border-t border-[var(--color-border)] py-16 md:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <h2 className="max-w-2xl font-display text-3xl font-medium tracking-tight text-[var(--color-foreground)]">
+        <h2 className="max-w-3xl font-display text-3xl font-medium tracking-tight text-[var(--color-foreground)]">
           {cmp.title}
         </h2>
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-[var(--color-muted-foreground)]">
+        <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--color-muted-foreground)]">
           {cmp.lead}
         </p>
-        <p className="mt-8 max-w-3xl text-sm leading-relaxed text-[var(--color-muted-foreground)]">
-          <span className="font-medium text-[var(--color-primary)]">{cmp.colCentroListo}</span>
-          {" · "}
-          {others.map((item) => item.label).join(" · ")}
-        </p>
-
-        <div className="mt-6 divide-y divide-[var(--color-border)] border-y border-[var(--color-border)]">
-          {cmp.rows.map((row) => (
-            <article key={row.feature} className="grid gap-6 py-8 md:grid-cols-12 md:gap-10 md:py-10">
-              <div className="md:col-span-7">
-                <h3 className="font-display text-lg font-medium text-[var(--color-foreground)]">
-                  {row.feature}
-                </h3>
-                <p className="mt-3 border-l border-[var(--color-primary)] pl-4 text-base leading-relaxed text-[var(--color-foreground)]">
-                  {row.centroListo}
-                </p>
-              </div>
-              <dl className="space-y-4 md:col-span-5">
-                {others.map((item) => (
-                  <div key={item.key}>
-                    <dt className="text-sm font-medium text-[var(--color-foreground)]">{item.label}</dt>
-                    <dd className="mt-1 text-sm leading-relaxed text-[var(--color-muted-foreground)]">
-                      {row[item.key]}
-                    </dd>
-                  </div>
+        <div className="mt-10 overflow-x-auto">
+          <table className="w-full min-w-[64rem] border-separate border-spacing-0 text-left">
+            <caption className="sr-only">{cmp.title}</caption>
+            <thead>
+              <tr>
+                <th
+                  scope="col"
+                  className="sticky left-0 z-10 w-40 bg-[var(--color-background)] px-4 py-4 text-sm font-medium text-[var(--color-muted-foreground)]"
+                >
+                  {cmp.colFeature}
+                </th>
+                <th
+                  scope="col"
+                  className="bg-[var(--color-primary)] px-4 py-4 text-sm font-semibold text-[var(--color-primary-foreground)]"
+                >
+                  {cmp.colCentroListo}
+                </th>
+                {OTHERS.map((column) => (
+                  <th
+                    key={column.key}
+                    scope="col"
+                    className="bg-[var(--color-muted)] px-4 py-4 text-sm font-medium text-[var(--color-muted-foreground)]"
+                  >
+                    {cmp[column.label]}
+                  </th>
                 ))}
-              </dl>
-            </article>
-          ))}
+              </tr>
+            </thead>
+            <tbody>
+              {cmp.rows.map((row) => (
+                <tr key={row.feature}>
+                  <th
+                    scope="row"
+                    className="sticky left-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-background)] px-4 py-5 align-top font-display text-base font-medium text-[var(--color-foreground)]"
+                  >
+                    {row.feature}
+                  </th>
+                  <td className="border-b border-[color-mix(in_srgb,var(--color-primary)_28%,transparent)] bg-[color-mix(in_srgb,var(--color-primary)_14%,var(--color-background))] px-4 py-5 align-top text-base font-medium leading-relaxed text-[var(--color-foreground)]">
+                    {row.centroListo}
+                  </td>
+                  {OTHERS.map((column) => (
+                    <td
+                      key={column.key}
+                      className="border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-5 align-top text-sm leading-relaxed text-[var(--color-muted-foreground)]"
+                    >
+                      {row[column.key]}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </section>

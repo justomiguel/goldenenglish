@@ -13,7 +13,6 @@ import {
   createPulsarServerClient,
   isPulsarSupabaseConfigured,
 } from "@/lib/supabase/pulsar";
-import { PulsarAccountSignOut } from "@/components/organisms/pulsar/PulsarAccountSignOut";
 
 export default async function PulsarAccountHomePage({
   params,
@@ -85,7 +84,6 @@ export default async function PulsarAccountHomePage({
       ) : approved ? (
         <p className="text-sm text-[var(--color-muted-foreground)]">{copy.limitReached}</p>
       ) : null}
-      <PulsarAccountSignOut locale={locale} label={copy.signOut} />
     </section>
   );
 }

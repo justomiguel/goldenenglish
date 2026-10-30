@@ -1,97 +1,98 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, BookOpen, DoorOpen, Landmark, UserPlus, type LucideIcon } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { PulsarCompetitorComparisonSection } from "@/components/organisms/pulsar/PulsarCompetitorComparisonSection";
-import { PulsarSiteChrome } from "@/components/organisms/pulsar/PulsarSiteChrome";
+import { PulsarSiteChromeEntry } from "@/components/organisms/pulsar/PulsarSiteChromeEntry";
 
 export interface PulsarProductoViewProps {
   locale: string;
   dict: Dictionary;
+  email?: string | null;
 }
 
-export function PulsarProductoView({ locale, dict }: PulsarProductoViewProps) {
+const BAND_STILLS = [
+  "/centrolisto/moments/sunday.webp",
+  "/centrolisto/moments/class.webp",
+  "/centrolisto/moments/family.webp",
+  "/centrolisto/hero-desk.webp",
+] as const;
+
+const BAND_ICONS: readonly LucideIcon[] = [DoorOpen, UserPlus, BookOpen, Landmark];
+
+export function PulsarProductoView({ locale, dict, email = null }: PulsarProductoViewProps) {
   const copy = dict.pulsar.product;
   const chapters = [
     {
       stageTitle: copy.stages.stage1,
-      items: [
-        { n: "01", title: copy.m1Title, body: copy.m1Body },
-        { n: "02", title: copy.m2Title, body: copy.m2Body },
-        { n: "03", title: copy.m3Title, body: copy.m3Body },
-      ],
+      items: [copy.m1Title, copy.m2Title, copy.m3Title],
     },
     {
       stageTitle: copy.stages.stage2,
-      items: [
-        { n: "04", title: copy.m4Title, body: copy.m4Body },
-        { n: "05", title: copy.m5Title, body: copy.m5Body },
-        { n: "06", title: copy.m6Title, body: copy.m6Body },
-      ],
+      items: [copy.m4Title, copy.m5Title, copy.m6Title],
     },
     {
       stageTitle: copy.stages.stage3,
-      items: [
-        { n: "07", title: copy.m7Title, body: copy.m7Body },
-        { n: "08", title: copy.m8Title, body: copy.m8Body },
-        { n: "09", title: copy.m11Title, body: copy.m11Body },
-      ],
+      items: [copy.m7Title, copy.m8Title, copy.m11Title],
     },
     {
       stageTitle: copy.stages.stage4,
-      items: [
-        { n: "10", title: copy.m9Title, body: copy.m9Body },
-        { n: "11", title: copy.m10Title, body: copy.m10Body },
-        { n: "12", title: copy.m12Title, body: copy.m12Body },
-      ],
+      items: [copy.m9Title, copy.m10Title, copy.m12Title],
     },
   ];
 
   return (
-    <PulsarSiteChrome locale={locale} dict={dict} activeNav="product">
-      <section className="py-20 md:py-28">
+    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} activeNav="product">
+      <section className="border-b border-[var(--color-border)] py-10 md:py-14">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <p className="font-display text-sm italic text-[var(--color-muted-foreground)]">
-            {copy.eyebrow}
-          </p>
-          <h1 className="mt-4 max-w-2xl font-display text-4xl font-medium tracking-tight text-[var(--color-foreground)]">
+          <h1 className="max-w-2xl font-display text-4xl font-medium tracking-tight text-[var(--color-foreground)] sm:text-5xl">
             {copy.title}
           </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--color-muted-foreground)]">
-            {copy.lead}
-          </p>
-
-          <div className="mt-16 space-y-16">
-            {chapters.map((chapter) => (
-              <div key={chapter.stageTitle}>
-                <h2 className="font-display text-lg text-[var(--color-primary)]">
-                  {chapter.stageTitle}
-                </h2>
-                <ol className="mt-4 divide-y divide-[var(--color-border)] border-y border-[var(--color-border)]">
-                  {chapter.items.map((item) => (
-                    <li key={item.n} className="grid gap-3 py-6 md:grid-cols-12 md:gap-8">
-                      <p className="font-display text-sm text-[var(--color-accent)] md:col-span-2">
-                        {item.n}
-                      </p>
-                      <div className="md:col-span-10">
-                        <h3 className="font-display text-xl font-medium text-[var(--color-foreground)]">
-                          {item.title}
+          <div className="mt-10 space-y-12">
+            {chapters.map((chapter, index) => {
+              const Icon = BAND_ICONS[index] ?? DoorOpen;
+              const flipped = index % 2 === 1;
+              return (
+              <article key={chapter.stageTitle} className="grid items-center lg:grid-cols-12">
+                <Image
+                  src={BAND_STILLS[index] ?? BAND_STILLS[0]}
+                  alt={chapter.stageTitle}
+                  width={1280}
+                  height={720}
+                  priority={index === 0}
+                  className={`aspect-[5/4] w-full object-cover lg:col-span-7 ${
+                    flipped ? "lg:col-start-6" : ""
+                  } ${index === 0 ? "" : "cl-moment"}`}
+                />
+                <div
+                  className={`relative z-10 bg-[var(--color-background)] py-6 lg:col-span-6 ${
+                    flipped ? "lg:col-start-1 lg:row-start-1 lg:-mr-[8%]" : "lg:-ml-[8%]"
+                  }`}
+                >
+                  <Icon className="h-8 w-8 text-[var(--color-primary)]" aria-hidden />
+                  <h2 className="mt-3 font-display text-2xl font-medium text-[var(--color-foreground)]">
+                    {chapter.stageTitle}
+                  </h2>
+                  <ol className="mt-4 divide-y divide-[var(--color-border)] border-y border-[var(--color-border)]">
+                    {chapter.items.map((title) => (
+                      <li key={title} className="py-3">
+                        <h3 className="font-display text-lg font-medium text-[var(--color-foreground)]">
+                          {title}
                         </h3>
-                        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--color-muted-foreground)]">
-                          {item.body}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            ))}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </article>
+              );
+            })}
           </div>
         </div>
       </section>
 
       <PulsarCompetitorComparisonSection dict={dict} />
 
-      <section className="border-t border-[var(--color-border)] py-16 md:py-20">
+      <section className="border-t border-[var(--color-border)] py-12">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Link
             href={`/${locale}/contacto`}
@@ -102,6 +103,6 @@ export function PulsarProductoView({ locale, dict }: PulsarProductoViewProps) {
           </Link>
         </div>
       </section>
-    </PulsarSiteChrome>
+    </PulsarSiteChromeEntry>
   );
 }

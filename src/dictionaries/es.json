@@ -12733,7 +12733,7 @@
     "meta": {
       "brandName": "centrolisto",
       "brandTagline": "Para quienes abrieron una escuela por amor a enseñar",
-      "homeTitle": "CentroListo.cl — Cuando la administración deja de hacer ruido, tu escuela vuelve a enseñar",
+      "homeTitle": "CentroListo.cl — Llena cupos y cobra la mensualidad sin perseguir a las familias",
       "productoTitle": "El oficio detrás de la calma",
       "clientesTitle": "Escuelas y comunidades",
       "contactoTitle": "Conversar sin prisa",
@@ -12741,24 +12741,29 @@
       "description": "Un lugar propio para tu escuela o centro donde las familias conocen tu propuesta, reservan su horario, siguen el avance de sus hijos y están al día sin cadenas de mensajes ni planillas por la noche."
     },
     "nav": {
-      "home": "La jornada",
-      "product": "Cómo funciona",
-      "clients": "Escuelas",
-      "contact": "Conversar",
-      "admin": "Control Plane",
-      "cta": "Conversar sobre tu escuela",
-      "footerTagline": "Creado para directores, docentes y fundadores de escuelas que quieren recuperar sus tardes y cuidar el vínculo humano con cada familia.",
+      "home": "Inicio",
+      "product": "Qué incluye",
+      "clients": "Clientes",
+      "contact": "Contratar",
+      "admin": "Panel",
+      "cta": "Quiero CentroListo",
+      "footerTagline": "Para directores que quieren llenar cupos y cobrar la mensualidad sin perseguir a nadie por chat.",
       "footerPrivacyBadge": "Cada escuela habita su propia casa digital con base de datos aislada (Ley 21.719 en Chile)",
-      "footerRights": "CentroListo.cl · Un lugar tranquilo para enseñar, aprender y sostener comunidad."
+      "footerRights": "CentroListo.cl · Matrícula, cobro y lista de tu escuela, en un solo lugar."
+    },
+    "session": {
+      "signIn": "Ingresar",
+      "signOut": "Cerrar sesión",
+      "navAria": "Secciones"
     },
     "home": {
-      "eyebrow": "Cuando la administración deja de hacer ruido.",
-      "title": "La matrícula, los horarios y los cobros de tu escuela, en tu propia casa.",
-      "heroImageAlt": "El escritorio de una escuela: alumnos, pagos e inscripciones.",
+      "eyebrow": "Para quien dirige la escuela.",
+      "title": "Llena los cupos, cobra la mensualidad y deja de perseguir a las familias.",
+      "heroImageAlt": "Un celular sobre una mesa de madera, de noche, con el mes abierto.",
       "heroImageCaption": "Alumnos, pagos e inscripciones, con el nombre de la escuela.",
-      "lead": "Un lugar propio donde una familia descubre tu propuesta el domingo por la noche, elige su horario sin esperarte en el teléfono, sigue el camino de sus hijos desde su celular y mantiene sus pagos al día sin conversaciones incómodas.",
-      "primaryCta": "Conversar sobre tu escuela",
-      "secondaryCta": "Recorrer cómo funciona por dentro",
+      "lead": "Las familias se inscriben y pagan solas. Tú ves el dinero y la lista, con el nombre de tu escuela.",
+      "primaryCta": "Quiero esto para mi escuela",
+      "secondaryCta": "Ver cómo funciona",
       "generativeStage": {
         "noiseCaption": "mensajes a destiempo · planillas sueltas · cobros pendientes",
         "resolvedCaption": "todo en su lugar",
@@ -12773,16 +12778,17 @@
         "Escuelas de oficios y formación"
       ],
       "stats": {
-        "tenantsLabel": "escuelas y centros cultivando su comunidad hoy",
+        "tenantsLabel": "clientes ya venden clases y cobran con CentroListo",
         "isolationValue": "Casa propia",
         "isolationLabel": "Cada institución habita su propia base de datos aislada",
         "edgeValue": "Un solo hilo",
         "edgeLabel": "Desde la primera visita hasta la clase de cada semana"
       },
       "portals": {
-        "eyebrow": "Crónica de una semana en calma",
-        "title": "Cuatro momentos en los que notas que el enredo desapareció",
-        "lead": "Elige un momento de la semana para asomarte a cómo lo vive quien dirige, quien enseña y la familia que acompaña desde casa.",
+        "eyebrow": "La semana",
+        "title": "Esto es lo que compras: matrícula, clase y cobro",
+        "lead": "Elige un momento. El video se abre solo si lo pides.",
+        "watchVideo": "Ver el video",
         "modulesBadge": "Lo que ocurre en silencio por detrás",
         "marksAria": "Canales que nombra este momento",
         "markWhatsapp": "WhatsApp",
@@ -12796,7 +12802,7 @@
             "label": "Domingo, 21:40",
             "badge": "En tu casa",
             "headline": "Una familia encuentra cupo y se inscribe mientras tú descansas.",
-            "description": "Antes, el domingo a la noche significaba responder audios preguntando horarios, precios y vacantes. Ahora la familia recorre tu página, ve los lugares disponibles en tiempo real y deja reservada su vacante o su clase de prueba sin interrumpir tu cena.",
+            "description": "La familia ve el cupo, reserva y queda en la lista. Tú no contestas el audio.",
             "bullets": [
               "El cupo de la sección se descuenta solo y nunca se sobrevende un horario.",
               "La familia recibe al instante la bienvenida con el nombre y la voz de tu escuela.",
@@ -12813,7 +12819,7 @@
             "label": "Martes, 16:58",
             "badge": "Antes de clase",
             "headline": "El profesor entra al aula a enseñar, no a llenar papeles.",
-            "description": "Dos minutos antes de empezar, quien enseña abre su teléfono, toca los nombres de quienes llegaron y guarda la asistencia en segundos. Si alguien faltó, la familia recibe un aviso cálido sin que secretaría tenga que llamar uno por uno.",
+            "description": "El profesor marca la asistencia en el teléfono. Si alguien falta, la familia recibe el aviso.",
             "bullets": [
               "Lista de asistencia clara desde el celular o la computadora del aula.",
               "Materiales de la semana, tareas y pequeñas prácticas listas para cada grupo.",
@@ -12830,7 +12836,7 @@
             "label": "Día 5 del mes",
             "badge": "Por la mañana",
             "headline": "Nunca más tienes que escribirle a una familia para recordar un pago.",
-            "description": "Cobrar en una escuela suele ser la parte más ingrata del oficio. Cuando los avisos salen a tiempo con respeto y cada apoderado puede pagar desde su teléfono o subir su transferencia en un toque, la conversación en la puerta vuelve a tratar sobre aprender.",
+            "description": "El aviso de la mensualidad sale solo. La familia paga con Flow, Mercado Pago o una transferencia.",
             "bullets": [
               "Pago directo con Flow o Mercado Pago, o revisión sencilla de transferencias bancarias.",
               "Contempla becas familiares, hermanos y descuentos sin cuentas manuales.",
@@ -12847,7 +12853,7 @@
             "label": "Viernes, 19:15",
             "badge": "En la familia",
             "headline": "Tu escuela vive en el teléfono de cada familia con tu propio escudo.",
-            "description": "Las familias no entran a un directorio ajeno lleno de otras academias. Instalan el acceso directo con el ícono y los colores de tu centro, consultan el calendario, reservan entradas para la muestra anual o encargan el uniforme de sus hijos.",
+            "description": "La familia abre el acceso con el escudo de tu escuela: horario, muestra y aviso.",
             "bullets": [
               "Un padre o madre con dos o tres hijos cambia de perfil con un solo toque.",
               "Entradas para muestras, talleres de fin de semana y tienda de materiales en el mismo lugar.",
@@ -12880,23 +12886,23 @@
           "Toda la memoria de tu institución vive en una base de datos exclusiva bajo tu propio nombre."
         ]
       },
-      "pillarsTitle": "Tres silencios que cuidan lo que construiste",
-      "pillarsLead": "Detrás de una experiencia sencilla para las familias hay decisiones de oficio pensadas para proteger la identidad y la tranquilidad de tu institución.",
-      "pillar1Title": "Tu propia casa digital, nunca un terreno prestado",
-      "pillar1Body": "Cada institución cuenta con su propia base de datos aislada (Postgres, cuentas y archivos independientes). Los datos de tus alumnos y menores jamás se mezclan con los de otras empresas.",
-      "pillar2Title": "Tu identidad en cada detalle, en la web y en el teléfono",
-      "pillar2Body": "Quien entra ve tu dominio, tu estética, tus palabras y el ícono de tu escuela instalado en su pantalla de inicio. CentroListo permanece invisible detrás de tu marca.",
-      "pillar3Title": "Un solo hilo desde el primer saludo hasta el último día del año",
-      "pillar3Body": "La página pública, las clases de prueba, los grupos, la asistencia del profesor, las tareas, las muestras con entradas y las mensualidades conversan en silencio entre sí.",
+      "pillarsTitle": "Tres cosas que no se mezclan",
+      "pillarsLead": "La base, la marca y la misma lista de la matrícula al cobro.",
+      "pillar1Title": "Base propia",
+      "pillar1Body": "Los datos de tus alumnos no se mezclan con otra escuela.",
+      "pillar2Title": "Tu marca",
+      "pillar2Body": "Tu dominio, tu marca y tu ícono en el teléfono.",
+      "pillar3Title": "La misma lista",
+      "pillar3Body": "La página, la asistencia y la mensualidad usan la misma lista.",
       "craftsLine": "Institutos de idiomas, escuelas de danza y música, dojos y espacios de primera infancia.",
       "offerStrip": "Media hora. En esa conversación ves tu dominio, tu marca y cómo entra tu lista actual.",
-      "whatsappCta": "Conversar por WhatsApp",
-      "schoolsTitle": "Escuelas que ya enseñan con la casa en orden",
-      "schoolsLead": "Cada una conserva su nombre, su sitio y su marca.",
-      "schoolsNamed": "{name} ya enseña con su nombre, su sitio y su marca.",
-      "schoolsMore": "Ver todas las escuelas",
+      "whatsappCta": "Escríbeme por WhatsApp",
+      "schoolsTitle": "Nuestros clientes",
+      "schoolsLead": "Entra al sitio de una escuela que ya nos contrató y mira cómo cobra.",
+      "schoolsNamed": "{name} ya es cliente. Entra y mira su sitio en vivo.",
+      "schoolsMore": "Ver todos los clientes",
       "startTitle": "Cómo queda lista la casa",
-      "startLead": "Tú cuentas cómo trabajas. Nosotros armamos la casa y traemos tu lista actual.",
+      "startLead": "Una charla. Tu dominio y tu marca. Tu lista actual adentro.",
       "faqTitle": "Antes de cambiar de herramienta",
       "faq": [
         {
@@ -12913,17 +12919,17 @@
         }
       ],
       "freeSiteNote": "Una cuenta gratis abre solo la página pública. La matrícula, los cobros y la app de las familias siguen en la conversación. Puedes abrir hasta tres sitios.",
-      "freeSiteCta": "Abrir la página pública",
+      "freeSiteCta": "Empieza gratis con tu página",
       "bottomCta": {
-        "title": "¿Te gustaría ver cómo se sentiría tu escuela con todo en su lugar?",
-        "lead": "Podemos conversar media hora sin compromiso, escuchar cómo organizas hoy tus grupos y mostrarte en vivo cómo funcionaría con la identidad de tu centro.",
-        "primaryCta": "Escribir para conversar",
+        "title": "Pide media hora y te muestro tu escuela cobrando.",
+        "lead": "Sales con tu dominio, tu marca y un plan para pasar tu lista.",
+        "primaryCta": "Quiero que me lo muestres",
         "secondaryCta": "Ver en detalle cómo funciona"
       }
     },
     "product": {
       "eyebrow": "El oficio detrás de la calma",
-      "title": "Doce piezas que trabajan en silencio para que tú solo tengas que dirigir y enseñar",
+      "title": "La página, la clase, el cobro y la casa.",
       "lead": "No necesitas aprender a usar doce programas distintos. Todo forma parte de un mismo espacio sereno que acompaña la vida cotidiana de tu escuela.",
       "stages": {
         "stage1": "I. Dar la bienvenida y mostrar tu escuela",
@@ -12957,7 +12963,7 @@
       "m12Body": "Tu escuela corre en su propia base aislada, te avisa a tiempo si un alumno empieza a ausentarse y acompaña a tu equipo con recorridos guiados.",
       "comparison": {
         "eyebrow": "Una diferencia de naturaleza",
-        "title": "Por qué un lugar pensado para escuelas se siente distinto",
+        "title": "Comparemos CentroListo con una agenda, un sistema escolar y una planilla",
         "lead": "Muchas instituciones intentan adaptarse a herramientas que nacieron para otros oficios. Así cambia el día a día cuando el espacio fue diseñado para enseñar.",
         "colFeature": "Lo que ocurre en tu semana",
         "colCentroListo": "Casa propia en CentroListo",
@@ -12966,49 +12972,49 @@
         "colSpreadsheets": "Planillas y chats sueltos",
         "rows": [
           {
-            "feature": "La primera impresión de quien busca tu escuela en internet",
+            "feature": "Tu página",
             "centroListo": "Tu propia página editorial conectada en vivo con tus horarios y eventos",
             "schedulers": "Un casillero genérico para reservar horas sueltas",
             "schoolErp": "Un login cerrado sin página pública ni calidez",
             "spreadsheets": "Una página estática que nunca coincide con los cupos reales"
           },
           {
-            "feature": "Inscribir a un alumno o invitarlo a una clase de prueba",
+            "feature": "La inscripción",
             "centroListo": "Elige su grupo o clase de prueba en calma, a cualquier hora",
             "schedulers": "Pensado para sesiones individuales, no para cursos ni ciclos",
             "schoolErp": "Trámites largos pensados solo para matrícula anual",
             "spreadsheets": "Cruzar mensajes, pedir datos por chat y copiar a mano"
           },
           {
-            "feature": "La experiencia de una madre o padre con varios hijos en el centro",
+            "feature": "Varios hijos",
             "centroListo": "Instala la app con tu escudo y alterna entre sus hijos en un toque",
             "schedulers": "App compartida donde apareces junto a otros comercios",
             "schoolErp": "Portales densos difíciles de usar desde el teléfono",
             "spreadsheets": "Preguntar todo por WhatsApp cada semana"
           },
           {
-            "feature": "El acompañamiento pedagógico entre clase y clase",
+            "feature": "Entre clases",
             "centroListo": "Materiales, tareas, prácticas breves e insignias de avance",
             "schedulers": "No contempla vida académica ni aprendizaje",
             "schoolErp": "Planillas ministeriales rígidas y distantes",
             "spreadsheets": "Archivos sueltos enviados por correo o chat"
           },
           {
-            "feature": "El momento de cobrar la mensualidad, becas o materiales",
+            "feature": "El cobro",
             "centroListo": "Flow, Mercado Pago o transferencia con becas familiares y recibo",
             "schedulers": "Cobro por turno sin contemplar grupos familiares",
             "schoolErp": "Módulos contables complejos de configurar",
             "spreadsheets": "Perseguir comprobantes por teléfono a fin de mes"
           },
           {
-            "feature": "Los avisos antes de una clase o cambio de horario",
+            "feature": "El aviso",
             "centroListo": "Recordatorios automáticos por WhatsApp, correo y celular por grupo",
             "schedulers": "Aviso estándar de turno individual",
             "schoolErp": "Circulares generales sin cercanía cotidiana",
             "spreadsheets": "Escribir y reenviar mensajes uno por uno"
           },
           {
-            "feature": "El cuidado y la privacidad de los datos de tu comunidad",
+            "feature": "Los datos",
             "centroListo": "Base de datos 100% aislada y exclusiva para tu institución",
             "schedulers": "Base compartida entre miles de negocios",
             "schoolErp": "Base compartida multi-colegio",
@@ -13019,12 +13025,49 @@
     },
     "clients": {
       "eyebrow": "Comunidades en marcha",
-      "title": "Escuelas y centros que hoy enseñan con su casa en orden",
+      "title": "Escuelas que ya enseñan con su nombre.",
       "lead": "Cada institución conserva su voz, su estética y su propio dominio, acompañada en silencio por la misma base sólida.",
       "visitSite": "Conocer su sitio en vivo",
       "visitSiteNamed": "Conocer el sitio de {name}",
       "activeBadge": "En funcionamiento",
       "hostsLabel": "Dirección web",
+      "voicesTitle": "Lo que dicen nuestros clientes",
+      "voicesLead": "Testimonios de nuestros clientes que ya nos eligieron para su escuela.",
+      "voicesPrev": "Opinión anterior",
+      "voicesNext": "Opinión siguiente",
+      "voicesPosition": "{current} de {total}",
+      "voices": [
+        {
+          "name": "Camila",
+          "role": "Madre",
+          "quote": "Es una tranquilidad tener un sistema así, para las clases de música de mi hija, puedo separar sus clases de mi vida personal. Estaba cansada de que todo sea por WhatsApp."
+        },
+        {
+          "name": "Mateo",
+          "role": "Alumno",
+          "quote": "Voy en la micro, miro el celu y ya sé la sala. Ni se me ocurre escribirle a la secretaría."
+        },
+        {
+          "name": "Andrea",
+          "role": "Dueña de instituto",
+          "quote": "El domingo entraron tres pagos, solos. El lunes miro el total y ya estaba. Cero persecución."
+        },
+        {
+          "name": "Rodrigo",
+          "role": "Padre",
+          "quote": "Son dos hijos y un solo pago. Puedo pagar con mi tarjeta de crédito y me olvido de subir comprobantes. Los dos quedan al día y yo sigo con mi tarde."
+        },
+        {
+          "name": "Sofía",
+          "role": "Alumna",
+          "quote": "Tener a mano toda la información de mis clases, feedback de mis profes y poder ver materiales la verdad es muy bueno para mi orden."
+        },
+        {
+          "name": "Luis",
+          "role": "Director",
+          "quote": "El jueves metimos la planilla. El viernes una familia ya había pagado, con nuestro nombre. Yo no lo podía creer."
+        }
+      ],
       "verticalsEyebrow": "Cada oficio tiene su propio ritmo",
       "verticalsTitle": "Un espacio que se adapta a tu forma de enseñar",
       "verticalsLead": "Cambian las palabras, los tiempos y la estética, pero la necesidad de fondo es la misma: dedicar la energía a las personas y no al papeleo.",
@@ -13063,7 +13106,7 @@
     },
     "contact": {
       "eyebrow": "Una conversación sin prisa",
-      "title": "Cuéntanos cómo es tu escuela hoy y veamos juntos cómo aliviar tu semana",
+      "title": "Media hora. Ves tu dominio, tu marca y tu lista.",
       "lead": "No hay vendedores insistentes ni formularios interminables. Conversamos directamente contigo, escuchamos cómo trabajas hoy y preparamos tu espacio paso a paso.",
       "stepsEyebrow": "Cómo damos los primeros pasos",
       "stepsTitle": "Un acompañamiento tranquilo, de principio a fin",
@@ -13071,17 +13114,17 @@
         {
           "step": "01 · Escuchar",
           "title": "Una charla breve sobre tu escuela",
-          "body": "Nos muestras cómo organizas hoy tus grupos, tus inscripciones y tus cobros, y recorremos juntos cómo se vería tu propio espacio."
+          "body": "Cuentas grupos, inscripciones y cobros. Ves el espacio con tu marca."
         },
         {
           "step": "02 · Preparar la casa",
           "title": "Armamos tu sitio, tu base aislada y tus medios de pago",
-          "body": "Dejamos listo tu dominio propio, tu identidad visual, tu proyecto exclusivo de base de datos y la conexión con Flow, Mercado Pago o tus cuentas bancarias."
+          "body": "Quedan el dominio, la base aislada y Flow, Mercado Pago o tu banco."
         },
         {
           "step": "03 · Abrir las puertas",
           "title": "Traemos tu lista actual y caminamos a tu lado",
-          "body": "Importamos tus grupos y alumnos actuales para que nadie empiece de cero, con guías interactivas dentro de la pantalla para ti y tus profesores."
+          "body": "Entra tu lista actual. Tú y los profesores caminan con una guía en pantalla."
         }
       ],
       "emailLabel": "Escríbenos directamente",

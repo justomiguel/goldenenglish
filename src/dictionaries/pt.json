@@ -12569,7 +12569,7 @@
     "meta": {
       "brandName": "CentroListo",
       "brandTagline": "Para quem abriu uma escola por amor a ensinar",
-      "homeTitle": "CentroListo.cl — Quando a administração fica quieta, a escola volta a ensinar",
+      "homeTitle": "CentroListo.cl — Encha as vagas e cobre a mensalidade sem correr atrás das famílias",
       "productoTitle": "O ofício por trás da calma",
       "clientesTitle": "Escolas e comunidades",
       "contactoTitle": "Conversar sem pressa",
@@ -12577,24 +12577,29 @@
       "description": "Um lugar próprio para a sua escola, onde as famílias conhecem a proposta, reservam o horário, acompanham os filhos e ficam em dia sem conversas de madrugada nem planilhas."
     },
     "nav": {
-      "home": "O dia",
-      "product": "Como funciona",
-      "clients": "Escolas",
-      "contact": "Conversar",
-      "admin": "Control Plane",
-      "cta": "Conversar sobre a sua escola",
-      "footerTagline": "Feito para diretores, docentes e fundadores que querem recuperar as tardes e cuidar do vínculo com cada família.",
+      "home": "Início",
+      "product": "O que inclui",
+      "clients": "Clientes",
+      "contact": "Contratar",
+      "admin": "Painel",
+      "cta": "Quero o CentroListo",
+      "footerTagline": "Para diretores que querem turmas cheias e a mensalidade paga, sem correr atrás de ninguém no chat.",
       "footerPrivacyBadge": "Arquitetura com banco de dados 100% isolado por instituição · Preparada para a Lei 21.719 (Chile)",
-      "footerRights": "CentroListo.cl · Infraestrutura dedicada e software de crescimento para academias, centros e institutos."
+      "footerRights": "CentroListo.cl · Matrícula, cobrança e lista da sua escola, em um só lugar."
+    },
+    "session": {
+      "signIn": "Entrar",
+      "signOut": "Sair",
+      "navAria": "Seções"
     },
     "home": {
-      "eyebrow": "Quando a administração deixa de fazer barulho.",
-      "title": "A matrícula, os horários e os pagamentos da sua escola, na sua própria casa.",
-      "heroImageAlt": "A mesa de uma escola: alunos, pagamentos e inscrições.",
+      "eyebrow": "Para quem dirige a escola.",
+      "title": "Encha as vagas, cobre a mensalidade e pare de correr atrás das famílias.",
+      "heroImageAlt": "Um celular sobre uma mesa de madeira, à noite, com o mês aberto.",
       "heroImageCaption": "Alunos, pagamentos e inscrições, com o nome da escola.",
-      "lead": "Um lugar próprio onde uma família descobre a sua proposta no domingo à noite, escolhe o horário sem esperar no telefone, acompanha o caminho dos filhos e mantém os pagamentos em dia sem conversas desconfortáveis.",
-      "primaryCta": "Conversar sobre a sua escola",
-      "secondaryCta": "Percorrer como funciona por dentro",
+      "lead": "As famílias se inscrevem e pagam sozinhas. Você vê o dinheiro e a lista, com o nome da sua escola.",
+      "primaryCta": "Quero isto para a minha escola",
+      "secondaryCta": "Ver como funciona",
       "generativeStage": {
         "noiseCaption": "mensagens fora de hora · planilhas soltas · comprovantes pendentes",
         "resolvedCaption": "tudo em seu lugar",
@@ -12609,16 +12614,17 @@
         "OTEC e centros de capacitação"
       ],
       "stats": {
-        "tenantsLabel": "Instituições operando ao vivo",
+        "tenantsLabel": "clientes já vendem aulas e cobram com o CentroListo",
         "isolationValue": "100% isolado",
         "isolationLabel": "Banco de dados Supabase exclusivo por centro",
         "edgeValue": "4 portais",
         "edgeLabel": "Site público, Direção, Docente e App Família sincronizados"
       },
       "portals": {
-        "eyebrow": "Crônica de uma semana em calma",
-        "title": "Quatro momentos em que você nota que o emaranhado desapareceu",
-        "lead": "Escolha um momento da semana para ver como vive quem dirige, quem ensina e a família que acompanha de casa.",
+        "eyebrow": "A semana",
+        "title": "Isto é o que você compra: matrícula, aula e pagamento",
+        "lead": "Escolha um momento. O vídeo abre só se você pedir.",
+        "watchVideo": "Ver o vídeo",
         "modulesBadge": "O que acontece em silêncio por trás",
         "marksAria": "Canais que este momento nomeia",
         "markWhatsapp": "WhatsApp",
@@ -12632,7 +12638,7 @@
             "label": "Domingo, 21:40",
             "badge": "Na sua casa",
             "headline": "Uma família encontra vaga e se inscreve enquanto você descansa.",
-            "description": "Antes, o domingo à noite significava responder áudios sobre horários, preços e vagas. Agora a família percorre a sua página, vê os lugares disponíveis e reserva a vaga ou a aula experimental sem interromper o seu jantar.",
+            "description": "A família vê a vaga, reserva e entra na lista. Você não responde o áudio.",
             "bullets": [
               "A vaga da turma se desconta sozinha e um horário nunca é vendido duas vezes.",
               "A família recebe na hora a boas-vindas com o nome e a voz da sua escola.",
@@ -12649,7 +12655,7 @@
             "label": "Terça, 16:58",
             "badge": "Antes da aula",
             "headline": "O professor entra na sala para ensinar, não para preencher papéis.",
-            "description": "Dois minutos antes de começar, quem ensina abre o telefone, toca os nomes de quem chegou e guarda a frequência em segundos. Se alguém faltou, a família recebe um aviso calmo sem a secretaria ligar um a um.",
+            "description": "O professor marca a frequência no telefone. Se alguém falta, a família recebe o aviso.",
             "bullets": [
               "Lista de frequência clara no celular ou no computador da sala.",
               "Materiais da semana, tarefas e práticas prontas para cada grupo.",
@@ -12666,7 +12672,7 @@
             "label": "Dia 5 do mês",
             "badge": "Pela manhã",
             "headline": "Você nunca mais precisa escrever para uma família lembrar um pagamento.",
-            "description": "Cobrar numa escola costuma ser a parte mais ingrata do ofício. Quando os avisos saem no tempo certo e cada responsável pode pagar do telefone ou enviar a transferência num toque, a conversa na porta volta a ser sobre aprender.",
+            "description": "O aviso da mensalidade sai sozinho. A família paga com Flow, Mercado Pago ou uma transferência.",
             "bullets": [
               "Pagamento direto com Flow ou Mercado Pago, ou revisão simples de transferências.",
               "Bolsas familiares, irmãos e descontos sem contas manuais.",
@@ -12683,7 +12689,7 @@
             "label": "Sexta, 19:15",
             "badge": "Na família",
             "headline": "A sua escola vive no telefone de cada família com o seu próprio escudo.",
-            "description": "As famílias não entram num diretório alheio cheio de outras academias. Instalam o acesso direto com o ícone e as cores do seu centro, consultam o calendário, reservam ingressos da mostra anual ou pedem o uniforme.",
+            "description": "A família abre o acesso com o escudo da sua escola: horário, mostra e aviso.",
             "bullets": [
               "Um pai ou mãe com dois ou três filhos muda de perfil com um toque.",
               "Ingressos de mostras, oficinas de fim de semana e loja de materiais no mesmo lugar.",
@@ -12716,23 +12722,23 @@
           "Toda a memória da sua instituição vive numa base de dados exclusiva sob o seu próprio nome."
         ]
       },
-      "pillarsTitle": "Três silêncios que cuidam do que você construiu",
-      "pillarsLead": "Por trás de uma experiência simples para as famílias há decisões de ofício pensadas para proteger a identidade e a tranquilidade da sua instituição.",
-      "pillar1Title": "A sua própria casa digital, nunca um terreno emprestado",
-      "pillar1Body": "Cada instituição tem a sua própria base de dados isolada. Os dados dos seus alunos e menores jamais se misturam com os de outras empresas.",
-      "pillar2Title": "A sua identidade em cada detalhe, na web e no telefone",
-      "pillar2Body": "Quem entra vê o seu domínio, a sua estética, as suas palavras e o ícone da sua escola na tela inicial. O CentroListo permanece invisível atrás da sua marca.",
-      "pillar3Title": "Um só fio desde o primeiro cumprimento até o último dia do ano",
-      "pillar3Body": "A página pública, as aulas experimentais, os grupos, a frequência do professor, as tarefas, as mostras com ingressos e as mensalidades conversam em silêncio entre si.",
+      "pillarsTitle": "Três coisas que não se misturam",
+      "pillarsLead": "A base, a marca e a mesma lista da matrícula ao pagamento.",
+      "pillar1Title": "Base própria",
+      "pillar1Body": "Os dados dos seus alunos não se misturam com outra escola.",
+      "pillar2Title": "A sua marca",
+      "pillar2Body": "O seu domínio, a sua marca e o seu ícone no telefone.",
+      "pillar3Title": "A mesma lista",
+      "pillar3Body": "A página, a frequência e a mensalidade usam a mesma lista.",
       "craftsLine": "Institutos de idiomas, escolas de dança e música, dojos e espaços de primeira infância.",
       "offerStrip": "Meia hora. Nessa conversa você vê o seu domínio, a sua marca e como entra a sua lista atual.",
-      "whatsappCta": "Conversar pelo WhatsApp",
-      "schoolsTitle": "Escolas que já ensinam com a casa em ordem",
-      "schoolsLead": "Cada uma conserva o nome, o site e a marca.",
-      "schoolsNamed": "{name} já ensina com o nome, o site e a marca.",
-      "schoolsMore": "Ver todas as escolas",
+      "whatsappCta": "Escreva-me pelo WhatsApp",
+      "schoolsTitle": "Nossos clientes",
+      "schoolsLead": "Entre no site de uma escola que já nos contratou e veja como cobra.",
+      "schoolsNamed": "{name} já é cliente. Entre e veja o site ao vivo.",
+      "schoolsMore": "Ver todos os clientes",
       "startTitle": "Como a casa fica pronta",
-      "startLead": "Você conta como trabalha. Nós preparamos a casa e trazemos a sua lista atual.",
+      "startLead": "Uma conversa. O seu domínio e a sua marca. A sua lista atual dentro.",
       "faqTitle": "Antes de mudar de ferramenta",
       "faq": [
         {
@@ -12749,17 +12755,17 @@
         }
       ],
       "freeSiteNote": "Uma conta grátis abre só a página pública. A matrícula, os pagamentos e o app das famílias seguem na conversa. Você pode abrir até três sites.",
-      "freeSiteCta": "Abrir a página pública",
+      "freeSiteCta": "Comece grátis com a sua página",
       "bottomCta": {
-        "title": "Gostaria de ver como a sua escola se sentiria com tudo no seu lugar?",
-        "lead": "Podemos conversar meia hora sem compromisso, ouvir como você organiza hoje os grupos e mostrar ao vivo como funcionaria com a identidade do seu centro.",
-        "primaryCta": "Escrever para conversar",
+        "title": "Peça meia hora e eu mostro a sua escola cobrando.",
+        "lead": "Você sai com o domínio, a marca e um plano para passar a sua lista.",
+        "primaryCta": "Quero que me mostre",
         "secondaryCta": "Ver em detalhe como funciona"
       }
     },
     "product": {
       "eyebrow": "O ofício por trás da calma",
-      "title": "Doze peças que trabalham em silêncio para que você só precise dirigir e ensinar",
+      "title": "A página, a aula, o pagamento e a casa.",
       "lead": "Você não precisa aprender doze programas distintos. Tudo faz parte de um mesmo espaço sereno que acompanha a vida cotidiana da sua escola.",
       "stages": {
         "stage1": "1. Atração e Presença Digital",
@@ -12793,7 +12799,7 @@
       "m12Body": "Projeto Supabase dedicado por cliente, alertas automáticos de inatividade (churn), log de auditoria e tutoriais interativos.",
       "comparison": {
         "eyebrow": "COMPARATIVO DE MERCADO 2026",
-        "title": "Por que o CentroListo supera as alternativas tradicionais",
+        "title": "Comparemos o CentroListo com uma agenda, um sistema escolar e uma planilha",
         "lead": "Compare o que você obtém com o CentroListo frente a juntar ferramentas separadas ou usar softwares feitos para outro segmento.",
         "colFeature": "Capacidade essencial para o seu centro",
         "colCentroListo": "CentroListo.cl",
@@ -12802,49 +12808,49 @@
         "colSpreadsheets": "WordPress + Excel + WhatsApp",
         "rows": [
           {
-            "feature": "Site institucional + CMS + Blog SEO + Eventos com ingressos",
+            "feature": "A sua página",
             "centroListo": "Incluído e conectado às vagas reais",
             "schedulers": "Apenas página básica de reserva",
             "schoolErp": "Sem site comercial nem eventos",
             "spreadsheets": "Separado, lento e sem sincronia"
           },
           {
-            "feature": "Matrícula por turma, links diretos (/i/...) e aulas experimentais",
+            "feature": "A inscrição",
             "centroListo": "Fluxo completo 24/7 por horário e nível",
             "schedulers": "Pensado para sessões avulsas",
             "schoolErp": "Admissão anual rígida",
             "spreadsheets": "Formulários manuais e copiar/colar"
           },
           {
-            "feature": "Portal de responsáveis multi-filhos + App PWA com o seu logo",
+            "feature": "Vários filhos",
             "centroListo": "App PWA próprio com o ícone do seu centro",
             "schedulers": "App genérico compartilhado com concorrentes",
             "schoolErp": "Portal escolar sem foco comercial nem loja",
             "spreadsheets": "Inexistente (tudo por chat)"
           },
           {
-            "feature": "Trilhas de aprendizagem, tarefas, mini-testes e insígnias",
+            "feature": "Entre aulas",
             "centroListo": "Incluído para motivar e medir avanço",
             "schedulers": "Sem módulos pedagógicos",
             "schoolErp": "Foco curricular escolar rígido",
             "spreadsheets": "PDFs soltos por e-mail"
           },
           {
-            "feature": "Pagamentos com Flow, Mercado Pago, bolsas familiares e loja",
+            "feature": "O pagamento",
             "centroListo": "Integrado com conciliação e recibos",
             "schedulers": "Cobrança de sessões sem bolsas familiares",
             "schoolErp": "Módulos financeiros caros e complexos",
             "spreadsheets": "Conferência manual de transferências"
           },
           {
-            "feature": "Lembretes automáticos por WhatsApp, E-mail e Web Push",
+            "feature": "O aviso",
             "centroListo": "Automatizado conforme horário da turma",
             "schedulers": "Lembrete básico de consulta individual",
             "schoolErp": "Comunicados gerais sem WhatsApp de aula",
             "spreadsheets": "Mensagens enviadas uma a uma à mão"
           },
           {
-            "feature": "Banco de dados 100% isolado por instituição (padrão Lei 21.719)",
+            "feature": "Os dados",
             "centroListo": "Projeto Supabase exclusivo por cliente",
             "schedulers": "Banco multi-tenant compartilhado",
             "schoolErp": "Banco multi-tenant compartilhado",
@@ -12855,12 +12861,49 @@
     },
     "clients": {
       "eyebrow": "ECOSSISTEMA EM PRODUÇÃO",
-      "title": "Instituições que já operam e crescem com o CentroListo",
+      "title": "Escolas que já ensinam com o próprio nome.",
       "lead": "De escolas culturais e estúdios de dança a centros infantis e institutos de idiomas com operação ativa todos os dias.",
       "visitSite": "Visitar site ao vivo",
       "visitSiteNamed": "Visitar o site de {name}",
       "activeBadge": "Operando ao vivo",
       "hostsLabel": "Domínio institucional",
+      "voicesTitle": "O que dizem os nossos clientes",
+      "voicesLead": "Depoimentos de clientes que já nos escolheram para a sua escola.",
+      "voicesPrev": "Opinião anterior",
+      "voicesNext": "Opinião seguinte",
+      "voicesPosition": "{current} de {total}",
+      "voices": [
+        {
+          "name": "Camila",
+          "role": "Mãe",
+          "quote": "É um alívio ter um sistema assim para as aulas de música da minha filha. Consigo separar as aulas da minha vida pessoal. Eu estava cansada de tudo ser pelo WhatsApp."
+        },
+        {
+          "name": "Mateo",
+          "role": "Aluno",
+          "quote": "No ônibus eu olho o celular e já sei a sala. Nem penso em escrever para a secretaria."
+        },
+        {
+          "name": "Andrea",
+          "role": "Dona de instituto",
+          "quote": "No domingo caíram três pagamentos, sozinhos. Na segunda eu olho e o total já estava."
+        },
+        {
+          "name": "Rodrigo",
+          "role": "Pai",
+          "quote": "São dois filhos e um pagamento só. Posso pagar com o cartão e esqueço de enviar comprovantes. Os dois ficam em dia e eu sigo a tarde."
+        },
+        {
+          "name": "Sofía",
+          "role": "Aluna",
+          "quote": "Ter na mão a informação das aulas, o retorno dos professores e os materiais ajuda muito a minha organização."
+        },
+        {
+          "name": "Luis",
+          "role": "Diretor",
+          "quote": "Na quinta a gente colocou a planilha. Na sexta uma família já tinha pago, com o nosso nome."
+        }
+      ],
       "verticalsEyebrow": "PROJETADO PARA INSTITUIÇÕES QUE ENSINAM E FORMAM COMUNIDADE",
       "verticalsTitle": "Um motor adaptável à realidade do seu segmento",
       "verticalsLead": "Configuramos a terminologia, os templates visuais, as regras de maioridade e os fluxos de cobrança conforme o tipo de instituição.",
@@ -12899,25 +12942,25 @@
     },
     "contact": {
       "eyebrow": "IMPLANTAÇÃO GUIADA",
-      "title": "Deixe o seu centro pronto para operar em dias, não em meses",
+      "title": "Meia hora. Você vê o seu domínio, a sua marca e a sua lista.",
       "lead": "Não entregamos um login vazio para você descobrir sozinho. A nossa equipe ativa a sua infraestrutura dedicada, importa o seu catálogo inicial e configura o seu site e meios de pagamento.",
       "stepsEyebrow": "PROCESSO DE ATIVAÇÃO EM 3 PASSOS",
       "stepsTitle": "Como levamos a sua instituição para o CentroListo.cl",
       "steps": [
         {
-          "step": "Passo 1 · 25 min",
-          "title": "Demo ao vivo e diagnóstico da sua operação",
-          "body": "Revisamos como você capta alunos hoje, como organiza horários e como cobra, mostrando os 4 portais ao vivo."
+          "step": "01 · Ouvir",
+          "title": "Uma conversa breve sobre a sua escola",
+          "body": "Você conta turmas, inscrições e pagamentos. Você vê o espaço com a sua marca."
         },
         {
-          "step": "Passo 2 · 48 a 72 hrs",
-          "title": "Ativação da sua nuvem dedicada e marca",
-          "body": "Criamos o seu projeto Supabase isolado, conectamos o seu domínio próprio, aplicamos a sua identidade visual e configuramos Flow ou Mercado Pago."
+          "step": "02 · Preparar a casa",
+          "title": "Montamos o site, a base isolada e os pagamentos",
+          "body": "Ficam o domínio, a base isolada e Flow, Mercado Pago ou o seu banco."
         },
         {
-          "step": "Passo 3 · Lançamento",
-          "title": "Importação de alunos e decolagem assistida",
-          "body": "Importamos as suas turmas e alunos atuais por CSV e a sua equipe conta com tutoriais interativos dentro do painel desde o primeiro dia."
+          "step": "03 · Abrir as portas",
+          "title": "Trazemos a sua lista atual e caminhamos ao seu lado",
+          "body": "Entra a sua lista atual. Você e os professores caminham com um guia na tela."
         }
       ],
       "emailLabel": "E-mail direto da equipe",

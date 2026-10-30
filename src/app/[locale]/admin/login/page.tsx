@@ -1,20 +1,14 @@
 import { notFound, redirect } from "next/navigation";
-import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { getPulsarStaffSession, pulsarStaffHomePath } from "@/lib/pulsar/pulsarStaffAuth";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
-import { PulsarAdminLoginForm } from "@/components/organisms/pulsar/PulsarAdminLoginForm";
 
 export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ error?: string }>;
 }
 
-export default async function PulsarAdminLoginPage({
-  params,
-  searchParams,
-}: PageProps) {
+export default async function PulsarAdminLoginPage({ params }: PageProps) {
   if (!(await isPulsarPlatformRequest())) {
     notFound();
   }
@@ -23,15 +17,5 @@ export default async function PulsarAdminLoginPage({
   if (session) {
     redirect(pulsarStaffHomePath(locale, session));
   }
-  const [dict, query] = await Promise.all([
-    getDictionary(locale as AppLocale),
-    searchParams,
-  ]);
-  return (
-    <PulsarAdminLoginForm
-      locale={locale}
-      dict={dict}
-      unauthorizedNotice={query.error === "unauthorized"}
-    />
-  );
+  redirect(`/${locale}/cuenta/login?next=/${locale}/admin`);
 }

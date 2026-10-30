@@ -17,6 +17,7 @@ export type PulsarThemeEditorLoad =
       dict: Dictionary;
       themeId: string | null;
       actor: "staff" | "owner";
+      email: string;
     };
 
 export async function loadPulsarThemeEditor(
@@ -48,5 +49,6 @@ export async function loadPulsarThemeEditor(
     dict,
     themeId: typeof data?.id === "string" ? data.id : null,
     actor: actor.kind,
+    email: actor.email,
   };
 }

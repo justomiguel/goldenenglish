@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, LayoutDashboard, MessageCircle } from "lucide-react";
 import { CentroListoLogoMark } from "@/components/organisms/pulsar/CentroListoLogoMark";
+import { PulsarSessionMenu } from "@/components/organisms/pulsar/PulsarSessionMenu";
 import type { Dictionary } from "@/types/i18n";
 
 export interface PulsarSiteChromeProps {
   locale: string;
   dict: Dictionary;
+  email?: string | null;
   activeNav?: "home" | "product" | "clients" | "contact";
   children: React.ReactNode;
 }
@@ -13,6 +15,7 @@ export interface PulsarSiteChromeProps {
 export function PulsarSiteChrome({
   locale,
   dict,
+  email = null,
   activeNav = "home",
   children,
 }: PulsarSiteChromeProps) {
@@ -49,34 +52,21 @@ export function PulsarSiteChrome({
           <div className="flex items-center gap-3">
             <Link
               href={`/${locale}/admin`}
-              className="hidden text-xs text-[var(--color-muted-foreground)] transition-colors hover:text-[var(--color-foreground)] lg:inline"
+              className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] px-3 text-sm font-semibold text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]"
             >
-              {nav.admin}
+              <LayoutDashboard className="h-4 w-4" aria-hidden />
+              <span>{nav.admin}</span>
             </Link>
+            <PulsarSessionMenu locale={locale} email={email} copy={dict.pulsar.session} />
             <Link
               href={`/${locale}/contacto`}
-              className="hidden min-h-[40px] items-center gap-2 rounded-lg bg-[var(--color-primary)] px-4 py-2 text-xs font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)] lg:inline-flex"
+              className="hidden min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)] lg:inline-flex"
             >
               <ArrowRight className="h-4 w-4" aria-hidden />
               <span>{nav.cta}</span>
             </Link>
           </div>
         </div>
-        <nav className="flex flex-wrap gap-x-5 gap-y-2 border-t border-[var(--color-border)] px-4 py-3 md:hidden">
-          {links.map((item) => (
-            <Link
-              key={item.key}
-              href={item.href}
-              className={`min-h-[36px] text-sm ${
-                activeNav === item.key
-                  ? "text-[var(--color-foreground)]"
-                  : "text-[var(--color-muted-foreground)]"
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
       </header>
 
       <main className="flex-1">{children}</main>
@@ -86,7 +76,7 @@ export function PulsarSiteChrome({
         rel="noopener noreferrer"
         aria-label={dict.pulsar.home.whatsappCta}
         title={dict.pulsar.home.whatsappCta}
-        className="fixed right-4 z-50 inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-primary)] text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)] bottom-[max(1rem,env(safe-area-inset-bottom))]"
+        className="fixed left-4 z-50 inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-primary)] text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)] bottom-[max(1rem,env(safe-area-inset-bottom))]"
       >
         <MessageCircle className="h-5 w-5" aria-hidden />
       </a>

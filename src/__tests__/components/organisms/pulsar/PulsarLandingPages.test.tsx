@@ -1,8 +1,7 @@
-// REGRESSION CHECK: CentroListo public pages render Logo A, the quiet week chronicle,
-// numbered product ledger, school directory, and a calm conversation page.
+// REGRESSION CHECK: CentroListo public pages render the home, product ledger,
+// school directory, and a calm conversation page.
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/[locale]/contact/actions", () => ({
   submitPublicContactForm: vi.fn().mockResolvedValue({ ok: true }),
@@ -17,74 +16,27 @@ import { PulsarContactoView } from "@/components/organisms/pulsar/PulsarContacto
 const dict = es as unknown as Dictionary;
 
 describe("CentroListo multi-page growth & marketing views", () => {
-  beforeEach(() => {
-    Object.defineProperty(HTMLVideoElement.prototype, "play", {
-      configurable: true,
-      value: () => Promise.resolve(),
-    });
-  });
-
-  it("renders Logo A, the four quiet week moments, and the three silences", async () => {
-    const user = userEvent.setup();
+  it("renders the home without the portal purchase block", () => {
     render(<PulsarLandingHome locale="es" dict={dict} activeTenantCount={6} />);
 
     expect(screen.getByRole("heading", { name: dict.pulsar.home.title })).toBeInTheDocument();
     expect(screen.getByRole("img", { name: dict.pulsar.home.heroImageAlt })).toBeInTheDocument();
-    expect(screen.getByTestId("centrolisto-generative-logo")).toBeInTheDocument();
-    expect(screen.getByText(dict.pulsar.home.generativeStage.resolvedCaption)).toBeInTheDocument();
+    expect(screen.queryByTestId("centrolisto-generative-logo")).toBeNull();
     expect(screen.getByText("6")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: dict.pulsar.home.portals.title })).toBeNull();
+    expect(screen.queryByTestId("pulsar-portal-video")).toBeNull();
 
     expect(
-      screen.getByRole("heading", { name: dict.pulsar.home.portals.tabs[0].headline }),
+      screen.getByRole("heading", { name: dict.pulsar.product.comparison.title }),
     ).toBeInTheDocument();
-    expect(document.querySelector('img[src="/pulsar/partners/whatsapp.svg"]')).toBeTruthy();
-    expect(screen.getByTestId("pulsar-portal-video")).toHaveAttribute(
-      "src",
-      "/videos/centrolisto/flow-0-desktop.webm",
-    );
-
-    await user.click(screen.getByRole("button", { name: dict.pulsar.home.portals.videoSurfaceMobile }));
-    expect(screen.getByTestId("pulsar-portal-video")).toHaveAttribute(
-      "src",
-      "/videos/centrolisto/flow-0-mobile.webm",
-    );
-
-    await user.click(
-      screen.getByRole("tab", { name: dict.pulsar.home.portals.tabs[2].label }),
-    );
-    expect(document.querySelector('img[src="/pulsar/partners/flow.svg"]')).toBeTruthy();
-    expect(document.querySelector('img[src="/pulsar/partners/mercadopago.svg"]')).toBeTruthy();
-
-    await user.click(
-      screen.getByRole("tab", { name: dict.pulsar.home.portals.tabs[3].label }),
-    );
-    expect(
-      screen.getByRole("heading", { name: dict.pulsar.home.portals.tabs[3].headline }),
-    ).toBeInTheDocument();
-    expect(screen.getByText(dict.pulsar.home.portals.tabs[3].bullets[0])).toBeInTheDocument();
-    expect(screen.getByTestId("pulsar-portal-video")).toHaveAttribute(
-      "src",
-      "/videos/centrolisto/flow-3-mobile.webm",
-    );
-
-    expect(
-      screen.getByRole("heading", { name: dict.pulsar.home.pillarsTitle }),
-    ).toBeInTheDocument();
-    expect(screen.getByText(dict.pulsar.home.pillar1Title)).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.product.comparison.rows[0].feature)).toBeInTheDocument();
     expect(
       screen.getAllByRole("link", { name: dict.pulsar.nav.admin })[0],
     ).toHaveAttribute("href", "/es/admin");
 
-    const video = screen.getByTestId("pulsar-portal-video");
-    const sunday = screen.getByRole("heading", {
-      name: dict.pulsar.home.portals.tabs[3].headline,
-    });
-    expect(video.compareDocumentPosition(sunday) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.queryByRole("link", { name: dict.pulsar.account.registerTitle })).toBeNull();
-    expect(screen.getByText(dict.pulsar.home.craftsLine)).toBeInTheDocument();
-    expect(screen.getByText(dict.pulsar.home.offerStrip)).toBeInTheDocument();
-    expect(screen.getByText(dict.pulsar.home.faq[0].q)).toBeInTheDocument();
-    expect(screen.getByText(dict.pulsar.contact.steps[0].title)).toBeInTheDocument();
+    expect(screen.queryByText(dict.pulsar.home.craftsLine)).toBeNull();
+    expect(screen.queryByText(dict.pulsar.home.offerStrip)).toBeNull();
     expect(screen.getByRole("link", { name: dict.pulsar.home.freeSiteCta })).toHaveAttribute(
       "href",
       "/es/cuenta/registro",
@@ -121,15 +73,15 @@ describe("CentroListo multi-page growth & marketing views", () => {
     const visit = screen.getByRole("link", {
       name: dict.pulsar.clients.visitSiteNamed.replace("{name}", "Golden English"),
     });
-    expect(visit.querySelector("source")?.getAttribute("src")).toBe(
-      "/centrolisto/clients/golden.webm",
-    );
+    expect(visit.querySelector("source")).toBeNull();
+    expect(visit.querySelector('img[src*="golden.jpg"]')).toBeTruthy();
   });
 
   it("renders the Producto view with all 12 platform modules and the competitor comparison matrix", () => {
     render(<PulsarProductoView locale="es" dict={dict} />);
 
     expect(screen.getByRole("heading", { name: dict.pulsar.product.title })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: dict.pulsar.product.stages.stage1 })).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.product.m1Title)).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.product.m6Title)).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.product.m7Title)).toBeInTheDocument();
@@ -180,12 +132,8 @@ describe("CentroListo multi-page growth & marketing views", () => {
       name: dict.pulsar.clients.visitSiteNamed.replace("{name}", "Golden English"),
     });
     expect(goldenLink).toHaveAttribute("href", "https://www.goldenenglish.cl");
-    const goldenVideo = goldenLink.querySelector("video");
-    expect(goldenVideo).toBeTruthy();
-    expect(goldenVideo?.getAttribute("poster")).toBe("/centrolisto/clients/golden.jpg");
-    expect(goldenVideo?.querySelector("source")?.getAttribute("src")).toBe(
-      "/centrolisto/clients/golden.webm",
-    );
+    expect(goldenLink.querySelector("video")).toBeNull();
+    expect(goldenLink.querySelector('img[src*="golden.jpg"]')).toBeTruthy();
     const goldenHeading = screen.getByRole("heading", { name: "Golden English" });
     expect(goldenHeading.previousElementSibling?.querySelector("img")).toHaveAttribute(
       "src",
@@ -198,16 +146,17 @@ describe("CentroListo multi-page growth & marketing views", () => {
     );
     expect(nagoHeading.closest("li")).toHaveTextContent(dict.pulsar.clients.visitSite);
     expect(
-      screen.getByRole("heading", { name: dict.pulsar.clients.verticalsTitle }),
+      screen.getByRole("heading", { name: dict.pulsar.clients.voicesTitle }),
     ).toBeInTheDocument();
-    expect(screen.getByText(dict.pulsar.clients.verticals[0].title)).toBeInTheDocument();
-    expect(screen.getByText(dict.pulsar.clients.verticals[5].title)).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.clients.voices[0].quote)).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.clients.voices[5].quote)).toBeInTheDocument();
   });
 
   it("renders the Contacto view with accompaniment steps, WhatsApp, checklist, and FAQs", () => {
     render(<PulsarContactoView locale="es" dict={dict} />);
 
     expect(screen.getByRole("heading", { name: dict.pulsar.contact.title })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: dict.pulsar.home.heroImageAlt })).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: dict.pulsar.contact.stepsTitle }),
     ).toBeInTheDocument();

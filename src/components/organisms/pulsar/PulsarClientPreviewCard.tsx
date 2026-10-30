@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 import { PulsarClientInstituteMark } from "@/components/organisms/pulsar/PulsarClientInstituteMark";
-import { PulsarNearFilm } from "@/components/organisms/pulsar/PulsarNearFilm";
 
 export interface PulsarClientPreviewCardProps {
   displayName: string;
@@ -34,27 +33,19 @@ export function PulsarClientPreviewCard({
     >
       <div className="overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]">
         <div className="relative aspect-video bg-[var(--color-muted)]">
-          {previewVideoSrc ? (
+          {previewVideoSrc && !deferVideo ? (
             <>
-              {deferVideo ? (
-                <PulsarNearFilm
-                  src={previewVideoSrc}
-                  poster={previewPosterSrc}
-                  className="h-full w-full object-cover object-top motion-reduce:hidden"
-                />
-              ) : (
-                <video
-                  className="h-full w-full object-cover object-top motion-reduce:hidden"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  poster={previewPosterSrc}
-                  aria-hidden
-                >
-                  <source src={previewVideoSrc} type="video/webm" />
-                </video>
-              )}
+              <video
+                className="h-full w-full object-cover object-top motion-reduce:hidden"
+                autoPlay
+                muted
+                loop
+                playsInline
+                poster={previewPosterSrc}
+                aria-hidden
+              >
+                <source src={previewVideoSrc} type="video/webm" />
+              </video>
               {previewPosterSrc ? (
                 <Image
                   src={previewPosterSrc}
@@ -76,16 +67,18 @@ export function PulsarClientPreviewCard({
           ) : null}
         </div>
       </div>
-      <div className="mt-4 flex items-center gap-5">
-        {logoSrc ? <PulsarClientInstituteMark src={logoSrc} /> : null}
-        <h2 className="font-display text-xl font-medium text-[var(--color-foreground)] group-hover:text-[var(--color-primary)]">
-          {displayName}
-        </h2>
+      <div className="mt-4 flex items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          {logoSrc ? <PulsarClientInstituteMark src={logoSrc} /> : null}
+          <h2 className="truncate font-display text-xl font-medium text-[var(--color-foreground)] group-hover:text-[var(--color-primary)]">
+            {displayName}
+          </h2>
+        </div>
+        <p className="inline-flex shrink-0 items-center gap-2 text-sm text-[var(--color-primary)]">
+          <ExternalLink className="h-4 w-4" aria-hidden />
+          <span>{visitText}</span>
+        </p>
       </div>
-      <p className="mt-3 inline-flex min-h-[40px] items-center gap-2 text-sm text-[var(--color-primary)]">
-        <ExternalLink className="h-4 w-4" aria-hidden />
-        <span>{visitText}</span>
-      </p>
     </a>
   );
 }

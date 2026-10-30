@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { LandingSectionEditorShell } from "@/components/dashboard/admin/cms/LandingSectionEditorShell";
+import { PulsarAdminChrome } from "@/components/organisms/pulsar/PulsarAdminChrome";
 import { loadLandingEditorSection } from "@/lib/cms/loadSiteThemeForLandingEditor";
 import { loadPulsarThemeEditor } from "@/lib/pulsar/loadPulsarThemeEditor";
 import { LANDING_SECTION_SLUGS, type LandingSectionSlug } from "@/types/theming";
@@ -28,6 +29,7 @@ export default async function PulsarTenantThemeSectionPage({ params }: PageProps
   if (!viewModel) notFound();
 
   return (
+    <PulsarAdminChrome locale={locale} dict={loaded.dict} email={loaded.email}>
     <LandingSectionEditorShell
       locale={locale}
       labels={loaded.dict.admin.cms.templates.landing}
@@ -36,5 +38,6 @@ export default async function PulsarTenantThemeSectionPage({ params }: PageProps
       section={viewModel.section}
       backHref={`/${locale}/admin/tenants/${slug}/theme/landing`}
     />
+    </PulsarAdminChrome>
   );
 }

@@ -6,6 +6,7 @@ import { PulsarLandingHome } from "@/components/organisms/pulsar/PulsarLandingHo
 import { pickHomeClientPreviews } from "@/lib/pulsar/centrolistoClientPreviews";
 import { loadCentrolistoPublicClients } from "@/lib/pulsar/loadCentrolistoPublicClients";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
+import { getPulsarCookieSession } from "@/lib/pulsar/pulsarStaffAuth";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { LandingSurfaceGate } from "@/components/organisms/LandingSurfaceGate";
 import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
@@ -106,14 +107,16 @@ export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
   const loc = locale as AppLocale;
   if (await isPulsarPlatformRequest()) {
-    const [dict, clients] = await Promise.all([
+    const [dict, clients, session] = await Promise.all([
       getDictionary(loc),
       loadCentrolistoPublicClients(),
+      getPulsarCookieSession(),
     ]);
     return (
       <PulsarLandingHome
         locale={locale}
         dict={dict}
+        email={session?.email ?? null}
         activeTenantCount={clients.length}
         featuredClients={pickHomeClientPreviews(clients)}
       />

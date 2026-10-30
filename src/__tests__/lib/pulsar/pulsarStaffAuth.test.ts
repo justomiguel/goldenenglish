@@ -26,6 +26,7 @@ vi.mock("@/lib/supabase/pulsar", () => ({
 
 import {
   assertPulsarStaffSession,
+  getPulsarCookieSession,
   getPulsarStaffSession,
   pulsarStaffHomePath,
 } from "@/lib/pulsar/pulsarStaffAuth";
@@ -104,5 +105,23 @@ describe("pulsarStaffAuth", () => {
 
     getUserMock.mockRejectedValue(new Error("cookies"));
     expect(await getPulsarStaffSession()).toBeNull();
+  });
+
+  it("reads a cookie email and skips the local staff bypass", async () => {
+    isConfiguredMock.mockReturnValue(false);
+    expect(await getPulsarCookieSession()).toBeNull();
+
+    isConfiguredMock.mockReturnValue(true);
+    getUserMock.mockResolvedValue({
+      data: { user: { id: "u-9", email: "owner@school.test" } },
+      error: null,
+    });
+    expect(await getPulsarCookieSession()).toEqual({ email: "owner@school.test" });
+
+    getUserMock.mockResolvedValue({
+      data: { user: { id: "u-9", email: null } },
+      error: null,
+    });
+    expect(await getPulsarCookieSession()).toBeNull();
   });
 });

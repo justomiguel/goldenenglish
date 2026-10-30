@@ -11,6 +11,7 @@ import {
   loadPulsarTenantBySlugForAdmin,
 } from "@/lib/pulsar/pulsarTenantStore";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
+import { PulsarAdminChrome } from "@/components/organisms/pulsar/PulsarAdminChrome";
 import { PulsarAdminTenantForm } from "@/components/organisms/pulsar/PulsarAdminTenantForm";
 import { PulsarAdminTenantSummary } from "@/components/organisms/pulsar/PulsarAdminTenantSummary";
 
@@ -60,6 +61,7 @@ export default async function PulsarAdminEditTenantPage({ params }: PageProps) {
   const openHref = tenant.publicUrl ?? (tenant.hosts[0] ? `https://${tenant.hosts[0]}` : null);
 
   return (
+    <PulsarAdminChrome locale={locale} dict={dict} email={session.email}>
     <PulsarAdminTenantForm
       locale={locale}
       dict={dict}
@@ -83,5 +85,6 @@ export default async function PulsarAdminEditTenantPage({ params }: PageProps) {
         />
       }
     />
+    </PulsarAdminChrome>
   );
 }

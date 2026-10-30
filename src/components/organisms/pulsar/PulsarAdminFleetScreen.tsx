@@ -3,15 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Activity, Building2, Eye, Layers, LogOut, Mail, Plus, Users } from "lucide-react";
+import { Activity, Building2, Eye, Mail, Plus, Users } from "lucide-react";
+import { PulsarAdminChrome } from "@/components/organisms/pulsar/PulsarAdminChrome";
 import { PulsarAdminMailSettings } from "@/components/organisms/pulsar/PulsarAdminMailSettings";
 import { PulsarAdminOwnerReview } from "@/components/organisms/pulsar/PulsarAdminOwnerReview";
 import { UnderlineTabBar, type UnderlineTabItem } from "@/components/molecules/UnderlineTabBar";
 import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
-import {
-  signOutPulsarStaffAction,
-  togglePulsarTenantEnabledAction,
-} from "@/app/[locale]/admin/actions";
+import { togglePulsarTenantEnabledAction } from "@/app/[locale]/admin/actions";
 import { PulsarAdminFleetTable } from "@/components/organisms/pulsar/PulsarAdminFleetTable";
 import { PulsarAdminFleetVisitChart } from "@/components/organisms/pulsar/PulsarAdminFleetVisitChart";
 import { PulsarAdminPlatformHostsCard } from "@/components/organisms/pulsar/PulsarAdminPlatformHostsCard";
@@ -88,51 +86,21 @@ export function PulsarAdminFleetScreen({
     }
   };
 
-  const handleSignOut = async () => {
-    await signOutPulsarStaffAction(locale);
-    router.push(`/${locale}/admin/login`);
-    router.refresh();
-  };
-
   return (
-    <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)]">
-      <header className="border-b border-[var(--color-border)] bg-[var(--color-surface)]">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <Link
-              href={`/${locale}`}
-              className="inline-flex items-center gap-2 text-base font-bold text-[var(--color-foreground)]"
-            >
-              <Layers className="h-5 w-5 text-[var(--color-primary)]" aria-hidden />
-              <span>{dict.pulsar.meta.brandName}</span>
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="hidden text-xs text-[var(--color-muted-foreground)] sm:inline">
-              {staffEmail}
-            </span>
-            <Link
-              href={`/${locale}/admin/tenants/new`}
-              className="inline-flex min-h-[38px] items-center gap-2 rounded-lg bg-[var(--color-primary)] px-3.5 py-2 text-xs font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)]"
-            >
-              <Plus className="h-4 w-4" aria-hidden />
-              <span>{copy.newTenantCta}</span>
-            </Link>
-            {sessionMode === "pulsar-db" ? (
-              <button
-                type="button"
-                onClick={handleSignOut}
-                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-xs font-semibold text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]"
-              >
-                <LogOut className="h-3.5 w-3.5" aria-hidden />
-                <span>{copy.signOut}</span>
-              </button>
-            ) : null}
-          </div>
-        </div>
-      </header>
-
+    <PulsarAdminChrome
+      locale={locale}
+      dict={dict}
+      email={staffEmail}
+      extra={
+        <Link
+          href={`/${locale}/admin/tenants/new`}
+          className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-3.5 text-xs font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)]"
+        >
+          <Plus className="h-4 w-4" aria-hidden />
+          <span>{copy.newTenantCta}</span>
+        </Link>
+      }
+    >
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         <div className="mb-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-xs text-[var(--color-muted-foreground)]">
           <span className="inline-flex items-center gap-2 font-medium text-[var(--color-foreground)]">
@@ -213,6 +181,6 @@ export function PulsarAdminFleetScreen({
         </>
         ) : null}
       </main>
-    </div>
+    </PulsarAdminChrome>
   );
 }

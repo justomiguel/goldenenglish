@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { getPulsarStaffSession } from "@/lib/pulsar/pulsarStaffAuth";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
+import { PulsarAdminChrome } from "@/components/organisms/pulsar/PulsarAdminChrome";
 import { PulsarAdminPasswordForm } from "@/components/organisms/pulsar/PulsarAdminPasswordForm";
 
 export const dynamic = "force-dynamic";
@@ -23,5 +24,9 @@ export default async function PulsarAdminPasswordPage({ params }: PageProps) {
     redirect(`/${locale}/admin`);
   }
   const dict = await getDictionary(locale as AppLocale);
-  return <PulsarAdminPasswordForm locale={locale} dict={dict} />;
+  return (
+    <PulsarAdminChrome locale={locale} dict={dict} email={session.email}>
+      <PulsarAdminPasswordForm locale={locale} dict={dict} />
+    </PulsarAdminChrome>
+  );
 }

@@ -24,7 +24,6 @@ import {
 } from "@/lib/pulsar/pulsarTenantStore";
 import {
   createPulsarAdminClient,
-  createPulsarServerClient,
   isPulsarSupabaseConfigured,
   readSharedPulsarCredentials,
 } from "@/lib/supabase/pulsar";
@@ -173,20 +172,6 @@ export async function togglePulsarTenantEnabledAction(args: {
   } catch (err) {
     logServerActionException("togglePulsarTenantEnabledAction:catch", err);
     return { ok: false, errorCode: "db_write_failed" };
-  }
-}
-
-export async function signOutPulsarStaffAction(locale: string): Promise<{ ok: boolean }> {
-  try {
-    if (isPulsarSupabaseConfigured()) {
-      const supabase = await createPulsarServerClient();
-      await supabase.auth.signOut();
-    }
-    revalidatePath(`/${locale}/admin`);
-    return { ok: true };
-  } catch (err) {
-    logServerActionException("signOutPulsarStaffAction", err);
-    return { ok: false };
   }
 }
 

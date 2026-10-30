@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { LandingEditorOverview } from "@/components/dashboard/admin/cms/LandingEditorOverview";
+import { PulsarAdminChrome } from "@/components/organisms/pulsar/PulsarAdminChrome";
 import { loadLandingEditorOverview } from "@/lib/cms/loadSiteThemeForLandingEditor";
 import { loadPulsarThemeEditor } from "@/lib/pulsar/loadPulsarThemeEditor";
 
@@ -23,6 +24,7 @@ export default async function PulsarTenantThemeLandingPage({ params }: PageProps
   const base = `/${locale}/admin/tenants/${slug}/theme`;
 
   return (
+    <PulsarAdminChrome locale={locale} dict={loaded.dict} email={loaded.email}>
     <LandingEditorOverview
       locale={locale}
       labels={loaded.dict.admin.cms.templates.landing}
@@ -31,5 +33,6 @@ export default async function PulsarTenantThemeLandingPage({ params }: PageProps
       backHref={base}
       sectionBaseHref={`${base}/landing`}
     />
+    </PulsarAdminChrome>
   );
 }

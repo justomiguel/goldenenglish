@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, Images } from "lucide-react";
 import { SiteThemeEditorShell } from "@/components/dashboard/admin/cms/SiteThemeEditorShell";
+import { PulsarAdminChrome } from "@/components/organisms/pulsar/PulsarAdminChrome";
 import { GenericSiteBasicsForm } from "@/components/organisms/pulsar/GenericSiteBasicsForm";
 import { PulsarAdminCloseTenant } from "@/components/organisms/pulsar/PulsarAdminCloseTenant";
 import { loadSiteThemeForEditor } from "@/lib/cms/loadSiteThemeForEditor";
@@ -27,22 +28,28 @@ export default async function PulsarTenantThemePage({ params }: PageProps) {
   const copy = loaded.dict.pulsar.admin.form;
   const account = loaded.dict.pulsar.account;
   const backHref = loaded.actor === "owner" ? `/${locale}/cuenta` : `/${locale}/admin/tenants/${slug}`;
+  const shell = (node: React.ReactNode) => (
+    <PulsarAdminChrome locale={locale} dict={loaded.dict} email={loaded.email}>
+      {node}
+    </PulsarAdminChrome>
+  );
+
   if (!loaded.themeId) {
-    return (
+    return shell(
       <section className="space-y-4">
         <Link href={backHref} className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)]">
           <ArrowLeft className="h-4 w-4" aria-hidden />
           {copy.themeBack}
         </Link>
         <p className="text-sm text-[var(--color-muted-foreground)]">{copy.themeMissing}</p>
-      </section>
+      </section>,
     );
   }
 
   const viewModel = await loadSiteThemeForEditor(loaded.supabase, loaded.themeId);
   if (!viewModel) notFound();
 
-  return (
+  return shell(
     <div className="space-y-6">
       <Link
         href={`/${locale}/admin/tenants/${slug}/theme/landing`}
@@ -86,6 +93,6 @@ export default async function PulsarTenantThemePage({ params }: PageProps) {
           redirectTo={`/${locale}/cuenta`}
         />
       ) : null}
-    </div>
+    </div>,
   );
 }

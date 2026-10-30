@@ -29,7 +29,7 @@ export function PulsarHomeProof({
   });
 
   return (
-    <section className="border-b border-[var(--color-border)] py-20 md:py-28">
+    <section className="border-b border-[var(--color-border)] py-12 md:py-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <p className="text-sm text-[var(--color-muted-foreground)]">
           <strong className="font-semibold text-[var(--color-foreground)]">{activeTenantCount}</strong>{" "}
@@ -38,16 +38,13 @@ export function PulsarHomeProof({
         <h2 className="mt-4 max-w-2xl font-display text-3xl font-medium tracking-tight text-[var(--color-foreground)]">
           {copy.schoolsTitle}
         </h2>
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-[var(--color-muted-foreground)]">
-          {copy.schoolsLead}
-        </p>
         {cards[0] ? (
           <p className="mt-3 max-w-xl text-base leading-relaxed text-[var(--color-foreground)]">
             {copy.schoolsNamed.replace("{name}", cards[0].client.displayName)}
           </p>
         ) : null}
         {cards.length > 0 ? (
-          <ul className="mt-12 grid gap-10 md:grid-cols-2">
+          <ul className="mt-8 grid gap-8 md:grid-cols-2">
             {cards.map(({ client, href }) => (
               <li key={client.slug}>
                 <PulsarClientPreviewCard
