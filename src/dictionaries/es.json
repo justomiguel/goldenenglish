@@ -12733,12 +12733,15 @@
     "meta": {
       "brandName": "centrolisto",
       "brandTagline": "Para quienes abrieron una escuela por amor a enseñar",
-      "homeTitle": "CentroListo.cl — Llena cupos y cobra la mensualidad sin perseguir a las familias",
+      "homeTitle": "Software para academias, escuelas e institutos | CentroListo",
       "productoTitle": "El oficio detrás de la calma",
       "clientesTitle": "Escuelas y comunidades",
       "contactoTitle": "Conversar sin prisa",
       "adminTitle": "Control Plane — CentroListo",
-      "description": "Un lugar propio para tu escuela o centro donde las familias conocen tu propuesta, reservan su horario, siguen el avance de sus hijos y están al día sin cadenas de mensajes ni planillas por la noche."
+      "description": "Gestiona alumnos, inscripciones, clases y mensualidades en una sola plataforma. Crea tu sitio web y haz crecer tu academia con CentroListo.",
+      "productoDescription": "Página institucional, inscripciones, grupos, asistencia, mensualidades y el espacio de las familias. Conoce qué incluye CentroListo.",
+      "clientesDescription": "Mira escuelas e institutos que ya publican su sitio y gestionan alumnos con CentroListo.",
+      "contactoDescription": "Conversamos cómo gestionas alumnos, horarios e inscripciones, y preparamos el espacio de tu institución."
     },
     "nav": {
       "home": "Inicio",
@@ -12746,8 +12749,10 @@
       "clients": "Clientes",
       "contact": "Contratar",
       "admin": "Panel",
-      "cta": "Quiero CentroListo",
-      "footerTagline": "Para directores que quieren llenar cupos y cobrar la mensualidad sin perseguir a nadie por chat.",
+      "cta": "Ver una demostración",
+      "pricing": "Precios",
+      "startFree": "Empezar gratis",
+      "footerTagline": "Tu sitio web, inscripciones, clases y mensualidades, en una sola plataforma.",
       "footerPrivacyBadge": "Cada escuela habita su propia casa digital con base de datos aislada (Ley 21.719 en Chile)",
       "footerRights": "CentroListo.cl · Matrícula, cobro y lista de tu escuela, en un solo lugar."
     },
@@ -12757,12 +12762,12 @@
       "navAria": "Secciones"
     },
     "home": {
-      "eyebrow": "Para quien dirige la escuela.",
-      "title": "Llena los cupos, cobra la mensualidad y deja de perseguir a las familias.",
-      "heroImageAlt": "Un celular sobre una mesa de madera, de noche, con el mes abierto.",
+      "eyebrow": "La plataforma para academias, escuelas e institutos",
+      "title": "Más alumnos. Cobros al día. Tu academia bajo control.",
+      "heroImageAlt": "Ambiente de una academia contemporánea. No es un cliente de CentroListo.",
       "heroImageCaption": "Alumnos, pagos e inscripciones, con el nombre de la escuela.",
-      "lead": "Las familias se inscriben y pagan solas. Tú ves el dinero y la lista, con el nombre de tu escuela.",
-      "primaryCta": "Quiero esto para mi escuela",
+      "lead": "Tu sitio web, inscripciones, clases, mensualidades y comunicaciones en una sola plataforma.",
+      "primaryCta": "Ver cómo funciona",
       "secondaryCta": "Ver cómo funciona",
       "generativeStage": {
         "noiseCaption": "mensajes a destiempo · planillas sueltas · cobros pendientes",
@@ -12897,7 +12902,7 @@
       "craftsLine": "Institutos de idiomas, escuelas de danza y música, dojos y espacios de primera infancia.",
       "offerStrip": "Media hora. En esa conversación ves tu dominio, tu marca y cómo entra tu lista actual.",
       "whatsappCta": "Escríbeme por WhatsApp",
-      "schoolsTitle": "Nuestros clientes",
+      "schoolsTitle": "Instituciones que ya utilizan CentroListo",
       "schoolsLead": "Entra al sitio de una escuela que ya nos contrató y mira cómo cobra.",
       "schoolsNamed": "{name} ya es cliente. Entra y mira su sitio en vivo.",
       "schoolsMore": "Ver todos los clientes",
@@ -12918,14 +12923,521 @@
           "a": "Traemos tu lista actual. WhatsApp queda para la conversación cercana. Horarios, cupos y pagos viven en tu casa."
         }
       ],
-      "freeSiteNote": "Una cuenta gratis abre solo la página pública. La matrícula, los cobros y la app de las familias siguen en la conversación. Puedes abrir hasta tres sitios.",
-      "freeSiteCta": "Empieza gratis con tu página",
+      "freeSiteNote": "Crea la página pública sin costo. Un administrador revisa la cuenta antes de habilitarla. Puedes abrir hasta tres sitios. No incluye alumnos, mensualidades ni cobros.",
+      "freeSiteCta": "Crear mi página gratis",
       "bottomCta": {
-        "title": "Pide media hora y te muestro tu escuela cobrando.",
-        "lead": "Sales con tu dominio, tu marca y un plan para pasar tu lista.",
-        "primaryCta": "Quiero que me lo muestres",
-        "secondaryCta": "Ver en detalle cómo funciona"
+        "title": "Conoce CentroListo funcionando.",
+        "lead": "Descubre cómo se inscribe un alumno, cómo paga una familia y cómo se administra una clase, todo desde un mismo lugar.",
+        "primaryCta": "Quiero ver una demostración",
+        "secondaryCta": "Crear mi página gratis"
       }
+    },
+    "commercial": {
+      "heroSupport": "Con CentroListo, las familias pueden conocer tus actividades, inscribirse y pagar online. Tú tienes el control de alumnos, cupos, asistencia y cobros, sin depender de planillas ni conversaciones interminables.",
+      "heroMicrocopy": "Con tu marca. Con tus alumnos. Todo en un solo lugar.",
+      "heroAsideAlts": [
+        "Una clase en marcha, con el grupo reunido.",
+        "Una familia consulta la escuela desde el teléfono."
+      ],
+      "problemTitle": "Tu academia debería crecer, no tu carga administrativa.",
+      "problemLead": "Cada nuevo alumno es una buena noticia. Pero también significa más inscripciones, más pagos, más consultas y más coordinación. CentroListo conecta todo lo que hoy resuelves en lugares diferentes.",
+      "problems": [
+        "Inscripciones por WhatsApp.",
+        "Pagos y comprobantes dispersos.",
+        "Planillas desactualizadas.",
+        "Horarios difíciles de administrar.",
+        "Información fragmentada entre profesores y familias."
+      ],
+      "benefits": [
+        {
+          "title": "Convierte consultas en nuevos alumnos",
+          "body": "Muestra tus cursos, horarios, cupos disponibles y clases de prueba desde tu propia página web.",
+          "imageAlt": "Una familia revisa la oferta de la escuela de noche."
+        },
+        {
+          "title": "Cobra sin perseguir pagos",
+          "body": "Centraliza matrículas, mensualidades y saldos pendientes. Las familias pueden pagar online y consultar sus pagos desde un mismo lugar.",
+          "imageAlt": "El escritorio con el mes de cobros de la escuela."
+        },
+        {
+          "title": "Todo lo que pasa en tus clases, organizado",
+          "body": "Alumnos, grupos, profesores, horarios, asistencia y materiales conectados en una misma plataforma.",
+          "imageAlt": "Una clase en marcha, con el grupo reunido."
+        },
+        {
+          "title": "Una mejor experiencia para tus familias",
+          "body": "Ofrece un espacio digital con tu marca donde las familias pueden consultar horarios, recibir comunicaciones y acceder a información académica.",
+          "imageAlt": "Una familia consulta la escuela desde el teléfono."
+        }
+      ],
+      "platformTitle": "No es solamente un sistema para administrar. Es una plataforma para hacer crecer tu institución.",
+      "dimensions": [
+        {
+          "name": "Atrae",
+          "body": "Sitio web, oferta académica, consultas e inscripciones."
+        },
+        {
+          "name": "Organiza",
+          "body": "Alumnos, grupos, profesores, horarios y asistencia."
+        },
+        {
+          "name": "Cobra",
+          "body": "Matrículas, mensualidades, descuentos y pagos."
+        },
+        {
+          "name": "Conecta",
+          "body": "Familias, comunicaciones y materiales académicos."
+        },
+        {
+          "name": "Vende más",
+          "body": "Talleres, eventos y productos, cuando están habilitados."
+        }
+      ],
+      "identityTitle": "Tu institución, tu identidad.",
+      "identityLead": "Las familias reconocen tu nombre, tus colores y tu institución. CentroListo funciona detrás, conectando toda tu operación.",
+      "identityPoints": [
+        "Tu dominio y tu marca en el sitio y en el teléfono.",
+        "El espacio de alumnos y familias, con tu nombre.",
+        "El panel de tu equipo, con una base de datos aislada."
+      ],
+      "identityAlts": [
+        "Sitio de la institución.",
+        "Espacio de las familias.",
+        "Panel de gestión."
+      ],
+      "howTitle": "Empezar con CentroListo es más simple de lo que imaginas.",
+      "howSteps": [
+        {
+          "title": "Conocemos tu institución",
+          "body": "Entendemos cómo gestionas alumnos, horarios e inscripciones."
+        },
+        {
+          "title": "Configuramos tu espacio",
+          "body": "Preparamos tu institución para comenzar a utilizar CentroListo."
+        },
+        {
+          "title": "Empiezas a gestionar",
+          "body": "Tu equipo administra la operación y las familias interactúan con la plataforma."
+        }
+      ],
+      "offeringTitle": "Elige por lo que tu institución necesita ahora.",
+      "offeringLead": "Tres formas de empezar. La página pública puede abrirse sin costo. La gestión de alumnos y cobros se conversa en una demostración.",
+      "offers": [
+        {
+          "id": "presencia",
+          "name": "CentroListo Presencia",
+          "title": "Tu institución, visible y profesional.",
+          "body": "Para organizaciones que necesitan establecer su presencia digital.",
+          "items": [
+            "Página institucional.",
+            "Marca y personalización.",
+            "Oferta académica.",
+            "Información de actividades.",
+            "Captación de interesados."
+          ],
+          "cta": "Crear mi página"
+        },
+        {
+          "id": "gestion",
+          "name": "CentroListo Gestión",
+          "title": "Menos administración. Más tiempo para enseñar.",
+          "body": "Para instituciones que necesitan controlar la operación.",
+          "items": [
+            "Alumnos e inscripciones.",
+            "Cursos y grupos.",
+            "Profesores.",
+            "Matrículas y mensualidades.",
+            "Cobros y asistencia."
+          ],
+          "cta": "Ver una demostración"
+        },
+        {
+          "id": "ecosistema",
+          "name": "CentroListo Ecosistema",
+          "title": "Toda tu comunidad conectada.",
+          "body": "Para instituciones que quieren brindar una experiencia digital completa.",
+          "items": [
+            "Experiencia digital para familias.",
+            "Comunicaciones.",
+            "Materiales académicos.",
+            "Eventos y productos, cuando están habilitados.",
+            "Personalización de marca."
+          ],
+          "cta": "Conocer la solución"
+        }
+      ],
+      "segmentsLabel": "Para tu tipo de institución",
+      "voiceFocus": [
+        "Música",
+        "Horarios",
+        "Cobros",
+        "Varios hijos",
+        "Materiales",
+        "El primer cobro"
+      ]
+    },
+    "segments": {
+      "danza": {
+        "navLabel": "Academias de danza",
+        "seoTitle": "Software para academias de danza | CentroListo",
+        "seoDescription": "Organiza grupos, niveles, mensualidades y la muestra de tu academia de danza. Publica horarios y cobra desde tu propia página con CentroListo.",
+        "h1": "Tu academia de danza, organizada de punta a punta.",
+        "lead": "Grupos por nivel, horarios de sala y mensualidades dejan de vivir en chats distintos. Las familias ven la oferta, reservan cupo y pagan desde tu página.",
+        "imageAlt": "Una clase de danza con el grupo reunido.",
+        "problemsTitle": "Lo que se acumula cuando la academia crece",
+        "problems": [
+          "Coordinar niveles y edades por WhatsApp.",
+          "Perseguir la mensualidad entre ensayo y muestra.",
+          "Armar la lista de la muestra con planillas sueltas."
+        ],
+        "benefitsTitle": "Qué cambia en la semana",
+        "benefits": [
+          "Publicas horarios y cupos de cada grupo.",
+          "Cobras matrícula y mensualidad sin perseguir comprobantes.",
+          "Abres la inscripción de la muestra o el taller cuando lo habilitas."
+        ],
+        "featuresTitle": "Lo que ya puedes usar",
+        "features": [
+          "Página con tu marca, tus horarios y tus cupos.",
+          "Grupos, niveles y asistencia.",
+          "Matrículas y mensualidades.",
+          "Muestras y talleres con inscripción, cuando los habilitas."
+        ],
+        "faqTitle": "Preguntas de una academia de danza",
+        "faqs": [
+          {
+            "q": "¿Puedo mostrar grupos por nivel y edad?",
+            "a": "Sí. Publicas el horario y el cupo de cada grupo, y la familia se inscribe en el que corresponde."
+          },
+          {
+            "q": "¿La muestra entra en la misma página?",
+            "a": "Cuando habilitas talleres o eventos, publicas cupo, inscripción y cobro junto con el resto de la academia."
+          }
+        ],
+        "cta": "Quiero ver una demostración",
+        "alsoLabel": "También para otras instituciones"
+      },
+      "musica": {
+        "navLabel": "Escuelas de música",
+        "seoTitle": "Software para escuelas de música | CentroListo",
+        "seoDescription": "Profesores, horarios, inscripciones y familias de tu escuela de música en un solo lugar. Menos administración y más tiempo para enseñar con CentroListo.",
+        "h1": "Más tiempo para enseñar música. Menos para administrar.",
+        "lead": "Profesores, horarios, inscripciones y familias quedan en el mismo lugar. Una madre no tiene que mezclar la clase de su hijo con el chat personal.",
+        "imageAlt": "Una familia consulta las clases desde el teléfono.",
+        "problemsTitle": "El día a día de una escuela de música",
+        "problems": [
+          "Horarios de profesores repartidos en mensajes.",
+          "Familias que preguntan la sala y el pago por el mismo chat.",
+          "Materiales y comentarios que no llegan a casa."
+        ],
+        "benefitsTitle": "Más clase, menos coordinación suelta",
+        "benefits": [
+          "Cada profesor ve su grupo y toma asistencia.",
+          "La familia consulta horario, materiales y pagos.",
+          "La inscripción y la mensualidad usan la misma lista."
+        ],
+        "featuresTitle": "Lo que ya puedes usar",
+        "features": [
+          "Página con la oferta y los horarios de la escuela.",
+          "Profesores, grupos y asistencia.",
+          "Inscripciones y mensualidades.",
+          "Materiales y avisos para las familias."
+        ],
+        "faqTitle": "Preguntas de una escuela de música",
+        "faqs": [
+          {
+            "q": "¿Sirve si una familia tiene más de un hijo en la escuela?",
+            "a": "Sí. Hermanos, becas y descuentos pueden quedar en la misma mensualidad."
+          },
+          {
+            "q": "¿La familia ve la marca de la escuela?",
+            "a": "Sí. El sitio, los colores y el acceso en el teléfono llevan el nombre de tu institución."
+          }
+        ],
+        "cta": "Quiero ver una demostración",
+        "alsoLabel": "También para otras instituciones"
+      },
+      "idiomas": {
+        "navLabel": "Institutos de idiomas",
+        "seoTitle": "Software para institutos de idiomas | CentroListo",
+        "seoDescription": "Inscripciones, cursos, niveles y mensualidades de tu instituto de idiomas en una sola plataforma. CentroListo conecta el sitio, los grupos y los cobros.",
+        "h1": "Inscripciones, cursos y mensualidades en un solo lugar.",
+        "lead": "Niveles, grupos y profesores dejan de depender de una planilla paralela. La familia ve el curso, se inscribe y paga la mensualidad desde tu sitio.",
+        "imageAlt": "Una familia revisa la oferta del instituto de noche.",
+        "problemsTitle": "Cuando el instituto crece más rápido que la planilla",
+        "problems": [
+          "Cursos y niveles que no coinciden con los cupos reales.",
+          "Matrículas anotadas en un archivo y cobros en otro.",
+          "Avisos de clase que hay que reenviar uno por uno."
+        ],
+        "benefitsTitle": "Del curso publicado al pago",
+        "benefits": [
+          "Publicas cada curso con su horario y sus vacantes.",
+          "Centralizas matrícula, mensualidad y descuentos.",
+          "Envías comunicaciones del grupo sin armar la lista a mano."
+        ],
+        "featuresTitle": "Lo que ya puedes usar",
+        "features": [
+          "Página con cursos, horarios y cupos.",
+          "Grupos, niveles, profesores y asistencia.",
+          "Matrículas, mensualidades y descuentos.",
+          "Avisos a las familias del grupo."
+        ],
+        "faqTitle": "Preguntas de un instituto de idiomas",
+        "faqs": [
+          {
+            "q": "¿Puedo publicar varios niveles a la vez?",
+            "a": "Sí. Cada grupo tiene su horario y su cupo, y la inscripción descuenta la vacante real."
+          },
+          {
+            "q": "¿La página gratis incluye los cursos y los cobros?",
+            "a": "No. La cuenta gratis abre la página pública. Alumnos, mensualidades y cobros se preparan en una demostración, después de la revisión de la cuenta."
+          }
+        ],
+        "cta": "Quiero ver una demostración",
+        "alsoLabel": "También para otras instituciones"
+      },
+      "deportes": {
+        "navLabel": "Escuelas deportivas",
+        "seoTitle": "Software para escuelas deportivas | CentroListo",
+        "seoDescription": "Gestiona alumnos, horarios, cupos, asistencia y pagos de tu escuela deportiva sin planillas. CentroListo reúne la operación en un solo lugar.",
+        "h1": "Gestiona alumnos, clases y pagos sin depender de planillas.",
+        "lead": "Horarios, cupos, asistencia y pagos quedan conectados. El profesor marca la clase desde el teléfono. La familia paga sin enviar el comprobante por chat.",
+        "imageAlt": "El escritorio desde donde se sigue la operación de la escuela.",
+        "problemsTitle": "La cancha no debería depender de una planilla",
+        "problems": [
+          "Listas de asistencia en papel o en un archivo viejo.",
+          "Cupos de horario que se confirman por mensaje.",
+          "Pagos mezclados con la coordinación de la clase."
+        ],
+        "benefitsTitle": "Lista, cupo y pago juntos",
+        "benefits": [
+          "Publicas horarios con el cupo real.",
+          "Registras la asistencia en segundos.",
+          "Cobras la mensualidad en el mismo lugar que la lista."
+        ],
+        "featuresTitle": "Lo que ya puedes usar",
+        "features": [
+          "Página con horarios y cupos.",
+          "Alumnos, grupos y profesores.",
+          "Asistencia desde el teléfono.",
+          "Mensualidades y pagos online."
+        ],
+        "faqTitle": "Preguntas de una escuela deportiva",
+        "faqs": [
+          {
+            "q": "¿El profesor puede tomar asistencia desde el teléfono?",
+            "a": "Sí. La asistencia del grupo se registra desde el celular o desde la computadora."
+          },
+          {
+            "q": "¿Qué medios de pago se ofrecen?",
+            "a": "La familia puede pagar online o por transferencia, según los medios que habilites en tu institución."
+          }
+        ],
+        "cta": "Quiero ver una demostración",
+        "alsoLabel": "También para otras instituciones"
+      },
+      "eventos": {
+        "navLabel": "Talleres y eventos",
+        "seoTitle": "Inscripciones para talleres y eventos | CentroListo",
+        "seoDescription": "Publica talleres y eventos en tu propia web, controla el cupo y cobra la inscripción. CentroListo guarda la lista de participantes junto con tu institución.",
+        "h1": "Organiza y vende tus talleres y eventos desde tu propia web.",
+        "lead": "Publicas el taller o la función, controlas el cupo y cobras la inscripción en tu página. Los participantes quedan registrados sin una planilla aparte.",
+        "imageAlt": "Una clase o taller con el grupo reunido.",
+        "problemsTitle": "Un taller no debería armarse en cinco chats",
+        "problems": [
+          "Inscripciones que llegan por varios mensajes.",
+          "Cupos que se pasan porque nadie tiene la lista al día.",
+          "Cobros de entradas mezclados con la mensualidad del año."
+        ],
+        "benefitsTitle": "De la publicación al participante",
+        "benefits": [
+          "Publicas el evento con cupo e inscripción.",
+          "Cobras la entrada o el taller online.",
+          "Conservas la lista de participantes junto con el resto de la institución."
+        ],
+        "featuresTitle": "Lo que ya puedes usar",
+        "features": [
+          "Publicación del taller o evento en tu página.",
+          "Cupos e inscripciones.",
+          "Cobro de la inscripción.",
+          "Lista de participantes, cuando el módulo de eventos está habilitado."
+        ],
+        "faqTitle": "Preguntas sobre talleres y eventos",
+        "faqs": [
+          {
+            "q": "¿Todo instituto tiene talleres y eventos desde el primer día?",
+            "a": "No. Los habilitas cuando tu institución los necesita. Hasta entonces, la página, los grupos y las mensualidades siguen en el mismo lugar."
+          },
+          {
+            "q": "¿Puedo cobrar una entrada sin mezclarla con la mensualidad?",
+            "a": "Sí. El evento tiene su inscripción y su cobro, separados de la mensualidad del grupo regular."
+          }
+        ],
+        "cta": "Quiero ver una demostración",
+        "alsoLabel": "También para otras instituciones"
+      }
+    },
+    "solutions": {
+      "menuLabel": "Soluciones",
+      "sectionTitle": "Un CentroListo. Tres formas de crecer.",
+      "sectionLead": "Desde tu primera página web hasta una institución conectada. Elige la solución que necesitas hoy.",
+      "storyTitle": "De la primera inscripción a una institución conectada.",
+      "publicSiteAlt": "Sitio público de una institución que ya usa CentroListo.",
+      "adminAlt": "Panel de gestión de una institución que ya usa CentroListo.",
+      "ctaImageAlt": "Espacio de una academia contemporánea, con luz natural.",
+      "moments": [
+        {
+          "title": "Te encuentran",
+          "body": "El sitio muestra la oferta, los horarios y cómo llegar."
+        },
+        {
+          "title": "Se inscriben y pagan",
+          "body": "La misma lista sigue en inscripciones y mensualidades."
+        },
+        {
+          "title": "Toda tu comunidad conectada",
+          "body": "El sitio público y el panel de gestión son la misma institución."
+        }
+      ]
+    },
+    "solutionSet": {
+      "presencia": {
+        "navLabel": "Presencia",
+        "tagline": "Tu institución merece una gran primera impresión.",
+        "headline": "Tu academia online, completamente gratis.",
+        "lead": "Elige una de nuestras plantillas prediseñadas, agrega la información de tu institución y empieza a tener presencia digital sin pagar una mensualidad.",
+        "benefits": [
+          "Plantilla prediseñada.",
+          "Página institucional.",
+          "Actividades y contacto."
+        ],
+        "cta": "Crear mi página gratis",
+        "seoTitle": "Página web para academias | CentroListo Presencia",
+        "seoDescription": "Crea la página pública de tu institución con tu marca. Muestra actividades y horarios. La gestión de alumnos se conversa aparte.",
+        "imageAlt": "Ambiente luminoso de una academia independiente. No es un cliente de CentroListo."
+      },
+      "gestion": {
+        "navLabel": "Gestión",
+        "tagline": "Todo bajo control, sin vivir administrando.",
+        "headline": "Menos administración. Más tiempo para enseñar.",
+        "lead": "Organiza alumnos, clases, profesores, inscripciones y mensualidades desde una sola plataforma.",
+        "benefits": [
+          "Inscripciones y alumnos.",
+          "Horarios y profesores.",
+          "Matrículas, mensualidades y asistencia."
+        ],
+        "cta": "Quiero CentroListo Gestión",
+        "seoTitle": "Gestión de alumnos y mensualidades | CentroListo",
+        "seoDescription": "Inscripciones, clases, profesores, asistencia y mensualidades en una sola plataforma. CentroListo Gestión.",
+        "imageAlt": "Escritorio de coordinación de una academia. No es la oficina de un cliente."
+      },
+      "ecosistema": {
+        "navLabel": "Ecosistema",
+        "tagline": "Una comunidad conectada alrededor de tu institución.",
+        "headline": "Tu institución. Toda tu comunidad conectada.",
+        "lead": "Mucho más que administrar. Ofrece una experiencia digital para alumnos, familias y profesores, con la identidad de tu institución.",
+        "benefits": [
+          "Espacio digital para familias.",
+          "Comunicaciones y materiales.",
+          "Talleres y eventos, cuando están habilitados."
+        ],
+        "cta": "Quiero CentroListo Ecosistema",
+        "seoTitle": "Experiencia digital para familias | CentroListo Ecosistema",
+        "seoDescription": "Familias, comunicaciones, materiales y actividades bajo la marca de tu institución. CentroListo Ecosistema.",
+        "imageAlt": "Grupo pequeño en un espacio de aprendizaje. No es un caso de éxito de CentroListo."
+      }
+    },
+    "pricing": {
+      "navLabel": "Precios",
+      "title": "Un CentroListo. Tres formas de crecer.",
+      "lead": "Desde tu primera página web hasta una institución conectada. Elige la solución que necesitas hoy.",
+      "free": "Gratis",
+      "withTemplates": "Con plantillas prediseñadas",
+      "templateRule": "Plantilla prediseñada: gratis. Diseño exclusivo: cotización a medida.",
+      "perMonthTax": "+ IVA/mes",
+      "oneTimeTax": "+ IVA, pago único",
+      "customTitle": "¿Quieres algo único? También diseñamos tu sitio a medida.",
+      "customBody": "Si buscas una experiencia visual exclusiva, adaptada a tu identidad y necesidades, podemos desarrollar una solución personalizada. Cuéntanos tu idea y preparamos una propuesta.",
+      "customCta": "Cotizar diseño a medida",
+      "seePrices": "Ver la comparación",
+      "setupTitle": "La implementación se cobra aparte",
+      "setupLead": "La mensualidad y el cargo único de puesta en marcha son distintos. Las comisiones de cada pasarela de pago se informan aparte.",
+      "quoteLabel": "Cotización",
+      "faqTitle": "Preguntas sobre el precio",
+      "seoTitle": "Precios para academias | CentroListo",
+      "seoDescription": "Presencia es gratis con una plantilla prediseñada. Gestión y Ecosistema tienen una mensualidad en Chile. El diseño exclusivo se cotiza.",
+      "closeTitle": "Empieza con una plantilla. Crece cuando lo necesites.",
+      "featuresTitle": "Qué incluye cada solución",
+      "features": {
+        "presencia": [
+          "Plantilla prediseñada.",
+          "Página institucional.",
+          "Actividades, servicios y contacto."
+        ],
+        "gestion": [
+          "Todo Presencia con plantilla.",
+          "Alumnos, cursos, inscripciones y horarios.",
+          "Matrículas, mensualidades, pagos y asistencia."
+        ],
+        "ecosistema": [
+          "Todo Gestión.",
+          "Espacio para familias, avisos y materiales.",
+          "Eventos, talleres y pedidos, cuando están habilitados."
+        ]
+      },
+      "setupRows": [
+        {
+          "id": "presenciaSelfServe",
+          "label": "Presencia con plantilla, por tu cuenta"
+        },
+        {
+          "id": "presenciaCustom",
+          "label": "Diseño exclusivo de Presencia"
+        },
+        {
+          "id": "gestionSelfServe",
+          "label": "Gestión, configuración por tu cuenta"
+        },
+        {
+          "id": "gestionAssisted",
+          "label": "Gestión, configuración asistida"
+        },
+        {
+          "id": "ecosistemaAssisted",
+          "label": "Ecosistema, implementación asistida"
+        },
+        {
+          "id": "special",
+          "label": "Integraciones o desarrollos especiales"
+        }
+      ],
+      "faqs": [
+        {
+          "q": "¿CentroListo Presencia es realmente gratis?",
+          "a": "Sí. Puedes crear la página institucional gratis con una plantilla prediseñada. Un administrador revisa la cuenta antes de habilitarla. Puedes abrir hasta tres sitios. No incluye alumnos ni mensualidades."
+        },
+        {
+          "q": "¿Puedo personalizar mi página?",
+          "a": "Puedes adaptar los contenidos y la identidad que ofrece la plantilla. Un diseño exclusivo se cotiza aparte."
+        },
+        {
+          "q": "¿Tengo que contratar Gestión para tener mi página web?",
+          "a": "No. Puedes usar Presencia por su cuenta."
+        },
+        {
+          "q": "¿Qué pasa si mi institución crece?",
+          "a": "Puedes conocer Gestión y Ecosistema para sumar administración y el espacio de las familias. El cambio no es automático."
+        },
+        {
+          "q": "¿El diseño personalizado tiene un precio fijo?",
+          "a": "No. Se cotiza según el alcance del proyecto."
+        },
+        {
+          "q": "¿Las comisiones de los medios de pago están incluidas?",
+          "a": "No. Cada pasarela informa sus comisiones por separado."
+        }
+      ]
     },
     "product": {
       "eyebrow": "El oficio detrás de la calma",
@@ -13031,8 +13543,8 @@
       "visitSiteNamed": "Conocer el sitio de {name}",
       "activeBadge": "En funcionamiento",
       "hostsLabel": "Dirección web",
-      "voicesTitle": "Lo que dicen nuestros clientes",
-      "voicesLead": "Testimonios de nuestros clientes que ya nos eligieron para su escuela.",
+      "voicesTitle": "Instituciones como la tuya ya están creciendo con CentroListo.",
+      "voicesLead": "Conoce la experiencia de quienes utilizan CentroListo para gestionar sus instituciones.",
       "voicesPrev": "Opinión anterior",
       "voicesNext": "Opinión siguiente",
       "voicesPosition": "{current} de {total}",
@@ -13162,7 +13674,7 @@
     },
     "account": {
       "registerTitle": "Crea tu cuenta",
-      "registerLead": "Un admin revisa la cuenta. Después puedes abrir hasta 3 sitios gratis.",
+      "registerLead": "Crea la página pública de tu institución sin costo. Un administrador revisa la cuenta antes de habilitarla. Después puedes abrir hasta tres sitios. La página gratis no incluye alumnos, mensualidades ni cobros.",
       "loginTitle": "Ingresa",
       "loginLead": "Usa el correo y la contraseña de tu cuenta de Pulsar.",
       "email": "Correo",
@@ -13171,7 +13683,7 @@
       "submitLogin": "Ingresar",
       "homeTitle": "Tus sitios",
       "homeLead": "Cada cuenta gratis puede abrir 3 sitios.",
-      "pageOnly": "Esta cuenta abre la página pública. No incluye alumnos, cobros ni inscripción.",
+      "pageOnly": "Esta cuenta abre la página pública. No incluye alumnos, mensualidades ni cobros.",
       "openPage": "Ver página",
       "previewLabel": "Vista previa",
       "dnsCname": "Crea un CNAME de {name} hacia {target}.",
@@ -13293,6 +13805,8 @@
         "visits7d": "Visitas (7d)",
         "visits30d": "Visitas (30d)",
         "lastHit": "Última visita",
+        "pulsarMail": "Correo por Pulsar",
+        "pulsarMailCount": "{sent} de {quota}",
         "actions": "Acciones",
         "statusOnline": "Andando",
         "statusError": "Error",
@@ -13366,12 +13880,34 @@
         "lead": "Al guardar, el caché del registro se actualiza de inmediato sin redeploy en Vercel.",
         "saveCta": "Guardar tenant",
         "saving": "Guardando...",
+        "provision": {
+          "title": "Creando la base del instituto",
+          "intro": "Se aplican las migraciones. Puede tardar un par de minutos.",
+          "explain": "Cada línea es un archivo que ya quedó aplicado.",
+          "logTitle": "Archivos",
+          "empty": "Preparando el schema.",
+          "running": "Creando la base",
+          "close": "Cerrar",
+          "primarySchema": "Creando el schema",
+          "primaryMigration": "Aplicando {file}",
+          "primaryGrants": "Dando permisos",
+          "primaryDone": "Base lista",
+          "primaryFailed": "Se detuvo en {file}",
+          "count": "{current} de {total}"
+        },
         "testConnectionCta": "Probar conexión a Supabase",
         "testingConnection": "Probando...",
         "testOk": "Conexión exitosa con el proyecto de Supabase",
         "testFail": "No se pudo conectar al proyecto de Supabase",
         "savedNotice": "Tenant guardado y registro actualizado en memoria.",
         "sectionIdentity": "Identidad y dominios",
+        "requiredMark": "Obligatorio",
+        "laterTitle": "Puedes agregarlo después",
+        "laterLead": "Estos datos no bloquean el alta. Los completas cuando el instituto los necesite.",
+        "previewHostLabel": "Dominio",
+        "previewHostEmpty": "Sale del identificador.",
+        "pulsarMailQuotaLead": "Si no hay clave de Resend, los correos salen por Pulsar hasta este número. El valor inicial es 50.",
+        "pulsarMailSent": "Correos enviados con Pulsar: {sent} de {quota}",
         "dataModeLegend": "Base de datos",
         "dataModeProject": "Proyecto Supabase propio",
         "dataModeShared": "Base de Pulsar",
@@ -13397,7 +13933,7 @@
           "slug": "Slug del tenant (ej. nago, liora)",
           "displayName": "Nombre visible del instituto",
           "isEnabled": "Tenant habilitado para recibir tráfico",
-          "hosts": "Dominios (separados por coma o salto de línea)",
+          "hosts": "Dominio propio (opcional)",
           "publicUrl": "URL pública canónica (https://...)",
           "brandThemeSlug": "Plantilla de inicio",
           "skipInitialSiteSetup": "Omitir asistente de configuración inicial",
@@ -13419,7 +13955,8 @@
           "vapidContactEmail": "Contacto VAPID (mailto:...)",
           "whatsappAccessToken": "WhatsApp Cloud API Access Token",
           "whatsappPhoneNumberId": "WhatsApp Phone Number ID",
-          "whatsappClassReminderTemplateName": "Nombre de plantilla de recordatorio WhatsApp"
+          "whatsappClassReminderTemplateName": "Nombre de plantilla de recordatorio WhatsApp",
+          "pulsarMailQuota": "Tope de correos con la cuenta de Pulsar"
         },
         "errors": {
           "invalid_slug": "Ingresa un slug válido en minúsculas (sin usar pulsar).",
@@ -13434,7 +13971,8 @@
           "unauthorized": "Tu sesión de staff de CentroListo no es válida.",
           "db_write_failed": "No se pudo guardar el tenant en la base de datos de CentroListo.",
           "pulsar_shared_db_unconfigured": "Configura PULSAR_SUPABASE_URL, la anon key, la service role key y PULSAR_DATABASE_URL antes de guardar un instituto compartido.",
-          "schema_provision_failed": "No se creó el schema del instituto. Revisa el log del servidor e inténtalo de nuevo."
+          "schema_provision_failed": "No se creó el schema del instituto. Revisa el log del servidor e inténtalo de nuevo.",
+          "invalid_mail_quota": "El tope de correos debe ser un número entero entre 0 y 100000."
         }
       }
     }

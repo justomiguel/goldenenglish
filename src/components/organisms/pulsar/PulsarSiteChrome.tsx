@@ -1,14 +1,17 @@
 import Link from "next/link";
 import { ArrowRight, LayoutDashboard, MessageCircle } from "lucide-react";
 import { CentroListoLogoMark } from "@/components/organisms/pulsar/CentroListoLogoMark";
+import { PulsarSegmentNav } from "@/components/organisms/pulsar/PulsarSegmentNav";
 import { PulsarSessionMenu } from "@/components/organisms/pulsar/PulsarSessionMenu";
+import { PulsarSolutionNav } from "@/components/organisms/pulsar/PulsarSolutionNav";
+import { PULSAR_SOLUTION_SLUGS, type PulsarSolutionSlug } from "@/lib/pulsar/pulsarSolutionSlugs";
 import type { Dictionary } from "@/types/i18n";
 
 export interface PulsarSiteChromeProps {
   locale: string;
   dict: Dictionary;
   email?: string | null;
-  activeNav?: "home" | "product" | "clients" | "contact";
+  activeNav?: "home" | "product" | "clients" | "contact" | "pricing" | PulsarSolutionSlug;
   children: React.ReactNode;
 }
 
@@ -22,6 +25,12 @@ export function PulsarSiteChrome({
   const nav = dict.pulsar.nav;
   const links = [
     { key: "home" as const, href: `/${locale}`, label: nav.home },
+    ...PULSAR_SOLUTION_SLUGS.map((slug) => ({
+      key: slug,
+      href: `/${locale}/soluciones/${slug}`,
+      label: dict.pulsar.solutionSet[slug].navLabel,
+    })),
+    { key: "pricing" as const, href: `/${locale}/precios`, label: nav.pricing },
     { key: "product" as const, href: `/${locale}/producto`, label: nav.product },
     { key: "clients" as const, href: `/${locale}/clientes`, label: nav.clients },
     { key: "contact" as const, href: `/${locale}/contacto`, label: nav.contact },
@@ -30,11 +39,11 @@ export function PulsarSiteChrome({
   return (
     <div className="cl-surface flex min-h-screen flex-col bg-[var(--color-background)] text-[var(--color-foreground)]">
       <header className="sticky top-0 z-40 border-b border-[var(--color-border)] bg-[var(--color-background)]/92 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+        <div className="mx-auto flex min-h-16 max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2 sm:px-6">
           <Link href={`/${locale}`} className="inline-flex items-center" aria-label={dict.pulsar.meta.brandName}>
             <CentroListoLogoMark size="md" />
           </Link>
-          <nav className="hidden items-center gap-7 md:flex">
+          <nav className="hidden max-w-3xl flex-wrap items-center justify-end gap-x-4 gap-y-1 lg:flex">
             {links.map((item) => (
               <Link
                 key={item.key}
@@ -50,20 +59,22 @@ export function PulsarSiteChrome({
             ))}
           </nav>
           <div className="flex items-center gap-3">
-            <Link
-              href={`/${locale}/admin`}
-              className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] px-3 text-sm font-semibold text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]"
-            >
-              <LayoutDashboard className="h-4 w-4" aria-hidden />
-              <span>{nav.admin}</span>
-            </Link>
+            {email ? (
+              <Link
+                href={`/${locale}/admin`}
+                className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] px-3 text-sm font-semibold text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]"
+              >
+                <LayoutDashboard className="h-4 w-4" aria-hidden />
+                <span>{nav.admin}</span>
+              </Link>
+            ) : null}
             <PulsarSessionMenu locale={locale} email={email} copy={dict.pulsar.session} />
             <Link
-              href={`/${locale}/contacto`}
+              href={`/${locale}/cuenta/registro`}
               className="hidden min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)] lg:inline-flex"
             >
               <ArrowRight className="h-4 w-4" aria-hidden />
-              <span>{nav.cta}</span>
+              <span>{nav.startFree}</span>
             </Link>
           </div>
         </div>
@@ -84,7 +95,7 @@ export function PulsarSiteChrome({
       <footer className="border-t border-[var(--color-border)] py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="grid gap-10 md:grid-cols-12">
-            <div className="md:col-span-7">
+            <div className="md:col-span-5">
               <CentroListoLogoMark size="md" />
               <p className="mt-5 max-w-md text-sm leading-relaxed text-[var(--color-muted-foreground)]">
                 {nav.footerTagline}
@@ -93,9 +104,15 @@ export function PulsarSiteChrome({
                 {nav.footerPrivacyBadge}
               </p>
             </div>
-            <div className="flex flex-col justify-between gap-6 md:col-span-5 md:items-end">
+            <div className="md:col-span-3">
+              <PulsarSolutionNav locale={locale} dict={dict} />
+              <div className="mt-8">
+                <PulsarSegmentNav locale={locale} dict={dict} />
+              </div>
+            </div>
+            <div className="flex flex-col justify-between gap-6 md:col-span-4 md:items-end">
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[var(--color-muted-foreground)]">
-                {links.map((item) => (
+                {links.filter((item) => item.key === "home" || item.key === "pricing" || item.key === "product" || item.key === "clients" || item.key === "contact").map((item) => (
                   <Link
                     key={item.key}
                     href={item.href}
@@ -104,12 +121,14 @@ export function PulsarSiteChrome({
                     {item.label}
                   </Link>
                 ))}
-                <Link
-                  href={`/${locale}/admin`}
-                  className="transition-colors hover:text-[var(--color-foreground)]"
-                >
-                  {nav.admin}
-                </Link>
+                {email ? (
+                  <Link
+                    href={`/${locale}/admin`}
+                    className="transition-colors hover:text-[var(--color-foreground)]"
+                  >
+                    {nav.admin}
+                  </Link>
+                ) : null}
               </div>
             </div>
           </div>

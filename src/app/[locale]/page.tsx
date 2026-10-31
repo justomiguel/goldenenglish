@@ -119,6 +119,7 @@ export default async function HomePage({ params }: HomePageProps) {
         email={session?.email ?? null}
         activeTenantCount={clients.length}
         featuredClients={pickHomeClientPreviews(clients)}
+        logoClients={clients}
       />
     );
   }

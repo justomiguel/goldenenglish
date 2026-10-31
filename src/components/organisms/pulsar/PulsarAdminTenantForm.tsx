@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { DEFAULT_GENERIC_THEME_SLUG } from "@/lib/theme/genericInstituteTemplates";
 import {
   AlertCircle,
   ArrowLeft,
@@ -21,6 +20,9 @@ import {
 } from "@/components/organisms/pulsar/PulsarAdminTenantFieldGroups";
 import { PulsarAdminTenantDataMode } from "@/components/organisms/pulsar/PulsarAdminTenantDataMode";
 import { PulsarAdminCloseTenant } from "@/components/organisms/pulsar/PulsarAdminCloseTenant";
+import { PulsarTenantProvisionDialog } from "@/components/organisms/pulsar/PulsarTenantProvisionDialog";
+import { toPulsarTenantFormValues } from "@/components/organisms/pulsar/pulsarTenantFormDefaults";
+import { usePulsarTenantProvisionJob } from "@/hooks/usePulsarTenantProvisionJob";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
 import type { Dictionary } from "@/types/i18n";
 
@@ -28,53 +30,32 @@ export interface PulsarAdminTenantFormProps {
   locale: string;
   dict: Dictionary;
   initialTenant?: PulsarTenantRecord | null;
+  pulsarHosts?: readonly string[];
   masthead?: React.ReactNode;
-}
-
-function toInitialValues(tenant?: PulsarTenantRecord | null): PulsarTenantFormValues {
-  return {
-    slug: tenant?.slug ?? "",
-    displayName: tenant?.displayName ?? "",
-    isEnabled: tenant ? tenant.isEnabled : true,
-    hosts: tenant?.hosts.join(", ") ?? "",
-    publicUrl: tenant?.publicUrl ?? "",
-    brandThemeSlug: tenant ? (tenant.brandThemeSlug ?? "") : DEFAULT_GENERIC_THEME_SLUG,
-    skipInitialSiteSetup: tenant?.skipInitialSiteSetup ?? false,
-    debugLogin: tenant?.debugLogin ?? false,
-    supabaseUrl: tenant?.supabaseUrl ?? "",
-    supabaseAnonKey: tenant?.supabaseAnonKey ?? "",
-    supabaseServiceRoleKey: tenant?.supabaseServiceRoleKey ?? "",
-    databaseUrl: tenant?.databaseUrl ?? "",
-    mailTenant: tenant?.mailTenant ?? "",
-    resendFromEmail: tenant?.resendFromEmail ?? "",
-    resendApiKey: tenant?.resendApiKey ?? "",
-    paymentGatewaySecretEncryptionKey: tenant?.paymentGatewaySecretEncryptionKey ?? "",
-    kvRestApiUrl: tenant?.kvRestApiUrl ?? "",
-    kvRestApiToken: tenant?.kvRestApiToken ?? "",
-    googleMapsApiKey: tenant?.googleMapsApiKey ?? "",
-    googleMapsMapId: tenant?.googleMapsMapId ?? "",
-    vapidPublicKey: tenant?.vapidPublicKey ?? "",
-    vapidPrivateKey: tenant?.vapidPrivateKey ?? "",
-    vapidContactEmail: tenant?.vapidContactEmail ?? "",
-    whatsappAccessToken: tenant?.whatsappAccessToken ?? "",
-    whatsappPhoneNumberId: tenant?.whatsappPhoneNumberId ?? "",
-    whatsappClassReminderTemplateName: tenant?.whatsappClassReminderTemplateName ?? "",
-    dataMode: tenant?.dataMode === "shared_schema" ? "shared_schema" : "project",
-  };
 }
 
 export function PulsarAdminTenantForm({
   locale,
   dict,
   initialTenant = null,
+  pulsarHosts = [],
   masthead = null,
 }: PulsarAdminTenantFormProps) {
   const router = useRouter();
   const isEditing = Boolean(initialTenant);
   const copy = dict.pulsar.admin;
   const formCopy = copy.form;
+  const provisionCopy = formCopy.provision;
+  const provision = usePulsarTenantProvisionJob({
+    schema: provisionCopy.primarySchema,
+    migration: provisionCopy.primaryMigration,
+    grants: provisionCopy.primaryGrants,
+    done: provisionCopy.primaryDone,
+    failed: provisionCopy.primaryFailed,
+    count: provisionCopy.count,
+  });
   const [values, setValues] = useState<PulsarTenantFormValues>(() =>
-    toInitialValues(initialTenant),
+    toPulsarTenantFormValues(initialTenant, pulsarHosts),
   );
   const [isSaving, setIsSaving] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
@@ -85,7 +66,6 @@ export function PulsarAdminTenantForm({
     latencyMs: number;
     errorCode: string | null;
   } | null>(null);
-
   const handleFieldChange = <K extends keyof PulsarTenantFormValues>(
     key: K,
     value: PulsarTenantFormValues[K],
@@ -111,11 +91,14 @@ export function PulsarAdminTenantForm({
     setErrorCode(null);
     setSavedNotice(false);
 
-    const res = await savePulsarTenantAction({
-      locale,
-      editingSlug: initialTenant?.slug,
-      payload: { ...values },
-    });
+    const save = () =>
+      savePulsarTenantAction({
+        locale,
+        editingSlug: initialTenant?.slug,
+        payload: { ...values },
+      });
+    const res =
+      values.dataMode === "shared_schema" ? await provision.track(values.slug, save) : await save();
     setIsSaving(false);
 
     if (!res.ok) {
@@ -214,6 +197,22 @@ export function PulsarAdminTenantForm({
           </div>
         ) : null}
 
+        <PulsarTenantProvisionDialog
+          open={provision.open}
+          isRunning={provision.isRunning}
+          primaryLine={provision.primaryLine}
+          secondaryLine={provision.secondaryLine}
+          lines={provision.lines}
+          title={provisionCopy.title}
+          intro={provisionCopy.intro}
+          explain={provisionCopy.explain}
+          logTitle={provisionCopy.logTitle}
+          empty={provisionCopy.empty}
+          running={provisionCopy.running}
+          closeLabel={provisionCopy.close}
+          onOpenChange={provision.setOpen}
+        />
+
         <form onSubmit={handleSubmit} className="mt-6 space-y-6">
           <PulsarAdminTenantDataMode
             dict={dict}
@@ -225,6 +224,8 @@ export function PulsarAdminTenantForm({
             dict={dict}
             values={values}
             isEditing={isEditing}
+            mailSent={isEditing ? (initialTenant?.pulsarMailSent ?? 0) : null}
+            pulsarHosts={pulsarHosts}
             onChange={handleFieldChange}
           />
 

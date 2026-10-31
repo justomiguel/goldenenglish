@@ -66,6 +66,7 @@ export default async function PulsarAdminEditTenantPage({ params }: PageProps) {
       locale={locale}
       dict={dict}
       initialTenant={tenant}
+      pulsarHosts={platformHosts}
       masthead={
         <PulsarAdminTenantSummary
           locale={locale}
@@ -82,6 +83,8 @@ export default async function PulsarAdminEditTenantPage({ params }: PageProps) {
           openHref={openHref}
           openLabel={dict.pulsar.admin.table.openPublicSite}
           partners={partners}
+          mailSent={tenant.pulsarMailSent ?? 0}
+          mailQuota={tenant.pulsarMailQuota ?? 50}
         />
       }
     />

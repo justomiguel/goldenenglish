@@ -3,6 +3,36 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "centrolisto-three-offers",
+    date: "2026-10-30",
+    area: "site",
+    title: t(
+      "CentroListo muestra tres soluciones y sus precios",
+      "CentroListo shows three solutions and their prices",
+      "O CentroListo mostra três soluções e seus preços",
+    ),
+    summary: t(
+      "Presencia es gratis con una plantilla. Gestión y Ecosistema tienen mensualidad en Chile. El diseño exclusivo se cotiza.",
+      "Presence is free with a template. Management and Ecosystem have a monthly fee in Chile. A custom design is quoted.",
+      "Presença é grátis com um modelo. Gestão e Ecossistema têm mensalidade no Chile. O design exclusivo é orçado.",
+    ),
+  },
+  {
+    id: "pulsar-tenant-create-defaults",
+    date: "2026-10-30",
+    area: "admin",
+    title: t(
+      "El alta de un instituto trae valores listos",
+      "A new institute opens with ready values",
+      "O cadastro de um instituto já traz valores prontos",
+    ),
+    summary: t(
+      "Solo el identificador y el nombre son obligatorios. El dominio se arma con el identificador. Mientras se crea la base, ves la migración en curso. Sin clave de Resend, el correo sale por Pulsar hasta 50.",
+      "Only the id and the name are required. The domain comes from the id. While the database is created, you see the migration in progress. With no Resend key, mail goes out through Pulsar up to 50.",
+      "Só o identificador e o nome são obrigatórios. O domínio sai do identificador. Enquanto a base é criada, você vê a migração em andamento. Sem chave do Resend, o e-mail sai pelo Pulsar até 50.",
+    ),
+  },
+  {
     id: "pulsar-institute-panel",
     date: "2026-10-30",
     area: "admin",
@@ -210,21 +240,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "La plataforma responde en centrolisto.cl con nueva marca, explorador interactivo por rol, comparativa de mercado y los 12 módulos del sistema.",
       "The platform serves centrolisto.cl with a new brand, an interactive role explorer, a market comparison, and all 12 system modules.",
       "A plataforma responde em centrolisto.cl com nova marca, explorador interativo por perfil, comparativo de mercado e os 12 módulos do sistema.",
-    ),
-  },
-  {
-    id: "student-assessment-rubric-scale-1-to-10",
-    date: "2026-10-27",
-    area: "academic",
-    title: t(
-      "La rúbrica del examen va de 1 a 10",
-      "Exam rubric scores run from 1 to 10",
-      "A rubrica da prova vai de 1 a 10",
-    ),
-    summary: t(
-      "Cada criterio del examen de cohorte usa una escala de 1 a 10. Las notas ya guardadas de 1 a 5 siguen válidas.",
-      "Each cohort exam criterion uses a 1 to 10 scale. Saved scores from 1 to 5 stay valid.",
-      "Cada critério da prova da turma usa uma escala de 1 a 10. Notas já salvas de 1 a 5 continuam válidas.",
     ),
   },
 ];

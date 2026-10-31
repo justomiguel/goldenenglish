@@ -74,6 +74,12 @@ export async function savePulsarMailSettings(input: {
   return { ok: true };
 }
 
+export async function loadPulsarOutboundMailAccount(): Promise<{ key: string; from: string } | null> {
+  const creds = await resendCredentials();
+  if (!creds) return null;
+  return { key: creds.key, from: creds.from };
+}
+
 async function resendCredentials(): Promise<{ key: string; from: string; notify: string } | null> {
   if (!isPulsarSupabaseConfigured()) return null;
   const admin = createPulsarAdminClient();

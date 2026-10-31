@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
@@ -9,6 +10,7 @@ export interface PulsarHomeProofProps {
   dict: Dictionary;
   activeTenantCount: number;
   featuredClients: readonly PulsarClientSummary[];
+  logoClients: readonly PulsarClientSummary[];
 }
 
 function clientHref(client: PulsarClientSummary): string | null {
@@ -20,6 +22,7 @@ export function PulsarHomeProof({
   dict,
   activeTenantCount,
   featuredClients,
+  logoClients,
 }: PulsarHomeProofProps) {
   const copy = dict.pulsar.home;
   const cards = featuredClients.flatMap((client) => {
@@ -38,6 +41,41 @@ export function PulsarHomeProof({
         <h2 className="mt-4 max-w-2xl font-display text-3xl font-medium tracking-tight text-[var(--color-foreground)]">
           {copy.schoolsTitle}
         </h2>
+        {logoClients.length > 0 ? (
+          <ul className="mt-8 flex flex-wrap items-center gap-x-10 gap-y-6">
+            {logoClients.map((client) => {
+              const href = clientHref(client);
+              const mark = client.logoSrc ? (
+                <Image
+                  src={client.logoSrc}
+                  alt=""
+                  width={160}
+                  height={64}
+                  className="h-14 w-auto max-w-[9.5rem] object-contain"
+                />
+              ) : (
+                <span className="text-sm font-medium text-[var(--color-foreground)]">{client.displayName}</span>
+              );
+              return (
+                <li key={client.slug}>
+                  {href ? (
+                    <a
+                      href={href}
+                      aria-label={client.displayName}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex min-h-11 items-center"
+                    >
+                      {mark}
+                    </a>
+                  ) : (
+                    <span className="inline-flex min-h-11 items-center">{mark}</span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
         {cards[0] ? (
           <p className="mt-3 max-w-xl text-base leading-relaxed text-[var(--color-foreground)]">
             {copy.schoolsNamed.replace("{name}", cards[0].client.displayName)}

@@ -49,6 +49,8 @@ describe("pulsarTenantMapper", () => {
     expect(row?.displayName).toBe("NAGO");
     expect(row?.isEnabled).toBe(false);
     expect(row?.hosts).toEqual(["capoeiranago.cl"]);
+    expect(row?.pulsarMailQuota).toBe(50);
+    expect(row?.pulsarMailSent).toBe(0);
   });
 
   it("labels a JSON tenant with its host", () => {

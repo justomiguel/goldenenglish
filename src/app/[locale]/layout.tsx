@@ -21,6 +21,8 @@ import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { centrolistoLayoutIcons } from "@/lib/pulsar/centrolistoFavicon";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { CentroListoJsonLd } from "@/components/organisms/pulsar/CentroListoJsonLd";
+import { CentroListoGoogleAnalytics } from "@/components/organisms/pulsar/CentroListoGoogleAnalytics";
+import { readCentrolistoGaMeasurementId } from "@/lib/pulsar/centrolistoAnalytics";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 
 interface LocaleLayoutProps {
@@ -131,6 +133,7 @@ export default async function LocaleLayout({
   if (await isPulsarPlatformRequest()) {
     const dict = await getDictionary(loc);
     const origin = (await getRequestPublicSiteUrl())?.origin ?? "https://centrolisto.cl";
+    const gaMeasurementId = readCentrolistoGaMeasurementId();
     return (
       <div className="min-h-screen">
         <CentroListoJsonLd
@@ -139,6 +142,7 @@ export default async function LocaleLayout({
           url={`${origin}/${loc}`}
           logoUrl={`${origin}/centrolisto/android-chrome-512x512.png`}
         />
+        {gaMeasurementId ? <CentroListoGoogleAnalytics measurementId={gaMeasurementId} /> : null}
         {children}
       </div>
     );

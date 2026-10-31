@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "student-assessment-rubric-scale-1-to-10",
+    date: "2026-10-27",
+    area: "academic",
+    title: t(
+      "La rúbrica del examen va de 1 a 10",
+      "Exam rubric scores run from 1 to 10",
+      "A rubrica da prova vai de 1 a 10",
+    ),
+    summary: t(
+      "Cada criterio del examen de cohorte usa una escala de 1 a 10. Las notas ya guardadas de 1 a 5 siguen válidas.",
+      "Each cohort exam criterion uses a 1 to 10 scale. Saved scores from 1 to 5 stay valid.",
+      "Cada critério da prova da turma usa uma escala de 1 a 10. Notas já salvas de 1 a 5 continuam válidas.",
+    ),
+  },
+  {
     id: "persistent-page-tabs",
     date: "2026-10-27",
     area: "portal",

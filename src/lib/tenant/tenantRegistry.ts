@@ -48,6 +48,8 @@ export type TenantConfig = {
   kvRestApiToken: string | null;
   debugLogin: boolean;
   skipInitialSiteSetup: boolean;
+  pulsarMailQuota?: number;
+  pulsarMailSent?: number;
   dataMode?: "project" | "shared_schema";
   postgresSchema?: string | null;
 };

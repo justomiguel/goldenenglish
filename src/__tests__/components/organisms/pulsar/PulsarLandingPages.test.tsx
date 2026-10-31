@@ -26,21 +26,37 @@ describe("CentroListo multi-page growth & marketing views", () => {
     expect(screen.queryByRole("heading", { name: dict.pulsar.home.portals.title })).toBeNull();
     expect(screen.queryByTestId("pulsar-portal-video")).toBeNull();
 
-    expect(
-      screen.getByRole("heading", { name: dict.pulsar.product.comparison.title }),
-    ).toBeInTheDocument();
-    expect(screen.getByText(dict.pulsar.product.comparison.rows[0].feature)).toBeInTheDocument();
-    expect(
-      screen.getAllByRole("link", { name: dict.pulsar.nav.admin })[0],
-    ).toHaveAttribute("href", "/es/admin");
-
+    expect(screen.queryByRole("link", { name: dict.pulsar.nav.admin })).toBeNull();
     expect(screen.queryByRole("link", { name: dict.pulsar.account.registerTitle })).toBeNull();
     expect(screen.queryByText(dict.pulsar.home.craftsLine)).toBeNull();
     expect(screen.queryByText(dict.pulsar.home.offerStrip)).toBeNull();
-    expect(screen.getByRole("link", { name: dict.pulsar.home.freeSiteCta })).toHaveAttribute(
+    expect(screen.getByRole("heading", { name: dict.pulsar.solutions.sectionTitle })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: dict.pulsar.solutions.storyTitle })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: dict.pulsar.solutionSet.gestion.cta })).toHaveAttribute(
       "href",
-      "/es/cuenta/registro",
+      "/es/contacto",
     );
+    expect(screen.getByRole("link", { name: dict.pulsar.solutionSet.ecosistema.cta })).toHaveAttribute(
+      "href",
+      "/es/contacto",
+    );
+    expect(screen.getByText(dict.pulsar.pricing.templateRule)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: dict.pulsar.pricing.customCta })).toHaveAttribute(
+      "href",
+      "/es/contacto",
+    );
+    expect(screen.getByText(dict.pulsar.clients.voices[0].quote)).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.clients.voices[5].quote)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: dict.pulsar.home.primaryCta })).toHaveAttribute(
+      "href",
+      "/es/contacto",
+    );
+    const signupLinks = screen.getAllByRole("link", { name: dict.pulsar.home.freeSiteCta });
+    expect(signupLinks.length).toBeGreaterThan(0);
+    for (const link of signupLinks) {
+      expect(link).toHaveAttribute("href", "/es/cuenta/registro");
+    }
+    expect(screen.getAllByRole("link", { name: dict.pulsar.segments.danza.navLabel }).length).toBeGreaterThan(0);
     for (const link of screen.getAllByRole("link", { name: dict.pulsar.home.whatsappCta })) {
       expect(link).toHaveAttribute("href", dict.pulsar.contact.whatsappHref);
     }

@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 import { locales } from "@/lib/i18n/dictionaries";
 import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { createClient } from "@/lib/supabase/server";
+import { PULSAR_SEGMENT_SLUGS } from "@/lib/pulsar/pulsarSegmentSlugs";
+import { PULSAR_SOLUTION_SLUGS } from "@/lib/pulsar/pulsarSolutionSlugs";
 import { isPulsarCrawlHost } from "@/lib/tenant/tenantRegistry";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +11,15 @@ export const dynamic = "force-dynamic";
 /** Public marketing + auth entry; admin/dashboard excluded (noindex elsewhere). */
 const INDEXED_PATHS = ["", "/login", "/contact", "/privacidad", "/blog", "/events"] as const;
 const ANSWER_PATH = "/preguntas";
-const PULSAR_PATHS = ["", "/producto", "/clientes", "/contacto"] as const;
+const PULSAR_PATHS = [
+  "",
+  "/producto",
+  "/clientes",
+  "/contacto",
+  "/precios",
+  ...PULSAR_SEGMENT_SLUGS.map((slug) => `/para/${slug}`),
+  ...PULSAR_SOLUTION_SLUGS.map((slug) => `/soluciones/${slug}`),
+];
 
 function staticEntries(base: URL, suffixes: readonly string[]): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [];

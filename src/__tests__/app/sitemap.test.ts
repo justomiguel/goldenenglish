@@ -77,7 +77,10 @@ describe("app/sitemap", () => {
     });
 
     const entries = await sitemap();
-    expect(entries).toHaveLength(locales.length * 4);
+    expect(entries).toHaveLength(locales.length * 13);
+    expect(entries.some((e) => e.url.includes("/para/danza"))).toBe(true);
+    expect(entries.some((e) => e.url.includes("/soluciones/presencia"))).toBe(true);
+    expect(entries.some((e) => e.url.includes("/precios"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/producto"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/clientes"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/contacto"))).toBe(true);
@@ -94,7 +97,10 @@ describe("app/sitemap", () => {
     try {
       mockGetPublicSiteUrl.mockReturnValue(new URL("http://localhost:3000/"));
       const entries = await sitemap();
-      expect(entries).toHaveLength(locales.length * 4);
+      expect(entries).toHaveLength(locales.length * 13);
+    expect(entries.some((e) => e.url.includes("/para/danza"))).toBe(true);
+    expect(entries.some((e) => e.url.includes("/soluciones/presencia"))).toBe(true);
+    expect(entries.some((e) => e.url.includes("/precios"))).toBe(true);
       expect(entries.some((e) => e.url.includes("localhost:3000/es/producto"))).toBe(true);
       expect(mockCreateClient).not.toHaveBeenCalled();
     } finally {

@@ -18,14 +18,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const dict = await getDictionary(locale as AppLocale);
   const share = await centrolistoShareMetadata({
     title: dict.pulsar.meta.contactoTitle,
-    description: dict.pulsar.meta.description,
+    description: dict.pulsar.meta.contactoDescription,
     siteName: dict.pulsar.meta.brandName,
     locale,
     suffix: "/contacto",
   });
   return {
     title: dict.pulsar.meta.contactoTitle,
-    description: dict.pulsar.meta.description,
+    description: dict.pulsar.meta.contactoDescription,
     ...share,
   };
 }

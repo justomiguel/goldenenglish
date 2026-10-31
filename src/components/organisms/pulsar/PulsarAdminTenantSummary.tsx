@@ -8,6 +8,7 @@ import {
   ExternalLink,
   GitBranch,
   Globe,
+  Mail,
   Palette,
   PauseCircle,
   UserRound,
@@ -38,6 +39,8 @@ export interface PulsarAdminTenantSummaryProps {
   openHref: string | null;
   openLabel: string;
   partners: readonly PartnerId[];
+  mailSent: number;
+  mailQuota: number;
 }
 
 function Fact({
@@ -77,6 +80,8 @@ export function PulsarAdminTenantSummary({
   openHref,
   openLabel,
   partners,
+  mailSent,
+  mailQuota,
 }: PulsarAdminTenantSummaryProps) {
   const numFmt = new Intl.NumberFormat(locale);
   const dateFmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" });
@@ -193,6 +198,11 @@ export function PulsarAdminTenantSummary({
           </Fact>
           <Fact icon={<Clock className="h-4 w-4" />} label={copy.lastHit}>
             {snap?.lastHitAt ? dateFmt.format(new Date(snap.lastHitAt)) : copy.noHits}
+          </Fact>
+          <Fact icon={<Mail className="h-4 w-4" />} label={copy.pulsarMail}>
+            {copy.pulsarMailCount
+              .replace("{sent}", numFmt.format(mailSent))
+              .replace("{quota}", numFmt.format(mailQuota))}
           </Fact>
           <Fact icon={<Globe className="h-4 w-4" />} label={copy.hosts}>
             <PulsarAdminFleetHostLines review={review} fallbackHosts={hosts} copy={copy} />

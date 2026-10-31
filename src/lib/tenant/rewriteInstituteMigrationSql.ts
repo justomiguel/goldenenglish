@@ -41,8 +41,10 @@ export function rewriteInstituteMigrationSql(sql: string, postgresSchema: string
   const rewritten = sql
     .replace(/\b(search_path\s*(?:=|to)\s*)public\b/gi, `$1${postgresSchema}`)
     .replace(/(^|[^a-zA-Z0-9_])public\./gi, `$1${postgresSchema}.`)
-    .replace(/"public"\./g, `"${postgresSchema}".`);
-  return `SET search_path TO ${postgresSchema};\n${rewritten}`;
+    .replace(/"public"\./g, `"${postgresSchema}".`)
+    .replace(/\b(nspname|table_schema)\s*=\s*'public'/gi, `$1 = '${postgresSchema}'`)
+    .replace(/(^|[^.\w])gen_random_bytes\s*\(/gi, "$1extensions.gen_random_bytes(");
+  return `SET search_path TO ${postgresSchema}, extensions;\n${rewritten}`;
 }
 
 /** One trigger on auth.users serves every shared institute. Drop per-schema copies. */

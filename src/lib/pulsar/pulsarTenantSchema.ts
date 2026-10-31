@@ -1,3 +1,4 @@
+import { parsePulsarMailQuota } from "@/lib/pulsar/instituteMailAccount";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
 import { postgresSchemaForInstituteSlug } from "@/lib/tenant/postgresSchemaForInstituteSlug";
 import { mergeTenantPreviewHosts } from "@/lib/tenant/pulsarSubdomain";
@@ -81,10 +82,6 @@ export function validatePulsarTenantInput(
         .filter((h) => h.length > 0),
     ),
   );
-  if (hosts.length === 0 && dataMode !== "shared_schema") {
-    return { ok: false, errorCode: "missing_hosts" };
-  }
-
   const mergedHosts = mergeTenantPreviewHosts(hosts, slug, getPulsarHosts());
   if (mergedHosts.length === 0) {
     return { ok: false, errorCode: "missing_hosts" };
@@ -148,6 +145,11 @@ export function validatePulsarTenantInput(
   if (submittedPaymentKey && !isValid32ByteBase64Key(submittedPaymentKey)) {
     return { ok: false, errorCode: "invalid_payment_key" };
   }
+  const pulsarMailQuota = parsePulsarMailQuota(raw.pulsarMailQuota);
+  if (pulsarMailQuota === null) {
+    return { ok: false, errorCode: "invalid_mail_quota" };
+  }
+
   const paymentKey = editingSlug
     ? (submittedPaymentKey ?? previous?.paymentGatewaySecretEncryptionKey ?? null)
     : null;
@@ -189,6 +191,7 @@ export function validatePulsarTenantInput(
       kvRestApiToken,
       debugLogin: Boolean(raw.debugLogin),
       skipInitialSiteSetup: Boolean(raw.skipInitialSiteSetup),
+      pulsarMailQuota,
     },
   };
 }

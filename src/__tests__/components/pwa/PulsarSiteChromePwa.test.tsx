@@ -23,9 +23,13 @@ describe("PulsarSiteChromePwa", () => {
       "/es/admin",
     );
     expect(screen.getByRole("button", { name: dict.pulsar.session.signOut })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: dict.pulsar.nav.cta })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: dict.pulsar.nav.startFree })).toHaveAttribute(
       "href",
-      "/es/contacto",
+      "/es/cuenta/registro",
+    );
+    expect(screen.getByRole("link", { name: dict.pulsar.nav.pricing })).toHaveAttribute(
+      "href",
+      "/es/precios",
     );
     expect(screen.getByRole("navigation", { name: dict.pulsar.session.navAria })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: dict.pulsar.nav.home })).toHaveAttribute(
@@ -40,10 +44,11 @@ describe("PulsarSiteChromePwa", () => {
         <p>page</p>
       </PulsarSiteChromePwa>,
     );
+    expect(screen.queryByRole("link", { name: dict.pulsar.nav.admin })).toBeNull();
     expect(screen.getByRole("link", { name: dict.pulsar.session.signIn })).toHaveAttribute(
       "href",
       "/es/cuenta/login",
     );
-    expect(screen.queryByRole("link", { name: dict.pulsar.nav.cta })).toBeNull();
+    expect(screen.queryByRole("link", { name: dict.pulsar.nav.startFree })).toBeNull();
   });
 });

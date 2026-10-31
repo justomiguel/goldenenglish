@@ -101,6 +101,33 @@ describe("pollLongJob", () => {
     await assertion;
   });
 
+  it("stops when the signal aborts", async () => {
+    const controller = new AbortController();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => {
+        controller.abort();
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          text: async () => "",
+          json: async () => ({ status: "running", current: 1, total: 2 }),
+        });
+      }),
+    );
+    await expect(
+      pollLongJob({
+        jobId: "j1",
+        pollUrl: () => "/x",
+        onTick: vi.fn(),
+        intervalMs: 5,
+        maxTicks: 5,
+        signal: controller.signal,
+        isTerminal: () => false,
+      }),
+    ).rejects.toThrow("aborted");
+  });
+
   it("polls until terminal", async () => {
     let n = 0;
     vi.stubGlobal(

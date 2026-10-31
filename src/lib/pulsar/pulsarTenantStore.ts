@@ -4,6 +4,7 @@ import {
   mapTenantConfigToPulsarRecord,
   PLATFORM_TENANTS_SELECT_COLUMNS,
   PLATFORM_TENANTS_SELECT_WITH_DATA_PLANE,
+  PLATFORM_TENANTS_SELECT_WITH_MAIL,
   type PulsarTenantRecord,
 } from "@/lib/pulsar/pulsarTenantMapper";
 import type { ValidatedPulsarTenantInput } from "@/lib/pulsar/pulsarTenantSchema";
@@ -71,10 +72,18 @@ async function fetchPlatformTenantsFromPulsarDb(): Promise<PulsarTenantRecord[] 
     const admin = createPulsarAdminClient();
     const first = await admin
       .from("platform_tenants")
-      .select(PLATFORM_TENANTS_SELECT_WITH_DATA_PLANE)
+      .select(PLATFORM_TENANTS_SELECT_WITH_MAIL)
       .order("slug", { ascending: true });
     let rows: unknown[] | null = first.data;
     let error = first.error;
+    if (error && /pulsar_mail_quota|pulsar_mail_sent/i.test(error.message)) {
+      const withoutMail = await admin
+        .from("platform_tenants")
+        .select(PLATFORM_TENANTS_SELECT_WITH_DATA_PLANE)
+        .order("slug", { ascending: true });
+      rows = withoutMail.data;
+      error = withoutMail.error;
+    }
     if (error && /data_mode|postgres_schema/i.test(error.message)) {
       const fallback = await admin
         .from("platform_tenants")

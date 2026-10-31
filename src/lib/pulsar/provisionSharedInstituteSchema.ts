@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import pg, { type Client } from "pg";
 import { logServerActionException, logServerWarn } from "@/lib/logging/serverActionLog";
+import { createProvisionProgressWriter } from "@/lib/pulsar/instituteSchemaProvisionProgress";
 import { isBrandDataMigration } from "@/lib/tenant/planInstituteMigrationApplies";
 import {
   rewriteInstituteMigrationSql,
@@ -60,6 +61,10 @@ function versionOf(fileName: string): string {
   return fileName.replace(/\.sql$/i, "");
 }
 
+export function shouldDiscardPartialInstituteSchema(ownerCount: number): boolean {
+  return ownerCount === 0;
+}
+
 async function exposeSchema(client: Client, schema: string): Promise<void> {
   const current = await client.query<{ rolconfig: string[] | null }>(
     "SELECT rolconfig FROM pg_roles WHERE rolname = 'authenticator'",
@@ -77,6 +82,39 @@ async function exposeSchema(client: Client, schema: string): Promise<void> {
   const next = [...names].join(",");
   await client.query(`ALTER ROLE authenticator SET pgrst.db_schemas TO '${next.replace(/'/g, "")}'`);
   await client.query("NOTIFY pgrst, 'reload config'");
+}
+
+async function hideSchema(client: Client, schema: string): Promise<void> {
+  const current = await client.query<{ rolconfig: string[] | null }>(
+    "SELECT rolconfig FROM pg_roles WHERE rolname = 'authenticator'",
+  );
+  const config = current.rows[0]?.rolconfig ?? [];
+  const entry = config.find((item: string) => item.startsWith("pgrst.db_schemas="));
+  if (!entry) return;
+  const next = entry
+    .slice("pgrst.db_schemas=".length)
+    .split(",")
+    .map((name: string) => name.trim())
+    .filter((name: string) => name.length > 0 && name !== schema);
+  await client.query(
+    `ALTER ROLE authenticator SET pgrst.db_schemas TO '${next.join(",").replace(/'/g, "")}'`,
+  );
+  await client.query("NOTIFY pgrst, 'reload config'");
+}
+
+async function discardPartialInstituteSchema(client: Client, schema: string): Promise<void> {
+  await client.query("ROLLBACK").catch(() => undefined);
+  const owners = await client.query(
+    "SELECT 1 FROM public.platform_tenants WHERE postgres_schema = $1 LIMIT 1",
+    [schema],
+  );
+  if (!shouldDiscardPartialInstituteSchema(owners.rowCount ?? 0)) return;
+  await client.query(`DROP SCHEMA IF EXISTS ${schema} CASCADE`);
+  await client.query(
+    "DELETE FROM institute_migration_ledger.applied WHERE schema_name = $1",
+    [schema],
+  );
+  await hideSchema(client, schema).catch(() => undefined);
 }
 
 export async function prepareInstituteDataPlane(record: {
@@ -142,24 +180,35 @@ export async function provisionSharedInstituteSchema(args: {
     const files = readdirSync(dir)
       .filter((name) => /^\d+.*\.sql$/i.test(name))
       .sort();
-    for (const fileName of files) {
-      if (isBrandDataMigration(fileName)) continue;
-      const version = versionOf(fileName);
-      const seen = await client.query(
-        "SELECT 1 FROM institute_migration_ledger.applied WHERE schema_name = $1 AND version = $2",
-        [schema, version],
-      );
-      if ((seen.rowCount ?? 0) > 0) continue;
-      const raw = readFileSync(path.join(dir, fileName), "utf8");
-      const sql = stripAuthUsersTriggers(rewriteInstituteMigrationSql(raw, schema));
-      await client.query(sql);
-      await client.query(
-        `INSERT INTO institute_migration_ledger.applied (schema_name, version, file_name)
-         VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`,
-        [schema, version, fileName],
-      );
-    }
-    await client.query(`
+    const productFiles = files.filter((name) => !isBrandDataMigration(name));
+    const progress = createProvisionProgressWriter(client, schema, productFiles.length);
+    await progress.ensure();
+    let failingFile: string | null = null;
+    try {
+      for (const fileName of productFiles) {
+        failingFile = fileName;
+        const version = versionOf(fileName);
+        const seen = await client.query(
+          "SELECT 1 FROM institute_migration_ledger.applied WHERE schema_name = $1 AND version = $2",
+          [schema, version],
+        );
+        if ((seen.rowCount ?? 0) > 0) {
+          await progress.fileDone(fileName);
+          continue;
+        }
+        await progress.file(fileName);
+        const raw = readFileSync(path.join(dir, fileName), "utf8");
+        const sql = stripAuthUsersTriggers(rewriteInstituteMigrationSql(raw, schema));
+        await client.query(sql);
+        await client.query(
+          `INSERT INTO institute_migration_ledger.applied (schema_name, version, file_name)
+           VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`,
+          [schema, version, fileName],
+        );
+        await progress.fileDone(fileName);
+      }
+      await progress.grants();
+      await client.query(`
       GRANT ALL ON ALL TABLES IN SCHEMA ${schema} TO postgres, service_role;
       GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA ${schema} TO authenticated;
       GRANT SELECT ON ALL TABLES IN SCHEMA ${schema} TO anon;
@@ -172,9 +221,17 @@ export async function provisionSharedInstituteSchema(args: {
       logServerWarn("provisionSharedInstituteSchema:expose", { schema, reason: "pgrst_schemas" });
       logServerActionException("provisionSharedInstituteSchema:expose", err);
     }
-    return { ok: true };
+      await progress.succeed();
+      return { ok: true };
+    } catch (err) {
+      await progress.fail(failingFile);
+      throw err;
+    }
   } catch (err) {
     logServerActionException("provisionSharedInstituteSchema", err, { schema });
+    await discardPartialInstituteSchema(client, schema).catch((cleanupErr) => {
+      logServerActionException("provisionSharedInstituteSchema:discard", cleanupErr, { schema });
+    });
     return { ok: false, errorCode: "schema_provision_failed" };
   } finally {
     await client.end().catch(() => undefined);

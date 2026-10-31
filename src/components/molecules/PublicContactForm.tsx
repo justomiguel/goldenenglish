@@ -9,6 +9,7 @@ import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { submitPublicContactForm } from "@/app/[locale]/contact/actions";
 import type { PublicSiteContactSubject } from "@/lib/messaging/publicSiteContactSubjects";
+import { trackCentrolistoGaEvent } from "@/lib/pulsar/centrolistoAnalytics";
 
 export interface PublicContactFormProps {
   locale: string;
@@ -44,6 +45,7 @@ export function PublicContactForm({
     });
     setBusy(false);
     if (res.ok) {
+      trackCentrolistoGaEvent("cl_contact_submit", { subject });
       setDone(true);
       return;
     }

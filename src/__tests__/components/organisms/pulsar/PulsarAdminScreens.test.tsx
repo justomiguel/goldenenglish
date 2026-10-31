@@ -165,6 +165,8 @@ describe("Pulsar admin screens", () => {
         openHref="https://www.capoeiranago.cl"
         openLabel={dict.pulsar.admin.table.openPublicSite}
         partners={["flow", "whatsapp", "supabase"]}
+        mailSent={12}
+        mailQuota={50}
       />,
     );
     expect(document.querySelector("img")?.getAttribute("src")).toBe("https://nago.cl/logo.png");
@@ -176,6 +178,8 @@ describe("Pulsar admin screens", () => {
     expect(screen.getByText(dict.pulsar.admin.table.migrationBehind)).toBeInTheDocument();
     expect(screen.getByText("owner@example.com")).toBeInTheDocument();
     expect(screen.getByText("1 de 3")).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.admin.table.pulsarMail)).toBeInTheDocument();
+    expect(screen.getByText("12 de 50")).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.admin.table.chartTitle)).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.admin.table.vercelMissing)).toBeInTheDocument();
   });
@@ -204,6 +208,65 @@ describe("Pulsar admin screens", () => {
     expect(
       screen.queryByRole("heading", { name: dict.pulsar.admin.form.sectionPaymentsKv }),
     ).not.toBeInTheDocument();
+  });
+
+  it("opens a new tenant with defaults and builds the preview host from the slug", async () => {
+    const user = userEvent.setup();
+    render(
+      <PulsarAdminTenantForm locale="es" dict={dict} pulsarHosts={["centrolisto.cl"]} />,
+    );
+    expect(screen.getByLabelText(dict.pulsar.admin.form.dataModeShared)).toBeChecked();
+    expect(screen.getByLabelText(dict.pulsar.admin.form.fields.pulsarMailQuota)).toHaveValue(50);
+    expect(screen.getAllByText(dict.pulsar.admin.form.requiredMark).length).toBeGreaterThan(0);
+    expect(screen.getByText(dict.pulsar.admin.form.previewHostEmpty)).toBeInTheDocument();
+    await user.type(screen.getByLabelText(dict.pulsar.admin.form.fields.slug), "nago");
+    expect(screen.getByText("nago.centrolisto.cl")).toBeInTheDocument();
+    const later = screen.getByText(dict.pulsar.admin.form.laterTitle).closest("details");
+    expect(later).toHaveProperty("open", false);
+  });
+
+  it("shows the migration file while a shared schema save runs", async () => {
+    let finish: (value: { ok: true; slug: string }) => void = () => {};
+    saveMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        text: async () => "",
+        json: async () => ({
+          status: "running",
+          current: 12,
+          total: 200,
+          message: "migration",
+          fileName: "194_registration_enrollment_fee_checkout.sql",
+          activity: [
+            { code: "migration", meta: { file: "194_registration_enrollment_fee_checkout.sql" } },
+          ],
+        }),
+      }),
+    );
+    const user = userEvent.setup();
+    render(
+      <PulsarAdminTenantForm locale="es" dict={dict} pulsarHosts={["centrolisto.cl"]} />,
+    );
+    await user.type(screen.getByLabelText(dict.pulsar.admin.form.fields.slug), "test");
+    await user.type(screen.getByLabelText(dict.pulsar.admin.form.fields.displayName), "Instituto Test");
+    await user.click(screen.getByRole("button", { name: dict.pulsar.admin.form.saveCta }));
+    expect(
+      await screen.findByRole("heading", { name: dict.pulsar.admin.form.provision.title }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findAllByText("Aplicando 194_registration_enrollment_fee_checkout.sql"),
+    ).not.toHaveLength(0);
+    finish({ ok: true, slug: "test" });
+    await waitFor(() => expect(pushMock).toHaveBeenCalled());
+    vi.unstubAllGlobals();
   });
 
   it("tests connection and saves a tenant in PulsarAdminTenantForm", async () => {

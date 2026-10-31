@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { ArrowRight, Home, LayoutDashboard, MessageCircle, School, Waypoints } from "lucide-react";
 import { CentroListoLogoMark } from "@/components/organisms/pulsar/CentroListoLogoMark";
+import { PulsarSegmentNav } from "@/components/organisms/pulsar/PulsarSegmentNav";
+import { PulsarSolutionNav } from "@/components/organisms/pulsar/PulsarSolutionNav";
 import { PulsarSessionMenu } from "@/components/organisms/pulsar/PulsarSessionMenu";
 import type { PulsarSiteChromeProps } from "@/components/organisms/pulsar/PulsarSiteChrome";
 
@@ -40,19 +42,25 @@ export function PulsarSiteChromePwa({
             <CentroListoLogoMark size="sm" />
           </Link>
           <div className="flex items-center gap-1">
-            <Link
-              href={`/${locale}/admin`}
-              className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] px-3 text-sm font-semibold text-[var(--color-foreground)]"
-            >
-              <LayoutDashboard className="h-4 w-4" aria-hidden />
-              <span>{nav.admin}</span>
-            </Link>
+            {email ? (
+              <Link
+                href={`/${locale}/admin`}
+                className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] px-3 text-sm font-semibold text-[var(--color-foreground)]"
+              >
+                <LayoutDashboard className="h-4 w-4" aria-hidden />
+                <span>{nav.admin}</span>
+              </Link>
+            ) : null}
             <PulsarSessionMenu locale={locale} email={email} copy={dict.pulsar.session} />
           </div>
         </div>
       </header>
 
-      <main className={showThumb ? "flex-1 pb-32" : "flex-1 pb-24"}>{children}</main>
+      <main className={showThumb ? "flex-1 pb-8" : "flex-1"}>{children}</main>
+      <div className="space-y-8 px-4 pb-36">
+        <PulsarSolutionNav locale={locale} dict={dict} />
+        <PulsarSegmentNav locale={locale} dict={dict} />
+      </div>
 
       <nav
         aria-label={dict.pulsar.session.navAria}
@@ -61,10 +69,10 @@ export function PulsarSiteChromePwa({
       >
         {showThumb ? (
           <Link
-            href={`/${locale}/contacto`}
+            href={`/${locale}/cuenta/registro`}
             className="flex min-h-12 items-center justify-between gap-3 bg-[var(--color-primary)] px-5 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)]"
           >
-            <span>{nav.cta}</span>
+            <span>{nav.startFree}</span>
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
         ) : null}

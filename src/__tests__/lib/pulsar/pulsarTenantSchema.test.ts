@@ -67,7 +67,24 @@ describe("validatePulsarTenantInput", () => {
       expect(res.value.paymentGatewaySecretEncryptionKey).toBeNull();
       expect(res.value.kvRestApiUrl).toBeNull();
       expect(res.value.kvRestApiToken).toBeNull();
+      expect(res.value.pulsarMailQuota).toBe(50);
     }
+  });
+
+  it("rejects a mail cap that is not a whole number", () => {
+    const res = validatePulsarTenantInput(
+      {
+        slug: "liora",
+        displayName: "Liora Studio",
+        hosts: ["liorastudio.cl"],
+        supabaseUrl: "https://liora.supabase.co",
+        supabaseAnonKey: "anon-liora",
+        supabaseServiceRoleKey: "srv-liora",
+        pulsarMailQuota: "nope",
+      },
+      EXISTING,
+    );
+    expect(res).toEqual({ ok: false, errorCode: "invalid_mail_quota" });
   });
 
   it("stores null for payment and KV secrets on create even when the payload sets them", () => {
@@ -268,7 +285,22 @@ describe("validatePulsarTenantInput", () => {
         { slug: "liora", displayName: "Liora", hosts: " , ", supabaseUrl: "https://x.supabase.co" },
         EXISTING,
       ),
-    ).toEqual({ ok: false, errorCode: "missing_hosts" });
+    ).toEqual({ ok: false, errorCode: "invalid_supabase_credentials" });
+    const projectPreview = validatePulsarTenantInput(
+      {
+        slug: "liora",
+        displayName: "Liora",
+        hosts: "",
+        supabaseUrl: "https://x.supabase.co",
+        supabaseAnonKey: "anon",
+        supabaseServiceRoleKey: "srv",
+      },
+      EXISTING,
+    );
+    expect(projectPreview.ok).toBe(true);
+    if (projectPreview.ok) {
+      expect(projectPreview.value.hosts).toContain("liora.centrolisto.cl");
+    }
     expect(
       validatePulsarTenantInput(
         {

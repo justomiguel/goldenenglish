@@ -1,0 +1,175 @@
+.reveal {
+  transform-origin: center top;
+}
+
+.pending {
+  opacity: 0;
+}
+
+.up.pending {
+  transform: translateY(32px);
+}
+
+.left.pending {
+  transform: translateX(-40px);
+}
+
+.right.pending {
+  transform: translateX(40px);
+}
+
+.depth.pending {
+  transform: scale(0.92) translateY(18px);
+}
+
+.play {
+  animation: cl-rise 680ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.left.play {
+  animation-name: cl-from-left;
+}
+
+.right.play {
+  animation-name: cl-from-right;
+}
+
+.depth.play {
+  animation-name: cl-depth;
+}
+
+.mask.play {
+  animation-name: cl-mask;
+}
+
+.heroLine,
+.heroDepth,
+.heroAside {
+  transform-origin: center center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .heroLine {
+    animation: cl-rise 640ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .heroDepth {
+    animation: cl-depth 860ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .heroAside {
+    animation: cl-from-right 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .pairA {
+    animation: cl-apart-left 780ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .pairB {
+    animation: cl-apart-right 780ms 110ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .frameShift,
+  .pricePanel {
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .pricePanel:hover,
+  .pricePanel:focus-within {
+    transform: translateY(-6px) scale(1.02);
+  }
+
+  .panel:hover .frameShift,
+  .panel:focus-within .frameShift {
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+
+@keyframes cl-rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cl-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes cl-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes cl-depth {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes cl-mask {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes cl-apart-left {
+  from {
+    transform: translateX(18%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes cl-apart-right {
+  from {
+    transform: translateX(-18%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pending,
+  .play,
+  .heroLine,
+  .heroDepth,
+  .heroAside,
+  .pairA,
+  .pairB,
+  .pricePanel {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+}

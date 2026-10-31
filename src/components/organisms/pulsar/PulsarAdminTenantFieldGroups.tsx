@@ -1,5 +1,8 @@
 import type { Dictionary } from "@/types/i18n";
+import { previewHostsForTenantSlug } from "@/lib/tenant/pulsarSubdomain";
 import { PulsarAdminTemplateSelect } from "@/components/organisms/pulsar/PulsarAdminTemplateSelect";
+import { PulsarAdminTenantFieldLabel } from "@/components/organisms/pulsar/PulsarAdminTenantFieldLabel";
+import { PulsarAdminTenantLaterFields } from "@/components/organisms/pulsar/PulsarAdminTenantLaterFields";
 
 export interface PulsarTenantFormValues {
   slug: string;
@@ -28,6 +31,7 @@ export interface PulsarTenantFormValues {
   whatsappAccessToken: string;
   whatsappPhoneNumberId: string;
   whatsappClassReminderTemplateName: string;
+  pulsarMailQuota: string;
   dataMode: "project" | "shared_schema";
 }
 
@@ -35,50 +39,37 @@ export interface PulsarAdminTenantFieldGroupsProps {
   dict: Dictionary;
   values: PulsarTenantFormValues;
   isEditing: boolean;
+  mailSent: number | null;
+  pulsarHosts: readonly string[];
   onChange: <K extends keyof PulsarTenantFormValues>(
     key: K,
     value: PulsarTenantFormValues[K],
   ) => void;
 }
 
-const TEXT_SECTIONS: Array<{
-  sectionKey:
-    | "sectionSupabase"
-    | "sectionEmail"
-    | "sectionIntegrations";
-  fields: Array<keyof PulsarTenantFormValues>;
-}> = [
-  {
-    sectionKey: "sectionSupabase",
-    fields: ["supabaseUrl", "supabaseAnonKey", "supabaseServiceRoleKey", "databaseUrl"],
-  },
-  {
-    sectionKey: "sectionEmail",
-    fields: ["mailTenant", "resendFromEmail", "resendApiKey"],
-  },
-  {
-    sectionKey: "sectionIntegrations",
-    fields: [
-      "googleMapsApiKey",
-      "googleMapsMapId",
-      "vapidPublicKey",
-      "vapidPrivateKey",
-      "vapidContactEmail",
-      "whatsappAccessToken",
-      "whatsappPhoneNumberId",
-      "whatsappClassReminderTemplateName",
-    ],
-  },
-];
+const PROJECT_SUPABASE_FIELDS = [
+  "supabaseUrl",
+  "supabaseAnonKey",
+  "supabaseServiceRoleKey",
+] as const;
 
 export function PulsarAdminTenantFieldGroups({
   dict,
   values,
   isEditing,
+  mailSent,
+  pulsarHosts,
   onChange,
 }: PulsarAdminTenantFieldGroupsProps) {
   const formCopy = dict.pulsar.admin.form;
   const labels = formCopy.fields;
+  const previewHosts = previewHostsForTenantSlug(values.slug, pulsarHosts);
+  const sentLine =
+    mailSent === null
+      ? null
+      : formCopy.pulsarMailSent
+          .replace("{sent}", String(mailSent))
+          .replace("{quota}", values.pulsarMailQuota || "0");
 
   return (
     <div className="space-y-8">
@@ -88,9 +79,11 @@ export function PulsarAdminTenantFieldGroups({
         </h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="field-slug" className="block text-xs font-semibold">
-              {labels.slug}
-            </label>
+            <PulsarAdminTenantFieldLabel
+              htmlFor="field-slug"
+              text={labels.slug}
+              mark={formCopy.requiredMark}
+            />
             <input
               id="field-slug"
               type="text"
@@ -102,9 +95,11 @@ export function PulsarAdminTenantFieldGroups({
             />
           </div>
           <div>
-            <label htmlFor="field-displayName" className="block text-xs font-semibold">
-              {labels.displayName}
-            </label>
+            <PulsarAdminTenantFieldLabel
+              htmlFor="field-displayName"
+              text={labels.displayName}
+              mark={formCopy.requiredMark}
+            />
             <input
               id="field-displayName"
               type="text"
@@ -115,29 +110,37 @@ export function PulsarAdminTenantFieldGroups({
             />
           </div>
           <div className="sm:col-span-2">
-            <label htmlFor="field-hosts" className="block text-xs font-semibold">
-              {labels.hosts}
-            </label>
-            <input
-              id="field-hosts"
-              type="text"
-              required
-              value={values.hosts}
-              onChange={(e) => onChange("hosts", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 font-mono text-sm"
-            />
+            <p className="text-xs font-semibold">{formCopy.previewHostLabel}</p>
+            {previewHosts.length > 0 ? (
+              <p className="mt-1 font-mono text-sm text-[var(--color-foreground)]">
+                {previewHosts.join(", ")}
+              </p>
+            ) : (
+              <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+                {formCopy.previewHostEmpty}
+              </p>
+            )}
           </div>
-          <div>
-            <label htmlFor="field-publicUrl" className="block text-xs font-semibold">
-              {labels.publicUrl}
+          <div className="sm:col-span-2">
+            <label htmlFor="field-pulsarMailQuota" className="block text-xs font-semibold">
+              {labels.pulsarMailQuota}
             </label>
             <input
-              id="field-publicUrl"
-              type="text"
-              value={values.publicUrl}
-              onChange={(e) => onChange("publicUrl", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 font-mono text-sm"
+              id="field-pulsarMailQuota"
+              type="number"
+              min={0}
+              max={100000}
+              required
+              value={values.pulsarMailQuota}
+              onChange={(e) => onChange("pulsarMailQuota", e.target.value)}
+              className="mt-1 w-full max-w-xs rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
             />
+            <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+              {formCopy.pulsarMailQuotaLead}
+            </p>
+            {sentLine ? (
+              <p className="mt-1 text-xs font-semibold text-[var(--color-foreground)]">{sentLine}</p>
+            ) : null}
           </div>
           <PulsarAdminTemplateSelect
             label={labels.brandThemeSlug}
@@ -174,43 +177,39 @@ export function PulsarAdminTenantFieldGroups({
         </div>
       </section>
 
-      {TEXT_SECTIONS.filter(
-        (section) =>
-          values.dataMode !== "shared_schema" || section.sectionKey !== "sectionSupabase",
-      ).map(({ sectionKey, fields }) => (
-        <section
-          key={sectionKey}
-          className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6"
-        >
+      {values.dataMode === "project" ? (
+        <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
           <h2 className="text-base font-bold text-[var(--color-foreground)]">
-            {formCopy[sectionKey]}
+            {formCopy.sectionSupabase}
           </h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            {fields.map((fieldKey) => (
-              <div key={fieldKey} className="sm:col-span-2">
-                <label
+          <div className="mt-4 grid gap-4">
+            {PROJECT_SUPABASE_FIELDS.map((fieldKey) => (
+              <div key={fieldKey}>
+                <PulsarAdminTenantFieldLabel
                   htmlFor={`field-${fieldKey}`}
-                  className="block text-xs font-semibold"
-                >
-                  {labels[fieldKey as keyof typeof labels]}
-                </label>
+                  text={labels[fieldKey]}
+                  mark={formCopy.requiredMark}
+                />
                 <input
                   id={`field-${fieldKey}`}
                   type="text"
-                  value={String(values[fieldKey] ?? "")}
-                  onChange={(e) =>
-                    onChange(
-                      fieldKey,
-                      e.target.value as PulsarTenantFormValues[typeof fieldKey],
-                    )
-                  }
+                  required
+                  value={values[fieldKey]}
+                  onChange={(e) => onChange(fieldKey, e.target.value)}
                   className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 font-mono text-xs"
                 />
               </div>
             ))}
           </div>
         </section>
-      ))}
+      ) : null}
+
+      <PulsarAdminTenantLaterFields
+        dict={dict}
+        values={values}
+        open={isEditing}
+        onChange={onChange}
+      />
     </div>
   );
 }
