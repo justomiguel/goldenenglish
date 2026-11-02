@@ -177,6 +177,7 @@ export function AdminRegistrationPwaCard({
             sections={currentCohortSections ?? []}
             createSectionHref={createSectionHref}
             createSectionLabel={createSectionLabel}
+            emptySectionLabel={labels.noSectionsInCohort}
             busy={busy}
             onBusy={onBusy}
             onDone={onIntakeDone}

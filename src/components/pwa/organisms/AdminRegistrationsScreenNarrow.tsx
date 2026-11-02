@@ -140,7 +140,10 @@ export function AdminRegistrationsScreenNarrow({
             onStartJoinCharge={u.onStartJoinCharge}
             currentCohortSections={currentCohortSections}
             createSectionHref={createSectionHref}
-            createSectionLabel={labels.createSectionInCohort}
+            createSectionLabel={labels.createSectionInCohort.replaceAll(
+              "{{cohort}}",
+              currentCohortName ?? "",
+            )}
             onBusy={u.setBusyId}
             onIntakeDone={() => {
               u.setToast(labels.acceptSuccess);

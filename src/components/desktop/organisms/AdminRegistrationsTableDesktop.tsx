@@ -190,7 +190,7 @@ export function AdminRegistrationsTableDesktop({
                   )}
                   currentCohortSections={currentCohortSections}
                   createSectionHref={createSectionHref}
-                  createSectionLabel={labels.createSectionInCohort}
+                  createSectionLabel={labels.createSectionInCohort.replaceAll("{{cohort}}", currentCohortName ?? "")}
                   busy={u.busyId === r.id}
                   onBusy={u.setBusyId}
                   onIntakeDone={() => {

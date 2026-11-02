@@ -126,6 +126,7 @@ export function AdminRegistrationExpandedDetails({
             sections={currentCohortSections ?? []}
             createSectionHref={createSectionHref}
             createSectionLabel={createSectionLabel}
+            emptySectionLabel={labels.noSectionsInCohort}
             busy={busy === true}
             onBusy={onBusy}
             onDone={onIntakeDone}

@@ -27,9 +27,9 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "Inscrições atribuem seções da coorte web",
     ),
     summary: t(
-      "Al asignar una sección ves solo las de la cohorte de inscripciones web. Si esa cohorte no tiene secciones, puedes crear una.",
-      "When you assign a section you see only the web inscriptions cohort. If that cohort has no sections, you can create one.",
-      "Ao atribuir uma seção você vê só a coorte de inscrições web. Se essa coorte não tem seções, você pode criar uma.",
+      "Al asignar una sección ves solo las de la cohorte de inscripciones web. El botón nombra esa cohorte y abre sus secciones.",
+      "When you assign a section you see only the web inscriptions cohort. The button names that cohort and opens its sections.",
+      "Ao atribuir uma seção você vê só a coorte de inscrições web. O botão nomeia essa coorte e abre as seções dela.",
     ),
   },
   {

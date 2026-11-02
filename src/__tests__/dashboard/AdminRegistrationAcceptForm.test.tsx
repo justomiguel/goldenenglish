@@ -202,15 +202,19 @@ describe("AdminRegistrationAcceptForm", () => {
         labels={dictEn.admin.registrations}
         userLabels={userLabels}
         currentCohortSections={[]}
-        createSectionHref="/es/dashboard/admin/academic/cohort-web"
+        currentCohortName="Web 2026"
+        createSectionHref="/es/dashboard/admin/academic/cohort-web?tab=sections"
       />,
     );
     fireEvent.click(screen.getByRole("radio", { name: dictEn.admin.registrations.joinBilling.current }));
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
     await waitFor(() => {
+      expect(screen.getByText(dictEn.admin.registrations.noSectionsInCohort)).toBeInTheDocument();
       expect(
-        screen.getByRole("link", { name: dictEn.admin.registrations.createSectionInCohort }),
-      ).toHaveAttribute("href", "/es/dashboard/admin/academic/cohort-web");
+        screen.getByRole("link", {
+          name: dictEn.admin.registrations.createSectionInCohort.replaceAll("{{cohort}}", "Web 2026"),
+        }),
+      ).toHaveAttribute("href", "/es/dashboard/admin/academic/cohort-web?tab=sections");
     });
   });
 

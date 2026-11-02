@@ -128,7 +128,7 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
     ? await loadCohortSections(supabase, inscriptionsCohort.id)
     : [];
   const createSectionHref = inscriptionsCohort
-    ? `/${locale}/dashboard/admin/academic/${inscriptionsCohort.id}`
+    ? `/${locale}/dashboard/admin/academic/${inscriptionsCohort.id}?tab=sections`
     : null;
 
   return (

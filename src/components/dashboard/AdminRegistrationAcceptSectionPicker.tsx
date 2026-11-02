@@ -38,14 +38,8 @@ export function AdminRegistrationAcceptSectionPicker({
         {cohortName ? ` — ${cohortName}` : ""}
       </p>
 
-      {sections.length === 0 && createSectionHref ? (
-        <Link
-          href={createSectionHref}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-semibold text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
-        >
-          <Plus className="h-4 w-4 shrink-0" aria-hidden />
-          {labels.createSectionInCohort}
-        </Link>
+      {sections.length === 0 ? (
+        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.noSectionsInCohort}</p>
       ) : (
       <ul className="space-y-2">
         {sections.map((sec) => {
@@ -76,6 +70,16 @@ export function AdminRegistrationAcceptSectionPicker({
         })}
       </ul>
       )}
+
+      {createSectionHref ? (
+        <Link
+          href={createSectionHref}
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-semibold text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+        >
+          <Plus className="h-4 w-4 shrink-0" aria-hidden />
+          {labels.createSectionInCohort.replaceAll("{{cohort}}", cohortName ?? "")}
+        </Link>
+      ) : null}
 
       {formError ? (
         <p className="text-sm text-[var(--color-error)]" role="alert">

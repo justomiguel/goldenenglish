@@ -34,6 +34,7 @@ export function AdminRegistrationIntakeActions({
   onDone,
   createSectionHref,
   createSectionLabel,
+  emptySectionLabel,
 }: {
   locale: string;
   row: AdminRegistrationRow;
@@ -45,6 +46,7 @@ export function AdminRegistrationIntakeActions({
   onDone: () => void;
   createSectionHref?: string | null;
   createSectionLabel?: string;
+  emptySectionLabel?: string;
 }) {
   const kind = registrationInboxPrimaryKind(row);
   const [reason, setReason] = useState("");
@@ -205,6 +207,7 @@ export function AdminRegistrationIntakeActions({
           assignLabel={labels.assignSection}
           createHref={createSectionHref}
           createLabel={createSectionLabel}
+          emptyLabel={emptySectionLabel}
           onAssign={() => {
             const disposition = requireDisposition();
             if (!disposition) return;

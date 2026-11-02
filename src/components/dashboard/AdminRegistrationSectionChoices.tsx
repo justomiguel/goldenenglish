@@ -15,7 +15,20 @@ export interface AdminRegistrationSectionChoicesProps {
   assignLabel: string;
   createHref?: string | null;
   createLabel?: string;
+  emptyLabel?: string;
   onAssign: () => void;
+}
+
+function CreateSectionLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-semibold text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+    >
+      <Plus className="h-4 w-4 shrink-0" aria-hidden />
+      {label}
+    </Link>
+  );
 }
 
 export function AdminRegistrationSectionChoices({
@@ -27,17 +40,20 @@ export function AdminRegistrationSectionChoices({
   assignLabel,
   createHref,
   createLabel,
+  emptyLabel,
   onAssign,
 }: AdminRegistrationSectionChoicesProps) {
-  if (sections.length === 0 && createHref && createLabel) {
+  const createLink =
+    createHref && createLabel ? <CreateSectionLink href={createHref} label={createLabel} /> : null;
+
+  if (sections.length === 0) {
     return (
-      <Link
-        href={createHref}
-        className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-semibold text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
-      >
-        <Plus className="h-4 w-4 shrink-0" aria-hidden />
-        {createLabel}
-      </Link>
+      <>
+        {emptyLabel ? (
+          <p className="text-sm text-[var(--color-muted-foreground)]">{emptyLabel}</p>
+        ) : null}
+        {createLink}
+      </>
     );
   }
 
@@ -62,6 +78,7 @@ export function AdminRegistrationSectionChoices({
       <Button type="button" size="sm" disabled={busy || !sectionId} onClick={onAssign}>
         {assignLabel}
       </Button>
+      {createLink}
     </>
   );
 }
