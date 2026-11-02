@@ -5,6 +5,7 @@ import { clearRecordedEmails, fetchRecordedEmails } from "./recordedEmails";
 import { gotoIsolated } from "./gotoIsolated";
 import {
   chooseRegisterSectionByName,
+  completeRegisterDniStep,
   continueRegisterAfterStudent,
   pickRegisterBirthIso,
   submitRegisterAfterDetails,
@@ -54,7 +55,7 @@ export function newScheduleOfferLead(): ScheduleOfferLead {
 
 export async function registerAdultForTiny(page: Page, lead: ScheduleOfferLead) {
   await gotoIsolated(page, `/${lead.locale}/register`);
-  await expect(page.locator("#rg-fn")).toBeVisible({ timeout: 20_000 });
+  await completeRegisterDniStep(page, lead.dni);
   await page.locator("#rg-fn").fill("E2E");
   await page.locator("#rg-ln").fill(`Offer${lead.dni.slice(-6)}`);
   await pickRegisterBirthIso(page, "1990-06-15");

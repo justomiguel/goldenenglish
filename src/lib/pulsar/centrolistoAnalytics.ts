@@ -63,6 +63,18 @@ export function installCentrolistoGtag(measurementId: string): void {
   window.gtag("config", measurementId, { send_page_view: false });
 }
 
+const NAMED_EVENT = /^cl_[a-z0-9_]+$/;
+
+/** A control can name its own event. Clicks still emit `cl_click` when they are links. */
+export function readCentrolistoNamedEvent(target: EventTarget | null): { name: string; detail: string } | null {
+  if (!(target instanceof Element)) return null;
+  const node = target.closest("[data-cl-event]");
+  if (!(node instanceof HTMLElement)) return null;
+  const name = node.getAttribute("data-cl-event") ?? "";
+  if (!NAMED_EVENT.test(name)) return null;
+  return { name, detail: (node.getAttribute("data-cl-detail") ?? "").slice(0, 80) };
+}
+
 export function trackCentrolistoGaEvent(
   name: string,
   params: Record<string, string | boolean>,

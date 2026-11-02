@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BookOpen, DoorOpen, Landmark, UserPlus, type LucideIcon } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import { PulsarCompetitorComparisonSection } from "@/components/organisms/pulsar/PulsarCompetitorComparisonSection";
 import { PulsarSiteChromeEntry } from "@/components/organisms/pulsar/PulsarSiteChromeEntry";
 import type { CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 
@@ -91,8 +90,6 @@ export function PulsarProductoView({ locale, dict, email = null, market = "cl" }
           </div>
         </div>
       </section>
-
-      <PulsarCompetitorComparisonSection dict={dict} />
 
       <section className="border-t border-[var(--color-border)] py-12">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">

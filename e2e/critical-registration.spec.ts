@@ -10,6 +10,7 @@ import { gotoIsolated } from "./helpers/gotoIsolated";
 import {
   chooseRegisterSectionByName,
   continueRegisterAfterStudent,
+  completeRegisterDniStep,
   pickRegisterBirthIso,
   submitRegisterAfterDetails,
 } from "./helpers/registerForm";
@@ -38,7 +39,7 @@ test.describe("@critical-registration", () => {
     const anon = await browser.newContext();
     const registerPage = await anon.newPage();
     await gotoIsolated(registerPage, `/${locale}/register`);
-    await expect(registerPage.locator("#rg-fn")).toBeVisible({ timeout: 20_000 });
+    await completeRegisterDniStep(registerPage, dni);
     await registerPage.locator("#rg-fn").fill("E2E");
     await registerPage.locator("#rg-ln").fill(`Reg${suffix}`);
     await pickRegisterBirthIso(registerPage, "1990-06-15");

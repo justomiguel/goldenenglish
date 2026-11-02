@@ -8,6 +8,7 @@ import {
 } from "./env";
 import { gotoIsolated } from "./helpers/gotoIsolated";
 import {
+  completeRegisterDniStep,
   continueRegisterAfterStudent,
   pickRegisterBirthIso,
   submitRegisterAfterDetails,
@@ -79,10 +80,12 @@ test.describe("@critical-section-enrollment-link", () => {
     await expect(familyPage.locator("#rg-section")).toHaveCount(0);
 
     const suffix = Date.now().toString(36);
+    const familyDni = `E2EL${suffix}`.slice(0, 12);
+    await completeRegisterDniStep(familyPage, familyDni);
     await familyPage.locator("#rg-fn").fill("E2E");
     await familyPage.locator("#rg-ln").fill(`Link${suffix}`);
     await pickRegisterBirthIso(familyPage, "1990-06-15");
-    await familyPage.locator("#rg-dni").fill(`E2EL${suffix}`.slice(0, 12));
+    await familyPage.locator("#rg-dni").fill(familyDni);
     await continueRegisterAfterStudent(familyPage);
     await expect(familyPage.locator("#rg-em")).toBeVisible({ timeout: 20_000 });
     await familyPage.locator("#rg-em").fill(`e2e-link-${suffix}@example.test`);

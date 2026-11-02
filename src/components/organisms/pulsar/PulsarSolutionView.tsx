@@ -2,14 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Dictionary } from "@/types/i18n";
 import { PulsarActionLink } from "@/components/organisms/pulsar/PulsarActionLink";
-import { PulsarCompetitorComparisonSection } from "@/components/organisms/pulsar/PulsarCompetitorComparisonSection";
+import { PulsarEcosistemaDiff } from "@/components/organisms/pulsar/PulsarEcosistemaDiff";
+import { PulsarGestionUses } from "@/components/organisms/pulsar/PulsarGestionUses";
 import { PulsarHomeFaq } from "@/components/organisms/pulsar/PulsarHomeFaq";
-import { PulsarHomePlatform } from "@/components/organisms/pulsar/PulsarHomePlatform";
 import { PulsarHomeProblem } from "@/components/organisms/pulsar/PulsarHomeProblem";
 import { PulsarOfferPrice } from "@/components/organisms/pulsar/PulsarOfferPrice";
+import { PulsarPresenciaStart } from "@/components/organisms/pulsar/PulsarPresenciaStart";
 import { PulsarProductVideo } from "@/components/organisms/pulsar/PulsarProductVideo";
 import { PulsarSiteChromeEntry } from "@/components/organisms/pulsar/PulsarSiteChromeEntry";
-import type { CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
+import { withCentrolistoMarket, type CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 import { PULSAR_SOLUTION_SLUGS, type PulsarSolutionSlug } from "@/lib/pulsar/pulsarSolutionSlugs";
 
 export interface PulsarSolutionViewProps {
@@ -72,36 +73,30 @@ export function PulsarSolutionView({ locale, dict, solution, email = null, marke
             ) : null}
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               {solution === "presencia" ? (
-                <PulsarActionLink href={`/${locale}/cuenta/registro`} tone="primary">
+                <PulsarActionLink href={withCentrolistoMarket(`/${locale}/cuenta/registro`, market)} tone="primary" eventName="cl_create_free_page">
                   {item.cta}
                 </PulsarActionLink>
               ) : (
-                <PulsarActionLink href={`/${locale}/contacto`} tone="primary">
+                <PulsarActionLink
+                  href={withCentrolistoMarket(`/${locale}/contacto?interes=${solution}`, market)}
+                  tone="primary"
+                  eventName={solution === "gestion" ? "cl_demo_gestion" : "cl_demo_ecosistema"}
+                >
                   {item.cta}
                 </PulsarActionLink>
               )}
               {solution === "presencia" ? (
-                <PulsarActionLink href={`/${locale}/contacto`} tone="quiet">
+                <PulsarActionLink href={withCentrolistoMarket(`/${locale}/contacto?interes=medida`, market)} tone="quiet" eventName="cl_quote_custom">
                   {dict.pulsar.pricing.customCta}
                 </PulsarActionLink>
               ) : (
-                <PulsarActionLink href={`/${locale}/producto`} tone="quiet">
+                <PulsarActionLink href={withCentrolistoMarket(`/${locale}/producto`, market)} tone="quiet">
                   {dict.pulsar.nav.product}
                 </PulsarActionLink>
               )}
             </div>
-            {solution === "presencia" ? (
-              <>
-                <p className="mt-5 max-w-lg text-base leading-relaxed text-[var(--color-foreground)]">
-                  {dict.pulsar.pricing.customTitle}
-                </p>
-                <p className="mt-2 max-w-lg text-sm leading-relaxed text-[var(--color-muted-foreground)]">
-                  {dict.pulsar.pricing.customBody}
-                </p>
-                <p className="mt-4 max-w-lg text-sm leading-relaxed text-[var(--color-muted-foreground)]">
-                  {dict.pulsar.home.freeSiteNote}
-                </p>
-              </>
+            {solution === "gestion" ? (
+              <p className="mt-4 text-sm font-medium text-[var(--color-foreground)]">{dict.pulsar.solutionSet.gestion.capLine}</p>
             ) : null}
           </div>
           <figure className="relative aspect-[4/3] overflow-hidden rounded-[var(--layout-border-radius)]">
@@ -153,14 +148,15 @@ export function PulsarSolutionView({ locale, dict, solution, email = null, marke
         </section>
       ) : null}
 
+      {solution === "presencia" ? <PulsarPresenciaStart locale={locale} dict={dict} market={market} /> : null}
       {solution === "gestion" ? (
         <>
+          <PulsarGestionUses dict={dict} />
           <PulsarHomeProblem dict={dict} />
           <PulsarHomeFaq dict={dict} />
-          <PulsarCompetitorComparisonSection dict={dict} />
         </>
       ) : null}
-      {solution === "ecosistema" ? <PulsarHomePlatform dict={dict} /> : null}
+      {solution === "ecosistema" ? <PulsarEcosistemaDiff dict={dict} /> : null}
 
       <section className="py-14">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">

@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import {
   installCentrolistoGtag,
   isCentrolistoMarketingPath,
+  readCentrolistoNamedEvent,
   resolveCentrolistoClick,
   trackCentrolistoGaEvent,
 } from "@/lib/pulsar/centrolistoAnalytics";
@@ -39,11 +40,18 @@ function CentroListoGaHits({ measurementId }: CentroListoGoogleAnalyticsProps) {
     if (!marketing) return;
     function onClick(event: MouseEvent) {
       const click = resolveCentrolistoClick(event.target, window.location.origin);
-      if (!click) return;
-      trackCentrolistoGaEvent("cl_click", {
-        link_url: click.linkUrl,
-        link_text: click.linkText,
-        outbound: click.outbound,
+      if (click) {
+        trackCentrolistoGaEvent("cl_click", {
+          link_url: click.linkUrl,
+          link_text: click.linkText,
+          outbound: click.outbound,
+        });
+      }
+      const named = readCentrolistoNamedEvent(event.target);
+      if (!named) return;
+      trackCentrolistoGaEvent(named.name, {
+        link_url: click?.linkUrl ?? "",
+        detail: named.detail,
       });
     }
     document.addEventListener("click", onClick);

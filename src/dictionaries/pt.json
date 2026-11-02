@@ -6316,6 +6316,43 @@
       "courseShopNo": "Fora da loja",
       "coursePrev": "Cursos anteriores",
       "courseNext": "Próximos cursos",
+      "catalogCategory": "Categoria",
+      "catalogCategoryNone": "Geral",
+      "catalogCategoryCreate": "Criar categoria",
+      "catalogCategoryName": "Nome da categoria",
+      "catalogCategoryParent": "Categoria pai",
+      "catalogHashtags": "Hashtags",
+      "catalogHashtagsHint": "Separe com espaços. Exemplo: a1 gramatica",
+      "catalogFieldName": "Nome do campo",
+      "catalogFieldKind": "Tipo de campo",
+      "catalogFieldText": "Texto",
+      "catalogFieldDropdown": "Lista",
+      "catalogFieldCheckbox": "Caixa",
+      "catalogFieldDate": "Data",
+      "catalogFieldOptions": "Opções da lista",
+      "catalogFieldCreate": "Criar campo",
+      "catalogFieldRequired": "Obrigatório",
+      "catalogProgramTitle": "Nome da rota",
+      "catalogProgramSetTitle": "Nome do conjunto",
+      "catalogProgramCompletion": "Como o conjunto termina",
+      "catalogProgramAllInOrder": "Todos em ordem",
+      "catalogProgramAllAnyOrder": "Todos em qualquer ordem",
+      "catalogProgramAtLeast": "Pelo menos esta quantidade",
+      "catalogProgramAtLeastCount": "Quantidade mínima",
+      "catalogProgramCourses": "Cursos do conjunto",
+      "catalogProgramCreate": "Criar rota",
+      "catalogProgramAssign": "Atribuir rota à turma",
+      "catalogProgramSection": "Turma",
+      "catalogSaveFailed": "Não conseguimos guardar este dado.",
+      "catalogMaterial": "Tipo de material",
+      "catalogMaterialAny": "Qualquer tipo",
+      "catalogMaterialVideo": "Vídeo",
+      "catalogMaterialPdf": "PDF",
+      "catalogMaterialQuiz": "Quiz",
+      "catalogMaterialImage": "Imagem",
+      "catalogMaterialAudio": "Áudio",
+      "catalogTag": "Hashtag",
+      "catalogTagApply": "Filtrar",
       "courseAssignSection": "Turma",
       "courseAssign": "Atribuir à turma",
       "courseAssignFailed": "Não conseguimos atribuir este curso.",
@@ -12591,7 +12628,7 @@
       "pricing": "Preços",
       "startFree": "Começar grátis",
       "footerTagline": "O seu site, inscrições, aulas e mensalidades, em uma só plataforma.",
-      "footerPrivacyBadge": "Arquitetura com banco de dados 100% isolado por instituição · Preparada para a Lei 21.719 (Chile)",
+      "footerPrivacyBadge": "Cada instituição administra os seus dados em separado.",
       "footerRights": "CentroListo.cl · Matrícula, cobrança e lista da sua escola, em um só lugar."
     },
     "market": {
@@ -12612,7 +12649,7 @@
       "heroImageAlt": "Ambiente de uma academia contemporânea. Não é um cliente do CentroListo.",
       "heroImageCaption": "Alunos, pagamentos e inscrições, com o nome da escola.",
       "lead": "O seu site, inscrições, aulas, mensalidades e comunicados em uma só plataforma.",
-      "primaryCta": "Ver como funciona",
+      "primaryCta": "Explorar a plataforma",
       "secondaryCta": "Ver como funciona",
       "generativeStage": {
         "noiseCaption": "mensagens fora de hora · planilhas soltas · comprovantes pendentes",
@@ -12768,14 +12805,18 @@
           "a": "Trazemos a sua lista atual. O WhatsApp fica para a conversa próxima. Horários, vagas e pagamentos vivem na sua casa."
         }
       ],
-      "freeSiteNote": "Crie a página pública sem custo. Um administrador revisa a conta antes de habilitá-la. Você pode abrir até três sites. Não inclui alunos, mensalidades nem cobranças.",
+      "freeSiteNote": "A página da sua instituição é grátis, com um modelo pronto.",
       "freeSiteCta": "Criar a minha página grátis",
       "bottomCta": {
         "title": "Conheça o CentroListo em funcionamento.",
         "lead": "Veja como um aluno se inscreve, como uma família paga e como uma aula é administrada, no mesmo lugar.",
         "primaryCta": "Quero ver uma demonstração",
         "secondaryCta": "Criar a minha página grátis"
-      }
+      },
+      "demoCta": "Solicitar uma demonstração",
+      "freePlanLink": "Ver o que o plano grátis inclui",
+      "heroDashboardAlt": "Painel real do CentroListo com alunos, pagamentos e inscrições.",
+      "heroSiteAlt": "Site institucional real publicado com o CentroListo."
     },
     "commercial": {
       "heroSupport": "Com o CentroListo, as famílias conhecem as atividades, se inscrevem e pagam online. Você controla alunos, vagas, presença e cobranças, sem planilhas nem conversas sem fim.",
@@ -12838,12 +12879,12 @@
           "body": "Oficinas, eventos e produtos, quando estão habilitados."
         }
       ],
-      "identityTitle": "A sua instituição, a sua identidade.",
-      "identityLead": "As famílias reconhecem o seu nome, as suas cores e a sua instituição. O CentroListo funciona por trás e conecta a operação.",
+      "identityTitle": "A sua marca na frente. O CentroListo atrás.",
+      "identityLead": "A sua instituição mantém a identidade enquanto você conecta o site, a gestão acadêmica e a experiência das famílias.",
       "identityPoints": [
-        "O seu domínio e a sua marca no site e no telefone.",
-        "O espaço de alunos e famílias, com o seu nome.",
-        "O painel da equipe, com um banco de dados isolado."
+        "A sua marca no site público.",
+        "O painel de gestão leva o nome da sua instituição.",
+        "O acesso das famílias usa essa mesma identidade quando o plano inclui isso."
       ],
       "identityAlts": [
         "Site da instituição.",
@@ -12919,7 +12960,9 @@
         "Vários filhos",
         "Materiais",
         "O primeiro pagamento"
-      ]
+      ],
+      "identitySiteCaption": "Site público real. Não é a mesma instituição do painel.",
+      "identityPanelCaption": "Painel de gestão real. Não é a mesma instituição do site."
     },
     "segments": {
       "danza": {
@@ -13144,14 +13187,39 @@
           "title": "A sua comunidade fica conectada",
           "body": "O site público e o painel de gestão são a mesma instituição."
         }
-      ]
+      ],
+      "connected": {
+        "title": "Uma plataforma. Tudo conectado.",
+        "items": [
+          {
+            "id": "inscripciones",
+            "title": "Inscrições",
+            "body": "A família vê a oferta e deixa os dados no site da instituição."
+          },
+          {
+            "id": "cobros",
+            "title": "Pagamentos",
+            "body": "O painel mostra o estado dos pagamentos e das inscrições."
+          },
+          {
+            "id": "clases",
+            "title": "Aulas",
+            "body": "Alunos e turmas ficam no mesmo painel de gestão."
+          },
+          {
+            "id": "familias",
+            "title": "Famílias",
+            "body": "O site público leva a marca da instituição."
+          }
+        ]
+      }
     },
     "solutionSet": {
       "presencia": {
         "navLabel": "Presença",
         "tagline": "A sua instituição merece uma boa primeira impressão.",
-        "headline": "A sua academia online, grátis.",
-        "lead": "Escolha um modelo pronto, acrescente os dados da instituição e comece a página pública sem mensalidade.",
+        "headline": "A sua academia online. Grátis com um modelo pronto para usar.",
+        "lead": "Escolha um desenho pronto, acrescente a informação da sua instituição e comece a presença digital.",
         "benefits": [
           "Modelo pronto.",
           "Página institucional.",
@@ -13160,7 +13228,20 @@
         "cta": "Criar a minha página grátis",
         "seoTitle": "Site para academias | CentroListo Presença",
         "seoDescription": "Crie a página pública da sua instituição com a sua marca. Mostre atividades e horários. A gestão de alunos fica para outra conversa.",
-        "imageAlt": "Ambiente claro de uma academia independente. Não é um cliente do CentroListo."
+        "imageAlt": "Ambiente claro de uma academia independente. Não é um cliente do CentroListo.",
+        "templatePickerTitle": "Escolha como você quer começar.",
+        "templateFreeTitle": "Com modelo",
+        "templateFreeBody": "Grátis. Você escolhe um desenho disponível e adapta o que o modelo permite.",
+        "templateCustomTitle": "Com desenho sob medida",
+        "templateCustomBody": "A landing publicada tem um pagamento único. Um trabalho fora desse alcance é orçado.",
+        "templateGalleryTitle": "Modelos disponíveis",
+        "templateKinds": {
+          "deportes": "Esportes",
+          "jardin": "Infantil",
+          "colegio": "Colégio",
+          "musica": "Música",
+          "idiomas": "Idiomas"
+        }
       },
       "gestion": {
         "navLabel": "Gestão",
@@ -13168,15 +13249,16 @@
         "headline": "Menos administração. Mais tempo para ensinar.",
         "lead": "Organize alunos, aulas, professores, inscrições e mensalidades em uma só plataforma.",
         "benefits": [
-          "Inscrições e alunos.",
-          "Horários e professores.",
-          "Matrículas, mensalidades e presença.",
-          "Até 50 alunos ativos."
+          "Toda a operação organizada.",
+          "Mensalidades sob controle.",
+          "Mais tempo para ensinar."
         ],
-        "cta": "Quero o CentroListo Gestão",
+        "cta": "Solicitar demo de Gestão",
         "seoTitle": "Gestão de alunos e mensalidades | CentroListo",
         "seoDescription": "Inscrições, aulas, professores, presença e mensalidades em uma só plataforma. CentroListo Gestão.",
-        "imageAlt": "Mesa de coordenação de uma academia. Não é o escritório de um cliente."
+        "imageAlt": "Mesa de coordenação de uma academia. Não é o escritório de um cliente.",
+        "capLine": "Até 120 alunos ativos.",
+        "usesTitle": "Assim se vê a operação."
       },
       "ecosistema": {
         "navLabel": "Ecossistema",
@@ -13184,14 +13266,16 @@
         "headline": "A sua instituição. Toda a comunidade conectada.",
         "lead": "Muito mais do que administrar. Ofereça uma experiência digital para alunos, famílias e professores, com a sua marca.",
         "benefits": [
-          "Tudo de Gestão, sem o limite de 50 alunos.",
-          "Espaço digital para famílias.",
+          "Espaço para famílias e avisos.",
+          "Atividades, quando o módulo está habilitado.",
           "Você pode criar rotas de cursos, oferecê-los e vendê-los na loja."
         ],
-        "cta": "Quero o CentroListo Ecossistema",
+        "cta": "Solicitar demo de Ecossistema",
         "seoTitle": "Experiência digital para famílias | CentroListo Ecossistema",
         "seoDescription": "Famílias, comunicados, materiais e atividades com a marca da sua instituição. CentroListo Ecossistema.",
-        "imageAlt": "Um grupo pequeno em um espaço de aprendizagem. Não é um caso de sucesso do CentroListo."
+        "imageAlt": "Um grupo pequeno em um espaço de aprendizagem. Não é um caso de sucesso do CentroListo.",
+        "whyTitle": "O que o Ecossistema soma em relação à Gestão.",
+        "whyLead": "A Gestão organiza alunos, aulas e mensalidades. O Ecossistema soma o espaço das famílias e os conteúdos, e não publica o limite de 120 alunos da Gestão."
       }
     },
     "pricing": {
@@ -13226,10 +13310,10 @@
           "Tudo de Presença com modelo.",
           "Alunos, cursos, inscrições e horários.",
           "Matrículas, mensalidades, pagamentos e presença.",
-          "Até 50 alunos ativos."
+          "Até 120 alunos ativos."
         ],
         "ecosistema": [
-          "Tudo de Gestão, sem o limite de 50 alunos.",
+          "Tudo de Gestão, sem o limite de 120 alunos.",
           "Espaço para famílias, avisos e materiais.",
           "Você pode criar rotas de cursos, oferecê-los e vendê-los na loja."
         ]
@@ -13277,7 +13361,97 @@
           "q": "As comissões dos meios de pagamento estão incluídas?",
           "a": "Não. Cada meio informa as comissões à parte."
         }
-      ]
+      ],
+      "compareTitle": "O que cada solução inclui",
+      "compare": {
+        "featureLabel": "O que inclui",
+        "marks": {
+          "included": "Incluído",
+          "absent": "Não incluído",
+          "optional": "Opcional",
+          "quote": "Cotação"
+        },
+        "rows": [
+          {
+            "label": "Site institucional",
+            "presencia": "included",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Modelos prontos",
+            "presencia": "included",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Desenho sob medida",
+            "presencia": "optional",
+            "gestion": "optional",
+            "ecosistema": "optional"
+          },
+          {
+            "label": "Gestão de alunos",
+            "presencia": "absent",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Inscrições",
+            "presencia": "absent",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Mensalidades e pagamentos",
+            "presencia": "absent",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Professores e horários",
+            "presencia": "absent",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Presença",
+            "presencia": "absent",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Experiência para famílias",
+            "presencia": "absent",
+            "gestion": "absent",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Conteúdos acadêmicos",
+            "presencia": "absent",
+            "gestion": "absent",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Eventos e loja",
+            "presencia": "absent",
+            "gestion": "absent",
+            "ecosistema": "optional"
+          },
+          {
+            "label": "Capacidade de alunos",
+            "presencia": "Sem alunos no plano grátis",
+            "gestion": "Até 120 alunos ativos.",
+            "ecosistema": "Sem o limite de 120 alunos publicado na Gestão."
+          },
+          {
+            "label": "Implementação",
+            "presencia": "Por sua conta, com modelo",
+            "gestion": "Por sua conta",
+            "ecosistema": "Segundo o serviço"
+          }
+        ]
+      }
     },
     "product": {
       "eyebrow": "O ofício por trás da calma",
@@ -13458,8 +13632,8 @@
     },
     "contact": {
       "eyebrow": "IMPLANTAÇÃO GUIADA",
-      "title": "Meia hora. Você vê o seu domínio, a sua marca e a sua lista.",
-      "lead": "Não entregamos um login vazio para você descobrir sozinho. A nossa equipe ativa a sua infraestrutura dedicada, importa o seu catálogo inicial e configura o seu site e meios de pagamento.",
+      "title": "Conte sobre a sua instituição. Ajudamos você a escolher como começar.",
+      "lead": "Conte como a sua instituição trabalha. Propomos um caminho de configuração segundo o que você precisa.",
       "stepsEyebrow": "PROCESSO DE ATIVAÇÃO EM 3 PASSOS",
       "stepsTitle": "Como levamos a sua instituição para o CentroListo.cl",
       "steps": [
@@ -13471,12 +13645,12 @@
         {
           "step": "02 · Preparar a casa",
           "title": "Montamos o site, a base isolada e os pagamentos",
-          "body": "Ficam o domínio, a base isolada e Flow, Mercado Pago ou o seu banco."
+          "body": "Definimos com você o domínio, os dados e os meios de pagamento."
         },
         {
           "step": "03 · Abrir as portas",
-          "title": "Trazemos a sua lista atual e caminhamos ao seu lado",
-          "body": "Entra a sua lista atual. Você e os professores caminham com um guia na tela."
+          "title": "Revisamos a informação que você já usa",
+          "body": "Avaliamos como incorporar a informação que você já usa, incluindo as suas planilhas atuais."
         }
       ],
       "emailLabel": "E-mail direto da equipe",
@@ -13487,16 +13661,16 @@
       "whatsappHref": "https://wa.me/56965789862?text=Ol%C3%A1%2C%20quero%20conhecer%20o%20CentroListo.cl",
       "whatsappCta": "Falar no WhatsApp",
       "checklistTitle": "O que inclui a implantação chave na mão da sua instituição",
-      "check1": "Projeto Supabase 100% dedicado (Postgres, Auth, Storage e backups exclusivos).",
-      "check2": "Domínio próprio conectado ao cluster do CentroListo sem esperas nem redeploys.",
-      "check3": "Configuração de identidade visual, e-mail transacional Resend e meios de pagamento (Flow / Mercado Pago / Transferências).",
-      "check4": "App móvel PWA instalável com o nome e ícone oficial do seu centro.",
-      "check5": "Tutoriais interativos passo a passo integrados no painel para diretores, docentes e famílias.",
+      "check1": "Os dados da sua instituição são administrados em separado. O detalhe da infraestrutura se confirma na implantação.",
+      "check2": "Definimos com você o domínio e os passos para publicá-lo.",
+      "check3": "A identidade visual e os meios de pagamento seguem o que a sua instituição já usa.",
+      "check4": "Quando o plano inclui isso, o acesso no telefone pode usar o nome e a marca da instituição.",
+      "check5": "Há percursos na tela para a equipe. O alcance se confirma na implantação.",
       "faqTitle": "Perguntas frequentes de diretores e fundadores",
       "faqs": [
         {
           "q": "Quanto tempo leva para ter o meu centro operando no CentroListo.cl?",
-          "a": "A infraestrutura técnica e o seu domínio ficam ativos em menos de 24 horas. Com os seus logos, horários e dados de pagamento, a implantação completa leva entre 3 e 5 dias úteis."
+          "a": "Definimos com você os passos de configuração e de início, segundo as necessidades da instituição. O tempo depende da configuração, dos meios de pagamento e da informação a incorporar."
         },
         {
           "q": "Os meus alunos e responsáveis veem a marca CentroListo ou a marca da minha academia?",
@@ -13504,17 +13678,42 @@
         },
         {
           "q": "E se eu já tiver alunos ativos no meio do ano?",
-          "a": "Temos um importador em massa inteligente por CSV e ferramentas de matrícula que permitem migrar coortes, turmas, alunos e responsáveis sem interromper as aulas."
+          "a": "Sim. Avaliamos como incorporar a informação que você já usa, incluindo as suas planilhas atuais."
         },
         {
           "q": "Por que é tão importante que o meu banco de dados seja isolado?",
-          "a": "Porque a sua lista de alunos, dados de menores e registros financeiros não se misturam nas mesmas tabelas com outras empresas. Você tem soberania total, backups próprios e alinhamento técnico com a Lei 21.719."
+          "a": "Os dados de cada instituição são administrados em separado. Não apresentamos essa separação como uma certificação legal."
+        }
+      ],
+      "submitCta": "Enviar consulta",
+      "interestLabel": "Qual solução interessa a você?",
+      "interestOptions": [
+        {
+          "id": "presencia",
+          "label": "Presença com modelo"
+        },
+        {
+          "id": "medida",
+          "label": "Desenho sob medida"
+        },
+        {
+          "id": "gestion",
+          "label": "Gestão"
+        },
+        {
+          "id": "ecosistema",
+          "label": "Ecossistema"
+        },
+        {
+          "id": "unsure",
+          "label": "Não tenho certeza"
         }
       ]
     },
     "account": {
       "registerTitle": "Crie sua conta",
       "registerLead": "Crie a página pública da sua instituição sem custo. Um administrador revisa a conta antes de habilitá-la. Depois você pode abrir até três sites. A página grátis não inclui alunos, mensalidades nem cobranças.",
+      "authPhotoAlt": "Uma pessoa em uma mesa com luz quente, com a marca da CentroListo bordada na malha.",
       "loginTitle": "Entrar",
       "loginLead": "Use o e-mail e a senha da sua conta Pulsar.",
       "email": "E-mail",
@@ -13541,6 +13740,8 @@
       "slug": "Endereço curto",
       "customDomain": "Seu domínio",
       "customDomainHint": "Opcional. Exemplo: meuinstituto.com",
+      "customDomainNote": "Você pode deixar em branco por agora. O site abre em um domínio de {brand}.",
+      "templatePreviewAlt": "Como fica o modelo {name}.",
       "domainFailed": "O site ficou aberto, mas o domínio não entrou na Vercel.",
       "domainTaken": "Esse domínio já está em uso.",
       "domainInvalid": "Confira o domínio. Use um host como meuinstituto.com.",

@@ -12,11 +12,12 @@ export interface PulsarContactoViewProps {
   dict: Dictionary;
   email?: string | null;
   market?: CentrolistoMarketCode;
+  interestId?: string | null;
 }
 
 const CONTACT_STILL = "/centrolisto/moments/sunday.webp";
 
-export function PulsarContactoView({ locale, dict, email = null, market = "cl" }: PulsarContactoViewProps) {
+export function PulsarContactoView({ locale, dict, email = null, market = "cl", interestId = null }: PulsarContactoViewProps) {
   const copy = dict.pulsar.contact;
   const checks = [copy.check1, copy.check2, copy.check3, copy.check4, copy.check5];
 
@@ -55,7 +56,17 @@ export function PulsarContactoView({ locale, dict, email = null, market = "cl" }
             </a>
           </div>
           <div className="lg:col-start-1 lg:row-start-2">
-            <PublicContactForm locale={locale} labels={dict.publicContact} embedded />
+            <PublicContactForm
+              locale={locale}
+              labels={dict.publicContact}
+              embedded
+              interest={{
+                label: copy.interestLabel,
+                options: copy.interestOptions,
+                initialId: interestId ?? undefined,
+              }}
+              submitLabel={copy.submitCta}
+            />
           </div>
         </div>
       </section>

@@ -40,22 +40,22 @@ describe("CentroListo multi-page growth & marketing views", () => {
     expect(screen.getByRole("heading", { name: dict.pulsar.solutions.storyTitle })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: dict.pulsar.solutionSet.gestion.cta })).toHaveAttribute(
       "href",
-      "/es/contacto",
+      "/es/contacto?interes=gestion",
     );
     expect(screen.getByRole("link", { name: dict.pulsar.solutionSet.ecosistema.cta })).toHaveAttribute(
       "href",
-      "/es/contacto",
+      "/es/contacto?interes=ecosistema",
     );
     expect(screen.getByText(dict.pulsar.pricing.templateRule)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: dict.pulsar.pricing.customCta })).toHaveAttribute(
       "href",
-      "/es/contacto",
+      "/es/contacto?interes=medida",
     );
     expect(screen.getByText(dict.pulsar.clients.voices[0].quote)).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.clients.voices[5].quote)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: dict.pulsar.home.primaryCta })).toHaveAttribute(
       "href",
-      "/es/contacto",
+      "/es#plataforma",
     );
     const signupLinks = screen.getAllByRole("link", { name: dict.pulsar.home.freeSiteCta });
     expect(signupLinks.length).toBeGreaterThan(0);
@@ -99,7 +99,7 @@ describe("CentroListo multi-page growth & marketing views", () => {
     expect(visit.querySelector('img[src*="golden.jpg"]')).toBeTruthy();
   });
 
-  it("renders the Producto view with all 12 platform modules and the competitor comparison matrix", () => {
+  it("renders the Producto view with all 12 platform modules and no competitor matrix", () => {
     render(<PulsarProductoView locale="es" dict={dict} />);
 
     expect(screen.getByRole("heading", { name: dict.pulsar.product.title })).toBeInTheDocument();
@@ -110,12 +110,8 @@ describe("CentroListo multi-page growth & marketing views", () => {
     expect(screen.getByText(dict.pulsar.product.m12Title)).toBeInTheDocument();
 
     expect(
-      screen.getByRole("heading", { name: dict.pulsar.product.comparison.title }),
-    ).toBeInTheDocument();
-    expect(screen.getByText(dict.pulsar.product.comparison.rows[0].feature)).toBeInTheDocument();
-    expect(
-      screen.getByText(dict.pulsar.product.comparison.rows[6].centroListo),
-    ).toBeInTheDocument();
+      screen.queryByRole("heading", { name: dict.pulsar.product.comparison.title }),
+    ).toBeNull();
   });
 
   it("renders the Clientes view listing configured institutes and industry ledgers", () => {
@@ -186,7 +182,7 @@ describe("CentroListo multi-page growth & marketing views", () => {
     expect(screen.queryByText(dict.pulsar.contact.emailValue)).toBeNull();
     expect(document.querySelector('a[href^="mailto:"]')).toBeNull();
     expect(screen.getByLabelText(dict.publicContact.fullName)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: dict.publicContact.submit })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: dict.pulsar.contact.submitCta })).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.contact.check1)).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.contact.check5)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: dict.pulsar.contact.faqTitle })).toBeInTheDocument();

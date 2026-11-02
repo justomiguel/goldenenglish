@@ -33,7 +33,7 @@ export function PulsarLandingHome({
 }: PulsarLandingHomeProps) {
   return (
     <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} market={market} activeNav="home">
-      <PulsarHomeHero locale={locale} dict={dict} />
+      <PulsarHomeHero locale={locale} dict={dict} market={market} />
       <PulsarHomeProof
         locale={locale}
         dict={dict}
@@ -47,7 +47,7 @@ export function PulsarLandingHome({
       <PulsarHomeIdentity dict={dict} />
       <PulsarVoiceCarousel dict={dict} />
       <PulsarHomeHow dict={dict} />
-      <PulsarHomeClose locale={locale} dict={dict} />
+      <PulsarHomeClose locale={locale} dict={dict} market={market} />
     </PulsarSiteChromeEntry>
   );
 }

@@ -5,12 +5,13 @@ import { getPulsarCookieSession } from "@/lib/pulsar/pulsarStaffAuth";
 import { loadCentrolistoDictionary } from "@/lib/pulsar/loadCentrolistoDictionary";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { PulsarContactoView } from "@/components/organisms/pulsar/PulsarContactoView";
+import { readCentrolistoInterest } from "@/lib/pulsar/centrolistoInterest";
 
 export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ pais?: string | string[] }>;
+  searchParams: Promise<{ pais?: string | string[]; interes?: string | string[] }>;
 }
 
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
@@ -47,6 +48,7 @@ export default async function PulsarContactoPage({ params, searchParams }: PageP
       dict={loaded.dict}
       email={session?.email ?? null}
       market={loaded.market}
+      interestId={readCentrolistoInterest(query.interes)}
     />
   );
 }

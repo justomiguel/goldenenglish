@@ -11,22 +11,33 @@ import { submitPublicContactForm } from "@/app/[locale]/contact/actions";
 import type { PublicSiteContactSubject } from "@/lib/messaging/publicSiteContactSubjects";
 import { trackCentrolistoGaEvent } from "@/lib/pulsar/centrolistoAnalytics";
 
+export interface PublicContactInterest {
+  label: string;
+  options: readonly { id: string; label: string }[];
+  initialId?: string;
+}
+
 export interface PublicContactFormProps {
   locale: string;
   labels: Dictionary["publicContact"];
   /** Success UI scrolls/forms stay on-page (landing embeds); default navigates via “back home”. */
   embedded?: boolean;
+  interest?: PublicContactInterest;
+  submitLabel?: string;
 }
 
 export function PublicContactForm({
   locale,
   labels,
   embedded = false,
+  interest,
+  submitLabel,
 }: PublicContactFormProps) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [subject, setSubject] = useState<PublicSiteContactSubject>("classes");
+  const [interestId, setInterestId] = useState(interest?.initialId ?? interest?.options[0]?.id ?? "");
   const [body, setBody] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -36,16 +47,18 @@ export function PublicContactForm({
     e.preventDefault();
     setBusy(true);
     setMessage(null);
+    const picked = interest?.options.find((option) => option.id === interestId);
+    const messageBody = picked ? `${interest?.label}: ${picked.label}\n\n${body}` : body;
     const res = await submitPublicContactForm(locale, {
       fullName,
       email,
       phone,
       subject,
-      body,
+      body: messageBody,
     });
     setBusy(false);
     if (res.ok) {
-      trackCentrolistoGaEvent("cl_contact_submit", { subject });
+      trackCentrolistoGaEvent("cl_contact_submit", { subject, interest: interestId });
       setDone(true);
       return;
     }
@@ -140,6 +153,28 @@ export function PublicContactForm({
           className="mt-1"
         />
       </div>
+      {interest ? (
+        <div>
+          <Label htmlFor="pc-interest" required>
+            {interest.label}
+          </Label>
+          <select
+            id="pc-interest"
+            name="interest"
+            required
+            value={interestId}
+            onChange={(e) => setInterestId(e.target.value)}
+            disabled={busy}
+            className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm text-[var(--color-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-1 disabled:opacity-50"
+          >
+            {interest.options.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
       <div>
         <Label htmlFor="pc-subject" required>
           {labels.subject}
@@ -175,9 +210,9 @@ export function PublicContactForm({
           className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm text-[var(--color-foreground)] placeholder:text-[var(--color-muted-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-1 disabled:opacity-50"
         />
       </div>
-      <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px] w-full sm:w-auto" title={labels.submit}>
+      <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px] w-full sm:w-auto" title={submitLabel ?? labels.submit}>
         {busy ? null : <Send className="h-4 w-4 shrink-0" aria-hidden />}
-        {busy ? labels.submitting : labels.submit}
+        {busy ? labels.submitting : (submitLabel ?? labels.submit)}
       </Button>
       {message ? (
         <p className="text-sm text-[var(--color-error)]" role="alert">

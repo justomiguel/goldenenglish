@@ -19,6 +19,17 @@ export async function pickRegisterBirthIso(page: Page, isoYmd: string) {
   await expect(page.locator('input[name="birth_date"]')).toHaveValue(isoYmd);
 }
 
+/** The public form asks for the document before the name fields. */
+export async function completeRegisterDniStep(page: Page, dni: string) {
+  const firstName = page.locator("#rg-fn");
+  if (await firstName.isVisible().catch(() => false)) return;
+  const dniInput = page.locator("#rg-dni");
+  await expect(dniInput).toBeVisible({ timeout: 20_000 });
+  await dniInput.fill(dni);
+  await page.locator("form").getByRole("button", { name: /^Continuar$|^Continue$/ }).click();
+  await expect(firstName).toBeVisible({ timeout: 30_000 });
+}
+
 export async function continueRegisterAfterStudent(page: Page) {
   await page.getByRole("button", { name: /continuar|continue|continuar/i }).click();
 }

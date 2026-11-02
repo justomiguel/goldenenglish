@@ -6479,6 +6479,43 @@
       "courseShopNo": "Not in the shop",
       "coursePrev": "Previous courses",
       "courseNext": "Next courses",
+      "catalogCategory": "Category",
+      "catalogCategoryNone": "General",
+      "catalogCategoryCreate": "Create category",
+      "catalogCategoryName": "Category name",
+      "catalogCategoryParent": "Parent category",
+      "catalogHashtags": "Hashtags",
+      "catalogHashtagsHint": "Separate them with spaces. Example: a1 grammar",
+      "catalogFieldName": "Field name",
+      "catalogFieldKind": "Field type",
+      "catalogFieldText": "Text",
+      "catalogFieldDropdown": "List",
+      "catalogFieldCheckbox": "Checkbox",
+      "catalogFieldDate": "Date",
+      "catalogFieldOptions": "List options",
+      "catalogFieldCreate": "Create field",
+      "catalogFieldRequired": "Required",
+      "catalogProgramTitle": "Route name",
+      "catalogProgramSetTitle": "Set name",
+      "catalogProgramCompletion": "How the set completes",
+      "catalogProgramAllInOrder": "All courses in order",
+      "catalogProgramAllAnyOrder": "All courses in any order",
+      "catalogProgramAtLeast": "At least this many",
+      "catalogProgramAtLeastCount": "Minimum count",
+      "catalogProgramCourses": "Courses in the set",
+      "catalogProgramCreate": "Create route",
+      "catalogProgramAssign": "Assign route to the section",
+      "catalogProgramSection": "Section",
+      "catalogSaveFailed": "We could not save this.",
+      "catalogMaterial": "Material type",
+      "catalogMaterialAny": "Any type",
+      "catalogMaterialVideo": "Video",
+      "catalogMaterialPdf": "PDF",
+      "catalogMaterialQuiz": "Quiz",
+      "catalogMaterialImage": "Image",
+      "catalogMaterialAudio": "Audio",
+      "catalogTag": "Hashtag",
+      "catalogTagApply": "Filter",
       "courseAssignSection": "Section",
       "courseAssign": "Assign to section",
       "courseAssignFailed": "We could not assign this course.",
@@ -12755,7 +12792,7 @@
       "pricing": "Pricing",
       "startFree": "Start free",
       "footerTagline": "Your website, enrollment, classes, and tuition, on one platform.",
-      "footerPrivacyBadge": "100% isolated database per institution · Built for Chile Law 21.719 compliance",
+      "footerPrivacyBadge": "Each institution manages its data separately.",
       "footerRights": "CentroListo.cl · Enrollment, tuition, and your school list, in one place."
     },
     "market": {
@@ -12776,7 +12813,7 @@
       "heroImageAlt": "A contemporary academy interior. Not a CentroListo client.",
       "heroImageCaption": "Students, payments, and enrollments, under the school name.",
       "lead": "Your website, enrollment, classes, tuition, and messages on one platform.",
-      "primaryCta": "See how it works",
+      "primaryCta": "Explore the platform",
       "secondaryCta": "See how it works",
       "generativeStage": {
         "noiseCaption": "late-night chats · loose spreadsheets · pending slips",
@@ -12932,14 +12969,18 @@
           "a": "We bring your current list. WhatsApp stays for the close conversation. Hours, seats, and payments live in your house."
         }
       ],
-      "freeSiteNote": "Create the public page at no cost. An admin reviews the account before it is enabled. You can open up to three sites. It does not include students, tuition, or collections.",
+      "freeSiteNote": "Your institution page is free, using a ready-made template.",
       "freeSiteCta": "Create my free page",
       "bottomCta": {
         "title": "See CentroListo in action.",
         "lead": "See how a student enrolls, how a family pays, and how a class is run, from the same place.",
         "primaryCta": "I want a demo",
         "secondaryCta": "Create my free page"
-      }
+      },
+      "demoCta": "Request a demonstration",
+      "freePlanLink": "See what the free plan includes",
+      "heroDashboardAlt": "Real CentroListo panel with students, payments, and enrollments.",
+      "heroSiteAlt": "Real institution site published with CentroListo."
     },
     "commercial": {
       "heroSupport": "With CentroListo, families can see your activities, enroll, and pay online. You control students, seats, attendance, and collections, without spreadsheets or endless chats.",
@@ -13002,12 +13043,12 @@
           "body": "Workshops, events, and products, when they are enabled."
         }
       ],
-      "identityTitle": "Your institution, your identity.",
-      "identityLead": "Families recognize your name, your colors, and your institution. CentroListo works behind that, and connects the operation.",
+      "identityTitle": "Your brand in front. CentroListo behind.",
+      "identityLead": "Your institution keeps its identity while you connect the website, academic operations, and the family experience.",
       "identityPoints": [
-        "Your domain and your brand on the site and on the phone.",
-        "The student and family space, under your name.",
-        "Your team panel, on an isolated database."
+        "Your brand on the public site.",
+        "The management panel carries your institution's name.",
+        "Family access uses that same identity when the plan includes it."
       ],
       "identityAlts": [
         "The institution site.",
@@ -13083,7 +13124,9 @@
         "Siblings",
         "Materials",
         "The first payment"
-      ]
+      ],
+      "identitySiteCaption": "Real public site. It is not the same institute as the panel.",
+      "identityPanelCaption": "Real management panel. It is not the same institute as the site."
     },
     "segments": {
       "danza": {
@@ -13308,14 +13351,39 @@
           "title": "Your community stays connected",
           "body": "The public site and the admin panel are the same institution."
         }
-      ]
+      ],
+      "connected": {
+        "title": "One platform. Everything connected.",
+        "items": [
+          {
+            "id": "inscripciones",
+            "title": "Enrollment",
+            "body": "A family sees the offer and leaves their details on the institution site."
+          },
+          {
+            "id": "cobros",
+            "title": "Payments",
+            "body": "The panel shows payment status and enrollments."
+          },
+          {
+            "id": "clases",
+            "title": "Classes",
+            "body": "Students and groups live in the same management panel."
+          },
+          {
+            "id": "familias",
+            "title": "Families",
+            "body": "The public site carries the institution's brand."
+          }
+        ]
+      }
     },
     "solutionSet": {
       "presencia": {
         "navLabel": "Presence",
         "tagline": "Your institution deserves a strong first impression.",
-        "headline": "Your academy online, free.",
-        "lead": "Choose a ready-made template, add your institution, and start a public page without a monthly fee.",
+        "headline": "Your academy online. Free with a template ready to use.",
+        "lead": "Choose a ready-made design, add your institution's information, and start your public presence.",
         "benefits": [
           "Ready-made template.",
           "Institution page.",
@@ -13324,7 +13392,20 @@
         "cta": "Create my free page",
         "seoTitle": "Website for academies | CentroListo Presence",
         "seoDescription": "Create your institution's public page with your brand. Show activities and schedules. Student management is a separate conversation.",
-        "imageAlt": "A bright independent academy. Not a CentroListo client."
+        "imageAlt": "A bright independent academy. Not a CentroListo client.",
+        "templatePickerTitle": "Choose how you want to start.",
+        "templateFreeTitle": "With a template",
+        "templateFreeBody": "Free. You pick an available design and change what the template allows.",
+        "templateCustomTitle": "With a custom design",
+        "templateCustomBody": "The published landing has a one-time price. Work beyond that scope is quoted.",
+        "templateGalleryTitle": "Available templates",
+        "templateKinds": {
+          "deportes": "Sports",
+          "jardin": "Early years",
+          "colegio": "School",
+          "musica": "Music",
+          "idiomas": "Languages"
+        }
       },
       "gestion": {
         "navLabel": "Management",
@@ -13332,15 +13413,16 @@
         "headline": "Less administration. More time to teach.",
         "lead": "Organize students, classes, teachers, enrollment, and tuition on one platform.",
         "benefits": [
-          "Enrollment and students.",
-          "Schedules and teachers.",
-          "Fees, tuition, and attendance.",
-          "Up to 50 active students."
+          "Your whole operation, organized.",
+          "Tuition and fees under control.",
+          "More time to teach."
         ],
-        "cta": "I want CentroListo Management",
+        "cta": "Request a Gestión demo",
         "seoTitle": "Student and tuition management | CentroListo",
         "seoDescription": "Enrollment, classes, teachers, attendance, and tuition in one platform. CentroListo Management.",
-        "imageAlt": "An academy coordination desk. Not a client's office."
+        "imageAlt": "An academy coordination desk. Not a client's office.",
+        "capLine": "Up to 120 active students.",
+        "usesTitle": "This is the operation."
       },
       "ecosistema": {
         "navLabel": "Ecosystem",
@@ -13348,14 +13430,16 @@
         "headline": "Your institution. Your whole community, connected.",
         "lead": "More than administration. A digital experience for students, families, and teachers, under your brand.",
         "benefits": [
-          "Everything in Management, without the 50-student cap.",
-          "A digital space for families.",
+          "A space for families and notices.",
+          "Activities, when that module is enabled.",
           "You can create course routes, offer them, and sell them in the shop."
         ],
-        "cta": "I want CentroListo Ecosystem",
+        "cta": "Request an Ecosistema demo",
         "seoTitle": "Digital experience for families | CentroListo Ecosystem",
         "seoDescription": "Families, messages, materials, and activities under your institution's brand. CentroListo Ecosystem.",
-        "imageAlt": "A small group in a learning space. Not a CentroListo case study."
+        "imageAlt": "A small group in a learning space. Not a CentroListo case study.",
+        "whyTitle": "What Ecosistema adds over Gestión.",
+        "whyLead": "Gestión organizes students, classes, and tuition. Ecosistema adds the family space and content, and it does not publish Gestión's limit of 120 students."
       }
     },
     "pricing": {
@@ -13390,10 +13474,10 @@
           "Everything in Presence with a template.",
           "Students, courses, enrollment, and schedules.",
           "Fees, tuition, payments, and attendance.",
-          "Up to 50 active students."
+          "Up to 120 active students."
         ],
         "ecosistema": [
-          "Everything in Management, without the 50-student cap.",
+          "Everything in Management, without the 120-student cap.",
           "A space for families, notices, and materials.",
           "You can create course routes, offer them, and sell them in the shop."
         ]
@@ -13441,7 +13525,97 @@
           "q": "Are payment gateway fees included?",
           "a": "No. Each gateway states its fees separately."
         }
-      ]
+      ],
+      "compareTitle": "What each solution includes",
+      "compare": {
+        "featureLabel": "What is included",
+        "marks": {
+          "included": "Included",
+          "absent": "Not included",
+          "optional": "Optional",
+          "quote": "Quote"
+        },
+        "rows": [
+          {
+            "label": "Institution site",
+            "presencia": "included",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Ready-made templates",
+            "presencia": "included",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Custom design",
+            "presencia": "optional",
+            "gestion": "optional",
+            "ecosistema": "optional"
+          },
+          {
+            "label": "Student management",
+            "presencia": "absent",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Enrollment",
+            "presencia": "absent",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Tuition and payments",
+            "presencia": "absent",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Teachers and schedules",
+            "presencia": "absent",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Attendance",
+            "presencia": "absent",
+            "gestion": "included",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Family experience",
+            "presencia": "absent",
+            "gestion": "absent",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Academic content",
+            "presencia": "absent",
+            "gestion": "absent",
+            "ecosistema": "included"
+          },
+          {
+            "label": "Events and shop",
+            "presencia": "absent",
+            "gestion": "absent",
+            "ecosistema": "optional"
+          },
+          {
+            "label": "Student capacity",
+            "presencia": "No students on the free plan",
+            "gestion": "Up to 120 active students.",
+            "ecosistema": "Gestión's published limit of 120 students is not shown."
+          },
+          {
+            "label": "Implementation",
+            "presencia": "On your own, with a template",
+            "gestion": "On your own",
+            "ecosistema": "Depends on the service"
+          }
+        ]
+      }
     },
     "product": {
       "eyebrow": "The craft behind the calm",
@@ -13622,8 +13796,8 @@
     },
     "contact": {
       "eyebrow": "GUIDED ONBOARDING",
-      "title": "Half an hour. You see your domain, your brand, and your list.",
-      "lead": "We do not hand you an empty login. Our team provisions your dedicated infrastructure, imports your initial catalog, and configures your website and payment gateways.",
+      "title": "Tell us about your institution. We help you choose how to start.",
+      "lead": "Tell us how your institution works. We propose a setup path based on what you need.",
       "stepsEyebrow": "3-STEP ACTIVATION PROCESS",
       "stepsTitle": "How we launch your institution on CentroListo.cl",
       "steps": [
@@ -13635,12 +13809,12 @@
         {
           "step": "02 · Prepare the house",
           "title": "We set your site, your isolated database, and payments",
-          "body": "Your domain, the isolated database, and Flow, Mercado Pago, or your bank stay ready."
+          "body": "We define the domain, the data, and the payment methods with you."
         },
         {
           "step": "03 · Open the doors",
-          "title": "We bring your current list and walk with you",
-          "body": "Your current list comes in. You and the teachers walk with an on-screen guide."
+          "title": "We review the information you already use",
+          "body": "We look at how to bring in the information you already use, including your current spreadsheets."
         }
       ],
       "emailLabel": "Direct team email",
@@ -13651,16 +13825,16 @@
       "whatsappHref": "https://wa.me/56965789862?text=Hello%2C%20I%20want%20to%20learn%20about%20CentroListo.cl",
       "whatsappCta": "Chat on WhatsApp",
       "checklistTitle": "What turnkey onboarding includes",
-      "check1": "100% dedicated Supabase project (independent Postgres, Auth, Storage, and backups).",
-      "check2": "Custom domain connected to the CentroListo cluster without redeploying.",
-      "check3": "Brand identity setup, Resend transactional email, and payment gateways (Flow / Mercado Pago / Transfers).",
-      "check4": "Installable mobile PWA with your center's official name and icon.",
-      "check5": "Interactive step-by-step guided tours built into the dashboard for staff and families.",
+      "check1": "Your institution's data is managed separately. Infrastructure detail is confirmed during setup.",
+      "check2": "We define the domain and the publishing steps with you.",
+      "check3": "Visual identity and payment methods follow what your institution already uses.",
+      "check4": "When the plan includes it, phone access can use your institution's name and mark.",
+      "check5": "On-screen tours exist for the team. Scope is confirmed during setup.",
       "faqTitle": "Frequently asked questions from directors",
       "faqs": [
         {
           "q": "How long does it take to launch my center on CentroListo.cl?",
-          "a": "Technical infrastructure and your domain go live in under 24 hours. With your logos, schedules, and payment credentials, full onboarding takes 3 to 5 business days."
+          "a": "We define setup and launch steps with you, based on your institution. Timing depends on configuration, payment methods, and the information we need to bring in."
         },
         {
           "q": "Do students and parents see the CentroListo brand or my academy's brand?",
@@ -13668,17 +13842,42 @@
         },
         {
           "q": "What if I already have active students mid-year?",
-          "a": "Our background CSV importer and enrollment tools let you migrate cohorts, sections, students, and guardians without interrupting classes."
+          "a": "Yes. We look at how to bring in the information you already use, including your current spreadsheets."
         },
         {
           "q": "Why does an isolated database matter for my center?",
-          "a": "Your student roster, minor records, and financial data are never mixed in shared tables with other companies. You get independent backups and strong technical alignment with Chile Law 21.719."
+          "a": "Each institution's data is managed separately. We do not present that separation as a legal certification."
+        }
+      ],
+      "submitCta": "Send inquiry",
+      "interestLabel": "Which solution interests you?",
+      "interestOptions": [
+        {
+          "id": "presencia",
+          "label": "Presence with a template"
+        },
+        {
+          "id": "medida",
+          "label": "Custom design"
+        },
+        {
+          "id": "gestion",
+          "label": "Gestión"
+        },
+        {
+          "id": "ecosistema",
+          "label": "Ecosistema"
+        },
+        {
+          "id": "unsure",
+          "label": "I am not sure"
         }
       ]
     },
     "account": {
       "registerTitle": "Create your account",
       "registerLead": "Create your institution public page at no cost. An admin reviews the account before it is enabled. Then you can open up to three sites. The free page does not include students, tuition, or collections.",
+      "authPhotoAlt": "A person at a warm desk, with the CentroListo mark stitched on the sweater.",
       "loginTitle": "Sign in",
       "loginLead": "Use the email and password of your Pulsar account.",
       "email": "Email",
@@ -13705,6 +13904,8 @@
       "slug": "Short address",
       "customDomain": "Your domain",
       "customDomainHint": "Optional. Example: myinstitute.com",
+      "customDomainNote": "You can leave it blank for now. The site opens on a {brand} domain.",
+      "templatePreviewAlt": "How the {name} template looks.",
       "domainFailed": "The site is open, but the domain was not added in Vercel.",
       "domainTaken": "That domain is already in use.",
       "domainInvalid": "Check the domain. Use a host such as myinstitute.com.",

@@ -14,9 +14,15 @@ export interface SetupOffer {
   status: CommercialOfferStatus;
 }
 
+/**
+ * Published commercial amounts. Edit this table by hand.
+ * Do not derive a country price from another country's amount.
+ * Argentina monthly amounts are the approved round prices (44900 / 99900).
+ * The custom landing amount for Argentina stays 232300 until a separate decision.
+ */
 const MONTHLY: Record<CentrolistoMarketCode, Record<PulsarSolutionSlug, number>> = {
   cl: { presencia: 0, gestion: 29990, ecosistema: 69990 },
-  ar: { presencia: 0, gestion: 46400, ecosistema: 108400 },
+  ar: { presencia: 0, gestion: 44900, ecosistema: 99900 },
   uy: { presencia: 0, gestion: 1210, ecosistema: 2830 },
   py: { presencia: 0, gestion: 180000, ecosistema: 419000 },
 };

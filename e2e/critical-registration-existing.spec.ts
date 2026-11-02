@@ -9,6 +9,7 @@ import {
 import { gotoIsolated } from "./helpers/gotoIsolated";
 import {
   chooseRegisterSectionByName,
+  completeRegisterDniStep,
   continueRegisterAfterStudent,
   pickRegisterBirthIso,
   submitRegisterAfterDetails,
@@ -42,6 +43,7 @@ test.describe("@critical-registration", () => {
     const anon = await browser.newContext();
     const page = await anon.newPage();
     await gotoIsolated(page, `/${locale}/register`);
+    await completeRegisterDniStep(page, dni);
     await page.locator("#rg-fn").fill("E2E");
     await page.locator("#rg-ln").fill(`Minor${suffix}`);
     await pickRegisterBirthIso(page, "2015-01-15");
@@ -107,6 +109,7 @@ test.describe("@critical-registration", () => {
     const family = await browser.newContext();
     const familyPage = await family.newPage();
     await familyPage.goto(inviteUrl, { waitUntil: "domcontentloaded" });
+    await completeRegisterDniStep(familyPage, "E2E-STU-B1");
     await familyPage.locator("#rg-fn").fill("E2E");
     await familyPage.locator("#rg-ln").fill("EnrolleeB");
     await pickRegisterBirthIso(familyPage, "2010-03-04");

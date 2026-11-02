@@ -17,10 +17,11 @@ describe("PulsarSolutionView", () => {
     render(<PulsarSolutionView locale="es" dict={dict} solution="presencia" />);
 
     expect(screen.getByRole("heading", { name: dict.pulsar.solutionSet.presencia.headline })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: dict.pulsar.home.freeSiteCta })).toHaveAttribute(
-      "href",
-      "/es/cuenta/registro",
-    );
+    const signup = screen.getAllByRole("link", { name: dict.pulsar.home.freeSiteCta });
+    expect(signup.length).toBeGreaterThan(0);
+    for (const link of signup) {
+      expect(link).toHaveAttribute("href", "/es/cuenta/registro");
+    }
     expect(screen.queryByText(dict.pulsar.clients.voices[0].quote)).toBeNull();
     expect(screen.queryByText(dict.pulsar.home.faqTitle)).toBeNull();
   });
@@ -32,6 +33,7 @@ describe("PulsarSolutionView", () => {
     expect(screen.getByText(dict.pulsar.clients.voices[3].quote)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: dict.pulsar.commercial.problemTitle })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: dict.pulsar.home.faqTitle })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: dict.pulsar.product.comparison.title })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: dict.pulsar.product.comparison.title })).toBeNull();
+    expect(screen.getByRole("heading", { name: dict.pulsar.solutionSet.gestion.usesTitle })).toBeInTheDocument();
   });
 });

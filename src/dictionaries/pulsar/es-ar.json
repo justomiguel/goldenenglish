@@ -17,7 +17,7 @@
     },
     "schoolsLead": "Entrá al sitio de una escuela que ya nos contrató y mirá cómo cobra.",
     "schoolsNamed": "{name} ya es cliente. Entrá y mirá su sitio en vivo.",
-    "freeSiteNote": "Creá la página pública sin costo. Un administrador revisa la cuenta antes de habilitarla. Podés abrir hasta tres sitios. No incluye alumnos, mensualidades ni cobros.",
+    "freeSiteNote": null,
     "bottomCta": {
       "title": "Conocé CentroListo funcionando."
     }
@@ -68,7 +68,7 @@
   },
   "solutionSet": {
     "presencia": {
-      "lead": "Elegí una de nuestras plantillas prediseñadas, agregá la información de tu institución y empezá a tener presencia digital sin pagar una mensualidad.",
+      "lead": null,
       "seoDescription": "Creá la página pública de tu institución con tu marca. Mostrá actividades y horarios. La gestión de alumnos se conversa aparte."
     },
     "ecosistema": {
@@ -123,9 +123,7 @@
     "steps": [
       null,
       null,
-      {
-        "body": "Entrá tu lista actual. Vos y los profesores caminan con una guía en pantalla."
-      }
+      null
     ],
     "emailLabel": "Escribinos directamente"
   },
@@ -138,6 +136,8 @@
     "dnsApex": "Creá un registro A de {name} hacia {target}.",
     "empty": "Todavía no tenés un sitio.",
     "createLead": "Un sitio gratis usa una plantilla y la base compartida. Podés agregar tu dominio. Podés abrir 3.",
+    "customDomainNote": "Podés dejarlo en blanco por ahora. El sitio abre en un dominio de {brand}.",
+    "templatePreviewAlt": "Así se ve la plantilla {name}.",
     "domainInvalid": "Revisá el dominio. Usá un host como miinstituto.com.",
     "invalidInput": "Revisá el correo y usá una contraseña de al menos 8 caracteres.",
     "createFailed": "No se pudo abrir el sitio. Intentá de nuevo."

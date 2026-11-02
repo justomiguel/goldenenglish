@@ -58,10 +58,10 @@ export function PulsarVoiceCarousel({ dict }: PulsarVoiceCarouselProps) {
         </div>
         <ul
           ref={scroller}
-          className="mt-8 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2"
+          className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3"
         >
           {copy.voices.map((voice, index) => (
-            <li key={voice.name} className="w-[min(100%,26rem)] shrink-0 snap-start">
+            <li key={voice.name}>
               <article className="flex h-full flex-col bg-[var(--color-surface)] p-6">
                 {focus[index] ? (
                   <p className="text-sm font-medium text-[var(--color-muted-foreground)]">{focus[index]}</p>

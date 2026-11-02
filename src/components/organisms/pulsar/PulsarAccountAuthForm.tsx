@@ -7,6 +7,7 @@ import { resolvePulsarPostLoginPath } from "@/app/[locale]/admin/sessionActions"
 import { registerPulsarOwnerAction } from "@/app/[locale]/cuenta/actions";
 import { Button } from "@/components/atoms/Button";
 import { useAppSurface } from "@/hooks/useAppSurface";
+import { trackCentrolistoGaEvent } from "@/lib/pulsar/centrolistoAnalytics";
 import { createPulsarBrowserClient } from "@/lib/supabase/pulsarBrowser";
 import type { Dictionary } from "@/types/i18n";
 
@@ -18,14 +19,16 @@ export function PulsarAccountAuthForm({
   mode,
   copy,
   nextPath,
+  inlineSubmit = false,
 }: {
   locale: string;
   mode: "login" | "register";
   copy: Dictionary["pulsar"]["account"];
   nextPath: string;
+  inlineSubmit?: boolean;
 }) {
   const router = useRouter();
-  const narrow = useAppSurface() !== "web-desktop";
+  const thumbSubmit = useAppSurface() !== "web-desktop" && !inlineSubmit;
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -43,6 +46,7 @@ export function PulsarAccountAuthForm({
           setError(created.errorCode === "email_taken" ? copy.emailTaken : copy.invalidInput);
           return;
         }
+        trackCentrolistoGaEvent("cl_register_complete", { method: "password" });
       }
       const supabase = createPulsarBrowserClient();
       const signed = await supabase.auth.signInWithPassword({ email: email.trim(), password });
@@ -61,7 +65,7 @@ export function PulsarAccountAuthForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className={`mx-auto max-w-md space-y-4 px-5 py-10 ${narrow ? "pb-28" : ""}`}>
+    <form onSubmit={onSubmit} className={`mx-auto max-w-md space-y-4 px-5 py-10 ${thumbSubmit ? "pb-28" : ""}`}>
       <h1 className="text-2xl font-medium">{mode === "register" ? copy.registerTitle : copy.loginTitle}</h1>
       <p className="text-sm leading-relaxed text-[var(--color-muted-foreground)]">
         {mode === "register" ? copy.registerLead : copy.loginLead}
@@ -87,11 +91,11 @@ export function PulsarAccountAuthForm({
         type="submit"
         isLoading={pending}
         className={
-          narrow
+          thumbSubmit
             ? "fixed inset-x-4 z-30 min-h-11"
             : "min-h-11 w-full"
         }
-        style={narrow ? { bottom: "max(1rem, env(safe-area-inset-bottom))" } : undefined}
+        style={thumbSubmit ? { bottom: "max(1rem, env(safe-area-inset-bottom))" } : undefined}
       >
         {mode === "register" ? <UserPlus className="h-4 w-4" aria-hidden /> : <LogIn className="h-4 w-4" aria-hidden />}
         {mode === "register" ? copy.submitRegister : copy.submitLogin}

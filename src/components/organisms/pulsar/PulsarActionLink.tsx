@@ -5,6 +5,7 @@ export interface PulsarActionLinkProps {
   href: string;
   tone: "primary" | "quiet";
   children: React.ReactNode;
+  eventName?: string;
 }
 
 const TONE_CLASS = {
@@ -14,9 +15,9 @@ const TONE_CLASS = {
     "inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3 text-sm font-semibold text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]",
 } as const;
 
-export function PulsarActionLink({ href, tone, children }: PulsarActionLinkProps) {
+export function PulsarActionLink({ href, tone, children, eventName }: PulsarActionLinkProps) {
   return (
-    <Link href={href} className={TONE_CLASS[tone]}>
+    <Link href={href} className={TONE_CLASS[tone]} data-cl-event={eventName}>
       <ArrowRight className="h-4 w-4" aria-hidden />
       <span>{children}</span>
     </Link>

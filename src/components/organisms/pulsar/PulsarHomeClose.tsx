@@ -2,13 +2,15 @@ import Image from "next/image";
 import type { Dictionary } from "@/types/i18n";
 import { PulsarActionLink } from "@/components/organisms/pulsar/PulsarActionLink";
 import { PulsarReveal } from "@/components/organisms/pulsar/PulsarReveal";
+import { withCentrolistoMarket, type CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 
 export interface PulsarHomeCloseProps {
   locale: string;
   dict: Dictionary;
+  market?: CentrolistoMarketCode;
 }
 
-export function PulsarHomeClose({ locale, dict }: PulsarHomeCloseProps) {
+export function PulsarHomeClose({ locale, dict, market = "cl" }: PulsarHomeCloseProps) {
   const copy = dict.pulsar.home;
 
   return (
@@ -29,10 +31,10 @@ export function PulsarHomeClose({ locale, dict }: PulsarHomeCloseProps) {
           </h2>
           <p className="mt-4 max-w-md text-base leading-relaxed text-[var(--color-foreground)]">{copy.bottomCta.lead}</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <PulsarActionLink href={`/${locale}/contacto`} tone="primary">
+            <PulsarActionLink href={withCentrolistoMarket(`/${locale}/contacto?interes=unsure`, market)} tone="primary" eventName="cl_demo_request">
               {copy.bottomCta.primaryCta}
             </PulsarActionLink>
-            <PulsarActionLink href={`/${locale}/cuenta/registro`} tone="quiet">
+            <PulsarActionLink href={withCentrolistoMarket(`/${locale}/cuenta/registro`, market)} tone="quiet" eventName="cl_create_free_page">
               {copy.freeSiteCta}
             </PulsarActionLink>
           </div>

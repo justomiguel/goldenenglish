@@ -1,9 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Dictionary } from "@/types/i18n";
 import { PulsarActionLink } from "@/components/organisms/pulsar/PulsarActionLink";
 import { PulsarOfferPrice } from "@/components/organisms/pulsar/PulsarOfferPrice";
-import { PulsarProductVideo } from "@/components/organisms/pulsar/PulsarProductVideo";
+import { PulsarBrowserShot } from "@/components/organisms/pulsar/PulsarBrowserShot";
 import { PulsarReveal } from "@/components/organisms/pulsar/PulsarReveal";
 import styles from "@/components/organisms/pulsar/centrolistoMotion.module.css";
 import { withCentrolistoMarket, type CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
@@ -15,8 +14,6 @@ export interface PulsarSolutionShowcaseProps {
   market?: CentrolistoMarketCode;
 }
 
-const STAGE = "relative aspect-[4/3] overflow-hidden rounded-[var(--layout-border-radius)]";
-
 const FROM = {
   presencia: "left",
   gestion: "depth",
@@ -26,9 +23,21 @@ const FROM = {
 const DELAY = [0, 120, 240] as const;
 
 function buttonHref(locale: string, slug: PulsarSolutionSlug, market: CentrolistoMarketCode): string {
-  const path = slug === "presencia" ? `/${locale}/cuenta/registro` : `/${locale}/contacto`;
-  return withCentrolistoMarket(path, market);
+  if (slug === "presencia") return withCentrolistoMarket(`/${locale}/cuenta/registro`, market);
+  return withCentrolistoMarket(`/${locale}/contacto?interes=${slug}`, market);
 }
+
+const EVENT: Record<PulsarSolutionSlug, string> = {
+  presencia: "cl_create_free_page",
+  gestion: "cl_demo_gestion",
+  ecosistema: "cl_demo_ecosistema",
+};
+
+const STAGE_SRC: Record<PulsarSolutionSlug, string> = {
+  presencia: "/centrolisto/product/public-site.jpg",
+  gestion: "/centrolisto/product/admin-hub.jpg",
+  ecosistema: "/centrolisto/product/public-site.jpg",
+};
 
 export function PulsarSolutionShowcase({ locale, dict, market = "cl" }: PulsarSolutionShowcaseProps) {
   const copy = dict.pulsar.solutions;
@@ -53,29 +62,16 @@ export function PulsarSolutionShowcase({ locale, dict, market = "cl" }: PulsarSo
             return (
               <article key={slug} className={`${styles.pricePanel} grid items-center gap-8 lg:grid-cols-2 lg:gap-14`}>
                 <PulsarReveal from={FROM[slug]} delay={DELAY[index]} className={slug === "gestion" ? "lg:order-2" : undefined}>
-                  <Link href={landing} className="block">
-                    <figure className={`${styles.frameShift} ${STAGE}`}>
-                      {slug === "gestion" ? (
-                        <PulsarProductVideo
-                          src="/videos/centrolisto/flow-2-desktop.webm"
-                          poster="/centrolisto/product/admin-hub.jpg"
-                          label={copy.adminAlt}
-                          className="absolute inset-0 h-full w-full object-cover object-top"
-                        />
-                      ) : (
-                        <Image
-                          src={
-                            slug === "presencia"
-                              ? "/centrolisto/product/public-site.jpg"
-                              : "/centrolisto/marketing/ecosistema-editorial.jpg"
-                          }
-                          alt={slug === "presencia" ? copy.publicSiteAlt : item.imageAlt}
-                          fill
-                          sizes="(min-width: 1024px) 36rem, 100vw"
-                          className={slug === "presencia" ? "object-cover object-top" : "object-cover"}
-                        />
-                      )}
-                    </figure>
+                  <Link href={landing} className={`${styles.frameShift} block`}>
+                    <PulsarBrowserShot
+                      src={STAGE_SRC[slug]}
+                      alt={slug === "gestion" ? copy.adminAlt : copy.publicSiteAlt}
+                    />
+                    {slug === "ecosistema" ? (
+                      <div className="mt-4 max-w-[16rem]">
+                        <PulsarBrowserShot src="/centrolisto/product/admin-hub.jpg" alt={copy.adminAlt} />
+                      </div>
+                    ) : null}
                   </Link>
                 </PulsarReveal>
                 <div className={slug === "gestion" ? "lg:order-1" : undefined}>
@@ -88,21 +84,24 @@ export function PulsarSolutionShowcase({ locale, dict, market = "cl" }: PulsarSo
                   </h3>
                   <p className="mt-3 text-base leading-relaxed text-[var(--color-foreground)]">{item.lead}</p>
                   <ul className="mt-5 space-y-2">
-                    {item.benefits.map((benefit) => (
+                    {item.benefits.slice(0, 3).map((benefit) => (
                       <li key={benefit} className="text-sm leading-relaxed text-[var(--color-muted-foreground)]">
                         {benefit}
                       </li>
                     ))}
                   </ul>
+                  {slug === "gestion" ? (
+                    <p className="mt-3 text-sm font-medium text-[var(--color-foreground)]">{dict.pulsar.solutionSet.gestion.capLine}</p>
+                  ) : null}
                   {slug === "presencia" ? (
                     <p className="mt-5 text-sm font-medium text-[var(--color-foreground)]">{pricing.templateRule}</p>
                   ) : null}
                   <div className="mt-6 flex flex-col items-start gap-3">
-                    <PulsarActionLink href={buttonHref(locale, slug, market)} tone={slug === "presencia" ? "primary" : "quiet"}>
+                    <PulsarActionLink href={buttonHref(locale, slug, market)} tone={slug === "presencia" ? "primary" : "quiet"} eventName={EVENT[slug]}>
                       {item.cta}
                     </PulsarActionLink>
                     {slug === "presencia" ? (
-                      <PulsarActionLink href={`/${locale}/contacto`} tone="quiet">
+                      <PulsarActionLink href={withCentrolistoMarket(`/${locale}/contacto?interes=medida`, market)} tone="quiet" eventName="cl_quote_custom">
                         {pricing.customCta}
                       </PulsarActionLink>
                     ) : null}

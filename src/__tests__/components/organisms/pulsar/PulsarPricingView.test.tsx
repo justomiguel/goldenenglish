@@ -27,24 +27,24 @@ describe("PulsarPricingView", () => {
     expect(screen.queryByText(formatOfferAmount(49990, "cl"))).toBeNull();
     expect(screen.getAllByText(new RegExp(formatOfferAmount(149990, "cl").replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))).length).toBeGreaterThan(0);
     expect(screen.queryByText("44.900")).toBeNull();
-    expect(screen.queryByText("120")).toBeNull();
+    expect(screen.getAllByText("Hasta 120 alumnos activos.").length).toBeGreaterThan(0);
     expect(screen.queryByText("300")).toBeNull();
 
     const signup = screen.getAllByRole("link", { name: dict.pulsar.solutionSet.presencia.cta });
     for (const link of signup) expect(link).toHaveAttribute("href", "/es/cuenta/registro");
     expect(screen.getByRole("link", { name: dict.pulsar.solutionSet.gestion.cta })).toHaveAttribute(
       "href",
-      "/es/contacto",
+      "/es/contacto?interes=gestion",
     );
     expect(screen.getByRole("link", { name: dict.pulsar.solutionSet.ecosistema.cta })).toHaveAttribute(
       "href",
-      "/es/contacto",
+      "/es/contacto?interes=ecosistema",
     );
     const quotes = screen.getAllByRole("link", { name: dict.pulsar.pricing.customCta });
-    for (const link of quotes) expect(link).toHaveAttribute("href", "/es/contacto");
+    for (const link of quotes) expect(link).toHaveAttribute("href", "/es/contacto?interes=medida");
     expect(screen.getByText(dict.pulsar.pricing.faqs[0].q)).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: dict.pulsar.market.label })).toHaveValue("cl");
-    expect(screen.getAllByText("Hasta 50 alumnos activos.").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Hasta 50 alumnos activos.")).toBeNull();
     expect(screen.getAllByText(/rutas de cursos/).length).toBeGreaterThan(0);
   });
 
@@ -52,8 +52,10 @@ describe("PulsarPricingView", () => {
     const arDict = applyCentrolistoMarketDictionary(dict, "es", "ar");
     render(<PulsarPricingView locale="es" dict={arDict} market="ar" />);
     const text = document.body.textContent?.replace(/[\s\u00a0\u202f]/g, "") ?? "";
-    expect(text).toContain("46.400");
-    expect(text).toContain("108.400");
+    expect(text).toContain("44.900");
+    expect(text).toContain("99.900");
+    expect(text).not.toContain("46.400");
+    expect(text).not.toContain("108.400");
     expect(text).toContain("232.300");
     expect(document.body.textContent).toContain("Podés crear");
     expect(screen.getByRole("combobox", { name: dict.pulsar.market.label })).toHaveValue("ar");

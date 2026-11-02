@@ -19,11 +19,13 @@ describe("centrolistoCommercialOffer", () => {
   });
 
   it("formats each country in its own currency", () => {
-    expect(publishedMonthlyAmount("gestion", "ar")).toBe(46400);
+    expect(publishedMonthlyAmount("gestion", "ar")).toBe(44900);
+    expect(publishedMonthlyAmount("ecosistema", "ar")).toBe(99900);
     expect(publishedMonthlyAmount("ecosistema", "uy")).toBe(2830);
     expect(publishedMonthlyAmount("gestion", "py")).toBe(180000);
     expect(customLandingAmount("ar")).toBe(232300);
-    expect(formatOfferAmount(46400, "ar")).toContain("46.400");
+    expect(formatOfferAmount(44900, "ar")).toContain("44.900");
+    expect(formatOfferAmount(99900, "ar")).toContain("99.900");
     expect(formatOfferAmount(1210, "uy")).toContain("1.210");
     expect(formatOfferAmount(180000, "py")).toContain("180.000");
     expect(publishedSetupOffer("customLanding", "py")?.amount).toBe(898000);

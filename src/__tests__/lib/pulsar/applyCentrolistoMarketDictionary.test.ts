@@ -23,6 +23,16 @@ describe("applyCentrolistoMarketDictionary", () => {
   it("keeps tuteo for Chile and Paraguay", () => {
     expect(shopLine(applyCentrolistoMarketDictionary(spanish, "es", "cl"))).toContain("Puedes crear");
     expect(shopLine(applyCentrolistoMarketDictionary(spanish, "es", "py"))).toContain("Puedes crear");
+    expect(applyCentrolistoMarketDictionary(spanish, "es", "cl").pulsar.solutionSet.presencia.lead).toMatch(/\bElige\b/);
+  });
+
+  it("does not mix tuteo imperatives into the Argentina lead", () => {
+    const lead = applyCentrolistoMarketDictionary(spanish, "es", "ar").pulsar.solutionSet.presencia.lead;
+    expect(lead).toContain("Elegí");
+    expect(lead).toContain("agregá");
+    expect(lead).toContain("empezá");
+    expect(lead).not.toContain("Elige");
+    expect(lead).not.toContain("empieza");
   });
 
   it("keeps English when the country is Argentina", () => {

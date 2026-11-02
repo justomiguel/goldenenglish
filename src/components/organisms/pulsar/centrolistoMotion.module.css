@@ -83,6 +83,30 @@
   .panel:focus-within .frameShift {
     transform: translateY(-8px) scale(1.02);
   }
+
+  .heroCard,
+  .heroCardFar,
+  .deviceLeft,
+  .deviceRight {
+    transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+.heroStage {
+  --cl-x: 0;
+  --cl-y: 0;
+}
+
+.heroCard {
+  transform: translate3d(calc(var(--cl-x) * 12px), calc(var(--cl-y) * 8px), 0);
+}
+
+.heroCardFar {
+  transform: translate3d(calc(var(--cl-x) * -10px), calc(var(--cl-y) * -6px), 0);
+}
+
+.storyOn {
+  animation: cl-depth 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes cl-rise {
@@ -166,7 +190,12 @@
   .heroAside,
   .pairA,
   .pairB,
-  .pricePanel {
+  .pricePanel,
+  .heroCard,
+  .heroCardFar,
+  .storyOn,
+  .deviceLeft,
+  .deviceRight {
     animation: none;
     opacity: 1;
     transform: none;

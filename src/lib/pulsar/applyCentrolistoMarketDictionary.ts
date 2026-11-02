@@ -5,6 +5,7 @@ import esPy from "@/dictionaries/pulsar/es-py.json";
 import esUy from "@/dictionaries/pulsar/es-uy.json";
 import type { CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 import { mergeCentrolistoCopy } from "@/lib/pulsar/mergeCentrolistoCopy";
+import { applyRioplatenseMarketingCopy } from "@/lib/pulsar/rioplatenseMarketingCopy";
 
 function overlayFor(market: CentrolistoMarketCode): unknown {
   if (market === "ar") return esAr;
@@ -25,9 +26,8 @@ export function applyCentrolistoMarketDictionary(
 ): Dictionary {
   if (locale !== "es") return dict;
   const overlay = overlayFor(market);
-  if (!hasKeys(overlay)) return dict;
-  return {
-    ...dict,
-    pulsar: mergeCentrolistoCopy(dict.pulsar, overlay),
-  };
+  const merged = hasKeys(overlay) ? mergeCentrolistoCopy(dict.pulsar, overlay) : dict.pulsar;
+  const pulsar = market === "ar" || market === "uy" ? applyRioplatenseMarketingCopy(merged) : merged;
+  if (pulsar === dict.pulsar) return dict;
+  return { ...dict, pulsar };
 }
