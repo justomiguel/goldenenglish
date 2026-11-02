@@ -182,6 +182,10 @@ BEGIN
   VALUES ('inscriptions_enabled', 'true'::jsonb, now())
   ON CONFLICT (key) DO UPDATE SET value = 'true'::jsonb, updated_at = now();
 
+  INSERT INTO public.site_settings (key, value, updated_at)
+  VALUES ('register_show_all_sections', 'true'::jsonb, now())
+  ON CONFLICT (key) DO UPDATE SET value = 'true'::jsonb, updated_at = now();
+
   INSERT INTO public.academic_cohorts (name, slug, starts_on, ends_on, is_current)
   VALUES (
     'E2E Cohort',

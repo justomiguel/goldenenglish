@@ -31,7 +31,10 @@ export async function completeRegisterDniStep(page: Page, dni: string) {
 }
 
 export async function continueRegisterAfterStudent(page: Page) {
-  await page.getByRole("button", { name: /continuar|continue|continuar/i }).click();
+  const next = page.getByRole("button", { name: /^Continuar$|^Continue$/ });
+  if (await next.isVisible().catch(() => false)) {
+    await next.click();
+  }
 }
 
 export async function chooseRegisterSectionByName(page: Page, name: string | RegExp) {
