@@ -5,12 +5,14 @@ import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { isPulsarSegmentSlug } from "@/lib/pulsar/pulsarSegmentSlugs";
 import { getPulsarCookieSession } from "@/lib/pulsar/pulsarStaffAuth";
+import { readCentrolistoMarket } from "@/lib/pulsar/readCentrolistoMarket";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 
 export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ locale: string; segment: string }>;
+  searchParams: Promise<{ pais?: string | string[] }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -33,13 +35,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function PulsarSegmentPage({ params }: PageProps) {
+export default async function PulsarSegmentPage({ params, searchParams }: PageProps) {
   if (!(await isPulsarPlatformRequest())) notFound();
   const { locale, segment } = await params;
   if (!isPulsarSegmentSlug(segment)) notFound();
-  const [dict, session] = await Promise.all([
+  const [dict, session, market] = await Promise.all([
     getDictionary(locale as AppLocale),
     getPulsarCookieSession(),
+    readCentrolistoMarket(await searchParams),
   ]);
   return (
     <PulsarSegmentView
@@ -47,6 +50,7 @@ export default async function PulsarSegmentPage({ params }: PageProps) {
       dict={dict}
       segment={segment}
       email={session?.email ?? null}
+      market={market}
     />
   );
 }

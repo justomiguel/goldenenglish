@@ -4,6 +4,7 @@ import type { Dictionary } from "@/types/i18n";
 import { PulsarClientInstituteMark } from "@/components/organisms/pulsar/PulsarClientInstituteMark";
 import { PulsarClientPreviewCard } from "@/components/organisms/pulsar/PulsarClientPreviewCard";
 import { PulsarSiteChromeEntry } from "@/components/organisms/pulsar/PulsarSiteChromeEntry";
+import type { CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 import { PulsarVoiceCarousel } from "@/components/organisms/pulsar/PulsarVoiceCarousel";
 
 export interface PulsarClientSummary {
@@ -21,6 +22,7 @@ export interface PulsarClientesViewProps {
   dict: Dictionary;
   clients: readonly PulsarClientSummary[];
   email?: string | null;
+  market?: CentrolistoMarketCode;
 }
 
 function clientHref(client: PulsarClientSummary): string | null {
@@ -32,6 +34,7 @@ export function PulsarClientesView({
   dict,
   clients,
   email = null,
+  market = "cl",
 }: PulsarClientesViewProps) {
   const copy = dict.pulsar.clients;
   const withMedia = clients.filter(
@@ -41,7 +44,7 @@ export function PulsarClientesView({
     (client) => !client.previewVideoSrc && !client.previewPosterSrc,
   );
   return (
-    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} activeNav="clients">
+    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} market={market} activeNav="clients">
       <section className="border-b border-[var(--color-border)] py-10 md:py-14">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <h1 className="max-w-2xl font-display text-4xl font-medium tracking-tight text-[var(--color-foreground)] sm:text-5xl">

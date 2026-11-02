@@ -6,11 +6,13 @@ import { PulsarOfferPrice } from "@/components/organisms/pulsar/PulsarOfferPrice
 import { PulsarProductVideo } from "@/components/organisms/pulsar/PulsarProductVideo";
 import { PulsarReveal } from "@/components/organisms/pulsar/PulsarReveal";
 import styles from "@/components/organisms/pulsar/centrolistoMotion.module.css";
+import { withCentrolistoMarket, type CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 import { PULSAR_SOLUTION_SLUGS, type PulsarSolutionSlug } from "@/lib/pulsar/pulsarSolutionSlugs";
 
 export interface PulsarSolutionShowcaseProps {
   locale: string;
   dict: Dictionary;
+  market?: CentrolistoMarketCode;
 }
 
 const STAGE = "relative aspect-[4/3] overflow-hidden rounded-[var(--layout-border-radius)]";
@@ -23,12 +25,12 @@ const FROM = {
 
 const DELAY = [0, 120, 240] as const;
 
-function buttonHref(locale: string, slug: PulsarSolutionSlug): string {
-  if (slug === "presencia") return `/${locale}/cuenta/registro`;
-  return `/${locale}/contacto`;
+function buttonHref(locale: string, slug: PulsarSolutionSlug, market: CentrolistoMarketCode): string {
+  const path = slug === "presencia" ? `/${locale}/cuenta/registro` : `/${locale}/contacto`;
+  return withCentrolistoMarket(path, market);
 }
 
-export function PulsarSolutionShowcase({ locale, dict }: PulsarSolutionShowcaseProps) {
+export function PulsarSolutionShowcase({ locale, dict, market = "cl" }: PulsarSolutionShowcaseProps) {
   const copy = dict.pulsar.solutions;
   const pricing = dict.pulsar.pricing;
 
@@ -40,14 +42,14 @@ export function PulsarSolutionShowcase({ locale, dict }: PulsarSolutionShowcaseP
         </h2>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--color-muted-foreground)]">{copy.sectionLead}</p>
         <div className="mt-4">
-          <Link href={`/${locale}/precios`} className="text-sm font-medium text-[var(--color-foreground)] underline-offset-4 hover:underline">
+          <Link href={withCentrolistoMarket(`/${locale}/precios`, market)} className="text-sm font-medium text-[var(--color-foreground)] underline-offset-4 hover:underline">
             {pricing.seePrices}
           </Link>
         </div>
         <div className="mt-14 space-y-20">
           {PULSAR_SOLUTION_SLUGS.map((slug, index) => {
             const item = dict.pulsar.solutionSet[slug];
-            const landing = `/${locale}/soluciones/${slug}`;
+            const landing = withCentrolistoMarket(`/${locale}/soluciones/${slug}`, market);
             return (
               <article key={slug} className={`${styles.pricePanel} grid items-center gap-8 lg:grid-cols-2 lg:gap-14`}>
                 <PulsarReveal from={FROM[slug]} delay={DELAY[index]} className={slug === "gestion" ? "lg:order-2" : undefined}>
@@ -78,7 +80,7 @@ export function PulsarSolutionShowcase({ locale, dict }: PulsarSolutionShowcaseP
                 </PulsarReveal>
                 <div className={slug === "gestion" ? "lg:order-1" : undefined}>
                   <p className="text-sm font-medium text-[var(--color-muted-foreground)]">{item.navLabel}</p>
-                  <PulsarOfferPrice locale={locale} dict={dict} slug={slug} />
+                  <PulsarOfferPrice dict={dict} slug={slug} market={market} />
                   <h3 className="mt-4 font-display text-3xl font-medium tracking-tight text-[var(--color-foreground)]">
                     <Link href={landing} className="transition-colors hover:text-[var(--color-primary)]">
                       {item.headline}
@@ -96,7 +98,7 @@ export function PulsarSolutionShowcase({ locale, dict }: PulsarSolutionShowcaseP
                     <p className="mt-5 text-sm font-medium text-[var(--color-foreground)]">{pricing.templateRule}</p>
                   ) : null}
                   <div className="mt-6 flex flex-col items-start gap-3">
-                    <PulsarActionLink href={buttonHref(locale, slug)} tone={slug === "presencia" ? "primary" : "quiet"}>
+                    <PulsarActionLink href={buttonHref(locale, slug, market)} tone={slug === "presencia" ? "primary" : "quiet"}>
                       {item.cta}
                     </PulsarActionLink>
                     {slug === "presencia" ? (

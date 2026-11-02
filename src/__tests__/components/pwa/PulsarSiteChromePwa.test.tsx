@@ -1,5 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/es",
+  useSearchParams: () => new URLSearchParams(),
+}));
 import es from "@/dictionaries/es.json";
 import type { Dictionary } from "@/types/i18n";
 
@@ -36,6 +42,8 @@ describe("PulsarSiteChromePwa", () => {
       "aria-current",
       "page",
     );
+    expect(screen.getByRole("combobox", { name: dict.pulsar.market.label })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Paraguay" })).toBeInTheDocument();
   });
 
   it("shows sign-in and hides the thumb link on the conversation page", () => {

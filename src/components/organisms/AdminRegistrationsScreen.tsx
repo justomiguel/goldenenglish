@@ -36,6 +36,7 @@ export interface AdminRegistrationsScreenProps {
   userLabels: RegistrationAcceptUserLabels;
   currentCohortSections?: CurrentCohortSection[];
   currentCohortName?: string;
+  createSectionHref?: string | null;
   usesCefrLevel?: boolean;
 }
 

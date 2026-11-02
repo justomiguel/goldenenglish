@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { ArrowRight, Home, LayoutDashboard, MessageCircle, School, Waypoints } from "lucide-react";
 import { CentroListoLogoMark } from "@/components/organisms/pulsar/CentroListoLogoMark";
+import { CentrolistoMarketPicker } from "@/components/organisms/pulsar/CentrolistoMarketPicker";
 import { PulsarSegmentNav } from "@/components/organisms/pulsar/PulsarSegmentNav";
 import { PulsarSolutionNav } from "@/components/organisms/pulsar/PulsarSolutionNav";
 import { PulsarSessionMenu } from "@/components/organisms/pulsar/PulsarSessionMenu";
+import { withCentrolistoMarket } from "@/lib/pulsar/centrolistoMarket";
 import type { PulsarSiteChromeProps } from "@/components/organisms/pulsar/PulsarSiteChrome";
 
 const NAV = [
@@ -19,10 +21,12 @@ export function PulsarSiteChromePwa({
   locale,
   dict,
   email = null,
+  market = "cl",
   activeNav = "home",
   children,
 }: PulsarSiteChromeProps) {
   const nav = dict.pulsar.nav;
+  const href = (path: string) => withCentrolistoMarket(path, market);
   const labels = {
     home: nav.home,
     product: nav.product,
@@ -38,13 +42,14 @@ export function PulsarSiteChromePwa({
         style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         <div className="flex min-h-14 items-center justify-between gap-2 px-4">
-          <Link href={`/${locale}`} className="inline-flex min-h-11 items-center" aria-label={dict.pulsar.meta.brandName}>
+          <Link href={href(`/${locale}`)} className="inline-flex min-h-11 items-center" aria-label={dict.pulsar.meta.brandName}>
             <CentroListoLogoMark size="sm" />
           </Link>
           <div className="flex items-center gap-1">
+            <CentrolistoMarketPicker market={market} copy={dict.pulsar.market} />
             {email ? (
               <Link
-                href={`/${locale}/admin`}
+                href={href(`/${locale}/admin`)}
                 className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] px-3 text-sm font-semibold text-[var(--color-foreground)]"
               >
                 <LayoutDashboard className="h-4 w-4" aria-hidden />
@@ -58,8 +63,8 @@ export function PulsarSiteChromePwa({
 
       <main className={showThumb ? "flex-1 pb-8" : "flex-1"}>{children}</main>
       <div className="space-y-8 px-4 pb-36">
-        <PulsarSolutionNav locale={locale} dict={dict} />
-        <PulsarSegmentNav locale={locale} dict={dict} />
+        <PulsarSolutionNav locale={locale} dict={dict} market={market} />
+        <PulsarSegmentNav locale={locale} dict={dict} market={market} />
       </div>
 
       <nav
@@ -69,7 +74,7 @@ export function PulsarSiteChromePwa({
       >
         {showThumb ? (
           <Link
-            href={`/${locale}/cuenta/registro`}
+            href={href(`/${locale}/cuenta/registro`)}
             className="flex min-h-12 items-center justify-between gap-3 bg-[var(--color-primary)] px-5 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)]"
           >
             <span>{nav.startFree}</span>
@@ -83,7 +88,7 @@ export function PulsarSiteChromePwa({
             return (
               <li key={item.key}>
                 <Link
-                  href={item.href(locale)}
+                  href={href(item.href(locale))}
                   aria-current={current ? "page" : undefined}
                   className={`flex min-h-14 flex-col items-center justify-center gap-1 border-t-2 px-1 text-[11px] ${
                     current

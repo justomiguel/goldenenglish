@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronRight, SkipForward } from "lucide-react";
+import { ChevronRight, Plus, SkipForward } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/atoms/Button";
 import { SectionCapacityBar } from "@/components/molecules/SectionCapacityBar";
 import type { Dictionary } from "@/types/i18n";
@@ -14,6 +15,7 @@ export interface AdminRegistrationAcceptSectionPickerProps {
   labels: Dictionary["admin"]["registrations"];
   onPickSection: (sectionId: string) => void;
   onSkipSection: () => void;
+  createSectionHref?: string | null;
 }
 
 export function AdminRegistrationAcceptSectionPicker({
@@ -24,6 +26,7 @@ export function AdminRegistrationAcceptSectionPicker({
   labels,
   onPickSection,
   onSkipSection,
+  createSectionHref,
 }: AdminRegistrationAcceptSectionPickerProps) {
   return (
     <div className="space-y-4">
@@ -35,6 +38,15 @@ export function AdminRegistrationAcceptSectionPicker({
         {cohortName ? ` — ${cohortName}` : ""}
       </p>
 
+      {sections.length === 0 && createSectionHref ? (
+        <Link
+          href={createSectionHref}
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-semibold text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+        >
+          <Plus className="h-4 w-4 shrink-0" aria-hidden />
+          {labels.createSectionInCohort}
+        </Link>
+      ) : (
       <ul className="space-y-2">
         {sections.map((sec) => {
           const full = sec.activeCount >= sec.maxStudents;
@@ -63,6 +75,7 @@ export function AdminRegistrationAcceptSectionPicker({
           );
         })}
       </ul>
+      )}
 
       {formError ? (
         <p className="text-sm text-[var(--color-error)]" role="alert">

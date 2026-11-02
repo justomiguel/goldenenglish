@@ -4515,7 +4515,8 @@
       "nagoAcceptedAt": "Aceito em",
       "tutorAccountDefaultFirst": "Tutor",
       "sectionPickerTitle": "Atribuir a uma seção",
-      "sectionPickerLead": "Escolha uma seção da coorte atual",
+      "sectionPickerLead": "Escolha uma seção da coorte de inscrições web",
+      "createSectionInCohort": "Criar seção nesta coorte",
       "skipSectionEnrollment": "Pular por enquanto",
       "sectionEnrollError": "Não foi possível inscrever o aluno na seção",
       "enrollSuccess": "Aluno matriculado na seção",
@@ -12592,6 +12593,13 @@
       "footerPrivacyBadge": "Arquitetura com banco de dados 100% isolado por instituição · Preparada para a Lei 21.719 (Chile)",
       "footerRights": "CentroListo.cl · Matrícula, cobrança e lista da sua escola, em um só lugar."
     },
+    "market": {
+      "label": "País dos preços",
+      "cl": "Chile",
+      "ar": "Argentina",
+      "uy": "Uruguai",
+      "py": "Paraguai"
+    },
     "session": {
       "signIn": "Entrar",
       "signOut": "Sair",
@@ -13161,7 +13169,8 @@
         "benefits": [
           "Inscrições e alunos.",
           "Horários e professores.",
-          "Matrículas, mensalidades e presença."
+          "Matrículas, mensalidades e presença.",
+          "Até 50 alunos ativos."
         ],
         "cta": "Quero o CentroListo Gestão",
         "seoTitle": "Gestão de alunos e mensalidades | CentroListo",
@@ -13174,9 +13183,9 @@
         "headline": "A sua instituição. Toda a comunidade conectada.",
         "lead": "Muito mais do que administrar. Ofereça uma experiência digital para alunos, famílias e professores, com a sua marca.",
         "benefits": [
+          "Tudo de Gestão, sem o limite de 50 alunos.",
           "Espaço digital para famílias.",
-          "Comunicados e materiais.",
-          "Oficinas e eventos, quando estão habilitados."
+          "Você pode criar rotas de cursos, oferecê-los e vendê-los na loja."
         ],
         "cta": "Quero o CentroListo Ecossistema",
         "seoTitle": "Experiência digital para famílias | CentroListo Ecossistema",
@@ -13190,19 +13199,20 @@
       "lead": "Da primeira página até uma instituição conectada. Escolha a solução de que precisa hoje.",
       "free": "Grátis",
       "withTemplates": "Com um modelo pronto",
-      "templateRule": "Modelo pronto: grátis. Design exclusivo: orçamento sob medida.",
+      "templateRule": "Modelo pronto: grátis. A landing sob medida cobra-se uma vez.",
+      "customLandingLabel": "Landing sob medida",
       "perMonthTax": "+ IVA/mês",
       "oneTimeTax": "+ IVA, pagamento único",
       "customTitle": "Quer algo único? Também desenhamos o site sob medida.",
       "customBody": "Se procura uma experiência visual exclusiva para a sua identidade, preparamos uma proposta. Conte a ideia.",
       "customCta": "Pedir orçamento de design",
       "seePrices": "Ver a comparação",
-      "setupTitle": "A implementação cobra-se à parte",
-      "setupLead": "A mensalidade e o valor único de arranque são diferentes. As comissões de cada meio de pagamento informam-se à parte.",
+      "setupTitle": "A landing sob medida cobra-se uma vez",
+      "setupLead": "A mensalidade e a landing sob medida são pagamentos diferentes. As comissões de cada meio de pagamento informam-se à parte.",
       "quoteLabel": "Orçamento",
       "faqTitle": "Perguntas sobre o preço",
       "seoTitle": "Preços para academias | CentroListo",
-      "seoDescription": "Presença é grátis com um modelo pronto. Gestão e Ecossistema têm mensalidade no Chile. O design exclusivo é orçado.",
+      "seoDescription": "Presença é grátis com um modelo pronto. Gestão e Ecossistema têm mensalidade. A landing sob medida cobra-se uma vez.",
       "closeTitle": "Comece com um modelo. Cresça quando precisar.",
       "featuresTitle": "O que cada solução inclui",
       "features": {
@@ -13214,12 +13224,13 @@
         "gestion": [
           "Tudo de Presença com modelo.",
           "Alunos, cursos, inscrições e horários.",
-          "Matrículas, mensalidades, pagamentos e presença."
+          "Matrículas, mensalidades, pagamentos e presença.",
+          "Até 50 alunos ativos."
         ],
         "ecosistema": [
-          "Tudo de Gestão.",
+          "Tudo de Gestão, sem o limite de 50 alunos.",
           "Espaço para famílias, avisos e materiais.",
-          "Eventos, oficinas e pedidos, quando estão habilitados."
+          "Você pode criar rotas de cursos, oferecê-los e vendê-los na loja."
         ]
       },
       "setupRows": [
@@ -13228,20 +13239,12 @@
           "label": "Presença com modelo, por sua conta"
         },
         {
-          "id": "presenciaCustom",
-          "label": "Design exclusivo de Presença"
+          "id": "customLanding",
+          "label": "Landing sob medida para Presença ou Ecossistema"
         },
         {
           "id": "gestionSelfServe",
           "label": "Gestão, configuração por sua conta"
-        },
-        {
-          "id": "gestionAssisted",
-          "label": "Gestão, configuração assistida"
-        },
-        {
-          "id": "ecosistemaAssisted",
-          "label": "Ecossistema, implementação assistida"
         },
         {
           "id": "special",
@@ -13255,7 +13258,7 @@
         },
         {
           "q": "Posso personalizar a página?",
-          "a": "Pode adaptar os conteúdos e a identidade do modelo. Um design exclusivo é orçado à parte."
+          "a": "Pode adaptar os conteúdos e a identidade do modelo. A landing sob medida tem um pagamento único publicado nesta página."
         },
         {
           "q": "Preciso da Gestão para ter o site?",
@@ -13266,8 +13269,8 @@
           "a": "Pode conhecer Gestão e Ecossistema para somar administração e o espaço das famílias. A mudança não é automática."
         },
         {
-          "q": "O design personalizado tem um preço fixo?",
-          "a": "Não. O orçamento segue o alcance do projeto."
+          "q": "A landing sob medida tem um preço fixo?",
+          "a": "Sim. Presença e Ecossistema mostram o mesmo pagamento único. Um desenvolvimento especial é orçado à parte."
         },
         {
           "q": "As comissões dos meios de pagamento estão incluídas?",

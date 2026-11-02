@@ -31,12 +31,10 @@ export async function loadCurrentCohort(
   return data as CurrentCohort;
 }
 
-export async function loadCurrentCohortSections(
+export async function loadCohortSections(
   supabase: SupabaseClient,
+  cohortId: string,
 ): Promise<CurrentCohortSection[]> {
-  const cohort = await loadCurrentCohort(supabase);
-  if (!cohort) return [];
-
   const defaultMax = getDefaultSectionMaxStudents();
 
   const { data: sections } = await supabase
@@ -44,7 +42,7 @@ export async function loadCurrentCohortSections(
     .select(
       "id, name, max_students, profiles!academic_sections_teacher_id_fkey(first_name, last_name)",
     )
-    .eq("cohort_id", cohort.id)
+    .eq("cohort_id", cohortId)
     .is("archived_at", null)
     .order("name", { ascending: true });
 
@@ -83,4 +81,12 @@ export async function loadCurrentCohortSections(
       maxStudents: s.max_students ?? defaultMax,
     };
   });
+}
+
+export async function loadCurrentCohortSections(
+  supabase: SupabaseClient,
+): Promise<CurrentCohortSection[]> {
+  const cohort = await loadCurrentCohort(supabase);
+  if (!cohort) return [];
+  return loadCohortSections(supabase, cohort.id);
 }

@@ -19,6 +19,8 @@ export interface AdminRegistrationExpandedDetailsProps {
   sectionName: string | null;
   requestedSectionNames?: string[];
   currentCohortSections?: CurrentCohortSection[];
+  createSectionHref?: string | null;
+  createSectionLabel?: string;
   busy?: boolean;
   onBusy?: (id: string | null) => void;
   onIntakeDone?: () => void;
@@ -43,6 +45,8 @@ export function AdminRegistrationExpandedDetails({
   sectionName,
   requestedSectionNames = [],
   currentCohortSections,
+  createSectionHref,
+  createSectionLabel,
   busy,
   onBusy,
   onIntakeDone,
@@ -120,6 +124,8 @@ export function AdminRegistrationExpandedDetails({
             labels={labels.intake}
             joinBilling={labels.joinBilling}
             sections={currentCohortSections ?? []}
+            createSectionHref={createSectionHref}
+            createSectionLabel={createSectionLabel}
             busy={busy === true}
             onBusy={onBusy}
             onDone={onIntakeDone}

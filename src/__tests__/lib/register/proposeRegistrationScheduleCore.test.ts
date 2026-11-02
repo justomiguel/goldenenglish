@@ -15,6 +15,7 @@ vi.mock("@/lib/analytics/server/recordSystemAudit", () => ({
 }));
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logSupabaseClientError: vi.fn(),
+  logServerWarn: vi.fn(),
 }));
 
 import { proposeRegistrationScheduleCore } from "@/lib/register/proposeRegistrationScheduleCore";
@@ -42,13 +43,51 @@ function lead(overrides: Record<string, unknown> = {}) {
   };
 }
 
+const WEB_COHORT = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+
 function mockAdmin(opts: {
   row?: Record<string, unknown> | null;
   seatOpen?: boolean;
+  sectionCohortId?: string;
 } = {}) {
   const updated: { values?: Record<string, unknown> } = {};
   const admin = {
     from: (table: string) => {
+      if (table === "academic_sections") {
+        return {
+          select: () => ({
+            eq: () => ({
+              is: () => ({
+                maybeSingle: async () => ({
+                  data: { cohort_id: opts.sectionCohortId ?? WEB_COHORT },
+                  error: null,
+                }),
+              }),
+            }),
+          }),
+        };
+      }
+      if (table === "site_settings") {
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({ data: { value: WEB_COHORT }, error: null }),
+            }),
+          }),
+        };
+      }
+      if (table === "academic_cohorts") {
+        return {
+          select: () => ({
+            is: () => ({
+              order: async () => ({
+                data: [{ id: WEB_COHORT, name: "Web", is_current: true }],
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
       if (table === "registrations") {
         return {
           select: () => ({
@@ -163,5 +202,18 @@ describe("proposeRegistrationScheduleCore", () => {
       intake_state: "offer_pending",
     });
     expect(mocks.notify).toHaveBeenCalled();
+  });
+
+  it("rejects a section outside the inscriptions cohort", async () => {
+    const admin = mockAdmin({ sectionCohortId: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb" });
+    const result = await proposeRegistrationScheduleCore({
+      admin,
+      locale: "en",
+      dict: dictEn,
+      registrationId: REG_ID,
+      sectionId: NEW_SEC,
+    });
+    expect(result).toEqual({ ok: false, code: "section_cohort_mismatch" });
+    expect(admin.updated.values).toBeUndefined();
   });
 });

@@ -4,12 +4,14 @@ import { PulsarPricingView } from "@/components/organisms/pulsar/PulsarPricingVi
 import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { getPulsarCookieSession } from "@/lib/pulsar/pulsarStaffAuth";
+import { readCentrolistoMarket } from "@/lib/pulsar/readCentrolistoMarket";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 
 export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ pais?: string | string[] }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -31,12 +33,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function PulsarPricingPage({ params }: PageProps) {
+export default async function PulsarPricingPage({ params, searchParams }: PageProps) {
   if (!(await isPulsarPlatformRequest())) notFound();
   const { locale } = await params;
-  const [dict, session] = await Promise.all([
+  const [dict, session, market] = await Promise.all([
     getDictionary(locale as AppLocale),
     getPulsarCookieSession(),
+    readCentrolistoMarket(await searchParams),
   ]);
-  return <PulsarPricingView locale={locale} dict={dict} email={session?.email ?? null} />;
+  return <PulsarPricingView locale={locale} dict={dict} email={session?.email ?? null} market={market} />;
 }

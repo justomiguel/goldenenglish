@@ -13,7 +13,6 @@ import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistr
 import { resolveRegistrationContact } from "@/lib/register/resolveRegistrationContact";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { AdminRegistrationsTableDesktopProps } from "./AdminRegistrationsTableDesktop.types";
-
 export function AdminRegistrationsTableDesktop({
   locale,
   rows,
@@ -35,6 +34,7 @@ export function AdminRegistrationsTableDesktop({
   userLabels,
   currentCohortSections,
   currentCohortName,
+  createSectionHref,
   usesCefrLevel = false,
 }: AdminRegistrationsTableDesktopProps) {
   const u = useAdminRegistrationsList({
@@ -189,6 +189,8 @@ export function AdminRegistrationsTableDesktop({
                     (id) => sectionNameById.get(id) ?? id,
                   )}
                   currentCohortSections={currentCohortSections}
+                  createSectionHref={createSectionHref}
+                  createSectionLabel={labels.createSectionInCohort}
                   busy={u.busyId === r.id}
                   onBusy={u.setBusyId}
                   onIntakeDone={() => {
@@ -226,6 +228,7 @@ export function AdminRegistrationsTableDesktop({
         userLabels={userLabels}
         currentCohortSections={currentCohortSections}
         currentCohortName={currentCohortName}
+        createSectionHref={createSectionHref}
       />
 
       <AdminRegistrationEditModal

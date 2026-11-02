@@ -6,6 +6,7 @@ import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { acceptRegistrationLead } from "@/lib/register/acceptRegistrationLead";
 import { parseRegistrationWaiveReason } from "@/lib/register/parseRegistrationWaiveReason";
+import { assertSectionInInscriptionsCohort } from "@/lib/register/assertSectionInInscriptionsCohort";
 import { requestedSectionsHaveOpenSeats } from "@/lib/register/requestedSectionsHaveOpenSeats";
 import { buildRegistrationEnrollmentFeeInsertFields } from "@/lib/register/buildRegistrationEnrollmentFeeInsertFields";
 import { receiptSignedUrlForAdmin } from "@/lib/payments/receiptSignedUrl";
@@ -134,6 +135,8 @@ export async function assignRegistrationSectionAction(input: {
   const admin = await createAdminClient();
   const lead = await loadRegistrationIntakeLead(admin, input.registrationId);
   if (!lead) return { ok: false, code: "not_found" };
+  const cohort = await assertSectionInInscriptionsCohort(admin, input.sectionId);
+  if (!cohort.ok) return cohort;
   const open = await requestedSectionsHaveOpenSeats(admin, [input.sectionId]);
   if (!open) return { ok: false, code: "section_full" };
   const quoted = await buildRegistrationEnrollmentFeeInsertFields({

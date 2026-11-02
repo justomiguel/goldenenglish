@@ -3,8 +3,8 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { AdminRegistrationsScreen } from "@/components/organisms/AdminRegistrationsScreen";
 import {
+  loadCohortSections,
   loadCurrentCohort,
-  loadCurrentCohortSections,
 } from "@/lib/academics/currentCohort";
 import {
   loadPaginatedRegistrations,
@@ -123,9 +123,13 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
     existingStudentId: existingByLead.get(row.id) ?? null,
   }));
 
-  const cohortSections = cohort
-    ? await loadCurrentCohortSections(supabase)
+  const inscriptionsCohort = cohortConfig.activeCohort;
+  const cohortSections = inscriptionsCohort
+    ? await loadCohortSections(supabase, inscriptionsCohort.id)
     : [];
+  const createSectionHref = inscriptionsCohort
+    ? `/${locale}/dashboard/admin/academic/${inscriptionsCohort.id}`
+    : null;
 
   return (
     <div>
@@ -186,7 +190,8 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
             passwordHint: dict.admin.users.passwordHint,
           }}
           currentCohortSections={cohortSections}
-          currentCohortName={cohort?.name}
+          currentCohortName={inscriptionsCohort?.name}
+          createSectionHref={createSectionHref}
         />
       </div>
     </div>

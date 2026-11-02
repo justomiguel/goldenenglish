@@ -4,6 +4,7 @@ import type { Dictionary } from "@/types/i18n";
 import { JsonLdFaqPage } from "@/components/molecules/JsonLdFaqPage";
 import { PulsarActionLink } from "@/components/organisms/pulsar/PulsarActionLink";
 import { PulsarSiteChromeEntry } from "@/components/organisms/pulsar/PulsarSiteChromeEntry";
+import type { CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 import { PULSAR_SEGMENT_SLUGS, type PulsarSegmentSlug } from "@/lib/pulsar/pulsarSegmentSlugs";
 
 export interface PulsarSegmentViewProps {
@@ -11,6 +12,7 @@ export interface PulsarSegmentViewProps {
   dict: Dictionary;
   segment: PulsarSegmentSlug;
   email?: string | null;
+  market?: CentrolistoMarketCode;
 }
 
 const STILLS: Record<PulsarSegmentSlug, string> = {
@@ -21,13 +23,13 @@ const STILLS: Record<PulsarSegmentSlug, string> = {
   eventos: "/centrolisto/moments/class.webp",
 };
 
-export function PulsarSegmentView({ locale, dict, segment, email = null }: PulsarSegmentViewProps) {
+export function PulsarSegmentView({ locale, dict, segment, email = null, market = "cl" }: PulsarSegmentViewProps) {
   const copy = dict.pulsar.segments[segment];
   const voice = segment === "musica" ? dict.pulsar.clients.voices[0] : null;
   const others = PULSAR_SEGMENT_SLUGS.filter((slug) => slug !== segment);
 
   return (
-    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} activeNav="home">
+    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} market={market} activeNav="home">
       <JsonLdFaqPage items={copy.faqs} />
       <section className="border-b border-[var(--color-border)]">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:py-20">

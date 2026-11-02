@@ -4522,7 +4522,8 @@
       "nagoAcceptedAt": "Accepted on",
       "tutorAccountDefaultFirst": "Tutor",
       "sectionPickerTitle": "Assign to a section",
-      "sectionPickerLead": "Choose a section from the current cohort",
+      "sectionPickerLead": "Choose a section from the web inscriptions cohort",
+      "createSectionInCohort": "Create a section in this cohort",
       "skipSectionEnrollment": "Skip for now",
       "sectionEnrollError": "Could not enroll student in section",
       "enrollSuccess": "Student enrolled in section",
@@ -12756,6 +12757,13 @@
       "footerPrivacyBadge": "100% isolated database per institution · Built for Chile Law 21.719 compliance",
       "footerRights": "CentroListo.cl · Enrollment, tuition, and your school list, in one place."
     },
+    "market": {
+      "label": "Price country",
+      "cl": "Chile",
+      "ar": "Argentina",
+      "uy": "Uruguay",
+      "py": "Paraguay"
+    },
     "session": {
       "signIn": "Sign in",
       "signOut": "Sign out",
@@ -13325,7 +13333,8 @@
         "benefits": [
           "Enrollment and students.",
           "Schedules and teachers.",
-          "Fees, tuition, and attendance."
+          "Fees, tuition, and attendance.",
+          "Up to 50 active students."
         ],
         "cta": "I want CentroListo Management",
         "seoTitle": "Student and tuition management | CentroListo",
@@ -13338,9 +13347,9 @@
         "headline": "Your institution. Your whole community, connected.",
         "lead": "More than administration. A digital experience for students, families, and teachers, under your brand.",
         "benefits": [
+          "Everything in Management, without the 50-student cap.",
           "A digital space for families.",
-          "Messages and materials.",
-          "Workshops and events, when enabled."
+          "You can create course routes, offer them, and sell them in the shop."
         ],
         "cta": "I want CentroListo Ecosystem",
         "seoTitle": "Digital experience for families | CentroListo Ecosystem",
@@ -13354,19 +13363,20 @@
       "lead": "From your first website to a connected institution. Choose the solution you need today.",
       "free": "Free",
       "withTemplates": "With a ready-made template",
-      "templateRule": "Ready-made template: free. Exclusive design: a custom quote.",
+      "templateRule": "Ready-made template: free. A custom landing is a one-time fee.",
+      "customLandingLabel": "Custom landing",
       "perMonthTax": "+ VAT/month",
       "oneTimeTax": "+ VAT, one time",
       "customTitle": "Want something unique? We also design a custom site.",
       "customBody": "If you want an exclusive visual experience for your identity, we can scope a custom build. Tell us the idea and we prepare a proposal.",
       "customCta": "Request a custom design quote",
       "seePrices": "See the comparison",
-      "setupTitle": "Setup is billed separately",
-      "setupLead": "The monthly fee and the one-time setup fee are different. Payment gateway fees are stated separately.",
+      "setupTitle": "A custom landing is a one-time fee",
+      "setupLead": "The monthly fee and the custom landing are different payments. Payment gateway fees are stated separately.",
       "quoteLabel": "Quote",
       "faqTitle": "Pricing questions",
       "seoTitle": "Pricing for academies | CentroListo",
-      "seoDescription": "Presence is free with a ready-made template. Management and Ecosystem have a monthly fee in Chile. A custom design is quoted.",
+      "seoDescription": "Presence is free with a ready-made template. Management and Ecosystem have a monthly fee. A custom landing is a one-time fee.",
       "closeTitle": "Start with a template. Grow when you need to.",
       "featuresTitle": "What each solution includes",
       "features": {
@@ -13378,12 +13388,13 @@
         "gestion": [
           "Everything in Presence with a template.",
           "Students, courses, enrollment, and schedules.",
-          "Fees, tuition, payments, and attendance."
+          "Fees, tuition, payments, and attendance.",
+          "Up to 50 active students."
         ],
         "ecosistema": [
-          "Everything in Management.",
+          "Everything in Management, without the 50-student cap.",
           "A space for families, notices, and materials.",
-          "Events, workshops, and orders, when enabled."
+          "You can create course routes, offer them, and sell them in the shop."
         ]
       },
       "setupRows": [
@@ -13392,20 +13403,12 @@
           "label": "Presence with a template, self-serve"
         },
         {
-          "id": "presenciaCustom",
-          "label": "Exclusive Presence design"
+          "id": "customLanding",
+          "label": "Custom landing for Presence or Ecosystem"
         },
         {
           "id": "gestionSelfServe",
           "label": "Management, self-serve setup"
-        },
-        {
-          "id": "gestionAssisted",
-          "label": "Management, assisted setup"
-        },
-        {
-          "id": "ecosistemaAssisted",
-          "label": "Ecosystem, assisted setup"
         },
         {
           "id": "special",
@@ -13419,7 +13422,7 @@
         },
         {
           "q": "Can I customize the page?",
-          "a": "You can edit the content and identity options in the template. An exclusive design is quoted separately."
+          "a": "You can edit the content and identity options in the template. A custom landing has a one-time fee published on this page."
         },
         {
           "q": "Do I need Management to have a website?",
@@ -13430,8 +13433,8 @@
           "a": "You can look at Management and Ecosystem to add administration and a family space. The change is not automatic."
         },
         {
-          "q": "Does a custom design have a fixed price?",
-          "a": "No. The quote follows the scope of the project."
+          "q": "Does a custom landing have a fixed price?",
+          "a": "Yes. Presence and Ecosystem show the same one-time fee. Special development is still quoted."
         },
         {
           "q": "Are payment gateway fees included?",

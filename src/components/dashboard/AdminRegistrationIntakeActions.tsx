@@ -18,6 +18,7 @@ import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
 import { AdminRegistrationJoinBillingFields } from "@/components/dashboard/AdminRegistrationJoinBillingFields";
 import { AdminRegistrationProposeSchedule } from "@/components/dashboard/AdminRegistrationProposeSchedule";
+import { AdminRegistrationSectionChoices } from "@/components/dashboard/AdminRegistrationSectionChoices";
 import type { JoinBillingDisposition } from "@/lib/billing/joinBillingDispositionSchema";
 
 type IntakeLabels = Dictionary["admin"]["registrations"]["intake"];
@@ -31,6 +32,8 @@ export function AdminRegistrationIntakeActions({
   busy,
   onBusy,
   onDone,
+  createSectionHref,
+  createSectionLabel,
 }: {
   locale: string;
   row: AdminRegistrationRow;
@@ -40,6 +43,8 @@ export function AdminRegistrationIntakeActions({
   busy: boolean;
   onBusy: (id: string | null) => void;
   onDone: () => void;
+  createSectionHref?: string | null;
+  createSectionLabel?: string;
 }) {
   const kind = registrationInboxPrimaryKind(row);
   const [reason, setReason] = useState("");
@@ -191,44 +196,28 @@ export function AdminRegistrationIntakeActions({
         </div>
       ) : null}
       {kind === "assign" ? (
-        <>
-          <Label htmlFor={`assign-${row.id}`}>{labels.assignSection}</Label>
-          <select
-            id={`assign-${row.id}`}
-            className="min-h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-sm"
-            value={sectionId}
-            onChange={(e) => setSectionId(e.target.value)}
-            disabled={busy}
-          >
-            <option value="">—</option>
-            {sections
-              .filter((s) => s.activeCount < s.maxStudents)
-              .map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-          </select>
-          <Button
-            type="button"
-            size="sm"
-            disabled={busy || !sectionId}
-            onClick={() => {
-              const disposition = requireDisposition();
-              if (!disposition) return;
-              run(() =>
-                assignRegistrationSectionAction({
-                  locale,
-                  registrationId: row.id,
-                  sectionId,
-                  joinDisposition: disposition,
-                }),
-              );
-            }}
-          >
-            {labels.assignSection}
-          </Button>
-        </>
+        <AdminRegistrationSectionChoices
+          id={`assign-${row.id}`}
+          sections={sections}
+          sectionId={sectionId}
+          onSectionId={setSectionId}
+          busy={busy}
+          assignLabel={labels.assignSection}
+          createHref={createSectionHref}
+          createLabel={createSectionLabel}
+          onAssign={() => {
+            const disposition = requireDisposition();
+            if (!disposition) return;
+            void run(() =>
+              assignRegistrationSectionAction({
+                locale,
+                registrationId: row.id,
+                sectionId,
+                joinDisposition: disposition,
+              }),
+            );
+          }}
+        />
       ) : null}
       {propose}
       {error ? (

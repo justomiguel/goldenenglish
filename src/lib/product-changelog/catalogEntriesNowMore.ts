@@ -3,6 +3,36 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "admin-mobile-menu",
+    date: "2026-10-28",
+    area: "admin",
+    title: t(
+      "El menú del celular es una pantalla propia",
+      "The phone menu is its own screen",
+      "O menu do celular é uma tela própria",
+    ),
+    summary: t(
+      "El menú muestra el logo del instituto, tu nombre, un buscador y una grilla. Inicio, inscripciones, finanzas y alumnos siguen en la barra de abajo.",
+      "The menu shows the institute logo, your name, a search field, and a grid. Home, registrations, finance, and students stay on the bottom bar.",
+      "O menu mostra o logo do instituto, seu nome, uma busca e uma grade. Início, inscrições, finanças e alunos continuam na barra de baixo.",
+    ),
+  },
+  {
+    id: "centrolisto-platform-hosts",
+    date: "2026-10-28",
+    area: "site",
+    title: t(
+      "CentroListo.cl estrena identidad, explorador de 4 portales y catálogo de 12 módulos",
+      "CentroListo.cl launches its brand, 4-portal explorer, and 12-module catalog",
+      "CentroListo.cl estreia identidade, explorador de 4 portais e catálogo de 12 módulos",
+    ),
+    summary: t(
+      "La plataforma responde en centrolisto.cl con nueva marca, explorador interactivo por rol, comparativa de mercado y los 12 módulos del sistema.",
+      "The platform serves centrolisto.cl with a new brand, an interactive role explorer, a market comparison, and all 12 system modules.",
+      "A plataforma responde em centrolisto.cl com nova marca, explorador interativo por perfil, comparativo de mercado e os 12 módulos do sistema.",
+    ),
+  },
+  {
     id: "student-assessment-rubric-scale-1-to-10",
     date: "2026-10-27",
     area: "academic",

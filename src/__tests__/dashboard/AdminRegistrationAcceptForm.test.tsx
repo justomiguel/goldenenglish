@@ -188,6 +188,32 @@ describe("AdminRegistrationAcceptForm", () => {
     ).toBeInTheDocument();
   });
 
+  it("offers to create a section when the inscriptions cohort has none", async () => {
+    acceptRegistration.mockResolvedValue({ ok: true, studentId: "stu-1", pendingSectionIds: [] });
+    render(
+      <AdminRegistrationAcceptForm
+        locale="es"
+        row={row}
+        legalAgeMajority={18}
+        busy={false}
+        onBusy={vi.fn()}
+        onClose={vi.fn()}
+        onSuccess={vi.fn()}
+        labels={dictEn.admin.registrations}
+        userLabels={userLabels}
+        currentCohortSections={[]}
+        createSectionHref="/es/dashboard/admin/academic/cohort-web"
+      />,
+    );
+    fireEvent.click(screen.getByRole("radio", { name: dictEn.admin.registrations.joinBilling.current }));
+    fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
+    await waitFor(() => {
+      expect(
+        screen.getByRole("link", { name: dictEn.admin.registrations.createSectionInCohort }),
+      ).toHaveAttribute("href", "/es/dashboard/admin/academic/cohort-web");
+    });
+  });
+
   it("shows generic error when accept fails without message", async () => {
     acceptRegistration.mockResolvedValue({ ok: false });
     render(

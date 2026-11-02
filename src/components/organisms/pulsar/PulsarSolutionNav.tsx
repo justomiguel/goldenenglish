@@ -1,13 +1,15 @@
 import Link from "next/link";
 import type { Dictionary } from "@/types/i18n";
+import { withCentrolistoMarket, type CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 import { PULSAR_SOLUTION_SLUGS } from "@/lib/pulsar/pulsarSolutionSlugs";
 
 export interface PulsarSolutionNavProps {
   locale: string;
   dict: Dictionary;
+  market?: CentrolistoMarketCode;
 }
 
-export function PulsarSolutionNav({ locale, dict }: PulsarSolutionNavProps) {
+export function PulsarSolutionNav({ locale, dict, market = "cl" }: PulsarSolutionNavProps) {
   return (
     <nav aria-label={dict.pulsar.solutions.sectionTitle}>
       <p className="text-sm font-medium text-[var(--color-foreground)]">{dict.pulsar.solutions.menuLabel}</p>
@@ -15,7 +17,7 @@ export function PulsarSolutionNav({ locale, dict }: PulsarSolutionNavProps) {
         {PULSAR_SOLUTION_SLUGS.map((slug) => (
           <li key={slug}>
             <Link
-              href={`/${locale}/soluciones/${slug}`}
+              href={withCentrolistoMarket(`/${locale}/soluciones/${slug}`, market)}
               className="text-sm text-[var(--color-muted-foreground)] transition-colors hover:text-[var(--color-foreground)]"
             >
               {dict.pulsar.solutionSet[slug].navLabel}
@@ -24,7 +26,7 @@ export function PulsarSolutionNav({ locale, dict }: PulsarSolutionNavProps) {
         ))}
         <li>
           <Link
-            href={`/${locale}/precios`}
+            href={withCentrolistoMarket(`/${locale}/precios`, market)}
             className="text-sm text-[var(--color-muted-foreground)] transition-colors hover:text-[var(--color-foreground)]"
           >
             {dict.pulsar.nav.pricing}

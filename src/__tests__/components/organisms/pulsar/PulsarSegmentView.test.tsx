@@ -1,6 +1,12 @@
 // REGRESSION CHECK: Segment pages keep real testimonials intact and only on the matching craft.
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/es/para/danza",
+  useSearchParams: () => new URLSearchParams(),
+}));
 import es from "@/dictionaries/es.json";
 import type { Dictionary } from "@/types/i18n";
 import { PulsarSegmentView } from "@/components/organisms/pulsar/PulsarSegmentView";

@@ -1,4 +1,5 @@
 import type { PulsarSolutionSlug } from "@/lib/pulsar/pulsarSolutionSlugs";
+import type { CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 
 export type CommercialOfferStatus = "published" | "pending";
 
@@ -13,54 +14,65 @@ export interface SetupOffer {
   status: CommercialOfferStatus;
 }
 
-/** Chile commercial presentation. Billing does not read this module. */
-export const CENTROLISTO_COMMERCIAL_OFFER = {
-  market: "CL",
-  currency: "CLP",
-  solutions: {
-    presencia: { monthlyAmount: 0, status: "published" },
-    gestion: { monthlyAmount: 29990, status: "published" },
-    ecosistema: { monthlyAmount: 69990, status: "published" },
-  } satisfies Record<PulsarSolutionSlug, MonthlyOffer>,
-  setup: {
-    presenciaSelfServe: { amount: 0, kind: "amount", status: "published" },
-    presenciaCustom: { amount: null, kind: "quote", status: "published" },
-    gestionSelfServe: { amount: 0, kind: "amount", status: "published" },
-    gestionAssisted: { amount: 49990, kind: "amount", status: "published" },
-    ecosistemaAssisted: { amount: 149990, kind: "amount", status: "published" },
-    special: { amount: null, kind: "quote", status: "published" },
-  } satisfies Record<string, SetupOffer>,
-  pending: {
-    argentina: {
-      status: "pending" as const,
-      currency: "ARS" as const,
-      gestionMonthly: 44900,
-      ecosistemaMonthly: 99900,
-    },
-    activeStudentCap: {
-      status: "pending" as const,
-      gestion: 120,
-      ecosistema: 300,
-    },
-  },
+const MONTHLY: Record<CentrolistoMarketCode, Record<PulsarSolutionSlug, number>> = {
+  cl: { presencia: 0, gestion: 29990, ecosistema: 69990 },
+  ar: { presencia: 0, gestion: 46400, ecosistema: 108400 },
+  uy: { presencia: 0, gestion: 1210, ecosistema: 2830 },
+  py: { presencia: 0, gestion: 180000, ecosistema: 419000 },
 };
 
-const PRICE_LOCALE: Record<string, string> = {
-  es: "es-CL",
-  en: "es-CL",
-  pt: "es-CL",
+const CUSTOM_LANDING: Record<CentrolistoMarketCode, number> = {
+  cl: 149990,
+  ar: 232300,
+  uy: 6070,
+  py: 898000,
 };
 
-export function formatOfferAmount(amount: number, locale: string): string {
-  return new Intl.NumberFormat(PRICE_LOCALE[locale] ?? "es-CL", {
+const CURRENCY: Record<CentrolistoMarketCode, string> = {
+  cl: "CLP",
+  ar: "ARS",
+  uy: "UYU",
+  py: "PYG",
+};
+
+const PRICE_LOCALE: Record<CentrolistoMarketCode, string> = {
+  cl: "es-CL",
+  ar: "es-AR",
+  uy: "es-UY",
+  py: "es-PY",
+};
+
+export function formatOfferAmount(amount: number, market: CentrolistoMarketCode): string {
+  return new Intl.NumberFormat(PRICE_LOCALE[market], {
     style: "currency",
-    currency: CENTROLISTO_COMMERCIAL_OFFER.currency,
+    currency: CURRENCY[market],
     maximumFractionDigits: 0,
   }).format(amount);
 }
 
-export function publishedMonthlyAmount(slug: PulsarSolutionSlug): number {
-  const offer = CENTROLISTO_COMMERCIAL_OFFER.solutions[slug];
-  if (offer.status !== "published") return 0;
-  return offer.monthlyAmount;
+export function publishedMonthlyAmount(
+  slug: PulsarSolutionSlug,
+  market: CentrolistoMarketCode = "cl",
+): number {
+  return MONTHLY[market][slug];
+}
+
+export function customLandingAmount(market: CentrolistoMarketCode = "cl"): number {
+  return CUSTOM_LANDING[market];
+}
+
+export function publishedSetupOffer(
+  id: string,
+  market: CentrolistoMarketCode = "cl",
+): SetupOffer | null {
+  if (id === "presenciaSelfServe" || id === "gestionSelfServe") {
+    return { amount: 0, kind: "amount", status: "published" };
+  }
+  if (id === "customLanding") {
+    return { amount: CUSTOM_LANDING[market], kind: "amount", status: "published" };
+  }
+  if (id === "special") {
+    return { amount: null, kind: "quote", status: "published" };
+  }
+  return null;
 }

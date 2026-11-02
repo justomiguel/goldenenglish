@@ -7,6 +7,7 @@ import { pickHomeClientPreviews } from "@/lib/pulsar/centrolistoClientPreviews";
 import { loadCentrolistoPublicClients } from "@/lib/pulsar/loadCentrolistoPublicClients";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { getPulsarCookieSession } from "@/lib/pulsar/pulsarStaffAuth";
+import { readCentrolistoMarket } from "@/lib/pulsar/readCentrolistoMarket";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { LandingSurfaceGate } from "@/components/organisms/LandingSurfaceGate";
 import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
@@ -45,6 +46,7 @@ export const dynamic = "force-dynamic";
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ pais?: string | string[] }>;
 }
 
 const MARKETING_FOOTER_BRAND: Partial<
@@ -103,20 +105,22 @@ export async function generateMetadata({
   };
 }
 
-export default async function HomePage({ params }: HomePageProps) {
+export default async function HomePage({ params, searchParams }: HomePageProps) {
   const { locale } = await params;
   const loc = locale as AppLocale;
   if (await isPulsarPlatformRequest()) {
-    const [dict, clients, session] = await Promise.all([
+    const [dict, clients, session, market] = await Promise.all([
       getDictionary(loc),
       loadCentrolistoPublicClients(),
       getPulsarCookieSession(),
+      readCentrolistoMarket(await searchParams),
     ]);
     return (
       <PulsarLandingHome
         locale={locale}
         dict={dict}
         email={session?.email ?? null}
+        market={market}
         activeTenantCount={clients.length}
         featuredClients={pickHomeClientPreviews(clients)}
         logoClients={clients}

@@ -3,6 +3,12 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/es",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/app/[locale]/contact/actions", () => ({
   submitPublicContactForm: vi.fn().mockResolvedValue({ ok: true }),
 }));

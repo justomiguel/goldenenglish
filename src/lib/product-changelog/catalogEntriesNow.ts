@@ -3,6 +3,36 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "centrolisto-country-prices",
+    date: "2026-11-02",
+    area: "site",
+    title: t(
+      "CentroListo muestra precios por país",
+      "CentroListo shows prices by country",
+      "O CentroListo mostra preços por país",
+    ),
+    summary: t(
+      "En el sitio puedes elegir Chile, Argentina, Uruguay o Paraguay. Los precios mensuales y la landing a medida cambian con ese país.",
+      "On the site you can choose Chile, Argentina, Uruguay, or Paraguay. Monthly prices and the custom landing fee follow that country.",
+      "No site você pode escolher Chile, Argentina, Uruguai ou Paraguai. Os preços mensais e a landing sob medida seguem esse país.",
+    ),
+  },
+  {
+    id: "registration-inscriptions-cohort-sections",
+    date: "2026-11-02",
+    area: "admin",
+    title: t(
+      "Inscripciones asigna secciones de la cohorte web",
+      "Registrations assign sections from the web cohort",
+      "Inscrições atribuem seções da coorte web",
+    ),
+    summary: t(
+      "Al asignar una sección ves solo las de la cohorte de inscripciones web. Si esa cohorte no tiene secciones, puedes crear una.",
+      "When you assign a section you see only the web inscriptions cohort. If that cohort has no sections, you can create one.",
+      "Ao atribuir uma seção você vê só a coorte de inscrições web. Se essa coorte não tem seções, você pode criar uma.",
+    ),
+  },
+  {
     id: "centrolisto-three-offers",
     date: "2026-10-30",
     area: "site",
@@ -210,36 +240,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "En Alumnos, un campo académico propio aparece dentro de Filtrar y en el menú Ordenar.",
       "On Students, a custom academic field appears inside Filter and in the Sort menu.",
       "Em Alunos, um campo acadêmico próprio aparece dentro de Filtrar e no menu Ordenar.",
-    ),
-  },
-  {
-    id: "admin-mobile-menu",
-    date: "2026-10-28",
-    area: "admin",
-    title: t(
-      "El menú del celular es una pantalla propia",
-      "The phone menu is its own screen",
-      "O menu do celular é uma tela própria",
-    ),
-    summary: t(
-      "El menú muestra el logo del instituto, tu nombre, un buscador y una grilla. Inicio, inscripciones, finanzas y alumnos siguen en la barra de abajo.",
-      "The menu shows the institute logo, your name, a search field, and a grid. Home, registrations, finance, and students stay on the bottom bar.",
-      "O menu mostra o logo do instituto, seu nome, uma busca e uma grade. Início, inscrições, finanças e alunos continuam na barra de baixo.",
-    ),
-  },
-  {
-    id: "centrolisto-platform-hosts",
-    date: "2026-10-28",
-    area: "site",
-    title: t(
-      "CentroListo.cl estrena identidad, explorador de 4 portales y catálogo de 12 módulos",
-      "CentroListo.cl launches its brand, 4-portal explorer, and 12-module catalog",
-      "CentroListo.cl estreia identidade, explorador de 4 portais e catálogo de 12 módulos",
-    ),
-    summary: t(
-      "La plataforma responde en centrolisto.cl con nueva marca, explorador interactivo por rol, comparativa de mercado y los 12 módulos del sistema.",
-      "The platform serves centrolisto.cl with a new brand, an interactive role explorer, a market comparison, and all 12 system modules.",
-      "A plataforma responde em centrolisto.cl com nova marca, explorador interativo por perfil, comparativo de mercado e os 12 módulos do sistema.",
     ),
   },
 ];

@@ -29,6 +29,7 @@ vi.mock("@/lib/logging/serverActionLog", () => ({
   logServerAuthzDenied: vi.fn(),
   logSupabaseClientError: vi.fn(),
   logServerException: vi.fn(),
+  logServerWarn: vi.fn(),
 }));
 vi.mock("@/lib/analytics/server/recordSystemAudit", () => ({
   recordSystemAudit: vi.fn(),
@@ -75,19 +76,59 @@ function lead(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function adminFrom(row: Record<string, unknown> | null, update?: (v: Record<string, unknown>) => void) {
+const WEB_COHORT = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+
+function adminFrom(
+  row: Record<string, unknown> | null,
+  update?: (v: Record<string, unknown>) => void,
+  sectionCohortId = WEB_COHORT,
+) {
   return {
-    from: () => ({
-      select: () => ({
-        eq: () => ({
-          maybeSingle: async () => ({ data: row, error: null }),
+    from: (table: string) => {
+      if (table === "academic_sections") {
+        return {
+          select: () => ({
+            eq: () => ({
+              is: () => ({
+                maybeSingle: async () => ({ data: { cohort_id: sectionCohortId }, error: null }),
+              }),
+            }),
+          }),
+        };
+      }
+      if (table === "site_settings") {
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({ data: { value: WEB_COHORT }, error: null }),
+            }),
+          }),
+        };
+      }
+      if (table === "academic_cohorts") {
+        return {
+          select: () => ({
+            is: () => ({
+              order: async () => ({
+                data: [{ id: WEB_COHORT, name: "Web", is_current: false }],
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: async () => ({ data: row, error: null }),
+          }),
         }),
-      }),
-      update: (values: Record<string, unknown>) => {
-        update?.(values);
-        return { eq: async () => ({ error: null }) };
-      },
-    }),
+        update: (values: Record<string, unknown>) => {
+          update?.(values);
+          return { eq: async () => ({ error: null }) };
+        },
+      };
+    },
     rpc: async () => ({ data: true, error: null }),
   };
 }
@@ -190,5 +231,19 @@ describe("assignRegistrationSectionAction", () => {
     expect(r).toEqual({ ok: true });
     expect(updated?.proposed_section_id).toBe(null);
     expect(updated?.preferred_section_id).toBe(SEC_ID);
+  });
+
+  it("rejects a section outside the inscriptions cohort", async () => {
+    mocks.createAdmin.mockReturnValue(
+      adminFrom(lead({ intake_state: "needs_section" }), undefined, "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"),
+    );
+    const r = await assignRegistrationSectionAction({
+      locale: "es",
+      registrationId: REG_ID,
+      sectionId: SEC_ID,
+      joinDisposition: { kind: "behind" },
+    });
+    expect(r).toEqual({ ok: false, code: "section_cohort_mismatch" });
+    expect(mocks.accept).not.toHaveBeenCalled();
   });
 });

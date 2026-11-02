@@ -19,6 +19,7 @@ interface AdminRegistrationAcceptModalProps {
   userLabels: RegistrationAcceptUserLabels;
   currentCohortSections?: CurrentCohortSection[];
   currentCohortName?: string;
+  createSectionHref?: string | null;
 }
 
 export function AdminRegistrationAcceptModal({
@@ -33,6 +34,7 @@ export function AdminRegistrationAcceptModal({
   userLabels,
   currentCohortSections,
   currentCohortName,
+  createSectionHref,
 }: AdminRegistrationAcceptModalProps) {
   return (
     <Modal
@@ -62,8 +64,9 @@ export function AdminRegistrationAcceptModal({
           onSuccess={onSuccess}
           labels={labels}
           userLabels={userLabels}
-          currentCohortSections={currentCohortSections}
-          currentCohortName={currentCohortName}
+        currentCohortSections={currentCohortSections}
+        currentCohortName={currentCohortName}
+        createSectionHref={createSectionHref}
         />
       ) : null}
     </Modal>

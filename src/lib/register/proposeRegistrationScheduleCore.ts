@@ -4,6 +4,7 @@ import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { notifyRegistrationScheduleOffer } from "@/lib/register/notifyRegistrationScheduleOffer";
 import { registrationIsActionable } from "@/lib/register/registrationIsActionable";
 import { loadRegistrationIntakeLead } from "@/lib/register/registrationIntakeActionSupport";
+import { assertSectionInInscriptionsCohort } from "@/lib/register/assertSectionInInscriptionsCohort";
 import { requestedSectionsHaveOpenSeats } from "@/lib/register/requestedSectionsHaveOpenSeats";
 import type { Dictionary } from "@/types/i18n";
 
@@ -15,12 +16,24 @@ export async function proposeRegistrationScheduleCore(input: {
   sectionId: string;
 }): Promise<
   | { ok: true }
-  | { ok: false; code: "not_found" | "not_actionable" | "section_full" | "same_section" | "save_failed" }
+  | {
+      ok: false;
+      code:
+        | "not_found"
+        | "not_actionable"
+        | "section_full"
+        | "same_section"
+        | "save_failed"
+        | "section_cohort_mismatch";
+    }
 > {
   const lead = await loadRegistrationIntakeLead(input.admin, input.registrationId);
   if (!lead) return { ok: false, code: "not_found" };
   if (!registrationIsActionable(lead.status)) return { ok: false, code: "not_actionable" };
   if (input.sectionId === lead.preferred_section_id) return { ok: false, code: "same_section" };
+
+  const cohort = await assertSectionInInscriptionsCohort(input.admin, input.sectionId);
+  if (!cohort.ok) return cohort;
 
   const open = await requestedSectionsHaveOpenSeats(input.admin, [input.sectionId]);
   if (!open) return { ok: false, code: "section_full" };

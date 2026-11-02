@@ -39,6 +39,8 @@ export interface AdminRegistrationsPwaListProps {
   onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
   onStartJoinCharge: (row: AdminRegistrationRow) => void;
   currentCohortSections?: CurrentCohortSection[];
+  createSectionHref?: string | null;
+  createSectionLabel?: string;
   onBusy?: (id: string | null) => void;
   onIntakeDone?: () => void;
   emptyMessage: string;
@@ -72,6 +74,8 @@ export function AdminRegistrationsPwaList({
   onStartEnrollmentFee,
   onStartJoinCharge,
   currentCohortSections,
+  createSectionHref,
+  createSectionLabel,
   onBusy,
   onIntakeDone,
   emptyMessage,
@@ -115,6 +119,8 @@ export function AdminRegistrationsPwaList({
             onStartEnrollmentFee={onStartEnrollmentFee}
             onStartJoinCharge={onStartJoinCharge}
             currentCohortSections={currentCohortSections}
+            createSectionHref={createSectionHref}
+            createSectionLabel={createSectionLabel}
             onBusy={onBusy}
             onIntakeDone={onIntakeDone}
           />

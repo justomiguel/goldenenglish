@@ -36,6 +36,8 @@ export interface AdminRegistrationPwaCardProps {
   onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
   onStartJoinCharge: (row: AdminRegistrationRow) => void;
   currentCohortSections?: CurrentCohortSection[];
+  createSectionHref?: string | null;
+  createSectionLabel?: string;
   onBusy?: (id: string | null) => void;
   onIntakeDone?: () => void;
 }
@@ -56,6 +58,8 @@ export function AdminRegistrationPwaCard({
   onStartEnrollmentFee,
   onStartJoinCharge,
   currentCohortSections,
+  createSectionHref,
+  createSectionLabel,
   onBusy,
   onIntakeDone,
 }: AdminRegistrationPwaCardProps) {
@@ -171,6 +175,8 @@ export function AdminRegistrationPwaCard({
             labels={labels.intake}
             joinBilling={labels.joinBilling}
             sections={currentCohortSections ?? []}
+            createSectionHref={createSectionHref}
+            createSectionLabel={createSectionLabel}
             busy={busy}
             onBusy={onBusy}
             onDone={onIntakeDone}

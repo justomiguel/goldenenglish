@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { getPulsarCookieSession } from "@/lib/pulsar/pulsarStaffAuth";
+import { readCentrolistoMarket } from "@/lib/pulsar/readCentrolistoMarket";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { PulsarContactoView } from "@/components/organisms/pulsar/PulsarContactoView";
 
@@ -10,6 +11,7 @@ export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ pais?: string | string[] }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -30,14 +32,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function PulsarContactoPage({ params }: PageProps) {
+export default async function PulsarContactoPage({ params, searchParams }: PageProps) {
   if (!(await isPulsarPlatformRequest())) {
     notFound();
   }
   const { locale } = await params;
-  const [dict, session] = await Promise.all([
+  const [dict, session, market] = await Promise.all([
     getDictionary(locale as AppLocale),
     getPulsarCookieSession(),
+    readCentrolistoMarket(await searchParams),
   ]);
-  return <PulsarContactoView locale={locale} dict={dict} email={session?.email ?? null} />;
+  return <PulsarContactoView locale={locale} dict={dict} email={session?.email ?? null} market={market} />;
 }

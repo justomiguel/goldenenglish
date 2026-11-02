@@ -4522,7 +4522,8 @@
       "nagoAcceptedAt": "Aceptado el",
       "tutorAccountDefaultFirst": "Tutor",
       "sectionPickerTitle": "Asignar a una sección",
-      "sectionPickerLead": "Elige una sección del ciclo vigente",
+      "sectionPickerLead": "Elige una sección de la cohorte de inscripciones web",
+      "createSectionInCohort": "Crear sección en la cohorte",
       "skipSectionEnrollment": "Omitir por ahora",
       "sectionEnrollError": "No se pudo inscribir al alumno en la sección",
       "enrollSuccess": "Alumno inscrito en la sección",
@@ -12756,6 +12757,13 @@
       "footerPrivacyBadge": "Cada escuela habita su propia casa digital con base de datos aislada (Ley 21.719 en Chile)",
       "footerRights": "CentroListo.cl · Matrícula, cobro y lista de tu escuela, en un solo lugar."
     },
+    "market": {
+      "label": "País de los precios",
+      "cl": "Chile",
+      "ar": "Argentina",
+      "uy": "Uruguay",
+      "py": "Paraguay"
+    },
     "session": {
       "signIn": "Ingresar",
       "signOut": "Cerrar sesión",
@@ -13325,7 +13333,8 @@
         "benefits": [
           "Inscripciones y alumnos.",
           "Horarios y profesores.",
-          "Matrículas, mensualidades y asistencia."
+          "Matrículas, mensualidades y asistencia.",
+          "Hasta 50 alumnos activos."
         ],
         "cta": "Quiero CentroListo Gestión",
         "seoTitle": "Gestión de alumnos y mensualidades | CentroListo",
@@ -13338,9 +13347,9 @@
         "headline": "Tu institución. Toda tu comunidad conectada.",
         "lead": "Mucho más que administrar. Ofrece una experiencia digital para alumnos, familias y profesores, con la identidad de tu institución.",
         "benefits": [
+          "Todo Gestión, sin el límite de 50 alumnos.",
           "Espacio digital para familias.",
-          "Comunicaciones y materiales.",
-          "Talleres y eventos, cuando están habilitados."
+          "Puedes crear rutas de cursos, ofrecerlos y venderlos en la tienda."
         ],
         "cta": "Quiero CentroListo Ecosistema",
         "seoTitle": "Experiencia digital para familias | CentroListo Ecosistema",
@@ -13354,19 +13363,20 @@
       "lead": "Desde tu primera página web hasta una institución conectada. Elige la solución que necesitas hoy.",
       "free": "Gratis",
       "withTemplates": "Con plantillas prediseñadas",
-      "templateRule": "Plantilla prediseñada: gratis. Diseño exclusivo: cotización a medida.",
+      "templateRule": "Plantilla prediseñada: gratis. La landing a medida se cobra una vez.",
+      "customLandingLabel": "Landing a medida",
       "perMonthTax": "+ IVA/mes",
       "oneTimeTax": "+ IVA, pago único",
       "customTitle": "¿Quieres algo único? También diseñamos tu sitio a medida.",
       "customBody": "Si buscas una experiencia visual exclusiva, adaptada a tu identidad y necesidades, podemos desarrollar una solución personalizada. Cuéntanos tu idea y preparamos una propuesta.",
       "customCta": "Cotizar diseño a medida",
       "seePrices": "Ver la comparación",
-      "setupTitle": "La implementación se cobra aparte",
-      "setupLead": "La mensualidad y el cargo único de puesta en marcha son distintos. Las comisiones de cada pasarela de pago se informan aparte.",
+      "setupTitle": "La landing a medida se cobra una vez",
+      "setupLead": "La mensualidad y la landing a medida son pagos distintos. Las comisiones de cada pasarela se informan aparte.",
       "quoteLabel": "Cotización",
       "faqTitle": "Preguntas sobre el precio",
       "seoTitle": "Precios para academias | CentroListo",
-      "seoDescription": "Presencia es gratis con una plantilla prediseñada. Gestión y Ecosistema tienen una mensualidad en Chile. El diseño exclusivo se cotiza.",
+      "seoDescription": "Presencia es gratis con una plantilla prediseñada. Gestión y Ecosistema tienen una mensualidad. La landing a medida se cobra una vez.",
       "closeTitle": "Empieza con una plantilla. Crece cuando lo necesites.",
       "featuresTitle": "Qué incluye cada solución",
       "features": {
@@ -13378,12 +13388,13 @@
         "gestion": [
           "Todo Presencia con plantilla.",
           "Alumnos, cursos, inscripciones y horarios.",
-          "Matrículas, mensualidades, pagos y asistencia."
+          "Matrículas, mensualidades, pagos y asistencia.",
+          "Hasta 50 alumnos activos."
         ],
         "ecosistema": [
-          "Todo Gestión.",
+          "Todo Gestión, sin el límite de 50 alumnos.",
           "Espacio para familias, avisos y materiales.",
-          "Eventos, talleres y pedidos, cuando están habilitados."
+          "Puedes crear rutas de cursos, ofrecerlos y venderlos en la tienda."
         ]
       },
       "setupRows": [
@@ -13392,20 +13403,12 @@
           "label": "Presencia con plantilla, por tu cuenta"
         },
         {
-          "id": "presenciaCustom",
-          "label": "Diseño exclusivo de Presencia"
+          "id": "customLanding",
+          "label": "Landing a medida para Presencia o Ecosistema"
         },
         {
           "id": "gestionSelfServe",
           "label": "Gestión, configuración por tu cuenta"
-        },
-        {
-          "id": "gestionAssisted",
-          "label": "Gestión, configuración asistida"
-        },
-        {
-          "id": "ecosistemaAssisted",
-          "label": "Ecosistema, implementación asistida"
         },
         {
           "id": "special",
@@ -13419,7 +13422,7 @@
         },
         {
           "q": "¿Puedo personalizar mi página?",
-          "a": "Puedes adaptar los contenidos y la identidad que ofrece la plantilla. Un diseño exclusivo se cotiza aparte."
+          "a": "Puedes adaptar los contenidos y la identidad que ofrece la plantilla. La landing a medida tiene un pago único publicado en esta página."
         },
         {
           "q": "¿Tengo que contratar Gestión para tener mi página web?",
@@ -13430,8 +13433,8 @@
           "a": "Puedes conocer Gestión y Ecosistema para sumar administración y el espacio de las familias. El cambio no es automático."
         },
         {
-          "q": "¿El diseño personalizado tiene un precio fijo?",
-          "a": "No. Se cotiza según el alcance del proyecto."
+          "q": "¿La landing a medida tiene un precio fijo?",
+          "a": "Sí. Presencia y Ecosistema muestran el mismo pago único. Un desarrollo especial se cotiza aparte."
         },
         {
           "q": "¿Las comisiones de los medios de pago están incluidas?",

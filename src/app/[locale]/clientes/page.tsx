@@ -7,6 +7,7 @@ import { attachClientPreviewMedia } from "@/lib/pulsar/centrolistoClientPreviews
 import { loadAllPulsarTenantsForAdmin } from "@/lib/pulsar/pulsarTenantStore";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { getPulsarCookieSession } from "@/lib/pulsar/pulsarStaffAuth";
+import { readCentrolistoMarket } from "@/lib/pulsar/readCentrolistoMarket";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { PulsarClientesView } from "@/components/organisms/pulsar/PulsarClientesView";
 
@@ -18,6 +19,7 @@ export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ pais?: string | string[] }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -38,15 +40,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function PulsarClientesPage({ params }: PageProps) {
+export default async function PulsarClientesPage({ params, searchParams }: PageProps) {
   if (!(await isPulsarPlatformRequest())) {
     notFound();
   }
   const { locale } = await params;
-  const [dict, tenants, session] = await Promise.all([
+  const [dict, tenants, session, market] = await Promise.all([
     getDictionary(locale as AppLocale),
     loadAllPulsarTenantsForAdmin(),
     getPulsarCookieSession(),
+    readCentrolistoMarket(await searchParams),
   ]);
   const clients = attachClientPreviewMedia(
     tenants
@@ -60,6 +63,6 @@ export default async function PulsarClientesPage({ params }: PageProps) {
     publicAssetExists,
   );
   return (
-    <PulsarClientesView locale={locale} dict={dict} clients={clients} email={session?.email ?? null} />
+    <PulsarClientesView locale={locale} dict={dict} clients={clients} email={session?.email ?? null} market={market} />
   );
 }

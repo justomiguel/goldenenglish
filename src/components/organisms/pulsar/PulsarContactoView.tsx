@@ -5,21 +5,23 @@ import { JsonLdFaqPage } from "@/components/molecules/JsonLdFaqPage";
 import { PublicContactForm } from "@/components/molecules/PublicContactForm";
 import { PulsarContactSteps } from "@/components/organisms/pulsar/PulsarContactSteps";
 import { PulsarSiteChromeEntry } from "@/components/organisms/pulsar/PulsarSiteChromeEntry";
+import type { CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 
 export interface PulsarContactoViewProps {
   locale: string;
   dict: Dictionary;
   email?: string | null;
+  market?: CentrolistoMarketCode;
 }
 
 const CONTACT_STILL = "/centrolisto/moments/sunday.webp";
 
-export function PulsarContactoView({ locale, dict, email = null }: PulsarContactoViewProps) {
+export function PulsarContactoView({ locale, dict, email = null, market = "cl" }: PulsarContactoViewProps) {
   const copy = dict.pulsar.contact;
   const checks = [copy.check1, copy.check2, copy.check3, copy.check4, copy.check5];
 
   return (
-    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} activeNav="contact">
+    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} market={market} activeNav="contact">
       <JsonLdFaqPage items={copy.faqs} />
       <section className="border-b border-[var(--color-border)]">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:items-start lg:gap-12 lg:py-16">

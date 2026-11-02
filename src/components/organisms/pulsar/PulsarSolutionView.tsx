@@ -9,6 +9,7 @@ import { PulsarHomeProblem } from "@/components/organisms/pulsar/PulsarHomeProbl
 import { PulsarOfferPrice } from "@/components/organisms/pulsar/PulsarOfferPrice";
 import { PulsarProductVideo } from "@/components/organisms/pulsar/PulsarProductVideo";
 import { PulsarSiteChromeEntry } from "@/components/organisms/pulsar/PulsarSiteChromeEntry";
+import type { CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 import { PULSAR_SOLUTION_SLUGS, type PulsarSolutionSlug } from "@/lib/pulsar/pulsarSolutionSlugs";
 
 export interface PulsarSolutionViewProps {
@@ -16,6 +17,7 @@ export interface PulsarSolutionViewProps {
   dict: Dictionary;
   solution: PulsarSolutionSlug;
   email?: string | null;
+  market?: CentrolistoMarketCode;
 }
 
 const PHOTO: Record<PulsarSolutionSlug, string> = {
@@ -38,7 +40,7 @@ const PORTRAITS = [
   "/centrolisto/voices/luis.jpg",
 ] as const;
 
-export function PulsarSolutionView({ locale, dict, solution, email = null }: PulsarSolutionViewProps) {
+export function PulsarSolutionView({ locale, dict, solution, email = null, market = "cl" }: PulsarSolutionViewProps) {
   const item = dict.pulsar.solutionSet[solution];
   const voices = (VOICE_INDEX[solution] ?? []).flatMap((index) => {
     const voice = dict.pulsar.clients.voices[index];
@@ -46,12 +48,12 @@ export function PulsarSolutionView({ locale, dict, solution, email = null }: Pul
   });
 
   return (
-    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} activeNav={solution}>
+    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} market={market} activeNav={solution}>
       <section className="border-b border-[var(--color-border)]">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:py-20">
           <div>
             <p className="text-sm font-medium text-[var(--color-muted-foreground)]">{item.tagline}</p>
-            <PulsarOfferPrice locale={locale} dict={dict} slug={solution} />
+            <PulsarOfferPrice dict={dict} slug={solution} market={market} />
             <h1 className="mt-3 font-display text-4xl font-medium leading-[1.08] tracking-tight text-[var(--color-foreground)] sm:text-5xl">
               {item.headline}
             </h1>

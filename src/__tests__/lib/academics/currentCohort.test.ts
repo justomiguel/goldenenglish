@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, it, expect, vi } from "vitest";
 import {
+  loadCohortSections,
   loadCurrentCohort,
   loadCurrentCohortSections,
 } from "@/lib/academics/currentCohort";
@@ -152,6 +153,24 @@ describe("loadCurrentCohortSections", () => {
     expect(r[1]).toMatchObject({ id: "s2", teacherName: "Hopper Grace", activeCount: 1 });
     expect(r[1].maxStudents).toBeGreaterThan(0);
     expect(r[2]).toMatchObject({ id: "s3", teacherName: "—", activeCount: 0, maxStudents: 8 });
+  });
+
+  it("queries sections for the cohort id it receives", async () => {
+    const eq = vi.fn().mockReturnValue({
+      is: vi.fn().mockReturnValue({
+        order: vi.fn().mockResolvedValue({ data: [], error: null }),
+      }),
+    });
+    const client = {
+      from: vi.fn((table: string) => {
+        if (table === "academic_sections") return { select: vi.fn().mockReturnValue({ eq }) };
+        throw new Error(table);
+      }),
+    } as unknown as Parameters<typeof loadCohortSections>[0];
+
+    const rows = await loadCohortSections(client, "cohort-web");
+    expect(rows).toEqual([]);
+    expect(eq).toHaveBeenCalledWith("cohort_id", "cohort-web");
   });
 
   it("disambiguates the teacher profile embed (assistants also join profiles)", () => {

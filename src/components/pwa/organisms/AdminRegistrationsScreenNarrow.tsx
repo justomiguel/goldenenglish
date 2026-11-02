@@ -45,6 +45,7 @@ interface AdminRegistrationsScreenNarrowProps {
   surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">;
   currentCohortSections?: CurrentCohortSection[];
   currentCohortName?: string;
+  createSectionHref?: string | null;
   usesCefrLevel?: boolean;
 }
 
@@ -70,6 +71,7 @@ export function AdminRegistrationsScreenNarrow({
   surface,
   currentCohortSections,
   currentCohortName,
+  createSectionHref,
   usesCefrLevel = false,
 }: AdminRegistrationsScreenNarrowProps) {
   void surface;
@@ -137,6 +139,8 @@ export function AdminRegistrationsScreenNarrow({
             onStartEnrollmentFee={u.onStartEnrollmentFee}
             onStartJoinCharge={u.onStartJoinCharge}
             currentCohortSections={currentCohortSections}
+            createSectionHref={createSectionHref}
+            createSectionLabel={labels.createSectionInCohort}
             onBusy={u.setBusyId}
             onIntakeDone={() => {
               u.setToast(labels.acceptSuccess);
@@ -174,6 +178,7 @@ export function AdminRegistrationsScreenNarrow({
             userLabels={userLabels}
             currentCohortSections={currentCohortSections}
             currentCohortName={currentCohortName}
+            createSectionHref={createSectionHref}
           />
 
           <AdminRegistrationEditModal

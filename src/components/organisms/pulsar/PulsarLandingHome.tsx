@@ -10,6 +10,7 @@ import { PulsarSolutionShowcase } from "@/components/organisms/pulsar/PulsarSolu
 import { PulsarVoiceCarousel } from "@/components/organisms/pulsar/PulsarVoiceCarousel";
 import { PulsarHomeBenefits } from "@/components/organisms/pulsar/PulsarHomeBenefits";
 import type { PulsarClientSummary } from "@/components/organisms/pulsar/PulsarClientesView";
+import type { CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 
 export interface PulsarLandingHomeProps {
   locale: string;
@@ -18,6 +19,7 @@ export interface PulsarLandingHomeProps {
   featuredClients?: readonly PulsarClientSummary[];
   logoClients?: readonly PulsarClientSummary[];
   email?: string | null;
+  market?: CentrolistoMarketCode;
 }
 
 export function PulsarLandingHome({
@@ -27,9 +29,10 @@ export function PulsarLandingHome({
   featuredClients = [],
   logoClients,
   email = null,
+  market = "cl",
 }: PulsarLandingHomeProps) {
   return (
-    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} activeNav="home">
+    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} market={market} activeNav="home">
       <PulsarHomeHero locale={locale} dict={dict} />
       <PulsarHomeProof
         locale={locale}
@@ -38,7 +41,7 @@ export function PulsarLandingHome({
         featuredClients={featuredClients}
         logoClients={logoClients ?? featuredClients}
       />
-      <PulsarSolutionShowcase locale={locale} dict={dict} />
+      <PulsarSolutionShowcase locale={locale} dict={dict} market={market} />
       <PulsarHomeStory dict={dict} />
       <PulsarHomeBenefits dict={dict} />
       <PulsarHomeIdentity dict={dict} />

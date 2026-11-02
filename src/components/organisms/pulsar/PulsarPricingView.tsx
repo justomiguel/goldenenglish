@@ -5,9 +5,10 @@ import { PulsarOfferPrice } from "@/components/organisms/pulsar/PulsarOfferPrice
 import { PulsarReveal } from "@/components/organisms/pulsar/PulsarReveal";
 import { PulsarSiteChromeEntry } from "@/components/organisms/pulsar/PulsarSiteChromeEntry";
 import styles from "@/components/organisms/pulsar/centrolistoMotion.module.css";
+import { withCentrolistoMarket, type CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 import {
-  CENTROLISTO_COMMERCIAL_OFFER,
   formatOfferAmount,
+  publishedSetupOffer,
 } from "@/lib/pulsar/centrolistoCommercialOffer";
 import { PULSAR_SOLUTION_SLUGS, type PulsarSolutionSlug } from "@/lib/pulsar/pulsarSolutionSlugs";
 
@@ -15,6 +16,7 @@ export interface PulsarPricingViewProps {
   locale: string;
   dict: Dictionary;
   email?: string | null;
+  market?: CentrolistoMarketCode;
 }
 
 const STILL: Record<PulsarSolutionSlug, string> = {
@@ -29,19 +31,23 @@ function stillAlt(dict: Dictionary, slug: PulsarSolutionSlug): string {
   return dict.pulsar.solutionSet.ecosistema.imageAlt;
 }
 
-function setupLabel(locale: string, copy: Dictionary["pulsar"]["pricing"], id: string): string {
-  const row = CENTROLISTO_COMMERCIAL_OFFER.setup[id as keyof typeof CENTROLISTO_COMMERCIAL_OFFER.setup];
+function setupLabel(
+  market: CentrolistoMarketCode,
+  copy: Dictionary["pulsar"]["pricing"],
+  id: string,
+): string {
+  const row = publishedSetupOffer(id, market);
   if (!row || row.status !== "published") return "";
   if (row.kind === "quote" || row.amount === null) return copy.quoteLabel;
   if (row.amount === 0) return copy.free;
-  return `${formatOfferAmount(row.amount, locale)} ${copy.oneTimeTax}`;
+  return `${formatOfferAmount(row.amount, market)} ${copy.oneTimeTax}`;
 }
 
-export function PulsarPricingView({ locale, dict, email = null }: PulsarPricingViewProps) {
+export function PulsarPricingView({ locale, dict, email = null, market = "cl" }: PulsarPricingViewProps) {
   const copy = dict.pulsar.pricing;
 
   return (
-    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} activeNav="pricing">
+    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} market={market} activeNav="pricing">
       <section className="border-b border-[var(--color-border)]">
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 md:py-24">
           <h1 className="font-display text-4xl font-medium tracking-tight text-[var(--color-foreground)] md:text-5xl">
@@ -64,7 +70,7 @@ export function PulsarPricingView({ locale, dict, email = null }: PulsarPricingV
                 </PulsarReveal>
                 <div>
                   <p className="text-sm font-medium text-[var(--color-muted-foreground)]">{item.navLabel}</p>
-                  <PulsarOfferPrice locale={locale} dict={dict} slug={slug} />
+                  <PulsarOfferPrice dict={dict} slug={slug} market={market} />
                   <h2 className="mt-4 font-display text-3xl font-medium tracking-tight text-[var(--color-foreground)]">{item.headline}</h2>
                   <p className="mt-3 text-base leading-relaxed text-[var(--color-foreground)]">{item.lead}</p>
                   <ul className="mt-5 space-y-2">
@@ -77,13 +83,16 @@ export function PulsarPricingView({ locale, dict, email = null }: PulsarPricingV
                   ) : null}
                   <div className="mt-6 flex flex-col items-start gap-3">
                     <PulsarActionLink
-                      href={slug === "presencia" ? `/${locale}/cuenta/registro` : `/${locale}/contacto`}
+                      href={withCentrolistoMarket(
+                        slug === "presencia" ? `/${locale}/cuenta/registro` : `/${locale}/contacto`,
+                        market,
+                      )}
                       tone={slug === "presencia" ? "primary" : "quiet"}
                     >
                       {item.cta}
                     </PulsarActionLink>
                     {slug === "presencia" ? (
-                      <PulsarActionLink href={`/${locale}/contacto`} tone="quiet">{copy.customCta}</PulsarActionLink>
+                      <PulsarActionLink href={withCentrolistoMarket(`/${locale}/contacto`, market)} tone="quiet">{copy.customCta}</PulsarActionLink>
                     ) : null}
                   </div>
                 </div>
@@ -98,7 +107,7 @@ export function PulsarPricingView({ locale, dict, email = null }: PulsarPricingV
           <h2 className="font-display text-3xl font-medium tracking-tight text-[var(--color-foreground)]">{copy.customTitle}</h2>
           <p className="mt-4 text-base leading-relaxed text-[var(--color-muted-foreground)]">{copy.customBody}</p>
           <div className="mt-6">
-            <PulsarActionLink href={`/${locale}/contacto`} tone="quiet">{copy.customCta}</PulsarActionLink>
+            <PulsarActionLink href={withCentrolistoMarket(`/${locale}/contacto`, market)} tone="quiet">{copy.customCta}</PulsarActionLink>
           </div>
         </div>
       </section>
@@ -129,7 +138,7 @@ export function PulsarPricingView({ locale, dict, email = null }: PulsarPricingV
             {copy.setupRows.map((row) => (
               <li key={row.id} className="flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:justify-between">
                 <span className="text-sm text-[var(--color-foreground)]">{row.label}</span>
-                <span className="text-sm font-medium text-[var(--color-foreground)]">{setupLabel(locale, copy, row.id)}</span>
+                <span className="text-sm font-medium text-[var(--color-foreground)]">{setupLabel(market, copy, row.id)}</span>
               </li>
             ))}
           </ul>
@@ -153,7 +162,7 @@ export function PulsarPricingView({ locale, dict, email = null }: PulsarPricingV
       <section className="py-16 md:py-24">
         <div className="mx-auto flex max-w-3xl flex-col items-start gap-6 px-4 sm:px-6">
           <h2 className="font-display text-3xl font-medium tracking-tight text-[var(--color-foreground)]">{copy.closeTitle}</h2>
-          <PulsarActionLink href={`/${locale}/cuenta/registro`} tone="primary">{dict.pulsar.nav.startFree}</PulsarActionLink>
+          <PulsarActionLink href={withCentrolistoMarket(`/${locale}/cuenta/registro`, market)} tone="primary">{dict.pulsar.nav.startFree}</PulsarActionLink>
         </div>
       </section>
     </PulsarSiteChromeEntry>

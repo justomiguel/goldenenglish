@@ -4,11 +4,13 @@ import { ArrowRight, BookOpen, DoorOpen, Landmark, UserPlus, type LucideIcon } f
 import type { Dictionary } from "@/types/i18n";
 import { PulsarCompetitorComparisonSection } from "@/components/organisms/pulsar/PulsarCompetitorComparisonSection";
 import { PulsarSiteChromeEntry } from "@/components/organisms/pulsar/PulsarSiteChromeEntry";
+import type { CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
 
 export interface PulsarProductoViewProps {
   locale: string;
   dict: Dictionary;
   email?: string | null;
+  market?: CentrolistoMarketCode;
 }
 
 const BAND_STILLS = [
@@ -20,7 +22,7 @@ const BAND_STILLS = [
 
 const BAND_ICONS: readonly LucideIcon[] = [DoorOpen, UserPlus, BookOpen, Landmark];
 
-export function PulsarProductoView({ locale, dict, email = null }: PulsarProductoViewProps) {
+export function PulsarProductoView({ locale, dict, email = null, market = "cl" }: PulsarProductoViewProps) {
   const copy = dict.pulsar.product;
   const chapters = [
     {
@@ -42,7 +44,7 @@ export function PulsarProductoView({ locale, dict, email = null }: PulsarProduct
   ];
 
   return (
-    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} activeNav="product">
+    <PulsarSiteChromeEntry locale={locale} dict={dict} email={email} market={market} activeNav="product">
       <section className="border-b border-[var(--color-border)] py-10 md:py-14">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <h1 className="max-w-2xl font-display text-4xl font-medium tracking-tight text-[var(--color-foreground)] sm:text-5xl">

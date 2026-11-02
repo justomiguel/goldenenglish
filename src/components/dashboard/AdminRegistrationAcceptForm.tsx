@@ -5,7 +5,7 @@ import {
   acceptRegistration,
   type AcceptRegistrationResult,
 } from "@/app/[locale]/dashboard/admin/registrations/actions";
-import { enrollStudentInSectionAction } from "@/app/[locale]/dashboard/admin/academic/enrollmentActions";
+import { enrollAcceptedRegistrationSectionAction } from "@/app/[locale]/dashboard/admin/registrations/enrollAcceptedRegistrationSectionAction";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -37,6 +37,7 @@ export interface AdminRegistrationAcceptFormProps {
   userLabels: RegistrationAcceptUserLabels;
   currentCohortSections?: CurrentCohortSection[];
   currentCohortName?: string;
+  createSectionHref?: string | null;
 }
 
 export function AdminRegistrationAcceptForm({
@@ -50,6 +51,7 @@ export function AdminRegistrationAcceptForm({
   labels,
   currentCohortSections,
   currentCohortName,
+  createSectionHref,
 }: AdminRegistrationAcceptFormProps) {
   const hasBirth = Boolean(
     row.birth_date && /^\d{4}-\d{2}-\d{2}/.test(row.birth_date),
@@ -71,6 +73,7 @@ export function AdminRegistrationAcceptForm({
   }, [effectiveBirth, legalAgeMajority]);
 
   const hasSections = Boolean(currentCohortSections?.length);
+  const showEmptyCreate = !hasSections && Boolean(createSectionHref);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -92,7 +95,7 @@ export function AdminRegistrationAcceptForm({
         (row.additionalSectionIds ?? []).length > 0;
       const pendingSectionIds = res.pendingSectionIds ?? [];
       const needsPicker =
-        hasSections &&
+        (hasSections || showEmptyCreate) &&
         (pendingSectionIds.length > 0 || !hadRequestedSections);
       if (needsPicker) {
         setAcceptedStudentId(res.studentId);
@@ -113,7 +116,7 @@ export function AdminRegistrationAcceptForm({
     if (!acceptedStudentId) return;
     onBusy(row.id);
     setFormError(null);
-    const res = await enrollStudentInSectionAction({
+    const res = await enrollAcceptedRegistrationSectionAction({
       locale,
       studentId: acceptedStudentId,
       sectionId,
@@ -149,6 +152,7 @@ export function AdminRegistrationAcceptForm({
         labels={labels}
         onPickSection={onPickSection}
         onSkipSection={onSkipSection}
+        createSectionHref={createSectionHref}
       />
     );
   }
