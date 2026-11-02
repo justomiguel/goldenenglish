@@ -1,0 +1,37 @@
+---
+description: Prefer a database value over an environment variable when a person may change the setting after deploy.
+alwaysApply: true
+---
+
+# Prefer a database value over an environment variable
+
+## Preference
+
+Store a setting in the database when a person may change it after deploy. Do not add an environment variable for that setting.
+
+A database value applies on the next request. An environment variable needs a new deploy.
+
+## Store it in the database
+
+- Product settings: ids, hosts, quotas, feature switches, sender addresses, and public measurement ids.
+- Any value that staff should edit in an admin screen.
+- Pulsar platform settings go on `platform_settings`. Add a control-plane file under `supabase/pulsar-migrations/`.
+- Institute settings go through `supabase/migrations/` and the existing settings tables.
+
+Read the value on the server. Pass it to the client as a prop. Do not read `process.env` for that setting inside a component.
+
+## Keep an environment variable
+
+Use an environment variable only when the process cannot open the database without it, or when the value must stay out of a table:
+
+- Database URL, Supabase URL, anon key, and service role key.
+- A vendor secret used only to boot a connection.
+- Process flags: port, `DEV_TENANT_SLUG`, E2E isolation, and cron secrets.
+
+Per-institute connection data already lives in `TENANTS_CONFIG_JSON`. Follow **`19-multi-tenant-local-vercel-targets.mdc`**. Do not add a new loose `process.env` key for one institute.
+
+## Checklist
+
+- [ ] Can staff change this without a deploy? Store it in the database and add an admin field.
+- [ ] Is this required before the app can open the database? Keep it in the environment.
+- [ ] Is it a secret? Do not use `NEXT_PUBLIC_*`. Do not send it to the browser.

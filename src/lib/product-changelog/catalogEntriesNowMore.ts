@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "academic-fields-filter-sort-menus",
+    date: "2026-10-28",
+    area: "academic",
+    title: t(
+      "Los campos académicos entran en Filtrar y Ordenar",
+      "Academic fields sit in Filter and Sort",
+      "Os campos acadêmicos entram em Filtrar e Ordenar",
+    ),
+    summary: t(
+      "En Alumnos, un campo académico propio aparece dentro de Filtrar y en el menú Ordenar.",
+      "On Students, a custom academic field appears inside Filter and in the Sort menu.",
+      "Em Alunos, um campo acadêmico próprio aparece dentro de Filtrar e no menu Ordenar.",
+    ),
+  },
+  {
     id: "admin-mobile-menu",
     date: "2026-10-28",
     area: "admin",

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Activity, Building2, Eye, Mail, Plus, Users } from "lucide-react";
+import { Activity, BarChart3, Building2, Eye, Mail, Plus, Users } from "lucide-react";
+import { PulsarAdminAnalyticsSettings } from "@/components/organisms/pulsar/PulsarAdminAnalyticsSettings";
 import { PulsarAdminChrome } from "@/components/organisms/pulsar/PulsarAdminChrome";
 import { PulsarAdminMailSettings } from "@/components/organisms/pulsar/PulsarAdminMailSettings";
 import { PulsarAdminOwnerReview } from "@/components/organisms/pulsar/PulsarAdminOwnerReview";
@@ -32,9 +33,10 @@ export interface PulsarAdminFleetScreenProps {
     hasApiKey: boolean;
     last: { ok: boolean; code: string; detail: string; at: string } | null;
   };
+  gaMeasurementId?: string;
 }
 
-const ADMIN_TABS = ["sites", "accounts", "mail"] as const;
+const ADMIN_TABS = ["sites", "accounts", "mail", "analytics"] as const;
 
 export function PulsarAdminFleetScreen({
   locale,
@@ -46,6 +48,7 @@ export function PulsarAdminFleetScreen({
   platformHosts = [],
   owners = [],
   mailSettings = { fromEmail: "", notifyEmail: "", hasApiKey: false, last: null },
+  gaMeasurementId = "",
 }: PulsarAdminFleetScreenProps) {
   const router = useRouter();
   const copy = dict.pulsar.admin;
@@ -57,6 +60,7 @@ export function PulsarAdminFleetScreen({
     { id: "sites", label: copy.tabSites, Icon: Building2 },
     { id: "accounts", label: copy.tabAccounts, Icon: Users },
     { id: "mail", label: copy.tabMail, Icon: Mail },
+    { id: "analytics", label: copy.tabAnalytics, Icon: BarChart3 },
   ];
   const [busySlug, setBusySlug] = useState<string | null>(null);
   const numFmt = new Intl.NumberFormat(locale);
@@ -122,12 +126,17 @@ export function PulsarAdminFleetScreen({
             items={adminTabs}
             value={tab}
             onChange={(id) => {
-              if (id === "sites" || id === "accounts" || id === "mail") setTab(id);
+              if (id === "sites" || id === "accounts" || id === "mail" || id === "analytics") setTab(id);
             }}
           />
         </div>
         {tab === "accounts" ? <div className="mt-6"><PulsarAdminOwnerReview locale={locale} owners={owners} copy={copy.owners} /></div> : null}
         {tab === "mail" ? <div className="mt-6"><PulsarAdminMailSettings locale={locale} settings={mailSettings} copy={copy.mail} /></div> : null}
+        {tab === "analytics" ? (
+          <div className="mt-6">
+            <PulsarAdminAnalyticsSettings locale={locale} measurementId={gaMeasurementId} copy={copy.analytics} />
+          </div>
+        ) : null}
         {tab === "sites" ? (
         <>
         <ul className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm text-[var(--color-muted-foreground)]">

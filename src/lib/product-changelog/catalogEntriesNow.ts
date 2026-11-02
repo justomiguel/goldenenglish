@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "centrolisto-ga-measurement-id",
+    date: "2026-11-02",
+    area: "admin",
+    title: t(
+      "CentroListo guarda el ID de Google Analytics",
+      "CentroListo stores the Google Analytics id",
+      "O CentroListo guarda o ID do Google Analytics",
+    ),
+    summary: t(
+      "En el panel puedes pegar el ID de medición. La web lo usa en la siguiente visita, sin un deploy.",
+      "In the panel you can paste the measurement id. The site uses it on the next visit, without a deploy.",
+      "No painel você pode colar o ID de medição. O site o usa na próxima visita, sem um deploy.",
+    ),
+  },
+  {
     id: "centrolisto-country-prices",
     date: "2026-11-02",
     area: "site",
@@ -12,9 +27,9 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "O CentroListo mostra preços por país",
     ),
     summary: t(
-      "En el sitio puedes elegir Chile, Argentina, Uruguay o Paraguay. Los precios mensuales y la landing a medida cambian con ese país.",
-      "On the site you can choose Chile, Argentina, Uruguay, or Paraguay. Monthly prices and the custom landing fee follow that country.",
-      "No site você pode escolher Chile, Argentina, Uruguai ou Paraguai. Os preços mensais e a landing sob medida seguem esse país.",
+      "En el sitio puedes elegir Chile, Argentina, Uruguay o Paraguay. Los precios cambian con ese país. Argentina y Uruguay usan voseo.",
+      "On the site you can choose Chile, Argentina, Uruguay, or Paraguay. Prices follow that country. Argentina and Uruguay use voseo.",
+      "No site você pode escolher Chile, Argentina, Uruguai ou Paraguai. Os preços seguem esse país. Argentina e Uruguai usam voseo.",
     ),
   },
   {
@@ -225,21 +240,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "En el pie del sitio público hay un enlace a respuestas cortas sobre edades, sedes y cómo inscribirse.",
       "The public site footer links to short answers about ages, sites, and how to enroll.",
       "No rodapé do site público há um link para respostas curtas sobre idades, sedes e como se inscrever.",
-    ),
-  },
-  {
-    id: "academic-fields-filter-sort-menus",
-    date: "2026-10-28",
-    area: "academic",
-    title: t(
-      "Los campos académicos entran en Filtrar y Ordenar",
-      "Academic fields sit in Filter and Sort",
-      "Os campos acadêmicos entram em Filtrar e Ordenar",
-    ),
-    summary: t(
-      "En Alumnos, un campo académico propio aparece dentro de Filtrar y en el menú Ordenar.",
-      "On Students, a custom academic field appears inside Filter and in the Sort menu.",
-      "Em Alunos, um campo acadêmico próprio aparece dentro de Filtrar e no menu Ordenar.",
     ),
   },
 ];

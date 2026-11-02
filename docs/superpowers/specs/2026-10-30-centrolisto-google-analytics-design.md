@@ -4,7 +4,8 @@
 
 **Done when:**
 
-- The GA4 tag loads only on the Pulsar host, and only when `NEXT_PUBLIC_CENTROLISTO_GA_MEASUREMENT_ID` matches `G-` plus letters or digits.
+- The GA4 tag loads only on the Pulsar host, and only when `platform_settings.ga_measurement_id` matches `G-` plus letters or digits.
+- Pulsar admin can save or clear that id. The next public request uses the new value. No deploy is required.
 - Each marketing page view is one `page_view`. Client navigations count too.
 - Each link click on a marketing page is one `cl_click` with the URL and a short label. A successful public contact form is one `cl_contact_submit` with the subject code only.
 - Paths under `/admin` send no page views and no clicks.
@@ -15,6 +16,8 @@
 ## Surfaces (Web vs PWA)
 
 Tier A public marketing. Web chrome is `PulsarSiteChrome`. PWA chrome is `PulsarSiteChromePwa`. One tag in the Pulsar locale layout covers both. A document click listener reads every link, so the two trees do not need separate event code.
+
+The settings form is Tier B. It lives on the Pulsar admin fleet screen. That screen has no PWA tree.
 
 ## Decision
 

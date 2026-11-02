@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getDictionary } from "@/lib/i18n/dictionaries";
+import { loadCentrolistoDictionary } from "@/lib/pulsar/loadCentrolistoDictionary";
 import { PulsarAccountCreateForm } from "@/components/organisms/pulsar/PulsarAccountCreateForm";
 import { loadPulsarOwnerHome } from "@/lib/pulsar/pulsarOwnerAccount";
 import { canCreateFreeSite } from "@/lib/pulsar/freeSitePlan";
@@ -11,8 +11,10 @@ import {
 
 export default async function PulsarAccountNewSitePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ pais?: string | string[] }>;
 }) {
   const { locale } = await params;
   if (!isPulsarSupabaseConfigured()) redirect(`/${locale}/cuenta/login`);
@@ -24,7 +26,7 @@ export default async function PulsarAccountNewSitePage({
   const home = await loadPulsarOwnerHome(user.id);
   if (home.kind !== "owner" || home.status !== "approved") redirect(`/${locale}/cuenta`);
   if (!canCreateFreeSite(home.ownedCount)) redirect(`/${locale}/cuenta`);
-  const dict = await getDictionary(locale);
+  const { dict } = await loadCentrolistoDictionary(locale, await searchParams);
   const kindLabels = Object.fromEntries(
     GENERIC_INSTITUTE_KINDS.map((kind) => [kind, dict.landing.genericLandings[kind].name]),
   ) as Record<(typeof GENERIC_INSTITUTE_KINDS)[number], string>;

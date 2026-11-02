@@ -1,0 +1,145 @@
+{
+  "meta": {
+    "description": "Gestioná alumnos, inscripciones, clases y mensualidades en una sola plataforma. Creá tu sitio web y hacé crecer tu academia con CentroListo.",
+    "productoDescription": "Página institucional, inscripciones, grupos, asistencia, mensualidades y el espacio de las familias. Conocé qué incluye CentroListo.",
+    "clientesDescription": "Mirá escuelas e institutos que ya publican su sitio y gestionan alumnos con CentroListo."
+  },
+  "home": {
+    "portals": {
+      "lead": "Elegí un momento. El video se abre solo si lo pedís.",
+      "tabs": [
+        null,
+        null,
+        {
+          "headline": "Nunca más tenés que escribirle a una familia para recordar un pago."
+        }
+      ]
+    },
+    "schoolsLead": "Entrá al sitio de una escuela que ya nos contrató y mirá cómo cobra.",
+    "schoolsNamed": "{name} ya es cliente. Entrá y mirá su sitio en vivo.",
+    "freeSiteNote": "Creá la página pública sin costo. Un administrador revisa la cuenta antes de habilitarla. Podés abrir hasta tres sitios. No incluye alumnos, mensualidades ni cobros.",
+    "bottomCta": {
+      "title": "Conocé CentroListo funcionando."
+    }
+  },
+  "commercial": {
+    "heroSupport": "Con CentroListo, las familias pueden conocer tus actividades, inscribirse y pagar online. Vos tenés el control de alumnos, cupos, asistencia y cobros, sin depender de planillas ni conversaciones interminables.",
+    "benefits": [
+      {
+        "body": "Mostrá tus cursos, horarios, cupos disponibles y clases de prueba desde tu propia página web."
+      }
+    ],
+    "howSteps": [
+      null,
+      null,
+      {
+        "title": "Empezás a gestionar"
+      }
+    ],
+    "offeringTitle": "Elegí por lo que tu institución necesita ahora."
+  },
+  "segments": {
+    "danza": {
+      "seoDescription": "Organizá grupos, niveles, mensualidades y la muestra de tu academia de danza. Publicá horarios y cobrá desde tu propia página con CentroListo.",
+      "benefits": [
+        null,
+        null,
+        "Abrís la inscripción de la muestra o el taller cuando lo habilitás."
+      ],
+      "featuresTitle": "Lo que ya podés usar"
+    },
+    "musica": {
+      "featuresTitle": "Lo que ya podés usar"
+    },
+    "idiomas": {
+      "featuresTitle": "Lo que ya podés usar"
+    },
+    "deportes": {
+      "seoDescription": "Gestioná alumnos, horarios, cupos, asistencia y pagos de tu escuela deportiva sin planillas. CentroListo reúne la operación en un solo lugar.",
+      "h1": "Gestioná alumnos, clases y pagos sin depender de planillas.",
+      "featuresTitle": "Lo que ya podés usar"
+    },
+    "eventos": {
+      "featuresTitle": "Lo que ya podés usar"
+    }
+  },
+  "solutions": {
+    "sectionLead": "Desde tu primera página web hasta una institución conectada. Elegí la solución que necesitás hoy."
+  },
+  "solutionSet": {
+    "presencia": {
+      "lead": "Elegí una de nuestras plantillas prediseñadas, agregá la información de tu institución y empezá a tener presencia digital sin pagar una mensualidad.",
+      "seoDescription": "Creá la página pública de tu institución con tu marca. Mostrá actividades y horarios. La gestión de alumnos se conversa aparte."
+    },
+    "ecosistema": {
+      "benefits": [
+        null,
+        null,
+        "Podés crear rutas de cursos, ofrecerlos y venderlos en la tienda."
+      ]
+    }
+  },
+  "pricing": {
+    "lead": "Desde tu primera página web hasta una institución conectada. Elegí la solución que necesitás hoy.",
+    "customTitle": "¿Querés algo único? También diseñamos tu sitio a medida.",
+    "customBody": "Si buscás una experiencia visual exclusiva, adaptada a tu identidad y necesidades, podemos desarrollar una solución personalizada. Contanos tu idea y preparamos una propuesta.",
+    "closeTitle": "Empezá con una plantilla. Crecé cuando lo necesites.",
+    "features": {
+      "ecosistema": [
+        null,
+        null,
+        "Podés crear rutas de cursos, ofrecerlos y venderlos en la tienda."
+      ]
+    },
+    "faqs": [
+      {
+        "a": "Sí. Podés crear la página institucional gratis con una plantilla prediseñada. Un administrador revisa la cuenta antes de habilitarla. Podés abrir hasta tres sitios. No incluye alumnos ni mensualidades."
+      },
+      {
+        "a": "Podés adaptar los contenidos y la identidad que ofrece la plantilla. La landing a medida tiene un pago único publicado en esta página."
+      },
+      {
+        "a": "No. Podés usar Presencia por su cuenta."
+      },
+      {
+        "a": "Podés conocer Gestión y Ecosistema para sumar administración y el espacio de las familias. El cambio no es automático."
+      }
+    ]
+  },
+  "product": {
+    "lead": "No necesitás aprender a usar doce programas distintos. Todo forma parte de un mismo espacio sereno que acompaña la vida cotidiana de tu escuela.",
+    "m1Body": "Un sitio cálido y rápido con tu estética, tus fotografías y tus textos en español, inglés o portugués, que podés actualizar cuando quieras."
+  },
+  "clients": {
+    "voicesLead": "Conocé la experiencia de quienes utilizan CentroListo para gestionar sus instituciones.",
+    "verticals": [
+      null,
+      {
+        "body": "Ordená horarios por disciplina y edad, recibí alumnos en clases de prueba, organizá las entradas de la muestra anual y entregá vestuario desde la tienda."
+      }
+    ]
+  },
+  "contact": {
+    "steps": [
+      null,
+      null,
+      {
+        "body": "Entrá tu lista actual. Vos y los profesores caminan con una guía en pantalla."
+      }
+    ],
+    "emailLabel": "Escribinos directamente"
+  },
+  "account": {
+    "registerTitle": "Creá tu cuenta",
+    "registerLead": "Creá la página pública de tu institución sin costo. Un administrador revisa la cuenta antes de habilitarla. Después podés abrir hasta tres sitios. La página gratis no incluye alumnos, mensualidades ni cobros.",
+    "loginTitle": "Ingresá",
+    "loginLead": "Usá el correo y la contraseña de tu cuenta de Pulsar.",
+    "dnsCname": "Creá un CNAME de {name} hacia {target}.",
+    "dnsApex": "Creá un registro A de {name} hacia {target}.",
+    "empty": "Todavía no tenés un sitio.",
+    "createLead": "Un sitio gratis usa una plantilla y la base compartida. Podés agregar tu dominio. Podés abrir 3.",
+    "domainInvalid": "Revisá el dominio. Usá un host como miinstituto.com.",
+    "invalidInput": "Revisá el correo y usá una contraseña de al menos 8 caracteres.",
+    "createFailed": "No se pudo abrir el sitio. Intentá de nuevo."
+  }
+}

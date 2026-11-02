@@ -9,6 +9,7 @@ import {
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { PulsarAdminFleetScreen } from "@/components/organisms/pulsar/PulsarAdminFleetScreen";
 import { loadPulsarMailSettings } from "@/lib/pulsar/pulsarMail";
+import { loadCentrolistoGaMeasurementId } from "@/lib/pulsar/centrolistoGaSettings";
 import { listPulsarOwners } from "@/lib/pulsar/pulsarOwnerAccount";
 
 export const dynamic = "force-dynamic";
@@ -30,12 +31,13 @@ export default async function PulsarAdminPage({ params }: PageProps) {
     redirect(`/${locale}/admin/password`);
   }
 
-  const [dict, tenants, platformHosts, owners, mailSettings] = await Promise.all([
+  const [dict, tenants, platformHosts, owners, mailSettings, gaMeasurementId] = await Promise.all([
     getDictionary(locale as AppLocale),
     loadAllPulsarTenantsForAdmin(),
     loadPulsarPlatformHostsForAdmin(),
     listPulsarOwners(),
     loadPulsarMailSettings(),
+    loadCentrolistoGaMeasurementId(),
   ]);
   const telemetryBySlug = await loadPulsarFleetTelemetry(tenants);
 
@@ -50,6 +52,7 @@ export default async function PulsarAdminPage({ params }: PageProps) {
       platformHosts={platformHosts}
       owners={owners}
       mailSettings={mailSettings}
+      gaMeasurementId={gaMeasurementId ?? ""}
     />
   );
 }

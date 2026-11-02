@@ -6,7 +6,7 @@ The Centro Listo marketing site has no visit log. Institute `user_events` need a
 
 ## Decision
 
-Load GA4 only on the Pulsar host when `NEXT_PUBLIC_CENTROLISTO_GA_MEASUREMENT_ID` is set. Send `page_view`, `cl_click`, and `cl_contact_submit`. Do not send names, emails, or phones. Skip `/admin`.
+Load GA4 only on the Pulsar host when `platform_settings.ga_measurement_id` is set. Staff save that id in Pulsar admin. Send `page_view`, `cl_click`, and `cl_contact_submit`. Do not send names, emails, or phones. Skip `/admin`.
 
 ## Options considered
 
@@ -14,6 +14,6 @@ Reuse `user_events` for anonymous hits. Rejected. That table is for signed-in pr
 
 ## Consequences
 
-- The measurement ID is public. It belongs in the Centro Listo Vercel project and in local env. It is not a secret.
+- The measurement ID is public. It lives on `platform_settings`. A save applies on the next request. It is not a secret and it does not need a deploy.
 - GA shows anonymous users, source, device, pages, and events. It does not show a person's name.
 - Vitest covers the ID check, the admin skip, and the click payload.

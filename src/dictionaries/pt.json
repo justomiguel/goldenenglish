@@ -13612,9 +13612,21 @@
         "notifyMissing": "Falta o e-mail do admin.",
         "saveFailed": "Não foi possível salvar."
       },
+      "analytics": {
+        "title": "Analítica do site",
+        "lead": "Cole o ID do Google Analytics. A próxima visita usa esse ID. Não precisa de deploy.",
+        "measurementId": "ID de medição",
+        "placeholder": "G-XXXXXXXX",
+        "save": "Salvar analítica",
+        "saved": "Salvo. A próxima carga do site usa este ID.",
+        "empty": "Deixe o campo vazio para parar de enviar visitas ao Google.",
+        "invalid": "O ID deve começar com G- e usar só letras e números.",
+        "saveFailed": "Não foi possível salvar."
+      },
       "tabSites": "Sites",
       "tabAccounts": "Contas",
       "tabMail": "E-mail",
+      "tabAnalytics": "Analítica",
       "eyebrow": "CENTROLISTO CONTROL PLANE",
       "title": "Administração de tenants",
       "lead": "Monitoramento ao vivo de disponibilidade, tráfego (7 e 30 dias) e credenciais por instituto.",

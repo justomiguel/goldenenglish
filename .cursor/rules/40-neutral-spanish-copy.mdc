@@ -5,7 +5,9 @@ alwaysApply: true
 
 # Neutral Spanish copy (es-419 tuteo)
 
-The `es` locale is the default for **every** tenant. Chile and Argentina sites share one register. Spanish that a parent, student, teacher, or admin can read must be **neutral Latin American Spanish with tuteo**. Rioplatense voseo and Peninsular Spanish are both wrong for this product.
+The `es` locale is the default for **every** tenant. Institute screens share one register. Spanish that a parent, student, teacher, or admin can read must be **neutral Latin American Spanish with tuteo**. Rioplatense voseo and Peninsular Spanish are both wrong for institute copy.
+
+CentroListo marketing is the exception. `src/dictionaries/pulsar/es-ar.json` may use voseo. Uruguay starts from that voice, then `src/dictionaries/pulsar/es-uy.json`. Chile and Paraguay stay tuteo. `es.json` stays tuteo. Institute screens do not load these files.
 
 Applies to `src/dictionaries/es.json`, email HTML users read, the Spanish argument of product-changelog `t()`, tutorial steps, toasts, `aria-label`s, and SEO descriptions.
 
@@ -46,5 +48,6 @@ If a string you touch still uses voseo, convert **that string** in the same chan
 
 ## Checklist
 
-- [ ] New or edited Spanish uses tuteo (*tienes*, *haz*, *ingresa*, *inscríbete*)?
+- [ ] New or edited Spanish in `es.json` uses tuteo (*tienes*, *haz*, *ingresa*, *inscríbete*)?
+- [ ] CentroListo `es-ar.json` / `es-uy.json` may use voseo. Other Spanish stays tuteo.
 - [ ] No *vos*, *tenés*, *podés*, *hacé*, *ingresá*, *inscribite*, *anotate*, *sumate*, *escribinos*, or *inscripto* left in the lines you changed?

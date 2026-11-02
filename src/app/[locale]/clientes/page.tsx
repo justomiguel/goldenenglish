@@ -2,12 +2,11 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { attachClientPreviewMedia } from "@/lib/pulsar/centrolistoClientPreviews";
 import { loadAllPulsarTenantsForAdmin } from "@/lib/pulsar/pulsarTenantStore";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { getPulsarCookieSession } from "@/lib/pulsar/pulsarStaffAuth";
-import { readCentrolistoMarket } from "@/lib/pulsar/readCentrolistoMarket";
+import { loadCentrolistoDictionary } from "@/lib/pulsar/loadCentrolistoDictionary";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { PulsarClientesView } from "@/components/organisms/pulsar/PulsarClientesView";
 
@@ -22,10 +21,10 @@ interface PageProps {
   searchParams: Promise<{ pais?: string | string[] }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   if (!(await isPulsarPlatformRequest())) return {};
   const { locale } = await params;
-  const dict = await getDictionary(locale as AppLocale);
+  const { dict } = await loadCentrolistoDictionary(locale, await searchParams);
   const share = await centrolistoShareMetadata({
     title: dict.pulsar.meta.clientesTitle,
     description: dict.pulsar.meta.clientesDescription,
@@ -45,11 +44,11 @@ export default async function PulsarClientesPage({ params, searchParams }: PageP
     notFound();
   }
   const { locale } = await params;
-  const [dict, tenants, session, market] = await Promise.all([
-    getDictionary(locale as AppLocale),
+  const query = await searchParams;
+  const [loaded, tenants, session] = await Promise.all([
+    loadCentrolistoDictionary(locale, query),
     loadAllPulsarTenantsForAdmin(),
     getPulsarCookieSession(),
-    readCentrolistoMarket(await searchParams),
   ]);
   const clients = attachClientPreviewMedia(
     tenants
@@ -63,6 +62,6 @@ export default async function PulsarClientesPage({ params, searchParams }: PageP
     publicAssetExists,
   );
   return (
-    <PulsarClientesView locale={locale} dict={dict} clients={clients} email={session?.email ?? null} market={market} />
+    <PulsarClientesView locale={locale} dict={loaded.dict} clients={clients} email={session?.email ?? null} market={loaded.market} />
   );
 }

@@ -6,6 +6,7 @@ import { logSupabaseError } from "@/lib/logging/serverActionLog";
 import { getPulsarStaffSession } from "@/lib/pulsar/pulsarStaffAuth";
 import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { loadPulsarMailSettings, savePulsarMailSettings, sendPulsarMail } from "@/lib/pulsar/pulsarMail";
+import { saveCentrolistoGaMeasurementId } from "@/lib/pulsar/centrolistoGaSettings";
 import { pulsarMailMessage } from "@/lib/pulsar/pulsarMailMessage";
 import { mailOwnerDecision } from "@/lib/pulsar/pulsarOwnerMail";
 import { createPulsarAdminClient, isPulsarSupabaseConfigured } from "@/lib/supabase/pulsar";
@@ -93,4 +94,21 @@ export async function sendPulsarMailTestAction(raw: {
   revalidatePath(`/${raw.locale}/admin`);
   if (!sent.ok) return sent;
   return { ok: true, code: "sent" };
+}
+
+export async function saveCentrolistoGaSettingsAction(raw: {
+  locale: string;
+  measurementId: string;
+}): Promise<{ ok: true; measurementId: string | null } | { ok: false; errorCode: string }> {
+  const session = await getPulsarStaffSession();
+  if (!session || session.mustChangePassword) return { ok: false, errorCode: "unauthorized" };
+  const saved = await saveCentrolistoGaMeasurementId({
+    measurementId: raw.measurementId,
+    actorUserId: session.userId,
+    actorEmail: session.email,
+  });
+  if (!saved.ok) return saved;
+  revalidatePath(`/${raw.locale}`, "layout");
+  revalidatePath(`/${raw.locale}/admin`);
+  return saved;
 }

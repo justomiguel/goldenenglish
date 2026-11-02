@@ -13776,9 +13776,21 @@
         "notifyMissing": "Falta el correo del admin.",
         "saveFailed": "No se pudo guardar."
       },
+      "analytics": {
+        "title": "Analítica de la web",
+        "lead": "Pega el ID de Google Analytics. El cambio vale en la siguiente visita, sin un deploy.",
+        "measurementId": "ID de medición",
+        "placeholder": "G-XXXXXXXX",
+        "save": "Guardar analítica",
+        "saved": "Guardado. La próxima carga de la web usa este ID.",
+        "empty": "Si dejas el campo vacío, la web deja de enviar visitas a Google.",
+        "invalid": "El ID debe empezar con G- y usar solo letras y números.",
+        "saveFailed": "No se pudo guardar."
+      },
       "tabSites": "Sitios",
       "tabAccounts": "Cuentas",
       "tabMail": "Correo",
+      "tabAnalytics": "Analítica",
       "eyebrow": "CENTROLISTO CONTROL PLANE",
       "title": "Administración de tenants",
       "lead": "Monitoreo en vivo de disponibilidad, tráfico (7 y 30 días) y credenciales por instituto.",

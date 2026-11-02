@@ -22,7 +22,7 @@ import { centrolistoLayoutIcons } from "@/lib/pulsar/centrolistoFavicon";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { CentroListoJsonLd } from "@/components/organisms/pulsar/CentroListoJsonLd";
 import { CentroListoGoogleAnalytics } from "@/components/organisms/pulsar/CentroListoGoogleAnalytics";
-import { readCentrolistoGaMeasurementId } from "@/lib/pulsar/centrolistoAnalytics";
+import { loadCentrolistoGaMeasurementId } from "@/lib/pulsar/centrolistoGaSettings";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 
 interface LocaleLayoutProps {
@@ -133,7 +133,7 @@ export default async function LocaleLayout({
   if (await isPulsarPlatformRequest()) {
     const dict = await getDictionary(loc);
     const origin = (await getRequestPublicSiteUrl())?.origin ?? "https://centrolisto.cl";
-    const gaMeasurementId = readCentrolistoGaMeasurementId();
+    const gaMeasurementId = await loadCentrolistoGaMeasurementId();
     return (
       <div className="min-h-screen">
         <CentroListoJsonLd

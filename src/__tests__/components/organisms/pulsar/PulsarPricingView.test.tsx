@@ -9,6 +9,7 @@ vi.mock("next/navigation", () => ({
 import es from "@/dictionaries/es.json";
 import type { Dictionary } from "@/types/i18n";
 import { PulsarPricingView } from "@/components/organisms/pulsar/PulsarPricingView";
+import { applyCentrolistoMarketDictionary } from "@/lib/pulsar/applyCentrolistoMarketDictionary";
 import { formatOfferAmount } from "@/lib/pulsar/centrolistoCommercialOffer";
 
 const dict = es as unknown as Dictionary;
@@ -47,12 +48,14 @@ describe("PulsarPricingView", () => {
     expect(screen.getAllByText(/rutas de cursos/).length).toBeGreaterThan(0);
   });
 
-  it("shows Argentina amounts when the market is ar", () => {
-    render(<PulsarPricingView locale="es" dict={dict} market="ar" />);
+  it("shows Argentina amounts and voseo when the market is ar", () => {
+    const arDict = applyCentrolistoMarketDictionary(dict, "es", "ar");
+    render(<PulsarPricingView locale="es" dict={arDict} market="ar" />);
     const text = document.body.textContent?.replace(/[\s\u00a0\u202f]/g, "") ?? "";
     expect(text).toContain("46.400");
     expect(text).toContain("108.400");
     expect(text).toContain("232.300");
+    expect(document.body.textContent).toContain("Podés crear");
     expect(screen.getByRole("combobox", { name: dict.pulsar.market.label })).toHaveValue("ar");
     const pricingLinks = screen.getAllByRole("link", { name: dict.pulsar.nav.pricing });
     expect(pricingLinks.some((link) => link.getAttribute("href") === "/es/precios?pais=ar")).toBe(true);

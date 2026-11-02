@@ -11,9 +11,7 @@ declare global {
 }
 
 /** Accept only a GA4 measurement id. Anything else stays off. */
-export function readCentrolistoGaMeasurementId(
-  raw = process.env.NEXT_PUBLIC_CENTROLISTO_GA_MEASUREMENT_ID,
-): string | null {
+export function readCentrolistoGaMeasurementId(raw: string | null | undefined): string | null {
   const id = raw?.trim() ?? "";
   return MEASUREMENT_ID.test(id) ? id : null;
 }

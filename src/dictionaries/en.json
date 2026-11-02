@@ -13776,9 +13776,21 @@
         "notifyMissing": "The admin address is missing.",
         "saveFailed": "The settings could not be saved."
       },
+      "analytics": {
+        "title": "Site analytics",
+        "lead": "Paste the Google Analytics id. The next visit uses it. No deploy is required.",
+        "measurementId": "Measurement ID",
+        "placeholder": "G-XXXXXXXX",
+        "save": "Save analytics",
+        "saved": "Saved. The next page load uses this id.",
+        "empty": "Leave the field empty to stop sending visits to Google.",
+        "invalid": "The id must start with G- and use only letters and digits.",
+        "saveFailed": "The settings could not be saved."
+      },
       "tabSites": "Sites",
       "tabAccounts": "Accounts",
       "tabMail": "Mail",
+      "tabAnalytics": "Analytics",
       "eyebrow": "CENTROLISTO CONTROL PLANE",
       "title": "Tenant administration",
       "lead": "Live availability monitoring, traffic (7 and 30 days), and credentials per institute.",

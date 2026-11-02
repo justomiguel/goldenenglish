@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PulsarSegmentView } from "@/components/organisms/pulsar/PulsarSegmentView";
-import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { isPulsarSegmentSlug } from "@/lib/pulsar/pulsarSegmentSlugs";
 import { getPulsarCookieSession } from "@/lib/pulsar/pulsarStaffAuth";
-import { readCentrolistoMarket } from "@/lib/pulsar/readCentrolistoMarket";
+import { loadCentrolistoDictionary } from "@/lib/pulsar/loadCentrolistoDictionary";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 
 export const dynamic = "force-dynamic";
@@ -15,11 +14,11 @@ interface PageProps {
   searchParams: Promise<{ pais?: string | string[] }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   if (!(await isPulsarPlatformRequest())) return {};
   const { locale, segment } = await params;
   if (!isPulsarSegmentSlug(segment)) return {};
-  const dict = await getDictionary(locale as AppLocale);
+  const { dict } = await loadCentrolistoDictionary(locale, await searchParams);
   const copy = dict.pulsar.segments[segment];
   const share = await centrolistoShareMetadata({
     title: copy.seoTitle,
@@ -39,18 +38,18 @@ export default async function PulsarSegmentPage({ params, searchParams }: PagePr
   if (!(await isPulsarPlatformRequest())) notFound();
   const { locale, segment } = await params;
   if (!isPulsarSegmentSlug(segment)) notFound();
-  const [dict, session, market] = await Promise.all([
-    getDictionary(locale as AppLocale),
+  const query = await searchParams;
+  const [loaded, session] = await Promise.all([
+    loadCentrolistoDictionary(locale, query),
     getPulsarCookieSession(),
-    readCentrolistoMarket(await searchParams),
   ]);
   return (
     <PulsarSegmentView
       locale={locale}
-      dict={dict}
+      dict={loaded.dict}
       segment={segment}
       email={session?.email ?? null}
-      market={market}
+      market={loaded.market}
     />
   );
 }

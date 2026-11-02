@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Plus } from "lucide-react";
-import { getDictionary } from "@/lib/i18n/dictionaries";
+import { loadCentrolistoDictionary } from "@/lib/pulsar/loadCentrolistoDictionary";
 import { loadPulsarOwnerHome } from "@/lib/pulsar/pulsarOwnerAccount";
 import { customHostBesidePreview, domainDnsRecord, previewSiteUrl } from "@/lib/pulsar/ownerSiteLinks";
 import { loadPulsarPlatformHostsForAdmin } from "@/lib/pulsar/pulsarTenantStore";
@@ -16,8 +16,10 @@ import {
 
 export default async function PulsarAccountHomePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ pais?: string | string[] }>;
 }) {
   const { locale } = await params;
   if (!isPulsarSupabaseConfigured()) redirect(`/${locale}/cuenta/login`);
@@ -37,7 +39,7 @@ export default async function PulsarAccountHomePage({
 
   const home = await loadPulsarOwnerHome(user.id);
   if (home.kind !== "owner") redirect(`/${locale}/cuenta/registro`);
-  const dict = await getDictionary(locale);
+  const { dict } = await loadCentrolistoDictionary(locale, await searchParams);
   const copy = dict.pulsar.account;
   const approved = home.status === "approved";
   const canCreate = approved && home.ownedCount < FREE_SITE_LIMIT;

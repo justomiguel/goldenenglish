@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
+import { type AppLocale } from "@/lib/i18n/dictionaries";
+import { loadCentrolistoDictionary } from "@/lib/pulsar/loadCentrolistoDictionary";
 import { createClient } from "@/lib/supabase/server";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { PulsarLandingHome } from "@/components/organisms/pulsar/PulsarLandingHome";
@@ -7,7 +8,6 @@ import { pickHomeClientPreviews } from "@/lib/pulsar/centrolistoClientPreviews";
 import { loadCentrolistoPublicClients } from "@/lib/pulsar/loadCentrolistoPublicClients";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { getPulsarCookieSession } from "@/lib/pulsar/pulsarStaffAuth";
-import { readCentrolistoMarket } from "@/lib/pulsar/readCentrolistoMarket";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { LandingSurfaceGate } from "@/components/organisms/LandingSurfaceGate";
 import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
@@ -61,10 +61,11 @@ const MARKETING_FOOTER_BRAND: Partial<
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: HomePageProps): Promise<Metadata> {
   const { locale } = await params;
   if (await isPulsarPlatformRequest()) {
-    const dict = await getDictionary(locale as AppLocale);
+    const { dict } = await loadCentrolistoDictionary(locale, await searchParams);
     const share = await centrolistoShareMetadata({
       title: dict.pulsar.meta.brandTagline,
       description: dict.pulsar.meta.description,
@@ -109,18 +110,18 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   const { locale } = await params;
   const loc = locale as AppLocale;
   if (await isPulsarPlatformRequest()) {
-    const [dict, clients, session, market] = await Promise.all([
-      getDictionary(loc),
+    const query = await searchParams;
+    const [loaded, clients, session] = await Promise.all([
+      loadCentrolistoDictionary(loc, query),
       loadCentrolistoPublicClients(),
       getPulsarCookieSession(),
-      readCentrolistoMarket(await searchParams),
     ]);
     return (
       <PulsarLandingHome
         locale={locale}
-        dict={dict}
+        dict={loaded.dict}
         email={session?.email ?? null}
-        market={market}
+        market={loaded.market}
         activeTenantCount={clients.length}
         featuredClients={pickHomeClientPreviews(clients)}
         logoClients={clients}

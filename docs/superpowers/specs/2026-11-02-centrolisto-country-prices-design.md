@@ -10,7 +10,7 @@
 - Monthly amounts and the custom-landing amount match the tables below. Presencia with a template stays 0. Gestión has no one-time fee.
 - Gestión copy states a cap of 50 active students. Ecosistema copy states that it includes Gestión without that cap, plus course routes and selling courses in the shop.
 - The 50-student cap is copy only. The product does not block student number 51.
-- Spanish copy stays neutral tuteo. English and Portuguese gain the same sentences.
+- English and Portuguese gain the same sentences. Marketing Spanish voice by country is in `2026-11-02-centrolisto-country-dictionary-design.md`.
 - Amounts are static. The site does not call a central bank at runtime.
 
 **Out of scope:** Charging, checkout, plan enforcement, live exchange rates, extra domains, geo-IP, and a second `es` locale.
