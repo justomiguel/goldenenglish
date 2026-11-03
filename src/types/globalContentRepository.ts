@@ -3,4 +3,6 @@ export type GlobalContentRepositoryPagination = {
   pageSize: number;
   totalCount: number;
   searchQuery: string;
+  tag?: string;
+  material?: string;
 };

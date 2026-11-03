@@ -2,7 +2,11 @@ import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadStudentExamResults } from "@/lib/parent/loadStudentExamResults";
 import { loadStudentMiniTests } from "@/lib/learning-content/loadStudentMiniTests";
+import { loadStudentCourses } from "@/lib/courses/loadStudentCourses";
+import { courseResultViews } from "@/lib/courses/courseResult";
+import { loadCourseResultInputs } from "@/lib/courses/loadCourseResultInputs";
 import { loadParentChildContext } from "@/lib/parent/loadParentChildContext";
+import { StudentCourseList } from "@/components/student/StudentCourseList";
 import { createProgressFailureTracker } from "@/lib/parent/progressFailureTracker";
 import { ParentChildDetailLayout } from "@/components/parent/ParentChildDetailLayout";
 import { StudentExamResultsSurface } from "@/components/parent/StudentExamResultsSurface";
@@ -29,7 +33,7 @@ export default async function ParentChildGradesPage({ params, searchParams }: Pa
   // Exams and mini-tests are one question for a parent — "how did my child score?" — but two
   // reads, so they degrade independently.
   const failures = createProgressFailureTracker();
-  const [exams, assessments] = await Promise.all([
+  const [exams, assessments, courses] = await Promise.all([
     focus.studentId
       ? loadStudentExamResults(supabase, {
           studentId: focus.studentId,
@@ -39,7 +43,17 @@ export default async function ParentChildGradesPage({ params, searchParams }: Pa
     focus.studentId
       ? loadStudentMiniTests(supabase, focus.studentId, failures.reporterFor("assessments"))
       : Promise.resolve([]),
+    focus.studentId ? loadStudentCourses(supabase, focus.studentId) : Promise.resolve([]),
   ]);
+  const resultInputs = focus.studentId
+    ? await loadCourseResultInputs(supabase, focus.studentId, courses.flatMap((course) => course.sectionIds))
+    : { tasks: [], attendancePercent: null };
+  const courseResults = courseResultViews({
+    courses,
+    tasks: resultInputs.tasks,
+    attendancePercent: resultInputs.attendancePercent,
+    exams,
+  });
 
   const failed = failures.failedSections();
   const copy = dict.dashboard.parent.childScreen;
@@ -56,6 +70,13 @@ export default async function ParentChildGradesPage({ params, searchParams }: Pa
       tourAnchor={PARENT_TOUR_ANCHORS.gradesTitle}
     >
       <div className="space-y-5" data-tour={PARENT_TOUR_ANCHORS.gradesBody}>
+      <StudentCourseList
+        locale={locale}
+        courses={courses}
+        labels={dict.dashboard.student.courses}
+        canComplete={false}
+        results={courseResults}
+      />
       <section className="space-y-3">
         <h2 className="font-display text-base font-semibold text-[var(--color-foreground)]">
           {copy.gradesExamsHeading}

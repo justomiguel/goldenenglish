@@ -47,6 +47,12 @@ interface ParentProgressEntryProps {
   badgesDict: Dictionary["dashboard"]["student"]["badges"];
   /** Route base for ward picker URL updates (defaults to parent progress). */
   progressBasePath?: string;
+  lessonLinks?: boolean;
+  courseResults?: Record<string, {
+    taskPercent: number | null;
+    attendancePercent: number | null;
+    assessment: { title: string; score: string } | null;
+  }>;
   /** The parent shell already renders the student selector, so this screen must not repeat it. */
   shellOwnsFocus?: boolean;
 }
@@ -66,6 +72,8 @@ export function ParentProgressEntry({
   studentLabels,
   badgesDict,
   progressBasePath,
+  lessonLinks = false,
+  courseResults,
   shellOwnsFocus = false,
 }: ParentProgressEntryProps) {
   const searchParams = useSearchParams();
@@ -132,6 +140,8 @@ export function ParentProgressEntry({
     parentLabels,
     studentLabels,
     badgesDict,
+    lessonLinks,
+    courseResults,
   });
 
   const activeFailed = sections.some(

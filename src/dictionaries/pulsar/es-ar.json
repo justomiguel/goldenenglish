@@ -140,6 +140,10 @@
     "templatePreviewAlt": "Así se ve la plantilla {name}.",
     "domainInvalid": "Revisá el dominio. Usá un host como miinstituto.com.",
     "invalidInput": "Revisá el correo y usá una contraseña de al menos 8 caracteres.",
-    "createFailed": "No se pudo abrir el sitio. Intentá de nuevo."
+    "createFailed": "No se pudo abrir el sitio. Intentá de nuevo.",
+    "sessionExpired": "La sesión venció. Ingresá de nuevo.",
+    "checkFields": "Revisá el nombre, la dirección corta y el dominio.",
+    "sharedDbFailed": "La base compartida no está lista. Intentá más tarde.",
+    "schemaFailed": "La base no terminó de crearse. Intentá de nuevo."
   }
 }

@@ -417,65 +417,129 @@
       "email": "Correo",
       "phone": "Teléfono",
       "address": "Dirección",
-      "whatsapp": "WhatsApp"
+      "whatsapp": "WhatsApp",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "mapTitle": "Mapa de la sede",
+      "mailSubject": "Mensaje desde tu página",
+      "formName": "Nombre",
+      "formEmail": "Correo",
+      "formPhone": "Teléfono (opcional)",
+      "formMessage": "Mensaje",
+      "formSuccess": "Recibimos tu mensaje. Te escribiremos pronto.",
+      "formPreview": "Esta vista no envía mensajes.",
+      "formQuota": "Este sitio ya recibió el máximo de mensajes del plan gratis.",
+      "formInvalid": "Revisa el nombre, el correo y el mensaje.",
+      "formPersist": "No pudimos enviar el mensaje. Intenta de nuevo.",
+      "formUnavailable": "No pudimos enviar el mensaje ahora."
     },
     "genericSectionLabels": {
-      "historia": "Historia",
-      "oferta": "Lo que incluye el día",
-      "modalidades": "Formas de participar",
-      "niveles": "Grupos",
-      "certificaciones": "Avance"
+      "historia": "Nuestra historia",
+      "oferta": "Programas",
+      "modalidades": "Modalidades",
+      "niveles": "Niveles",
+      "certificaciones": "Al cerrar el año"
     },
     "genericLandings": {
       "deportes": {
         "name": "Deportes",
-        "scene": "Sábado, 9:10",
-        "title": "El grupo ya está en la cancha cuando llegas.",
-        "body": "La lista del día y el aviso a las familias quedan en el mismo lugar.",
+        "scene": "Inscripciones abiertas",
+        "title": "Aprende a jugar. Luego, juega en equipo.",
+        "body": "Entrenamos a niños y jóvenes, desde los primeros toques hasta el partido del sábado. La primera clase es de prueba y no tiene costo.",
         "imageAlt": "Cancha por la mañana, antes del entrenamiento",
-        "laterTitle": "El lunes la planilla ya no hace falta.",
-        "laterBody": "Quien entrena ve quién vino. Quien administra ve el cupo.",
-        "cta": "Escribir al instituto"
+        "laterTitle": "Ven a conocer la cancha.",
+        "laterBody": "Escríbenos y te decimos el grupo, el horario y qué llevar a la clase de prueba.",
+        "cta": "Pide una clase de prueba",
+        "rhythmA": "9:10. Iniciación. Primeros toques y juego libre.",
+        "rhythmB": "10:00. Formación. Técnica, pases y partido corto.",
+        "rhythmC": "11:00. Competencia. Táctica y el partido del sábado.",
+        "sections": {
+          "historia": "Empezamos en una cancha de barrio y seguimos formando jugadores con disciplina, respeto y ganas de volver.",
+          "oferta": "Cada clase tiene calentamiento, trabajo con balón y un partido corto. Los grupos se mantienen chicos.",
+          "modalidades": "Puedes venir el sábado por la mañana o entre semana, al salir del colegio.",
+          "niveles": "Hay iniciación, formación y un grupo que ya compite. La edad y la experiencia definen el lugar.",
+          "certificaciones": "Durante el año jugamos partidos y torneos locales. El avance se ve en la cancha."
+        }
       },
       "jardin": {
         "name": "Jardín",
-        "scene": "Lunes, 8:05",
-        "title": "La sala abre y cada familia sabe a qué hora llega.",
-        "body": "El horario del día y el recado quedan visibles antes de salir de casa.",
+        "scene": "Matrículas abiertas",
+        "title": "Un lugar para jugar, descubrir y crecer.",
+        "body": "Acompañamos a los niños en sus primeros años, con juego, música y una rutina clara. Puedes visitar la sala antes de decidir.",
         "imageAlt": "Sala en silencio al inicio del día",
-        "laterTitle": "La tarde cierra sin una cadena de mensajes.",
-        "laterBody": "Quien cuida la sala ve la asistencia. La familia ve la hora de salida.",
-        "cta": "Escribir al jardín"
+        "laterTitle": "Ven a conocer las salas.",
+        "laterBody": "Cuéntanos la edad de tu hijo y te proponemos una visita y la jornada que mejor encaja.",
+        "cta": "Agenda una visita",
+        "rhythmA": "8:05. Llegada. Juego tranquilo en la sala.",
+        "rhythmB": "10:30. Patio, canto y un taller corto.",
+        "rhythmC": "16:10. Cierre del día y salida con la familia.",
+        "sections": {
+          "historia": "Armamos este jardín para que la infancia tenga tiempo de jugar, de preguntar y de sentirse en casa.",
+          "oferta": "La jornada incluye juego, patio, música, alimentación y un descanso. Cada grupo tiene dos adultos de referencia.",
+          "modalidades": "Puedes elegir media jornada o jornada completa. Las dos comparten la misma sala y el mismo equipo.",
+          "niveles": "Recibimos desde sala cuna hasta el grupo que se prepara para el colegio. Cada nivel tiene su ritmo.",
+          "certificaciones": "El año cierra con una muestra para las familias. Cada ingreso empieza con un periodo de adaptación."
+        }
       },
       "colegio": {
         "name": "Colegio",
-        "scene": "Martes, 7:40",
-        "title": "La clase empieza y la lista ya está hecha.",
-        "body": "Familias, docentes y secretaría miran el mismo horario.",
+        "scene": "Admisión abierta",
+        "title": "Una escuela que acompaña a cada estudiante.",
+        "body": "Formamos desde los primeros años hasta la enseñanza media, en grupos chicos. Puedes conocer una sala antes de inscribirte.",
         "imageAlt": "Patio del colegio antes del primer timbre",
-        "laterTitle": "El recreo no empieza con una duda.",
-        "laterBody": "El curso, la sala y el aviso del día ya están publicados.",
-        "cta": "Escribir al colegio"
+        "laterTitle": "Recorre el colegio antes de decidir.",
+        "laterBody": "Agenda una visita, conoce una sala y conversa con el equipo de admisión.",
+        "cta": "Agenda una visita",
+        "rhythmA": "7:40. Llegada y bienvenida en el patio.",
+        "rhythmB": "8:00. Empiezan las clases del día.",
+        "rhythmC": "15:30. Talleres y salida.",
+        "sections": {
+          "historia": "Nacimos como una escuela de barrio. Hoy seguimos con la misma idea: conocer a cada estudiante por su nombre.",
+          "oferta": "La propuesta une clases, arte, deporte y un seguimiento cercano. Los grupos se mantienen chicos a propósito.",
+          "modalidades": "Hay jornada de mañana y jornada completa. La familia elige según la edad y la rutina de la casa.",
+          "niveles": "Acompañamos desde el nivel inicial hasta la enseñanza media. Cada curso tiene su sala y su equipo.",
+          "certificaciones": "Al cerrar el ciclo, el estudiante lleva un informe claro y la preparación para el paso que sigue."
+        }
       },
       "musica": {
         "name": "Música",
-        "scene": "Jueves, 18:20",
-        "title": "La sala de ensayo está lista antes de que llegue el grupo.",
-        "body": "El horario de la clase y el aviso a las familias están en un solo lugar.",
+        "scene": "Para todas las edades",
+        "title": "Toca desde la primera clase.",
+        "body": "Piano, guitarra, canto y más, para niños y adultos. No necesitas saber música para empezar. La clase de prueba es para conocer a tu profesor.",
         "imageAlt": "Sala de ensayo antes de la clase",
-        "laterTitle": "Después de la clase, nadie busca el papel.",
-        "laterBody": "Quien enseña ve quién asistió. La familia ve la próxima hora.",
-        "cta": "Escribir a la escuela"
+        "laterTitle": "Elige instrumento y horario.",
+        "laterBody": "Cuéntanos qué quieres tocar y te proponemos un profesor, un horario y una primera clase de prueba.",
+        "cta": "Pide una clase de prueba",
+        "rhythmA": "16:00. Iniciación infantil. Juego, ritmo y primeras notas.",
+        "rhythmB": "18:20. Clase individual de instrumento.",
+        "rhythmC": "19:40. Ensayo de conjunto.",
+        "sections": {
+          "historia": "Abrimos la escuela para que cualquiera pueda sentirse músico, tenga cuatro años o esté empezando de adulto.",
+          "oferta": "En la clase tocas de verdad: una canción, un ejercicio y la tarea de la semana. El profesor sigue tu ritmo.",
+          "modalidades": "Puedes tomar una clase individual o sumarte a un ensamble. Hay horario de mañana y de tarde.",
+          "niveles": "Hay iniciación, nivel intermedio y nivel avanzado. Si ya tocas, entras en el grupo que te corresponde.",
+          "certificaciones": "Dos veces al año hay un recital. Quien quiere, sube al escenario. Quien prefiere, sigue practicando."
+        }
       },
       "idiomas": {
         "name": "Idiomas",
-        "scene": "Miércoles, 19:05",
-        "title": "La clase empieza a la hora, con el grupo ya anotado.",
-        "body": "El nivel, el horario y el cupo se ven antes de cruzar la puerta.",
+        "scene": "Clase de prueba sin costo",
+        "title": "Habla desde la primera clase.",
+        "body": "Inglés y otros idiomas para niños, adolescentes y adultos. Ubicamos tu nivel y armamos un grupo chico, en la sede o en vivo.",
         "imageAlt": "Aula antes de la clase de la tarde",
-        "laterTitle": "Al salir, la próxima clase ya tiene fecha.",
-        "laterBody": "Quien enseña ve la lista. Quien estudia ve el horario.",
-        "cta": "Escribir al instituto"
+        "laterTitle": "Descubre tu nivel y tu horario.",
+        "laterBody": "Escríbenos, cuéntanos tu meta y te proponemos una clase de prueba en el grupo que te corresponde.",
+        "cta": "Pide una clase de prueba",
+        "rhythmA": "10:00. Inglés para niños. Juego y conversación.",
+        "rhythmB": "19:05. Adolescentes y adultos. Clase de conversación.",
+        "rhythmC": "20:30. Taller de conversación.",
+        "sections": {
+          "historia": "Enseñamos el idioma para usarlo: en el trabajo, en un viaje o en la próxima conversación.",
+          "oferta": "Cada clase practica hablar, escuchar y escribir. Los grupos son chicos para que todos participen.",
+          "modalidades": "Puedes estudiar en la sede o en una clase en vivo. El programa y el profesor son los mismos.",
+          "niveles": "Recorremos el marco común, de A1 a C2. Antes de entrar, hacemos una prueba corta de nivel.",
+          "certificaciones": "Preparamos exámenes internacionales y entregamos el certificado del instituto al cerrar cada nivel."
+        }
       }
     },
     "questionnaires": {
@@ -4370,6 +4434,7 @@
       "criteriaProfileBirthDateSet": "Fecha de nacimiento cargada",
       "criteriaAssessmentsPassed": "Evaluaciones aprobadas (cantidad)",
       "criteriaMessagesSent": "Mensajes enviados desde el portal (cantidad)",
+      "criteriaCourseCompleted": "Cursos terminados (cantidad)",
       "localeEn": "Inglés (EN)",
       "localeEs": "Español (ES)",
       "previewTitle": "Vista previa para compartir",
@@ -10370,6 +10435,15 @@
           }
         }
       },
+      "deliveryMode": {
+        "title": "Cómo se dicta",
+        "inPerson": "Presencial",
+        "hybrid": "Híbrida",
+        "remote": "Remota",
+        "missingKey": "Falta la clave de Daily en la ficha del instituto.",
+        "failedSlot": "No se pudo preparar la sala de {day} {time}.",
+        "save": "Guardar modalidad"
+      },
       "scheduleEditor": {
         "scheduleTitle": "Horario",
         "scheduleHint": "Edita las franjas semanales de esta sección. Quita todas las filas y guarda si la sección deja de tener un horario fijo.",
@@ -10598,6 +10672,19 @@
       "tasksOpened": "Abierta",
       "tasksCompleted": "Completada",
       "tasksCompletedLate": "Completada tarde",
+      "taskReturnTitle": "Devolver una tarea",
+      "taskReturnNote": "Nota para el alumno",
+      "taskReturnButton": "Devolver",
+      "taskReturnFailed": "No se pudo devolver la tarea.",
+      "noticeTitle": "Avisos",
+      "noticePlaceholder": "Escribe un aviso breve",
+      "noticePublish": "Publicar aviso",
+      "noticeArchive": "Archivar",
+      "noticeArchiveTitle": "Archivar este aviso",
+      "noticeArchiveBody": "El aviso deja de verse en el inicio.",
+      "noticeCancel": "Cancelar",
+      "noticeLimit": "Esta sección ya tiene cinco avisos activos.",
+      "noticeFailed": "No se pudo guardar el aviso.",
       "taskLibraryTitle": "Clases maestras",
       "taskLibraryLead": "Crea plantillas multimedia y copialas a una sección activa.",
       "taskTemplateTitleLabel": "Título de la plantilla",
@@ -10615,7 +10702,22 @@
       "taskAssignTitle": "Asignar a sección",
       "taskAssignStart": "Fecha de apertura",
       "taskAssignDue": "Fecha de entrega",
-      "taskAssignButton": "Asignar"
+      "taskAssignButton": "Asignar",
+      "joinClass": "Entrar a la clase"
+    },
+    "dailyClass": {
+      "join": "Entrar a la clase",
+      "leave": "Salir de la clase",
+      "back": "Volver",
+      "errors": {
+        "person": "No puedes entrar a esta clase.",
+        "mode": "Esta clase no tiene videollamada.",
+        "plan": "Esta clase no tiene videollamada.",
+        "credentials": "La videollamada no está lista.",
+        "room": "La sala todavía no existe.",
+        "window": "La clase no está abierta ahora.",
+        "daily_failed": "No se pudo abrir la sala."
+      }
     },
     "sectionEnrollmentLink": {
       "title": "Invitar familias",
@@ -10958,7 +11060,25 @@
         "complete": "Marcar como hecha",
         "completed": "Hecha",
         "completing": "Guardando",
-        "completeFailed": "No pudimos guardar esto. Intenta de nuevo."
+        "completeFailed": "No pudimos guardar esto. Intenta de nuevo.",
+        "progress": "{percent}% del curso",
+        "open": "Abrir clase",
+        "finished": "Curso completo",
+        "certificate": "Ver comprobante",
+        "continueCta": "Continuar",
+        "certificateHeading": "Comprobante de curso",
+        "certificateLead": "{name} completó {course}.",
+        "certificatePending": "Este curso todavía tiene clases abiertas.",
+        "certificatePrint": "Imprimir",
+        "backToCourse": "Volver al curso",
+        "materialsEmpty": "Esta clase no tiene material todavía.",
+        "noticeTitle": "Avisos de la sección",
+        "resultLessons": "{percent}% de las clases",
+        "resultTasks": "{percent}% de las tareas",
+        "resultTasksEmpty": "Este curso no tiene tareas todavía.",
+        "resultAttendance": "{percent}% de asistencia este mes",
+        "resultAttendanceEmpty": "No hay asistencia este mes.",
+        "resultAssessment": "{title}: {score}"
       },
       "badges": {
         "title": "Logros",
@@ -11042,6 +11162,11 @@
       "taskComplete": "Marcar como completada",
       "taskCompleted": "Tarea completada",
       "taskCompletionError": "No se pudo actualizar la tarea.",
+      "taskAnswerLabel": "Tu respuesta",
+      "taskAnswerPlaceholder": "Escribe tu respuesta",
+      "taskSendAgain": "Enviar de nuevo",
+      "taskReviewTitle": "Nota del docente",
+      "taskOlderNotes": "Notas anteriores",
       "taskAssetsTitle": "Materiales",
       "taskEngagementHint": "Mantén esta clase visible al menos 5 segundos para contarla como abierta.",
       "learningFeedbackTitle": "Feedback de aprendizaje",
@@ -11068,7 +11193,8 @@
         "NOT_OPENED": "Sin abrir",
         "OPENED": "Abierta",
         "COMPLETED": "Completada",
-        "COMPLETED_LATE": "Completada tarde"
+        "COMPLETED_LATE": "Completada tarde",
+        "RETURNED": "Devuelta"
       },
       "classReminderPrefsTitle": "Avisos de clase",
       "classReminderPrefsHint": "Elige cómo quieres recordatorios antes de tus clases. WhatsApp requiere aceptación explícita y un número internacional válido.",
@@ -11345,7 +11471,8 @@
         "pushLater": "Ahora no",
         "billingPendingTitle": "Tienes un pago pendiente",
         "billingPendingCta": "Ir a pagos",
-        "billingFeesCta": "Ver cuotas y facturación"
+        "billingFeesCta": "Ver cuotas y facturación",
+        "joinClass": "Entrar a la clase"
       },
       "grades": {
         "title": "Notas publicadas",
@@ -11544,7 +11671,8 @@
         "NOT_OPENED": "Sin abrir",
         "OPENED": "Abierta",
         "COMPLETED": "Completada",
-        "COMPLETED_LATE": "Completada tarde"
+        "COMPLETED_LATE": "Completada tarde",
+        "RETURNED": "Devuelta"
       },
       "messagesTitle": "Mensajes",
       "messagesLead": "Puedes escribir al docente de tu alumno o a administración. Las respuestas del equipo aparecen en tu historial abajo.",
@@ -13421,7 +13549,6 @@
         "seoTitle": "Gestión de alumnos y mensualidades | CentroListo",
         "seoDescription": "Inscripciones, clases, profesores, asistencia y mensualidades en una sola plataforma. CentroListo Gestión.",
         "imageAlt": "Escritorio de coordinación de una academia. No es la oficina de un cliente.",
-        "capLine": "Hasta 120 alumnos activos.",
         "usesTitle": "Así se ve la operación."
       },
       "ecosistema": {
@@ -13439,7 +13566,7 @@
         "seoDescription": "Familias, comunicaciones, materiales y actividades bajo la marca de tu institución. CentroListo Ecosistema.",
         "imageAlt": "Grupo pequeño en un espacio de aprendizaje. No es un caso de éxito de CentroListo.",
         "whyTitle": "Qué suma Ecosistema respecto de Gestión.",
-        "whyLead": "Gestión ordena alumnos, clases y cobros. Ecosistema suma el espacio de las familias y los contenidos, y no publica el límite de 120 alumnos de Gestión."
+        "whyLead": "Gestión ordena alumnos, clases y cobros. Ecosistema suma el espacio de las familias y los contenidos."
       }
     },
     "pricing": {
@@ -13473,11 +13600,10 @@
         "gestion": [
           "Todo Presencia con plantilla.",
           "Alumnos, cursos, inscripciones y horarios.",
-          "Matrículas, mensualidades, pagos y asistencia.",
-          "Hasta 120 alumnos activos."
+          "Matrículas, mensualidades, pagos y asistencia."
         ],
         "ecosistema": [
-          "Todo Gestión, sin el límite de 120 alumnos.",
+          "Todo Gestión.",
           "Espacio para familias, avisos y materiales.",
           "Puedes crear rutas de cursos, ofrecerlos y venderlos en la tienda."
         ]
@@ -13605,8 +13731,8 @@
           {
             "label": "Capacidad de alumnos",
             "presencia": "Sin alumnos en el plan gratis",
-            "gestion": "Hasta 120 alumnos activos.",
-            "ecosistema": "Sin el límite de 120 alumnos publicado en Gestión."
+            "gestion": "included",
+            "ecosistema": "included"
           },
           {
             "label": "Implementación",
@@ -13902,10 +14028,44 @@
       "createLead": "Un sitio gratis usa una plantilla y la base compartida. Puedes agregar tu dominio. Puedes abrir 3.",
       "displayName": "Nombre del lugar",
       "slug": "Dirección corta",
+      "slugPlaceholder": "escuela-norte",
+      "slugHint": "Ejemplo: escuela-norte. Los espacios y las mayúsculas se ajustan solos.",
+      "slugInvalid": "La dirección corta necesita letras o números. Ejemplo: escuela-norte.",
+      "provision": {
+        "title": "Creando la base del sitio",
+        "intro": "Puede tardar un par de minutos.",
+        "explain": "Cada línea es un archivo que ya se aplicó.",
+        "logTitle": "Archivos",
+        "empty": "Preparando la base.",
+        "running": "Creando la base",
+        "close": "Cerrar",
+        "primarySchema": "Creando la base",
+        "primaryMigration": "Aplicando {file}",
+        "primaryGrants": "Dando acceso",
+        "primaryTheme": "Activando la plantilla",
+        "primaryDomain": "Registrando {file}",
+        "primaryDomainSkipped": "Vercel no está configurado. El dominio queda en esta máquina.",
+        "primaryDone": "Base lista",
+        "primaryFailed": "Se detuvo en {file}",
+        "count": "{current} de {total}"
+      },
       "customDomain": "Tu dominio",
       "customDomainHint": "Opcional. Ejemplo: miinstituto.cl",
       "customDomainNote": "Puedes dejarlo en blanco por ahora. El sitio abre en un dominio de {brand}.",
       "templatePreviewAlt": "Así se ve la plantilla {name}.",
+      "templateEnlarge": "Ver más grande",
+      "templateColors": "Colores",
+      "templatePreviewTitle": "Vista de {name}",
+      "templatePreviewLoading": "Cargando la plantilla",
+      "sharePhone": "Teléfono",
+      "shareWhatsapp": "WhatsApp",
+      "shareInstagram": "Instagram",
+      "shareFacebook": "Facebook",
+      "shareAddress": "Dirección",
+      "shareHint": "Opcional. Aparecen en tu página. Si escribes una dirección, el mapa la muestra.",
+      "templateColorPrimary": "Color principal",
+      "templateColorAccent": "Color de acento",
+      "templateColorPaper": "Fondo",
       "domainFailed": "El sitio quedó abierto, pero el dominio no se agregó en Vercel.",
       "domainTaken": "Ese dominio ya está en uso.",
       "domainInvalid": "Revisa el dominio. Usa un host como miinstituto.com.",
@@ -13915,6 +14075,10 @@
       "emailTaken": "Ese correo ya tiene una cuenta.",
       "invalidInput": "Revisa el correo y usa una contraseña de al menos 8 caracteres.",
       "createFailed": "No se pudo abrir el sitio. Intenta de nuevo.",
+      "sessionExpired": "La sesión venció. Ingresa de nuevo.",
+      "checkFields": "Revisa el nombre, la dirección corta y el dominio.",
+      "sharedDbFailed": "La base compartida no está lista. Intenta más tarde.",
+      "schemaFailed": "La base no terminó de crearse. Intenta de nuevo.",
       "slugTaken": "Esa dirección corta ya está en uso.",
       "backToSites": "Volver a tus sitios",
       "basicsTitle": "Texto y contacto de la página",
@@ -14108,6 +14272,9 @@
           "primarySchema": "Creando el schema",
           "primaryMigration": "Aplicando {file}",
           "primaryGrants": "Dando permisos",
+          "primaryTheme": "Activando la plantilla",
+          "primaryDomain": "Registrando {file}",
+          "primaryDomainSkipped": "Vercel no está configurado. El dominio queda en esta máquina.",
           "primaryDone": "Base lista",
           "primaryFailed": "Se detuvo en {file}",
           "count": "{current} de {total}"
@@ -14130,9 +14297,9 @@
         "dataModeShared": "Base de Pulsar",
         "dataModeSharedLead": "Este instituto recibe su propio schema en la base de Pulsar. El host de vista previa se agrega solo.",
         "templateLead": "La primera visita abre el asistente. Si no subes un favicon, queda el icono de la plantilla.",
-        "closeCta": "Cerrar sitio",
-        "closeTitle": "Cerrar este sitio",
-        "closeLead": "Esto borra el registro del sitio y su carpeta de imágenes. Si el sitio usa la base de Pulsar, también se borra su schema. Una base externa queda en ese proyecto. No puedes deshacerlo.",
+        "closeCta": "Eliminar sitio",
+        "closeTitle": "Eliminar este sitio",
+        "closeLead": "Esto borra el sitio por completo: sus datos, su configuración, su schema, sus dominios y sus imágenes. Una base externa queda en ese proyecto. No puedes deshacerlo.",
         "closeSlugLabel": "Escribe el identificador del sitio",
         "closeSlugMismatch": "El identificador no coincide.",
         "closeCancel": "Cancelar",
@@ -14173,7 +14340,15 @@
           "whatsappAccessToken": "WhatsApp Cloud API Access Token",
           "whatsappPhoneNumberId": "WhatsApp Phone Number ID",
           "whatsappClassReminderTemplateName": "Nombre de plantilla de recordatorio WhatsApp",
-          "pulsarMailQuota": "Tope de correos con la cuenta de Pulsar"
+          "pulsarMailQuota": "Tope de correos con la cuenta de Pulsar",
+          "commercialPlan": "Plan",
+          "dailyApiKey": "Clave API de Daily",
+          "dailyDomain": "Dominio de Daily"
+        },
+        "commercialPlanOptions": {
+          "pagina": "Página",
+          "gestion": "Gestión",
+          "ecosistema": "Ecosistema"
         },
         "errors": {
           "invalid_slug": "Ingresa un slug válido en minúsculas (sin usar pulsar).",
@@ -14189,7 +14364,8 @@
           "db_write_failed": "No se pudo guardar el tenant en la base de datos de CentroListo.",
           "pulsar_shared_db_unconfigured": "Configura PULSAR_SUPABASE_URL, la anon key, la service role key y PULSAR_DATABASE_URL antes de guardar un instituto compartido.",
           "schema_provision_failed": "No se creó el schema del instituto. Revisa el log del servidor e inténtalo de nuevo.",
-          "invalid_mail_quota": "El tope de correos debe ser un número entero entre 0 y 100000."
+          "invalid_mail_quota": "El tope de correos debe ser un número entero entre 0 y 100000.",
+          "invalid_daily_domain": "Ingresa un host de Daily sin esquema ni ruta."
         }
       }
     }

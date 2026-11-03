@@ -102,6 +102,28 @@ export async function loadPulsarOwnerHome(userId: string): Promise<
   }
 }
 
+/** A login that is not an owner yet can open a free page with that same account. */
+export async function ensureOwnerForExistingLogin(input: {
+  userId: string;
+  email: string;
+}): Promise<Awaited<ReturnType<typeof loadPulsarOwnerHome>>> {
+  const current = await loadPulsarOwnerHome(input.userId);
+  if (current.kind === "owner") return current;
+  if (!isPulsarSupabaseConfigured()) return current;
+  const email = input.email.trim().toLowerCase();
+  if (!email.includes("@")) return current;
+  const admin = createPulsarAdminClient();
+  const { error } = await admin.from("platform_owners").insert({
+    user_id: input.userId,
+    email,
+    status: "approved",
+  });
+  if (error && error.code !== "23505") {
+    logSupabaseError("ensureOwnerForExistingLogin", error, { userId: input.userId });
+  }
+  return loadPulsarOwnerHome(input.userId);
+}
+
 export interface PulsarOwnerRow {
   userId: string;
   email: string;

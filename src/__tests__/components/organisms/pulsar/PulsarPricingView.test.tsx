@@ -27,7 +27,8 @@ describe("PulsarPricingView", () => {
     expect(screen.queryByText(formatOfferAmount(49990, "cl"))).toBeNull();
     expect(screen.getAllByText(new RegExp(formatOfferAmount(149990, "cl").replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))).length).toBeGreaterThan(0);
     expect(screen.queryByText("44.900")).toBeNull();
-    expect(screen.getAllByText("Hasta 120 alumnos activos.").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Hasta 120 alumnos activos.")).toBeNull();
+    expect(screen.getByText("Sin alumnos en el plan gratis")).toBeInTheDocument();
     expect(screen.queryByText("300")).toBeNull();
 
     const signup = screen.getAllByRole("link", { name: dict.pulsar.solutionSet.presencia.cta });

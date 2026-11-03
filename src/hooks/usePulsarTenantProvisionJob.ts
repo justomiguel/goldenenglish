@@ -23,7 +23,7 @@ function countLine(snapshot: LongJobSnapshot, template: string): string | null {
   return template.replaceAll("{current}", String(current)).replaceAll("{total}", String(total));
 }
 
-export function usePulsarTenantProvisionJob(copy: ProvisionCopy) {
+export function usePulsarTenantProvisionJob(copy: ProvisionCopy, pollPath = "/api/admin/pulsar/schema-provision") {
   const poll = useLongJobPoll();
   const [open, setOpen] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
@@ -43,19 +43,21 @@ export function usePulsarTenantProvisionJob(copy: ProvisionCopy) {
     setIsRunning(true);
     poll.reset();
     const controller = new AbortController();
-    const polling = poll.pollUntilDone({
-      jobId: schema,
-      pollUrl: () => `/api/admin/pulsar/schema-provision?schema=${encodeURIComponent(schema)}`,
-      intervalMs: 800,
-      signal: controller.signal,
-      isTerminal: (snapshot) => snapshot.status === "succeeded" || snapshot.status === "failed",
-      formatProgressLine: (snapshot) => provisionPrimaryLine(snapshot, copy),
-    });
+    const polling = poll
+      .pollUntilDone({
+        jobId: schema,
+        pollUrl: () => `${pollPath}?schema=${encodeURIComponent(schema)}`,
+        intervalMs: 800,
+        signal: controller.signal,
+        isTerminal: (snapshot) => snapshot.status === "succeeded" || snapshot.status === "failed",
+        formatProgressLine: (snapshot) => provisionPrimaryLine(snapshot, copy),
+      })
+      .catch(() => null);
 
     try {
       const result = await save();
       if (result.ok || result.errorCode === "schema_provision_failed") {
-        await Promise.race([polling.catch(() => null), new Promise((resolve) => setTimeout(resolve, GRACE_MS))]);
+        await Promise.race([polling, new Promise((resolve) => setTimeout(resolve, GRACE_MS))]);
       }
       if (result.ok || result.errorCode !== "schema_provision_failed") setOpen(false);
       return result;

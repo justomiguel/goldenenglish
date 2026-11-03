@@ -35,6 +35,8 @@ export const AnalyticsEntity = {
   promotionCodeAppliedStudent: "promotion_code_applied_student",
   /** Teacher attendance matrix (bulk column fill, etc.) */
   teacherSectionAttendance: "section:teacher_section_attendance",
+  /** Hybrid/remote Daily class join */
+  sectionDailyClass: "section:daily_class",
   /** Portal calendar + iCal subscription */
   portalCalendar: "section:portal_calendar",
   /** Learning tasks library, detail, and completion funnel */

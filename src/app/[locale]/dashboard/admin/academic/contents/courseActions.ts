@@ -5,6 +5,12 @@ import { z } from "zod";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { courseSlugFromTitle } from "@/lib/courses/courseSlug";
 import {
+  courseFieldsAccept,
+  loadCourseFieldRules,
+  persistCourseCatalog,
+} from "@/lib/courses/persistCourseCatalog";
+import type { CourseFieldSubmission } from "@/lib/courses/courseFieldValues";
+import {
   ADMIN_SESSION_FORBIDDEN,
   ADMIN_SESSION_UNAUTHORIZED,
 } from "@/lib/dashboard/adminSessionErrors";
@@ -27,6 +33,14 @@ const ModuleSchema = z.object({
   lessons: z.array(LessonSchema).min(1).max(40),
 });
 
+const FieldValueSchema = z.object({
+  fieldId: z.string().uuid(),
+  text: z.string().max(500).optional(),
+  optionId: z.string().uuid().optional(),
+  checked: z.boolean().optional(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+});
+
 const CreateCourseSchema = z.object({
   locale: z.string().min(2).max(8),
   title: z.string().trim().min(1).max(180),
@@ -34,6 +48,9 @@ const CreateCourseSchema = z.object({
   price: z.number().min(0).max(1_000_000),
   listedInShop: z.boolean(),
   modules: z.array(ModuleSchema).min(1).max(20),
+  categoryId: z.string().uuid().nullable().optional(),
+  hashtags: z.string().max(400).optional(),
+  fieldValues: z.array(FieldValueSchema).max(50).optional(),
 });
 
 export type CreateCourseResult =
@@ -62,6 +79,9 @@ export async function createCourseAction(raw: unknown): Promise<CreateCourseResu
   try {
     const { supabase, user } = await assertAdmin();
     const data = parsed.data;
+    const fieldValues = (data.fieldValues ?? []) as CourseFieldSubmission[];
+    const rules = await loadCourseFieldRules(supabase);
+    if (!rules || !courseFieldsAccept(rules, fieldValues)) return { ok: false, code: "invalid_input" };
     const slug = data.listedInShop ? await unusedCourseSlug(supabase, data.title) : null;
 
     const { data: course, error: courseError } = await supabase
@@ -73,6 +93,7 @@ export async function createCourseAction(raw: unknown): Promise<CreateCourseResu
         progress_mode: data.progressMode,
         price: data.price,
         listed_in_shop: data.listedInShop,
+        category_id: data.categoryId ?? null,
         created_by: user.id,
         updated_by: user.id,
       })
@@ -106,6 +127,13 @@ export async function createCourseAction(raw: unknown): Promise<CreateCourseResu
         return { ok: false, code: "persist_failed" };
       }
     }
+
+    const catalogSaved = await persistCourseCatalog(supabase, user.id, course.id, {
+      hashtags: data.hashtags ?? "",
+      values: fieldValues,
+      rules,
+    });
+    if (!catalogSaved) return { ok: false, code: "persist_failed" };
 
     await recordSystemAudit({
       action: "course.create",

@@ -3,6 +3,8 @@ import type { MonthlyFeeChargeMode } from "@/lib/billing/monthlyFeeChargeMode";
 import type { SectionFeePlan } from "@/types/sectionFeePlan";
 import type { attachSectionFeePlansUsage } from "@/lib/billing/computeSectionFeePlansUsage";
 import type { loadAdminSectionTeachersAndAssistants } from "@/lib/academics/loadAdminSectionTeachersAndAssistants";
+import type { CommercialPlan } from "@/lib/pulsar/commercialPlan";
+import type { SectionDeliveryMode } from "@/lib/academics/sectionDeliveryMode";
 
 export interface AdminSectionRosterRow {
   enrollmentId: string;
@@ -49,7 +51,10 @@ export interface AdminSectionPageData {
     /** When true, Learning route tab and route/free-flow progress apply. */
     usesLearningRoute: boolean;
     referenceImageUrl: string | null;
+    deliveryMode: SectionDeliveryMode;
   };
+  commercialPlan: CommercialPlan;
+  dailyCredentialsReady: boolean;
   cohort: {
     name: string;
     archivedAt: string | null;

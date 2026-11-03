@@ -119,8 +119,6 @@ test.describe("@critical-registration", () => {
       timeout: 20_000,
     });
     await expect(familyPage.getByText(/E2E EnrolleeB/)).toBeVisible();
-    await familyPage.getByRole("button", { name: R.existingYes }).click();
-    await expect(familyPage.getByText(R.tutorSectionTitle)).toHaveCount(0);
     await chooseRegisterSectionByName(familyPage, /E2E Section B/i);
     await submitRegisterAfterDetails(familyPage);
     await expect(familyPage.getByRole("dialog")).toBeVisible({ timeout: 45_000 });

@@ -8,6 +8,7 @@ import { PulsarSegmentNav } from "@/components/organisms/pulsar/PulsarSegmentNav
 import { PulsarSolutionNav } from "@/components/organisms/pulsar/PulsarSolutionNav";
 import { PulsarSessionMenu } from "@/components/organisms/pulsar/PulsarSessionMenu";
 import { withCentrolistoMarket } from "@/lib/pulsar/centrolistoMarket";
+import { pulsarStartFreePath } from "@/lib/pulsar/pulsarStartPath";
 import type { PulsarSiteChromeProps } from "@/components/organisms/pulsar/PulsarSiteChrome";
 
 const NAV = [
@@ -74,7 +75,7 @@ export function PulsarSiteChromePwa({
       >
         {showThumb ? (
           <Link
-            href={href(`/${locale}/cuenta/registro`)}
+            href={href(pulsarStartFreePath(locale, Boolean(email)))}
             className="flex min-h-12 items-center justify-between gap-3 bg-[var(--color-primary)] px-5 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)]"
           >
             <span>{nav.startFree}</span>

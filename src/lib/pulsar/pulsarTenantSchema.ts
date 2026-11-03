@@ -1,3 +1,5 @@
+import { parseCommercialPlan } from "@/lib/pulsar/commercialPlan";
+import { parseDailyDomain } from "@/lib/pulsar/dailyDomain";
 import { parsePulsarMailQuota } from "@/lib/pulsar/instituteMailAccount";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
 import { postgresSchemaForInstituteSlug } from "@/lib/tenant/postgresSchemaForInstituteSlug";
@@ -159,6 +161,11 @@ export function validatePulsarTenantInput(
   const kvRestApiToken = editingSlug
     ? (optString(raw.kvRestApiToken) ?? previous?.kvRestApiToken ?? null)
     : null;
+  const dailyApiKey = optString(raw.dailyApiKey);
+  const dailyDomain = parseDailyDomain(raw.dailyDomain);
+  if (optString(raw.dailyDomain) !== null && dailyDomain === null) {
+    return { ok: false, errorCode: "invalid_daily_domain" };
+  }
 
   return {
     ok: true,
@@ -192,6 +199,9 @@ export function validatePulsarTenantInput(
       debugLogin: Boolean(raw.debugLogin),
       skipInitialSiteSetup: Boolean(raw.skipInitialSiteSetup),
       pulsarMailQuota,
+      commercialPlan: parseCommercialPlan(raw.commercialPlan),
+      dailyApiKey,
+      dailyDomain,
     },
   };
 }

@@ -34,7 +34,7 @@ New work: choose the **owning layer** first, define or extend the **public surfa
    - **Never** add `coverage.exclude` entries for production source files **only** to make thresholds pass. If coverage drops, **add or extend tests** (unit, RTL smoke with mocked boundaries, or integration tests). Exclusions are only for **non-source** paths already listed (tests, types, `page.tsx` / `layout.tsx` entrypoints, etc.).
    - **New or changed files** under `src/lib/`, `src/hooks/`, `src/components/`, `src/app/` actions, etc. must ship with tests that keep the gate green.
    - **Out of scope for the coverage include list:** `src/types/**`, test harness files; `page.tsx` / `layout.tsx` remain excluded as RSC shells (behavior covered via child modules + E2E when added).
-4. **Pre-commit policy.** The repo expects `npm run precommit` before pushing: `eslint`, `node scripts/precommit-verify.mjs`, **`next build`** (`npm run build`), then `npm run test:coverage`. A Husky hook should call this script; commits are not merge-ready if any step fails.
+4. **Pre-commit policy.** The repo expects `npm run precommit` before pushing: `eslint`, `node scripts/precommit-verify.mjs`, **`next build`** (`npm run build`), then `npm run test:unit:precommit` and `npm run test:e2e:precommit`. `test:unit:precommit` runs `vitest run --coverage` when this product tree has no green coverage proof. It skips unit files that already passed for the same product hash and the same file hash. `npm run test:coverage` remains the full coverage command. See **`34-precommit-e2e.mdc`**. A Husky hook should call this script; commits are not merge-ready if any step fails.
 
 ## CI and test quality (gates)
 

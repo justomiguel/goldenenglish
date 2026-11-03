@@ -35,5 +35,7 @@ describe("PulsarSolutionView", () => {
     expect(screen.getByRole("heading", { name: dict.pulsar.home.faqTitle })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: dict.pulsar.product.comparison.title })).toBeNull();
     expect(screen.getByRole("heading", { name: dict.pulsar.solutionSet.gestion.usesTitle })).toBeInTheDocument();
+    expect(screen.queryByText("Hasta 120 alumnos activos.")).toBeNull();
+    expect(screen.queryByText("Hasta 50 alumnos activos.")).toBeNull();
   });
 });

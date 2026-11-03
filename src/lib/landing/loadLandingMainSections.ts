@@ -36,19 +36,14 @@ export interface LandingMainSectionHostProps {
 
 type LandingMainSectionComponent = ComponentType<LandingMainSectionHostProps>;
 
-function contactFromOverrides(
-  properties: Readonly<Record<string, string>> | undefined,
-): {
-  email: string;
-  phone: string;
-  address: string;
-  whatsapp: string;
-} {
+function contactFromOverrides(properties: Readonly<Record<string, string>> | undefined) {
   return {
     email: properties?.["contact.email"]?.trim() ?? "",
     phone: properties?.["contact.phone"]?.trim() ?? "",
     address: properties?.["contact.address"]?.trim() ?? "",
     whatsapp: properties?.["social.whatsapp"]?.trim() ?? "",
+    instagram: properties?.["social.instagram"]?.trim() ?? "",
+    facebook: properties?.["social.facebook"]?.trim() ?? "",
   };
 }
 

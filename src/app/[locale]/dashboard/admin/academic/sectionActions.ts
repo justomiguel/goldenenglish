@@ -18,6 +18,10 @@ import {
   logSupabaseClientError,
 } from "@/lib/logging/serverActionLog";
 import type { SectionScheduleSlot } from "@/types/academics";
+import { persistSectionDailyRooms } from "@/lib/academics/syncSectionDailyRooms";
+import { parseDeliveryMode, tenantDailyCredentials } from "@/lib/academics/sectionDailyTenant";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 const uuid = z.string().uuid();
 
@@ -185,10 +189,10 @@ export async function updateAcademicSectionScheduleAction(input: {
       .from("academic_sections")
       .update({ schedule_slots: scheduleSlots })
       .eq("id", sectionId.data)
-      .select("id, cohort_id")
+      .select("id, cohort_id, delivery_mode")
       .maybeSingle();
 
-    const section = row as { id: string; cohort_id: string } | null;
+    const section = row as { id: string; cohort_id: string; delivery_mode?: string | null } | null;
     if (error || !section?.id || !section.cohort_id) {
       if (error) {
         logSupabaseClientError(S.updateSectionSchedule, error, {
@@ -197,6 +201,22 @@ export async function updateAcademicSectionScheduleAction(input: {
         });
       }
       return { ok: false };
+    }
+
+    const deliveryMode = parseDeliveryMode(section.delivery_mode);
+    if (deliveryMode === "hybrid" || deliveryMode === "remote") {
+      const persistResult = await persistSectionDailyRooms({
+        supabase: await createAdminClient(),
+        sectionId: section.id,
+        mode: deliveryMode,
+        credentials: tenantDailyCredentials(await resolveRequestTenant()),
+      });
+      if (!persistResult.ok) {
+        logSupabaseClientError(S.updateSectionSchedule, persistResult.error, {
+          sectionId: section.id,
+        });
+        return { ok: false };
+      }
     }
 
     void recordSystemAudit({

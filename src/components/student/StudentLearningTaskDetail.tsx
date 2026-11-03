@@ -13,6 +13,7 @@ import {
   markTaskOpenedAfterEngagementAction,
 } from "@/app/[locale]/dashboard/student/tasks/actions";
 import { collapseRichTextDisplayHtml } from "@/lib/learning-tasks/collapseRichTextDisplayHtml";
+import { TaskAnswerRead } from "@/components/student/TaskAnswerRead";
 
 interface StudentLearningTaskDetailProps {
   locale: string;
@@ -23,6 +24,7 @@ interface StudentLearningTaskDetailProps {
 export function StudentLearningTaskDetail({ locale, task, labels }: StudentLearningTaskDetailProps) {
   const bodyHtml = collapseRichTextDisplayHtml(task.bodyHtml ?? "");
   const [status, setStatus] = useState(task.status);
+  const [answer, setAnswer] = useState(task.latestAnswer ?? "");
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -45,7 +47,7 @@ export function StudentLearningTaskDetail({ locale, task, labels }: StudentLearn
 
   const complete = () => {
     startTransition(async () => {
-      const result = await completeTaskAction({ locale, taskInstanceId: task.taskInstanceId });
+      const result = await completeTaskAction({ locale, taskInstanceId: task.taskInstanceId, answer });
       if (result.ok) {
         setStatus(result.status);
         setMessage(labels.taskCompleted);
@@ -98,15 +100,34 @@ export function StudentLearningTaskDetail({ locale, task, labels }: StudentLearn
         </section>
       ) : null}
 
+      <TaskAnswerRead
+        answerLabel={labels.taskAnswerLabel}
+        reviewTitle={labels.taskReviewTitle}
+        olderLabel={labels.taskOlderNotes}
+        answer={task.latestAnswer ?? null}
+        reviews={task.reviews ?? []}
+      />
+
+      {status === "OPENED" || status === "RETURNED" ? (
+        <textarea
+          value={answer}
+          maxLength={4000}
+          aria-label={labels.taskAnswerLabel}
+          placeholder={labels.taskAnswerPlaceholder}
+          onChange={(event) => setAnswer(event.target.value)}
+          className="min-h-28 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm text-[var(--color-foreground)]"
+        />
+      ) : null}
+
       <div className="flex flex-wrap items-center gap-3">
         <Button
           type="button"
           onClick={complete}
           isLoading={isPending}
-          disabled={status === "NOT_OPENED" || status === "COMPLETED" || status === "COMPLETED_LATE"}
+          disabled={(status !== "OPENED" && status !== "RETURNED") || answer.trim().length === 0}
         >
           {!isPending ? <Check className="h-4 w-4 shrink-0" aria-hidden /> : null}
-          {labels.taskComplete}
+          {status === "RETURNED" ? labels.taskSendAgain : labels.taskComplete}
         </Button>
         {message ? <p className="text-sm text-[var(--color-muted-foreground)]">{message}</p> : null}
       </div>

@@ -5,19 +5,67 @@ import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { createOwnerSiteAction } from "@/app/[locale]/cuenta/actions";
 import { Button } from "@/components/atoms/Button";
-import { GENERIC_INSTITUTE_KINDS } from "@/lib/theme/genericInstituteTemplates";
+import { PulsarAccountShareFields } from "@/components/organisms/pulsar/PulsarAccountShareFields";
+import { PulsarTemplatePicker, type PulsarTemplatePreview } from "@/components/organisms/pulsar/PulsarTemplatePicker";
+import { PulsarTenantProvisionDialog } from "@/components/organisms/pulsar/PulsarTenantProvisionDialog";
+import { usePulsarTenantProvisionJob } from "@/hooks/usePulsarTenantProvisionJob";
+import { ownerSiteSlug } from "@/lib/pulsar/ownerSiteSlug";
+import type { GenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import type { Dictionary } from "@/types/i18n";
+
+const fieldClass =
+  "mt-1 min-h-11 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-base text-[var(--color-foreground)]";
+
+function createSiteErrorMessage(code: string, copy: Dictionary["pulsar"]["account"]): string {
+  if (code === "free_site_limit") return copy.limitReached;
+  if (code === "owner_not_approved") return copy.pendingLead;
+  if (code === "vercel_domain_failed") return copy.domainFailed;
+  if (code === "slug_invalid") return copy.slugInvalid;
+  if (code === "invalid_slug" || code === "duplicate_slug" || code === "duplicate_host") return copy.slugTaken;
+  if (code === "unauthorized") return copy.sessionExpired;
+  if (
+    code === "invalid_input" ||
+    code === "missing_display_name" ||
+    code === "missing_hosts" ||
+    code === "reserved_pulsar_host"
+  ) {
+    return copy.checkFields;
+  }
+  if (code === "pulsar_shared_db_unconfigured" || code === "not_configured") return copy.sharedDbFailed;
+  if (code === "schema_provision_failed" || code === "db_write_failed") return copy.schemaFailed;
+  return copy.createFailed;
+}
+
+export type { PulsarTemplatePreview };
 
 export function PulsarAccountCreateForm({
   locale,
   copy,
-  kindLabels,
+  brandName,
+  previews,
 }: {
   locale: string;
   copy: Dictionary["pulsar"]["account"];
-  kindLabels: Record<(typeof GENERIC_INSTITUTE_KINDS)[number], string>;
+  brandName: string;
+  previews: readonly PulsarTemplatePreview[];
 }) {
   const router = useRouter();
+  const steps = copy.provision;
+  const provision = usePulsarTenantProvisionJob(
+    {
+      schema: steps.primarySchema,
+      migration: steps.primaryMigration,
+      grants: steps.primaryGrants,
+      theme: steps.primaryTheme,
+      domain: steps.primaryDomain,
+      domainSkipped: steps.primaryDomainSkipped,
+      done: steps.primaryDone,
+      failed: steps.primaryFailed,
+      count: steps.count,
+    },
+    "/api/cuenta/schema-provision",
+  );
+  const [kind, setKind] = useState<GenericInstituteKind>(previews[0]?.kind ?? "idiomas");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -26,24 +74,28 @@ export function PulsarAccountCreateForm({
     setPending(true);
     setError(null);
     const data = new FormData(event.currentTarget);
-    const result = await createOwnerSiteAction({
-      locale,
-      displayName: String(data.get("displayName") ?? ""),
-      slug: String(data.get("slug") ?? ""),
-      kind: String(data.get("kind") ?? ""),
-      customDomain: String(data.get("customDomain") ?? ""),
-    });
+    const slug = String(data.get("slug") ?? "");
+    const save = () =>
+      createOwnerSiteAction({
+        locale,
+        displayName: String(data.get("displayName") ?? ""),
+        slug,
+        kind,
+        customDomain: String(data.get("customDomain") ?? ""),
+        colorPrimary: String(data.get("colorPrimary") ?? ""),
+        colorAccent: String(data.get("colorAccent") ?? ""),
+        colorPaper: String(data.get("colorPaper") ?? ""),
+        phone: String(data.get("phone") ?? ""),
+        whatsapp: String(data.get("whatsapp") ?? ""),
+        instagram: String(data.get("instagram") ?? ""),
+        facebook: String(data.get("facebook") ?? ""),
+        address: String(data.get("address") ?? ""),
+      });
+    const normalized = ownerSiteSlug(slug);
+    const result = normalized ? await provision.track(normalized, save) : await save();
     setPending(false);
     if (!result.ok) {
-      if (result.errorCode === "free_site_limit") setError(copy.limitReached);
-      else if (result.errorCode === "owner_not_approved") setError(copy.pendingLead);
-      else if (result.errorCode === "vercel_domain_failed") setError(copy.domainFailed);
-      else if (
-        result.errorCode === "invalid_slug" ||
-        result.errorCode === "duplicate_slug" ||
-        result.errorCode === "duplicate_host"
-      ) setError(copy.slugTaken);
-      else setError(copy.createFailed);
+      setError(createSiteErrorMessage(result.errorCode, copy));
       return;
     }
     router.push(`/${locale}/admin/tenants/${result.slug}/theme`);
@@ -51,37 +103,69 @@ export function PulsarAccountCreateForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="mx-auto max-w-md space-y-4 px-5 py-16">
-      <h1 className="text-2xl font-medium">{copy.createTitle}</h1>
-      <p className="text-sm text-[var(--color-muted-foreground)]">{copy.createLead}</p>
+    <>
+    <PulsarTenantProvisionDialog
+      open={provision.open}
+      isRunning={provision.isRunning}
+      primaryLine={provision.primaryLine}
+      secondaryLine={provision.secondaryLine}
+      lines={provision.lines}
+      title={steps.title}
+      intro={steps.intro}
+      explain={steps.explain}
+      logTitle={steps.logTitle}
+      empty={steps.empty}
+      running={steps.running}
+      closeLabel={steps.close}
+      onOpenChange={provision.setOpen}
+    />
+    <form onSubmit={onSubmit} className="mx-auto max-w-5xl space-y-6 px-5 py-12">
+      <h1 className="font-display text-3xl font-medium tracking-tight">{copy.createTitle}</h1>
+      <p className="max-w-xl text-sm leading-relaxed text-[var(--color-muted-foreground)]">{copy.createLead}</p>
       <p className="text-sm text-[var(--color-muted-foreground)]">{copy.pageOnly}</p>
       <label className="block text-sm font-semibold" htmlFor="site-name">
         {copy.displayName}
-        <input id="site-name" name="displayName" required minLength={2} className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2" />
+        <input id="site-name" name="displayName" required minLength={2} className={fieldClass} />
       </label>
-      <label className="block text-sm font-semibold" htmlFor="site-slug">
-        {copy.slug}
-        <input id="site-slug" name="slug" required pattern="[a-z0-9](?:[a-z0-9-]{0,62})?" className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2" />
-      </label>
-      <label className="block text-sm font-semibold" htmlFor="site-domain">
-        {copy.customDomain}
-        <input id="site-domain" name="customDomain" placeholder={copy.customDomainHint} className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2" />
-      </label>
-      <label className="block text-sm font-semibold" htmlFor="site-kind">
-        {copy.template}
-        <select id="site-kind" name="kind" className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2">
-          {GENERIC_INSTITUTE_KINDS.map((kind) => (
-            <option key={kind} value={kind}>
-              {kindLabels[kind]}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div>
+        <label className="block text-sm font-semibold" htmlFor="site-slug">
+          {copy.slug}
+          <input
+            id="site-slug"
+            name="slug"
+            required
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            placeholder={copy.slugPlaceholder}
+            className={fieldClass}
+          />
+        </label>
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--color-muted-foreground)]">{copy.slugHint}</p>
+      </div>
+      <div>
+        <label className="block text-sm font-semibold" htmlFor="site-domain">
+          {copy.customDomain}
+          <input id="site-domain" name="customDomain" placeholder={copy.customDomainHint} className={fieldClass} />
+        </label>
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--color-muted-foreground)]">
+          {copy.customDomainNote.replaceAll("{brand}", brandName)}
+        </p>
+      </div>
+      <PulsarAccountShareFields copy={copy} />
+      <PulsarTemplatePicker
+        locale={locale}
+        copy={copy}
+        previews={previews}
+        kind={kind}
+        onKindChange={setKind}
+      />
       {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
       <Button type="submit" isLoading={pending}>
         <Plus className="h-4 w-4" aria-hidden />
         {copy.submitCreate}
       </Button>
     </form>
+    </>
   );
 }

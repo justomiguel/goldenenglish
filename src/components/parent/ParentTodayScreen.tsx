@@ -7,6 +7,7 @@ import type { ParentTodayFeed } from "@/lib/parent/buildParentTodayFeed";
 import type { ParentHomeNewsItem } from "@/lib/parent/loadParentHomeNewsFeed";
 import { ParentTodayCards } from "@/components/parent/ParentTodayCards";
 import { ParentHomeNewsFeed } from "@/components/pwa/molecules/ParentHomeNewsFeed";
+import { SectionNoticeList } from "@/components/student/SectionNoticeList";
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
@@ -29,6 +30,8 @@ export interface ParentTodayScreenProps {
   calendarHref: string;
   scheduleHuman: string | null;
   newsItems: ParentHomeNewsItem[];
+  notices: { id: string; body: string }[];
+  noticeTitle: string;
   newsLabels: Dictionary["dashboard"]["parent"]["homeInbox"]["newsFeed"];
 }
 
@@ -114,6 +117,8 @@ export function ParentTodayScreen(props: ParentTodayScreenProps) {
     calendarHref,
     scheduleHuman,
     newsItems,
+    notices,
+    noticeTitle,
     newsLabels,
   } = props;
 
@@ -127,12 +132,14 @@ export function ParentTodayScreen(props: ParentTodayScreenProps) {
     <NextClassRow calendarHref={calendarHref} scheduleHuman={scheduleHuman} copy={copy} />
   );
   const news = <ParentHomeNewsFeed locale={locale} items={newsItems} labels={newsLabels} />;
+  const noticeList = <SectionNoticeList title={noticeTitle} notices={notices} />;
 
   // Desktop reads left to right: what needs you, then the calmer context column.
   const desktop = (
     <div className="grid grid-cols-[minmax(0,1fr)_22rem] items-start gap-6">
       <div className="space-y-4">
         <Header greeting={greeting} fullDateLine={fullDateLine} />
+        {noticeList}
         {cards}
       </div>
       <div className="space-y-3" data-tour={PARENT_TOUR_ANCHORS.homeInbox}>
@@ -147,6 +154,7 @@ export function ParentTodayScreen(props: ParentTodayScreenProps) {
   const narrow = (
     <div className="space-y-4">
       <Header greeting={greeting} fullDateLine={fullDateLine} />
+      {noticeList}
       {cards}
       <div className="space-y-3" data-tour={PARENT_TOUR_ANCHORS.homeInbox}>
         {pulse}

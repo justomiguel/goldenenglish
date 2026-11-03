@@ -1,6 +1,7 @@
 import type { Dictionary } from "@/types/i18n";
 import type { AdminSectionPageData } from "@/lib/academics/loadAdminSectionPageData";
 import type { SectionScheduleSlot } from "@/types/academics";
+import type { CommercialPlan } from "@/lib/pulsar/commercialPlan";
 import { AcademicSectionScheduleEditor } from "@/components/organisms/AcademicSectionScheduleEditor";
 import { AcademicSectionSettingsSummary } from "@/components/organisms/AcademicSectionSettingsSummary";
 
@@ -10,6 +11,9 @@ export interface AcademicSectionConfigurationPanelProps {
   locale: string;
   sectionId: string;
   section: AdminSectionPageData["section"];
+  commercialPlan: CommercialPlan;
+  dailyCredentialsReady: boolean;
+  deliveryModeDict: PageDict["deliveryMode"];
   slots: SectionScheduleSlot[];
   settingsSummaryDict: PageDict["settingsSummary"];
   featureFlagsDict: PageDict["featureFlags"];
@@ -26,6 +30,9 @@ export function AcademicSectionConfigurationPanel({
   locale,
   sectionId,
   section,
+  commercialPlan,
+  dailyCredentialsReady,
+  deliveryModeDict,
   slots,
   settingsSummaryDict,
   featureFlagsDict,
@@ -43,6 +50,9 @@ export function AcademicSectionConfigurationPanel({
         locale={locale}
         sectionId={sectionId}
         section={section}
+        commercialPlan={commercialPlan}
+        dailyCredentialsReady={dailyCredentialsReady}
+        deliveryModeDict={deliveryModeDict}
         dict={settingsSummaryDict}
         featureFlagsDict={featureFlagsDict}
         periodDict={periodDict}

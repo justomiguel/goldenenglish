@@ -40,7 +40,7 @@ export function AdminGlobalContentRepository({
         </Link>
       </div>
       <AdminGlobalContentRepositoryList
-        key={pagination.searchQuery}
+        key={`${pagination.searchQuery}|${pagination.tag ?? ""}|${pagination.material ?? ""}`}
         contents={contents}
         labels={labels}
         locale={locale}

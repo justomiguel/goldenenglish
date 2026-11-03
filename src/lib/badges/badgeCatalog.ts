@@ -21,6 +21,7 @@ export const BADGE_CRITERIA_TYPES = [
   "profile_birth_date_set",
   "assessments_passed",
   "messages_sent",
+  "course_completed",
 ] as const;
 export type BadgeCriteriaType = (typeof BADGE_CRITERIA_TYPES)[number];
 

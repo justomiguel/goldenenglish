@@ -88,6 +88,9 @@ export function computeBadgeEntryProgress(
     case "messages_sent":
       current = ctx.messagesSentCount;
       break;
+    case "course_completed":
+      current = ctx.completedCourseCount;
+      break;
     default:
       return { current: 0, target: 1, percent: 0, eligible: false };
   }

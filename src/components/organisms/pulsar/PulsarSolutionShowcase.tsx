@@ -90,9 +90,6 @@ export function PulsarSolutionShowcase({ locale, dict, market = "cl" }: PulsarSo
                       </li>
                     ))}
                   </ul>
-                  {slug === "gestion" ? (
-                    <p className="mt-3 text-sm font-medium text-[var(--color-foreground)]">{dict.pulsar.solutionSet.gestion.capLine}</p>
-                  ) : null}
                   {slug === "presencia" ? (
                     <p className="mt-5 text-sm font-medium text-[var(--color-foreground)]">{pricing.templateRule}</p>
                   ) : null}

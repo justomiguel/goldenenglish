@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummaries";
 import type { ParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
 import {
@@ -31,6 +31,7 @@ export interface ParentHomePwaFocusProps {
   dashboardBase?: string;
   includePayments?: boolean;
   focusCatalog?: ParentFocusCatalog;
+  leadCard?: ReactNode;
 }
 
 export function ParentHomePwaFocus({
@@ -47,6 +48,7 @@ export function ParentHomePwaFocus({
   dashboardBase,
   includePayments = true,
   focusCatalog,
+  leadCard,
 }: ParentHomePwaFocusProps) {
   const inbox = labels.homeInbox;
   const multipleChildren = summaries.length > 1;
@@ -94,6 +96,8 @@ export function ParentHomePwaFocus({
           </p>
         ) : null}
       </header>
+
+      {leadCard}
 
       <PushPermissionBanner
         copy={inbox}

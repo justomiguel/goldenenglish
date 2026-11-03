@@ -33,6 +33,57 @@ export const GENERIC_KIND_RGB: Record<
   idiomas: { ink: [30, 58, 76], paper: [247, 245, 242] },
 };
 
+/** Same colors as `233_generic_institute_theme_seeds.sql`. */
+const GENERIC_KIND_COLORS: Record<
+  GenericInstituteKind,
+  {
+    primary: string;
+    primaryDark: string;
+    secondary: string;
+    ink: string;
+    paper: string;
+    surface: string;
+    muted: string;
+    mutedFg: string;
+  }
+> = {
+  deportes: { primary: "#1B4332", primaryDark: "#0F2A1F", secondary: "#C4A484", ink: "#1B4332", paper: "#F6F1E8", surface: "#FFFCF7", muted: "#E7DDD0", mutedFg: "#3D4A40" },
+  jardin: { primary: "#3D5A45", primaryDark: "#24362A", secondary: "#E2C56B", ink: "#24362A", paper: "#FBF7F0", surface: "#FFFCF6", muted: "#E6E0D2", mutedFg: "#3D4A40" },
+  colegio: { primary: "#1C2B3A", primaryDark: "#101820", secondary: "#B08968", ink: "#1C2B3A", paper: "#F4F0EA", surface: "#FBF8F4", muted: "#E4DDD4", mutedFg: "#3A4654" },
+  musica: { primary: "#4A2C3A", primaryDark: "#2C1A24", secondary: "#C6A15B", ink: "#4A2C3A", paper: "#F7F3EE", surface: "#FBF8F4", muted: "#E8DFD6", mutedFg: "#5C4652" },
+  idiomas: { primary: "#1E3A4C", primaryDark: "#122632", secondary: "#E6D3B3", ink: "#1E3A4C", paper: "#F7F5F2", surface: "#FBF9F6", muted: "#E4E0D8", mutedFg: "#3E5160" },
+};
+
+export interface GenericTemplatePalette {
+  primary: string;
+  accent: string;
+  paper: string;
+}
+
+export function genericKindDefaultPalette(kind: GenericInstituteKind): GenericTemplatePalette {
+  const row = GENERIC_KIND_COLORS[kind];
+  return { primary: row.primary, accent: row.secondary, paper: row.paper };
+}
+
+/** Color overrides so a preview renders with the template palette. */
+export function genericKindColorOverrides(kind: GenericInstituteKind): Record<string, string> {
+  const row = GENERIC_KIND_COLORS[kind];
+  return {
+    "color.primary": row.primary,
+    "color.primary.dark": row.primaryDark,
+    "color.primary.foreground": row.paper,
+    "color.secondary": row.secondary,
+    "color.secondary.foreground": row.ink,
+    "color.accent": row.secondary,
+    "color.background": row.paper,
+    "color.surface": row.surface,
+    "color.foreground": row.ink,
+    "color.muted": row.muted,
+    "color.muted.foreground": row.mutedFg,
+    "color.border": row.muted,
+  };
+}
+
 export function isGenericInstituteKind(
   kind: string | null | undefined,
 ): kind is GenericInstituteKind {

@@ -12,6 +12,7 @@ import {
   resolveCompletionStatus,
   type TaskProgressStatus,
 } from "@/lib/learning-tasks";
+import { parsePlainText } from "@/lib/learning-tasks/plainText";
 
 export type StudentTaskActionResult =
   | { ok: true; status: TaskProgressStatus }
@@ -20,6 +21,10 @@ export type StudentTaskActionResult =
 const TaskSchema = z.object({
   locale: z.string().min(2).max(8),
   taskInstanceId: z.string().uuid(),
+});
+
+const CompleteSchema = TaskSchema.extend({
+  answer: z.string(),
 });
 
 type ProgressRow = {
@@ -99,8 +104,10 @@ export async function markTaskOpenedAfterEngagementAction(
 }
 
 export async function completeTaskAction(raw: unknown): Promise<StudentTaskActionResult> {
-  const parsed = TaskSchema.safeParse(raw);
+  const parsed = CompleteSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, code: "invalid_input" };
+  const answer = parsePlainText(parsed.data.answer, 4000);
+  if (!answer.ok) return { ok: false, code: "invalid_input" };
   const userId = await currentUserId();
   if (!userId) return { ok: false, code: "unauthorized" };
 
@@ -109,28 +116,61 @@ export async function completeTaskAction(raw: unknown): Promise<StudentTaskActio
     if (!progress) return { ok: false, code: "not_found" };
     const task = taskRow(progress);
     if (!task) return { ok: false, code: "not_found" };
+
+    const supabase = await createClient();
+    let status = progress.status;
+    const resubmit = status === "RETURNED";
+    if (resubmit) {
+      assertTaskTransition(status, "OPENED");
+      const { error } = await supabase
+        .from("student_task_progress")
+        .update({ status: "OPENED" })
+        .eq("id", progress.id)
+        .eq("status", "RETURNED");
+      if (error) {
+        logSupabaseClientError("completeTaskAction:reopen", error, { taskInstanceId: task.id });
+        return { ok: false, code: "persist_failed" };
+      }
+      status = "OPENED";
+    }
+
     const completedAt = new Date();
     const nextStatus = resolveCompletionStatus({
-      currentStatus: progress.status,
+      currentStatus: status,
       dueAt: task.due_at,
       completedAt,
     });
-
-    const supabase = await createClient();
+    const { error: answerError } = await supabase.from("student_task_submissions").insert({
+      progress_id: progress.id,
+      author_id: userId,
+      body_text: answer.text,
+    });
+    if (answerError) {
+      logSupabaseClientError("completeTaskAction:answer", answerError, { taskInstanceId: task.id });
+      return { ok: false, code: "persist_failed" };
+    }
     const { error } = await supabase
       .from("student_task_progress")
       .update({ status: nextStatus, completed_at: completedAt.toISOString() })
       .eq("id", progress.id)
-      .eq("status", progress.status);
-    if (error) return { ok: false, code: "persist_failed" };
+      .eq("status", status);
+    if (error) {
+      logSupabaseClientError("completeTaskAction:update", error, { taskInstanceId: task.id });
+      return { ok: false, code: "persist_failed" };
+    }
 
     await recordUserEventServer({
       userId,
       eventType: "action",
       entity: `material:task:${task.id}:complete`,
-      metadata: { task_instance_id: task.id, status: nextStatus },
+      metadata: {
+        task_instance_id: task.id,
+        status: nextStatus,
+        kind: resubmit ? "task_resubmitted" : "task_submitted",
+      },
     });
     revalidatePath(`/${parsed.data.locale}/dashboard/student/tasks`);
+    revalidatePath(`/${parsed.data.locale}/dashboard/student/progress`);
     await awardStudentBadges({ studentId: userId, locale: parsed.data.locale });
     return { ok: true, status: nextStatus };
   } catch (err) {

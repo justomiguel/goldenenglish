@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummaries";
@@ -40,6 +41,7 @@ export interface ParentDashboardEntryProps {
   dashboardBase?: string;
   includePayments?: boolean;
   focusCatalog?: ParentFocusCatalog;
+  leadCard?: ReactNode;
 }
 
 export function ParentDashboardEntry({
@@ -61,9 +63,15 @@ export function ParentDashboardEntry({
   dashboardBase,
   includePayments = true,
   focusCatalog,
+  leadCard,
 }: ParentDashboardEntryProps) {
   if (summaries.length === 0 && kids.length === 0) {
-    return <p className="text-sm text-[var(--color-muted-foreground)]">{lead}</p>;
+    return (
+      <div className="space-y-4">
+        {leadCard}
+        <p className="text-sm text-[var(--color-muted-foreground)]">{lead}</p>
+      </div>
+    );
   }
 
   if (summaries.length === 0) {
@@ -98,6 +106,7 @@ export function ParentDashboardEntry({
     newsItems,
     dashboardBase,
     includePayments,
+    leadCard,
   };
 
   return (

@@ -1,3 +1,5 @@
+import { parseCommercialPlan } from "@/lib/pulsar/commercialPlan";
+import { parseDailyDomain } from "@/lib/pulsar/dailyDomain";
 import { DEFAULT_PULSAR_MAIL_QUOTA } from "@/lib/pulsar/instituteMailAccount";
 import { normalizeHost, type TenantConfig } from "@/lib/tenant/tenantRegistry";
 
@@ -8,7 +10,7 @@ export type PulsarTenantRecord = TenantConfig & {
 };
 
 export const PLATFORM_TENANTS_SELECT_COLUMNS =
-  "slug, display_name, is_enabled, hosts, supabase_url, supabase_anon_key, supabase_service_role_key, database_url, brand_theme_slug, mail_tenant, resend_from_email, resend_api_key, public_url, payment_gateway_secret_encryption_key, whatsapp_access_token, whatsapp_phone_number_id, whatsapp_class_reminder_template_name, vapid_public_key, vapid_private_key, vapid_contact_email, google_maps_api_key, google_maps_map_id, kv_rest_api_url, kv_rest_api_token, debug_login, skip_initial_site_setup, updated_at";
+  "slug, display_name, is_enabled, hosts, supabase_url, supabase_anon_key, supabase_service_role_key, database_url, brand_theme_slug, mail_tenant, resend_from_email, resend_api_key, public_url, payment_gateway_secret_encryption_key, whatsapp_access_token, whatsapp_phone_number_id, whatsapp_class_reminder_template_name, vapid_public_key, vapid_private_key, vapid_contact_email, google_maps_api_key, google_maps_map_id, kv_rest_api_url, kv_rest_api_token, debug_login, skip_initial_site_setup, commercial_plan, daily_api_key, daily_domain, updated_at";
 
 export const PLATFORM_TENANTS_SELECT_WITH_DATA_PLANE = `${PLATFORM_TENANTS_SELECT_COLUMNS}, data_mode, postgres_schema`;
 
@@ -70,6 +72,9 @@ export function mapDbRowToPulsarTenantRecord(row: Record<string, unknown>): Puls
     kvRestApiToken: strOrNull(row.kv_rest_api_token),
     debugLogin: Boolean(row.debug_login),
     skipInitialSiteSetup: Boolean(row.skip_initial_site_setup),
+    commercialPlan: parseCommercialPlan(row.commercial_plan),
+    dailyApiKey: strOrNull(row.daily_api_key),
+    dailyDomain: parseDailyDomain(row.daily_domain),
     pulsarMailQuota: wholeNumber(row.pulsar_mail_quota, DEFAULT_PULSAR_MAIL_QUOTA),
     pulsarMailSent: wholeNumber(row.pulsar_mail_sent, 0),
     dataMode: row.data_mode === "shared_schema" ? "shared_schema" : "project",
@@ -108,6 +113,9 @@ export function mapPulsarTenantToDbPayload(record: Omit<PulsarTenantRecord, "upd
     kv_rest_api_token: record.kvRestApiToken,
     debug_login: record.debugLogin,
     skip_initial_site_setup: record.skipInitialSiteSetup,
+    commercial_plan: parseCommercialPlan(record.commercialPlan),
+    daily_api_key: record.dailyApiKey ?? null,
+    daily_domain: record.dailyDomain ?? null,
     pulsar_mail_quota: record.pulsarMailQuota ?? DEFAULT_PULSAR_MAIL_QUOTA,
     data_mode: record.dataMode === "shared_schema" ? "shared_schema" : "project",
     postgres_schema:

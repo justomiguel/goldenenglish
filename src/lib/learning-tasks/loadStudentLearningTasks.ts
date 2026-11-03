@@ -69,6 +69,36 @@ export async function loadStudentLearningTasks(
     }
   }
 
+  const progressIds = rows.map((row) => row.id);
+  const answerByProgress = new Map<string, string>();
+  const reviewsByProgress = new Map<string, { id: string; body: string; createdAt: string }[]>();
+  if (progressIds.length > 0) {
+    const [answers, reviews] = await Promise.all([
+      supabase
+        .from("student_task_submissions")
+        .select("id, progress_id, body_text, created_at")
+        .in("progress_id", progressIds)
+        .order("created_at", { ascending: false })
+        .limit(80),
+      supabase
+        .from("student_task_reviews")
+        .select("id, progress_id, body_text, created_at")
+        .in("progress_id", progressIds)
+        .order("created_at", { ascending: false })
+        .limit(80),
+    ]);
+    noteReadFailure(`${SCOPE}:answers`, answers.error, { studentId }, onLoadError);
+    noteReadFailure(`${SCOPE}:reviews`, reviews.error, { studentId }, onLoadError);
+    for (const row of (answers.data ?? []) as { progress_id: string; body_text: string }[]) {
+      if (!answerByProgress.has(row.progress_id)) answerByProgress.set(row.progress_id, row.body_text);
+    }
+    for (const row of (reviews.data ?? []) as { id: string; progress_id: string; body_text: string; created_at: string }[]) {
+      const list = reviewsByProgress.get(row.progress_id) ?? [];
+      list.push({ id: row.id, body: row.body_text, createdAt: row.created_at });
+      reviewsByProgress.set(row.progress_id, list);
+    }
+  }
+
   return rows.flatMap((row) => {
     const task = first(row.task_instances);
     if (!task) return [];
@@ -85,6 +115,8 @@ export async function loadStudentLearningTasks(
       openedAt: row.opened_at,
       completedAt: row.completed_at,
       assets: mapLearningTaskAssetRows(assetsByTask.get(task.id) ?? []),
+      latestAnswer: answerByProgress.get(row.id) ?? null,
+      reviews: reviewsByProgress.get(row.id) ?? [],
     }];
   });
 }

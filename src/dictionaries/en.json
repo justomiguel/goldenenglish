@@ -417,65 +417,129 @@
       "email": "Email",
       "phone": "Phone",
       "address": "Address",
-      "whatsapp": "WhatsApp"
+      "whatsapp": "WhatsApp",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "mapTitle": "Map of the site",
+      "mailSubject": "Message from your page",
+      "formName": "Name",
+      "formEmail": "Email",
+      "formPhone": "Phone (optional)",
+      "formMessage": "Message",
+      "formSuccess": "We received your message. We will write back soon.",
+      "formPreview": "This preview does not send messages.",
+      "formQuota": "This free site has reached its message limit.",
+      "formInvalid": "Check the name, email, and message.",
+      "formPersist": "The message was not sent. Try again.",
+      "formUnavailable": "The message cannot be sent now."
     },
     "genericSectionLabels": {
-      "historia": "History",
-      "oferta": "What the day includes",
-      "modalidades": "Ways to take part",
-      "niveles": "Groups",
-      "certificaciones": "Proof of progress"
+      "historia": "Our story",
+      "oferta": "Programs",
+      "modalidades": "How you can join",
+      "niveles": "Levels",
+      "certificaciones": "At the end of the year"
     },
     "genericLandings": {
       "deportes": {
         "name": "Sports",
-        "scene": "Saturday, 9:10",
-        "title": "The group is already on the field when you arrive.",
-        "body": "The day's list and the note to families stay in one place.",
+        "scene": "Enrollment is open",
+        "title": "Learn the game. Then play it with a team.",
+        "body": "We train children and teens, from first touches to the Saturday match. The first class is a free trial.",
         "imageAlt": "Morning field before practice",
-        "laterTitle": "Monday does not start with a spreadsheet.",
-        "laterBody": "The coach sees who came. The office sees the open places.",
-        "cta": "Write to the institute"
+        "laterTitle": "Come and see the field.",
+        "laterBody": "Write to us. We will tell you the group, the time, and what to bring to the trial.",
+        "cta": "Ask for a trial class",
+        "rhythmA": "9:10. Starters. First touches and free play.",
+        "rhythmB": "10:00. Development. Skill, passing, and a short match.",
+        "rhythmC": "11:00. Match group. Tactics and the Saturday game.",
+        "sections": {
+          "historia": "We started on a neighborhood field. We still teach skill, respect, and the wish to come back.",
+          "oferta": "Each class has a warm-up, ball work, and a short match. Groups stay small.",
+          "modalidades": "You can come on Saturday morning or on a weekday after school.",
+          "niveles": "We have starters, a development group, and a match group. Age and experience set the place.",
+          "certificaciones": "During the year we play friendly matches and local tournaments. Progress shows on the field."
+        }
       },
       "jardin": {
         "name": "Kindergarten",
-        "scene": "Monday, 8:05",
-        "title": "The room opens, and each family knows the arrival time.",
-        "body": "The day's hours and the note are visible before anyone leaves home.",
+        "scene": "Enrollment is open",
+        "title": "A place to play, discover, and grow.",
+        "body": "We stay with children in their first years, through play, music, and a clear routine. You can visit a room before you decide.",
         "imageAlt": "Quiet classroom at the start of the day",
-        "laterTitle": "The afternoon closes without a chain of messages.",
-        "laterBody": "The room sees attendance. The family sees the pickup time.",
-        "cta": "Write to the kindergarten"
+        "laterTitle": "Come and see the rooms.",
+        "laterBody": "Tell us your child's age. We will suggest a visit and the day that fits.",
+        "cta": "Book a visit",
+        "rhythmA": "8:05. Arrival. Quiet play in the room.",
+        "rhythmB": "10:30. Yard, songs, and a short workshop.",
+        "rhythmC": "16:10. End of the day and pickup.",
+        "sections": {
+          "historia": "We built this kindergarten so childhood has time to play, to ask, and to feel at home.",
+          "oferta": "The day includes play, the yard, music, meals, and a rest. Each group has two familiar adults.",
+          "modalidades": "You can choose a half day or a full day. Both share the same room and the same team.",
+          "niveles": "We welcome children from the nursery to the group preparing for school. Each level has its own pace.",
+          "certificaciones": "The year ends with a showing for families. Each new child starts with a settling-in period."
+        }
       },
       "colegio": {
         "name": "School",
-        "scene": "Tuesday, 7:40",
-        "title": "Class starts, and the list is already done.",
-        "body": "Families, teachers, and the office look at the same timetable.",
+        "scene": "Admission is open",
+        "title": "A school that stays close to each student.",
+        "body": "We teach from the early years through secondary school, in small groups. You can see a classroom before you enroll.",
         "imageAlt": "School courtyard before the first bell",
-        "laterTitle": "Break does not start with a question.",
-        "laterBody": "The class, the room, and the day's note are already posted.",
-        "cta": "Write to the school"
+        "laterTitle": "Walk through the school before you decide.",
+        "laterBody": "Book a visit, see a classroom, and talk with the admissions team.",
+        "cta": "Book a visit",
+        "rhythmA": "7:40. Arrival and welcome in the yard.",
+        "rhythmB": "8:00. The day's classes begin.",
+        "rhythmC": "15:30. Workshops and dismissal.",
+        "sections": {
+          "historia": "We began as a neighborhood school. We still want every teacher to know each student by name.",
+          "oferta": "The program joins classes, art, sport, and close follow-up. Groups stay small on purpose.",
+          "modalidades": "There is a morning day and a full day. Families choose by age and by the home routine.",
+          "niveles": "We teach from early years through secondary school. Each class has its own room and team.",
+          "certificaciones": "At the end of the cycle, the student leaves with a clear report and the next step prepared."
+        }
       },
       "musica": {
         "name": "Music",
-        "scene": "Thursday, 18:20",
-        "title": "The practice room is ready before the group arrives.",
-        "body": "The class time and the note to families stay in one place.",
+        "scene": "For every age",
+        "title": "Play from the first lesson.",
+        "body": "Piano, guitar, voice, and more, for children and adults. You do not need to read music to start. The trial is a chance to meet your teacher.",
         "imageAlt": "Practice room before the lesson",
-        "laterTitle": "After class, nobody looks for the paper.",
-        "laterBody": "The teacher sees who attended. The family sees the next hour.",
-        "cta": "Write to the school"
+        "laterTitle": "Choose an instrument and a time.",
+        "laterBody": "Tell us what you want to play. We will suggest a teacher, a time, and a first trial lesson.",
+        "cta": "Ask for a trial class",
+        "rhythmA": "16:00. Children's start. Play, rhythm, and first notes.",
+        "rhythmB": "18:20. Private instrument lesson.",
+        "rhythmC": "19:40. Ensemble rehearsal.",
+        "sections": {
+          "historia": "We opened so anyone can feel like a musician, at age four or as an adult beginner.",
+          "oferta": "In class you really play: a song, an exercise, and the week's practice. The teacher follows your pace.",
+          "modalidades": "You can take a private lesson or join an ensemble. Morning and afternoon times are open.",
+          "niveles": "We have a start level, an intermediate level, and an advanced level. If you already play, we place you.",
+          "certificaciones": "Twice a year there is a recital. You can play on stage, or keep practicing and listen."
+        }
       },
       "idiomas": {
         "name": "Languages",
-        "scene": "Wednesday, 19:05",
-        "title": "Class starts on time, with the group already listed.",
-        "body": "The level, the hour, and the open places are visible before the door.",
+        "scene": "Free trial class",
+        "title": "Speak from the first class.",
+        "body": "English and other languages for children, teens, and adults. We find your level and build a small group, on site or live online.",
         "imageAlt": "Classroom before the evening lesson",
-        "laterTitle": "When you leave, the next class already has a date.",
-        "laterBody": "The teacher sees the list. The student sees the timetable.",
-        "cta": "Write to the institute"
+        "laterTitle": "Find your level and your time.",
+        "laterBody": "Write to us, tell us your goal, and we will offer a trial in the group that fits you.",
+        "cta": "Ask for a trial class",
+        "rhythmA": "10:00. English for children. Play and talk.",
+        "rhythmB": "19:05. Teens and adults. Conversation class.",
+        "rhythmC": "20:30. Conversation workshop.",
+        "sections": {
+          "historia": "We teach the language so you can use it at work, on a trip, or in the next conversation.",
+          "oferta": "Each class practices speaking, listening, and writing. Groups stay small so everyone talks.",
+          "modalidades": "You can study on site or in a live class. The program and the teacher stay the same.",
+          "niveles": "We follow the common framework, from A1 to C2. Before you join, we give a short level check.",
+          "certificaciones": "We prepare international exams and give the institute certificate when you finish a level."
+        }
       }
     },
     "questionnaires": {
@@ -4370,6 +4434,7 @@
       "criteriaProfileBirthDateSet": "Profile birth date added",
       "criteriaAssessmentsPassed": "Assessments passed (count)",
       "criteriaMessagesSent": "Messages sent from the portal (count)",
+      "criteriaCourseCompleted": "Finished courses (count)",
       "localeEn": "English (EN)",
       "localeEs": "Spanish (ES)",
       "previewTitle": "Share preview",
@@ -10370,6 +10435,15 @@
           }
         }
       },
+      "deliveryMode": {
+        "title": "How the class meets",
+        "inPerson": "In person",
+        "hybrid": "Hybrid",
+        "remote": "Remote",
+        "missingKey": "The Daily key is missing on the institute record.",
+        "failedSlot": "The room for {day} {time} could not be prepared.",
+        "save": "Save mode"
+      },
       "scheduleEditor": {
         "scheduleTitle": "Schedule",
         "scheduleHint": "Edit the weekly slots for this section. Remove every row and save if the section no longer has a fixed timetable.",
@@ -10598,6 +10672,19 @@
       "tasksOpened": "Opened",
       "tasksCompleted": "Completed",
       "tasksCompletedLate": "Completed late",
+      "taskReturnTitle": "Return a task",
+      "taskReturnNote": "Note for the student",
+      "taskReturnButton": "Return",
+      "taskReturnFailed": "The task could not be returned.",
+      "noticeTitle": "Notices",
+      "noticePlaceholder": "Write a short notice",
+      "noticePublish": "Publish notice",
+      "noticeArchive": "Archive",
+      "noticeArchiveTitle": "Archive this notice",
+      "noticeArchiveBody": "The notice leaves the home screen.",
+      "noticeCancel": "Cancel",
+      "noticeLimit": "This section already has five active notices.",
+      "noticeFailed": "The notice could not be saved.",
       "taskLibraryTitle": "Master classes",
       "taskLibraryLead": "Create multimedia lesson templates and copy them to a live section.",
       "taskTemplateTitleLabel": "Template title",
@@ -10615,7 +10702,22 @@
       "taskAssignTitle": "Assign to section",
       "taskAssignStart": "Opening date",
       "taskAssignDue": "Due date",
-      "taskAssignButton": "Assign"
+      "taskAssignButton": "Assign",
+      "joinClass": "Join the class"
+    },
+    "dailyClass": {
+      "join": "Join the class",
+      "leave": "Leave the class",
+      "back": "Back",
+      "errors": {
+        "person": "You cannot join this class.",
+        "mode": "This class has no video call.",
+        "plan": "This class has no video call.",
+        "credentials": "The video call is not ready.",
+        "room": "The room does not exist yet.",
+        "window": "The class is not open now.",
+        "daily_failed": "The room could not be opened."
+      }
     },
     "sectionEnrollmentLink": {
       "title": "Invite families",
@@ -10958,7 +11060,25 @@
         "complete": "Mark as done",
         "completed": "Done",
         "completing": "Saving",
-        "completeFailed": "We could not save this. Try again."
+        "completeFailed": "We could not save this. Try again.",
+        "progress": "{percent}% of the course",
+        "open": "Open lesson",
+        "finished": "Course complete",
+        "certificate": "View certificate",
+        "continueCta": "Continue",
+        "certificateHeading": "Course certificate",
+        "certificateLead": "{name} completed {course}.",
+        "certificatePending": "This course still has open lessons.",
+        "certificatePrint": "Print",
+        "backToCourse": "Back to the course",
+        "materialsEmpty": "This lesson has no material yet.",
+        "noticeTitle": "Section notices",
+        "resultLessons": "{percent}% of lessons",
+        "resultTasks": "{percent}% of tasks",
+        "resultTasksEmpty": "This course has no tasks yet.",
+        "resultAttendance": "{percent}% attendance this month",
+        "resultAttendanceEmpty": "No attendance this month.",
+        "resultAssessment": "{title}: {score}"
       },
       "badges": {
         "title": "Achievements",
@@ -11042,6 +11162,11 @@
       "taskComplete": "Mark as completed",
       "taskCompleted": "Task completed",
       "taskCompletionError": "Could not update the task.",
+      "taskAnswerLabel": "Your answer",
+      "taskAnswerPlaceholder": "Write your answer",
+      "taskSendAgain": "Send again",
+      "taskReviewTitle": "Teacher note",
+      "taskOlderNotes": "Older notes",
       "taskAssetsTitle": "Materials",
       "taskEngagementHint": "Keep this lesson visible for at least 5 seconds to count as opened.",
       "learningFeedbackTitle": "Learning feedback",
@@ -11068,7 +11193,8 @@
         "NOT_OPENED": "Not opened",
         "OPENED": "Opened",
         "COMPLETED": "Completed",
-        "COMPLETED_LATE": "Completed late"
+        "COMPLETED_LATE": "Completed late",
+        "RETURNED": "Returned"
       },
       "classReminderPrefsTitle": "Class notifications",
       "classReminderPrefsHint": "Choose how you want reminders before your classes. WhatsApp requires opt-in and a valid international phone number.",
@@ -11345,7 +11471,8 @@
         "pushLater": "Not now",
         "billingPendingTitle": "You have a pending payment",
         "billingPendingCta": "Go to payments",
-        "billingFeesCta": "View fees & invoices"
+        "billingFeesCta": "View fees & invoices",
+        "joinClass": "Join the class"
       },
       "grades": {
         "title": "Published grades",
@@ -11544,7 +11671,8 @@
         "NOT_OPENED": "Not opened",
         "OPENED": "Opened",
         "COMPLETED": "Completed",
-        "COMPLETED_LATE": "Completed late"
+        "COMPLETED_LATE": "Completed late",
+        "RETURNED": "Returned"
       },
       "messagesTitle": "Messages",
       "messagesLead": "Write to your child's teacher or to administration. Staff replies appear in your timeline below.",
@@ -13421,7 +13549,6 @@
         "seoTitle": "Student and tuition management | CentroListo",
         "seoDescription": "Enrollment, classes, teachers, attendance, and tuition in one platform. CentroListo Management.",
         "imageAlt": "An academy coordination desk. Not a client's office.",
-        "capLine": "Up to 120 active students.",
         "usesTitle": "This is the operation."
       },
       "ecosistema": {
@@ -13439,7 +13566,7 @@
         "seoDescription": "Families, messages, materials, and activities under your institution's brand. CentroListo Ecosystem.",
         "imageAlt": "A small group in a learning space. Not a CentroListo case study.",
         "whyTitle": "What Ecosistema adds over Gestión.",
-        "whyLead": "Gestión organizes students, classes, and tuition. Ecosistema adds the family space and content, and it does not publish Gestión's limit of 120 students."
+        "whyLead": "Gestión organizes students, classes, and tuition. Ecosistema adds the family space and content."
       }
     },
     "pricing": {
@@ -13473,11 +13600,10 @@
         "gestion": [
           "Everything in Presence with a template.",
           "Students, courses, enrollment, and schedules.",
-          "Fees, tuition, payments, and attendance.",
-          "Up to 120 active students."
+          "Fees, tuition, payments, and attendance."
         ],
         "ecosistema": [
-          "Everything in Management, without the 120-student cap.",
+          "Everything in Management.",
           "A space for families, notices, and materials.",
           "You can create course routes, offer them, and sell them in the shop."
         ]
@@ -13605,8 +13731,8 @@
           {
             "label": "Student capacity",
             "presencia": "No students on the free plan",
-            "gestion": "Up to 120 active students.",
-            "ecosistema": "Gestión's published limit of 120 students is not shown."
+            "gestion": "included",
+            "ecosistema": "included"
           },
           {
             "label": "Implementation",
@@ -13902,10 +14028,44 @@
       "createLead": "A free site uses a template and the shared database. You can add your own domain. You can open 3.",
       "displayName": "Name of the place",
       "slug": "Short address",
+      "slugPlaceholder": "north-school",
+      "slugHint": "Example: north-school. Spaces and capitals are adjusted.",
+      "slugInvalid": "The short address needs letters or numbers. Example: north-school.",
+      "provision": {
+        "title": "Creating the site database",
+        "intro": "This can take a couple of minutes.",
+        "explain": "Each line is a file that already applied.",
+        "logTitle": "Files",
+        "empty": "Preparing the database.",
+        "running": "Creating the database",
+        "close": "Close",
+        "primarySchema": "Creating the database",
+        "primaryMigration": "Applying {file}",
+        "primaryGrants": "Granting access",
+        "primaryTheme": "Turning on the template",
+        "primaryDomain": "Registering {file}",
+        "primaryDomainSkipped": "Vercel is not configured. The domain stays on this machine.",
+        "primaryDone": "Database ready",
+        "primaryFailed": "Stopped on {file}",
+        "count": "{current} of {total}"
+      },
       "customDomain": "Your domain",
       "customDomainHint": "Optional. Example: myinstitute.com",
       "customDomainNote": "You can leave it blank for now. The site opens on a {brand} domain.",
       "templatePreviewAlt": "How the {name} template looks.",
+      "templateEnlarge": "See larger",
+      "templateColors": "Colors",
+      "templatePreviewTitle": "{name} preview",
+      "templatePreviewLoading": "Loading the template",
+      "sharePhone": "Phone",
+      "shareWhatsapp": "WhatsApp",
+      "shareInstagram": "Instagram",
+      "shareFacebook": "Facebook",
+      "shareAddress": "Address",
+      "shareHint": "Optional. These appear on your page. An address shows the map.",
+      "templateColorPrimary": "Main color",
+      "templateColorAccent": "Accent color",
+      "templateColorPaper": "Background",
       "domainFailed": "The site is open, but the domain was not added in Vercel.",
       "domainTaken": "That domain is already in use.",
       "domainInvalid": "Check the domain. Use a host such as myinstitute.com.",
@@ -13915,6 +14075,10 @@
       "emailTaken": "That email already has an account.",
       "invalidInput": "Check the email and use a password of at least 8 characters.",
       "createFailed": "The site could not be opened. Try again.",
+      "sessionExpired": "The session expired. Sign in again.",
+      "checkFields": "Check the name, the short address, and the domain.",
+      "sharedDbFailed": "The shared database is not ready. Try again later.",
+      "schemaFailed": "The database did not finish. Try again.",
       "slugTaken": "That short address is already in use.",
       "backToSites": "Back to your sites",
       "basicsTitle": "Page text and contact",
@@ -14108,6 +14272,9 @@
           "primarySchema": "Creating the schema",
           "primaryMigration": "Applying {file}",
           "primaryGrants": "Granting access",
+          "primaryTheme": "Turning on the template",
+          "primaryDomain": "Registering {file}",
+          "primaryDomainSkipped": "Vercel is not configured. The domain stays on this machine.",
           "primaryDone": "Database ready",
           "primaryFailed": "Stopped on {file}",
           "count": "{current} of {total}"
@@ -14131,9 +14298,9 @@
         "dataModeSharedLead": "This institute gets its own schema on the Pulsar database. A preview host is added for you.",
         "templateLead": "The first visit opens the setup wizard. If you skip the favicon, the template icon stays.",
         "templateUnset": "No template",
-        "closeCta": "Close site",
-        "closeTitle": "Close this site",
-        "closeLead": "This deletes the site record and its image folder. A site on the Pulsar database also loses its schema. An external database stays in that project. You cannot undo this.",
+        "closeCta": "Delete site",
+        "closeTitle": "Delete this site",
+        "closeLead": "This deletes the site completely: its data, its settings, its schema, its domains, and its images. An external database stays in that project. You cannot undo this.",
         "closeSlugLabel": "Type the site id",
         "closeSlugMismatch": "The site id does not match.",
         "closeCancel": "Cancel",
@@ -14173,7 +14340,15 @@
           "whatsappAccessToken": "WhatsApp Cloud API Access Token",
           "whatsappPhoneNumberId": "WhatsApp Phone Number ID",
           "whatsappClassReminderTemplateName": "WhatsApp reminder template name",
-          "pulsarMailQuota": "Mail cap on the Pulsar account"
+          "pulsarMailQuota": "Mail cap on the Pulsar account",
+          "commercialPlan": "Plan",
+          "dailyApiKey": "Daily API key",
+          "dailyDomain": "Daily domain"
+        },
+        "commercialPlanOptions": {
+          "pagina": "Page",
+          "gestion": "Operations",
+          "ecosistema": "Ecosystem"
         },
         "errors": {
           "invalid_slug": "Enter a valid lowercase slug (do not use pulsar).",
@@ -14189,7 +14364,8 @@
           "db_write_failed": "Could not save the tenant in the CentroListo database.",
           "pulsar_shared_db_unconfigured": "Set PULSAR_SUPABASE_URL, the anon key, the service role key, and PULSAR_DATABASE_URL before you save a shared institute.",
           "schema_provision_failed": "The institute schema was not created. Check the server log and try again.",
-          "invalid_mail_quota": "The mail cap must be a whole number from 0 to 100000."
+          "invalid_mail_quota": "The mail cap must be a whole number from 0 to 100000.",
+          "invalid_daily_domain": "Enter a Daily host without a scheme or path."
         }
       }
     }

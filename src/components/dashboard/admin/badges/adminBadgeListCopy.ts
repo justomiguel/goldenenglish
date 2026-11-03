@@ -38,5 +38,7 @@ export function adminBadgeCriteriaLabel(c: BadgeCriteriaType, labels: AdminBadge
       return labels.criteriaAssessmentsPassed;
     case "messages_sent":
       return labels.criteriaMessagesSent;
+    case "course_completed":
+      return labels.criteriaCourseCompleted;
   }
 }

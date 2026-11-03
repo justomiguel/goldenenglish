@@ -1,5 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { CatalogMaterialKind } from "@/lib/courses/catalogMaterial";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import {
+  applyContentTemplateCatalogFilter,
+  CONTENT_TEMPLATE_LIBRARY_LIST_SELECT,
+  resolveContentTemplateCatalogFilter,
+} from "@/lib/learning-tasks/contentTemplateCatalogSelect";
 
 export type ContentTemplateLibraryRow = {
   id: string;
@@ -45,9 +51,6 @@ export type ContentTemplateListSelectRow = {
   content_template_blocks: { id: string }[] | null;
 };
 
-const CONTENT_TEMPLATE_LIBRARY_LIST_SELECT =
-  "id, title, description, body_html, updated_at, content_template_assets(id, label, kind, mime_type, embed_url, storage_path), content_template_blocks(id)";
-
 export const CONTENT_TEMPLATE_REPOSITORY_PAGE_SIZE = 20;
 
 export function mapContentTemplateListRow(row: ContentTemplateListSelectRow): ContentTemplateLibraryRow {
@@ -80,6 +83,8 @@ export interface PaginatedContentTemplateLibraryParams {
   page?: number;
   pageSize?: number;
   q?: string;
+  tag?: string;
+  material?: CatalogMaterialKind | null;
 }
 
 export interface PaginatedContentTemplateLibraryResult {
@@ -96,16 +101,20 @@ export async function loadPaginatedContentTemplateLibrary(
   const pageSize = Math.min(100, Math.max(1, params.pageSize ?? CONTENT_TEMPLATE_REPOSITORY_PAGE_SIZE));
   const rawPage = Math.max(1, Math.floor(params.page ?? 1));
   const q = (params.q ?? "").trim();
+  const filter = await resolveContentTemplateCatalogFilter(supabase, { tag: params.tag, material: params.material });
+  if (filter.empty) {
+    return { rows: [], totalCount: 0, page: 1, pageSize };
+  }
 
-  let countQuery = supabase
-    .from("content_templates")
-    .select("id", { head: true, count: "exact" })
-    .is("archived_at", null);
+  let countQuery = applyContentTemplateCatalogFilter(
+    supabase.from("content_templates").select(filter.count, { head: true, count: "exact" }).is("archived_at", null),
+    filter,
+  );
 
-  let dataQuery = supabase
-    .from("content_templates")
-    .select(CONTENT_TEMPLATE_LIBRARY_LIST_SELECT)
-    .is("archived_at", null);
+  let dataQuery = applyContentTemplateCatalogFilter(
+    supabase.from("content_templates").select(filter.list).is("archived_at", null),
+    filter,
+  );
 
   if (q) {
     const escaped = q.replace(/%/g, "\\%").replace(/_/g, "\\_");
@@ -130,7 +139,7 @@ export async function loadPaginatedContentTemplateLibrary(
     return { rows: [], totalCount, page, pageSize };
   }
 
-  const rows = ((data ?? []) as ContentTemplateListSelectRow[]).map(mapContentTemplateListRow);
+  const rows = ((data ?? []) as unknown as ContentTemplateListSelectRow[]).map(mapContentTemplateListRow);
   return { rows, totalCount, page, pageSize };
 }
 
@@ -145,15 +154,18 @@ type TemplateBlockRow = {
 export async function loadContentTemplateLibrary(
   supabase: SupabaseClient,
   limit = 30,
+  filters: { tag?: string; material?: CatalogMaterialKind | null } = {},
 ): Promise<ContentTemplateLibraryRow[]> {
-  const { data } = await supabase
-    .from("content_templates")
-    .select(CONTENT_TEMPLATE_LIBRARY_LIST_SELECT)
-    .is("archived_at", null)
+  const filter = await resolveContentTemplateCatalogFilter(supabase, filters);
+  if (filter.empty) return [];
+  const { data } = await applyContentTemplateCatalogFilter(
+    supabase.from("content_templates").select(filter.list).is("archived_at", null),
+    filter,
+  )
     .order("updated_at", { ascending: false })
     .limit(limit);
 
-  return ((data ?? []) as ContentTemplateListSelectRow[]).map(mapContentTemplateListRow);
+  return ((data ?? []) as unknown as ContentTemplateListSelectRow[]).map(mapContentTemplateListRow);
 }
 
 export async function loadContentTemplateById(

@@ -6,6 +6,7 @@ import { PulsarSegmentNav } from "@/components/organisms/pulsar/PulsarSegmentNav
 import { PulsarSessionMenu } from "@/components/organisms/pulsar/PulsarSessionMenu";
 import { PulsarSolutionNav } from "@/components/organisms/pulsar/PulsarSolutionNav";
 import { withCentrolistoMarket, type CentrolistoMarketCode } from "@/lib/pulsar/centrolistoMarket";
+import { pulsarStartFreePath } from "@/lib/pulsar/pulsarStartPath";
 import { PULSAR_SOLUTION_SLUGS, type PulsarSolutionSlug } from "@/lib/pulsar/pulsarSolutionSlugs";
 import type { Dictionary } from "@/types/i18n";
 
@@ -14,7 +15,7 @@ export interface PulsarSiteChromeProps {
   dict: Dictionary;
   email?: string | null;
   market?: CentrolistoMarketCode;
-  activeNav?: "home" | "product" | "clients" | "contact" | "pricing" | PulsarSolutionSlug;
+  activeNav?: "home" | "product" | "clients" | "contact" | "pricing" | "account" | PulsarSolutionSlug;
   children: React.ReactNode;
 }
 
@@ -76,7 +77,7 @@ export function PulsarSiteChrome({
             ) : null}
             <PulsarSessionMenu locale={locale} email={email} copy={dict.pulsar.session} />
             <Link
-              href={href(`/${locale}/cuenta/registro`)}
+              href={href(pulsarStartFreePath(locale, Boolean(email)))}
               className="hidden min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)] lg:inline-flex"
             >
               <ArrowRight className="h-4 w-4" aria-hidden />

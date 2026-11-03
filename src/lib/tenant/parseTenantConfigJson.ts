@@ -1,3 +1,6 @@
+// Relative path: next.config loads this file and does not resolve the @/ alias.
+import { parseCommercialPlan } from "../pulsar/commercialPlan";
+import { parseDailyDomain } from "../pulsar/dailyDomain";
 import type { TenantConfig } from "./tenantRegistry";
 
 /** Host without port, lowercase. Keeps IPv6 brackets. */
@@ -78,6 +81,9 @@ export function parseTenantRow(row: unknown): TenantConfig | null {
     kvRestApiToken: stringField(record.kvRestApiToken),
     debugLogin: booleanField(record.debugLogin),
     skipInitialSiteSetup: booleanField(record.skipInitialSiteSetup),
+    commercialPlan: parseCommercialPlan(record.commercialPlan),
+    dailyApiKey: stringField(record.dailyApiKey),
+    dailyDomain: parseDailyDomain(record.dailyDomain),
   };
 }
 

@@ -3,7 +3,9 @@ import "server-only";
 import pg from "pg";
 import { LANDING_MEDIA_BUCKET } from "@/lib/cms/landingMediaBucket";
 import { logServerActionException, logSupabaseError } from "@/lib/logging/serverActionLog";
+import { detachStaffHosts } from "@/lib/pulsar/attachVercelDomain";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
+import { hideSchema } from "@/lib/pulsar/provisionSharedInstituteSchema";
 import { createAdminClientFromCredentials } from "@/lib/supabase/admin";
 import { removeInstitutePublicImageDir } from "@/lib/tenant/institutePublicImagePack";
 
@@ -14,6 +16,13 @@ async function dropSharedSchema(databaseUrl: string, schema: string): Promise<vo
   try {
     await client.connect();
     await client.query(`DROP SCHEMA IF EXISTS ${schema} CASCADE`);
+    await client
+      .query("DELETE FROM institute_migration_ledger.applied WHERE schema_name = $1", [schema])
+      .catch(() => undefined);
+    await client
+      .query("DELETE FROM institute_migration_ledger.progress WHERE schema_name = $1", [schema])
+      .catch(() => undefined);
+    await hideSchema(client, schema).catch(() => undefined);
   } finally {
     await client.end().catch(() => undefined);
   }
@@ -73,6 +82,12 @@ export async function closeInstituteDataPlane(
   } catch (err) {
     logServerActionException("closeInstitute:images", err, { slug: tenant.slug });
     return { ok: false, errorCode: "db_write_failed" };
+  }
+
+  try {
+    await detachStaffHosts(tenant.hosts);
+  } catch (err) {
+    logServerActionException("closeInstitute:vercel", err, { slug: tenant.slug });
   }
 
   if (tenant.dataMode === "shared_schema") {

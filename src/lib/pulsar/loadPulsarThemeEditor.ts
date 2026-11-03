@@ -33,14 +33,12 @@ export async function loadPulsarThemeEditor(
   if (!tenant) return { status: "missing" };
   enterTenant(tenant);
   const supabase = await createAdminClient();
+  const brandSlug = tenant.brandThemeSlug?.trim() ?? "";
+  const themeQuery = supabase.from("site_themes").select("id").is("archived_at", null);
   const [{ data }, dict] = await Promise.all([
-    supabase
-      .from("site_themes")
-      .select("id")
-      .eq("is_active", true)
-      .is("archived_at", null)
-      .limit(1)
-      .maybeSingle(),
+    brandSlug
+      ? themeQuery.eq("slug", brandSlug).maybeSingle()
+      : themeQuery.eq("is_active", true).limit(1).maybeSingle(),
     getDictionary(locale as AppLocale),
   ]);
   return {

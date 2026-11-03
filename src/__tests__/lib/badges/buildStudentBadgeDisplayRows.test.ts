@@ -24,6 +24,7 @@ const ctx: StudentBadgeEvaluationContext = {
   profile: { phone: null, birth_date: null, avatar_url: null },
   passedAssessmentCount: 0,
   messagesSentCount: 0,
+  completedCourseCount: 0,
 };
 
 describe("buildStudentBadgeDisplayRows", () => {

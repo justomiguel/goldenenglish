@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { logServerWarn } from "@/lib/logging/serverActionLog";
 import { createOwnerFreeSite } from "@/lib/pulsar/createOwnerFreeSite";
 import { createPulsarOwnerAccount } from "@/lib/pulsar/pulsarOwnerAccount";
 import { updateOwnerSiteDomain } from "@/lib/pulsar/updateOwnerSiteDomain";
@@ -41,9 +42,20 @@ export async function createOwnerSiteAction(input: {
   slug: string;
   kind: string;
   customDomain?: string;
+  colorPrimary?: string;
+  colorAccent?: string;
+  colorPaper?: string;
+  phone?: string;
+  whatsapp?: string;
+  instagram?: string;
+  facebook?: string;
+  address?: string;
 }): Promise<{ ok: true; slug: string } | { ok: false; errorCode: string }> {
   const owner = await signedOwner();
-  if (!owner) return { ok: false, errorCode: "unauthorized" };
+  if (!owner) {
+    logServerWarn("createOwnerSiteAction", { errorCode: "unauthorized" });
+    return { ok: false, errorCode: "unauthorized" };
+  }
   const result = await createOwnerFreeSite({
     userId: owner.id,
     email: owner.email,
@@ -52,6 +64,14 @@ export async function createOwnerSiteAction(input: {
     kind: input.kind,
     locale: input.locale,
     customDomain: input.customDomain,
+    colorPrimary: input.colorPrimary,
+    colorAccent: input.colorAccent,
+    colorPaper: input.colorPaper,
+    phone: input.phone,
+    whatsapp: input.whatsapp,
+    instagram: input.instagram,
+    facebook: input.facebook,
+    address: input.address,
   });
   if (result.ok) {
     revalidatePath(`/${input.locale}/cuenta`);

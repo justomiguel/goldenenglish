@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { defaultLocale, locales } from "@/lib/i18n/dictionaries";
 import { buildLocalePageAlternates } from "@/lib/metadata/buildHomePageMetadata";
+import {
+  CENTROLISTO_ENTITY_NAME,
+  centrolistoDocumentTitle,
+} from "@/lib/pulsar/centrolistoDocumentTitle";
 import { absoluteUrlForRequest } from "@/lib/site/requestPublicUrl";
 
 export const CENTROLISTO_OG_IMAGE_PATH = "/centrolisto/og.png";
@@ -58,5 +62,27 @@ export async function centrolistoShareMetadata(input: {
       description: input.description,
       images: [imageUrl],
     },
+  };
+}
+
+/** Private CentroListo page. The card still names the brand. Crawlers stay out. */
+export async function centrolistoPrivatePageMetadata(input: {
+  locale: string;
+  title: string;
+  description: string;
+  siteName: string;
+  suffix: string;
+}): Promise<Metadata> {
+  const title = centrolistoDocumentTitle(input.title);
+  const share = await centrolistoShareMetadata({
+    ...input,
+    title,
+    siteName: CENTROLISTO_ENTITY_NAME,
+  });
+  return {
+    title: { absolute: title },
+    description: input.description,
+    robots: { index: false, follow: false, googleBot: { index: false, follow: false } },
+    ...share,
   };
 }

@@ -333,6 +333,11 @@ BEGIN
     VALUES (v_section, v_student, 'active');
   END IF;
 
+  -- Months before created_at stay out of period. January keeps the seeded dues visible.
+  UPDATE public.section_enrollments
+  SET created_at = make_date(v_year, 1, 1)::timestamptz
+  WHERE section_id = v_section AND student_id = v_student AND status = 'active';
+
   -- Keep student-b available to enroll via UI (idempotent reseed between suite runs).
   UPDATE public.section_enrollments
   SET status = 'dropped', updated_at = now()
@@ -373,6 +378,13 @@ BEGIN
       AND effective_from_month = 1
       AND archived_at IS NULL;
   END IF;
+
+  -- Earlier runs leave approved or rejected months outside the four fixtures.
+  DELETE FROM public.payments
+  WHERE student_id = v_student
+    AND payment_kind = 'monthly'
+    AND year = v_year
+    AND month NOT IN (v_month, v_parent_month, v_reject_month, v_record_month);
 
   -- Due month without receipt — student E2E uploads, then admin approves.
   IF EXISTS (

@@ -1,0 +1,55 @@
+---
+description: Every HTML page shows the host logo and a single brand in the title. Indexable pages ship search and answer-engine metadata.
+alwaysApply: true
+---
+
+# Brand, logo, and search on every page
+
+## Goal
+
+A person can tell which host they are on from the first paint. A crawler and an answer engine read the same name.
+
+## Logo
+
+1. Every HTML page shows the active host logo, linked to that host home.
+2. CentroListo pages use `CentroListoLogoMark`. Institute pages use the logo from the brand layer (`app.logo.path` / `brand.logoPath`).
+3. Account, login, and admin shells are included. A page with no logo is a bug.
+4. CentroListo register and login use `PulsarSiteChromeEntry` (desktop and PWA). Do not replace that chrome with a bare form.
+
+## Title
+
+1. The document title contains the host name once.
+2. A topic page uses `Topic | Host`. The home page may use one absolute title that already includes the host.
+3. Do not emit `centrolisto | CentroListo` or `Host | Host`.
+4. CentroListo titles go through `centrolistoDocumentTitle`. The entity string is `CentroListo`.
+
+## Search and answer engines
+
+Indexable public pages:
+
+- A description, a canonical URL, and hreflang (`x-default` on the default locale).
+- An Open Graph image with the host name.
+- JSON-LD for the organization, with an absolute logo URL. The `name` matches the title host.
+- A sitemap entry.
+- On the CentroListo host, a line in `llms.txt` when the page answers a public question.
+
+Private pages (account, login, register, admin, dashboard):
+
+- `robots: { index: false, follow: false }`.
+- The logo and a branded title still render.
+- Do not list them in the sitemap or in `llms.txt`.
+
+## CentroListo photos of people
+
+1. Store still files under `public/centrolisto/wardrobe/`.
+2. The garment carries the mark: a sage loop and a terracotta seed, small, stitched. No wordmark across the chest.
+3. Reuse those files. Do not generate a new face per page, and do not call an image model during a request.
+4. Alt text comes from `en.json`, `es.json`, and `pt.json`.
+
+## Checklist
+
+- [ ] The page shows the host logo on first paint, on desktop and on the PWA tree when one exists.
+- [ ] The title names the host once.
+- [ ] Indexable routes have description, canonical, hreflang, a share image, and JSON-LD.
+- [ ] Private routes are noindex and absent from the sitemap.
+- [ ] A new CentroListo photo of a person is a wardrobe file whose clothing carries the mark.

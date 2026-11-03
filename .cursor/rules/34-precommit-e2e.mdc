@@ -1,19 +1,36 @@
 ---
-description: Precommit must run all Playwright E2E (fail-closed isolated stack); SKIP_E2E only with explicit user approval.
+description: Precommit runs Vitest coverage and isolated Playwright. A passed file is not run again until that file or the product tree changes. SKIP_E2E only with explicit user approval.
 globs:
   - "**/*"
 alwaysApply: true
 ---
 
-# Precommit — Playwright E2E gate (fail-closed)
+# Precommit — test cache and isolated E2E
 
 ## Objective
 
-**Every commit** (via Husky → `npm run precommit`) runs **all** Playwright E2E against the **isolated** stack only. Silent skip / tenant DBs (`nago`, `golden`, prod) are forbidden for this gate.
+**Every commit** (via Husky → `npm run precommit`) runs the Vitest coverage gate and Playwright against the **isolated** stack only. Silent skip / tenant DBs (`nago`, `golden`, prod) are forbidden for this gate.
+
+A test file that already passed is not run again. Re-run a file when it failed, never ran, or its contents changed. Re-run the whole suite for that gate when the product tree hash changes.
+
+## Passed-file cache
+
+The same rule applies to unit tests and to E2E.
+
+1. Unit command: `npm run test:unit:precommit` → `scripts/run-unit-precommit.mjs`.
+2. E2E command: `npm run test:e2e:precommit` → `scripts/run-e2e-precommit.mjs`.
+3. A passed file stays skipped while the product hash matches and the file hash matches.
+4. Failed files, new files, and edited files always run.
+5. Unit product hash covers `src` (not test files), `supabase/migrations`, `supabase/pulsar-migrations`, `vitest.config.ts`, `package.json`, and `package-lock.json`.
+6. A full unit run uses `vitest run --coverage`. The cache stores `coverageOk` only when that run exits 0. A later run with the same product hash executes only the selected files and does not repeat coverage.
+7. E2E product hash covers `src` (not test files), institute migrations, `supabase/seeds/e2e`, `e2e/helpers`, auth setup, Playwright config, and the lockfiles listed in `hashProductTree`.
+8. Cache files `.unit-precommit-cache.json` and `.e2e-precommit-cache.json` stay gitignored. Do not delete a cache to hide a failure.
+9. `npm run test:coverage` still runs the full Vitest coverage suite when a person calls it directly.
+10. An empty E2E selection exits 0. When any spec runs, the isolated stack, the fixture reseed, and auth setup still run. Workers stay at 1.
 
 ## Mechanical gate
 
-1. `package.json` → `precommit` ends with `npm run test:e2e:precommit` → `scripts/run-e2e-precommit.mjs`.
+1. `package.json` → `precommit` ends with `npm run test:unit:precommit` and `npm run test:e2e:precommit`.
 2. That script **requires** gitignored `.env.local.e2e` + seeded `E2E_ADMIN_*`, forces `E2E_STACK=isolated` / `GE_DEV_TARGET=e2e` / `E2E_REQUIRE=1`, starts Next on **:3100** (not tenant `:3000`).
 3. Prefer provisioning via **`npm run e2e:stack:up`** (Colima/Docker + local Supabase) — see `docs/runbooks/e2e-isolated-harness.md`.
 4. Missing env or failed isolation → **exit 1** (commit blocked).
@@ -21,14 +38,15 @@ alwaysApply: true
 
 ## Agent rules
 
-1. **Do not** remove `test:e2e:precommit` from `precommit` without an approved SDD spec change.
+1. **Do not** remove `test:unit:precommit` or `test:e2e:precommit` from `precommit` without an approved SDD spec change.
 2. **Do not** point the gate at `dev:nago` / product `.env.local.*` tenants.
 3. **`SKIP_E2E=1`** — only when the **user explicitly** allows skipping E2E for a WIP commit. Never set it unilaterally to “make the gate green.”
 4. This gate is **automated** Playwright — it does **not** replace user-owned manual QA (**`32-manual-qa-user-owned.mdc`**).
-5. Tour **staleness** still uses Vitest L1+L2 on every precommit (**`33-admin-tutorials-contract.mdc`**); L3 is the live browser layer on top.
+5. Tour **staleness** still uses Vitest L1+L2 (**`33-admin-tutorials-contract.mdc`**). Those files follow the same pass cache. L3 is the live browser layer.
 
 ## Checklist
 
 - [ ] `.env.local.e2e` provisioned before expecting green commits?
-- [ ] New `e2e/*.spec.ts` files picked up by `playwright test` (all projects)?
+- [ ] New or failed test files run on the next precommit?
+- [ ] A passed file stays out of the run when its hash and the product hash match?
 - [ ] No `SKIP_E2E` without user ask?

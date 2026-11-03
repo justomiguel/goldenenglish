@@ -10,6 +10,17 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  E2E_PRECOMMIT_CACHE_FILE,
+  hashFile,
+  hashProductTree,
+  listE2eSpecFiles,
+  mergeE2eCache,
+  outcomesFromPlaywrightReport,
+  readE2eCache,
+  selectE2eSpecFiles,
+  writeE2eCache,
+} from "../e2e/e2ePrecommitSelection.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
@@ -385,7 +396,34 @@ function main() {
   }
 
   const extraArgs = process.argv.slice(2);
-  const child = spawn("npx", ["playwright", "test", ...extraArgs], {
+  const cachePath = path.join(ROOT, E2E_PRECOMMIT_CACHE_FILE);
+  const reportPath = path.join(ROOT, "test-results/e2e-precommit-report.json");
+  let testArgs = extraArgs;
+  let productHash = "";
+  if (extraArgs.length === 0) {
+    productHash = hashProductTree(ROOT);
+    const specFiles = listE2eSpecFiles(path.join(ROOT, "e2e"));
+    const fileHashes = Object.fromEntries(
+      specFiles.map((file) => [file, hashFile(path.join(ROOT, file))]),
+    );
+    const selected = selectE2eSpecFiles({
+      specFiles,
+      cache: readE2eCache(cachePath),
+      productHash,
+      fileHashes,
+    });
+    console.log(
+      `→ E2E precommit: ${specFiles.length - selected.length} specs en caché, corro ${selected.length}`,
+    );
+    if (selected.length === 0) {
+      teardownStack();
+      process.exit(0);
+    }
+    testArgs = selected;
+    env.E2E_PRECOMMIT_REPORT = reportPath;
+  }
+
+  const child = spawn("npx", ["playwright", "test", ...testArgs], {
     cwd: ROOT,
     env,
     stdio: "inherit",
@@ -393,6 +431,9 @@ function main() {
   });
 
   child.on("exit", (code, signal) => {
+    if (extraArgs.length === 0) {
+      recordE2ePrecommitCache(cachePath, reportPath, productHash);
+    }
     teardownStack();
     if (signal) {
       process.kill(process.pid, signal);
@@ -400,6 +441,28 @@ function main() {
     }
     process.exit(code ?? 1);
   });
+}
+
+function recordE2ePrecommitCache(cachePath, reportPath, productHash) {
+  if (!existsSync(reportPath)) return;
+  try {
+    const report = JSON.parse(readFileSync(reportPath, "utf8"));
+    const outcomes = outcomesFromPlaywrightReport(report);
+    const fileHashes = Object.fromEntries(
+      Object.keys(outcomes).map((file) => [file, hashFile(path.join(ROOT, file))]),
+    );
+    writeE2eCache(
+      cachePath,
+      mergeE2eCache({
+        cache: readE2eCache(cachePath),
+        productHash,
+        fileHashes,
+        outcomes,
+      }),
+    );
+  } catch (error) {
+    console.error("[ge:server] e2e.precommit.cache", error instanceof Error ? error.message : error);
+  }
 }
 
 // Ctrl+C / kill durante los tests no debe dejar el stack colgado.

@@ -20,5 +20,6 @@ export type StudentCourseCard = {
   title: string;
   origins: CourseOrigin[];
   progressMode: CourseProgressMode;
+  sectionIds: string[];
   modules: StudentCourseModule[];
 };

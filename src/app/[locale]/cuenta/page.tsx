@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { Plus } from "lucide-react";
+import { centrolistoPrivatePageMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { loadCentrolistoDictionary } from "@/lib/pulsar/loadCentrolistoDictionary";
 import { loadPulsarOwnerHome } from "@/lib/pulsar/pulsarOwnerAccount";
 import { customHostBesidePreview, domainDnsRecord, previewSiteUrl } from "@/lib/pulsar/ownerSiteLinks";
@@ -13,6 +15,24 @@ import {
   createPulsarServerClient,
   isPulsarSupabaseConfigured,
 } from "@/lib/supabase/pulsar";
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ pais?: string | string[] }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { dict } = await loadCentrolistoDictionary(locale, await searchParams);
+  return centrolistoPrivatePageMetadata({
+    locale,
+    title: dict.pulsar.account.homeTitle,
+    description: dict.pulsar.account.homeLead,
+    siteName: dict.pulsar.meta.brandName,
+    suffix: "/cuenta",
+  });
+}
 
 export default async function PulsarAccountHomePage({
   params,
@@ -38,7 +58,7 @@ export default async function PulsarAccountHomePage({
   if (staff) redirect(`/${locale}/admin`);
 
   const home = await loadPulsarOwnerHome(user.id);
-  if (home.kind !== "owner") redirect(`/${locale}/cuenta/registro`);
+  if (home.kind !== "owner") redirect(`/${locale}/cuenta/nuevo`);
   const { dict } = await loadCentrolistoDictionary(locale, await searchParams);
   const copy = dict.pulsar.account;
   const approved = home.status === "approved";

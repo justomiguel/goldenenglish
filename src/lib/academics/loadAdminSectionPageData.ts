@@ -21,7 +21,10 @@ import {
   parseOptionalFeeAmount,
   resolveEffectiveEnrollmentFeeAmount,
 } from "@/lib/billing/resolveCohortFeeDefaults";
-
+import {
+  loadSectionDailyTenantFlags,
+  parseDeliveryMode,
+} from "@/lib/academics/sectionDailyTenant";
 export type { AdminSectionPageData, AdminSectionRosterRow } from "./loadAdminSectionPageData.types";
 
 export async function loadAdminSectionPageData(
@@ -32,7 +35,7 @@ export async function loadAdminSectionPageData(
   const { data: sec, error: sErr } = await supabase
     .from("academic_sections")
     .select(
-      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, min_attendance_percent, requires_evaluations_to_pass, uses_learning_route, reference_image_path, billing_mode, offers_trial, trial_fee_amount, academic_cohorts(name, archived_at, default_enrollment_fee_amount, default_monthly_fee, offers_trial, trial_fee_amount)",
+      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, min_attendance_percent, requires_evaluations_to_pass, uses_learning_route, reference_image_path, billing_mode, offers_trial, trial_fee_amount, delivery_mode, academic_cohorts(name, archived_at, default_enrollment_fee_amount, default_monthly_fee, offers_trial, trial_fee_amount)",
     )
     .eq("id", sectionId)
     .maybeSingle();
@@ -72,6 +75,7 @@ export async function loadAdminSectionPageData(
     uses_learning_route?: boolean | null;
     billing_mode?: string | null;
     reference_image_path?: string | null;
+    delivery_mode?: string | null;
     academic_cohorts:
       | {
           name: string;
@@ -191,6 +195,7 @@ export async function loadAdminSectionPageData(
     rawMinAtt != null && Number.isFinite(rawMinAtt) ? Math.trunc(rawMinAtt) : null;
 
   const { url: supabaseUrl } = await readRequestSupabasePublicEnv();
+  const dailyTenant = await loadSectionDailyTenantFlags();
 
   return {
     section: {
@@ -225,7 +230,9 @@ export async function loadAdminSectionPageData(
         secRow.reference_image_path,
         supabaseUrl,
       ),
+      deliveryMode: parseDeliveryMode(secRow.delivery_mode),
     },
+    commercialPlan: dailyTenant.commercialPlan, dailyCredentialsReady: dailyTenant.dailyCredentialsReady,
     cohort: {
       name: cohortName,
       archivedAt: cohortArchivedAt,

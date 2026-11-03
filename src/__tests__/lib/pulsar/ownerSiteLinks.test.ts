@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { customHostBesidePreview, domainDnsRecord, previewSiteUrl } from "@/lib/pulsar/ownerSiteLinks";
+import {
+  customHostBesidePreview,
+  domainDnsRecord,
+  optionalOwnerDomain,
+  previewSiteUrl,
+} from "@/lib/pulsar/ownerSiteLinks";
 
 describe("ownerSiteLinks", () => {
   it("keeps the custom host and builds the DNS record", () => {
@@ -22,5 +27,13 @@ describe("ownerSiteLinks", () => {
     expect(domainDnsRecord("localhost")).toBeNull();
     expect(previewSiteUrl([])).toBe("");
     expect(previewSiteUrl([""])).toBe("");
+  });
+
+  it("drops a platform host so the site still opens on the preview domain", () => {
+    const isPlatform = (host: string) => host === "centrolisto.cl" || host === "www.centrolisto.cl";
+    expect(optionalOwnerDomain("https://centrolisto.cl/inicio", isPlatform)).toBe("");
+    expect(optionalOwnerDomain("www.centrolisto.cl", isPlatform)).toBe("");
+    expect(optionalOwnerDomain("miinstituto.cl", isPlatform)).toBe("miinstituto.cl");
+    expect(optionalOwnerDomain("  ", isPlatform)).toBe("");
   });
 });

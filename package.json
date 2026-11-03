@@ -40,6 +40,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:unit:precommit": "node scripts/run-unit-precommit.mjs",
     "test:coverage:full": "sh -c 'export VITEST_COVERAGE_FULL=1 && vitest run --coverage'",
     "test:e2e": "PLAYWRIGHT_HTML_OPEN=never playwright test",
     "test:e2e:tours": "PLAYWRIGHT_HTML_OPEN=never playwright test --project=chromium-admin-tours",
@@ -48,10 +49,11 @@
     "e2e:stack:down": "node scripts/e2e-stack-down.mjs",
     "lighthouse:smoke": "bash scripts/lighthouse-smoke.sh",
     "lighthouse:a11y:tenants": "node scripts/a11y-lighthouse-tenants.mjs",
-    "precommit": "npm run clean:test-cache && npm run lint && npm run check:supabase-boundaries && node scripts/precommit-verify.mjs && npm run build && git add public/sw.js && npm run test:coverage && npm run test:e2e:precommit",
+    "precommit": "npm run clean:test-cache && npm run lint && npm run check:supabase-boundaries && node scripts/precommit-verify.mjs && npm run build && git add public/sw.js && npm run test:unit:precommit && npm run test:e2e:precommit",
     "prepare": "husky"
   },
   "dependencies": {
+    "@daily-co/daily-js": "^0.94.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",

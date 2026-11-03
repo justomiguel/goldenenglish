@@ -33,7 +33,20 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI || requireGate ? 1 : 0,
   timeout: 90_000,
-  reporter: process.env.CI ? "github" : "list",
+  reporter: requireGate
+    ? [
+        ["list"],
+        [
+          "json",
+          {
+            outputFile:
+              process.env.E2E_PRECOMMIT_REPORT ?? "test-results/e2e-precommit-report.json",
+          },
+        ],
+      ]
+    : process.env.CI
+      ? "github"
+      : "list",
   use: {
     baseURL,
     trace: "on-first-retry",

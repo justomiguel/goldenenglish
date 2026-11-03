@@ -36,6 +36,9 @@ vi.mock("@/components/organisms/AcademicSectionRoomLabelEditor", () => ({
 vi.mock("@/components/organisms/AcademicSectionReferenceImageEditor", () => ({
   AcademicSectionReferenceImageEditor: () => <div data-testid="reference-image-editor" />,
 }));
+vi.mock("@/components/organisms/AcademicSectionDeliveryModeForm", () => ({
+  AcademicSectionDeliveryModeForm: () => null,
+}));
 
 type PageDict = Dictionary["dashboard"]["academicSectionPage"];
 
@@ -107,6 +110,7 @@ const sectionStub: AdminSectionPageData["section"] = {
   requiresEvaluationsToPass: false,
   usesLearningRoute: false,
   referenceImageUrl: null,
+  deliveryMode: "in_person",
 };
 
 const emptyFeatureFlags = {} as PageDict["featureFlags"];
@@ -125,6 +129,17 @@ describe("AcademicSectionConfigurationPanel", () => {
         sectionId="section-1"
         section={sectionStub}
         slots={[{ dayOfWeek: 1, startTime: "08:00", endTime: "09:00" }]}
+        commercialPlan="gestion"
+        dailyCredentialsReady={false}
+        deliveryModeDict={{
+          title: "How the class meets",
+          inPerson: "In person",
+          hybrid: "Hybrid",
+          remote: "Remote",
+          missingKey: "The Daily key is missing on the institute record.",
+          failedSlot: "The room for {day} {time} could not be prepared.",
+          save: "Save mode",
+        }}
         settingsSummaryDict={settingsSummaryDict}
         featureFlagsDict={emptyFeatureFlags}
         periodDict={emptyPeriod}

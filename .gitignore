@@ -88,6 +88,8 @@ supabase/pulsar-migrations/*.local.txt
 
 # Playwright artifacts + auth storage (isolated e2e)
 /test-results/
+/.e2e-precommit-cache.json
+/.unit-precommit-cache.json
 /playwright-report/
 /blob-report/
 /e2e/.auth/

@@ -45,6 +45,9 @@ export function toPulsarTenantFormValues(
     whatsappPhoneNumberId: tenant?.whatsappPhoneNumberId ?? "",
     whatsappClassReminderTemplateName: tenant?.whatsappClassReminderTemplateName ?? "",
     pulsarMailQuota: String(tenant?.pulsarMailQuota ?? 50),
+    commercialPlan: tenant?.commercialPlan ?? "gestion",
+    dailyApiKey: tenant?.dailyApiKey ?? "",
+    dailyDomain: tenant?.dailyDomain ?? "",
     dataMode: !tenant
       ? "shared_schema"
       : tenant.dataMode === "shared_schema"

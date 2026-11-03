@@ -9,6 +9,8 @@ import { AcademicSectionCapacityEditor } from "@/components/organisms/AcademicSe
 import { AcademicSectionMinAttendanceEditor } from "@/components/organisms/AcademicSectionMinAttendanceEditor";
 import { AcademicSectionFeatureFlagsEditor } from "@/components/organisms/AcademicSectionFeatureFlagsEditor";
 import { AcademicSectionReferenceImageEditor } from "@/components/organisms/AcademicSectionReferenceImageEditor";
+import { AcademicSectionDeliveryModeForm } from "@/components/organisms/AcademicSectionDeliveryModeForm";
+import type { CommercialPlan } from "@/lib/pulsar/commercialPlan";
 
 type PageDict = Dictionary["dashboard"]["academicSectionPage"];
 
@@ -16,6 +18,9 @@ export interface AcademicSectionSettingsSummaryProps {
   locale: string;
   sectionId: string;
   section: AdminSectionPageData["section"];
+  commercialPlan: CommercialPlan;
+  dailyCredentialsReady: boolean;
+  deliveryModeDict: PageDict["deliveryMode"];
   dict: PageDict["settingsSummary"];
   featureFlagsDict: PageDict["featureFlags"];
   periodDict: PageDict["period"];
@@ -30,6 +35,9 @@ export function AcademicSectionSettingsSummary({
   locale,
   sectionId,
   section,
+  commercialPlan,
+  dailyCredentialsReady,
+  deliveryModeDict,
   dict,
   featureFlagsDict,
   periodDict,
@@ -77,6 +85,14 @@ export function AcademicSectionSettingsSummary({
               sectionId={sectionId}
               initialRoomLabel={section.roomLabel}
               dict={roomLabelDict}
+            />
+            <AcademicSectionDeliveryModeForm
+              locale={locale}
+              sectionId={sectionId}
+              plan={commercialPlan}
+              mode={section.deliveryMode}
+              credentialsReady={dailyCredentialsReady}
+              dict={deliveryModeDict}
             />
           </div>
         </div>

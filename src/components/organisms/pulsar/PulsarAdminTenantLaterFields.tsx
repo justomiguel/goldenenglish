@@ -6,7 +6,12 @@ type LaterFieldKey = Extract<
   keyof Dictionary["pulsar"]["admin"]["form"]["fields"]
 >;
 
+const PLAN_VALUES = ["pagina", "gestion", "ecosistema"] as const;
+
 const LATER_FIELDS: LaterFieldKey[] = [
+  "commercialPlan",
+  "dailyApiKey",
+  "dailyDomain",
   "hosts",
   "publicUrl",
   "databaseUrl",
@@ -57,15 +62,32 @@ export function PulsarAdminTenantLaterFields({
             <label htmlFor={`field-${fieldKey}`} className="block text-xs font-semibold">
               {labels[fieldKey]}
             </label>
-            <input
-              id={`field-${fieldKey}`}
-              type="text"
-              value={String(values[fieldKey] ?? "")}
-              onChange={(e) =>
-                onChange(fieldKey, e.target.value as PulsarTenantFormValues[typeof fieldKey])
-              }
-              className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 font-mono text-xs"
-            />
+            {fieldKey === "commercialPlan" ? (
+              <select
+                id={`field-${fieldKey}`}
+                value={values.commercialPlan}
+                onChange={(e) =>
+                  onChange("commercialPlan", e.target.value as PulsarTenantFormValues["commercialPlan"])
+                }
+                className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
+              >
+                {PLAN_VALUES.map((plan) => (
+                  <option key={plan} value={plan}>
+                    {formCopy.commercialPlanOptions[plan]}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                id={`field-${fieldKey}`}
+                type="text"
+                value={String(values[fieldKey] ?? "")}
+                onChange={(e) =>
+                  onChange(fieldKey, e.target.value as PulsarTenantFormValues[typeof fieldKey])
+                }
+                className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 font-mono text-xs"
+              />
+            )}
           </div>
         ))}
       </div>

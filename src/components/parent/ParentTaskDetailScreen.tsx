@@ -1,5 +1,6 @@
 import { LearningTaskStatusBadge } from "@/components/molecules/LearningTaskStatusBadge";
 import { collapseRichTextDisplayHtml } from "@/lib/learning-tasks/collapseRichTextDisplayHtml";
+import { TaskAnswerRead } from "@/components/student/TaskAnswerRead";
 import type { StudentLearningTaskRow } from "@/types/learningTasks";
 import type { Dictionary } from "@/types/i18n";
 
@@ -68,6 +69,14 @@ export function ParentTaskDetailScreen({
           </ul>
         </section>
       ) : null}
+
+      <TaskAnswerRead
+        answerLabel={studentLabels.taskAnswerLabel}
+        reviewTitle={studentLabels.taskReviewTitle}
+        olderLabel={studentLabels.taskOlderNotes}
+        answer={task.latestAnswer ?? null}
+        reviews={task.reviews ?? []}
+      />
 
       <p className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)] px-4 py-3 text-sm text-[var(--color-muted-foreground)]">
         {readOnlyNotice}

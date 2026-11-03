@@ -95,9 +95,6 @@ export function PulsarSolutionView({ locale, dict, solution, email = null, marke
                 </PulsarActionLink>
               )}
             </div>
-            {solution === "gestion" ? (
-              <p className="mt-4 text-sm font-medium text-[var(--color-foreground)]">{dict.pulsar.solutionSet.gestion.capLine}</p>
-            ) : null}
           </div>
           <figure className="relative aspect-[4/3] overflow-hidden rounded-[var(--layout-border-radius)]">
             {solution === "gestion" ? (

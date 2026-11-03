@@ -28,6 +28,7 @@ const baseCtx: StudentBadgeEvaluationContext = {
   profile: { phone: null, birth_date: null, avatar_url: null },
   passedAssessmentCount: 0,
   messagesSentCount: 0,
+  completedCourseCount: 0,
 };
 
 describe("isBadgeEntryEligible", () => {
@@ -181,9 +182,21 @@ describe("computeEligibleBadgesFromCatalog", () => {
         profile: { phone: "+11", birth_date: "1990-01-01", avatar_url: "p.png" },
         passedAssessmentCount: 0,
         messagesSentCount: 0,
+        completedCourseCount: 0,
       },
       catalog,
     ).map((e) => e.code);
     expect(out).toEqual(["task1", "profile"]);
+  });
+
+  it("counts a saved course completion toward course_completed", () => {
+    const badge = entry({
+      id: "course-1",
+      code: "course_completed_1",
+      criteriaType: "course_completed",
+      criteriaThreshold: 1,
+    });
+    expect(isBadgeEntryEligible(badge, { ...baseCtx, completedCourseCount: 0 })).toBe(false);
+    expect(isBadgeEntryEligible(badge, { ...baseCtx, completedCourseCount: 1 })).toBe(true);
   });
 });

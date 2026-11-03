@@ -48,20 +48,21 @@ export async function loadTeacherSectionLearningTasks(
       OPENED: 0,
       COMPLETED: 0,
       COMPLETED_LATE: 0,
+      RETURNED: 0,
     };
     current[row.status] += 1;
     counts.set(row.task_instance_id, current);
   }
 
   return rows.map((row) => {
-    const c = counts.get(row.id) ?? { NOT_OPENED: 0, OPENED: 0, COMPLETED: 0, COMPLETED_LATE: 0 };
+    const c = counts.get(row.id) ?? { NOT_OPENED: 0, OPENED: 0, COMPLETED: 0, COMPLETED_LATE: 0, RETURNED: 0 };
     return {
       taskInstanceId: row.id,
       title: row.title,
       sectionId: row.section_id,
       sectionName: sectionName(row.academic_sections),
       dueAt: row.due_at,
-      total: c.NOT_OPENED + c.OPENED + c.COMPLETED + c.COMPLETED_LATE,
+      total: c.NOT_OPENED + c.OPENED + c.COMPLETED + c.COMPLETED_LATE + c.RETURNED,
       notOpened: c.NOT_OPENED,
       opened: c.OPENED,
       completed: c.COMPLETED,

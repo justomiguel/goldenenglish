@@ -3,8 +3,9 @@ import type { TaskProgressStatus } from "@/lib/learning-tasks/types";
 const allowedTransitions: Record<TaskProgressStatus, TaskProgressStatus[]> = {
   NOT_OPENED: ["OPENED"],
   OPENED: ["COMPLETED", "COMPLETED_LATE"],
-  COMPLETED: [],
-  COMPLETED_LATE: [],
+  COMPLETED: ["RETURNED"],
+  COMPLETED_LATE: ["RETURNED"],
+  RETURNED: ["OPENED"],
 };
 
 export class InvalidStateTransitionException extends Error {

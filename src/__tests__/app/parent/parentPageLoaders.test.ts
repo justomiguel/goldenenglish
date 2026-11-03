@@ -19,6 +19,7 @@ const EXPECTED_LOADERS = new Set([
   "loadStudentLearningTasks",
   "loadPortalCalendarPageData",
   "loadParentHomeNewsFeed",
+  "loadHomeSectionNotices",
   "loadParentFocusCatalog",
 ]);
 

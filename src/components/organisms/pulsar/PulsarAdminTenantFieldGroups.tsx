@@ -33,6 +33,9 @@ export interface PulsarTenantFormValues {
   whatsappClassReminderTemplateName: string;
   pulsarMailQuota: string;
   dataMode: "project" | "shared_schema";
+  commercialPlan: "pagina" | "gestion" | "ecosistema";
+  dailyApiKey: string;
+  dailyDomain: string;
 }
 
 export interface PulsarAdminTenantFieldGroupsProps {

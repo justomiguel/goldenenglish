@@ -3,13 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  AlertCircle,
-  ArrowLeft,
-  CheckCircle2,
-  PlugZap,
-  Save,
-} from "lucide-react";
+import { ArrowLeft, PlugZap, Save } from "lucide-react";
 import {
   savePulsarTenantAction,
   testPulsarTenantConnectionAction,
@@ -19,6 +13,7 @@ import {
   type PulsarTenantFormValues,
 } from "@/components/organisms/pulsar/PulsarAdminTenantFieldGroups";
 import { PulsarAdminTenantDataMode } from "@/components/organisms/pulsar/PulsarAdminTenantDataMode";
+import { PulsarAdminTenantFormNotices } from "@/components/organisms/pulsar/PulsarAdminTenantFormNotices";
 import { PulsarAdminCloseTenant } from "@/components/organisms/pulsar/PulsarAdminCloseTenant";
 import { PulsarTenantProvisionDialog } from "@/components/organisms/pulsar/PulsarTenantProvisionDialog";
 import { toPulsarTenantFormValues } from "@/components/organisms/pulsar/pulsarTenantFormDefaults";
@@ -50,6 +45,9 @@ export function PulsarAdminTenantForm({
     schema: provisionCopy.primarySchema,
     migration: provisionCopy.primaryMigration,
     grants: provisionCopy.primaryGrants,
+    theme: provisionCopy.primaryTheme,
+    domain: provisionCopy.primaryDomain,
+    domainSkipped: provisionCopy.primaryDomainSkipped,
     done: provisionCopy.primaryDone,
     failed: provisionCopy.primaryFailed,
     count: provisionCopy.count,
@@ -155,47 +153,14 @@ export function PulsarAdminTenantForm({
           {formCopy.lead}
         </p>
 
-        {probeBanner ? (
-          <div
-            role="status"
-            className={`mt-4 flex items-center gap-2 rounded-lg border p-3 text-xs font-semibold ${
-              probeBanner.ok
-                ? "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-primary)]"
-                : "border-[var(--color-error)] bg-[var(--color-surface)] text-[var(--color-error)]"
-            }`}
-          >
-            {probeBanner.ok ? (
-              <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden />
-            ) : (
-              <AlertCircle className="h-4 w-4 shrink-0" aria-hidden />
-            )}
-            <span>
-              {probeBanner.ok
-                ? `${formCopy.testOk} (${probeBanner.latencyMs} ms)`
-                : `${formCopy.testFail} (${probeBanner.errorCode ?? "error"})`}
-            </span>
-          </div>
-        ) : null}
-
-        {errorText ? (
-          <div
-            role="alert"
-            className="mt-4 flex items-center gap-2 rounded-lg border border-[var(--color-error)] bg-[var(--color-surface)] p-3 text-xs font-semibold text-[var(--color-error)]"
-          >
-            <AlertCircle className="h-4 w-4 shrink-0" aria-hidden />
-            <span>{errorText}</span>
-          </div>
-        ) : null}
-
-        {savedNotice ? (
-          <div
-            role="status"
-            className="mt-4 flex items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-xs font-semibold text-[var(--color-primary)]"
-          >
-            <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden />
-            <span>{formCopy.savedNotice}</span>
-          </div>
-        ) : null}
+        <PulsarAdminTenantFormNotices
+          probeBanner={probeBanner}
+          errorText={errorText}
+          savedNotice={savedNotice}
+          testOk={formCopy.testOk}
+          testFail={formCopy.testFail}
+          savedLabel={formCopy.savedNotice}
+        />
 
         <PulsarTenantProvisionDialog
           open={provision.open}

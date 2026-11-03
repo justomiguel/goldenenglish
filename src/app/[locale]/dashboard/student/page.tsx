@@ -10,6 +10,14 @@ import { loadStudentHomePaymentOverdueSignals } from "@/lib/student/loadStudentH
 import { buildParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
 import { loadPortalCalendarPageData } from "@/lib/calendar/loadPortalCalendarPageData";
 import { loadParentHomeNewsFeed } from "@/lib/parent/loadParentHomeNewsFeed";
+import { loadStudentCourses } from "@/lib/courses/loadStudentCourses";
+import { loadHomeSectionNotices } from "@/lib/courses/loadHomeSectionNotices";
+import { pickContinueCourse } from "@/lib/courses/continueCourse";
+import { StudentContinueCourse } from "@/components/student/StudentContinueCourse";
+import { StudentNextClassCard } from "@/components/student/StudentNextClassCard";
+import { SectionNoticeList } from "@/components/student/SectionNoticeList";
+import { loadStudentHubModel } from "@/lib/student/loadStudentHubModel";
+import { loadStudentOpenDailyJoin } from "@/lib/academics/loadOpenDailyJoin";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
 import { getDashboardActor } from "@/lib/dashboard/getDashboardActor";
 import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
@@ -44,7 +52,8 @@ export default async function StudentDashboardPage({ params }: PageProps) {
   const studentId = viewerId;
   const dashboardBase = `/${locale}/dashboard/student`;
 
-  const [summaries, hub, messageSignals, paymentOverdue, calendarPage] = await Promise.all([
+  const [summaries, hub, messageSignals, paymentOverdue, calendarPage, courses, notices, studentHub, dailyJoin] =
+    await Promise.all([
     loadChildrenSummariesForStudentIds(supabase, [studentId]),
     loadFamilyHubModelForStudentIds(
       supabase,
@@ -55,6 +64,10 @@ export default async function StudentDashboardPage({ params }: PageProps) {
     loadParentHomeMessageSignals(supabase, viewerId),
     loadStudentHomePaymentOverdueSignals(supabase, studentId, isMinor),
     loadPortalCalendarPageData(supabase, { role: "student", userId: viewerId }),
+    loadStudentCourses(supabase, studentId),
+    loadHomeSectionNotices(supabase, studentId),
+    loadStudentHubModel(supabase, studentId, locale),
+    loadStudentOpenDailyJoin({ locale, studentId }),
   ]);
 
   const newsItems = await loadParentHomeNewsFeed(supabase, {
@@ -88,6 +101,33 @@ export default async function StudentDashboardPage({ params }: PageProps) {
     overdueInvoiceCount: paymentOverdue.overdueInvoiceCount,
   });
 
+  const nextCourse = pickContinueCourse(courses);
+  const courseCopy = dict.dashboard.student.courses;
+  const leadCard = (
+    <div className="space-y-4">
+      <StudentNextClassCard
+        sections={studentHub.sections}
+        dict={dict.dashboard.student.hub}
+        joinHref={dailyJoin?.joinHref ?? null}
+        openClass={dailyJoin?.openClass ?? null}
+      />
+      {nextCourse ? (
+        <StudentContinueCourse
+          href={
+            nextCourse.finished
+              ? `${dashboardBase}/courses/${nextCourse.courseId}/certificate`
+              : `${dashboardBase}/courses/${nextCourse.courseId}/lessons/${nextCourse.lessonId}`
+          }
+          courseTitle={nextCourse.courseTitle}
+          lessonTitle={nextCourse.lessonTitle}
+          percentLabel={courseCopy.progress.replace("{percent}", String(nextCourse.percent))}
+          cta={nextCourse.finished ? courseCopy.certificate : courseCopy.continueCta}
+        />
+      ) : null}
+      <SectionNoticeList title={courseCopy.noticeTitle} notices={notices} />
+    </div>
+  );
+
   return (
     <ParentDashboardEntry
       locale={locale}
@@ -107,6 +147,7 @@ export default async function StudentDashboardPage({ params }: PageProps) {
       newsItems={newsItems}
       dashboardBase={dashboardBase}
       includePayments={includePayments}
+      leadCard={leadCard}
     />
   );
 }

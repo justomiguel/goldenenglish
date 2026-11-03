@@ -34,8 +34,10 @@ describe("GET /llms.txt", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toContain("text/plain");
     expect(response.headers.get("vary")).toBe("Host");
+    expect(body).toContain("# CentroListo");
     expect(body).toContain("https://centrolisto.cl/es/contacto");
     expect(body).toContain("https://centrolisto.cl/en/producto");
     expect(body).not.toContain("/admin");
+    expect(body).not.toContain("/cuenta/registro");
   });
 });

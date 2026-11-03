@@ -22,7 +22,6 @@ export function PulsarGestionUses({ dict }: PulsarGestionUsesProps) {
               </li>
             ))}
           </ol>
-          <p className="mt-6 text-sm font-medium text-[var(--color-foreground)]">{item.capLine}</p>
         </div>
       </div>
     </section>

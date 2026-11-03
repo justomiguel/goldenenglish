@@ -1,4 +1,5 @@
 import { logServerWarn } from "@/lib/logging/serverActionLog";
+import { isLocalDevHost } from "@/lib/tenant/pulsarSubdomain";
 import { normalizeHost } from "@/lib/tenant/tenantRegistry";
 
 export interface VercelDomainAttach {
@@ -62,21 +63,25 @@ export async function detachVercelProjectDomain(
   }
 }
 
-/** Staff extra hosts go to Vercel when the token is set. Preview hosts stay local. */
+function publicHosts(hosts: readonly string[]): string[] {
+  return hosts.map((host) => normalizeHost(host)).filter((host) => host.length > 0 && !isLocalDevHost(host));
+}
+
+/** Registers every public host, including the slug preview host. */
 export async function attachStaffExtraHosts(args: {
   slug: string;
   hosts: readonly string[];
-  previewHosts: readonly string[];
-}): Promise<{ ok: true; slug: string } | { ok: false; errorCode: string }> {
+  onHost?: (host: string) => Promise<void> | void;
+}): Promise<{ ok: true; slug: string; domainStatus: "attached" | "skipped" } | { ok: false; errorCode: string }> {
   const token = process.env.VERCEL_TOKEN?.trim() ?? "";
   const projectId = process.env.VERCEL_PROJECT_ID?.trim() ?? "";
-  if (!token || !projectId) {
+  const hosts = publicHosts(args.hosts);
+  if (!token || !projectId || hosts.length === 0) {
     logServerWarn("attachStaffExtraHosts:skipped", { slug: args.slug, reason: "vercel_unconfigured" });
-    return { ok: true, slug: args.slug };
+    return { ok: true, slug: args.slug, domainStatus: "skipped" };
   }
-  const preview = new Set(args.previewHosts.map((host) => normalizeHost(host)));
-  for (const host of args.hosts) {
-    if (preview.has(normalizeHost(host))) continue;
+  for (const host of hosts) {
+    await args.onHost?.(host);
     const attached = await attachVercelProjectDomain({
       token,
       projectId,
@@ -85,7 +90,25 @@ export async function attachStaffExtraHosts(args: {
     });
     if (!attached.ok) return { ok: false, errorCode: attached.errorCode };
   }
-  return { ok: true, slug: args.slug };
+  return { ok: true, slug: args.slug, domainStatus: "attached" };
+}
+
+/** Removes the institute hosts from Vercel. A missing token leaves the domains in place. */
+export async function detachStaffHosts(hosts: readonly string[]): Promise<void> {
+  const token = process.env.VERCEL_TOKEN?.trim() ?? "";
+  const projectId = process.env.VERCEL_PROJECT_ID?.trim() ?? "";
+  if (!token || !projectId) return;
+  for (const host of publicHosts(hosts)) {
+    const detached = await detachVercelProjectDomain({
+      token,
+      projectId,
+      teamId: process.env.VERCEL_TEAM_ID,
+      domain: host,
+    });
+    if (!detached.ok) {
+      logServerWarn("detachStaffHosts", { reason: detached.errorCode });
+    }
+  }
 }
 
 /** Names already attached to the Vercel project. One list call for the fleet. */

@@ -3,6 +3,7 @@
  * Supports dynamic rows loaded from Pulsar `platform_tenants` and falls back to
  * `TENANTS_CONFIG_JSON` (or single-tenant env when neither is configured).
  */
+import type { CommercialPlan } from "../pulsar/commercialPlan";
 import { normalizeHost, parseTenantConfigJson } from "./parseTenantConfigJson";
 import {
   isBareLocalDevHost,
@@ -48,6 +49,9 @@ export type TenantConfig = {
   kvRestApiToken: string | null;
   debugLogin: boolean;
   skipInitialSiteSetup: boolean;
+  commercialPlan?: CommercialPlan;
+  dailyApiKey?: string | null;
+  dailyDomain?: string | null;
   pulsarMailQuota?: number;
   pulsarMailSent?: number;
   dataMode?: "project" | "shared_schema";

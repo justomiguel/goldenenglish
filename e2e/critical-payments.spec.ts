@@ -61,11 +61,11 @@ test.describe("@critical-payments", () => {
     });
     const verifyPage = await verifyCtx.newPage();
     await gotoIsolated(verifyPage, `/${locale}/dashboard/student/payments`);
+    await verifyPage
+      .getByRole("tab", { name: /Historial de comprobantes|Receipt history|Histórico de recebimento/i })
+      .click();
     await expect(
-      verifyPage
-        .getByRole("button", { name: /Pagado|Paid|Cobrado|Approved/i })
-        .or(verifyPage.getByText(/ya está saldado|already settled/i))
-        .first(),
+      verifyPage.getByRole("cell", { name: /^(Aprobado|Approved|Aprovado|Pagado|Paid)$/ }).first(),
     ).toBeVisible({ timeout: 30_000 });
     await verifyCtx.close();
   });

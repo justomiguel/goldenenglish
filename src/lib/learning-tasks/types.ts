@@ -3,6 +3,7 @@ export const taskProgressStatuses = [
   "OPENED",
   "COMPLETED",
   "COMPLETED_LATE",
+  "RETURNED",
 ] as const;
 
 export type TaskProgressStatus = (typeof taskProgressStatuses)[number];

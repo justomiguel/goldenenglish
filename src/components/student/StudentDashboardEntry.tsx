@@ -11,7 +11,7 @@ import { UpcomingBirthdaysCard } from "@/components/molecules/UpcomingBirthdaysC
 import type { Dictionary } from "@/types/i18n";
 import type { AttendanceRow } from "@/lib/attendance/stats";
 import type { StudentHubModel } from "@/types/studentHub";
-import { StudentNextClassCard } from "@/components/student/StudentNextClassCard";
+import { StudentNextClassCard, type StudentOpenClass } from "@/components/student/StudentNextClassCard";
 import { StudentMyScheduleWeek } from "@/components/student/StudentMyScheduleWeek";
 import { StudentAcademicJourney } from "@/components/student/StudentAcademicJourney";
 import { StudentScheduleUpdateStrip } from "@/components/student/StudentScheduleUpdateStrip";
@@ -59,6 +59,8 @@ export interface StudentDashboardEntryProps {
   learningFeedback?: LearningFeedbackRow[];
   birthdays?: UpcomingBirthdayCardRow[];
   birthdaysDict?: Dictionary["dashboard"]["birthdays"];
+  joinHref?: string | null;
+  openClass?: StudentOpenClass | null;
 }
 
 export function StudentDashboardEntry({
@@ -78,6 +80,8 @@ export function StudentDashboardEntry({
   learningFeedback = [],
   birthdays = [],
   birthdaysDict,
+  joinHref = null,
+  openClass = null,
 }: StudentDashboardEntryProps) {
   const hubDict = labels.hub;
   const body = (
@@ -100,7 +104,12 @@ export function StudentDashboardEntry({
       <StudentLearningFeedbackSection rows={learningFeedback} labels={labels} />
       {hub ? (
         <div className="space-y-4">
-          <StudentNextClassCard sections={hub.sections} dict={hubDict} />
+          <StudentNextClassCard
+            sections={hub.sections}
+            dict={hubDict}
+            joinHref={joinHref}
+            openClass={openClass}
+          />
           <StudentScheduleUpdateStrip pings={hub.approvedTransfers} dict={hubDict} />
           <PushPermissionBanner
             copy={{

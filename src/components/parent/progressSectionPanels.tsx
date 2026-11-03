@@ -27,6 +27,12 @@ export function progressSectionPanels(input: {
   parentLabels: Dictionary["dashboard"]["parent"];
   studentLabels: Dictionary["dashboard"]["student"];
   badgesDict: Dictionary["dashboard"]["student"]["badges"];
+  lessonLinks?: boolean;
+  courseResults?: Record<string, {
+    taskPercent: number | null;
+    attendancePercent: number | null;
+    assessment: { title: string; score: string } | null;
+  }>;
 }): Record<string, ReactNode> {
   return {
     exams: <StudentExamResultsSurface locale={input.locale} exams={input.exams} copy={input.parentLabels.exams} />,
@@ -47,6 +53,8 @@ export function progressSectionPanels(input: {
         courses={input.courses}
         labels={input.studentLabels.courses}
         canComplete
+        canOpen={input.lessonLinks === true}
+        results={input.courseResults}
       />
     ),
     assessments: (

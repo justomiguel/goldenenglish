@@ -7,7 +7,7 @@ import {
   resolveE2eIsolation,
 } from "./env";
 import { gotoIsolated } from "./helpers/gotoIsolated";
-import { clickFirstPendingMonthlyDue } from "./helpers/clickFirstPendingMonthlyDue";
+import { payFirstPayableParentMonth } from "./helpers/payFirstPayableParentMonth";
 import { reviewFinanceInboxMonthlyReceipt } from "./helpers/reviewFinanceInboxMonthlyReceipt";
 
 const paths = e2eAuthPaths();
@@ -40,19 +40,7 @@ test.describe("@critical-parent-payments", () => {
       parentPage.getByText(/Cuotas|Monthly payments|Pagar y comprobantes|Pay & receipts/i).first(),
     ).toBeVisible({ timeout: 15_000 });
 
-    await clickFirstPendingMonthlyDue(parentPage);
-    await parentPage
-      .getByRole("link", { name: /Continuar para pagar|Continue to pay/i })
-      .click();
-    await expect(parentPage).toHaveURL(/\/dashboard\/parent\/payments\/review/);
-
-    await parentPage.locator('input[name="receipt"]').setInputFiles(receiptFixture);
-    await parentPage
-      .getByRole("button", { name: /Enviar comprobante|Send receipt/i })
-      .click();
-    await expect(
-      parentPage.getByText(/Comprobante recibido|Receipt uploaded/i).first(),
-    ).toBeVisible({ timeout: 30_000 });
+    await payFirstPayableParentMonth(parentPage, receiptFixture);
     await parentCtx.close();
 
     const adminCtx = await browser.newContext({ storageState: paths.storageState });
@@ -66,12 +54,11 @@ test.describe("@critical-parent-payments", () => {
     });
     const verifyPage = await verifyCtx.newPage();
     await gotoIsolated(verifyPage, `/${locale}/dashboard/parent/payments`);
-    // Do not treat "Ver comprobante" alone as settled — pending review also shows it.
+    await verifyPage
+      .getByRole("tab", { name: /Historial de comprobantes|Receipt history|Histórico de recebimento/i })
+      .click();
     await expect(
-      verifyPage
-        .getByRole("button", { name: /Pagado|Paid|Cobrado|Approved/i })
-        .or(verifyPage.getByText(/ya está saldado|already settled/i))
-        .first(),
+      verifyPage.getByRole("cell", { name: /^(Aprobado|Approved|Aprovado|Pagado|Paid)$/ }).first(),
     ).toBeVisible({ timeout: 30_000 });
     await verifyCtx.close();
   });

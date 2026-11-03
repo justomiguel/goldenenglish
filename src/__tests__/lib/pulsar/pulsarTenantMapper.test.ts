@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import {
   mapDbRowToPulsarTenantRecord,
+  mapPulsarTenantToDbPayload,
   mapTenantConfigToPulsarRecord,
 } from "@/lib/pulsar/pulsarTenantMapper";
 import type { TenantConfig } from "@/lib/tenant/tenantRegistry";
@@ -56,5 +57,27 @@ describe("pulsarTenantMapper", () => {
   it("labels a JSON tenant with its host", () => {
     expect(mapTenantConfigToPulsarRecord(base).displayName).toBe("NAGO (capoeiranago.cl)");
     expect(mapTenantConfigToPulsarRecord({ ...base, hosts: [] }).displayName).toBe("NAGO (nago)");
+  });
+
+  it("maps commercial plan and Daily columns to camelCase and back", () => {
+    const row = mapDbRowToPulsarTenantRecord({
+      slug: "nago",
+      hosts: ["capoeiranago.cl"],
+      supabase_url: "https://nago.supabase.co",
+      supabase_anon_key: "anon",
+      supabase_service_role_key: "srv",
+      commercial_plan: "pagina",
+      daily_api_key: "k",
+      daily_domain: "a.daily.co",
+    });
+    expect(row?.commercialPlan).toBe("pagina");
+    expect(row?.dailyApiKey).toBe("k");
+    expect(row?.dailyDomain).toBe("a.daily.co");
+    const payload = mapPulsarTenantToDbPayload({
+      ...row!,
+    });
+    expect(payload.commercial_plan).toBe("pagina");
+    expect(payload.daily_api_key).toBe("k");
+    expect(payload.daily_domain).toBe("a.daily.co");
   });
 });

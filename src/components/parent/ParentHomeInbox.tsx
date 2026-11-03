@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummaries";
 import type { ParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
 import type { ParentHomeNewsItem } from "@/lib/parent/loadParentHomeNewsFeed";
@@ -19,6 +20,7 @@ export interface ParentHomeInboxProps {
   newsItems: ParentHomeNewsItem[];
   dashboardBase?: string;
   includePayments?: boolean;
+  leadCard?: ReactNode;
 }
 
 export function ParentHomeInbox({
@@ -33,6 +35,7 @@ export function ParentHomeInbox({
   newsItems = [],
   dashboardBase,
   includePayments = true,
+  leadCard,
 }: ParentHomeInboxProps) {
   const inbox = labels.homeInbox;
   const headline = firstName ? `${greeting}, ${firstName}` : greeting;
@@ -61,6 +64,8 @@ export function ParentHomeInbox({
           </p>
         ) : null}
       </header>
+
+      {leadCard}
 
       <div data-tour={PARENT_TOUR_ANCHORS.homeChildSwitcher} className="sr-only" aria-hidden>
         {/* Focus switcher lives in the desktop sidebar / PWA chrome. */}

@@ -7,6 +7,8 @@ import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTe
 import { loadContentTemplateLibrary } from "@/lib/learning-tasks/loadContentTemplateLibrary";
 import { loadTeacherSectionLearningTasks } from "@/lib/learning-tasks/loadTeacherSectionLearningTasks";
 import { TeacherSectionLearningTasks } from "@/components/teacher/TeacherSectionLearningTasks";
+import { TeacherTaskReturns } from "@/components/teacher/TeacherTaskReturns";
+import { loadSectionTaskReturns } from "@/lib/learning-tasks/loadSectionTaskReturns";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; sectionId: string }> }) {
   const { locale } = await params;
@@ -30,17 +32,26 @@ export default async function TeacherSectionTasksPage({ params }: PageProps) {
   const canOpen = await userIsSectionTeacherOrAssistant(supabase, user.id, sectionId);
   if (!canOpen) notFound();
 
-  const [templates, tasks] = await Promise.all([
+  const [templates, tasks, returns] = await Promise.all([
     loadContentTemplateLibrary(supabase),
     loadTeacherSectionLearningTasks(supabase, sectionId),
+    loadSectionTaskReturns(supabase, sectionId),
   ]);
   return (
-    <TeacherSectionLearningTasks
-      locale={locale}
-      sectionId={sectionId}
-      templates={templates}
-      tasks={tasks}
-      labels={dict.dashboard.teacherMySections}
-    />
+    <div className="space-y-8">
+      <TeacherSectionLearningTasks
+        locale={locale}
+        sectionId={sectionId}
+        templates={templates}
+        tasks={tasks}
+        labels={dict.dashboard.teacherMySections}
+      />
+      <TeacherTaskReturns
+        locale={locale}
+        sectionId={sectionId}
+        rows={returns}
+        labels={dict.dashboard.teacherMySections}
+      />
+    </div>
   );
 }

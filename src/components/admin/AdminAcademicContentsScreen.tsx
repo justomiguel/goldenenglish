@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { GraduationCap, Library, Route } from "lucide-react";
 import { AdminCoursesPanel } from "@/components/admin/AdminCoursesPanel";
 import type { AdminCourseListPage } from "@/lib/courses/loadAdminCourses";
+import type { CourseCatalogSetup } from "@/lib/courses/loadCourseCatalogSetup";
 import {
   AdminGlobalContentRepository,
   type GlobalContentRepositoryPagination,
@@ -34,6 +35,8 @@ interface AdminAcademicContentsScreenProps {
   repositoryPagination: GlobalContentRepositoryPagination;
   courses?: AdminCourseListPage;
   sections?: { id: string; name: string }[];
+  catalog?: CourseCatalogSetup;
+  categoryId?: string | null;
   labels: Dictionary["dashboard"]["adminContents"];
 }
 
@@ -57,6 +60,8 @@ export function AdminAcademicContentsScreen({
   repositoryPagination,
   courses = EMPTY_COURSES,
   sections = [],
+  catalog,
+  categoryId = null,
   labels,
 }: AdminAcademicContentsScreenProps) {
   const idPrefix = useId().replace(/:/g, "");
@@ -152,6 +157,8 @@ export function AdminAcademicContentsScreen({
               templates={globalContents.map((row) => ({ id: row.id, title: row.title }))}
               sections={sections}
               labels={labels}
+              catalog={catalog}
+              categoryId={categoryId}
             />
           </div>
         </div>

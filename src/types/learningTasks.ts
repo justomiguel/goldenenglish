@@ -30,6 +30,8 @@ export type StudentLearningTaskRow = {
   openedAt: string | null;
   completedAt: string | null;
   assets: LearningTaskAssetRow[];
+  latestAnswer?: string | null;
+  reviews?: { id: string; body: string; createdAt: string }[];
 };
 
 export type TeacherLearningTaskRow = {

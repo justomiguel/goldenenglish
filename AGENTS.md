@@ -53,7 +53,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`25-server-error-logging.mdc`** | Todo error servidor: **`[ge:server]`** (`serverActionLog.ts`) — `scope` estable, códigos/IDs, suficiente para Vercel/ops; prohibido swallow silencioso; sin PII/secrets. |
 | **`27-post-mutation-ui-refresh.mdc`** | Tras mutaciones visibles: **`revalidatePath`** (server) + **`router.refresh()`** (client/hooks); edit flows incluidos; hooks con refresh integrado. |
 | **`32-manual-qa-user-owned.mdc`** | QA manual en browser / tenant: lo hace el usuario; el agente no ofrece walkthroughs salvo pedido explícito; Vitest y automatización sí. |
-| **`34-precommit-e2e.mdc`** | Precommit fail-closed: `test:e2e:precommit` + `.env.local.e2e`; `SKIP_E2E=1` solo con aprobación explícita del usuario. |
+| **`34-precommit-e2e.mdc`** | Precommit fail-closed: `test:unit:precommit` + `test:e2e:precommit` + `.env.local.e2e`. Un archivo que ya pasó no se vuelve a correr si el archivo y el árbol no cambiaron. `SKIP_E2E=1` solo con aprobación explícita del usuario. |
 | **`37-commit-finished-work-ask-when-mixed.mdc`** | Al terminar una tarea, commitear. Nunca stash ni apartar WIP ajeno sin preguntar. Push solo si lo piden. |
 | **`39-commit-product-changelog.mdc`** | Antes de cada commit con cambio visible, agregar la entrada en `src/lib/product-changelog/catalog.ts` (Novedades del sistema). |
 | **`38-trunk-based-development.mdc`** | Trunk-based: solo `main`. Sin feature branches, worktrees ni stashes de aislamiento. |
@@ -61,6 +61,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`43-pwa-surface-spec-check.mdc`** | Al escribir una spec (Gate 0) para una pantalla o UI compartida, revisar siempre el árbol nativo PWA y diseñar Web y PWA por separado sin romper la implementación PWA. |
 | **`44-no-ai-slop-design.mdc`** | Prohibido el diseño genérico de IA (spam de chips/pills, eyebrows en mayúsculas repetidos en cada sección, grillas de tarjetas idénticas con ícono en caja, 3 cajitas de métricas en hero, logos con ícono de Lucide). Exige topología variada, líneas arquitectónicas y transiciones con intención (`<ViewTransition>`, `--ease-out-expo`). |
 | **`46-prefer-database-over-env.mdc`** | Un ajuste que alguien cambia después del deploy va en la base, no en una variable de entorno. La variable queda para secretos y para lo que el proceso necesita antes de abrir la base. |
+| **`47-page-brand-seo.mdc`** | Cada página HTML muestra el logo del host y el nombre una sola vez en el título. Las páginas públicas llevan canonical, hreflang, imagen para compartir y JSON-LD. Cuenta y admin quedan fuera del índice. |
 
 **Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`**, **`24-dashboard-list-filter-aggregates-rpc.mdc`** — agregados para filtros de listados en dashboard para **cualquier rol**, **`28-tenant-register-surface.mdc`** — `/register` con superficie dedicada por `SiteThemeKind`).
 

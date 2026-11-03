@@ -19,7 +19,6 @@ import type { AdminSectionAssessmentsPanelData } from "@/types/adminSectionAsses
 import { AcademicSectionAssessmentsPanel } from "@/components/organisms/AcademicSectionAssessmentsPanel";
 import type { AcademicSectionShellAreaId } from "@/lib/academics/academicSectionShellTabOrder";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
-
 export interface AcademicSectionPageShellBodyProps {
   locale: string;
   cohortId: string;
@@ -143,6 +142,9 @@ export function AcademicSectionPageShellBody({
             nameEditorDict={nameEditorDict}
             referenceImageDict={referenceImageDict}
             scheduleEditorDict={scheduleEditorDict}
+            commercialPlan={data.commercialPlan}
+            dailyCredentialsReady={data.dailyCredentialsReady}
+            deliveryModeDict={d.deliveryMode}
           />
         }
         teachers={

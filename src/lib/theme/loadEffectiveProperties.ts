@@ -1,5 +1,6 @@
 import { loadProperties, type ThemeProperties } from "@/lib/theme/themeParser";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
+import { hideUnsetGenericContact } from "@/lib/theme/genericPublicProperties";
 import { mergeProperties } from "@/lib/theme/themeOverrides";
 import type { EffectiveProperties } from "@/types/theming";
 
@@ -30,7 +31,11 @@ export async function loadEffectiveProperties(): Promise<EffectiveProperties> {
     return { properties: defaults, activeThemeSlug: null };
   }
   return {
-    properties: mergeProperties(defaults, active.theme.properties),
+    properties: hideUnsetGenericContact(
+      mergeProperties(defaults, active.theme.properties),
+      active.theme.properties,
+      active.theme.templateKind,
+    ),
     activeThemeSlug: active.theme.slug,
   };
 }

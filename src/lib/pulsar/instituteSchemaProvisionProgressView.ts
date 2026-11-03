@@ -13,6 +13,9 @@ export type ProvisionPhaseCopy = {
   schema: string;
   migration: string;
   grants: string;
+  theme: string;
+  domain: string;
+  domainSkipped: string;
   done: string;
   failed: string;
 };
@@ -35,6 +38,9 @@ export function buildProvisionJobSnapshot(row: ProvisionProgressRecord | null): 
 export function provisionPrimaryLine(snapshot: LongJobSnapshot, copy: ProvisionPhaseCopy): string {
   const fileName = typeof snapshot.fileName === "string" ? snapshot.fileName : "";
   const withFile = (template: string) => template.replaceAll("{file}", fileName);
+  if (snapshot.message === "domain_skipped") return copy.domainSkipped;
+  if (snapshot.message === "domain") return withFile(copy.domain);
+  if (snapshot.message === "theme") return copy.theme;
   if (snapshot.status === "failed") return withFile(copy.failed);
   if (snapshot.status === "succeeded" || snapshot.message === "done") return copy.done;
   if (snapshot.message === "grants") return copy.grants;

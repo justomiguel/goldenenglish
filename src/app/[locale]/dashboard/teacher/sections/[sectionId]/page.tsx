@@ -5,6 +5,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { TeacherSectionRoster } from "@/components/organisms/TeacherSectionRoster";
+import { TeacherSectionNotices } from "@/components/teacher/TeacherSectionNotices";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { loadTeacherSectionDetailModel } from "@/lib/academics/loadTeacherSectionDetailModel";
 import { loadSectionEnrollmentLinkState } from "@/lib/academics/sectionEnrollmentLinkAdmin";
@@ -14,6 +15,8 @@ import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { SectionReferenceThumb } from "@/components/molecules/SectionReferenceThumb";
 import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
 import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
+import { TeacherSectionJoinButton } from "@/components/teacher/TeacherSectionJoinButton";
+import { loadTeacherOpenDailyJoin } from "@/lib/academics/loadOpenDailyJoin";
 
 interface PageProps {
   params: Promise<{ locale: string; sectionId: string }>;
@@ -71,10 +74,22 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
     attendanceStatusLabels: d.attendanceStatus,
   });
 
-  const [enrollmentLinkState, { url: supabaseUrl }] = await Promise.all([
+  const [enrollmentLinkState, { url: supabaseUrl }, noticeResult, dailyJoin] = await Promise.all([
     loadSectionEnrollmentLinkState(supabase, sectionId),
     readRequestSupabasePublicEnv(),
+    supabase
+      .from("section_notices")
+      .select("id, body_text")
+      .eq("section_id", sectionId)
+      .is("archived_at", null)
+      .order("published_at", { ascending: false })
+      .limit(5),
+    loadTeacherOpenDailyJoin({ locale, sectionId, userId: user.id }),
   ]);
+  const notices = ((noticeResult.data ?? []) as { id: string; body_text: string }[]).map((row) => ({
+    id: row.id,
+    body: row.body_text,
+  }));
 
   return (
     <div className="space-y-6">
@@ -85,15 +100,18 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
         >
           {d.rosterBack}
         </Link>
-        <div className="mt-2 flex items-start gap-3">
-          <SectionReferenceThumb
-            src={sectionReferenceImagePublicUrl(sec.reference_image_path, supabaseUrl)}
-            alt={sec.name}
-            size="md"
-          />
-          <div className="min-w-0 flex-1">
-            <AdminPageHeader title={sec.name} lead={cohortName} iconId="academic" />
+        <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-start">
+          <div className="flex min-w-0 flex-1 items-start gap-3">
+            <SectionReferenceThumb
+              src={sectionReferenceImagePublicUrl(sec.reference_image_path, supabaseUrl)}
+              alt={sec.name}
+              size="md"
+            />
+            <div className="min-w-0 flex-1">
+              <AdminPageHeader title={sec.name} lead={cohortName} iconId="academic" />
+            </div>
           </div>
+          {dailyJoin ? <TeacherSectionJoinButton href={dailyJoin.joinHref} label={d.joinClass} /> : null}
         </div>
       </div>
       <h2 className="text-lg font-semibold text-[var(--color-primary)]">{d.rosterTitle}</h2>
@@ -130,6 +148,12 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
         state={enrollmentLinkState}
         labels={dict.dashboard.sectionEnrollmentLink}
         canRevoke
+      />
+      <TeacherSectionNotices
+        locale={locale}
+        sectionId={sectionId}
+        notices={notices}
+        labels={d}
       />
       <TeacherSectionRoster
         locale={locale}

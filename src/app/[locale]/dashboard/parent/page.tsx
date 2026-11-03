@@ -9,6 +9,8 @@ import { loadParentRecentAttendance } from "@/lib/parent/loadParentRecentAttenda
 import { loadStudentLearningTasks } from "@/lib/learning-tasks/loadStudentLearningTasks";
 import { loadPortalCalendarPageData } from "@/lib/calendar/loadPortalCalendarPageData";
 import { loadParentHomeNewsFeed } from "@/lib/parent/loadParentHomeNewsFeed";
+import { loadHomeSectionNotices } from "@/lib/courses/loadHomeSectionNotices";
+import { SectionNoticeList } from "@/components/student/SectionNoticeList";
 import { loadParentFocusCatalog } from "@/lib/parent/loadParentFocusCatalog";
 import { resolveParentFocus } from "@/lib/parent/resolveParentFocus";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
@@ -99,14 +101,17 @@ export default async function ParentTodayPage({ params, searchParams }: PageProp
   } as Awaited<ReturnType<typeof loadPortalCalendarPageData>>);
 
   let newsItems: ParentHomeNewsItem[] = [];
+  let notices: { id: string; body: string }[] = [];
   try {
     newsItems = await loadParentHomeNewsFeed(supabase, {
       locale,
       viewerSectionIds: calendarPage.viewerSectionIds,
     });
   } catch {
-    // News is the least load-bearing thing here; an empty shelf is honest enough.
     newsItems = [];
+  }
+  if (focus.studentId) {
+    notices = await loadHomeSectionNotices(supabase, focus.studentId);
   }
 
   const focusParams = { studentId: focus.studentId, sectionId: focus.sectionId };
@@ -165,6 +170,8 @@ export default async function ParentTodayPage({ params, searchParams }: PageProp
       calendarHref={withParentFocusHref(`${base}/calendar`, focusParams)}
       scheduleHuman={logistics?.scheduleHuman ?? null}
       newsItems={newsItems}
+      notices={notices}
+      noticeTitle={dict.dashboard.student.courses.noticeTitle}
       newsLabels={dict.dashboard.parent.homeInbox.newsFeed}
     />
   );

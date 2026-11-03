@@ -19,6 +19,7 @@ import { lioraPlacesFromSedes } from "@/lib/public/instituteAnswerPages";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { centrolistoLayoutIcons } from "@/lib/pulsar/centrolistoFavicon";
+import { CENTROLISTO_ENTITY_NAME } from "@/lib/pulsar/centrolistoDocumentTitle";
 import { centrolistoShareMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { CentroListoJsonLd } from "@/components/organisms/pulsar/CentroListoJsonLd";
 import { CentroListoGoogleAnalytics } from "@/components/organisms/pulsar/CentroListoGoogleAnalytics";
@@ -44,16 +45,13 @@ export async function generateMetadata({
   if (await isPulsarPlatformRequest()) {
     const dict = await getDictionary(loc);
     const share = await centrolistoShareMetadata({
-      title: dict.pulsar.meta.brandName,
+      title: CENTROLISTO_ENTITY_NAME,
       description: dict.pulsar.meta.brandTagline,
-      siteName: dict.pulsar.meta.brandName,
+      siteName: CENTROLISTO_ENTITY_NAME,
       locale: loc,
     });
     return {
-      title: {
-        default: dict.pulsar.meta.brandName,
-        template: `%s | ${dict.pulsar.meta.brandName}`,
-      },
+      title: { template: `%s | ${CENTROLISTO_ENTITY_NAME}` } as Metadata["title"],
       description: dict.pulsar.meta.description,
       icons: centrolistoLayoutIcons(),
       ...share,
@@ -137,7 +135,7 @@ export default async function LocaleLayout({
     return (
       <div className="min-h-screen">
         <CentroListoJsonLd
-          name={dict.pulsar.meta.brandName}
+          name={CENTROLISTO_ENTITY_NAME}
           description={dict.pulsar.meta.description}
           url={`${origin}/${loc}`}
           logoUrl={`${origin}/centrolisto/android-chrome-512x512.png`}

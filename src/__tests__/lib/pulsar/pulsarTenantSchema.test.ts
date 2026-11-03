@@ -354,6 +354,45 @@ describe("validatePulsarTenantInput", () => {
       ),
     ).toEqual({ ok: false, errorCode: "pulsar_shared_db_unconfigured" });
   });
+
+  it("keeps the commercial plan, a trimmed Daily key, and a normalized Daily domain", () => {
+    const res = validatePulsarTenantInput(
+      {
+        slug: "liora",
+        displayName: "Liora Studio",
+        hosts: ["liorastudio.cl"],
+        supabaseUrl: "https://liora.supabase.co",
+        supabaseAnonKey: "anon-liora",
+        supabaseServiceRoleKey: "srv-liora",
+        commercialPlan: "ecosistema",
+        dailyApiKey: "  daily-key  ",
+        dailyDomain: "Academia.Daily.co",
+      },
+      EXISTING,
+    );
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      expect(res.value.commercialPlan).toBe("ecosistema");
+      expect(res.value.dailyApiKey).toBe("daily-key");
+      expect(res.value.dailyDomain).toBe("academia.daily.co");
+    }
+  });
+
+  it("rejects a Daily domain that includes a scheme", () => {
+    const res = validatePulsarTenantInput(
+      {
+        slug: "liora",
+        displayName: "Liora Studio",
+        hosts: ["liorastudio.cl"],
+        supabaseUrl: "https://liora.supabase.co",
+        supabaseAnonKey: "anon-liora",
+        supabaseServiceRoleKey: "srv-liora",
+        dailyDomain: "https://academia.daily.co",
+      },
+      EXISTING,
+    );
+    expect(res).toEqual({ ok: false, errorCode: "invalid_daily_domain" });
+  });
 });
 
 // REGRESSION CHECK: Validating platform_settings.pulsar_hosts must reject empty host lists

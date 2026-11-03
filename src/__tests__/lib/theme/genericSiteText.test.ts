@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isGenericLandingCopyKey } from "@/lib/cms/genericLandingCopyKeys";
+import { genericLandingCopyKeys, isGenericLandingCopyKey } from "@/lib/cms/genericLandingCopyKeys";
 import { isEditableLandingCopyKey } from "@/lib/cms/landingContentCatalog";
 import { hiddenLandingSections } from "@/lib/theme/hiddenLandingSections";
 import { seoTextForLocale } from "@/lib/theme/seoTextForLocale";
@@ -7,6 +7,11 @@ import { seoTextForLocale } from "@/lib/theme/seoTextForLocale";
 describe("generic site text", () => {
   it("accepts generic landing copy and rejects an unknown path", () => {
     expect(isGenericLandingCopyKey("genericLandings.deportes.title")).toBe(true);
+    expect(isGenericLandingCopyKey("genericLandings.deportes.rhythmA")).toBe(true);
+    expect(isGenericLandingCopyKey("genericLandings.deportes.sections.historia")).toBe(true);
+    expect(genericLandingCopyKeys("deportes", "historia")).toContain(
+      "genericLandings.deportes.sections.historia",
+    );
     expect(isEditableLandingCopyKey("genericSectionLabels.historia")).toBe(true);
     expect(isGenericLandingCopyKey("genericLandings.deportes.secret")).toBe(false);
   });

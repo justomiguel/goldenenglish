@@ -20,6 +20,13 @@ export function hostOnly(raw: string): string {
   return raw.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "").replace(/:\d+$/, "");
 }
 
+/** A platform host is not the institute domain. A blank value keeps the preview host. */
+export function optionalOwnerDomain(raw: string, isPlatformHost: (host: string) => boolean): string {
+  const host = normalizeHost(hostOnly(raw));
+  if (!host || isPlatformHost(host)) return "";
+  return host;
+}
+
 export function customHostBesidePreview(
   hosts: readonly string[],
   previewHosts: readonly string[],

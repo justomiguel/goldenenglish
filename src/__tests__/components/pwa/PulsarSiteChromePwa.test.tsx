@@ -31,7 +31,7 @@ describe("PulsarSiteChromePwa", () => {
     expect(screen.getByRole("button", { name: dict.pulsar.session.signOut })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: dict.pulsar.nav.startFree })).toHaveAttribute(
       "href",
-      "/es/cuenta/registro",
+      "/es/cuenta/nuevo",
     );
     expect(screen.getByRole("link", { name: dict.pulsar.nav.pricing })).toHaveAttribute(
       "href",

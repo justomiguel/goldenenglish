@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDictionary, locales, type AppLocale } from "@/lib/i18n/dictionaries";
+import { CENTROLISTO_ENTITY_NAME } from "@/lib/pulsar/centrolistoDocumentTitle";
 import { buildCentrolistoLlmsTxt } from "@/lib/pulsar/centrolistoLlmsTxt";
 import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
@@ -21,7 +22,7 @@ export async function GET() {
   const es = dictionaries[locales.indexOf("es")];
   const body = buildCentrolistoLlmsTxt({
     origin,
-    name: es.pulsar.meta.brandName,
+    name: CENTROLISTO_ENTITY_NAME,
     tagline: es.pulsar.meta.brandTagline,
     description: es.pulsar.meta.description,
     locales: dictionaries.map((dict, index) => ({

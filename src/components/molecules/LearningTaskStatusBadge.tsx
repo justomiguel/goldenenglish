@@ -10,6 +10,7 @@ const tone: Record<TaskProgressStatus, string> = {
   OPENED: "border-[var(--color-primary)] bg-[var(--color-surface)] text-[var(--color-primary)]",
   COMPLETED: "border-[var(--color-success)] bg-[var(--color-surface)] text-[var(--color-success)]",
   COMPLETED_LATE: "border-[var(--color-error)] bg-[var(--color-surface)] text-[var(--color-error)]",
+  RETURNED: "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-foreground)]",
 };
 
 export function LearningTaskStatusBadge({ status, labels }: LearningTaskStatusBadgeProps) {

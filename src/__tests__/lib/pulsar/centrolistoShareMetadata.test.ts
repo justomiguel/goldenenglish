@@ -48,4 +48,21 @@ describe("centrolistoShareMetadata", () => {
     });
     expect(meta.alternates?.canonical).toBe("/es/producto");
   });
+
+  it("names a private page once and keeps crawlers out", async () => {
+    const { centrolistoPrivatePageMetadata } = await import("@/lib/pulsar/centrolistoShareMetadata");
+    const meta = await centrolistoPrivatePageMetadata({
+      locale: "es",
+      title: "Crea tu cuenta",
+      description: "Crea la página pública.",
+      siteName: "centrolisto",
+      suffix: "/cuenta/registro",
+    });
+    expect(meta.title).toEqual({ absolute: "Crea tu cuenta | CentroListo" });
+    expect(meta.robots).toMatchObject({ index: false, follow: false });
+    expect(meta.openGraph).toMatchObject({
+      siteName: "CentroListo",
+      title: "Crea tu cuenta | CentroListo",
+    });
+  });
 });

@@ -9,6 +9,9 @@ const copy = {
   schema: "Creating the schema",
   migration: "Applying {file}",
   grants: "Granting access",
+  theme: "Turning on the template",
+  domain: "Registering {file}",
+  domainSkipped: "Vercel is not configured.",
   done: "Database ready",
   failed: "Stopped on {file}",
 };
@@ -39,5 +42,26 @@ describe("buildProvisionJobSnapshot", () => {
       files: [],
     });
     expect(provisionPrimaryLine(snapshot, copy)).toBe("Stopped on 207_tenant_merch_shop.sql");
+  });
+
+  it("names the template step and the domain step", () => {
+    const theme = buildProvisionJobSnapshot({
+      status: "running",
+      phase: "theme",
+      file_name: null,
+      applied_count: 200,
+      total_count: 200,
+      files: [],
+    });
+    const domain = buildProvisionJobSnapshot({
+      status: "running",
+      phase: "domain",
+      file_name: "club.example.com",
+      applied_count: 200,
+      total_count: 200,
+      files: [],
+    });
+    expect(provisionPrimaryLine(theme, copy)).toBe("Turning on the template");
+    expect(provisionPrimaryLine(domain, copy)).toBe("Registering club.example.com");
   });
 });

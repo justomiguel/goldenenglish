@@ -55,6 +55,7 @@ export function assembleStudentCourses(input: {
       title: course.title,
       origins: access.origins,
       progressMode: course.progressMode,
+      sectionIds: [...course.grantingSectionIds],
       modules: modules.map((module) => ({
         id: module.id,
         title: module.title,

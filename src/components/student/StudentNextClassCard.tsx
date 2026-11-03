@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { Video } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { StudentHubSectionRow } from "@/types/studentHub";
 import type { Dictionary } from "@/types/i18n";
@@ -34,19 +36,53 @@ function nextClassFromRows(sections: StudentHubSectionRow[], now: Date) {
   return best;
 }
 
+export type StudentOpenClass = {
+  label: string;
+  teacher: string;
+  startIso: string;
+};
+
 export interface StudentNextClassCardProps {
   sections: StudentHubSectionRow[];
   dict: HubDict;
+  joinHref?: string | null;
+  openClass?: StudentOpenClass | null;
 }
 
-export function StudentNextClassCard({ sections, dict }: StudentNextClassCardProps) {
+function JoinClassLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 text-sm font-medium text-[var(--color-primary-foreground)] hover:bg-[var(--color-primary-dark)]"
+    >
+      <Video className="h-4 w-4" aria-hidden />
+      {label}
+    </Link>
+  );
+}
+
+export function StudentNextClassCard({
+  sections,
+  dict,
+  joinHref = null,
+  openClass = null,
+}: StudentNextClassCardProps) {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     const t = window.setInterval(() => setNow(new Date()), 30000);
     return () => window.clearInterval(t);
   }, []);
 
-  const next = useMemo(() => nextClassFromRows(sections, now), [sections, now]);
+  const next = useMemo(() => {
+    if (openClass) {
+      return {
+        start: new Date(openClass.startIso),
+        teacher: openClass.teacher,
+        label: openClass.label,
+      };
+    }
+    return nextClassFromRows(sections, now);
+  }, [openClass, sections, now]);
 
   if (!next) {
     return (
@@ -56,6 +92,7 @@ export function StudentNextClassCard({ sections, dict }: StudentNextClassCardPro
       >
         <p className="text-sm font-medium text-[var(--color-foreground)]">{dict.nextClassTitle}</p>
         <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{dict.noUpcoming}</p>
+        {joinHref ? <JoinClassLink href={joinHref} label={dict.joinClass} /> : null}
       </section>
     );
   }
@@ -91,6 +128,7 @@ export function StudentNextClassCard({ sections, dict }: StudentNextClassCardPro
       <p className="mt-3 inline-flex rounded-full bg-[var(--color-accent)]/25 px-3 py-1 text-sm font-semibold text-[var(--color-foreground)]">
         {when}
       </p>
+      {joinHref ? <JoinClassLink href={joinHref} label={dict.joinClass} /> : null}
     </section>
   );
 }

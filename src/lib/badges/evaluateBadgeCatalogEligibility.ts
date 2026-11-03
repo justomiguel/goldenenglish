@@ -13,6 +13,8 @@ export type StudentBadgeEvaluationContext = {
   passedAssessmentCount: number;
   /** Lifetime count of messages this student authored from the portal inbox. */
   messagesSentCount: number;
+  /** Courses with a saved completion that is not revoked. */
+  completedCourseCount: number;
 };
 
 function isNonEmptyTrimmed(s: string | null | undefined): boolean {
@@ -58,6 +60,8 @@ export function isBadgeEntryEligible(
       return ctx.passedAssessmentCount >= threshold;
     case "messages_sent":
       return ctx.messagesSentCount >= threshold;
+    case "course_completed":
+      return ctx.completedCourseCount >= threshold;
     default:
       return false;
   }

@@ -10,6 +10,8 @@ import { loadStudentFeedbackTimeline } from "@/lib/parent/loadStudentFeedbackTim
 import { loadStudentExamResults } from "@/lib/parent/loadStudentExamResults";
 import { loadStudentBadgeDisplayRows } from "@/lib/badges/loadStudentBadgeDisplayRows";
 import { loadStudentCourses } from "@/lib/courses/loadStudentCourses";
+import { courseResultViews } from "@/lib/courses/courseResult";
+import { loadCourseResultInputs } from "@/lib/courses/loadCourseResultInputs";
 import { createProgressFailureTracker } from "@/lib/parent/progressFailureTracker";
 import { ParentProgressEntry } from "@/components/parent/ParentProgressEntry";
 import { requirePortalPageActor } from "@/lib/dashboard/requirePortalPageActor";
@@ -75,6 +77,14 @@ export default async function StudentProgressPage({ params, searchParams }: Page
     loadStudentBadgeDisplayRows(studentId, badgeShareUrl, failures.reporterFor("badges")),
     loadStudentCourses(supabase, studentId, failures.reporterFor("courses")),
   ]);
+  const sectionIds = courses.flatMap((course) => course.sectionIds);
+  const resultInputs = await loadCourseResultInputs(supabase, studentId, sectionIds);
+  const courseResults = courseResultViews({
+    courses,
+    tasks: resultInputs.tasks,
+    attendancePercent: resultInputs.attendancePercent,
+    exams,
+  });
 
   return (
     <Suspense fallback={<ProgressFallback />}>
@@ -93,6 +103,8 @@ export default async function StudentProgressPage({ params, searchParams }: Page
         studentLabels={dict.dashboard.student}
         badgesDict={dict.dashboard.student.badges}
         progressBasePath={`/${locale}/dashboard/student/progress`}
+        lessonLinks
+        courseResults={courseResults}
       />
     </Suspense>
   );

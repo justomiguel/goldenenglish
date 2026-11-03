@@ -4,17 +4,20 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { AdminCourseTaxonomyFields, courseFieldPayload, mergeFieldDraft, type CourseFieldDraft } from "@/components/admin/AdminCourseTaxonomyFields";
 import { createCourseAction } from "@/app/[locale]/dashboard/admin/academic/contents/courseActions";
+import type { CourseFieldFormOption } from "@/lib/courses/loadCourseCatalogSetup";
 import type { Dictionary } from "@/types/i18n";
 
 type Labels = Dictionary["dashboard"]["adminContents"];
-
 type LessonDraft = { title: string; contentTemplateId: string };
 type ModuleDraft = { title: string; lessons: LessonDraft[] };
 
 interface AdminCourseCreateFormProps {
   locale: string;
   templates: { id: string; title: string }[];
+  categories?: { id: string; name: string }[];
+  fields?: CourseFieldFormOption[];
   labels: Labels;
 }
 
@@ -22,13 +25,22 @@ function blankLesson(templateId: string, title: string): LessonDraft {
   return { title, contentTemplateId: templateId };
 }
 
-export function AdminCourseCreateForm({ locale, templates, labels }: AdminCourseCreateFormProps) {
+export function AdminCourseCreateForm({
+  locale,
+  templates,
+  categories = [],
+  fields = [],
+  labels,
+}: AdminCourseCreateFormProps) {
   const router = useRouter();
   const first = templates[0];
   const [title, setTitle] = useState("");
   const [progressMode, setProgressMode] = useState<"open" | "sequential">("open");
   const [price, setPrice] = useState("0");
   const [listedInShop, setListedInShop] = useState(false);
+  const [categoryId, setCategoryId] = useState("");
+  const [hashtags, setHashtags] = useState("");
+  const [fieldDrafts, setFieldDrafts] = useState<Record<string, CourseFieldDraft>>({});
   const [modules, setModules] = useState<ModuleDraft[]>([
     { title: "", lessons: [blankLesson(first?.id ?? "", first?.title ?? "")] },
   ]);
@@ -61,6 +73,9 @@ export function AdminCourseCreateForm({ locale, templates, labels }: AdminCourse
       progressMode,
       price: Number(price) || 0,
       listedInShop,
+      categoryId: categoryId || null,
+      hashtags,
+      fieldValues: courseFieldPayload(fields, fieldDrafts),
       modules: modules.map((module) => ({
         title: module.title.trim() || title.trim(),
         lessons: module.lessons,
@@ -74,6 +89,9 @@ export function AdminCourseCreateForm({ locale, templates, labels }: AdminCourse
     setTitle("");
     setListedInShop(false);
     setPrice("0");
+    setCategoryId("");
+    setHashtags("");
+    setFieldDrafts({});
     setModules([{ title: "", lessons: [blankLesson(first.id, first.title)] }]);
     router.refresh();
   }
@@ -122,6 +140,19 @@ export function AdminCourseCreateForm({ locale, templates, labels }: AdminCourse
         <input type="checkbox" checked={listedInShop} onChange={(event) => setListedInShop(event.target.checked)} />
         {labels.courseListed}
       </label>
+      <AdminCourseTaxonomyFields
+        labels={labels}
+        categories={categories}
+        fields={fields}
+        categoryId={categoryId}
+        hashtags={hashtags}
+        drafts={fieldDrafts}
+        onCategoryId={setCategoryId}
+        onHashtags={setHashtags}
+        onDraft={(fieldId, patch) =>
+          setFieldDrafts((current) => ({ ...current, [fieldId]: mergeFieldDraft(current[fieldId], patch) }))
+        }
+      />
       {modules.map((module, moduleIndex) => (
         <fieldset key={moduleIndex} className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] p-3">
           <label className="block space-y-1 text-sm text-[var(--color-foreground)]">

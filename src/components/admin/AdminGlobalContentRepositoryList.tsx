@@ -36,11 +36,13 @@ export function AdminGlobalContentRepositoryList({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [draftQ, setDraftQ] = useState(pagination.searchQuery);
+  const [draftTag, setDraftTag] = useState(pagination.tag ?? "");
+  const [draftMaterial, setDraftMaterial] = useState(pagination.material ?? "");
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionModal, setActionModal] = useState<RepositoryActionModalState>(null);
   const [isPending, startTransition] = useTransition();
 
-  const go = (updates: { page?: number; q?: string }) => {
+  const go = (updates: { page?: number; q?: string; tag?: string; material?: string }) => {
     router.push(buildAcademicContentsListPath(locale, searchParams, updates));
   };
 
@@ -94,7 +96,7 @@ export function AdminGlobalContentRepositoryList({
         className="flex flex-wrap items-end gap-2"
         onSubmit={(e) => {
           e.preventDefault();
-          go({ page: 1, q: draftQ });
+          go({ page: 1, q: draftQ, tag: draftTag, material: draftMaterial });
         }}
       >
         <div className="min-w-[12rem] flex-1">
@@ -109,6 +111,25 @@ export function AdminGlobalContentRepositoryList({
             autoComplete="off"
           />
         </div>
+        <label className="min-w-[8rem] flex-1 text-sm text-[var(--color-foreground)]">
+          {labels.catalogTag}
+          <Input value={draftTag} maxLength={40} onChange={(event) => setDraftTag(event.target.value)} autoComplete="off" />
+        </label>
+        <label className="min-w-[8rem] text-sm text-[var(--color-foreground)]">
+          {labels.catalogMaterial}
+          <select
+            className="block w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2"
+            value={draftMaterial}
+            onChange={(event) => setDraftMaterial(event.target.value)}
+          >
+            <option value="">{labels.catalogMaterialAny}</option>
+            <option value="video_embed">{labels.catalogMaterialVideo}</option>
+            <option value="pdf">{labels.catalogMaterialPdf}</option>
+            <option value="quiz">{labels.catalogMaterialQuiz}</option>
+            <option value="image">{labels.catalogMaterialImage}</option>
+            <option value="audio">{labels.catalogMaterialAudio}</option>
+          </select>
+        </label>
         <Button type="submit" variant="secondary" size="sm" disabled={isPending}>
           <Search className="h-4 w-4 shrink-0" aria-hidden />
           {labels.repositorySearchSubmit}

@@ -82,9 +82,10 @@ async function exposeSchema(client: Client, schema: string): Promise<void> {
   const next = [...names].join(",");
   await client.query(`ALTER ROLE authenticator SET pgrst.db_schemas TO '${next.replace(/'/g, "")}'`);
   await client.query("NOTIFY pgrst, 'reload config'");
+  await client.query("NOTIFY pgrst, 'reload schema'");
 }
 
-async function hideSchema(client: Client, schema: string): Promise<void> {
+export async function hideSchema(client: Client, schema: string): Promise<void> {
   const current = await client.query<{ rolconfig: string[] | null }>(
     "SELECT rolconfig FROM pg_roles WHERE rolname = 'authenticator'",
   );
@@ -100,6 +101,7 @@ async function hideSchema(client: Client, schema: string): Promise<void> {
     `ALTER ROLE authenticator SET pgrst.db_schemas TO '${next.join(",").replace(/'/g, "")}'`,
   );
   await client.query("NOTIFY pgrst, 'reload config'");
+  await client.query("NOTIFY pgrst, 'reload schema'");
 }
 
 async function discardPartialInstituteSchema(client: Client, schema: string): Promise<void> {
@@ -117,11 +119,14 @@ async function discardPartialInstituteSchema(client: Client, schema: string): Pr
   await hideSchema(client, schema).catch(() => undefined);
 }
 
-export async function prepareInstituteDataPlane(record: {
-  dataMode?: string | null;
-  databaseUrl: string | null;
-  postgresSchema?: string | null;
-}): Promise<{ ok: true; pulsarDatabaseUrl: string } | { ok: false; errorCode: string }> {
+export async function prepareInstituteDataPlane(
+  record: {
+    dataMode?: string | null;
+    databaseUrl: string | null;
+    postgresSchema?: string | null;
+  },
+  ownerId?: string | null,
+): Promise<{ ok: true; pulsarDatabaseUrl: string } | { ok: false; errorCode: string }> {
   const pulsarDatabaseUrl = process.env.PULSAR_DATABASE_URL?.trim() ?? "";
   if (pulsarDatabaseUrl) {
     const columns = await ensureInstituteDataPlaneColumns(pulsarDatabaseUrl);
@@ -131,6 +136,7 @@ export async function prepareInstituteDataPlane(record: {
     const provisioned = await provisionSharedInstituteSchema({
       databaseUrl: record.databaseUrl,
       postgresSchema: record.postgresSchema,
+      ownerId,
     });
     if (!provisioned.ok) return provisioned;
   }
@@ -160,6 +166,7 @@ export async function ensureInstituteDataPlaneColumns(
 export async function provisionSharedInstituteSchema(args: {
   databaseUrl: string;
   postgresSchema: string;
+  ownerId?: string | null;
 }): Promise<{ ok: true } | { ok: false; errorCode: "schema_provision_failed" }> {
   const schema = args.postgresSchema;
   if (!/^tenant_[a-z0-9_]{1,50}$/.test(schema)) {
@@ -181,7 +188,7 @@ export async function provisionSharedInstituteSchema(args: {
       .filter((name) => /^\d+.*\.sql$/i.test(name))
       .sort();
     const productFiles = files.filter((name) => !isBrandDataMigration(name));
-    const progress = createProvisionProgressWriter(client, schema, productFiles.length);
+    const progress = createProvisionProgressWriter(client, schema, productFiles.length, args.ownerId ?? null);
     await progress.ensure();
     let failingFile: string | null = null;
     try {
@@ -221,7 +228,6 @@ export async function provisionSharedInstituteSchema(args: {
       logServerWarn("provisionSharedInstituteSchema:expose", { schema, reason: "pgrst_schemas" });
       logServerActionException("provisionSharedInstituteSchema:expose", err);
     }
-      await progress.succeed();
       return { ok: true };
     } catch (err) {
       await progress.fail(failingFile);
