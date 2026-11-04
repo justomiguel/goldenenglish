@@ -191,6 +191,10 @@ BEGIN
   VALUES ('public_cta_mode', '"both"'::jsonb, now())
   ON CONFLICT (key) DO UPDATE SET value = '"both"'::jsonb, updated_at = now();
 
+  INSERT INTO public.site_settings (key, value, updated_at)
+  VALUES ('merch_enabled', 'true'::jsonb, now())
+  ON CONFLICT (key) DO UPDATE SET value = 'true'::jsonb, updated_at = now();
+
   INSERT INTO public.academic_cohorts (name, slug, starts_on, ends_on, is_current)
   VALUES (
     'E2E Cohort',
@@ -726,6 +730,33 @@ BEGIN
     status = 'pending_approval',
     rejection_reason_code = NULL,
     rejection_detail = NULL;
+
+  INSERT INTO public.learning_courses (
+    title, slug, status, progress_mode, price, listed_in_shop, created_by, updated_by
+  )
+  SELECT
+    'E2E Free Course',
+    'e2e-free-course',
+    'published',
+    'open',
+    0,
+    true,
+    v_admin,
+    v_admin
+  WHERE NOT EXISTS (
+    SELECT 1 FROM public.learning_courses WHERE slug = 'e2e-free-course'
+  );
+
+  UPDATE public.learning_courses
+  SET
+    title = 'E2E Free Course',
+    status = 'published',
+    progress_mode = 'open',
+    price = 0,
+    listed_in_shop = true,
+    updated_by = v_admin,
+    updated_at = now()
+  WHERE slug = 'e2e-free-course';
 END $$;
 
 DROP FUNCTION IF EXISTS public._e2e_upsert_user(text, text, public.user_role, text, text, text);

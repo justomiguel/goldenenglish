@@ -105,6 +105,12 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
     {
+      name: "chromium-critical-course",
+      dependencies: ["setup"],
+      testMatch: /critical-free-course\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
       name: "chromium-critical-academic",
       dependencies: ["setup"],
       testMatch: /critical-academic\.spec\.ts/,
