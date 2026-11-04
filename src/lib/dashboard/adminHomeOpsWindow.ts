@@ -33,7 +33,8 @@ function addUtcDays(iso: string, days: number): string {
 
 export function adminHomeOpsWindow(now: Date, timeZone: string): AdminHomeOpsWindow {
   const today = isoDate(timeZone, now);
-  const short = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" }).format(now);
+  // Explicit key. A shorthand `{ timeZone }` is left unbound when this function is inlined.
+  const short = new Intl.DateTimeFormat("en-US", { timeZone: timeZone, weekday: "short" }).format(now);
   const weekday = WEEKDAY[short] ?? 0;
   const daysFromMonday = weekday === 0 ? 6 : weekday - 1;
   const weekStart = addUtcDays(today, -daysFromMonday);

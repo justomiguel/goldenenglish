@@ -56,6 +56,7 @@ export async function chooseRegisterSectionByName(page: Page, name: string | Reg
 }
 
 const SUBMIT_NAME = /enviar solicitud|send request|enviar|submit|inscrib/i;
+const TRIAL_SUBMIT_NAME = /agendar clase de prueba|book trial class/i;
 
 async function fillNagoRegisterExtrasIfPresent(page: Page) {
   const nationality = page.locator("#nago-nat");
@@ -89,14 +90,23 @@ async function acceptRegisterPrivacyIfPresent(page: Page) {
   }
 }
 
-/** Details CTA is Submit on classic tenants, Continue + extras on Nagô. */
-export async function submitRegisterAfterDetails(page: Page) {
+async function submitNamedRegister(page: Page, name: RegExp) {
   await acceptRegisterPrivacyIfPresent(page);
-  const submit = page.getByRole("button", { name: SUBMIT_NAME });
+  const submit = page.getByRole("button", { name });
   if (!(await submit.isVisible().catch(() => false))) {
     await page.getByRole("button", { name: /continuar|continue/i }).click();
     await expect(page.locator("#nago-nat")).toBeVisible({ timeout: 15_000 });
     await fillNagoRegisterExtrasIfPresent(page);
   }
   await submit.click();
+}
+
+/** Details CTA is Submit on classic tenants, Continue + extras on Nagô. */
+export async function submitRegisterAfterDetails(page: Page) {
+  await submitNamedRegister(page, SUBMIT_NAME);
+}
+
+/** Trial CTA label differs from the reserve submit. */
+export async function submitTrialRegisterAfterDetails(page: Page) {
+  await submitNamedRegister(page, TRIAL_SUBMIT_NAME);
 }

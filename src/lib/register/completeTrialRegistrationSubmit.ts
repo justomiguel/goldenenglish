@@ -20,6 +20,7 @@ import { notifyTrialRegistrationReceived } from "@/lib/register/notifyTrialRegis
 import { composeSyntheticMinorStudentEmail } from "@/lib/register/composeSyntheticMinorStudentEmail";
 import { getRequestMailTenantDomain } from "@/lib/register/requestMailTenant";
 import { privacyAcceptanceStamp } from "@/lib/privacy/privacyAcceptanceStamp";
+import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export async function completeTrialRegistrationSubmit(input: {
   locale: string;
@@ -121,7 +122,8 @@ export async function completeTrialRegistrationSubmit(input: {
     resolvedEmail = input.parsed.email.trim().toLowerCase();
   }
 
-  const { data: lead, error } = await input.supabase
+  // Anon may insert a lead but cannot SELECT it. RETURNING would fail the insert policy.
+  const { error } = await input.supabase
     .from("registrations")
     .insert({
       first_name: input.parsed.first_name,
@@ -147,10 +149,21 @@ export async function completeTrialRegistrationSubmit(input: {
       intake_state: intakeStateForSnapshotTotal(feeSnapshot.total),
       fee_captured: false,
       ...privacyAcceptanceStamp(now),
-    })
+    });
+  if (error) {
+    logSupabaseClientError("register.trialLead", error, {});
+    return { ok: false, message: input.dict.actionErrors.register.insertFailed };
+  }
+
+  const { data: lead, error: readErr } = await input.admin
+    .from("registrations")
     .select("id")
-    .single();
-  if (error || !lead) return { ok: false, message: input.dict.actionErrors.register.insertFailed };
+    .eq("pay_token", payToken)
+    .maybeSingle();
+  if (readErr || !lead) {
+    if (readErr) logSupabaseClientError("register.trialLeadRead", readErr, {});
+    return { ok: false, message: input.dict.actionErrors.register.insertFailed };
+  }
 
   const { error: seatErr } = await input.admin.from("registration_trial_seats").insert(
     planned.seats.map((seat) => ({
@@ -164,7 +177,10 @@ export async function completeTrialRegistrationSubmit(input: {
       status: "booked",
     })),
   );
-  if (seatErr) return { ok: false, message: input.dict.actionErrors.register.insertFailed };
+  if (seatErr) {
+    logSupabaseClientError("register.trialSeat", seatErr, {});
+    return { ok: false, message: input.dict.actionErrors.register.insertFailed };
+  }
 
   void notifyTrialRegistrationReceived({
     locale: input.locale,

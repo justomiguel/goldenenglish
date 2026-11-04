@@ -2,6 +2,21 @@ import type { ProductChangelogEntry } from "@/lib/product-changelog/catalogTypes
 import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
+  {
+    id: "trial-class-saves",
+    date: "2026-11-04",
+    area: "admin",
+    title: t(
+      "La clase de prueba queda agendada",
+      "The trial class stays booked",
+      "A aula experimental fica agendada",
+    ),
+    summary: t(
+      "La familia agenda la prueba y el inicio del admin cuenta esa visita de la semana.",
+      "A family books the trial and the admin home counts that visit for the week.",
+      "A família agenda a experimental e o início do admin conta essa visita da semana.",
+    ),
+  },
 {
     id: "admin-home-ops-cards",
     date: "2026-11-04",

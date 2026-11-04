@@ -186,6 +186,11 @@ BEGIN
   VALUES ('register_show_all_sections', 'true'::jsonb, now())
   ON CONFLICT (key) DO UPDATE SET value = 'true'::jsonb, updated_at = now();
 
+  -- both: /register stays a reserve form; /register?intent=trial stays a trial form.
+  INSERT INTO public.site_settings (key, value, updated_at)
+  VALUES ('public_cta_mode', '"both"'::jsonb, now())
+  ON CONFLICT (key) DO UPDATE SET value = '"both"'::jsonb, updated_at = now();
+
   INSERT INTO public.academic_cohorts (name, slug, starts_on, ends_on, is_current)
   VALUES (
     'E2E Cohort',
@@ -302,6 +307,60 @@ BEGIN
   UPDATE public.academic_sections
   SET enrollment_fee_amount = 15000, max_students = NULL
   WHERE cohort_id = v_cohort AND name = 'E2E Section B';
+
+  -- Late slot every weekday so the next visit is today, or tomorrow when today already passed 23:00.
+  IF NOT EXISTS (
+    SELECT 1 FROM public.academic_sections
+    WHERE cohort_id = v_cohort AND name = 'E2E Trial'
+  ) THEN
+    INSERT INTO public.academic_sections (
+      cohort_id, name, teacher_id, schedule_slots,
+      starts_on, ends_on, enrollment_fee_amount, monthly_fee_charge_mode,
+      allow_advance_monthly_payment, offers_trial, trial_fee_amount
+    )
+    VALUES (
+      v_cohort,
+      'E2E Trial',
+      v_teacher,
+      '[
+        {"dayOfWeek":0,"startTime":"23:00","endTime":"23:30"},
+        {"dayOfWeek":1,"startTime":"23:00","endTime":"23:30"},
+        {"dayOfWeek":2,"startTime":"23:00","endTime":"23:30"},
+        {"dayOfWeek":3,"startTime":"23:00","endTime":"23:30"},
+        {"dayOfWeek":4,"startTime":"23:00","endTime":"23:30"},
+        {"dayOfWeek":5,"startTime":"23:00","endTime":"23:30"},
+        {"dayOfWeek":6,"startTime":"23:00","endTime":"23:30"}
+      ]'::jsonb,
+      make_date(v_year, 1, 1),
+      make_date(v_year, 12, 31),
+      0,
+      'full_month_fee',
+      true,
+      true,
+      0
+    );
+  END IF;
+
+  UPDATE public.academic_sections
+  SET
+    teacher_id = v_teacher,
+    archived_at = NULL,
+    offers_trial = true,
+    trial_fee_amount = 0,
+    max_students = NULL,
+    starts_on = make_date(v_year, 1, 1),
+    ends_on = make_date(v_year, 12, 31),
+    schedule_slots = '[
+      {"dayOfWeek":0,"startTime":"23:00","endTime":"23:30"},
+      {"dayOfWeek":1,"startTime":"23:00","endTime":"23:30"},
+      {"dayOfWeek":2,"startTime":"23:00","endTime":"23:30"},
+      {"dayOfWeek":3,"startTime":"23:00","endTime":"23:30"},
+      {"dayOfWeek":4,"startTime":"23:00","endTime":"23:30"},
+      {"dayOfWeek":5,"startTime":"23:00","endTime":"23:30"},
+      {"dayOfWeek":6,"startTime":"23:00","endTime":"23:30"}
+    ]'::jsonb,
+    updated_at = now()
+  WHERE cohort_id = v_cohort AND name = 'E2E Trial';
 
   INSERT INTO public.section_fee_plans (
     section_id, effective_from_year, effective_from_month, monthly_fee, currency

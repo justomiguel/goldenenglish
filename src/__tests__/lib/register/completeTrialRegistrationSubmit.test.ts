@@ -44,14 +44,7 @@ function buildClients(opts: {
   openTrial?: boolean;
 } = {}) {
   const seatsInsert = vi.fn().mockResolvedValue({ error: null });
-  const leadInsert = vi.fn().mockReturnValue({
-    select: vi.fn().mockReturnValue({
-      single: vi.fn().mockResolvedValue({
-        data: opts.insertError ? null : { id: opts.leadId ?? LEAD },
-        error: opts.insertError ?? null,
-      }),
-    }),
-  });
+  const leadInsert = vi.fn().mockResolvedValue({ error: opts.insertError ?? null });
   const supabase = {
     rpc: vi.fn().mockImplementation((fn: string) => {
       if (fn === "list_registration_section_picker_options") {
@@ -97,15 +90,25 @@ function buildClients(opts: {
     if (table === "registrations") {
       return {
         select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            neq: vi.fn().mockReturnValue({
-              in: vi.fn().mockResolvedValue({
-                data: opts.openTrial
-                  ? [{ id: "x", registration_trial_seats: [{ status: "booked" }] }]
-                  : [],
-                error: null,
+          eq: vi.fn().mockImplementation((column: string) => {
+            if (column === "pay_token") {
+              return {
+                maybeSingle: vi.fn().mockResolvedValue({
+                  data: opts.insertError ? null : { id: opts.leadId ?? LEAD },
+                  error: null,
+                }),
+              };
+            }
+            return {
+              neq: vi.fn().mockReturnValue({
+                in: vi.fn().mockResolvedValue({
+                  data: opts.openTrial
+                    ? [{ id: "x", registration_trial_seats: [{ status: "booked" }] }]
+                    : [],
+                  error: null,
+                }),
               }),
-            }),
+            };
           }),
         }),
       };
