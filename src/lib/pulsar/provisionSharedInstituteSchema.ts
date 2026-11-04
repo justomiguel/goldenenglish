@@ -86,6 +86,7 @@ async function exposeSchema(client: Client, schema: string): Promise<void> {
 }
 
 export async function hideSchema(client: Client, schema: string): Promise<void> {
+  if (!/^tenant_[a-z0-9_]{1,50}$/.test(schema)) return;
   const current = await client.query<{ rolconfig: string[] | null }>(
     "SELECT rolconfig FROM pg_roles WHERE rolname = 'authenticator'",
   );

@@ -25,6 +25,7 @@ import {
   AdminHubHomeShopCard,
   AdminHubHomeShortcutsSlot,
 } from "@/components/dashboard/AdminHubHomeExtraCards";
+import { AdminHubHomeOpsCard } from "@/components/dashboard/AdminHubHomeOpsCard";
 
 export interface AdminHubHomeCardModel {
   locale: string;
@@ -51,6 +52,14 @@ export function AdminHubHomeCard({ id, model }: { id: AdminHomeWidgetId; model: 
       return <AdminHubHomeRegistrationsCard base={base} dict={dict} summary={summary} />;
     case "messages":
       return <AdminHubHomeMessagesSlot locale={locale} base={base} dict={dict} summary={summary} />;
+    case "emailQuota":
+    case "cohortEnrollments":
+    case "classesToday":
+    case "trialsThisWeek":
+    case "sectionSeats":
+    case "eventWaitlist":
+    case "eventPaymentsReview":
+      return <AdminHubHomeOpsCard id={id} base={base} dict={dict} ops={extras.ops} />;
     case "people":
       return <AdminHubHomePeopleCard base={base} dict={dict} summary={summary} />;
     case "birthdays":

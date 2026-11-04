@@ -1,16 +1,9 @@
 #!/usr/bin/env node
 /**
  * Applies one product migration to every institute.
- *
- * - data_mode project: run the file unchanged on that database_url.
- * - data_mode shared_schema: rewrite public. to tenant_<slug> in memory,
- *   run it, and insert institute_migration_ledger.applied.
- *
- * Targets come from Pulsar platform_tenants when PULSAR_DATABASE_URL is set.
- * Otherwise they come from TENANTS_CONFIG_JSON in .env.local.
- *
- * Usage:
- *   npm run sql:apply-migration:all-tenants:pg -- supabase/migrations/<file>.sql
+ * project: the git file on database_url. shared_schema: rewrite public. to tenant_<slug>.
+ * A direct db.<ref>.supabase.co host with no IPv4 address uses the session pooler.
+ * Usage: npm run sql:apply-migration:all-tenants:pg -- supabase/migrations/<file>.sql
  */
 import { spawnSync } from "node:child_process";
 import { lookup } from "node:dns/promises";
@@ -21,12 +14,14 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import pg from "pg";
 
 import { readEnvFile } from "./migrate-public-assets-lib.mjs";
+import { createInstitutePoolerDeps } from "./institute-pooler-connect.mjs";
 
 const { Client } = pg;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
 const ENV_LOCAL = path.join(ROOT, ".env.local");
+const POOLER_CACHE = path.join(__dirname, ".institute-pooler-hosts.json");
 
 const LEDGER_SQL = `
 CREATE SCHEMA IF NOT EXISTS institute_migration_ledger;
@@ -165,6 +160,9 @@ async function main() {
   const { instituteTargetFromRecord, planInstituteMigrationApplies } = await import(
     pathToFileURL(path.join(ROOT, "src/lib/tenant/planInstituteMigrationApplies.ts")).href
   );
+  const { readPoolerHostCache, resolveInstituteDatabaseUrl, writePoolerHostCache } = await import(
+    pathToFileURL(path.join(ROOT, "src/lib/tenant/institutePoolerUrl.ts")).href
+  );
   const { skipDnsCheck, migrationRel } = parseCli();
   const migrationPath = path.isAbsolute(migrationRel) ? migrationRel : path.join(ROOT, migrationRel);
   if (!fs.existsSync(migrationPath)) {
@@ -193,6 +191,26 @@ async function main() {
     }
     if (step.action === "error") {
       console.error(`  ERROR: ${step.message}`);
+      anyFailed = true;
+      continue;
+    }
+
+    try {
+      const originalHost = postgresUriHostname(step.databaseUrl);
+      step.databaseUrl = await resolveInstituteDatabaseUrl(
+        step.databaseUrl,
+        createInstitutePoolerDeps({
+          lookup,
+          Client,
+          cachePath: POOLER_CACHE,
+          readPoolerHostCache,
+          writePoolerHostCache,
+        }),
+      );
+      const nextHost = postgresUriHostname(step.databaseUrl);
+      if (nextHost && nextHost !== originalHost) console.log(`  IPv4 pooler ${nextHost}`);
+    } catch (err) {
+      console.error(`  FAILED: ${err instanceof Error ? err.message : err}`);
       anyFailed = true;
       continue;
     }

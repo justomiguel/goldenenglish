@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { createOwnerSiteAction } from "@/app/[locale]/cuenta/actions";
 import { Button } from "@/components/atoms/Button";
-import { PulsarAccountShareFields } from "@/components/organisms/pulsar/PulsarAccountShareFields";
 import { PulsarTemplatePicker, type PulsarTemplatePreview } from "@/components/organisms/pulsar/PulsarTemplatePicker";
 import { PulsarTenantProvisionDialog } from "@/components/organisms/pulsar/PulsarTenantProvisionDialog";
 import { usePulsarTenantProvisionJob } from "@/hooks/usePulsarTenantProvisionJob";
@@ -85,11 +84,6 @@ export function PulsarAccountCreateForm({
         colorPrimary: String(data.get("colorPrimary") ?? ""),
         colorAccent: String(data.get("colorAccent") ?? ""),
         colorPaper: String(data.get("colorPaper") ?? ""),
-        phone: String(data.get("phone") ?? ""),
-        whatsapp: String(data.get("whatsapp") ?? ""),
-        instagram: String(data.get("instagram") ?? ""),
-        facebook: String(data.get("facebook") ?? ""),
-        address: String(data.get("address") ?? ""),
       });
     const normalized = ownerSiteSlug(slug);
     const result = normalized ? await provision.track(normalized, save) : await save();
@@ -152,7 +146,6 @@ export function PulsarAccountCreateForm({
           {copy.customDomainNote.replaceAll("{brand}", brandName)}
         </p>
       </div>
-      <PulsarAccountShareFields copy={copy} />
       <PulsarTemplatePicker
         locale={locale}
         copy={copy}

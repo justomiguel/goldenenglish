@@ -204,19 +204,17 @@ export function LearningTaskTemplateLibrary({
                 }}
               />
               {fileError ? <p className="mt-1 text-sm text-[var(--color-error)]">{fileError}</p> : null}
-              {uploadUi.kind === "busy" ? (
-                <InlineUploadProgressBar
-                  className="mt-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
-                  label={
-                    uploadUi.stage === "reading"
-                      ? fileUploadProgress.progressReading
-                      : fileUploadProgress.progressSending
-                  }
-                  {...(uploadUi.stage === "reading"
-                    ? { value: uploadUi.readPercent, indeterminate: false }
-                    : { indeterminate: true })}
-                />
-              ) : null}
+              <InlineUploadProgressBar
+                className="mt-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+                label={
+                  uploadUi.kind === "busy" && uploadUi.stage === "sending"
+                    ? fileUploadProgress.progressSending
+                    : fileUploadProgress.progressReading
+                }
+                {...(uploadUi.kind === "busy" && uploadUi.stage === "sending"
+                  ? { indeterminate: true }
+                  : { value: uploadUi.kind === "busy" ? uploadUi.readPercent : 0 })}
+              />
             </div>
             <div>
               <Label htmlFor="learning-embed-url">{labels.taskTemplateEmbedUrl}</Label>

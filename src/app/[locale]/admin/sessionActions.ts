@@ -23,6 +23,18 @@ export async function signOutPulsarSessionAction(locale: string): Promise<{ ok: 
   }
 }
 
+function pathnameOf(next: string): string {
+  const noQuery = next.split("?")[0] ?? next;
+  if (noQuery.length > 1 && noQuery.endsWith("/")) return noQuery.slice(0, -1);
+  return noQuery;
+}
+
+/** Fleet home and its login hop. Owners cannot open these paths. */
+function isStaffFleetHome(locale: string, next: string): boolean {
+  const path = pathnameOf(next);
+  return path === `/${locale}/admin` || path === `/${locale}/admin/login`;
+}
+
 export async function resolvePulsarPostLoginPath(
   locale: string,
   next: string | null,
@@ -32,6 +44,9 @@ export async function resolvePulsarPostLoginPath(
   if (staff?.mustChangePassword) return `/${locale}/admin/password`;
   if (staff) return safe ?? `/${locale}/admin`;
   const cookie = await getPulsarCookieSession();
-  if (cookie) return safe ?? `/${locale}/cuenta`;
+  if (cookie) {
+    if (!safe || isStaffFleetHome(locale, safe)) return `/${locale}/cuenta`;
+    return safe;
+  }
   return `/${locale}/cuenta/login`;
 }

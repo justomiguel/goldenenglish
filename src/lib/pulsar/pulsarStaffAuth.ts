@@ -24,7 +24,7 @@ export function pulsarStaffHomePath(locale: string, session: PulsarStaffSession)
 }
 
 /** Signed-in Pulsar user from cookies. Skips the local staff bypass. */
-export async function getPulsarCookieSession(): Promise<{ email: string } | null> {
+export async function getPulsarCookieSession(): Promise<{ userId: string; email: string } | null> {
   if (!isPulsarSupabaseConfigured()) return null;
   try {
     const serverClient = await createPulsarServerClient();
@@ -32,8 +32,8 @@ export async function getPulsarCookieSession(): Promise<{ email: string } | null
       data: { user },
       error,
     } = await serverClient.auth.getUser();
-    if (error || !user?.email) return null;
-    return { email: user.email };
+    if (error || !user?.email || !user.id) return null;
+    return { userId: user.id, email: user.email };
   } catch (err) {
     logServerException("pulsarStaffAuth:cookieSession", err);
     return null;

@@ -6,7 +6,7 @@ import es from "@/dictionaries/es.json";
 import type { Dictionary } from "@/types/i18n";
 import { createOwnerSiteAction } from "@/app/[locale]/cuenta/actions";
 import { PulsarAccountCreateForm } from "@/components/organisms/pulsar/PulsarAccountCreateForm";
-import { GENERIC_INSTITUTE_KINDS } from "@/lib/theme/genericInstituteTemplates";
+import { GENERIC_INSTITUTE_KINDS, genericPreviewSrc } from "@/lib/theme/genericInstituteTemplates";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
@@ -50,7 +50,7 @@ describe("PulsarAccountCreateForm", () => {
         kind,
         name: landing.name,
         alt: dict.pulsar.account.templatePreviewAlt.replaceAll("{name}", landing.name),
-        src: `/generic/${kind}/preview.jpg`,
+        src: genericPreviewSrc(kind),
       };
     });
     render(
@@ -83,8 +83,7 @@ describe("PulsarAccountCreateForm", () => {
       expect(screen.queryByRole("status")).not.toBeInTheDocument();
     });
     expect(screen.getByLabelText(dict.pulsar.account.templateColorPrimary)).toBeInTheDocument();
-    expect(screen.getByLabelText(dict.pulsar.account.shareAddress)).toBeInTheDocument();
-    expect(screen.getByText(dict.pulsar.account.shareHint)).toBeInTheDocument();
+    expect(screen.queryByLabelText(dict.pulsar.account.shareAddress)).toBeNull();
   });
 
   it("sends the selected template and names a field error", async () => {
@@ -96,7 +95,7 @@ describe("PulsarAccountCreateForm", () => {
         kind,
         name: landing.name,
         alt: dict.pulsar.account.templatePreviewAlt.replaceAll("{name}", landing.name),
-        src: `/generic/${kind}/preview.jpg`,
+        src: genericPreviewSrc(kind),
       };
     });
     render(

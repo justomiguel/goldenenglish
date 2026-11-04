@@ -3,13 +3,15 @@
 // must not call it when that card is hidden.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { factoryAdminHomeLayout, setAdminHomeItemHidden } from "@/lib/dashboard/adminHomeLayout";
+import { EMPTY_ADMIN_HOME_OPS } from "@/lib/dashboard/parseAdminHomeOpsSnapshot";
 import { loadAdminHomeExtraWidgets } from "@/lib/dashboard/loadAdminHomeExtraWidgets";
 
-const { loadCurrentCohort, loadAdminCohortCollectionsOverview, loadAdminPeoplePageStats } =
+const { loadCurrentCohort, loadAdminCohortCollectionsOverview, loadAdminPeoplePageStats, loadAdminHomeOpsSnapshot } =
   vi.hoisted(() => ({
     loadCurrentCohort: vi.fn(),
     loadAdminCohortCollectionsOverview: vi.fn(),
     loadAdminPeoplePageStats: vi.fn(),
+    loadAdminHomeOpsSnapshot: vi.fn(),
   }));
 
 vi.mock("@/lib/academics/currentCohort", () => ({
@@ -21,6 +23,9 @@ vi.mock("@/lib/billing/loadAdminCohortCollectionsOverview", () => ({
 }));
 vi.mock("@/lib/dashboard/loadAdminPeoplePageStats", () => ({
   loadAdminPeoplePageStats: (...args: unknown[]) => loadAdminPeoplePageStats(...args),
+}));
+vi.mock("@/lib/dashboard/loadAdminHomeOpsSnapshot", () => ({
+  loadAdminHomeOpsSnapshot: (...args: unknown[]) => loadAdminHomeOpsSnapshot(...args),
 }));
 vi.mock("server-only", () => ({}));
 
@@ -43,6 +48,19 @@ describe("loadAdminHomeExtraWidgets", () => {
     loadAdminCohortCollectionsOverview.mockReset();
     loadAdminPeoplePageStats.mockReset();
     loadAdminPeoplePageStats.mockResolvedValue({ newLast30Days: 4, neverEntered: 9 });
+    loadAdminHomeOpsSnapshot.mockResolvedValue({
+      ...EMPTY_ADMIN_HOME_OPS,
+      events: [
+        {
+          id: "e1",
+          slug: "open-day",
+          title: "Open day",
+          eventDate: "2026-11-01",
+          capacity: 40,
+          seats: 3,
+        },
+      ],
+    });
     loadCurrentCohort.mockResolvedValue({ id: "cohort-1", name: "2026" });
     loadAdminCohortCollectionsOverview.mockResolvedValue({
       cohortName: "2026",

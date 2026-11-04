@@ -2311,31 +2311,6 @@ CREATE INDEX IF NOT EXISTS academic_sections_cohort_idx
 CREATE INDEX IF NOT EXISTS academic_sections_teacher_idx
   ON public.academic_sections (teacher_id);
 
-ALTER TABLE public.academic_sections
-  ADD COLUMN IF NOT EXISTS delivery_mode TEXT NOT NULL DEFAULT 'in_person';
-
-ALTER TABLE public.academic_sections
-  DROP CONSTRAINT IF EXISTS academic_sections_delivery_mode_check;
-
-ALTER TABLE public.academic_sections
-  ADD CONSTRAINT academic_sections_delivery_mode_check
-  CHECK (delivery_mode IN ('in_person', 'hybrid', 'remote'));
-
-CREATE TABLE IF NOT EXISTS public.section_daily_rooms (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  section_id UUID NOT NULL REFERENCES public.academic_sections (id) ON DELETE CASCADE,
-  day_of_week INT NOT NULL CHECK (day_of_week BETWEEN 0 AND 6),
-  start_time TEXT NOT NULL,
-  daily_room_name TEXT NOT NULL,
-  daily_room_url TEXT NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (section_id, day_of_week, start_time)
-);
-
-ALTER TABLE public.section_daily_rooms ENABLE ROW LEVEL SECURITY;
-
-REVOKE ALL ON TABLE public.section_daily_rooms FROM public, anon, authenticated;
-
 CREATE TABLE IF NOT EXISTS public.section_enrollments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   section_id UUID NOT NULL REFERENCES public.academic_sections (id) ON DELETE RESTRICT,
@@ -23146,3 +23121,740 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.learning_programs TO authenticate
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.learning_program_sets TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.learning_program_set_courses TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.section_program_assignments TO authenticated;
+
+-- ========== 235_lms_task_review_status.sql ==========
+
+-- Task review status. New enum values cannot be used in the same transaction.
+ALTER TYPE public.task_progress_status ADD VALUE IF NOT EXISTS 'RETURNED';
+
+-- ========== 236_lms_task_review.sql ==========
+
+-- Answers, teacher notes, and the RETURNED progress shape.
+
+ALTER TABLE public.student_task_progress DROP CONSTRAINT IF EXISTS student_task_progress_completion_shape;
+ALTER TABLE public.student_task_progress
+  ADD CONSTRAINT student_task_progress_completion_shape CHECK (
+    (status IN ('COMPLETED', 'COMPLETED_LATE') AND completed_at IS NOT NULL AND opened_at IS NOT NULL)
+    OR (status = 'OPENED' AND opened_at IS NOT NULL AND completed_at IS NULL)
+    OR (status = 'NOT_OPENED' AND completed_at IS NULL)
+    OR (status = 'RETURNED' AND opened_at IS NOT NULL AND completed_at IS NULL)
+  );
+
+DROP POLICY IF EXISTS student_task_progress_staff_update ON public.student_task_progress;
+CREATE POLICY student_task_progress_staff_update ON public.student_task_progress
+  FOR UPDATE TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.task_instances ti
+      WHERE ti.id = student_task_progress.task_instance_id
+        AND public.learning_task_staff_can_manage_section(auth.uid(), ti.section_id)
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.task_instances ti
+      WHERE ti.id = student_task_progress.task_instance_id
+        AND public.learning_task_staff_can_manage_section(auth.uid(), ti.section_id)
+    )
+  );
+
+CREATE OR REPLACE FUNCTION public.guard_student_task_progress_status()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+BEGIN
+  IF auth.uid() = NEW.student_id AND NEW.status = 'RETURNED' AND OLD.status IS DISTINCT FROM 'RETURNED' THEN
+    RAISE EXCEPTION 'student_cannot_return' USING ERRCODE = '42501';
+  END IF;
+  IF auth.uid() = NEW.student_id AND OLD.status IN ('COMPLETED', 'COMPLETED_LATE') THEN
+    RAISE EXCEPTION 'student_cannot_reopen' USING ERRCODE = '42501';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS student_task_progress_guard_status ON public.student_task_progress;
+CREATE TRIGGER student_task_progress_guard_status
+  BEFORE UPDATE ON public.student_task_progress
+  FOR EACH ROW EXECUTE FUNCTION public.guard_student_task_progress_status();
+
+CREATE TABLE IF NOT EXISTS public.student_task_submissions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  progress_id UUID NOT NULL REFERENCES public.student_task_progress (id) ON DELETE CASCADE,
+  author_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,
+  body_text TEXT NOT NULL CHECK (char_length(btrim(body_text)) BETWEEN 1 AND 4000),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS student_task_submissions_progress_idx
+  ON public.student_task_submissions (progress_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.student_task_reviews (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  progress_id UUID NOT NULL REFERENCES public.student_task_progress (id) ON DELETE CASCADE,
+  author_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,
+  body_text TEXT NOT NULL CHECK (char_length(btrim(body_text)) BETWEEN 1 AND 4000),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS student_task_reviews_progress_idx
+  ON public.student_task_reviews (progress_id, created_at DESC);
+
+ALTER TABLE public.student_task_submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.student_task_reviews ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS student_task_submissions_select ON public.student_task_submissions;
+CREATE POLICY student_task_submissions_select ON public.student_task_submissions
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.student_task_progress p
+      JOIN public.task_instances ti ON ti.id = p.task_instance_id
+      WHERE p.id = progress_id
+        AND (
+          p.student_id = auth.uid()
+          OR public.learning_task_staff_can_manage_section(auth.uid(), ti.section_id)
+          OR EXISTS (
+            SELECT 1 FROM public.tutor_student_rel ts
+            WHERE ts.tutor_id = auth.uid() AND ts.student_id = p.student_id
+          )
+        )
+    )
+  );
+
+DROP POLICY IF EXISTS student_task_submissions_insert ON public.student_task_submissions;
+CREATE POLICY student_task_submissions_insert ON public.student_task_submissions
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    author_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM public.student_task_progress p
+      WHERE p.id = progress_id AND p.student_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS student_task_reviews_select ON public.student_task_reviews;
+CREATE POLICY student_task_reviews_select ON public.student_task_reviews
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.student_task_progress p
+      JOIN public.task_instances ti ON ti.id = p.task_instance_id
+      WHERE p.id = progress_id
+        AND (
+          p.student_id = auth.uid()
+          OR public.learning_task_staff_can_manage_section(auth.uid(), ti.section_id)
+          OR EXISTS (
+            SELECT 1 FROM public.tutor_student_rel ts
+            WHERE ts.tutor_id = auth.uid() AND ts.student_id = p.student_id
+          )
+        )
+    )
+  );
+
+GRANT SELECT, INSERT ON public.student_task_submissions TO authenticated;
+GRANT SELECT, INSERT ON public.student_task_reviews TO authenticated;
+
+DROP POLICY IF EXISTS student_task_reviews_insert ON public.student_task_reviews;
+CREATE POLICY student_task_reviews_insert ON public.student_task_reviews
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    author_id = auth.uid()
+    AND EXISTS (
+      SELECT 1
+      FROM public.student_task_progress p
+      JOIN public.task_instances ti ON ti.id = p.task_instance_id
+      WHERE p.id = progress_id
+        AND public.learning_task_staff_can_manage_section(auth.uid(), ti.section_id)
+    )
+  );
+
+-- ========== 237_lms_section_notices.sql ==========
+
+CREATE TABLE IF NOT EXISTS public.section_notices (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  section_id UUID NOT NULL REFERENCES public.academic_sections (id) ON DELETE CASCADE,
+  author_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,
+  body_text TEXT NOT NULL CHECK (char_length(btrim(body_text)) BETWEEN 1 AND 500),
+  published_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  archived_at TIMESTAMPTZ NULL
+);
+
+CREATE INDEX IF NOT EXISTS section_notices_active_idx
+  ON public.section_notices (section_id, published_at DESC)
+  WHERE archived_at IS NULL;
+
+ALTER TABLE public.section_notices ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS section_notices_select ON public.section_notices;
+CREATE POLICY section_notices_select ON public.section_notices
+  FOR SELECT TO authenticated
+  USING (
+    archived_at IS NULL
+    AND (
+      public.learning_task_staff_can_manage_section(auth.uid(), section_id)
+      OR EXISTS (
+        SELECT 1 FROM public.section_enrollments e
+        WHERE e.section_id = section_notices.section_id
+          AND e.status = 'active'
+          AND (
+            e.student_id = auth.uid()
+            OR EXISTS (
+              SELECT 1 FROM public.tutor_student_rel ts
+              WHERE ts.tutor_id = auth.uid() AND ts.student_id = e.student_id
+            )
+          )
+      )
+    )
+  );
+
+DROP POLICY IF EXISTS section_notices_insert ON public.section_notices;
+CREATE POLICY section_notices_insert ON public.section_notices
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    author_id = auth.uid()
+    AND public.learning_task_staff_can_manage_section(auth.uid(), section_id)
+  );
+
+DROP POLICY IF EXISTS section_notices_update ON public.section_notices;
+CREATE POLICY section_notices_update ON public.section_notices
+  FOR UPDATE TO authenticated
+  USING (public.learning_task_staff_can_manage_section(auth.uid(), section_id))
+  WITH CHECK (public.learning_task_staff_can_manage_section(auth.uid(), section_id));
+
+GRANT SELECT, INSERT, UPDATE ON public.section_notices TO authenticated;
+
+-- ========== 238_lms_course_completed_badge_type.sql ==========
+
+-- New enum values cannot be used in the same transaction.
+ALTER TYPE public.badge_criteria_type ADD VALUE IF NOT EXISTS 'course_completed';
+
+-- ========== 239_lms_course_completions.sql ==========
+
+CREATE TABLE IF NOT EXISTS public.student_course_completions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  course_id UUID NOT NULL REFERENCES public.learning_courses (id) ON DELETE CASCADE,
+  completed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  revoked_at TIMESTAMPTZ NULL,
+  CONSTRAINT student_course_completions_unique UNIQUE (student_id, course_id)
+);
+
+CREATE INDEX IF NOT EXISTS student_course_completions_student_idx
+  ON public.student_course_completions (student_id)
+  WHERE revoked_at IS NULL;
+
+ALTER TABLE public.student_course_completions ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS student_course_completions_select ON public.student_course_completions;
+CREATE POLICY student_course_completions_select ON public.student_course_completions
+  FOR SELECT TO authenticated
+  USING (
+    student_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM public.tutor_student_rel ts
+      WHERE ts.tutor_id = auth.uid() AND ts.student_id = student_course_completions.student_id
+    )
+    OR public.is_admin(auth.uid())
+    OR public.user_has_role(auth.uid(), 'teacher')
+    OR public.user_has_role(auth.uid(), 'assistant')
+  );
+
+GRANT SELECT ON public.student_course_completions TO authenticated;
+
+INSERT INTO public.badge_catalog (code, category, criteria_type, criteria_threshold, sort_order)
+SELECT 'course_completed_1', 'learning', 'course_completed', 1, 80
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.badge_catalog WHERE code = 'course_completed_1'
+);
+
+INSERT INTO public.badge_translations (badge_id, locale, title, description)
+SELECT c.id, v.locale, v.title, v.description
+FROM public.badge_catalog c
+JOIN (
+  VALUES
+    ('en', 'Course complete', 'Finish every lesson in a course.'),
+    ('es', 'Curso completo', 'Termina todas las clases de un curso.')
+) AS v(locale, title, description) ON true
+WHERE c.code = 'course_completed_1'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.badge_translations t
+    WHERE t.badge_id = c.id AND t.locale = v.locale
+  );
+
+-- ========== 240_section_delivery_mode_and_daily_rooms.sql ==========
+
+alter table public.academic_sections
+  add column if not exists delivery_mode text not null default 'in_person';
+
+alter table public.academic_sections
+  drop constraint if exists academic_sections_delivery_mode_check;
+
+alter table public.academic_sections
+  add constraint academic_sections_delivery_mode_check
+  check (delivery_mode in ('in_person', 'hybrid', 'remote'));
+
+create table if not exists public.section_daily_rooms (
+  id uuid primary key default gen_random_uuid(),
+  section_id uuid not null references public.academic_sections (id) on delete cascade,
+  day_of_week int not null check (day_of_week between 0 and 6),
+  start_time text not null,
+  daily_room_name text not null,
+  daily_room_url text not null,
+  created_at timestamptz not null default now(),
+  unique (section_id, day_of_week, start_time)
+);
+
+alter table public.section_daily_rooms enable row level security;
+
+revoke all on table public.section_daily_rooms from public, anon, authenticated;
+
+-- ========== 250_email_send_ledger.sql ==========
+
+-- Monthly mail ledger and the admin home ops snapshot.
+
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS public.email_send_ledger (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  sent_at timestamptz NOT NULL DEFAULT now(),
+  template_key text NOT NULL,
+  recipient_count integer NOT NULL CHECK (recipient_count > 0)
+);
+
+CREATE INDEX IF NOT EXISTS email_send_ledger_sent_at_idx
+  ON public.email_send_ledger (sent_at);
+
+ALTER TABLE public.email_send_ledger ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS email_send_ledger_admin_select ON public.email_send_ledger;
+CREATE POLICY email_send_ledger_admin_select
+  ON public.email_send_ledger
+  FOR SELECT
+  TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+REVOKE ALL ON TABLE public.email_send_ledger FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON TABLE public.email_send_ledger TO authenticated;
+GRANT ALL ON TABLE public.email_send_ledger TO service_role;
+
+CREATE OR REPLACE FUNCTION public.email_send_month_usage()
+RETURNS jsonb
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT jsonb_build_object(
+    'used', COALESCE((
+      SELECT SUM(recipient_count)::int
+      FROM public.email_send_ledger
+      WHERE sent_at >= (date_trunc('month', now() AT TIME ZONE 'UTC') AT TIME ZONE 'UTC')
+    ), 0),
+    'cap', COALESCE((
+      SELECT CASE
+        WHEN jsonb_typeof(value) = 'number'
+          AND (value::text)::int BETWEEN 1 AND 100000
+        THEN (value::text)::int
+        ELSE NULL
+      END
+      FROM public.site_settings
+      WHERE key = 'email_monthly_cap'
+    ), 5000)
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.email_send_month_usage() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.email_send_month_usage() TO authenticated, service_role;
+
+CREATE OR REPLACE FUNCTION public.admin_home_ops_snapshot(
+  p_today date,
+  p_week_start date,
+  p_week_end date,
+  p_weekday int
+)
+RETURNS jsonb
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  WITH current_cohort AS (
+    SELECT c.id, c.name
+    FROM public.academic_cohorts c
+    WHERE c.is_current IS TRUE
+      AND c.archived_at IS NULL
+    ORDER BY c.created_at DESC
+    LIMIT 1
+  ),
+  meeting AS (
+    SELECT s.id
+    FROM public.academic_sections s
+    JOIN current_cohort c ON c.id = s.cohort_id
+    WHERE s.archived_at IS NULL
+      AND jsonb_typeof(s.schedule_slots) = 'array'
+      AND EXISTS (
+        SELECT 1
+        FROM jsonb_array_elements(s.schedule_slots) AS slot
+        WHERE slot->>'dayOfWeek' ~ '^[0-9]+$'
+          AND (slot->>'dayOfWeek')::int = p_weekday
+      )
+  ),
+  section_counts AS (
+    SELECT
+      s.max_students,
+      COUNT(se.id) FILTER (WHERE se.status = 'active')::int AS active
+    FROM public.academic_sections s
+    JOIN current_cohort c ON c.id = s.cohort_id
+    LEFT JOIN public.section_enrollments se ON se.section_id = s.id
+    WHERE s.archived_at IS NULL
+      AND s.max_students IS NOT NULL
+    GROUP BY s.id, s.max_students
+  )
+  SELECT jsonb_build_object(
+    'email_used', (public.email_send_month_usage() ->> 'used')::int,
+    'email_cap', (public.email_send_month_usage() ->> 'cap')::int,
+    'events', COALESCE((
+      SELECT jsonb_agg(to_jsonb(ev) ORDER BY ev.event_date)
+      FROM (
+        SELECT
+          e.id,
+          e.slug,
+          e.title,
+          e.event_date,
+          e.capacity,
+          (
+            SELECT COUNT(*)::int
+            FROM public.event_attendees ea
+            WHERE ea.event_id = e.id
+              AND ea.status <> 'cancelled'
+          ) AS seats
+        FROM public.events e
+        WHERE e.status = 'published'
+          AND e.archived_at IS NULL
+          AND e.event_date >= now()
+        ORDER BY e.event_date
+        LIMIT 3
+      ) ev
+    ), '[]'::jsonb),
+    'waitlist_total', (
+      SELECT COUNT(*)::int
+      FROM public.event_attendees ea
+      JOIN public.events e ON e.id = ea.event_id
+      WHERE ea.status = 'waitlist'
+        AND e.status = 'published'
+        AND e.archived_at IS NULL
+        AND e.event_date >= now()
+    ),
+    'cohort', (
+      SELECT jsonb_build_object(
+        'id', c.id,
+        'name', c.name,
+        'active_enrollments', (
+          SELECT COUNT(*)::int
+          FROM public.section_enrollments se
+          JOIN public.academic_sections s ON s.id = se.section_id
+          WHERE s.cohort_id = c.id
+            AND s.archived_at IS NULL
+            AND se.status = 'active'
+        )
+      )
+      FROM current_cohort c
+    ),
+    'classes_meeting', (SELECT COUNT(*)::int FROM meeting),
+    'classes_missing_attendance', (
+      SELECT COUNT(*)::int
+      FROM meeting m
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM public.section_enrollments se
+        JOIN public.section_attendance sa ON sa.enrollment_id = se.id
+        WHERE se.section_id = m.id
+          AND sa.attended_on = p_today
+      )
+    ),
+    'trials_booked', (
+      SELECT COUNT(*)::int
+      FROM public.registration_trial_seats t
+      WHERE t.scheduled_on BETWEEN p_week_start AND p_week_end
+        AND t.status = 'booked'
+    ),
+    'trials_attended', (
+      SELECT COUNT(*)::int
+      FROM public.registration_trial_seats t
+      WHERE t.scheduled_on BETWEEN p_week_start AND p_week_end
+        AND t.status = 'attended'
+    ),
+    'trials_released', (
+      SELECT COUNT(*)::int
+      FROM public.registration_trial_seats t
+      WHERE t.scheduled_on BETWEEN p_week_start AND p_week_end
+        AND t.status = 'released'
+    ),
+    'sections_full', (
+      SELECT COUNT(*)::int FROM section_counts WHERE active >= max_students
+    ),
+    'sections_one_left', (
+      SELECT COUNT(*)::int FROM section_counts WHERE max_students - active = 1
+    ),
+    'event_payments_pending_review', (
+      SELECT COUNT(*)::int
+      FROM public.event_payments p
+      WHERE p.status = 'pending'
+        AND p.gateway_provider IS NULL
+    )
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.admin_home_ops_snapshot(date, date, date, int) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.admin_home_ops_snapshot(date, date, date, int) TO authenticated;
+
+COMMIT;
+
+-- ========== 251_site_theme_kind_deportes2.sql ==========
+
+-- Second sports template. Seed row lives in 252.
+-- Postgres cannot use a new enum label in the same transaction (55P04).
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_enum e
+    JOIN pg_type t ON t.oid = e.enumtypid
+    WHERE t.typname = 'site_theme_kind' AND e.enumlabel = 'deportes2'
+  ) THEN
+    ALTER TYPE public.site_theme_kind ADD VALUE 'deportes2';
+  END IF;
+END $$;
+
+-- ========== 252_generic_deportes2_theme_seed.sql ==========
+
+-- Inactive theme for the Deportes dos template. Colors stay overridable.
+
+INSERT INTO public.site_themes (
+  slug, name, is_active, template_kind, properties, content, blocks
+)
+SELECT
+  'generic-deportes2',
+  'Deportes dos',
+  FALSE,
+  'deportes2'::public.site_theme_kind,
+  jsonb_build_object(
+    'color.primary', '#C6F531',
+    'color.primary.dark', '#8FB000',
+    'color.primary.foreground', '#121410',
+    'color.secondary', '#F4F4F0',
+    'color.secondary.foreground', '#121410',
+    'color.background', '#121410',
+    'color.surface', '#1C1F1A',
+    'color.foreground', '#F4F4F0',
+    'color.muted', '#2A2E28',
+    'color.muted.foreground', '#C8C8C0',
+    'app.favicon.path', '/generic/deportes2/mark.svg',
+    'app.logo.path', '/generic/deportes2/mark.svg',
+    'app.logo.alt', 'Deportes dos'
+  ),
+  '{}'::jsonb,
+  '[]'::jsonb
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.site_themes t WHERE t.slug = 'generic-deportes2'
+);
+
+-- ========== 253_site_theme_kind_jardin2.sql ==========
+
+-- Second early-years template. Seed row lives in 254.
+-- Postgres cannot use a new enum label in the same transaction (55P04).
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_enum e
+    JOIN pg_type t ON t.oid = e.enumtypid
+    WHERE t.typname = 'site_theme_kind' AND e.enumlabel = 'jardin2'
+  ) THEN
+    ALTER TYPE public.site_theme_kind ADD VALUE 'jardin2';
+  END IF;
+END $$;
+
+-- ========== 254_generic_jardin2_theme_seed.sql ==========
+
+-- Inactive theme for Jardín 2. Colors stay overridable.
+
+INSERT INTO public.site_themes (
+  slug, name, is_active, template_kind, properties, content, blocks
+)
+SELECT
+  'generic-jardin2',
+  'Jardín 2',
+  FALSE,
+  'jardin2'::public.site_theme_kind,
+  jsonb_build_object(
+    'color.primary', '#3E5C45',
+    'color.primary.dark', '#2A4030',
+    'color.primary.foreground', '#F4EFE4',
+    'color.secondary', '#C4785A',
+    'color.secondary.foreground', '#24312C',
+    'color.background', '#F4EFE4',
+    'color.surface', '#FBF7F0',
+    'color.foreground', '#24312C',
+    'color.muted', '#E4D9CC',
+    'color.muted.foreground', '#4A564F',
+    'app.favicon.path', '/generic/jardin2/mark.svg',
+    'app.logo.path', '/generic/jardin2/mark.svg',
+    'app.logo.alt', 'Jardín 2'
+  ),
+  '{}'::jsonb,
+  '[]'::jsonb
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.site_themes t WHERE t.slug = 'generic-jardin2'
+);
+
+-- ========== 255_site_theme_kind_colegio2.sql ==========
+
+-- Second school template. Seed row lives in 256.
+-- Postgres cannot use a new enum label in the same transaction (55P04).
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_enum e
+    JOIN pg_type t ON t.oid = e.enumtypid
+    WHERE t.typname = 'site_theme_kind' AND e.enumlabel = 'colegio2'
+  ) THEN
+    ALTER TYPE public.site_theme_kind ADD VALUE 'colegio2';
+  END IF;
+END $$;
+
+-- ========== 256_generic_colegio2_theme_seed.sql ==========
+
+-- Inactive theme for Colegio 2. Colors stay overridable.
+
+INSERT INTO public.site_themes (
+  slug, name, is_active, template_kind, properties, content, blocks
+)
+SELECT
+  'generic-colegio2',
+  'Colegio 2',
+  FALSE,
+  'colegio2'::public.site_theme_kind,
+  jsonb_build_object(
+    'color.primary', '#FF5C24',
+    'color.primary.dark', '#C43E10',
+    'color.primary.foreground', '#0E1A2B',
+    'color.secondary', '#F3EDE4',
+    'color.secondary.foreground', '#0E1A2B',
+    'color.background', '#0E1A2B',
+    'color.surface', '#162536',
+    'color.foreground', '#F3EDE4',
+    'color.muted', '#243246',
+    'color.muted.foreground', '#D5D0C8',
+    'app.favicon.path', '/generic/colegio2/mark.svg',
+    'app.logo.path', '/generic/colegio2/mark.svg',
+    'app.logo.alt', 'Colegio 2'
+  ),
+  '{}'::jsonb,
+  '[]'::jsonb
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.site_themes t WHERE t.slug = 'generic-colegio2'
+);
+
+-- ========== 257_site_theme_kind_idiomas2.sql ==========
+
+-- Second language template. Seed row lives in 258.
+-- Postgres cannot use a new enum label in the same transaction (55P04).
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_enum e
+    JOIN pg_type t ON t.oid = e.enumtypid
+    WHERE t.typname = 'site_theme_kind' AND e.enumlabel = 'idiomas2'
+  ) THEN
+    ALTER TYPE public.site_theme_kind ADD VALUE 'idiomas2';
+  END IF;
+END $$;
+
+-- ========== 258_generic_idiomas2_theme_seed.sql ==========
+
+-- Inactive theme for Lenguas 2. Colors stay overridable.
+
+INSERT INTO public.site_themes (
+  slug, name, is_active, template_kind, properties, content, blocks
+)
+SELECT
+  'generic-idiomas2',
+  'Lenguas 2',
+  FALSE,
+  'idiomas2'::public.site_theme_kind,
+  jsonb_build_object(
+    'color.primary', '#1D3BFF',
+    'color.primary.dark', '#0E1F99',
+    'color.primary.foreground', '#F7F4EC',
+    'color.secondary', '#E6FF3A',
+    'color.secondary.foreground', '#111111',
+    'color.background', '#F7F4EC',
+    'color.surface', '#FFFFFF',
+    'color.foreground', '#111111',
+    'color.muted', '#E7E2D6',
+    'color.muted.foreground', '#3A3A3A',
+    'app.favicon.path', '/generic/idiomas2/mark.svg',
+    'app.logo.path', '/generic/idiomas2/mark.svg',
+    'app.logo.alt', 'Lenguas 2'
+  ),
+  '{}'::jsonb,
+  '[]'::jsonb
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.site_themes t WHERE t.slug = 'generic-idiomas2'
+);
+
+-- ========== 259_site_theme_kind_musica2.sql ==========
+
+-- Second music template. Seed row lives in 260.
+-- Postgres cannot use a new enum label in the same transaction (55P04).
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_enum e
+    JOIN pg_type t ON t.oid = e.enumtypid
+    WHERE t.typname = 'site_theme_kind' AND e.enumlabel = 'musica2'
+  ) THEN
+    ALTER TYPE public.site_theme_kind ADD VALUE 'musica2';
+  END IF;
+END $$;
+
+-- ========== 260_generic_musica2_theme_seed.sql ==========
+
+-- Inactive theme for Música 2. Colors stay overridable.
+
+INSERT INTO public.site_themes (
+  slug, name, is_active, template_kind, properties, content, blocks
+)
+SELECT
+  'generic-musica2',
+  'Música 2',
+  FALSE,
+  'musica2'::public.site_theme_kind,
+  jsonb_build_object(
+    'color.primary', '#FF4B1F',
+    'color.primary.dark', '#C4320C',
+    'color.primary.foreground', '#09090B',
+    'color.secondary', '#B388FF',
+    'color.secondary.foreground', '#09090B',
+    'color.background', '#09090B',
+    'color.surface', '#16161A',
+    'color.foreground', '#F5F1EA',
+    'color.muted', '#2A2A30',
+    'color.muted.foreground', '#D5D0C8',
+    'app.favicon.path', '/generic/musica2/mark.svg',
+    'app.logo.path', '/generic/musica2/mark.svg',
+    'app.logo.alt', 'Música 2'
+  ),
+  '{}'::jsonb,
+  '[]'::jsonb
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.site_themes t WHERE t.slug = 'generic-musica2'
+);

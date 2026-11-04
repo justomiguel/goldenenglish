@@ -51,6 +51,11 @@ const EXPECTED_NAME: Record<(typeof SITE_THEME_KINDS)[number], string> = {
   colegio: "LandingMainSectionsGenericBound",
   musica: "LandingMainSectionsGenericBound",
   idiomas: "LandingMainSectionsGenericBound",
+  deportes2: "DeportesDosLanding",
+  jardin2: "JardinDosLanding",
+  colegio2: "ColegioDosLanding",
+  idiomas2: "IdiomasDosLanding",
+  musica2: "MusicaDosLanding",
 };
 
 describe("loadLandingMainSections", () => {

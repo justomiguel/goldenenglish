@@ -10,7 +10,7 @@ import type {
 } from "@/types/theming";
 import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 import { LandingMainSectionsGeneric } from "@/components/organisms/LandingMainSectionsGeneric";
-import { hiddenLandingSections } from "@/lib/theme/hiddenLandingSections";
+import { genericSectionNames } from "@/lib/landing/genericSectionNames";
 import {
   genericSectionStockPath,
   isGenericInstituteKind,
@@ -59,9 +59,14 @@ function bindGenericLanding(kind: GenericInstituteKind): LandingMainSectionCompo
       kind,
       heroSrc: props.mediaMap?.get("inicio::1") ?? genericSectionStockPath(kind, "inicio"),
       sectionLabels: props.dict.landing.genericSectionLabels,
-      hiddenSections: hiddenLandingSections(props.themeProperties),
+      hiddenSections: new Set<string>(),
       contact: contactFromOverrides(props.themeProperties),
       contactLabels: props.dict.landing.genericContact,
+      siteName: props.brand.name,
+      logoSrc: props.brand.logoPath,
+      logoAlt: props.brand.logoAlt || props.brand.name,
+      nav: props.dict.landing.genericNav,
+      menu: genericSectionNames(props.dict),
       sectionSrc: {
         historia: props.mediaMap?.get("historia::1") ?? genericSectionStockPath(kind, "historia"),
         oferta: props.mediaMap?.get("oferta::1") ?? genericSectionStockPath(kind, "oferta"),
@@ -80,6 +85,21 @@ function bindGenericLanding(kind: GenericInstituteKind): LandingMainSectionCompo
 export async function loadLandingMainSections(
   kind: SiteThemeKind,
 ): Promise<LandingMainSectionComponent> {
+  if (kind === "deportes2") {
+    return (await import("@/components/organisms/deportes-dos/DeportesDosLanding")).DeportesDosLanding;
+  }
+  if (kind === "jardin2") {
+    return (await import("@/components/organisms/jardin-dos/JardinDosLanding")).JardinDosLanding;
+  }
+  if (kind === "colegio2") {
+    return (await import("@/components/organisms/colegio-dos/ColegioDosLanding")).ColegioDosLanding;
+  }
+  if (kind === "idiomas2") {
+    return (await import("@/components/organisms/idiomas-dos/IdiomasDosLanding")).IdiomasDosLanding;
+  }
+  if (kind === "musica2") {
+    return (await import("@/components/organisms/musica-dos/MusicaDosLanding")).MusicaDosLanding;
+  }
   if (isGenericInstituteKind(kind)) return bindGenericLanding(kind);
   switch (kind) {
     case "editorial":

@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { LandingScreenDesktop } from "@/components/desktop/organisms/LandingScreenDesktop";
+import { LandingSurfaceGate } from "@/components/organisms/LandingSurfaceGate";
 import { LandingMainSectionsGeneric } from "@/components/organisms/LandingMainSectionsGeneric";
+import { DeportesDosLanding } from "@/components/organisms/deportes-dos/DeportesDosLanding";
+import { JardinDosLanding } from "@/components/organisms/jardin-dos/JardinDosLanding";
+import { ColegioDosLanding } from "@/components/organisms/colegio-dos/ColegioDosLanding";
+import { IdiomasDosLanding } from "@/components/organisms/idiomas-dos/IdiomasDosLanding";
+import { MusicaDosLanding } from "@/components/organisms/musica-dos/MusicaDosLanding";
 import { brandPublicFromProperties } from "@/lib/brand/server";
+import { genericSectionNames } from "@/lib/landing/genericSectionNames";
 import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { centrolistoPrivatePageMetadata } from "@/lib/pulsar/centrolistoShareMetadata";
 import { loadCentrolistoDictionary } from "@/lib/pulsar/loadCentrolistoDictionary";
@@ -71,15 +77,41 @@ export default async function GenericTemplatePreviewPage({
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: cssRootBlock(properties) }} />
-      <LandingScreenDesktop brand={brand} dict={dict} locale={locale} sessionEmail={null}>
-        <LandingMainSectionsGeneric
-          copy={copy}
-          locale={locale}
-          kind={kind}
-          sectionLabels={dict.landing.genericSectionLabels}
-          contactLabels={dict.landing.genericContact}
-        />
-      </LandingScreenDesktop>
+      <LandingSurfaceGate
+        brand={brand}
+        dict={dict}
+        locale={locale}
+        sessionEmail={null}
+        suppressHeader
+        suppressPwaHeader
+        suppressMarketingShellFooter
+        main={
+          kind === "deportes2" ? (
+            <DeportesDosLanding dict={dict} brand={brand} locale={locale} />
+          ) : kind === "jardin2" ? (
+            <JardinDosLanding dict={dict} brand={brand} locale={locale} />
+          ) : kind === "colegio2" ? (
+            <ColegioDosLanding dict={dict} brand={brand} locale={locale} />
+          ) : kind === "idiomas2" ? (
+            <IdiomasDosLanding dict={dict} brand={brand} locale={locale} />
+          ) : kind === "musica2" ? (
+            <MusicaDosLanding dict={dict} brand={brand} locale={locale} />
+          ) : (
+            <LandingMainSectionsGeneric
+              copy={copy}
+              locale={locale}
+              kind={kind}
+              siteName={copy.name}
+              logoSrc={genericStockPath(kind, "mark.svg")}
+              logoAlt={copy.name}
+              nav={dict.landing.genericNav}
+              menu={genericSectionNames(dict)}
+              sectionLabels={dict.landing.genericSectionLabels}
+              contactLabels={dict.landing.genericContact}
+            />
+          )
+        }
+      />
     </>
   );
 }

@@ -34,9 +34,9 @@ import {
   addLandingBlockAction,
   moveLandingBlockAction,
   removeLandingBlockAction,
-  setSiteThemeKindAction,
   updateLandingBlockAction,
 } from "@/app/[locale]/dashboard/admin/cms/siteThemeBlocksActions";
+import { setSiteThemeKindAction } from "@/app/[locale]/dashboard/admin/cms/setSiteThemeKindAction";
 
 const VALID_ID = "00000000-0000-4000-8000-000000000222";
 const BLOCK_ID = "22222222-2222-4222-8222-222222222222";
@@ -310,6 +310,27 @@ describe("setSiteThemeKindAction", () => {
       kind: "brutalist",
     });
     expect(result).toEqual({ ok: false, code: "invalid_input" });
+  });
+
+  it("keeps the free-site section text when the template changes", async () => {
+    const supabase = makeSupabase({
+      ...baseRow,
+      template_kind: "deportes",
+      content: {
+        inicio: { "genericLandings.deportes.title": { es: "Título editado" } },
+      },
+    });
+    mockAssertAdmin.mockResolvedValue({ supabase, user: { id: "u" } });
+    const result = await setSiteThemeKindAction({
+      locale: "es",
+      id: VALID_ID,
+      kind: "jardin",
+    });
+    expect(result).toEqual({ ok: true, id: VALID_ID });
+    const content = supabase.updates[0]?.content as {
+      inicio?: Record<string, { es?: string }>;
+    };
+    expect(content.inicio?.["genericLandings.jardin.title"]?.es).toBe("Título editado");
   });
 
   it("persists the new kind and emits audit/cache invalidation", async () => {

@@ -43,7 +43,6 @@ import type { SiteThemeKind } from "@/types/theming";
 
 /** Session must reflect cookies each request (avoid stale static HTML). */
 export const dynamic = "force-dynamic";
-
 interface HomePageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ pais?: string | string[] }>;
@@ -175,6 +174,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
     : undefined;
   const templateKind = activeTheme?.theme.templateKind ?? "classic";
   const marketingShell = isMarketingFullBleedLandingKind(templateKind);
+  const genericShell = isGenericInstituteKind(templateKind);
   const LandingSections = await loadLandingMainSections(templateKind);
 
   const main = (
@@ -235,11 +235,11 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
           sessionEmail={sessionEmail}
           blogEnabled={blogEnabled}
           merchEnabled={merchEnabled}
-          suppressHeader={marketingShell}
-          suppressPwaHeader={marketingShell}
-          suppressMarketingShellFooter={marketingLandingSuppressesShellFooter(
-            templateKind,
-          )}
+          suppressHeader={marketingShell || genericShell}
+          suppressPwaHeader={marketingShell || genericShell}
+          suppressMarketingShellFooter={
+            marketingLandingSuppressesShellFooter(templateKind) || genericShell
+          }
           marketingFullBleedShell={marketingShell}
           marketingLandingFooterBrand={MARKETING_FOOTER_BRAND[templateKind]}
         />

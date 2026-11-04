@@ -80,6 +80,19 @@ describe("resolvePulsarPostLoginPath", () => {
     expect(await resolvePulsarPostLoginPath("es", "https://evil.test")).toBe("/es/cuenta");
   });
 
+  it("sends an owner away from the staff fleet home", async () => {
+    cookieMock.mockResolvedValue({ email: "owner@school.test" });
+    expect(await resolvePulsarPostLoginPath("es", "/es/admin")).toBe("/es/cuenta");
+    expect(await resolvePulsarPostLoginPath("es", "/es/admin?tab=mail")).toBe("/es/cuenta");
+    expect(await resolvePulsarPostLoginPath("es", "/es/admin/login")).toBe("/es/cuenta");
+  });
+
+  it("sends staff to the fleet home", async () => {
+    staffMock.mockResolvedValue({ mustChangePassword: false });
+    expect(await resolvePulsarPostLoginPath("es", "/es/admin")).toBe("/es/admin");
+    expect(await resolvePulsarPostLoginPath("es", "/es/admin?tab=mail")).toBe("/es/admin?tab=mail");
+  });
+
   it("sends a stranger back to login", async () => {
     expect(await resolvePulsarPostLoginPath("es", "/es/admin")).toBe("/es/cuenta/login");
   });

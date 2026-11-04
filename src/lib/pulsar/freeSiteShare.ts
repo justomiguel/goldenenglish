@@ -63,6 +63,21 @@ export function googleMapEmbedUrl(address: string): string | null {
   return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=16&output=embed`;
 }
 
+/** The institute name. This does not copy the person's email or phone. */
+export function freeSiteNameProperties(displayName: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  const name = displayName.trim().slice(0, MAX_NAME);
+  if (name) {
+    out["app.name"] = name;
+    out["app.legal.name"] = name;
+    out["app.logo.alt"] = name;
+    out["app.tagline"] = name;
+    out["app.tagline.en"] = name;
+    out["app.legal.registry"] = name;
+  }
+  return out;
+}
+
 export function freeSiteShareProperties(input: {
   email: string;
   phone: string;
@@ -85,11 +100,5 @@ export function freeSiteShareProperties(input: {
   if (instagram) out["social.instagram"] = instagram;
   const facebook = facebookUrl(input.facebook);
   if (facebook) out["social.facebook"] = facebook;
-  const name = input.displayName.trim().slice(0, MAX_NAME);
-  if (name) {
-    out["app.name"] = name;
-    out["app.legal.name"] = name;
-    out["app.logo.alt"] = name;
-  }
-  return out;
+  return { ...out, ...freeSiteNameProperties(input.displayName) };
 }

@@ -21,7 +21,7 @@ import {
 import { createPulsarAdminClient, isPulsarSupabaseConfigured, readSharedPulsarCredentials } from "@/lib/supabase/pulsar";
 import { isPulsarHost } from "@/lib/tenant/tenantRegistry";
 import { genericThemeSlug, isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
-import { freeSiteShareProperties } from "@/lib/pulsar/freeSiteShare";
+import { freeSiteNameProperties } from "@/lib/pulsar/freeSiteShare";
 import { parseTemplatePalette, templatePaletteOverrides } from "@/lib/theme/templatePalette";
 
 const createSchema = z.object({
@@ -32,11 +32,6 @@ const createSchema = z.object({
   colorPrimary: z.string().trim().max(7).optional(),
   colorAccent: z.string().trim().max(7).optional(),
   colorPaper: z.string().trim().max(7).optional(),
-  phone: z.string().trim().max(40).optional(),
-  whatsapp: z.string().trim().max(200).optional(),
-  instagram: z.string().trim().max(200).optional(),
-  facebook: z.string().trim().max(200).optional(),
-  address: z.string().trim().max(180).optional(),
 });
 
 export async function createOwnerFreeSite(input: {
@@ -50,11 +45,6 @@ export async function createOwnerFreeSite(input: {
   colorPrimary?: string;
   colorAccent?: string;
   colorPaper?: string;
-  phone?: string;
-  whatsapp?: string;
-  instagram?: string;
-  facebook?: string;
-  address?: string;
 }): Promise<{ ok: true; slug: string } | { ok: false; errorCode: string }> {
   const customDomain = optionalOwnerDomain(input.customDomain ?? "", isPulsarHost);
   const slug = ownerSiteSlug(input.slug);
@@ -146,7 +136,10 @@ export async function createOwnerFreeSite(input: {
   });
   if (ownerErr) {
     logSupabaseError("createOwnerFreeSite:owner", ownerErr, { slug: record.slug });
-    await closeInstituteDataPlane({ ...record, updatedAt: null });
+    await closeInstituteDataPlane(
+      { ...record, updatedAt: null },
+      existing.flatMap((row) => row.hosts),
+    );
     await admin.from("platform_tenants").delete().eq("slug", record.slug);
     return { ok: false, errorCode: "create_failed" };
   }
@@ -156,15 +149,7 @@ export async function createOwnerFreeSite(input: {
     accent: parsed.data.colorAccent,
     paper: parsed.data.colorPaper,
   });
-  const share = freeSiteShareProperties({
-    email: input.email,
-    phone: parsed.data.phone ?? "",
-    whatsapp: parsed.data.whatsapp ?? "",
-    instagram: parsed.data.instagram ?? "",
-    facebook: parsed.data.facebook ?? "",
-    address: parsed.data.address ?? "",
-    displayName: parsed.data.displayName,
-  });
+  const share = freeSiteNameProperties(parsed.data.displayName);
   if (record.databaseUrl && record.postgresSchema) {
     await writeInstituteSchemaProvisionPhase({
       databaseUrl: record.databaseUrl,

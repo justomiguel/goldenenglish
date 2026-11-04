@@ -1,0 +1,225 @@
+.stage {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+}
+
+.stage [id] {
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 4.5rem);
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.75rem 1.25rem;
+  align-items: center;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-background);
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 0.5rem)
+    max(1rem, env(safe-area-inset-right, 0px))
+    0.5rem
+    max(1rem, env(safe-area-inset-left, 0px));
+  scrollbar-width: none;
+}
+
+.bar::-webkit-scrollbar {
+  display: none;
+}
+
+.nav {
+  display: contents;
+}
+
+.bar a {
+  display: inline-flex;
+  flex: none;
+  min-height: 2.75rem;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.hero {
+  position: relative;
+  display: grid;
+  min-height: 100dvh;
+  align-items: end;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  padding:
+    6rem
+    max(1.25rem, env(safe-area-inset-right, 0px))
+    3rem
+    max(1.25rem, env(safe-area-inset-left, 0px));
+}
+
+.blockA,
+.blockB {
+  position: absolute;
+}
+
+.blockA {
+  top: 10%;
+  right: 6%;
+  width: min(34vw, 16rem);
+  height: min(34vw, 16rem);
+  background: var(--color-primary);
+}
+
+.blockB {
+  top: 22%;
+  right: 18%;
+  width: min(18vw, 8rem);
+  height: min(18vw, 8rem);
+  background: var(--color-accent);
+}
+
+.word {
+  font-size: clamp(4rem, 14vw, 9rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.85;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  max-width: 12ch;
+  font-size: clamp(3rem, 10vw, 7rem);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.cta,
+.ghost,
+.chip {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding: 0 1rem;
+  font-weight: 700;
+}
+
+.cta {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.ghost,
+.chip {
+  border: 1px solid var(--color-foreground);
+  background: transparent;
+  color: var(--color-foreground);
+}
+
+.chip[aria-pressed="true"] {
+  background: var(--color-accent);
+  color: var(--color-foreground);
+}
+
+.block {
+  padding:
+    4.5rem
+    max(1.25rem, env(safe-area-inset-right, 0px))
+    4.5rem
+    max(1.25rem, env(safe-area-inset-left, 0px));
+}
+
+.giant {
+  font-size: clamp(2.2rem, 7vw, 5rem);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 0.92;
+}
+
+.track {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+  scroll-snap-type: x mandatory;
+}
+
+.scene {
+  flex: 0 0 min(78vw, 20rem);
+  scroll-snap-align: start;
+  min-height: 14rem;
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  padding: 1.25rem;
+}
+
+.scene:nth-child(even) {
+  background: var(--color-accent);
+  color: var(--color-foreground);
+}
+
+.field,
+.select {
+  margin-top: 0.25rem;
+  min-height: 2.75rem;
+  width: 100%;
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-foreground);
+  padding: 0 0.75rem;
+}
+
+.progress {
+  height: 0.4rem;
+  background: var(--color-muted);
+}
+
+.progress > span {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .word {
+    animation: slam 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word {
+    animation: none;
+  }
+}
+
+@keyframes slam {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@media (max-width: 767px) {
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions .cta,
+  .actions .ghost {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}

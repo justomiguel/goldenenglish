@@ -63,14 +63,12 @@ export function SectionReferenceImageField({
           className="mt-2 h-24 w-24 rounded-[var(--layout-border-radius)] object-cover"
         />
       ) : null}
-      {progress ? (
-        <InlineUploadProgressBar
-          className="mt-2"
-          label={progress.label}
-          value={progress.value}
-          indeterminate={progress.indeterminate}
-        />
-      ) : null}
+      <InlineUploadProgressBar
+        className="mt-2"
+        label={progress?.label ?? dict.photoLabel}
+        value={progress?.indeterminate ? undefined : progress?.value ?? 0}
+        indeterminate={Boolean(progress?.indeterminate)}
+      />
     </div>
   );
 }

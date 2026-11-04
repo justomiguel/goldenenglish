@@ -12,6 +12,7 @@ import {
   startTrialFeeFlowAction,
   startTrialFeeMercadoPagoAction,
 } from "@/app/[locale]/clase-prueba/trialFeePayActions";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { EVENT_TRANSFER_RECEIPT_ACCEPT } from "@/lib/events/eventTransferReceiptLimits";
 import type { RegistrationPublicPayMethod } from "@/lib/register/resolveRegistrationPublicPayMethods";
 
@@ -134,6 +135,10 @@ export function RegistrationMatriculaPayActions({
             required
             accept={EVENT_TRANSFER_RECEIPT_ACCEPT}
             className="block w-full text-sm"
+          />
+          <InlineUploadProgressBar
+            label={labels.uploadButton}
+            {...(pending ? { indeterminate: true } : { value: 0 })}
           />
           <button type="submit" className={btnClass} disabled={pending}>
             {labels.uploadButton}

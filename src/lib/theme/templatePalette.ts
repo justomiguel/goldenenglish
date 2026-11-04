@@ -1,7 +1,26 @@
 import { contrastRatio, relativeLuminance } from "@/lib/theme/contrastRatio";
-import type { GenericTemplatePalette } from "@/lib/theme/genericInstituteTemplates";
+import {
+  genericKindDefaultPalette,
+  type GenericInstituteKind,
+  type GenericTemplatePalette,
+} from "@/lib/theme/genericInstituteTemplates";
 
 const HEX = /^#[0-9A-Fa-f]{6}$/;
+
+/** Saved theme colors, or the template defaults when a channel is missing. */
+export function paletteFromThemeProperties(
+  kind: GenericInstituteKind,
+  properties: Readonly<Record<string, string>> | null | undefined,
+): GenericTemplatePalette {
+  const fallback = genericKindDefaultPalette(kind);
+  return (
+    parseTemplatePalette({
+      primary: properties?.["color.primary"] || fallback.primary,
+      accent: properties?.["color.accent"] || properties?.["color.secondary"] || fallback.accent,
+      paper: properties?.["color.background"] || fallback.paper,
+    }) ?? fallback
+  );
+}
 
 export function parseTemplatePalette(input: {
   primary?: string | null;
@@ -37,9 +56,13 @@ export function templatePaletteOverrides(palette: GenericTemplatePalette): Recor
     "color.primary": palette.primary,
     "color.primary.dark": darkenHex(palette.primary, 0.28),
     "color.primary.foreground": onPrimary,
+    "color.primary.light": lightenHex(palette.primary, 0.35),
     "color.secondary": palette.accent,
+    "color.secondary.light": lightenHex(palette.accent, 0.25),
+    "color.secondary.dark": darkenHex(palette.accent, 0.28),
     "color.secondary.foreground": readableOn(palette.accent, palette.paper),
     "color.accent": palette.accent,
+    "color.accent.foreground": readableOn(palette.accent, ink),
     "color.background": palette.paper,
     "color.surface": lightenHex(palette.paper, 0.45),
     "color.foreground": ink,

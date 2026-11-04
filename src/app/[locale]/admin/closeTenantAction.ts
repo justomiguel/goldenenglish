@@ -6,6 +6,7 @@ import { resolvePulsarSiteActor } from "@/lib/pulsar/pulsarSiteActor";
 import {
   applyLocalMemoryTenantRemove,
   invalidateTenantRegistryCache,
+  loadAllPulsarTenantsForAdmin,
   loadPulsarTenantBySlugForAdmin,
 } from "@/lib/pulsar/pulsarTenantStore";
 import {
@@ -30,9 +31,14 @@ export async function closePulsarTenantAction(args: {
 
   try {
     const tenant = await loadPulsarTenantBySlugForAdmin(args.slug);
-    if (!tenant) return { ok: false, errorCode: "invalid_slug" };
-
-    const closed = await closeInstituteDataPlane(tenant);
+    if (!tenant || !/^[a-z0-9](?:[a-z0-9-]{0,62})$/.test(tenant.slug)) {
+      return { ok: false, errorCode: "invalid_slug" };
+    }
+    const fleet = await loadAllPulsarTenantsForAdmin();
+    const occupiedHosts = fleet
+      .filter((row) => row.slug !== tenant.slug)
+      .flatMap((row) => row.hosts);
+    const closed = await closeInstituteDataPlane(tenant, occupiedHosts);
     if (!closed.ok) return closed;
 
     if (isPulsarSupabaseConfigured()) {

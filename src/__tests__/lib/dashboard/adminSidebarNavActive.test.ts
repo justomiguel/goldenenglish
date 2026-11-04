@@ -25,6 +25,7 @@ const dailyHrefs = [
   `${base}/events`,
   `${base}/cms/blog`,
   `${base}/merch`,
+  `${base}/cms/templates`,
   institute,
 ] as const;
 
@@ -57,6 +58,13 @@ describe("adminSidebarNavActive", () => {
     expect(isAdminSidebarNavItemActive(events, events, base, profile, dailyHrefs)).toBe(true);
     expect(isAdminSidebarNavItemActive(events, institute, base, profile, dailyHrefs)).toBe(false);
     expect(isAdminSidebarNavItemActive(events, academicHub, base, profile, dailyHrefs)).toBe(false);
+  });
+
+  it("highlights Plantillas on /cms/templates, not Instituto", () => {
+    const templates = `${base}/cms/templates`;
+    expect(isAdminSidebarNavItemActive(templates, templates, base, profile, dailyHrefs)).toBe(true);
+    expect(isAdminSidebarNavItemActive(`${templates}/theme-id`, templates, base, profile, dailyHrefs)).toBe(true);
+    expect(isAdminSidebarNavItemActive(templates, institute, base, profile, dailyHrefs)).toBe(false);
   });
 
   it("highlights Blog on /cms/blog, not Instituto", () => {

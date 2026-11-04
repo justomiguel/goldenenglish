@@ -37,6 +37,11 @@ const KIND_HERO_ALIGNMENT: Record<SiteThemeKind, string> = {
   colegio: "items-start text-left",
   musica: "items-start text-left",
   idiomas: "items-start text-left",
+  deportes2: "items-start text-left",
+  jardin2: "items-start text-left",
+  colegio2: "items-start text-left",
+  musica2: "items-start text-left",
+  idiomas2: "items-start text-left",
 };
 
 const KIND_HERO_PADDING: Record<SiteThemeKind, string> = {
@@ -53,6 +58,11 @@ const KIND_HERO_PADDING: Record<SiteThemeKind, string> = {
   colegio: "px-4 py-6",
   musica: "px-4 py-6",
   idiomas: "px-4 py-6",
+  deportes2: "px-4 py-6",
+  jardin2: "px-4 py-6",
+  colegio2: "px-4 py-6",
+  musica2: "px-4 py-6",
+  idiomas2: "px-4 py-6",
 };
 
 const KIND_BODY_FONT: Record<SiteThemeKind, string> = {
@@ -69,6 +79,11 @@ const KIND_BODY_FONT: Record<SiteThemeKind, string> = {
   colegio: "text-sm font-medium leading-snug",
   musica: "text-sm font-medium leading-snug",
   idiomas: "text-sm font-medium leading-snug",
+  deportes2: "text-sm font-medium leading-snug",
+  jardin2: "text-sm font-medium leading-snug",
+  colegio2: "text-sm font-medium leading-snug",
+  musica2: "text-sm font-medium leading-snug",
+  idiomas2: "text-sm font-medium leading-snug",
 };
 
 const KIND_KICKER: Record<SiteThemeKind, string> = {
@@ -85,6 +100,11 @@ const KIND_KICKER: Record<SiteThemeKind, string> = {
   colegio: "text-[10px] tracking-[0.12em]",
   musica: "text-[10px] tracking-[0.12em]",
   idiomas: "text-[10px] tracking-[0.12em]",
+  deportes2: "text-[10px] tracking-[0.12em]",
+  jardin2: "text-[10px] tracking-[0.12em]",
+  colegio2: "text-[10px] tracking-[0.12em]",
+  musica2: "text-[10px] tracking-[0.12em]",
+  idiomas2: "text-[10px] tracking-[0.12em]",
 };
 
 function Swatch({

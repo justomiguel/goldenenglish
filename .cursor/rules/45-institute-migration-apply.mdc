@@ -17,6 +17,12 @@ npm run sql:apply-migration:all-tenants:pg -- supabase/migrations/<file>.sql
 
 `npm run sql:apply-migration:all-tenants` calls that same script. Do not run `psql` once per institute. Do not paste the file into the Supabase SQL editor for each institute.
 
+## IPv4 session pooler
+
+`db.<ref>.supabase.co` often has no A record. This machine has no IPv6 route, so a direct connect fails with `ENOTFOUND`.
+
+The apply command handles that. When the direct host has no IPv4 address, it opens `postgres.<ref>` on the session pooler (`*.pooler.supabase.com`, port 5432, `sslmode=no-verify`). It tries the cached host in `scripts/.institute-pooler-hosts.json` first, then the host list in `src/lib/tenant/institutePoolerUrl.ts`. A URL that already resolves over IPv4 stays as stored. Do not rewrite `platform_tenants.database_url` for this. Do not pass `--skip-dns-check` to hide the failure.
+
 ## What the command does
 
 Targets come from Pulsar `platform_tenants` when `PULSAR_DATABASE_URL` is set. Otherwise they come from `TENANTS_CONFIG_JSON`.
@@ -43,5 +49,5 @@ A shared-schema target rejects the file when a `table`, `function`, `view`, `typ
 ## Checklist
 
 - [ ] New product objects use `public.`?
-- [ ] Apply went through `sql:apply-migration:all-tenants:pg`?
+- [ ] Apply went through `sql:apply-migration:all-tenants:pg`? A direct host with no IPv4 address used the session pooler. The log line is `IPv4 pooler <host>`.
 - [ ] Shared-schema failure names the institute and the code (`unqualified_public`, `invalid_tenant_schema`)?

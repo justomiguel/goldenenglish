@@ -2,6 +2,51 @@ import type { ProductChangelogEntry } from "@/lib/product-changelog/catalogTypes
 import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
+{
+    id: "admin-home-ops-cards",
+    date: "2026-11-04",
+    area: "admin",
+    title: t(
+      "El inicio del admin muestra correos, entradas, inscripciones y la jornada",
+      "The admin home shows mail, tickets, enrollments, and the day",
+      "O início do admin mostra e-mails, ingressos, inscrições e o dia",
+    ),
+    summary: t(
+      "Ves el tope de 5000 correos, las entradas, la cohorte, las clases de hoy, las pruebas, los cupos, la espera y los pagos de evento.",
+      "You see the 5000 mail cap, tickets, the cohort, today's classes, trials, seats, the waitlist, and event payments.",
+      "Você vê o limite de 5000 e-mails, os ingressos, a turma, as aulas de hoje, as experimentais, as vagas, a espera e os pagamentos do evento.",
+    ),
+  },
+  {
+    id: "centrolisto-account-profile",
+    date: "2026-11-04",
+    area: "site",
+    title: t(
+      "Tu cuenta de CentroListo guarda el nombre y la foto",
+      "Your CentroListo account stores your name and photo",
+      "Sua conta do CentroListo guarda o nome e a foto",
+    ),
+    summary: t(
+      "La barra abre cada sección sin pestañas. En Tu cuenta cambias el nombre y la foto. Google se activa en Supabase.",
+      "The rail opens each section without tabs. In Your account you change the name and the photo. Google is enabled in Supabase.",
+      "A barra abre cada seção sem abas. Em Sua conta você muda o nome e a foto. O Google é ativado no Supabase.",
+    ),
+  },
+  {
+    id: "centrolisto-panel-sidebar",
+    date: "2026-11-04",
+    area: "site",
+    title: t(
+      "El panel de CentroListo abre al ingresar y tiene una barra lateral",
+      "The CentroListo panel opens after sign-in and has a sidebar",
+      "O painel do CentroListo abre ao entrar e tem uma barra lateral",
+    ),
+    summary: t(
+      "El dueño llega a sus sitios y el personal a la flota. La barra abre las herramientas de la cuenta.",
+      "An owner lands on their sites and staff land on the fleet. The rail opens the account tools.",
+      "O dono chega aos seus sites e a equipe à frota. A barra abre as ferramentas da conta.",
+    ),
+  },
   {
     id: "lms-academy-slices",
     date: "2026-11-03",

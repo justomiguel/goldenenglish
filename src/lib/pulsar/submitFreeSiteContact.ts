@@ -2,6 +2,7 @@ import { z } from "zod";
 import { getDictionary, locales, type AppLocale } from "@/lib/i18n/dictionaries";
 import { logServerWarn } from "@/lib/logging/serverActionLog";
 import { loadFreeSiteOwnerEmail, releaseFreeContactMail, reserveFreeContactMail } from "@/lib/pulsar/freeContactMail";
+import { saveFreeSiteMessage } from "@/lib/pulsar/freeSiteMessages";
 import { sendPulsarMail } from "@/lib/pulsar/pulsarMail";
 import { pulsarMailMessage } from "@/lib/pulsar/pulsarMailMessage";
 import { getAlsTenant } from "@/lib/tenant/alsTenantAccessor";
@@ -46,6 +47,18 @@ export async function submitFreeSiteContact(input: unknown): Promise<FreeSiteCon
     return { ok: false, errorCode: "unavailable" };
   }
 
+  const saved = await saveFreeSiteMessage({
+    slug,
+    name: parsed.data.name,
+    email: parsed.data.email,
+    phone: parsed.data.phone,
+    body: parsed.data.message,
+  });
+  if (!saved) {
+    await releaseFreeContactMail(slug);
+    return { ok: false, errorCode: "persist" };
+  }
+
   const dict = await getDictionary(parsed.data.locale);
   const draft = pulsarMailMessage({
     to: ownerEmail,
@@ -62,13 +75,12 @@ export async function submitFreeSiteContact(input: unknown): Promise<FreeSiteCon
   });
   if (!draft) {
     await releaseFreeContactMail(slug);
-    return { ok: false, errorCode: "persist" };
+    logServerWarn("freeSiteContact:draft", { slug, code: "missing_draft" });
+    return { ok: true };
   }
   const sent = await sendPulsarMail([draft]);
   if (!sent.ok) {
-    await releaseFreeContactMail(slug);
     logServerWarn("freeSiteContact:send", { slug, code: sent.errorCode });
-    return { ok: false, errorCode: "persist" };
   }
   return { ok: true };
 }

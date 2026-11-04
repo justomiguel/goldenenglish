@@ -51,14 +51,22 @@ vi.mock("@/lib/site/publicUrl", () => ({
   getPublicSiteUrl: () => new URL("https://app.test.example"),
 }));
 
-const { recordEmailSendStaffNotice, clearEmailSendStaffNotice } = vi.hoisted(() => ({
-  recordEmailSendStaffNotice: vi.fn(),
-  clearEmailSendStaffNotice: vi.fn(),
-}));
+const { recordEmailSendStaffNotice, clearEmailSendStaffNotice, loadEmailMonthUsage, recordEmailSend } =
+  vi.hoisted(() => ({
+    recordEmailSendStaffNotice: vi.fn(),
+    clearEmailSendStaffNotice: vi.fn(),
+    loadEmailMonthUsage: vi.fn(async () => ({ used: 0, cap: 5000 })),
+    recordEmailSend: vi.fn(async () => {}),
+  }));
 
 vi.mock("@/lib/email/emailSendStaffNotice", () => ({
   recordEmailSendStaffNotice,
   clearEmailSendStaffNotice,
+}));
+
+vi.mock("@/lib/email/emailSendLedger", () => ({
+  loadEmailMonthUsage,
+  recordEmailSend,
 }));
 
 const sendEmail = vi.fn();
@@ -71,6 +79,9 @@ describe("sendBrandedEmail", () => {
     sendEmail.mockResolvedValue({ ok: true });
     recordEmailSendStaffNotice.mockReset();
     clearEmailSendStaffNotice.mockReset();
+    loadEmailMonthUsage.mockReset();
+    loadEmailMonthUsage.mockResolvedValue({ used: 0, cap: 5000 });
+    recordEmailSend.mockReset();
   });
 
   it("wraps the resolved body in the branded layout and dispatches via the provider", async () => {
@@ -87,6 +98,10 @@ describe("sendBrandedEmail", () => {
     expect(clearEmailSendStaffNotice).toHaveBeenCalledTimes(1);
     expect(recordEmailSendStaffNotice).not.toHaveBeenCalled();
     expect(sendEmail).toHaveBeenCalledTimes(1);
+    expect(recordEmailSend).toHaveBeenCalledWith({
+      templateKey: "messaging.teacher_new",
+      recipientCount: 1,
+    });
     const call = sendEmail.mock.calls[0][0] as {
       to: string;
       subject: string;
@@ -270,6 +285,22 @@ describe("sendBrandedEmail", () => {
     });
     expect(r).toEqual({ ok: true, skipped: true });
     expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("does not call the provider when the month is already at the cap", async () => {
+    loadEmailMonthUsage.mockResolvedValue({ used: 5000, cap: 5000 });
+    const { sendBrandedEmail } = await import("@/lib/email/templates/sendBrandedEmail");
+    const r = await sendBrandedEmail({
+      to: "user@example.com",
+      templateKey: "messaging.teacher_new",
+      locale: "es",
+      emailProvider: { sendEmail },
+      emailSendGate: OPEN_GATE,
+      vars: { senderName: "Ann", messagePreview: "Hi", href: "https://x.test" },
+    });
+    expect(r).toEqual({ ok: false, error: "email_monthly_cap" });
+    expect(sendEmail).not.toHaveBeenCalled();
+    expect(recordEmailSend).not.toHaveBeenCalled();
   });
 
   it("skips class-reminder email when the class-reminders site flag is off", async () => {

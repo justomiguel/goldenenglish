@@ -28,6 +28,7 @@ describe("buildAdminHamburgerMenuItems", () => {
       nav.messages,
       nav.academics,
       nav.events,
+      nav.templates,
       nav.institute,
     ]);
   });

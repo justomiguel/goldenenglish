@@ -45,11 +45,6 @@ export async function createOwnerSiteAction(input: {
   colorPrimary?: string;
   colorAccent?: string;
   colorPaper?: string;
-  phone?: string;
-  whatsapp?: string;
-  instagram?: string;
-  facebook?: string;
-  address?: string;
 }): Promise<{ ok: true; slug: string } | { ok: false; errorCode: string }> {
   const owner = await signedOwner();
   if (!owner) {
@@ -67,11 +62,6 @@ export async function createOwnerSiteAction(input: {
     colorPrimary: input.colorPrimary,
     colorAccent: input.colorAccent,
     colorPaper: input.colorPaper,
-    phone: input.phone,
-    whatsapp: input.whatsapp,
-    instagram: input.instagram,
-    facebook: input.facebook,
-    address: input.address,
   });
   if (result.ok) {
     revalidatePath(`/${input.locale}/cuenta`);

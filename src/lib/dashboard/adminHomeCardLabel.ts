@@ -15,6 +15,20 @@ export function adminHomeCardLabel(id: AdminHomeWidgetId, dict: Dictionary): str
       return summary.registrations.title;
     case "messages":
       return summary.messages.title;
+    case "emailQuota":
+      return widgets.emailQuotaTitle;
+    case "cohortEnrollments":
+      return widgets.cohortEnrollmentsTitle;
+    case "classesToday":
+      return widgets.classesTodayTitle;
+    case "trialsThisWeek":
+      return widgets.trialsTitle;
+    case "sectionSeats":
+      return widgets.sectionSeatsTitle;
+    case "eventWaitlist":
+      return widgets.waitlistTitle;
+    case "eventPaymentsReview":
+      return widgets.eventPaymentsTitle;
     case "people":
       return summary.users.title;
     case "birthdays":
@@ -53,6 +67,20 @@ export function adminHomeCardAbout(id: AdminHomeWidgetId, dict: Dictionary): str
       return about.registrations;
     case "messages":
       return about.messages;
+    case "emailQuota":
+      return about.emailQuota;
+    case "cohortEnrollments":
+      return about.cohortEnrollments;
+    case "classesToday":
+      return about.classesToday;
+    case "trialsThisWeek":
+      return about.trialsThisWeek;
+    case "sectionSeats":
+      return about.sectionSeats;
+    case "eventWaitlist":
+      return about.eventWaitlist;
+    case "eventPaymentsReview":
+      return about.eventPaymentsReview;
     case "people":
       return about.people;
     case "birthdays":

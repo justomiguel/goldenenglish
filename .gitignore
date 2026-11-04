@@ -69,6 +69,9 @@ next-env.d.ts
 # SDD Gate 0 session unlock (do not commit — per-session / per-agent approval)
 .cursor/sdd-gate0-approved
 
+# Session pooler host cache for institute migration apply (not secrets, but machine-local)
+scripts/.institute-pooler-hosts.json
+
 # Superpowers visual brainstorm companion (session mockups + port/token)
 .superpowers/
 

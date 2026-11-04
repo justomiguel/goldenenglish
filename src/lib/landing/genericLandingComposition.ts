@@ -28,6 +28,11 @@ const COMPOSITIONS: Record<GenericInstituteKind, GenericLandingComposition> = {
   colegio: { hero: "masthead", day: "prospectus", bands: "ruled", close: "narrow" },
   musica: { hero: "stage", day: "recital", bands: "paper", close: "stage" },
   idiomas: { hero: "title", day: "steps", bands: "breaks", close: "under" },
+  deportes2: { hero: "stage", day: "rows", bands: "breaks", close: "stage" },
+  jardin2: { hero: "split", day: "rule", bands: "cluster", close: "quiet" },
+  colegio2: { hero: "masthead", day: "prospectus", bands: "ruled", close: "narrow" },
+  idiomas2: { hero: "title", day: "steps", bands: "breaks", close: "under" },
+  musica2: { hero: "stage", day: "recital", bands: "paper", close: "stage" },
 };
 
 export function genericLandingComposition(kind: GenericInstituteKind): GenericLandingComposition {

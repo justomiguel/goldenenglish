@@ -68,7 +68,7 @@ export function PulsarSiteChrome({
             <CentrolistoMarketPicker market={market} copy={dict.pulsar.market} />
             {email ? (
               <Link
-                href={href(`/${locale}/admin`)}
+                href={href(`/${locale}/cuenta`)}
                 className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] px-3 text-sm font-semibold text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]"
               >
                 <LayoutDashboard className="h-4 w-4" aria-hidden />
@@ -130,7 +130,7 @@ export function PulsarSiteChrome({
                 ))}
                 {email ? (
                   <Link
-                    href={href(`/${locale}/admin`)}
+                    href={href(`/${locale}/cuenta`)}
                     className="transition-colors hover:text-[var(--color-foreground)]"
                   >
                     {nav.admin}

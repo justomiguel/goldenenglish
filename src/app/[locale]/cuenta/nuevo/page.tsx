@@ -6,7 +6,7 @@ import { PulsarAccountCreateForm } from "@/components/organisms/pulsar/PulsarAcc
 import { ensureOwnerForExistingLogin, loadPulsarOwnerHome } from "@/lib/pulsar/pulsarOwnerAccount";
 import { canCreateFreeSite } from "@/lib/pulsar/freeSitePlan";
 import { signedInCanOpenCreateForm } from "@/lib/pulsar/pulsarStartPath";
-import { GENERIC_INSTITUTE_KINDS } from "@/lib/theme/genericInstituteTemplates";
+import { GENERIC_INSTITUTE_KINDS, genericPreviewSrc } from "@/lib/theme/genericInstituteTemplates";
 import {
   createPulsarServerClient,
   isPulsarSupabaseConfigured,
@@ -61,7 +61,7 @@ export default async function PulsarAccountNewSitePage({
       kind,
       name: landing.name,
       alt: dict.pulsar.account.templatePreviewAlt.replaceAll("{name}", landing.name),
-      src: `/generic/${kind}/preview.jpg`,
+      src: genericPreviewSrc(kind),
     };
   });
   const pageLd = {

@@ -56,7 +56,7 @@ export function GenericLandingBands(props: {
     return (
       <section data-bands-layout={props.layout}>
         <GenericLandingMotion>
-          <figure>
+          <figure id={first.id}>
             <BandPhoto src={first.src} alt={first.sentence} className="h-[62vh] w-full object-cover" />
             <figcaption className="mx-auto max-w-xl px-5 py-8">
               <h2 className="text-3xl font-medium tracking-tight">{first.label}</h2>
@@ -67,7 +67,7 @@ export function GenericLandingBands(props: {
         <div className="grid md:grid-cols-2">
           {rest.map((band, index) => (
             <GenericLandingMotion key={band.id} index={index}>
-              <figure>
+              <figure id={band.id}>
                 <BandPhoto src={band.src} alt={band.sentence} className="h-64 w-full object-cover" />
                 <figcaption className="px-5 py-6">
                   <h2 className="text-2xl font-medium tracking-tight">{band.label}</h2>
@@ -86,9 +86,10 @@ export function GenericLandingBands(props: {
       <section className="mx-auto max-w-5xl px-5 py-8 sm:px-8" data-bands-layout={props.layout}>
         {items.map((band, index) => (
           <GenericLandingMotion key={band.id} index={index}>
-            <article className="grid items-center gap-5 border-t border-[var(--color-border)] py-8 sm:grid-cols-[9rem_1fr]">
+            <article id={band.id} className="grid items-center gap-5 border-t border-[var(--color-border)] py-8 sm:grid-cols-[9rem_1fr]">
               <BandPhoto src={band.src} alt={band.sentence} className="h-24 w-full object-cover" />
               <div>
+                <p className="text-sm text-[var(--color-muted-foreground)]">{String(index + 1).padStart(2, "0")}</p>
                 <h2 className="text-2xl font-medium tracking-tight">{band.label}</h2>
                 <p className="mt-2 text-base leading-relaxed text-[var(--color-muted-foreground)]">{band.sentence}</p>
               </div>
@@ -104,7 +105,7 @@ export function GenericLandingBands(props: {
       <section data-bands-layout={props.layout}>
         {items.map((band, index) => (
           <GenericLandingMotion key={band.id} index={index}>
-            <figure className={props.layout === "paper" ? "mx-auto max-w-5xl px-5 py-10" : ""}>
+            <figure id={band.id} className={props.layout === "paper" ? "mx-auto max-w-5xl px-5 py-10" : ""}>
               <BandPhoto
                 src={band.src}
                 alt={band.sentence}
@@ -129,7 +130,7 @@ export function GenericLandingBands(props: {
     <section data-bands-layout={props.layout}>
       {items.map((band, index) => (
         <GenericLandingMotion key={band.id} index={index}>
-          <article className="grid min-h-[68vh] lg:grid-cols-2">
+          <article id={band.id} className="grid min-h-[68vh] lg:grid-cols-2">
             <BandPhoto
               src={band.src}
               alt={band.sentence}

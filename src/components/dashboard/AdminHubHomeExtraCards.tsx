@@ -109,7 +109,7 @@ export function AdminHubHomeEventsCard({
           <span className="font-medium text-[var(--color-foreground)]">{next.title}</span>
           {" · "}
           {formatEventDay(next.eventDate, locale)}
-          {next.capacity != null ? ` · ${t.eventsSeats.replace("{{count}}", String(next.capacity))}` : ""}
+          {` · ${(t.eventsSeatLine ?? "{{seats}} / {{capacity}}").replace("{{seats}}", String(next.seats)).replace("{{capacity}}", String(next.capacity ?? 0))}`}
           {events.length > 1 ? ` · ${t.eventsMore.replace("{{count}}", String(events.length - 1))}` : ""}
         </p>
       ) : (

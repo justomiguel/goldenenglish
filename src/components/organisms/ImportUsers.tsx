@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FileUp } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { InfoNoticeModal } from "@/components/molecules/InfoNoticeModal";
 import {
@@ -37,6 +38,7 @@ export function ImportUsers({ locale, labels }: ImportUsersProps) {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [readPercent, setReadPercent] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<Extract<DryRunImportUsersResult, { ok: true }> | null>(
     null,
@@ -49,8 +51,20 @@ export function ImportUsers({ locale, labels }: ImportUsersProps) {
     setError(null);
     setPreview(null);
     if (!file) return;
+    setReadPercent(0);
     setBusy(true);
     try {
+      await new Promise<void>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onprogress = (progress) => {
+          if (!progress.lengthComputable || progress.total <= 0) return;
+          setReadPercent(Math.round((progress.loaded / progress.total) * 100));
+        };
+        reader.onload = () => resolve();
+        reader.onerror = () => reject(reader.error ?? new Error("read_failed"));
+        reader.readAsArrayBuffer(file);
+      });
+      setReadPercent(null);
       const fd = new FormData();
       fd.set("file", file);
       const res = await dryRunImportUsersAction(locale, fd);
@@ -65,6 +79,7 @@ export function ImportUsers({ locale, labels }: ImportUsersProps) {
       setError(labels.errorParseFailed);
     } finally {
       setBusy(false);
+      setReadPercent(null);
       if (fileRef.current) fileRef.current.value = "";
     }
   }
@@ -129,6 +144,10 @@ export function ImportUsers({ locale, labels }: ImportUsersProps) {
         <FileUp className="h-4 w-4" aria-hidden />
         {busy ? labels.busyDryRun : labels.chooseFile}
       </Button>
+      <InlineUploadProgressBar
+        label={busy ? labels.busyDryRun : labels.chooseFile}
+        {...(busy && readPercent === null ? { indeterminate: true } : { value: readPercent ?? 0 })}
+      />
 
       {error ? (
         <p className="text-sm text-[var(--color-error)]" role="alert">

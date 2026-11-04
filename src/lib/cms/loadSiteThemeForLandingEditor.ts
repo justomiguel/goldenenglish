@@ -7,8 +7,11 @@ import {
   buildLandingEditorOverview,
   buildLandingSectionEditorViewModel,
   type LandingEditorOverviewItem,
+  type LandingMediaSlotDescriptor,
   type LandingSectionEditorViewModel,
 } from "@/lib/cms/buildLandingEditorViewModel";
+import { GENERIC_PHOTO_SECTIONS, type GenericPhotoSection } from "@/lib/landing/genericSectionPhotos";
+import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import { createRequestLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import type { LandingOverrideLocale } from "@/lib/cms/landingContentCatalog";
 import {
@@ -200,4 +203,34 @@ export async function loadLandingEditorSection(
     templateKind: snapshot.theme.templateKind,
   });
   return { theme: snapshot.theme, section: view };
+}
+
+export interface GenericSitePhotoSlot {
+  section: GenericPhotoSection;
+  slot: LandingMediaSlotDescriptor;
+}
+
+/** One photo slot for each free-site section. Position 1 is the photo on the page. */
+export async function loadGenericSitePhotoSlots(
+  supabase: SupabaseClient,
+  themeId: string,
+): Promise<GenericSitePhotoSlot[]> {
+  const snapshot = await fetchThemeAndMedia(supabase, themeId);
+  if (!snapshot || !isGenericInstituteKind(snapshot.theme.templateKind)) return [];
+  const [defaults, resolveMediaPublicUrl] = await Promise.all([
+    loadDictionaries(),
+    createRequestLandingMediaPublicUrlBuilder(),
+  ]);
+  return GENERIC_PHOTO_SECTIONS.flatMap((section) => {
+    const view = buildLandingSectionEditorViewModel(section, {
+      defaults,
+      content: snapshot.theme.content,
+      media: snapshot.media,
+      blocks: snapshot.theme.blocks,
+      resolveMediaPublicUrl,
+      templateKind: snapshot.theme.templateKind,
+    });
+    const slot = view.media[0];
+    return slot ? [{ section, slot }] : [];
+  });
 }

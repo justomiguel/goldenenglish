@@ -45,6 +45,7 @@ export interface LandingMediaSlotEditorProps {
   labels: Labels;
   fileUploadProgress: FileUploadProgressLabels;
   onChanged: () => void;
+  heading?: string;
 }
 
 const ACCEPTED_MIME_LIST = LANDING_MEDIA_ACCEPTED_MIME.join(",");
@@ -63,6 +64,7 @@ export function LandingMediaSlotEditor({
   labels,
   fileUploadProgress,
   onChanged,
+  heading,
 }: LandingMediaSlotEditorProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [pending, startTransition] = useTransition();
@@ -163,7 +165,7 @@ export function LandingMediaSlotEditor({
         </div>
         <div className="flex-1 space-y-1">
           <p className="text-sm font-semibold text-[var(--color-foreground)]">
-            {labels.slotPositionLabel.replace("{{position}}", String(slot.position))}
+            {heading ?? labels.slotPositionLabel.replace("{{position}}", String(slot.position))}
           </p>
           <p className="text-xs text-[var(--color-muted-foreground)]">
             {slot.current ? labels.overriddenLabel : labels.defaultLabel}
@@ -194,19 +196,17 @@ export function LandingMediaSlotEditor({
           </div>
         </div>
       </div>
-      {uploadUi.kind === "busy" ? (
-        <InlineUploadProgressBar
-          className="mt-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
-          label={
-            uploadUi.stage === "reading"
-              ? fileUploadProgress.progressReading
-              : fileUploadProgress.progressSending
-          }
-          {...(uploadUi.stage === "reading"
-            ? { value: uploadUi.readPercent, indeterminate: false }
-            : { indeterminate: true })}
-        />
-      ) : null}
+      <InlineUploadProgressBar
+        className="mt-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+        label={
+          uploadUi.kind === "busy" && uploadUi.stage === "sending"
+            ? fileUploadProgress.progressSending
+            : fileUploadProgress.progressReading
+        }
+        {...(uploadUi.kind === "busy" && uploadUi.stage === "sending"
+          ? { indeterminate: true }
+          : { value: uploadUi.kind === "busy" ? uploadUi.readPercent : 0 })}
+      />
       <input
         ref={inputRef}
         type="file"

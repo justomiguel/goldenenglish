@@ -11,6 +11,7 @@ import { PulsarAdminFleetScreen } from "@/components/organisms/pulsar/PulsarAdmi
 import { loadPulsarMailSettings } from "@/lib/pulsar/pulsarMail";
 import { loadCentrolistoGaMeasurementId } from "@/lib/pulsar/centrolistoGaSettings";
 import { listPulsarOwners } from "@/lib/pulsar/pulsarOwnerAccount";
+import { loadPlatformUserProfile } from "@/lib/pulsar/platformUserProfileStore";
 
 export const dynamic = "force-dynamic";
 
@@ -31,13 +32,14 @@ export default async function PulsarAdminPage({ params }: PageProps) {
     redirect(`/${locale}/admin/password`);
   }
 
-  const [dict, tenants, platformHosts, owners, mailSettings, gaMeasurementId] = await Promise.all([
+  const [dict, tenants, platformHosts, owners, mailSettings, gaMeasurementId, profile] = await Promise.all([
     getDictionary(locale as AppLocale),
     loadAllPulsarTenantsForAdmin(),
     loadPulsarPlatformHostsForAdmin(),
     listPulsarOwners(),
     loadPulsarMailSettings(),
     loadCentrolistoGaMeasurementId(),
+    loadPlatformUserProfile(session.userId),
   ]);
   const telemetryBySlug = await loadPulsarFleetTelemetry(tenants);
 
@@ -53,6 +55,9 @@ export default async function PulsarAdminPage({ params }: PageProps) {
       owners={owners}
       mailSettings={mailSettings}
       gaMeasurementId={gaMeasurementId ?? ""}
+      displayName={profile.displayName}
+      phone={profile.phone}
+      avatarUrl={profile.avatarUrl}
     />
   );
 }

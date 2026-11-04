@@ -134,7 +134,11 @@ function FieldEditor({
             void upload(file);
           }}
         />
-        {progress ? <InlineUploadProgressBar label={progress.label} value={progress.value} indeterminate={progress.indeterminate} /> : null}
+        <InlineUploadProgressBar
+          label={progress?.label ?? field.label}
+          value={progress?.indeterminate ? undefined : progress?.value ?? 0}
+          indeterminate={Boolean(progress?.indeterminate)}
+        />
       </div>
     );
   }

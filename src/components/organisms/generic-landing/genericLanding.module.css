@@ -1,3 +1,42 @@
+.page {
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+}
+
+.page [id] {
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 4.5rem);
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.scroller {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.bar[data-kind="deportes"],
+.bar[data-kind="musica"] {
+  border-bottom-color: transparent;
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.bar[data-kind="colegio"] {
+  background: var(--color-surface);
+}
+
 .heroPhoto {
   transform: none;
 }

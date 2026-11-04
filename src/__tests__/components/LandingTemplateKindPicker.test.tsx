@@ -10,11 +10,8 @@ vi.mock("next/navigation", () => ({
 const { setKindMock } = vi.hoisted(() => ({
   setKindMock: vi.fn(),
 }));
-vi.mock("@/app/[locale]/dashboard/admin/cms/siteThemeBlocksActions", () => ({
+vi.mock("@/app/[locale]/dashboard/admin/cms/setSiteThemeKindAction", () => ({
   setSiteThemeKindAction: setKindMock,
-  addLandingBlockAction: vi.fn(),
-  updateLandingBlockAction: vi.fn(),
-  removeLandingBlockAction: vi.fn(),
 }));
 
 import { LandingTemplateKindPicker } from "@/components/dashboard/admin/cms/LandingTemplateKindPicker";

@@ -1,0 +1,261 @@
+.stage {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+}
+
+.stage [id] {
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 4.5rem);
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-background);
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 0.5rem)
+    max(1rem, env(safe-area-inset-right, 0px))
+    0.5rem
+    max(1rem, env(safe-area-inset-left, 0px));
+  scrollbar-width: none;
+}
+
+.bar::-webkit-scrollbar {
+  display: none;
+}
+
+.nav {
+  display: contents;
+}
+
+.bar a {
+  display: inline-flex;
+  flex: none;
+  min-height: 2.75rem;
+  align-items: center;
+  color: inherit;
+  white-space: nowrap;
+}
+
+.hero {
+  position: relative;
+  display: grid;
+  min-height: 100dvh;
+  align-items: end;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  padding:
+    6rem
+    max(1.25rem, env(safe-area-inset-right, 0px))
+    3rem
+    max(1.25rem, env(safe-area-inset-left, 0px));
+}
+
+.heroTitle {
+  max-width: 14ch;
+  font-size: clamp(3.4rem, 13vw, 9.5rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.82;
+  text-transform: uppercase;
+}
+
+.word {
+  display: block;
+}
+
+.lime {
+  color: var(--color-primary);
+}
+
+.accent {
+  color: var(--color-accent);
+}
+
+.slash {
+  position: absolute;
+  top: 12%;
+  right: -8%;
+  width: min(46vw, 28rem);
+  height: 70%;
+  background: var(--color-primary);
+  transform: rotate(18deg);
+  transform-origin: center;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.cta,
+.ghost {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  font-weight: 700;
+}
+
+.cta {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.ghost {
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+}
+
+.hint {
+  margin-top: 2rem;
+  color: var(--color-muted-foreground);
+}
+
+.block {
+  padding:
+    5rem
+    max(1.25rem, env(safe-area-inset-right, 0px))
+    5rem
+    max(1.25rem, env(safe-area-inset-left, 0px));
+}
+
+.manifesto {
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.rail {
+  display: grid;
+}
+
+.panel {
+  display: flex;
+  min-height: 70vh;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 2rem 1.25rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.panel:nth-of-type(even) {
+  align-items: flex-end;
+  text-align: right;
+  background: var(--color-surface);
+}
+
+.panel h3 {
+  font-size: clamp(2.4rem, 7vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.panel:nth-of-type(3) h3 {
+  border: 2px solid var(--color-primary);
+  padding: 0.4rem 0.6rem;
+}
+
+.panel:nth-of-type(4) h3 {
+  letter-spacing: 0.12em;
+}
+
+.number {
+  font-size: clamp(4rem, 12vw, 8rem);
+  font-weight: 800;
+  line-height: 0.8;
+  color: var(--color-primary);
+}
+
+.field,
+.select {
+  margin-top: 0.25rem;
+  min-height: 2.75rem;
+  width: 100%;
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  padding: 0 0.75rem;
+}
+
+@media (min-width: 900px) {
+  .rail {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+
+  .panel:nth-child(3),
+  .panel:nth-child(4) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .word {
+    animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .word:nth-child(2) {
+    animation-delay: 0.08s;
+  }
+
+  .word:nth-child(3) {
+    animation-delay: 0.16s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word,
+  .slash {
+    animation: none;
+    transform: none;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions .cta,
+  .actions .ghost {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .panel:nth-of-type(even) {
+    align-items: flex-start;
+    text-align: start;
+  }
+}

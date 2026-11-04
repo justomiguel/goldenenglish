@@ -29,6 +29,7 @@ describe("buildAdminDailyNavItems", () => {
       `${BASE}/academic`,
       `${BASE}/finance`,
       `${BASE}/events`,
+      `${BASE}/cms/templates`,
       `${BASE}/institute`,
     ]);
   });
@@ -46,6 +47,7 @@ describe("buildAdminDailyNavItems", () => {
       `${BASE}/finance`,
       `${BASE}/events`,
       `${BASE}/cms/blog`,
+      `${BASE}/cms/templates`,
       `${BASE}/institute`,
     ]);
   });
@@ -63,14 +65,16 @@ describe("buildAdminDailyNavItems", () => {
       `${BASE}/finance`,
       `${BASE}/events`,
       `${BASE}/merch`,
+      `${BASE}/cms/templates`,
       `${BASE}/institute`,
     ]);
   });
 
   it("lists blog then merch when both flags", () => {
-    expect(hrefs({ includeBlogNav: true, includeMerchNav: true }).slice(-3)).toEqual([
+    expect(hrefs({ includeBlogNav: true, includeMerchNav: true }).slice(-4)).toEqual([
       `${BASE}/cms/blog`,
       `${BASE}/merch`,
+      `${BASE}/cms/templates`,
       `${BASE}/institute`,
     ]);
   });
@@ -118,6 +122,7 @@ describe("buildAdminDailyNavItems", () => {
       "academic",
       "finance",
       "events",
+      "cms",
       "institute",
     ]);
   });

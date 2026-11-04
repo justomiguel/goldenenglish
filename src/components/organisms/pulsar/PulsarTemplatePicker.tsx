@@ -58,7 +58,7 @@ export function PulsarTemplatePicker({
       <input type="hidden" name="colorPrimary" value={selected.primary} />
       <input type="hidden" name="colorAccent" value={selected.accent} />
       <input type="hidden" name="colorPaper" value={selected.paper} />
-      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {previews.map((item) => {
           const palette = colors[item.kind] ?? genericKindDefaultPalette(item.kind);
           const selectedCard = kind === item.kind;

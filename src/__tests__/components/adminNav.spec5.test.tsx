@@ -90,6 +90,7 @@ function canonicalDailyHrefs(base: string): Set<string> {
     `${base}/academic`,
     `${base}/finance`,
     `${base}/events`,
+    `${base}/cms/templates`,
     `${base}/institute`,
   ]);
 }

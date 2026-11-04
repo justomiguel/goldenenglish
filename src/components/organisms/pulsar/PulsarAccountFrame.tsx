@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { CentroListoLogoMark } from "@/components/organisms/pulsar/CentroListoLogoMark";
+import { PulsarPanelFrame } from "@/components/organisms/pulsar/PulsarPanelFrame";
 import { PulsarSessionMenu } from "@/components/organisms/pulsar/PulsarSessionMenu";
 import type { Dictionary } from "@/types/i18n";
 
@@ -54,16 +55,37 @@ export function PulsarAccountFrame({
   locale,
   dict,
   email,
+  displayName = "",
+  phone = "",
+  avatarUrl = null,
   children,
 }: {
   locale: string;
   dict: Dictionary;
   email: string | null;
+  displayName?: string;
+  phone?: string;
+  avatarUrl?: string | null;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const onAuthForm = pathname.includes("/cuenta/login") || pathname.includes("/cuenta/registro");
   if (onAuthForm) return <>{children}</>;
+  if (email) {
+    return (
+      <PulsarPanelFrame
+        locale={locale}
+        dict={dict}
+        email={email}
+        displayName={displayName}
+        phone={phone}
+        avatarUrl={avatarUrl}
+        role="owner"
+      >
+        {children}
+      </PulsarPanelFrame>
+    );
+  }
   const shell = (sticky: boolean) => (
     <AccountShell locale={locale} dict={dict} email={email} showSignIn sticky={sticky}>
       {children}

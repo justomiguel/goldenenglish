@@ -6,6 +6,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import { TableKit } from "@tiptap/extension-table";
 import { BlockingFileUploadModal } from "@/components/molecules/BlockingFileUploadModal";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { PromptStringModal } from "@/components/molecules/PromptStringModal";
 import { uploadEmailTemplateImage } from "@/lib/client/uploadEmailTemplateImage";
 import { emailVideoLinkHtml } from "@/lib/email/emailMediaHtml";
@@ -119,6 +120,14 @@ export function EmailTemplateTiptapBody({ value, onChange, disabled, tiptap }: E
         onVideo={() => setVideoModalOpen(true)}
       />
       <p className="px-1 py-1 text-sm text-[var(--color-foreground)]">{tiptap.imageLimit}</p>
+      <InlineUploadProgressBar
+        label={uploadPhase === "preparing" ? tiptap.uploadProgressPreparing : tiptap.uploadProgressSending}
+        {...(uploadPhase === "sending" && typeof uploadValue === "number"
+          ? { value: uploadValue }
+          : uploadPhase
+            ? { indeterminate: true }
+            : { value: 0 })}
+      />
       {uploadPhase && uploadFilename ? (
         <BlockingFileUploadModal
           open

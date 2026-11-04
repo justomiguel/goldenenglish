@@ -7,7 +7,6 @@ import {
   addLandingBlockInputSchema,
   moveLandingBlockInputSchema,
   removeLandingBlockInputSchema,
-  setSiteThemeKindInputSchema,
   updateLandingBlockInputSchema,
 } from "@/lib/cms/siteThemeBlocksInputSchemas";
 import {
@@ -208,35 +207,4 @@ export async function moveLandingBlockAction(
     blockId: target.id,
     direction: parsed.data.direction,
   });
-}
-
-export async function setSiteThemeKindAction(
-  raw: unknown,
-): Promise<SiteThemeActionResult> {
-  const ctx = await resolveAdminContext();
-  if (!ctx.ok) return { ok: false, code: ctx.code };
-  const parsed = setSiteThemeKindInputSchema.safeParse(raw);
-  if (!parsed.success) return { ok: false, code: "invalid_input" };
-
-  const { admin } = ctx;
-  const existing = await fetchSiteThemeById(admin.supabase, parsed.data.id);
-  if (!existing) return { ok: false, code: "not_found" };
-
-  const { error } = await admin.supabase
-    .from("site_themes")
-    .update({ template_kind: parsed.data.kind, updated_by: admin.user.id })
-    .eq("id", parsed.data.id);
-  if (error) {
-    logSupabaseError("siteThemeBlocksActions:setKind", error);
-    return { ok: false, code: "persist_failed" };
-  }
-
-  void recordSystemAudit({
-    action: "site_theme_kind_updated",
-    resourceType: "site_theme",
-    resourceId: parsed.data.id,
-    payload: { kind: parsed.data.kind },
-  });
-  revalidateSiteThemeSurfaces(parsed.data.locale);
-  return { ok: true, id: parsed.data.id };
 }

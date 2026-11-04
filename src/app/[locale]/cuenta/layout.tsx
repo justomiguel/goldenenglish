@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PulsarAccountFrame } from "@/components/organisms/pulsar/PulsarAccountFrame";
 import { getDictionary, defaultLocale, locales, type AppLocale } from "@/lib/i18n/dictionaries";
 import { GE_REQUEST_LOCALE_HEADER } from "@/lib/i18n/requestLocaleHeader";
+import { loadPlatformUserProfile } from "@/lib/pulsar/platformUserProfileStore";
 import { getPulsarCookieSession } from "@/lib/pulsar/pulsarStaffAuth";
 import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 
@@ -20,8 +21,16 @@ export default async function PulsarAccountLayout({ children }: { children: Reac
     getDictionary(locale),
     getPulsarCookieSession(),
   ]);
+  const profile = session ? await loadPlatformUserProfile(session.userId) : null;
   return (
-    <PulsarAccountFrame locale={locale} dict={dict} email={session?.email ?? null}>
+    <PulsarAccountFrame
+      locale={locale}
+      dict={dict}
+      email={session?.email ?? null}
+      displayName={profile?.displayName ?? ""}
+      phone={profile?.phone ?? ""}
+      avatarUrl={profile?.avatarUrl ?? null}
+    >
       {children}
     </PulsarAccountFrame>
   );

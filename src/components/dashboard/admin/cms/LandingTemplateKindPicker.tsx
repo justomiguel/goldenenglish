@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
-import { setSiteThemeKindAction } from "@/app/[locale]/dashboard/admin/cms/siteThemeBlocksActions";
+import { setSiteThemeKindAction } from "@/app/[locale]/dashboard/admin/cms/setSiteThemeKindAction";
 import type { Dictionary } from "@/types/i18n";
 import type { SiteThemeKind } from "@/types/theming";
 import { SITE_THEME_KINDS } from "@/types/theming";
@@ -16,6 +16,7 @@ export interface LandingTemplateKindPickerProps {
   themeId: string;
   current: SiteThemeKind;
   labels: Labels;
+  kinds?: readonly SiteThemeKind[];
 }
 
 type ErrorCode = keyof Labels["errors"];
@@ -25,6 +26,7 @@ export function LandingTemplateKindPicker({
   themeId,
   current,
   labels,
+  kinds = SITE_THEME_KINDS,
 }: LandingTemplateKindPickerProps) {
   const router = useRouter();
   const [draft, setDraft] = useState<SiteThemeKind>(current);
@@ -86,7 +88,7 @@ export function LandingTemplateKindPicker({
         className="grid gap-2 sm:grid-cols-2"
       >
         <legend className="sr-only">{labels.title}</legend>
-        {SITE_THEME_KINDS.map((kind) => {
+        {kinds.map((kind) => {
           const checked = draft === kind;
           return (
             <label

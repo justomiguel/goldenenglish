@@ -12,6 +12,7 @@ import {
   type PublicExperienceVariant,
 } from "@/lib/theme/publicExperienceNav";
 import type { LanguageSwitcherLabels } from "@/components/molecules/LanguageSwitcher";
+import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import { PwaPullToRefresh } from "@/components/pwa/molecules/PwaPullToRefresh";
 import { PublicInstalledTopBar } from "@/components/pwa/molecules/PublicInstalledTopBar";
 import {
@@ -26,6 +27,7 @@ export interface PublicExperienceFrameProps extends PublicPwaTabBarProps {
   logoSrc: string;
   logoAlt: string;
   localeLabels: LanguageSwitcherLabels;
+  showTabBar?: boolean;
 }
 
 export function PublicExperienceFrame({
@@ -36,6 +38,7 @@ export function PublicExperienceFrame({
   logoAlt,
   localeLabels,
   locale,
+  showTabBar = true,
   ...tabProps
 }: PublicExperienceFrameProps) {
   const installed = useInstalledDisplay();
@@ -49,7 +52,13 @@ export function PublicExperienceFrame({
         enabled={installed}
         onRefresh={() => router.refresh()}
       >
-        <div className="public-installed-scroll pb-[calc(4.5rem+max(0.5rem,env(safe-area-inset-bottom,0px)))] md:pb-0">
+        <div
+          className={
+            showTabBar
+              ? "public-installed-scroll pb-[calc(4.5rem+max(0.5rem,env(safe-area-inset-bottom,0px)))] md:pb-0"
+              : "public-installed-scroll"
+          }
+        >
           {installed ? (
             <PublicInstalledTopBar
               homeHref={`/${locale}`}
@@ -63,7 +72,7 @@ export function PublicExperienceFrame({
           {children}
         </div>
       </PwaPullToRefresh>
-      <PublicPwaTabBar {...tabProps} locale={locale} variant={variant} />
+      {showTabBar ? <PublicPwaTabBar {...tabProps} locale={locale} variant={variant} /> : null}
     </div>
   );
 }
@@ -114,6 +123,7 @@ export function PublicExperienceChrome({
       logoSrc={logoSrc}
       logoAlt={logoAlt}
       localeLabels={dict.common.locale}
+      showTabBar={!isGenericInstituteKind(templateKind)}
     >
       {children}
     </PublicExperienceFrame>

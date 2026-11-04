@@ -4,6 +4,7 @@ import type { UpcomingBirthdayCardRow } from "@/lib/birthdays/mapBirthdayRowsToD
 import type { AdminFirstClassChecklist } from "@/lib/dashboard/evaluateAdminFirstClassChecklist";
 import { AdminHubHomeBoard } from "@/components/dashboard/AdminHubHomeBoard";
 import { factoryAdminHomeLayout, type AdminHomeLayout } from "@/lib/dashboard/adminHomeLayout";
+import { EMPTY_ADMIN_HOME_OPS } from "@/lib/dashboard/parseAdminHomeOpsSnapshot";
 import type { AdminHomeExtraWidgets } from "@/lib/dashboard/loadAdminHomeExtraWidgets";
 
 const EMPTY_EXTRAS: AdminHomeExtraWidgets = {
@@ -13,6 +14,7 @@ const EMPTY_EXTRAS: AdminHomeExtraWidgets = {
   shopOpenCount: null,
   changelog: [],
   hasCurrentCohort: false,
+  ops: EMPTY_ADMIN_HOME_OPS,
 };
 
 interface AdminHubHomeProps {

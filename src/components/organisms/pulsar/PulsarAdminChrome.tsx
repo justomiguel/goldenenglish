@@ -1,9 +1,9 @@
-import Link from "next/link";
-import { CentroListoLogoMark } from "@/components/organisms/pulsar/CentroListoLogoMark";
-import { PulsarSessionMenu } from "@/components/organisms/pulsar/PulsarSessionMenu";
+import { PulsarPanelFrame } from "@/components/organisms/pulsar/PulsarPanelFrame";
+import { loadPlatformUserProfile } from "@/lib/pulsar/platformUserProfileStore";
+import { getPulsarStaffSession } from "@/lib/pulsar/pulsarStaffAuth";
 import type { Dictionary } from "@/types/i18n";
 
-export function PulsarAdminChrome({
+export async function PulsarAdminChrome({
   locale,
   dict,
   email,
@@ -16,23 +16,22 @@ export function PulsarAdminChrome({
   extra?: React.ReactNode;
   children: React.ReactNode;
 }) {
+  const session = await getPulsarStaffSession();
+  const profile = session
+    ? await loadPlatformUserProfile(session.userId)
+    : { displayName: "", avatarUrl: null, phone: "" };
   return (
-    <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)]">
-      <header
-        className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-surface)]"
-        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
-      >
-        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
-          <Link href={`/${locale}`} className="inline-flex min-h-11 items-center" aria-label={dict.pulsar.meta.brandName}>
-            <CentroListoLogoMark size="sm" />
-          </Link>
-          <div className="flex items-center gap-3">
-            {extra}
-            <PulsarSessionMenu locale={locale} email={email} copy={dict.pulsar.session} />
-          </div>
-        </div>
-      </header>
+    <PulsarPanelFrame
+      locale={locale}
+      dict={dict}
+      email={email}
+      displayName={profile.displayName}
+      phone={profile.phone}
+      avatarUrl={profile.avatarUrl}
+      role="staff"
+      extra={extra}
+    >
       {children}
-    </div>
+    </PulsarPanelFrame>
   );
 }

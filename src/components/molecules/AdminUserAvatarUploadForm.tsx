@@ -89,13 +89,11 @@ export function AdminUserAvatarUploadForm({
       >
         <Camera className="h-5 w-5" aria-hidden />
       </button>
-      {busy ? (
-        <InlineUploadProgressBar
-          label={fileUploadProgress.progressSending}
-          indeterminate
-          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-2 py-2"
-        />
-      ) : null}
+      <InlineUploadProgressBar
+        label={fileUploadProgress.progressSending}
+        {...(busy ? { indeterminate: true } : { value: 0 })}
+        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-2 py-2"
+      />
       {message ? (
         <p
           role="status"

@@ -12,6 +12,7 @@ import {
   EMAIL_SENDS_ENABLED_KEY,
   parseEmailSendsEnabled,
 } from "@/lib/email/emailSendsEnabled";
+import { acceptEmailMonthlyCapInput, EMAIL_MONTHLY_CAP_KEY } from "@/lib/email/emailMonthlyCap";
 
 export async function setEmailSendEnabledAction(input: {
   locale: string;
@@ -79,5 +80,45 @@ export async function setEmailSendEnabledAction(input: {
   });
 
   revalidatePath(`/${input.locale}/dashboard/admin/settings`);
+  return { ok: true };
+}
+
+export async function setEmailMonthlyCapAction(input: {
+  locale: string;
+  cap: number;
+}): Promise<{ ok: true } | { ok: false; code: "invalid_cap" | "forbidden" | "write_failed" }> {
+  try {
+    await assertAdmin();
+  } catch {
+    logServerAuthzDenied("setEmailMonthlyCapAction");
+    return { ok: false, code: "forbidden" };
+  }
+
+  const cap = acceptEmailMonthlyCapInput(input.cap);
+  if (cap == null) return { ok: false, code: "invalid_cap" };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("site_settings").upsert(
+    {
+      key: EMAIL_MONTHLY_CAP_KEY,
+      value: cap as never,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "key" },
+  );
+  if (error) {
+    logSupabaseClientError("setEmailMonthlyCapAction:write", error);
+    return { ok: false, code: "write_failed" };
+  }
+
+  void recordSystemAudit({
+    action: "email_monthly_cap_upsert",
+    resourceType: "site_settings",
+    resourceId: EMAIL_MONTHLY_CAP_KEY,
+    payload: { cap },
+  });
+
+  revalidatePath(`/${input.locale}/dashboard/admin/settings`);
+  revalidatePath(`/${input.locale}/dashboard/admin`);
   return { ok: true };
 }

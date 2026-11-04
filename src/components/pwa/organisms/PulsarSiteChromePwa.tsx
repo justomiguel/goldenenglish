@@ -50,7 +50,7 @@ export function PulsarSiteChromePwa({
             <CentrolistoMarketPicker market={market} copy={dict.pulsar.market} />
             {email ? (
               <Link
-                href={href(`/${locale}/admin`)}
+                href={href(`/${locale}/cuenta`)}
                 className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] px-3 text-sm font-semibold text-[var(--color-foreground)]"
               >
                 <LayoutDashboard className="h-4 w-4" aria-hidden />

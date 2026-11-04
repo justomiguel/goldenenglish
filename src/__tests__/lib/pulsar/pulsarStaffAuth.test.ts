@@ -116,7 +116,10 @@ describe("pulsarStaffAuth", () => {
       data: { user: { id: "u-9", email: "owner@school.test" } },
       error: null,
     });
-    expect(await getPulsarCookieSession()).toEqual({ email: "owner@school.test" });
+    expect(await getPulsarCookieSession()).toEqual({
+      userId: "u-9",
+      email: "owner@school.test",
+    });
 
     getUserMock.mockResolvedValue({
       data: { user: { id: "u-9", email: null } },

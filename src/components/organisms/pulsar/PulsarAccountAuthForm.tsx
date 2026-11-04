@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { LogIn, UserPlus } from "lucide-react";
 import { resolvePulsarPostLoginPath } from "@/app/[locale]/admin/sessionActions";
 import { registerPulsarOwnerAction } from "@/app/[locale]/cuenta/actions";
@@ -27,8 +26,25 @@ export function PulsarAccountAuthForm({
   nextPath: string;
   inlineSubmit?: boolean;
 }) {
-  const router = useRouter();
   const thumbSubmit = useAppSurface() !== "web-desktop" && !inlineSubmit;
+
+  async function onGoogle() {
+    setPending(true);
+    setError(null);
+    try {
+      const supabase = createPulsarBrowserClient();
+      const redirectTo = `${window.location.origin}/${locale}/cuenta/auth/callback`;
+      const started = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo },
+      });
+      if (started.error) setError(copy.socialFailed);
+    } catch {
+      setError(copy.socialFailed);
+    } finally {
+      setPending(false);
+    }
+  }
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -55,8 +71,7 @@ export function PulsarAccountAuthForm({
         return;
       }
       const path = await resolvePulsarPostLoginPath(locale, nextPath);
-      router.push(path);
-      router.refresh();
+      window.location.assign(path);
     } catch {
       setError(copy.invalidInput);
     } finally {
@@ -87,6 +102,18 @@ export function PulsarAccountAuthForm({
         />
       </label>
       {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
+      {mode === "login" ? (
+        <Button
+          type="button"
+          variant="ghost"
+          className="min-h-11 w-full border border-[var(--color-border)]"
+          disabled={pending}
+          onClick={() => void onGoogle()}
+        >
+          <LogIn className="h-4 w-4" aria-hidden />
+          {copy.continueGoogle}
+        </Button>
+      ) : null}
       <Button
         type="submit"
         isLoading={pending}

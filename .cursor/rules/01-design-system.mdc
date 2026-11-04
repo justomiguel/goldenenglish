@@ -44,7 +44,7 @@ The Design System is the single source of truth for every visual decision. **Bra
 
 ## Image file uploads (inline progress — canonical)
 
-Any **user-visible** flow where the person selects an **image** (or image-containing bundle, e.g. favicon ZIP) and the app uploads or processes it MUST surface **inline progress** next to the control — not only a disabled button or a silent wait.
+Any **user-visible** file upload follows **`48-file-upload-progress.mdc`**. The bar stays next to the control. It is not mounted only while the upload runs. An image (or an image bundle, such as a favicon ZIP) uses the same bar.
 
 1. **Molecule.** Use **`InlineUploadProgressBar`** (`src/components/molecules/InlineUploadProgressBar.tsx`): semantic `<progress>`, tokens only, `aria-live="polite"` while active. Do not invent ad-hoc progress bars for image uploads.
 2. **Two-phase model (default with server actions + base64).**

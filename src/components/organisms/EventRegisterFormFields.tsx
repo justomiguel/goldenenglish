@@ -144,8 +144,11 @@ export function EventRegisterFormFields({
                 className={fieldClass}
               />
             )}
-            {uploadingFieldId === field.id ? (
-              <InlineUploadProgressBar label={label} indeterminate />
+            {isFileField(field.fieldType) ? (
+              <InlineUploadProgressBar
+                label={label}
+                {...(uploadingFieldId === field.id ? { indeterminate: true } : { value: 0 })}
+              />
             ) : null}
             {fileError ? (
               <p className={`${typography.hint} text-[var(--color-error)]`} role="alert">

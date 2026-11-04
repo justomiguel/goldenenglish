@@ -1,7 +1,9 @@
+import { templateNavItems, type TemplateSectionId } from "@/lib/landing/templateSections";
 import type { GenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import { genericSectionStockPath } from "@/lib/theme/genericInstituteTemplates";
 import type { GenericLandingCopy } from "@/lib/landing/genericLandingCopy";
 import {
+  GENERIC_LANDING_SECTIONS,
   genericLandingComposition,
   type GenericLandingSection,
 } from "@/lib/landing/genericLandingComposition";
@@ -9,6 +11,10 @@ import { GenericLandingHero } from "@/components/organisms/generic-landing/Gener
 import { GenericLandingDay } from "@/components/organisms/generic-landing/GenericLandingDay";
 import { GenericLandingBands } from "@/components/organisms/generic-landing/GenericLandingBands";
 import { GenericLandingClose } from "@/components/organisms/generic-landing/GenericLandingClose";
+import { GenericLandingFooter } from "@/components/organisms/generic-landing/GenericLandingFooter";
+import { TemplateThumbCta } from "@/components/organisms/generic-landing/TemplateThumbCta";
+import { GenericLandingNav } from "@/components/organisms/generic-landing/GenericLandingNav";
+import styles from "@/components/organisms/generic-landing/genericLanding.module.css";
 import type {
   GenericLandingContactLabels,
   GenericLandingContactValue,
@@ -27,6 +33,16 @@ export interface LandingMainSectionsGenericProps {
   hiddenSections?: ReadonlySet<string>;
   contact?: GenericLandingContactValue;
   contactLabels?: GenericLandingContactLabels;
+  siteName?: string;
+  logoSrc?: string | null;
+  logoAlt?: string;
+  nav: {
+    inicio: string;
+    contacto: string;
+    openMenu: string;
+    closeMenu: string;
+  };
+  menu: Record<TemplateSectionId, string>;
 }
 
 export function LandingMainSectionsGeneric({
@@ -39,10 +55,28 @@ export function LandingMainSectionsGeneric({
   hiddenSections,
   contact,
   contactLabels,
+  siteName,
+  logoSrc,
+  logoAlt,
+  menu,
 }: LandingMainSectionsGenericProps) {
   const composition = genericLandingComposition(kind);
+  const name = siteName?.trim() || copy.name;
+  const visible = GENERIC_LANDING_SECTIONS.filter((section) => !hiddenSections?.has(section));
+  const items = templateNavItems(menu, ["inicio", ...visible, "contacto"]).map(([id, label]) => ({
+    id,
+    label,
+  }));
   return (
-    <article className="overflow-x-hidden bg-[var(--color-background)] text-[var(--color-foreground)]">
+    <article className={`${styles.page} bg-[var(--color-background)] text-[var(--color-foreground)]`}>
+      <GenericLandingNav
+        kind={kind}
+        siteName={name}
+        logoSrc={logoSrc}
+        logoAlt={logoAlt?.trim() || name}
+        cta={copy.cta}
+        items={items}
+      />
       <GenericLandingHero
         layout={composition.hero}
         copy={copy}
@@ -64,6 +98,8 @@ export function LandingMainSectionsGeneric({
         contact={contact}
         contactLabels={contactLabels}
       />
+      <GenericLandingFooter siteName={name} contact={contact} />
+      <TemplateThumbCta label={copy.cta} />
     </article>
   );
 }

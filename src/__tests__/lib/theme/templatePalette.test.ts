@@ -1,11 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { contrastRatio } from "@/lib/theme/contrastRatio";
-import { parseTemplatePalette, templatePaletteOverrides, templatePreviewHref } from "@/lib/theme/templatePalette";
+import { paletteFromThemeProperties, parseTemplatePalette, templatePaletteOverrides, templatePreviewHref } from "@/lib/theme/templatePalette";
 
 describe("templatePalette", () => {
   it("rejects a partial or unsafe color", () => {
     expect(parseTemplatePalette({ primary: "#112233", accent: "red", paper: "#FFFFFF" })).toBeNull();
     expect(parseTemplatePalette({ primary: "#112233;}", accent: "#AABBCC", paper: "#FFFFFF" })).toBeNull();
+  });
+
+  it("reads the saved colors and falls back to the template", () => {
+    expect(
+      paletteFromThemeProperties("jardin2", { "color.primary": "#112233", "color.accent": "#AABBCC" }),
+    ).toMatchObject({ primary: "#112233", accent: "#AABBCC" });
+    expect(paletteFromThemeProperties("deportes", {}).primary).toMatch(/^#[0-9A-F]{6}$/);
   });
 
   it("keeps text readable on the chosen paper and builds the preview url", () => {

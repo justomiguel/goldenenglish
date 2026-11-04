@@ -6,6 +6,7 @@ import { ImagePlus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
 import { performShopMediaFileUpload } from "@/components/dashboard/admin/merch/performShopMediaFileUpload";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { TrackedFileUploadModal } from "@/components/molecules/TrackedFileUploadModal";
 import { useTrackedFileUpload } from "@/hooks/useTrackedFileUpload";
 import type { AdminMerchLabels } from "@/components/dashboard/admin/merch/adminMerchTypes";
@@ -80,6 +81,17 @@ export function AdminMerchPhotoField({
           {isUploading ? labels.photoUploading : labels.photoChoose}
         </Button>
       </div>
+      <InlineUploadProgressBar
+        className="mt-2"
+        label={
+          snapshot?.phase === "uploading"
+            ? fileUploadProgress.progressSending
+            : fileUploadProgress.progressReading
+        }
+        {...(snapshot && snapshot.percent === null
+          ? { indeterminate: true }
+          : { value: snapshot?.percent ?? 0 })}
+      />
       {error ? <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{error}</p> : null}
       <TrackedFileUploadModal snapshot={snapshot} labels={fileUploadProgress} />
     </div>

@@ -26,7 +26,7 @@ describe("PulsarSiteChromePwa", () => {
     );
     expect(screen.getByRole("link", { name: dict.pulsar.nav.admin })).toHaveAttribute(
       "href",
-      "/es/admin",
+      "/es/cuenta",
     );
     expect(screen.getByRole("button", { name: dict.pulsar.session.signOut })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: dict.pulsar.nav.startFree })).toHaveAttribute(

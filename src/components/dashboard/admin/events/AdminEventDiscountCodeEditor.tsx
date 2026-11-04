@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Download, Plus, Sparkles, Upload } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import {
   exportEventDiscountCodesAction,
   generateEventDiscountCodesAction,
@@ -73,6 +74,8 @@ export function AdminEventDiscountCodeEditor({ locale, eventId, labels }: AdminE
   const [quantity, setQuantity] = useState("10");
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [readPercent, setReadPercent] = useState<number | null>(null);
+  const [importing, setImporting] = useState(false);
 
   async function run(
     task: () => Promise<{
@@ -143,16 +146,31 @@ export function AdminEventDiscountCodeEditor({ locale, eventId, labels }: AdminE
             className="sr-only"
             onChange={(event) => {
               const file = event.target.files?.[0];
+              event.target.value = "";
               if (!file) return;
               const reader = new FileReader();
+              setReadPercent(0);
+              reader.onprogress = (progress) => {
+                if (!progress.lengthComputable || progress.total <= 0) return;
+                setReadPercent(Math.round((progress.loaded / progress.total) * 100));
+              };
               reader.onload = () => {
                 const base64 = String(reader.result ?? "").split(",")[1] ?? "";
-                void run(() => importEventDiscountCodesAction({ locale, eventId, kind, fileBase64: base64 }));
+                setReadPercent(100);
+                setImporting(true);
+                void run(() => importEventDiscountCodesAction({ locale, eventId, kind, fileBase64: base64 })).finally(() => {
+                  setImporting(false);
+                  setReadPercent(null);
+                });
               };
               reader.readAsDataURL(file);
             }}
           />
         </label>
+        <InlineUploadProgressBar
+          label={labels.importFile}
+          {...(importing ? { indeterminate: true } : { value: readPercent ?? 0 })}
+        />
         <Button
           type="button"
           variant="ghost"

@@ -86,6 +86,7 @@ export default async function AdminSettingsPage({ params }: PageProps) {
           <EmailSendsAdminSettingsForm
             locale={locale as Locale}
             groups={emailSends.groups}
+            monthlyCap={emailSends.monthlyCap}
             labels={dict.admin.settings}
           />
         </div>

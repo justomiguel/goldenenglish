@@ -41,19 +41,14 @@ export function PulsarSessionMenu({
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="hidden max-w-[12rem] truncate text-xs text-[var(--color-muted-foreground)] sm:inline">
-        {email}
-      </span>
-      <button
-        type="button"
-        onClick={signOut}
-        disabled={pending}
-        className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-semibold text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)] disabled:opacity-60"
-      >
-        <LogOut className="h-4 w-4" aria-hidden />
-        {copy.signOut}
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={signOut}
+      disabled={pending}
+      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-semibold text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)] disabled:opacity-60"
+    >
+      <LogOut className="h-4 w-4" aria-hidden />
+      {copy.signOut}
+    </button>
   );
 }

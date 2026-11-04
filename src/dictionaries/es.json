@@ -433,7 +433,26 @@
       "formPersist": "No pudimos enviar el mensaje. Intenta de nuevo.",
       "formUnavailable": "No pudimos enviar el mensaje ahora."
     },
+    "templateNav": {
+      "inicio": "Inicio",
+      "historia": "Historia",
+      "oferta": "Oferta",
+      "modalidades": "Modalidades",
+      "niveles": "Niveles",
+      "equipo": "Equipo",
+      "certificaciones": "Cierre",
+      "contacto": "Contacto"
+    },
+    "genericNav": {
+      "inicio": "Inicio",
+      "contacto": "Contacto",
+      "openMenu": "Abrir secciones",
+      "closeMenu": "Cerrar secciones"
+    },
     "genericSectionLabels": {
+      "inicio": "Inicio",
+      "equipo": "Equipo",
+      "contacto": "Contacto",
       "historia": "Nuestra historia",
       "oferta": "Programas",
       "modalidades": "Modalidades",
@@ -540,6 +559,520 @@
           "niveles": "Recorremos el marco común, de A1 a C2. Antes de entrar, hacemos una prueba corta de nivel.",
           "certificaciones": "Preparamos exámenes internacionales y entregamos el certificado del instituto al cerrar cada nivel."
         }
+      },
+      "deportes2": {
+        "name": "Deportes dos",
+        "scene": "No mires el movimiento. Sé el movimiento.",
+        "title": "Tu límite es solo el comienzo",
+        "body": "Entras a una clase. Sales con un plan, un coach y un grupo que te espera.",
+        "imageAlt": "Composición de velocidad sobre fondo oscuro",
+        "laterTitle": "El próximo nivel empieza hoy",
+        "laterBody": "Elige la disciplina y agenda la clase de prueba.",
+        "cta": "Agenda tu clase de prueba",
+        "heroCta": "Encuentra tu disciplina",
+        "scrollHint": "Sigue",
+        "rhythmA": "07:00. Fuerza. El cuerpo despierta con carga.",
+        "rhythmB": "12:30. Ritmo. Carrera o agua, según el día.",
+        "rhythmC": "19:10. Cierre. Movilidad y el grupo.",
+        "sections": {
+          "historia": "El límite no es un muro. Es la línea desde donde sales.",
+          "oferta": "Seis disciplinas. Cada una con su ritmo, su sala y su coach.",
+          "modalidades": "Puedes entrenar temprano, al mediodía o al salir del trabajo.",
+          "niveles": "Inicio, medio y rendimiento. El nivel se confirma en la primera clase.",
+          "certificaciones": "El avance se ve en la marca, en la técnica y en las veces que vuelves."
+        },
+        "nav": {
+          "inicio": "Inicio",
+          "manifiesto": "Manifiesto",
+          "disciplinas": "Disciplinas",
+          "metodo": "Método",
+          "coaches": "Coaches",
+          "horarios": "Horarios",
+          "contacto": "Contacto"
+        },
+        "manifesto": [
+          "El límite no es un muro.",
+          "Es la línea desde donde sales.",
+          "Entras con tu ritmo.",
+          "Sales con el grupo."
+        ],
+        "disciplines": [
+          { "id": "funcional", "name": "Entrenamiento funcional", "line": "Fuerza que se mueve.", "detail": "Empujas, tiras y giras. Los grupos se quedan chicos." },
+          { "id": "cross", "name": "Cross training", "line": "Trabajo corto. Intensidad real.", "detail": "Estaciones, reloj y una meta que se puede medir." },
+          { "id": "boxeo", "name": "Boxeo", "line": "Pies, guardia y aire.", "detail": "Técnica primero. El contacto llega cuando estás listo." },
+          { "id": "natacion", "name": "Natación", "line": "Largo, respiración, calma.", "detail": "Agua para empezar o para afinar el ritmo." },
+          { "id": "running", "name": "Running", "line": "Zancada y pulso.", "detail": "Salidas en grupo. El plan cambia con tu marca." },
+          { "id": "yoga", "name": "Yoga y movilidad", "line": "El cuerpo vuelve a su sitio.", "detail": "Después de la carga, o como práctica propia." }
+        ],
+        "pillars": [
+          { "n": "01", "title": "Entrenamiento personalizado", "line": "El plan sale de tu punto de partida." },
+          { "n": "02", "title": "Coaches de alto rendimiento", "line": "Alguien mira la técnica, no solo el reloj." },
+          { "n": "03", "title": "Comunidad que impulsa", "line": "El grupo te espera aunque el día pese." }
+        ],
+        "coaches": [
+          { "name": "Mara Vidal", "role": "Fuerza", "line": "Funcional y cross. Corrige antes de subir la carga." },
+          { "name": "Leo Duarte", "role": "Ritmo", "line": "Running y natación. El pulso manda el día." },
+          { "name": "Noa Ferreyra", "role": "Movilidad", "line": "Yoga y boxeo técnico. Cuida la articulación y la guardia." }
+        ],
+        "communityTitle": "El grupo empuja",
+        "communityBody": "No entrenas contra una pantalla. Entras a una sala que ya está en movimiento.",
+        "scheduleTitle": "Horarios y niveles",
+        "levelAll": "Todos los niveles",
+        "levels": [
+          { "id": "inicio", "label": "Inicio" },
+          { "id": "medio", "label": "Medio" },
+          { "id": "rendimiento", "label": "Rendimiento" }
+        ],
+        "slots": [
+          { "discipline": "funcional", "level": "inicio", "when": "Lunes 07:00", "place": "Sala norte" },
+          { "discipline": "funcional", "level": "medio", "when": "Miércoles 18:30", "place": "Sala norte" },
+          { "discipline": "cross", "level": "medio", "when": "Martes 06:45", "place": "Box" },
+          { "discipline": "cross", "level": "rendimiento", "when": "Jueves 19:00", "place": "Box" },
+          { "discipline": "boxeo", "level": "inicio", "when": "Martes 20:00", "place": "Ring" },
+          { "discipline": "boxeo", "level": "rendimiento", "when": "Viernes 19:30", "place": "Ring" },
+          { "discipline": "natacion", "level": "inicio", "when": "Sábado 09:00", "place": "Pileta" },
+          { "discipline": "natacion", "level": "medio", "when": "Lunes 12:30", "place": "Pileta" },
+          { "discipline": "running", "level": "inicio", "when": "Miércoles 07:15", "place": "Parque" },
+          { "discipline": "running", "level": "rendimiento", "when": "Domingo 08:00", "place": "Costanera" },
+          { "discipline": "yoga", "level": "inicio", "when": "Jueves 08:00", "place": "Sala sur" },
+          { "discipline": "yoga", "level": "medio", "when": "Viernes 18:00", "place": "Sala sur" }
+        ],
+        "privacy": "Acepto que usen estos datos solo para responder esta solicitud.",
+        "mailCta": "Preparar el correo",
+        "mailSubject": "Clase de prueba",
+        "sending": "Enviando",
+        "disciplineLabel": "Disciplina",
+        "levelLabel": "Nivel",
+        "optionalMessage": "Mensaje, si quieres agregar algo"
+      },
+      "jardin2": {
+        "name": "Jardín 2",
+        "scene": "Un mundo enorme comienza con una pequeña pregunta.",
+        "title": "Pequeños pasos. Grandes descubrimientos.",
+        "body": "Aquí un niño pregunta, prueba y vuelve al día siguiente con ganas de contar lo que encontró.",
+        "imageAlt": "Collage de hojas, nube y una semilla sobre papel crema",
+        "laterTitle": "Ven a conocer el patio.",
+        "laterBody": "La visita es corta. Caminas una sala, ves el ritmo del día y haces las preguntas que traes.",
+        "cta": "Agenda una visita",
+        "heroCta": "Conoce nuestro jardín",
+        "scrollHint": "Ven a conocernos",
+        "rhythmA": "08:10. Llegada. Un adulto recibe a cada familia en la puerta.",
+        "rhythmB": "10:40. Patio y taller. El grupo explora con las manos.",
+        "rhythmC": "16:00. Cierre. La familia se lleva una frase del día.",
+        "sections": {
+          "historia": "Aprendemos jugando, con tiempo para mirar y para preguntar.",
+          "oferta": "Cuatro etapas, de la sala cuna a la transición. Cada una tiene su ritmo.",
+          "modalidades": "Jornada de mañana o jornada completa. La sala y el equipo son los mismos.",
+          "niveles": "La edad abre la puerta. La visita confirma si el grupo le queda bien.",
+          "certificaciones": "No mostramos sellos que no tenemos. El año cierra con una muestra para las familias."
+        },
+        "nav": {
+          "inicio": "Inicio",
+          "filosofia": "Filosofía",
+          "etapas": "Etapas",
+          "dia": "Un día",
+          "espacios": "Espacios",
+          "metodo": "Método",
+          "equipo": "Equipo",
+          "familias": "Familias",
+          "admision": "Admisión",
+          "contacto": "Contacto"
+        },
+        "seed": ["Una pregunta.", "Una semilla.", "Un patio.", "Un niño que vuelve mañana."],
+        "stages": [
+          { "id": "cuna", "name": "Sala cuna", "ages": "0 a 2 años", "aim": "Vínculo y calma.", "experience": "Brazos, canción y un rincón que no cambia de golpe." },
+          { "id": "menor", "name": "Nivel medio menor", "ages": "2 a 3 años", "aim": "Nombrar lo que toca.", "experience": "Agua, tierra y una palabra nueva cada semana." },
+          { "id": "mayor", "name": "Nivel medio mayor", "ages": "3 a 4 años", "aim": "Juego con otros.", "experience": "Historias cortas, turnos y un proyecto que dura varios días." },
+          { "id": "transicion", "name": "Transición", "ages": "4 a 6 años", "aim": "Preguntar con precisión.", "experience": "Huerta, biblioteca y el paso hacia el colegio, sin apuro." }
+        ],
+        "day": [
+          { "id": "bienvenida", "name": "Bienvenida", "line": "La puerta se abre despacio. Cada niño tiene a quién mirar." },
+          { "id": "exploracion", "name": "Exploración", "line": "El material está a la altura de la mano. El adulto observa antes de intervenir." },
+          { "id": "juego", "name": "Juego creativo", "line": "Papel, madera y tela. El juego no se interrumpe por un timbre." },
+          { "id": "alimento", "name": "Alimentación y descanso", "line": "La mesa es parte del día. Después, la sala baja la luz." },
+          { "id": "comunidad", "name": "Experiencias en comunidad", "line": "Un cuento, una canción o la huerta. El grupo se escucha." },
+          { "id": "despedida", "name": "Despedida", "line": "La familia se lleva una frase concreta de lo que pasó." }
+        ],
+        "spaces": [
+          { "id": "patio", "name": "Patio sensorial", "line": "Arena, agua y sombra. El cuerpo aprende afuera." },
+          { "id": "sala", "name": "Sala creativa", "line": "Mesas bajas, papel y tiempo para no terminar a la primera." },
+          { "id": "huerta", "name": "Huerta", "line": "Una semilla, una regadera y la espera de varios días." },
+          { "id": "biblioteca", "name": "Biblioteca infantil", "line": "Libros de autor, leídos en voz alta y también en silencio." },
+          { "id": "movimiento", "name": "Espacios de movimiento", "line": "Trepar, rodar y parar. El suelo está pensado para eso." }
+        ],
+        "pillars": [
+          { "n": "01", "title": "Curiosidad", "line": "La pregunta del niño ordena la mañana." },
+          { "n": "02", "title": "Autonomía", "line": "Hace solo lo que ya puede. Pide ayuda cuando no." },
+          { "n": "03", "title": "Comunidad", "line": "Aprende con otros, no al lado de otros." }
+        ],
+        "teachers": [
+          { "name": "Inés Palma", "role": "Sala cuna", "line": "Cuida el ritmo de los más chicos y la entrada de cada familia." },
+          { "name": "Sara Molina", "role": "Niveles medios", "line": "Arma los talleres de tierra, agua y cuento." },
+          { "name": "Luz Herrera", "role": "Transición", "line": "Acompaña el juego largo y el paso hacia el colegio." }
+        ],
+        "trustTitle": "Confianza para las familias",
+        "trust": [
+          "Te escribimos cuando el día cambia de verdad.",
+          "La visita la hace un adulto del jardín, no un folleto.",
+          "La adaptación tiene su tiempo. No la apuramos.",
+          "No mostramos sellos ni acreditaciones que no tenemos."
+        ],
+        "stepsTitle": "Cómo se entra",
+        "steps": [
+          { "n": "01", "title": "Visita", "line": "Conoces la sala y el patio en un horario real." },
+          { "n": "02", "title": "Conversación", "line": "Hablamos de la edad, el sueño y lo que la familia necesita." },
+          { "n": "03", "title": "Cupo", "line": "Si hay lugar y el grupo calza, queda la fecha de inicio." }
+        ],
+        "faqTitle": "Preguntas",
+        "faqs": [
+          { "q": "¿Desde qué edad reciben?", "a": "Desde sala cuna, cerca de los primeros meses, hasta los 6 años." },
+          { "q": "¿Qué horarios hay?", "a": "Mañana o jornada completa. El equipo de la sala es el mismo." },
+          { "q": "¿Puedo visitar antes?", "a": "Sí. La visita es el primer paso. No hay inscripción a ciegas." },
+          { "q": "¿Cómo es la adaptación?", "a": "Empieza corta y crece. Un adulto de referencia acompaña esos días." }
+        ],
+        "guardianLabel": "Nombre del adulto",
+        "childAgeLabel": "Edad del niño o niña",
+        "visitLabel": "Fecha tentativa de visita",
+        "privacy": "Acepto que usen estos datos solo para responder esta solicitud.",
+        "mailCta": "Preparar el correo",
+        "mailSubject": "Visita al jardín",
+        "sending": "Enviando",
+        "levelLabel": "Etapa de interés"
+      },
+      "colegio2": {
+        "name": "Colegio 2",
+        "scene": "No preparamos alumnos para el futuro. Los preparamos para crearlo.",
+        "title": "El futuro comienza aquí.",
+        "body": "Descubrir. Cuestionar. Crear. Transformar.",
+        "imageAlt": "Líneas de arquitectura, una órbita y un plano sobre azul noche",
+        "laterTitle": "El futuro de tus hijos merece algo extraordinario.",
+        "laterBody": "La visita es una conversación. Recorres una sala y preguntas lo que la familia necesita saber.",
+        "cta": "Agenda una visita",
+        "heroCta": "Explora nuestro proyecto educativo",
+        "scrollHint": "Sigue el recorrido",
+        "prev": "Anterior",
+        "next": "Siguiente",
+        "sampleNote": "Cifras de muestra. No son datos reales del colegio.",
+        "demoNote": "Esta secuencia es una demostración. No abre un proceso real de admisión.",
+        "rhythmA": "08:00. La jornada abre con una pregunta, no con una lista.",
+        "rhythmB": "11:20. Taller. Ciencia, arte o cancha, según el curso.",
+        "rhythmC": "16:10. Cierre. El estudiante se lleva una tarea que puede mostrar.",
+        "sections": {
+          "historia": "Aprender no es memorizar. Es atreverse a preguntar y a volver a intentar.",
+          "oferta": "Parvularia, básica y media. Cada etapa cambia el tamaño de la pregunta.",
+          "modalidades": "Jornada de mañana y jornada completa. El proyecto es el mismo.",
+          "niveles": "El curso se confirma en la visita. La edad no decide sola.",
+          "certificaciones": "El cierre de ciclo se ve en un proyecto, no en un sello inventado."
+        },
+        "nav": {
+          "inicio": "Inicio",
+          "manifiesto": "Manifiesto",
+          "etapas": "Etapas",
+          "modelo": "Modelo",
+          "proyectos": "Proyectos",
+          "vida": "Vida",
+          "equipo": "Equipo",
+          "admision": "Admisión",
+          "agenda": "Agenda",
+          "contacto": "Contacto"
+        },
+        "manifesto": [
+          "Aprender no es memorizar.",
+          "Crear es una forma de pensar.",
+          "Equivocarse también es avanzar.",
+          "El mundo necesita personas que se atrevan."
+        ],
+        "stages": [
+          { "id": "parvularia", "name": "Educación parvularia", "ages": "Primeros años", "aim": "Juego con una pregunta adentro.", "experience": "Patio, cuento y el primer taller de manos." },
+          { "id": "basica", "name": "Educación básica", "ages": "Enseñanza básica", "aim": "Leer el mundo y medirlo.", "experience": "Ciencia aplicada, lectura larga y deporte en serio." },
+          { "id": "media", "name": "Educación media", "ages": "Enseñanza media", "aim": "Un proyecto que se puede defender.", "experience": "Investigación, arte y una salida al barrio." }
+        ],
+        "pillars": [
+          { "n": "01", "title": "Excelencia académica", "line": "La exigencia se nota en la pregunta, no en el volumen de tareas." },
+          { "n": "02", "title": "Tecnología e innovación", "line": "La herramienta entra cuando ya hay un problema real." },
+          { "n": "03", "title": "Desarrollo socioemocional", "line": "El grupo aprende a disentir sin perderse." },
+          { "n": "04", "title": "Ciudadanía global", "line": "El barrio y el mundo caben en la misma clase." }
+        ],
+        "projects": [
+          { "id": "robotica", "name": "Robótica y programación", "line": "Un sensor, un error y la segunda versión." },
+          { "id": "ciencia", "name": "Ciencia aplicada", "line": "El experimento sale del laboratorio y vuelve con datos." },
+          { "id": "artes", "name": "Artes y expresión", "line": "Escena, taller y una muestra que la familia puede ver." },
+          { "id": "deporte", "name": "Deporte", "line": "Cancha, equipo y una regla que se cumple." },
+          { "id": "sustentabilidad", "name": "Sustentabilidad", "line": "Huerta, residuos y una decisión que se sostiene." }
+        ],
+        "life": [
+          { "name": "Clubes", "line": "Debate, ajedrez y música después de la última clase." },
+          { "name": "Talleres", "line": "Cortos, con un resultado que se puede mostrar." },
+          { "name": "Encuentros", "line": "Familias y estudiantes en la misma mesa, una vez al mes." }
+        ],
+        "teachers": [
+          { "name": "Ana Rivas", "role": "Ciencias", "line": "Pide el dato antes de la opinión." },
+          { "name": "Martín Ortiz", "role": "Artes", "line": "Trata el ensayo como parte de la obra." },
+          { "name": "Elena Cruz", "role": "Historia y ciudadanía", "line": "Saca la clase al barrio cuando el tema lo pide." }
+        ],
+        "stepsTitle": "Admisión de muestra",
+        "steps": [
+          { "n": "01", "title": "Conoce el colegio", "line": "Lees el proyecto y miras una jornada real." },
+          { "n": "02", "title": "Agenda una visita", "line": "Caminas una sala con alguien del equipo." },
+          { "n": "03", "title": "Inicia la postulación", "line": "Dejas los datos. En esta demo no se abre un expediente." },
+          { "n": "04", "title": "Sigue el proceso", "line": "Una conversación, no un formulario eterno." }
+        ],
+        "eventsTitle": "Agenda de muestra",
+        "categories": [
+          { "id": "academia", "label": "Academia" },
+          { "id": "arte", "label": "Arte" },
+          { "id": "deporte", "label": "Deporte" },
+          { "id": "comunidad", "label": "Comunidad" }
+        ],
+        "eventLevels": [
+          { "id": "parvularia", "label": "Parvularia" },
+          { "id": "basica", "label": "Básica" },
+          { "id": "media", "label": "Media" }
+        ],
+        "all": "Todo",
+        "events": [
+          { "category": "academia", "level": "basica", "when": "12 mar · 09:00", "title": "Feria de ciencias" },
+          { "category": "arte", "level": "media", "when": "20 mar · 18:30", "title": "Muestra de taller" },
+          { "category": "deporte", "level": "basica", "when": "4 abr · 10:00", "title": "Encuentro de cancha" },
+          { "category": "comunidad", "level": "parvularia", "when": "11 abr · 16:00", "title": "Puertas abiertas" },
+          { "category": "academia", "level": "media", "when": "2 may · 08:30", "title": "Defensa de proyectos" }
+        ],
+        "faqTitle": "Preguntas",
+        "faqs": [
+          { "q": "¿Qué etapas hay?", "a": "Parvularia, enseñanza básica y enseñanza media." },
+          { "q": "¿La postulación de esta página es real?", "a": "No. Es una demostración. La visita real se conversa con el colegio." },
+          { "q": "¿Hay jornada completa?", "a": "Sí, y también jornada de mañana. El proyecto no cambia." },
+          { "q": "¿Cómo se entera la familia?", "a": "Con una nota corta cuando el día cambia de verdad." }
+        ],
+        "guardianLabel": "Nombre del adulto",
+        "courseLabel": "Curso",
+        "yearLabel": "Año de postulación",
+        "privacy": "Acepto que usen estos datos solo para responder esta solicitud.",
+        "mailCta": "Preparar el correo",
+        "mailSubject": "Visita al colegio",
+        "sending": "Enviando",
+        "levelLabel": "Nivel de interés"
+      },
+      "idiomas2": {
+        "name": "Lenguas 2",
+        "scene": "Tu mundo no termina donde termina tu idioma.",
+        "title": "Habla más. Vive más.",
+        "body": "El próximo idioma puede cambiar tu historia.",
+        "imageAlt": "Bloques de tipo enorme y una forma geométrica",
+        "laterTitle": "El mundo no espera. Tú tampoco.",
+        "laterBody": "Empieza por una clase de prueba. El nivel de esta página es solo una orientación.",
+        "cta": "Empieza a hablar",
+        "heroCta": "Encuentra tu idioma",
+        "levelCta": "Descubre tu nivel",
+        "scrollHint": "Sigue",
+        "demoNote": "Este test es una demostración. No certifica un nivel oficial ni el MCER.",
+        "rhythmA": "09:00. Conversación. Hablas desde el primer minuto.",
+        "rhythmB": "18:30. Práctica real. Un caso de trabajo o de viaje.",
+        "rhythmC": "20:10. Cierre. Una meta para la semana.",
+        "sections": {
+          "historia": "Un idioma abre una conversación, un trabajo, otra ciudad.",
+          "oferta": "Cinco idiomas. Cada uno con su ritmo y su primera meta.",
+          "modalidades": "Presencial, en vivo o particular. Eliges cómo estudiar.",
+          "niveles": "De A1 a C1. El test de esta página solo orienta.",
+          "certificaciones": "No entregamos un certificado oficial desde esta demostración."
+        },
+        "nav": {
+          "inicio": "Inicio",
+          "manifiesto": "Manifiesto",
+          "idiomas": "Idiomas",
+          "nivel": "Nivel",
+          "modalidad": "Modalidad",
+          "metodo": "Método",
+          "profes": "Profesores",
+          "cursos": "Cursos",
+          "mundo": "Mundo",
+          "contacto": "Contacto"
+        },
+        "greetings": [
+          { "id": "en", "label": "Inglés", "word": "Hello" },
+          { "id": "fr", "label": "Francés", "word": "Bonjour" },
+          { "id": "pt", "label": "Portugués", "word": "Olá" },
+          { "id": "de", "label": "Alemán", "word": "Hallo" },
+          { "id": "it", "label": "Italiano", "word": "Ciao" }
+        ],
+        "manifesto": ["Una conversación.", "Un nuevo trabajo.", "Otra ciudad.", "Una cultura.", "Un mundo entero."],
+        "languages": [
+          { "id": "en", "name": "Inglés", "start": "A1", "aim": "Hablar en el trabajo y en la calle.", "weeks": "12 semanas" },
+          { "id": "fr", "name": "Francés", "start": "A1", "aim": "Leer, pedir y contar.", "weeks": "14 semanas" },
+          { "id": "pt", "name": "Portugués", "start": "A1", "aim": "Entrar en una conversación real.", "weeks": "12 semanas" },
+          { "id": "de", "name": "Alemán", "start": "A1", "aim": "Ordenar la frase y perder el miedo.", "weeks": "16 semanas" },
+          { "id": "it", "name": "Italiano", "start": "A1", "aim": "Sonar natural en lo cotidiano.", "weeks": "12 semanas" }
+        ],
+        "modes": [
+          { "id": "presencial", "name": "Clases presenciales", "line": "La sala, el grupo y la corrección al momento." },
+          { "id": "online", "name": "Clases en vivo", "line": "El mismo grupo, desde tu mesa, con cámara." },
+          { "id": "particular", "name": "Clases particulares", "line": "Un profesor y una meta que pones tú." }
+        ],
+        "pillars": [
+          { "n": "01", "title": "Habla desde el día uno", "line": "La primera clase ya es una conversación corta." },
+          { "n": "02", "title": "Práctica del mundo real", "line": "Trabajo, viaje o estudio. El caso es concreto." },
+          { "n": "03", "title": "Un avance que se nota", "line": "Cada mes miras qué puedes decir y qué todavía no." }
+        ],
+        "teachers": [
+          { "name": "Maya Cole", "role": "Inglés", "line": "Corta la frase larga y te hace repetir la útil." },
+          { "name": "Lucía Benoit", "role": "Francés", "line": "Trabaja el oído antes que la regla." },
+          { "name": "Jonas Keller", "role": "Alemán", "line": "Ordena el verbo y celebra el intento." }
+        ],
+        "scenes": [
+          { "name": "Viajes", "line": "Pides, te pierdes y vuelves a preguntar." },
+          { "name": "Trabajo", "line": "Una reunión corta deja de darte miedo." },
+          { "name": "Estudios", "line": "Lees un texto y puedes discutirlo." },
+          { "name": "Cultura", "line": "Una canción o una película sin subtítulo eterno." },
+          { "name": "Vínculos", "line": "Una amistad que no cabe en un traductor." }
+        ],
+        "quizTitle": "Descubre tu nivel",
+        "quizNext": "Siguiente",
+        "quizNeed": "Elige una respuesta para seguir.",
+        "quizRestart": "Empezar de nuevo",
+        "quizResult": "Orientación",
+        "questions": [
+          { "q": "She ___ to work every day.", "options": ["go", "goes", "going"], "answer": 1 },
+          { "q": "I have lived here ___ 2019.", "options": ["for", "since", "during"], "answer": 1 },
+          { "q": "If I ___ time, I would travel.", "options": ["have", "had", "will have"], "answer": 1 },
+          { "q": "The book ___ by a friend.", "options": ["wrote", "was written", "has wrote"], "answer": 1 }
+        ],
+        "bands": [
+          { "min": 0, "level": "A1", "line": "Empieza por lo cotidiano." },
+          { "min": 2, "level": "A2", "line": "Ya armas frases. Falta soltura." },
+          { "min": 3, "level": "B1", "line": "Puedes contar una historia corta." },
+          { "min": 4, "level": "B2", "line": "Discutes una idea. Afinamos el matiz." }
+        ],
+        "coursesTitle": "Cursos de muestra",
+        "all": "Todos",
+        "courses": [
+          { "id": "en-a1-sala", "language": "en", "level": "A1", "mode": "presencial", "when": "Lun y mié · 19:00", "weeks": "12 semanas", "title": "Inglés para empezar" },
+          { "id": "en-b1-vivo", "language": "en", "level": "B1", "mode": "online", "when": "Mar y jue · 18:30", "weeks": "14 semanas", "title": "Inglés de trabajo" },
+          { "id": "fr-a2-sala", "language": "fr", "level": "A2", "mode": "presencial", "when": "Sáb · 10:00", "weeks": "12 semanas", "title": "Francés en conversación" },
+          { "id": "pt-a1-part", "language": "pt", "level": "A1", "mode": "particular", "when": "A convenir", "weeks": "8 semanas", "title": "Portugués a tu ritmo" },
+          { "id": "de-a1-vivo", "language": "de", "level": "A1", "mode": "online", "when": "Lun · 20:00", "weeks": "16 semanas", "title": "Alemán desde cero" },
+          { "id": "it-b2-sala", "language": "it", "level": "B2", "mode": "presencial", "when": "Mié · 19:30", "weeks": "12 semanas", "title": "Italiano para discutir" }
+        ],
+        "socialNote": "Redes de muestra. No son cuentas reales.",
+        "privacy": "Acepto que usen estos datos solo para responder esta solicitud.",
+        "mailCta": "Preparar el correo",
+        "mailSubject": "Clase de idioma",
+        "sending": "Enviando",
+        "languageLabel": "Idioma",
+        "modeLabel": "Modalidad",
+        "courseLabel": "Curso",
+        "levelLabel": "Nivel"
+      },
+      "musica2": {
+        "name": "Música 2",
+        "scene": "No naciste para escuchar desde afuera.",
+        "title": "El mundo necesita tu sonido.",
+        "body": "Tu sonido empieza aquí.",
+        "noise": "Haz ruido",
+        "imageAlt": "Onda y un bloque de color sobre fondo negro",
+        "laterTitle": "Tu primera nota puede cambiarlo todo.",
+        "laterBody": "La clase de prueba es para tocar, no para mirar un folleto.",
+        "cta": "Quiero mi clase de prueba",
+        "heroCta": "Encuentra tu instrumento",
+        "trialCta": "Reserva una clase de prueba",
+        "scrollHint": "Sigue el pulso",
+        "demoNote": "Cartelera de muestra. No es un evento real.",
+        "audioOn": "Activar sonido",
+        "audioStop": "Detener",
+        "audioMute": "Silenciar",
+        "audioOnAgain": "Con sonido",
+        "volume": "Volumen",
+        "audioFallback": "Este navegador no abre el audio. Las teclas siguen marcando la nota.",
+        "rhythmA": "17:00. Ensayo. El grupo afina y entra.",
+        "rhythmB": "19:10. Clase. Una frase, una corrección, otra vez.",
+        "rhythmC": "21:00. Cierre. Alguien se queda a grabar una idea.",
+        "sections": {
+          "historia": "No importa si nunca tocaste una nota. Importa empezar.",
+          "oferta": "Seis caminos: guitarra, piano, batería, canto, bajo y producción.",
+          "modalidades": "Presencial o en vivo. El instrumento es el mismo.",
+          "niveles": "Principiante, intermedio y avanzado. El nivel se confirma al tocar.",
+          "certificaciones": "El avance se escucha en el escenario de muestra, no en un sello."
+        },
+        "nav": {
+          "inicio": "Inicio",
+          "manifiesto": "Manifiesto",
+          "instrumentos": "Instrumentos",
+          "lab": "Laboratorio",
+          "metodo": "Método",
+          "profes": "Profesores",
+          "escena": "Escena",
+          "horarios": "Horarios",
+          "cartel": "Cartel",
+          "contacto": "Contacto"
+        },
+        "manifesto": [
+          "No importa si nunca tocaste una nota.",
+          "No importa si empezaste tarde.",
+          "No importa si todavía no encontraste tu estilo.",
+          "Lo importante es empezar."
+        ],
+        "instruments": [
+          { "id": "guitarra", "name": "Guitarra", "line": "Acordes que ya puedes cantar.", "levels": "Inicio a avanzado", "mode": "Presencial" },
+          { "id": "piano", "name": "Piano", "line": "Las dos manos, sin apuro.", "levels": "Inicio a avanzado", "mode": "Presencial o en vivo" },
+          { "id": "bateria", "name": "Batería", "line": "Tiempo, golpe y silencio.", "levels": "Inicio e intermedio", "mode": "Presencial" },
+          { "id": "canto", "name": "Canto", "line": "La voz como instrumento, no como adorno.", "levels": "Inicio a avanzado", "mode": "Presencial o en vivo" },
+          { "id": "bajo", "name": "Bajo", "line": "El piso de la canción.", "levels": "Inicio e intermedio", "mode": "Presencial" },
+          { "id": "produccion", "name": "Producción musical", "line": "Grabas una idea y la ordenas.", "levels": "Intermedio y avanzado", "mode": "En vivo" }
+        ],
+        "pillars": [
+          { "n": "01", "title": "Aprende tocando", "line": "La primera clase ya suena." },
+          { "n": "02", "title": "Crea tu propio sonido", "line": "La técnica sirve a lo que quieres decir." },
+          { "n": "03", "title": "Comparte el escenario", "line": "Ensayo, jam y una muestra con público de verdad." }
+        ],
+        "teachers": [
+          { "name": "Teo Vargas", "role": "Guitarra y bajo", "line": "Corrige la mano antes de subir el volumen." },
+          { "name": "Lila Mora", "role": "Canto", "line": "Trabaja el aire y la frase, no el grito." },
+          { "name": "Nico Beltrán", "role": "Piano y producción", "line": "Pasa del teclado a la grabación en la misma hora." }
+        ],
+        "scenes": [
+          { "name": "Ensayos", "line": "La misma sala, el mismo pulso, otra versión." },
+          { "name": "Jam", "line": "Entras con una idea y sales con una canción ajena también." },
+          { "name": "En vivo", "line": "Una muestra corta. El miedo se queda en el pasillo." },
+          { "name": "Grabación", "line": "Un take, una escucha, un arreglo." },
+          { "name": "Comunidad", "line": "Alguien te espera para cerrar el tema." }
+        ],
+        "levels": [
+          { "id": "inicio", "label": "Principiante" },
+          { "id": "medio", "label": "Intermedio" },
+          { "id": "avanzado", "label": "Avanzado" }
+        ],
+        "modes": [
+          { "id": "presencial", "label": "Presencial" },
+          { "id": "online", "label": "En vivo" }
+        ],
+        "days": [
+          { "id": "lunes", "label": "Lunes" },
+          { "id": "martes", "label": "Martes" },
+          { "id": "jueves", "label": "Jueves" },
+          { "id": "sabado", "label": "Sábado" }
+        ],
+        "all": "Todos",
+        "classesTitle": "Horarios de muestra",
+        "classes": [
+          { "id": "g-ini-lun", "instrument": "guitarra", "level": "inicio", "mode": "presencial", "day": "lunes", "when": "Lunes 18:00", "title": "Guitarra inicial" },
+          { "id": "p-med-mar", "instrument": "piano", "level": "medio", "mode": "online", "day": "martes", "when": "Martes 19:30", "title": "Piano intermedio" },
+          { "id": "b-ini-jue", "instrument": "bateria", "level": "inicio", "mode": "presencial", "day": "jueves", "when": "Jueves 17:00", "title": "Batería inicial" },
+          { "id": "c-ava-sab", "instrument": "canto", "level": "avanzado", "mode": "presencial", "day": "sabado", "when": "Sábado 11:00", "title": "Canto avanzado" },
+          { "id": "bj-ini-lun", "instrument": "bajo", "level": "inicio", "mode": "presencial", "day": "lunes", "when": "Lunes 20:00", "title": "Bajo inicial" },
+          { "id": "pr-med-mar", "instrument": "produccion", "level": "medio", "mode": "online", "day": "martes", "when": "Martes 20:30", "title": "Producción" }
+        ],
+        "billTitle": "Cartel de muestra",
+        "shows": [
+          { "when": "18 abr · 20:00", "title": "Noche de ensamble" },
+          { "when": "9 may · 19:30", "title": "Voces en la sala" },
+          { "when": "30 may · 21:00", "title": "Primera grabación" }
+        ],
+        "privacy": "Acepto que usen estos datos solo para responder esta solicitud.",
+        "mailCta": "Preparar el correo",
+        "mailSubject": "Clase de prueba",
+        "sending": "Enviando",
+        "instrumentLabel": "Instrumento",
+        "levelLabel": "Nivel",
+        "timeLabel": "Horario de preferencia"
       }
     },
     "questionnaires": {
@@ -1911,6 +2444,34 @@
           "eventsSeats": "{{count}} lugares",
           "eventsOpen": "Ver eventos",
           "eventsMore": "{{count}} más",
+          "eventsSeatLine": "{{seats}} / {{capacity}}",
+          "emailQuotaTitle": "Correos del mes",
+          "emailQuotaLine": "{{used}} / {{cap}}",
+          "emailQuotaOpen": "Ajustes de correo",
+          "cohortEnrollmentsTitle": "Inscripciones",
+          "cohortEnrollmentsEmpty": "No hay cohorte actual.",
+          "cohortEnrollmentsLine": "{{count}} activas",
+          "cohortEnrollmentsOpen": "Ver cohorte",
+          "classesTodayTitle": "Clases de hoy",
+          "classesTodayEmpty": "No hay cohorte actual.",
+          "classesTodayNone": "Hoy no hay clases.",
+          "classesTodayLine": "{{meeting}} con clase · {{missing}} sin lista",
+          "classesTodayOpen": "Ver calendario",
+          "trialsTitle": "Pruebas de la semana",
+          "trialsLine": "{{booked}} reservadas · {{attended}} usadas · {{released}} liberadas",
+          "trialsOpen": "Ver inscripciones",
+          "sectionSeatsTitle": "Cupos justos",
+          "sectionSeatsEmpty": "No hay cohorte actual.",
+          "sectionSeatsLine": "{{full}} llenas · {{oneLeft}} con un lugar",
+          "sectionSeatsOpen": "Ver secciones",
+          "waitlistTitle": "Lista de espera",
+          "waitlistLine": "{{count}} en espera",
+          "waitlistEmpty": "Nadie está en espera.",
+          "waitlistOpen": "Ver eventos",
+          "eventPaymentsTitle": "Pagos de evento",
+          "eventPaymentsLine": "{{count}} por revisar",
+          "eventPaymentsEmpty": "Nada por revisar.",
+          "eventPaymentsOpen": "Ver finanzas",
           "shopTitle": "Pedidos de la tienda",
           "shopOpen": "Pedidos abiertos",
           "shopEmpty": "No hay pedidos abiertos.",
@@ -1930,7 +2491,14 @@
             "traffic": "Visitas al sitio en los últimos 30 días.",
             "shopOrders": "Pedidos abiertos de la tienda.",
             "changelog": "Cambios recientes del sistema.",
-            "shortcuts": "Atajos para crear un evento, una promoción o una nota."
+            "shortcuts": "Atajos para crear un evento, una promoción o una nota.",
+            "emailQuota": "Correos aceptados este mes contra el tope de la cuenta. El conteo empieza con este contador.",
+            "cohortEnrollments": "Inscripciones activas de sección en la cohorte actual.",
+            "classesToday": "Secciones de la cohorte actual que tienen clase hoy y cuántas siguen sin lista.",
+            "trialsThisWeek": "Asientos de prueba de esta semana. Liberadas significa que el asiento se soltó.",
+            "sectionSeats": "Secciones de la cohorte actual que están llenas o les queda un lugar.",
+            "eventWaitlist": "Personas en espera en eventos publicados que todavía no empiezan.",
+            "eventPaymentsReview": "Pagos de entrada que todavía tiene que revisar el equipo."
           }
         }
       },
@@ -1999,6 +2567,10 @@
       },
       "emailSendsTitle": "Envíos de email",
       "emailSendsHint": "Activa o desactiva cada correo automático. El texto a la derecha es el valor de hoy.",
+      "emailMonthlyCapLabel": "Tope mensual de correos",
+      "emailMonthlyCapHint": "Cada cuenta puede enviar hasta este número de correos por mes. El valor inicial es 5000.",
+      "emailMonthlyCapSave": "Guardar tope",
+      "emailMonthlyCapInvalid": "Escribe un número entero entre 1 y 100000.",
       "emailSendsTodayOn": "Hoy: se está enviando",
       "emailSendsTodayOff": "Hoy: no se envía",
       "emailSendsGroupAutomated": "Automáticos",
@@ -2513,7 +3085,7 @@
           },
           "kindPicker": {
             "title": "Estilo visual",
-            "lead": "Cambia la personalidad del template. Clásico mantiene el layout original; Editorial usa un shell a sangre; Minimal es aireado y centrado; Mozarthitos replica la landing de referencia; Espacio Zenit reutiliza ese shell con una paleta zen y su rama propia en el diccionario.",
+            "lead": "Cambia la plantilla. En un sitio gratis, el título y el texto de cada sección se quedan. Clásico, Editorial y Minimal son estilos del instituto.",
             "currentLabel": "Estilo actual",
             "options": {
               "classic": "Clásico",
@@ -2528,7 +3100,12 @@
               "jardin": "Jardín",
               "colegio": "Colegio",
               "musica": "Música",
-              "idiomas": "Idiomas"
+              "idiomas": "Idiomas",
+              "deportes2": "Deportes 2",
+              "jardin2": "Jardín 2",
+              "colegio2": "Colegio 2",
+              "idiomas2": "Lenguas 2",
+              "musica2": "Música 2"
             },
             "saveCta": "Aplicar estilo",
             "saveSuccess": "Estilo aplicado.",
@@ -6287,6 +6864,8 @@
       "myProfile": "Mi perfil",
       "cms": "Sitio público",
       "tipCms": "Administrar templates del sitio y contenido del landing",
+      "templates": "Plantillas",
+      "tipTemplates": "Ver las plantillas del sitio, activar una y editar textos, fotos y colores.",
       "blog": "Blog",
       "tipBlog": "Redactar, revisar y publicar artículos del blog público.",
       "merch": "Merchandising",
@@ -12935,6 +13514,32 @@
       "signOut": "Cerrar sesión",
       "navAria": "Secciones"
     },
+    "panelNav": {
+      "panel": "Panel",
+      "openMenu": "Abrir menú",
+      "navAria": "Secciones de CentroListo",
+      "account": "Tu cuenta",
+      "messages": "Mensajes"
+    },
+    "profile": {
+      "title": "Tu cuenta",
+      "lead": "Cambia tu nombre y tu foto.",
+      "contactNote": "Este teléfono es tuyo. Cada instituto tiene su propio contacto en la página.",
+      "displayName": "Nombre",
+      "phone": "Tu teléfono",
+      "email": "Correo",
+      "save": "Guardar",
+      "saved": "Guardado.",
+      "photo": "Foto",
+      "photoHint": "JPG, PNG o WebP. Máximo 15 MB.",
+      "uploadReading": "Leyendo la foto",
+      "uploadSending": "Guardando la foto",
+      "invalidName": "Escribe un nombre de hasta 80 caracteres.",
+      "invalidPhone": "Revisa el teléfono. Usa números, espacios o un +.",
+      "invalidPhoto": "Usa una imagen JPG, PNG o WebP de hasta 15 MB.",
+      "saveFailed": "No se pudo guardar. Intenta de nuevo.",
+      "sessionExpired": "La sesión venció. Ingresa de nuevo."
+    },
     "home": {
       "eyebrow": "La plataforma para academias, escuelas e institutos",
       "title": "Más alumnos. Cobros al día. Tu academia bajo control.",
@@ -13532,7 +14137,12 @@
           "jardin": "Jardín",
           "colegio": "Colegio",
           "musica": "Música",
-          "idiomas": "Idiomas"
+          "idiomas": "Idiomas",
+          "deportes2": "Deportes dos",
+          "jardin2": "Jardín 2",
+          "colegio2": "Colegio 2",
+          "idiomas2": "Lenguas 2",
+          "musica2": "Música 2"
         }
       },
       "gestion": {
@@ -14010,6 +14620,8 @@
       "password": "Contraseña",
       "submitRegister": "Crear cuenta",
       "submitLogin": "Ingresar",
+      "continueGoogle": "Continuar con Google",
+      "socialFailed": "El ingreso con Google no terminó. Intenta de nuevo.",
       "homeTitle": "Tus sitios",
       "homeLead": "Cada cuenta gratis puede abrir 3 sitios.",
       "pageOnly": "Esta cuenta abre la página pública. No incluye alumnos, mensualidades ni cobros.",
@@ -14081,8 +14693,8 @@
       "schemaFailed": "La base no terminó de crearse. Intenta de nuevo.",
       "slugTaken": "Esa dirección corta ya está en uso.",
       "backToSites": "Volver a tus sitios",
-      "basicsTitle": "Texto y contacto de la página",
-      "basicsLead": "Estos campos cambian la portada pública.",
+      "basicsTitle": "Ícono y Google",
+      "basicsLead": "El ícono de la pestaña, más un título y una descripción.",
       "seoTitle": "Título en Google",
       "seoDescription": "Descripción en Google",
       "hideSections": "Ocultar una sección",
@@ -14091,6 +14703,43 @@
       "faviconLetter": "Usar la primera letra",
       "saveBasics": "Guardar página",
       "saved": "Guardado.",
+      "contactTitle": "Contacto del instituto",
+      "contactLead": "Este contacto es de este instituto. Cada sitio puede tener otro. Con dirección, aparece el mapa.",
+      "contactEmail": "Correo de este instituto",
+      "contactSave": "Guardar contacto",
+      "contactInvalid": "Revisa el teléfono, WhatsApp o Instagram.",
+      "logoTitle": "Logo",
+      "logoLead": "Esta imagen reemplaza la marca en la barra de la página.",
+      "logoSave": "Guardar logo",
+      "logoFailed": "No se pudo guardar el logo. Usa una imagen JPG, PNG o WebP.",
+      "inboxTitle": "Mensajes",
+      "inboxLead": "Aquí ves a las personas que escriben en tu página.",
+      "inboxEmpty": "Todavía no hay mensajes.",
+      "inboxSite": "Sitio",
+      "inboxPrevious": "Anterior",
+      "inboxNext": "Siguiente",
+      "siteCopy": {
+        "title": "Textos de la página",
+        "lead": "Escribe lo que quieras. Puedes renombrar cada sección. No puedes quitar ninguna.",
+        "name": "Nombre de la sección",
+        "scene": "Línea corta",
+        "headline": "Título",
+        "body": "Texto",
+        "button": "Botón",
+        "closeTitle": "Título del cierre",
+        "closeBody": "Texto del cierre",
+        "day": "Línea del día",
+        "photo": "Texto de la foto",
+        "save": "Guardar textos",
+        "saved": "Textos guardados.",
+        "emptyName": "Escribe el nombre de cada sección.",
+        "photosTitle": "Fotos de la página",
+        "photosLead": "Cada sección trae una foto. Sube otra para cambiarla. Puedes volver a la foto de la plantilla.",
+        "colorsTitle": "Colores",
+        "colorsLead": "Estos tres colores pintan toda la página, en cualquier plantilla.",
+        "colorsSave": "Guardar colores",
+        "colorsSaved": "Colores guardados."
+      },
       "pendingLead": "Un admin todavía debe aprobar esta cuenta. Te avisaremos por correo.",
       "rejectedLead": "Un admin no aprobó esta cuenta."
     },

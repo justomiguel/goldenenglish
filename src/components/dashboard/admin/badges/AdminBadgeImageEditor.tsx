@@ -117,13 +117,11 @@ export function AdminBadgeImageEditor(props: AdminBadgeImageEditorProps) {
         ) : null}
       </div>
       <p className="text-xs text-[var(--color-muted-foreground)]">{labels.tipImage}</p>
-      {busy ? (
-        <InlineUploadProgressBar
-          label={fileUploadProgress.progressSending}
-          indeterminate
-          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
-        />
-      ) : null}
+      <InlineUploadProgressBar
+        label={fileUploadProgress.progressSending}
+        {...(busy ? { indeterminate: true } : { value: 0 })}
+        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+      />
       {error ? (
         <p
           role="alert"

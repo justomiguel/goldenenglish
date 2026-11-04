@@ -2,16 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Activity, BarChart3, Building2, Eye, Mail, Plus, Users } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Activity, Building2, Eye, Plus } from "lucide-react";
 import { PulsarAdminAnalyticsSettings } from "@/components/organisms/pulsar/PulsarAdminAnalyticsSettings";
-import { PulsarAdminChrome } from "@/components/organisms/pulsar/PulsarAdminChrome";
+import { PulsarPanelFrame } from "@/components/organisms/pulsar/PulsarPanelFrame";
 import { PulsarAdminMailSettings } from "@/components/organisms/pulsar/PulsarAdminMailSettings";
 import { PulsarAdminOwnerReview } from "@/components/organisms/pulsar/PulsarAdminOwnerReview";
-import { UnderlineTabBar, type UnderlineTabItem } from "@/components/molecules/UnderlineTabBar";
-import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import { togglePulsarTenantEnabledAction } from "@/app/[locale]/admin/actions";
 import { PulsarAdminFleetTable } from "@/components/organisms/pulsar/PulsarAdminFleetTable";
+import { PulsarCloseTenantDialog } from "@/components/organisms/pulsar/PulsarCloseTenantDialog";
 import { PulsarAdminFleetVisitChart } from "@/components/organisms/pulsar/PulsarAdminFleetVisitChart";
 import { PulsarAdminPlatformHostsCard } from "@/components/organisms/pulsar/PulsarAdminPlatformHostsCard";
 import type { TenantTelemetrySnapshot } from "@/lib/pulsar/loadPulsarFleetTelemetry";
@@ -34,9 +33,10 @@ export interface PulsarAdminFleetScreenProps {
     last: { ok: boolean; code: string; detail: string; at: string } | null;
   };
   gaMeasurementId?: string;
+  displayName?: string;
+  phone?: string;
+  avatarUrl?: string | null;
 }
-
-const ADMIN_TABS = ["sites", "accounts", "mail", "analytics"] as const;
 
 export function PulsarAdminFleetScreen({
   locale,
@@ -49,20 +49,19 @@ export function PulsarAdminFleetScreen({
   owners = [],
   mailSettings = { fromEmail: "", notifyEmail: "", hasApiKey: false, last: null },
   gaMeasurementId = "",
+  displayName = "",
+  phone = "",
+  avatarUrl = null,
 }: PulsarAdminFleetScreenProps) {
   const router = useRouter();
+  const params = useSearchParams();
   const copy = dict.pulsar.admin;
-  const { value: tab, setValue: setTab } = usePersistentPageTab({
-    allowed: ADMIN_TABS,
-    fallback: "sites",
-  });
-  const adminTabs: UnderlineTabItem[] = [
-    { id: "sites", label: copy.tabSites, Icon: Building2 },
-    { id: "accounts", label: copy.tabAccounts, Icon: Users },
-    { id: "mail", label: copy.tabMail, Icon: Mail },
-    { id: "analytics", label: copy.tabAnalytics, Icon: BarChart3 },
-  ];
+  const rawTab = params.get("tab");
+  const tab = rawTab === "accounts" || rawTab === "mail" || rawTab === "analytics" ? rawTab : "sites";
+  const sectionTitle =
+    tab === "accounts" ? copy.tabAccounts : tab === "mail" ? copy.tabMail : tab === "analytics" ? copy.tabAnalytics : copy.title;
   const [busySlug, setBusySlug] = useState<string | null>(null);
+  const [deleteSlug, setDeleteSlug] = useState<string | null>(null);
   const numFmt = new Intl.NumberFormat(locale);
 
   const onlineCount = tenants.filter(
@@ -91,10 +90,14 @@ export function PulsarAdminFleetScreen({
   };
 
   return (
-    <PulsarAdminChrome
+    <PulsarPanelFrame
       locale={locale}
       dict={dict}
       email={staffEmail}
+      displayName={displayName}
+      phone={phone}
+      avatarUrl={avatarUrl}
+      role="staff"
       extra={
         <Link
           href={`/${locale}/admin/tenants/new`}
@@ -116,20 +119,9 @@ export function PulsarAdminFleetScreen({
         </div>
 
         <h1 className="text-2xl font-extrabold tracking-tight text-[var(--color-foreground)]">
-          {copy.title}
+          {sectionTitle}
         </h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{copy.lead}</p>
-        <div className="mt-6">
-          <UnderlineTabBar
-            idPrefix="pulsar-admin"
-            ariaLabel={copy.title}
-            items={adminTabs}
-            value={tab}
-            onChange={(id) => {
-              if (id === "sites" || id === "accounts" || id === "mail" || id === "analytics") setTab(id);
-            }}
-          />
-        </div>
+        {tab === "sites" ? <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{copy.lead}</p> : null}
         {tab === "accounts" ? <div className="mt-6"><PulsarAdminOwnerReview locale={locale} owners={owners} copy={copy.owners} /></div> : null}
         {tab === "mail" ? <div className="mt-6"><PulsarAdminMailSettings locale={locale} settings={mailSettings} copy={copy.mail} /></div> : null}
         {tab === "analytics" ? (
@@ -186,10 +178,23 @@ export function PulsarAdminFleetScreen({
           telemetryBySlug={telemetryBySlug}
           busySlug={busySlug}
           onToggleTenant={handleToggle}
+          onDeleteTenant={setDeleteSlug}
         />
+        {deleteSlug ? (
+          <PulsarCloseTenantDialog
+            open
+            onOpenChange={(next) => {
+              if (!next) setDeleteSlug(null);
+            }}
+            locale={locale}
+            slug={deleteSlug}
+            copy={copy.form}
+            redirectTo={`/${locale}/admin`}
+          />
+        ) : null}
         </>
         ) : null}
       </main>
-    </PulsarAdminChrome>
+    </PulsarPanelFrame>
   );
 }

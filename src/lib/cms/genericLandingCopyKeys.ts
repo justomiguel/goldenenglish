@@ -18,12 +18,22 @@ const RHYTHM_FIELDS = ["rhythmA", "rhythmB", "rhythmC"] as const;
 
 const LABEL_SECTIONS = ["historia", "oferta", "modalidades", "niveles", "certificaciones"] as const;
 
+const NAME_KEYS = [
+  "genericSectionLabels.inicio",
+  "genericSectionLabels.equipo",
+  "genericSectionLabels.contacto",
+] as const;
+
 export function genericLandingCopyKeys(
   kind: GenericInstituteKind,
   section: LandingSectionSlug,
 ): readonly string[] {
   if (section === "inicio") {
-    return [...PAGE_FIELDS, ...RHYTHM_FIELDS].map((field) => `genericLandings.${kind}.${field}`);
+    return [
+      ...PAGE_FIELDS.map((field) => `genericLandings.${kind}.${field}`),
+      ...RHYTHM_FIELDS.map((field) => `genericLandings.${kind}.${field}`),
+      ...NAME_KEYS,
+    ];
   }
   if ((LABEL_SECTIONS as readonly string[]).includes(section)) {
     return [
@@ -36,7 +46,7 @@ export function genericLandingCopyKeys(
 
 const PAGE_FIELD = [...PAGE_FIELDS, ...RHYTHM_FIELDS].join("|");
 const KIND = GENERIC_INSTITUTE_KINDS.join("|");
-const LABEL = LABEL_SECTIONS.join("|");
+const LABEL = [...LABEL_SECTIONS, "inicio", "equipo", "contacto"].join("|");
 const GENERIC_COPY_KEY = new RegExp(
   `^(?:genericLandings\\.(?:${KIND})\\.(?:${PAGE_FIELD}|sections\\.(?:${LABEL}))|genericSectionLabels\\.(?:${LABEL}))$`,
 );

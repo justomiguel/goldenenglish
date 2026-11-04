@@ -62,6 +62,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`44-no-ai-slop-design.mdc`** | Prohibido el diseño genérico de IA (spam de chips/pills, eyebrows en mayúsculas repetidos en cada sección, grillas de tarjetas idénticas con ícono en caja, 3 cajitas de métricas en hero, logos con ícono de Lucide). Exige topología variada, líneas arquitectónicas y transiciones con intención (`<ViewTransition>`, `--ease-out-expo`). |
 | **`46-prefer-database-over-env.mdc`** | Un ajuste que alguien cambia después del deploy va en la base, no en una variable de entorno. La variable queda para secretos y para lo que el proceso necesita antes de abrir la base. |
 | **`47-page-brand-seo.mdc`** | Cada página HTML muestra el logo del host y el nombre una sola vez en el título. Las páginas públicas llevan canonical, hreflang, imagen para compartir y JSON-LD. Cuenta y admin quedan fuera del índice. |
+| **`48-file-upload-progress.mdc`** | Toda subida de archivos, en institutos y en CentroListo, muestra `InlineUploadProgressBar` siempre. La barra informa la lectura y el envío. La foto de cuenta acepta 15 MB. |
 
 **Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`**, **`24-dashboard-list-filter-aggregates-rpc.mdc`** — agregados para filtros de listados en dashboard para **cualquier rol**, **`28-tenant-register-surface.mdc`** — `/register` con superficie dedicada por `SiteThemeKind`).
 

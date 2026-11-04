@@ -13,6 +13,7 @@ const {
   saveHostsMock,
   toggleMock,
   testConnMock,
+  searchParamsBox,
 } = vi.hoisted(() => ({
   refreshMock: vi.fn(),
   pushMock: vi.fn(),
@@ -20,6 +21,7 @@ const {
   saveHostsMock: vi.fn(),
   toggleMock: vi.fn(),
   testConnMock: vi.fn(),
+  searchParamsBox: { current: new URLSearchParams() },
 }));
 
 vi.mock("next/navigation", () => ({
@@ -29,7 +31,7 @@ vi.mock("next/navigation", () => ({
     replace: vi.fn(),
   }),
   usePathname: () => "/es/admin",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => searchParamsBox.current,
 }));
 
 vi.mock("@/app/[locale]/admin/actions", () => ({
@@ -94,6 +96,7 @@ describe("Pulsar admin screens", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     sessionStorage.clear();
+    searchParamsBox.current = new URLSearchParams();
   });
 
   it("renders fleet overview metrics, status badge, and refreshes after toggling a tenant", async () => {
@@ -129,6 +132,10 @@ describe("Pulsar admin screens", () => {
       });
       expect(refreshMock).toHaveBeenCalled();
     });
+
+    await user.click(screen.getByRole("button", { name: dict.pulsar.admin.form.closeCta }));
+    expect(screen.getByRole("heading", { name: dict.pulsar.admin.form.closeTitle })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: dict.pulsar.admin.form.closeConfirm })).toBeDisabled();
   });
 
   it("shows the database, migration, domain, and owner on the institute page", () => {
@@ -341,8 +348,25 @@ describe("Pulsar admin screens", () => {
     });
   });
 
-  it("shows the mail status and an approved account on their tabs", async () => {
-    const user = userEvent.setup();
+  it("shows mail and accounts from the sidebar query, without tabs", () => {
+    searchParamsBox.current = new URLSearchParams("tab=mail");
+    const mail = render(
+      <PulsarAdminFleetScreen
+        locale="es"
+        dict={dict}
+        staffEmail="admin@pulsarlab.cl"
+        sessionMode="pulsar-db"
+        tenants={[SAMPLE_TENANT]}
+        telemetryBySlug={TELEMETRY}
+        owners={[{ userId: "00000000-0000-0000-0000-000000000001", email: "owner@example.com", status: "approved" }]}
+        mailSettings={{ fromEmail: "hola@example.com", notifyEmail: "admin@example.com", hasApiKey: true, last: null }}
+      />,
+    );
+    expect(screen.queryByRole("tab")).toBeNull();
+    expect(screen.getByText(dict.pulsar.admin.mail.keySaved)).toBeInTheDocument();
+    mail.unmount();
+
+    searchParamsBox.current = new URLSearchParams("tab=accounts");
     render(
       <PulsarAdminFleetScreen
         locale="es"
@@ -355,11 +379,6 @@ describe("Pulsar admin screens", () => {
         mailSettings={{ fromEmail: "hola@example.com", notifyEmail: "admin@example.com", hasApiKey: true, last: null }}
       />,
     );
-
-    expect(screen.queryByText(dict.pulsar.admin.eyebrow)).not.toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: dict.pulsar.admin.tabMail }));
-    expect(screen.getByText(dict.pulsar.admin.mail.keySaved)).toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: dict.pulsar.admin.tabAccounts }));
     expect(screen.getByText("owner@example.com")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: dict.pulsar.admin.owners.approved })).toBeInTheDocument();
   });

@@ -127,13 +127,11 @@ export function AdminGlobalContentMaterialsPanel({
           </div>
           <span className="self-center text-xs text-[var(--color-muted-foreground)]">{labels.builderFileHint}</span>
         </div>
-        {isUploading && showInlineUploadProgress ? (
-          <InlineUploadProgressBar
-            label={fileUploadProgress.progressSending}
-            indeterminate
-            className="mt-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
-          />
-        ) : null}
+        <InlineUploadProgressBar
+          label={fileUploadProgress.progressSending}
+          {...(isUploading ? { indeterminate: true } : { value: 0 })}
+          className="mt-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+        />
       </div>
       {materials.length === 0 ? <p className="text-sm text-[var(--color-muted-foreground)]">{labels.noMaterialsDraft}</p> : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>

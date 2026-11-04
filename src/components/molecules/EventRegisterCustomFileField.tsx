@@ -1,6 +1,7 @@
 "use client";
 
 import { Upload } from "lucide-react";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { useId, useRef } from "react";
 import type { EventFormFieldDefinition } from "@/lib/events/types";
 import {
@@ -90,6 +91,7 @@ export function EventRegisterCustomFileField({
         <Upload className="h-4 w-4 shrink-0" aria-hidden />
         {isImage ? labels.imageButton : labels.fileButton}
       </button>
+      <InlineUploadProgressBar label={isImage ? labels.imageButton : labels.fileButton} value={0} />
       <p className={typography.muted} aria-live="polite">
         <span className={`break-all font-medium ${typography.body}`}>
           {file?.name ?? labels.noFile}

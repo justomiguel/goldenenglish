@@ -1,0 +1,229 @@
+.stage {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+}
+
+.stage [id] {
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 4.5rem);
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.75rem 1.25rem;
+  align-items: center;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-background) 92%, transparent);
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 0.5rem)
+    max(1rem, env(safe-area-inset-right, 0px))
+    0.5rem
+    max(1rem, env(safe-area-inset-left, 0px));
+  scrollbar-width: none;
+}
+
+.bar::-webkit-scrollbar {
+  display: none;
+}
+
+.nav {
+  display: contents;
+}
+
+.bar a {
+  display: inline-flex;
+  flex: none;
+  min-height: 2.75rem;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.hero {
+  position: relative;
+  display: grid;
+  min-height: 100dvh;
+  align-items: end;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  padding:
+    6rem
+    max(1.25rem, env(safe-area-inset-right, 0px))
+    3rem
+    max(1.25rem, env(safe-area-inset-left, 0px));
+}
+
+.cloud,
+.leaf {
+  position: absolute;
+  border-radius: 999px;
+}
+
+.cloud {
+  top: 12%;
+  right: 8%;
+  width: min(42vw, 16rem);
+  height: 5rem;
+  background: var(--color-surface);
+}
+
+.leaf {
+  top: 28%;
+  left: 6%;
+  width: 7rem;
+  height: 3.2rem;
+  background: var(--color-primary);
+  transform: rotate(-18deg);
+}
+
+.seed {
+  position: absolute;
+  right: 18%;
+  bottom: 18%;
+  width: 1.4rem;
+  height: 1.8rem;
+  border-radius: 50% 50% 50% 0;
+  background: var(--color-accent);
+  transform: rotate(-30deg);
+}
+
+.heroTitle {
+  position: relative;
+  max-width: 12ch;
+  font-size: clamp(3.2rem, 11vw, 7.5rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 0.9;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.cta,
+.ghost {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding: 0 1rem;
+  font-weight: 700;
+}
+
+.cta {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.ghost {
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+}
+
+.block {
+  padding:
+    4.5rem
+    max(1.25rem, env(safe-area-inset-right, 0px))
+    4.5rem
+    max(1.25rem, env(safe-area-inset-left, 0px));
+}
+
+.storyLine {
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.tree {
+  width: 8rem;
+  height: 11rem;
+  transform-origin: bottom center;
+}
+
+.stageCard {
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.stageCard:nth-child(odd) {
+  padding-left: 8vw;
+}
+
+.stageCard:nth-child(3) {
+  background: var(--color-surface);
+  padding: 2rem 1.25rem;
+}
+
+.stageCard h3 {
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.field,
+.select {
+  margin-top: 0.25rem;
+  min-height: 2.75rem;
+  width: 100%;
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-foreground);
+  padding: 0 0.75rem;
+}
+
+.faq {
+  border-top: 1px solid var(--color-border);
+  padding: 0.75rem 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cloud {
+    animation: drift 12s ease-in-out infinite alternate;
+  }
+
+  .leaf {
+    animation: sway 7s ease-in-out infinite alternate;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud,
+  .leaf {
+    animation: none;
+  }
+}
+
+@keyframes drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-18px); }
+}
+
+@keyframes sway {
+  from { transform: rotate(-18deg); }
+  to { transform: rotate(-8deg); }
+}
+
+@media (max-width: 767px) {
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions .cta,
+  .actions .ghost {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}

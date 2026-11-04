@@ -204,21 +204,19 @@ export function SiteSetupWizard({
         <SiteSetupWizardErrorAlert message={errorMessage} />
       ) : null}
 
-      {submitProgress ? (
-        <div className="mt-4">
-          <InlineUploadProgressBar
-            className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-3 shadow-[var(--shadow-soft)]"
-            label={
-              submitProgress.phase === "reading"
-                ? labels.uploadProgressReading
-                : labels.uploadProgressSending
-            }
-            {...(submitProgress.phase === "reading"
-              ? { value: submitProgress.percent, indeterminate: false }
-              : { indeterminate: true })}
-          />
-        </div>
-      ) : null}
+      <div className="mt-4">
+        <InlineUploadProgressBar
+          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-3 shadow-[var(--shadow-soft)]"
+          label={
+            submitProgress?.phase === "sending"
+              ? labels.uploadProgressSending
+              : labels.uploadProgressReading
+          }
+          {...(submitProgress?.phase === "sending"
+            ? { indeterminate: true }
+            : { value: submitProgress?.phase === "reading" ? submitProgress.percent : 0 })}
+        />
+      </div>
 
       <div data-tour={ADMIN_TOUR_ANCHORS.siteSetupPanel}>
         <SiteSetupWizardStepPanels

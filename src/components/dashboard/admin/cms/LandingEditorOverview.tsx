@@ -4,6 +4,7 @@ import type { LandingEditorOverviewItem } from "@/lib/cms/buildLandingEditorView
 import type { Dictionary } from "@/types/i18n";
 import type { SiteThemeRow } from "@/types/theming";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
+import { GENERIC_INSTITUTE_KINDS, isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import { LandingTemplateKindPicker } from "./LandingTemplateKindPicker";
 
 type Labels = Dictionary["admin"]["cms"]["templates"]["landing"];
@@ -55,6 +56,7 @@ export function LandingEditorOverview({
         themeId={theme.id}
         current={theme.templateKind}
         labels={labels.kindPicker}
+        kinds={isGenericInstituteKind(theme.templateKind) ? GENERIC_INSTITUTE_KINDS : undefined}
       />
 
       {sectionBaseHref ? null : (

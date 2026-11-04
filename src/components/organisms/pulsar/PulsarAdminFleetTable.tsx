@@ -6,6 +6,7 @@ import {
   ExternalLink,
   PauseCircle,
   PlayCircle,
+  Trash2,
 } from "lucide-react";
 import { PulsarFleetLogo } from "@/components/organisms/pulsar/PulsarFleetLogo";
 import type { TenantTelemetrySnapshot } from "@/lib/pulsar/loadPulsarFleetTelemetry";
@@ -19,6 +20,7 @@ export interface PulsarAdminFleetTableProps {
   telemetryBySlug: Record<string, TenantTelemetrySnapshot>;
   busySlug: string | null;
   onToggleTenant: (slug: string, nextEnabled: boolean) => void;
+  onDeleteTenant: (slug: string) => void;
 }
 
 export function PulsarAdminFleetTable({
@@ -28,6 +30,7 @@ export function PulsarAdminFleetTable({
   telemetryBySlug,
   busySlug,
   onToggleTenant,
+  onDeleteTenant,
 }: PulsarAdminFleetTableProps) {
   const copy = dict.pulsar.admin;
   const numFmt = new Intl.NumberFormat(locale);
@@ -130,6 +133,14 @@ export function PulsarAdminFleetTable({
                           <span>{copy.table.enableAction}</span>
                         </>
                       )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onDeleteTenant(tenant.slug)}
+                      className="inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border border-[var(--color-error)] bg-[var(--color-surface)] px-2.5 py-1.5 text-xs font-semibold text-[var(--color-error)] transition-colors hover:bg-[var(--color-muted)]"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                      <span>{copy.form.closeCta}</span>
                     </button>
                     <Link
                       href={`/${locale}/admin/tenants/${tenant.slug}`}

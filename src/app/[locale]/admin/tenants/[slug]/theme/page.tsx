@@ -4,10 +4,19 @@ import { ArrowLeft, Images } from "lucide-react";
 import { SiteThemeEditorShell } from "@/components/dashboard/admin/cms/SiteThemeEditorShell";
 import { PulsarAdminChrome } from "@/components/organisms/pulsar/PulsarAdminChrome";
 import { GenericSiteBasicsForm } from "@/components/organisms/pulsar/GenericSiteBasicsForm";
+import { GenericSiteColors } from "@/components/organisms/pulsar/GenericSiteColors";
+import { GenericSiteContactForm } from "@/components/organisms/pulsar/GenericSiteContactForm";
+import { GenericSiteCopyForm } from "@/components/organisms/pulsar/GenericSiteCopyForm";
+import { GenericSiteLogo } from "@/components/organisms/pulsar/GenericSiteLogo";
+import { GenericSitePhotos } from "@/components/organisms/pulsar/GenericSitePhotos";
+import { loadGenericSitePhotoSlots } from "@/lib/cms/loadSiteThemeForLandingEditor";
+import { buildGenericSiteCopyFields } from "@/lib/landing/genericSiteCopyFields";
 import { PulsarAdminCloseTenant } from "@/components/organisms/pulsar/PulsarAdminCloseTenant";
 import { loadSiteThemeForEditor } from "@/lib/cms/loadSiteThemeForEditor";
 import { loadPulsarThemeEditor } from "@/lib/pulsar/loadPulsarThemeEditor";
 import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
+import { resolveBrandAssetUrl } from "@/lib/brand/resolveBrandAssetUrl";
+import { paletteFromThemeProperties } from "@/lib/theme/templatePalette";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -66,24 +75,80 @@ export default async function PulsarTenantThemePage({ params }: PageProps) {
         backHref={backHref}
       />
       {isGenericInstituteKind(viewModel.theme.templateKind) ? (
-        <GenericSiteBasicsForm
-          locale={locale}
-          themeId={viewModel.theme.id}
-          properties={viewModel.theme.properties}
-          sectionLabels={loaded.dict.landing.genericSectionLabels}
-          labels={{
-            title: account.basicsTitle,
-            lead: account.basicsLead,
-            seoTitle: account.seoTitle,
-            seoDescription: account.seoDescription,
-            hideSections: account.hideSections,
-            faviconMode: account.faviconMode,
-            faviconImage: account.faviconImage,
-            faviconLetter: account.faviconLetter,
-            save: account.saveBasics,
-            saved: account.saved,
-          }}
-        />
+        <>
+          <GenericSiteLogo
+            locale={locale}
+            themeId={viewModel.theme.id}
+            logoUrl={resolveBrandAssetUrl(viewModel.theme.properties["app.logo.path"] ?? "", "")}
+            fileUploadProgress={loaded.dict.common.fileUpload}
+            labels={{
+              title: account.logoTitle,
+              lead: account.logoLead,
+              save: account.logoSave,
+              saved: account.saved,
+              failed: account.logoFailed,
+            }}
+          />
+          <GenericSiteContactForm
+            locale={locale}
+            themeId={viewModel.theme.id}
+            properties={viewModel.theme.properties}
+            labels={{
+              title: account.contactTitle,
+              lead: account.contactLead,
+              email: account.contactEmail,
+              phone: account.sharePhone,
+              whatsapp: account.shareWhatsapp,
+              address: account.shareAddress,
+              instagram: account.shareInstagram,
+              save: account.contactSave,
+              saved: account.saved,
+              invalid: account.contactInvalid,
+            }}
+          />
+          <GenericSiteColors
+            locale={locale}
+            themeId={viewModel.theme.id}
+            kind={viewModel.theme.templateKind}
+            palette={paletteFromThemeProperties(viewModel.theme.templateKind, viewModel.theme.properties)}
+            labels={account}
+          />
+          <GenericSitePhotos
+            locale={locale}
+            themeId={viewModel.theme.id}
+            photos={await loadGenericSitePhotoSlots(loaded.supabase, viewModel.theme.id)}
+            dict={loaded.dict}
+            fileUploadProgress={loaded.dict.common.fileUpload}
+          />
+          <GenericSiteCopyForm
+            locale={locale}
+            themeId={viewModel.theme.id}
+            labels={account.siteCopy}
+            fields={buildGenericSiteCopyFields({
+              kind: viewModel.theme.templateKind,
+              dict: loaded.dict,
+              content: viewModel.theme.content,
+              locale: locale === "en" || locale === "pt" ? locale : "es",
+              labels: account.siteCopy,
+            })}
+          />
+          <GenericSiteBasicsForm
+            locale={locale}
+            themeId={viewModel.theme.id}
+            properties={viewModel.theme.properties}
+            labels={{
+              title: account.basicsTitle,
+              lead: account.basicsLead,
+              seoTitle: account.seoTitle,
+              seoDescription: account.seoDescription,
+              faviconMode: account.faviconMode,
+              faviconImage: account.faviconImage,
+              faviconLetter: account.faviconLetter,
+              save: account.saveBasics,
+              saved: account.saved,
+            }}
+          />
+        </>
       ) : null}
       {loaded.actor === "owner" ? (
         <PulsarAdminCloseTenant

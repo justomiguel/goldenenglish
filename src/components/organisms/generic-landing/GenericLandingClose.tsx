@@ -1,5 +1,3 @@
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
 import {
   GenericLandingContact,
   type GenericLandingContactLabels,
@@ -52,19 +50,6 @@ export function GenericLandingClose({
     contactLabels.formUnavailable
       ? contactLabels
       : null;
-  const linkOnStage = stage && !filled && !formLabels;
-
-  const link = (
-    <Link
-      href={`/${locale}/contact`}
-      className={`mt-8 inline-flex min-h-11 items-center gap-2 text-base font-semibold ${
-        linkOnStage ? "text-[var(--color-primary-foreground)]" : "text-[var(--color-primary)]"
-      }`}
-    >
-      <ArrowRight className="h-4 w-4" aria-hidden />
-      {copy.cta}
-    </Link>
-  );
 
   const reach = (
     <>
@@ -87,14 +72,13 @@ export function GenericLandingClose({
           }}
           submitLabel={copy.cta}
         />
-      ) : (
-        link
-      )}
+      ) : null}
     </>
   );
 
   return (
     <section
+      id="contacto"
       data-close-layout={layout}
       className={
         stage

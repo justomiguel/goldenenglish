@@ -64,13 +64,11 @@ export function EventRegisterFormFooter({
         {submitLabel}
       </button>
 
-      {isPending ? (
-        <InlineUploadProgressBar
-          label={fileUploadProgressSending}
-          indeterminate
-          className={publicEventRegisterProgressClass(surfaceVariant)}
-        />
-      ) : null}
+      <InlineUploadProgressBar
+        label={fileUploadProgressSending}
+        {...(isPending ? { indeterminate: true } : { value: 0 })}
+        className={publicEventRegisterProgressClass(surfaceVariant)}
+      />
 
       {message ? (
         <p className="text-sm text-[var(--color-error)]" role="alert">

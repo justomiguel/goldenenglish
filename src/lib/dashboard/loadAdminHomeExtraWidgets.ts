@@ -4,8 +4,13 @@ import { loadCurrentCohort } from "@/lib/academics/currentCohort";
 import { loadAdminCohortCollectionsOverview } from "@/lib/billing/loadAdminCohortCollectionsOverview";
 import type { AdminHomeLayout, AdminHomeWidgetId } from "@/lib/dashboard/adminHomeLayout";
 import { loadAdminPeoplePageStats } from "@/lib/dashboard/loadAdminPeoplePageStats";
-import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { listProductChangelogEntries, resolveProductChangelogCopy } from "@/lib/product-changelog/catalog";
+import {
+  EMPTY_ADMIN_HOME_OPS,
+  type AdminHomeOpsSnapshot,
+} from "@/lib/dashboard/parseAdminHomeOpsSnapshot";
+import { loadAdminHomeOpsSnapshot } from "@/lib/dashboard/loadAdminHomeOpsSnapshot";
 
 const OPEN_SHOP = ["pending_payment", "paid", "ready_for_pickup"] as const;
 
@@ -15,6 +20,7 @@ export interface AdminHomeUpcomingEvent {
   title: string;
   eventDate: string;
   capacity: number | null;
+  seats: number;
 }
 
 export interface AdminHomeExtraWidgets {
@@ -29,10 +35,26 @@ export interface AdminHomeExtraWidgets {
   shopOpenCount: number | null;
   changelog: { id: string; title: string; summary: string }[];
   hasCurrentCohort: boolean;
+  ops: AdminHomeOpsSnapshot;
 }
 
 function requested(layout: AdminHomeLayout, id: AdminHomeWidgetId): boolean {
   return layout.items.some((item) => item.id === id && !item.hidden);
+}
+
+const OPS_WIDGETS = [
+  "emailQuota",
+  "cohortEnrollments",
+  "classesToday",
+  "trialsThisWeek",
+  "sectionSeats",
+  "eventWaitlist",
+  "eventPaymentsReview",
+  "upcomingEvents",
+] as const;
+
+function showOps(layout: AdminHomeLayout): boolean {
+  return OPS_WIDGETS.some((id) => requested(layout, id));
 }
 
 async function loadUpcomingEvents(
@@ -57,6 +79,7 @@ async function loadUpcomingEvents(
     title: String(row.title ?? ""),
     eventDate: String(row.event_date ?? ""),
     capacity: typeof row.capacity === "number" ? row.capacity : null,
+    seats: 0,
   }));
 }
 
@@ -80,6 +103,30 @@ export async function loadAdminHomeExtraWidgets(input: {
   locale: string;
   now?: Date;
 }): Promise<AdminHomeExtraWidgets> {
+  try {
+    return await loadAdminHomeExtraWidgetsInner(input);
+  } catch (err) {
+    logServerException("adminHome.extraWidgets", err);
+    return {
+      peoplePulse: null,
+      collections: null,
+      upcomingEvents: [],
+      shopOpenCount: null,
+      changelog: [],
+      hasCurrentCohort: false,
+      ops: EMPTY_ADMIN_HOME_OPS,
+    };
+  }
+}
+
+async function loadAdminHomeExtraWidgetsInner(input: {
+  supabase: SupabaseClient;
+  admin: SupabaseClient;
+  layout: AdminHomeLayout;
+  shopEnabled: boolean;
+  locale: string;
+  now?: Date;
+}): Promise<AdminHomeExtraWidgets> {
   const now = input.now ?? new Date();
   const today = now.toISOString().slice(0, 10);
   const showPeople = requested(input.layout, "peoplePulse");
@@ -87,14 +134,22 @@ export async function loadAdminHomeExtraWidgets(input: {
   const showEvents = requested(input.layout, "upcomingEvents");
   const showShop = input.shopEnabled && requested(input.layout, "shopOrders");
   const showChangelog = requested(input.layout, "changelog");
+  const opsRequested = showOps(input.layout);
 
   const cohortPromise = showCollections ? loadCurrentCohort(input.supabase) : Promise.resolve(null);
-  const [people, cohort, events, shopOpenCount] = await Promise.all([
+  const [people, cohort, opsResult, shopOpenCount] = await Promise.all([
     showPeople ? loadAdminPeoplePageStats(input.admin, "student") : Promise.resolve(null),
     cohortPromise,
-    showEvents ? loadUpcomingEvents(input.supabase, today) : Promise.resolve([]),
+    opsRequested ? loadAdminHomeOpsSnapshot(input.supabase, now) : Promise.resolve(EMPTY_ADMIN_HOME_OPS),
     showShop ? loadShopOpenCount(input.supabase) : Promise.resolve(null),
   ]);
+  const ops = opsResult ?? EMPTY_ADMIN_HOME_OPS;
+  const events =
+    opsResult && showEvents
+      ? ops.events
+      : showEvents
+        ? await loadUpcomingEvents(input.supabase, today)
+        : [];
 
   let collections: AdminHomeExtraWidgets["collections"] = null;
   if (showCollections && cohort) {
@@ -130,5 +185,6 @@ export async function loadAdminHomeExtraWidgets(input: {
     shopOpenCount,
     changelog,
     hasCurrentCohort: Boolean(cohort),
+    ops,
   };
 }

@@ -13,6 +13,9 @@ import {
 import { isProductEmailEnabled } from "@/lib/email/emailSendsEnabled";
 import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
 import { loadEmailSendGate, type EmailSendGate } from "@/lib/email/loadEmailSendGate";
+import { EMAIL_MONTHLY_CAP_CODE, emailSendFitsCap } from "@/lib/email/emailMonthlyCap";
+import { loadEmailMonthUsage, recordEmailSend } from "@/lib/email/emailSendLedger";
+import { logServerWarn } from "@/lib/logging/serverActionLog";
 import type { Locale } from "@/types/i18n";
 import type { EmailTemplateKey } from "@/types/emailTemplates";
 
@@ -118,6 +121,26 @@ export async function sendBrandedEmail(
     bodyHtml: resolved.bodyHtml,
   });
 
+  const usage = await loadEmailMonthUsage();
+  if (!emailSendFitsCap({ used: usage.used, cap: usage.cap, recipientCount: 1 })) {
+    logServerWarn("email.monthlyCap", {
+      templateKey: input.templateKey,
+      used: usage.used,
+      cap: usage.cap,
+      code: EMAIL_MONTHLY_CAP_CODE,
+    });
+    logEmailSendOutcome({
+      outcome: "failed",
+      reason: EMAIL_MONTHLY_CAP_CODE,
+      error: EMAIL_MONTHLY_CAP_CODE,
+      to: input.to,
+      templateKey: input.templateKey,
+      locale: input.locale,
+      vars: input.vars,
+    });
+    return { ok: false, error: EMAIL_MONTHLY_CAP_CODE };
+  }
+
   const provider = input.emailProvider ?? getEmailProvider();
   const r: SendEmailResult = await provider.sendEmail({
     to: input.to,
@@ -148,6 +171,7 @@ export async function sendBrandedEmail(
     vars: input.vars,
     fromOverride: resolved.fromOverride,
   });
+  await recordEmailSend({ templateKey: input.templateKey, recipientCount: 1 });
   await clearEmailSendStaffNotice();
   return { ok: true, fromOverride: resolved.fromOverride };
 }

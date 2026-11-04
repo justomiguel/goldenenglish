@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   facebookUrl,
+  freeSiteNameProperties,
   freeSiteShareProperties,
   googleMapEmbedUrl,
   instagramUrl,
@@ -50,6 +51,9 @@ describe("freeSiteShare", () => {
     expect(props["social.whatsapp"]).toBeUndefined();
     expect(props["social.instagram"]).toBe("https://instagram.com/club");
     expect(props["contact.address"]).toBe("Calle 1");
+    expect(freeSiteNameProperties("Club Sur")["contact.email"]).toBeUndefined();
     expect(props["app.name"]).toBe("Club Sur");
+    expect(props["app.tagline"]).toBe("Club Sur");
+    expect(props["app.legal.registry"]).toBe("Club Sur");
   });
 });

@@ -1,11 +1,11 @@
 "use client";
-
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FileUp } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { LongJobSnapshot } from "@/types/longJob";
 import { Button } from "@/components/atoms/Button";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { LongJobActivityModal } from "@/components/molecules/LongJobActivityModal";
 import { LongJobLoader } from "@/components/molecules/LongJobLoader";
 import { buildImportActivityModalCopy } from "@/lib/import/buildImportActivityModalCopy";
@@ -29,7 +29,6 @@ interface ImportStudentsProps {
   labels: Dictionary["admin"]["import"];
   emptyLogPlaceholder: string;
 }
-
 export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportStudentsProps) {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -212,6 +211,7 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
         {!busy ? <FileUp className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {busy ? labels.processing : labels.chooseFile}
       </Button>
+      {busy ? <InlineUploadProgressBar label={labels.processing} indeterminate /> : null}
       <LongJobActivityModal
         open={jobModalOpen}
         onOpenChange={(open: boolean) => {
