@@ -104,6 +104,7 @@ export default async function StudentProgressPage({ params, searchParams }: Page
         badgesDict={dict.dashboard.student.badges}
         progressBasePath={`/${locale}/dashboard/student/progress`}
         lessonLinks
+        taskDetailBase={`/${locale}/dashboard/student/tasks`}
         courseResults={courseResults}
       />
     </Suspense>

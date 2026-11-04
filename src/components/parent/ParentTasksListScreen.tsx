@@ -4,6 +4,7 @@ import { LearningTaskStatusBadge } from "@/components/molecules/LearningTaskStat
 import { ParentWardPicker, type ParentWardOption } from "@/components/parent/ParentWardPicker";
 import type { StudentLearningTaskRow } from "@/types/learningTasks";
 import type { Dictionary } from "@/types/i18n";
+import { learningTaskDetailHref } from "@/lib/learning-tasks/learningTaskDetailHref";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 interface ParentTasksListScreenProps {
@@ -14,6 +15,8 @@ interface ParentTasksListScreenProps {
   parentLabels: Dictionary["dashboard"]["parent"];
   studentLabels: Dictionary["dashboard"]["student"];
   embedded?: boolean;
+  /** Student progress passes its own task route. Parents keep the tutor route. */
+  taskDetailBase?: string;
 }
 
 export function ParentTasksListScreen({
@@ -24,6 +27,7 @@ export function ParentTasksListScreen({
   parentLabels,
   studentLabels,
   embedded = false,
+  taskDetailBase,
 }: ParentTasksListScreenProps) {
   const basePath = `/${locale}/dashboard/parent/tasks`;
   return (
@@ -59,7 +63,12 @@ export function ParentTasksListScreen({
           {tasks.map((task) => (
             <li key={task.taskInstanceId}>
               <Link
-                href={`${basePath}/${task.taskInstanceId}?studentId=${selectedStudentId}`}
+                href={learningTaskDetailHref({
+                  locale,
+                  taskInstanceId: task.taskInstanceId,
+                  studentId: selectedStudentId,
+                  taskDetailBase,
+                })}
                 className="block rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 hover:bg-[var(--color-muted)]"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">

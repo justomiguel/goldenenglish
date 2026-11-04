@@ -7946,7 +7946,7 @@ CREATE OR REPLACE FUNCTION public.learning_task_instance_visible_to_current_user
 RETURNS boolean
 LANGUAGE sql
 STABLE
-SECURITY INVOKER
+SECURITY DEFINER
 SET search_path = public
 AS $$
   SELECT EXISTS (

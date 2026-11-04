@@ -111,6 +111,24 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
     {
+      name: "chromium-critical-task",
+      dependencies: ["setup"],
+      testMatch: /critical-learning-task\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "chromium-critical-shop",
+      dependencies: ["setup"],
+      testMatch: /critical-shop-catalog\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "chromium-critical-parent-attendance",
+      dependencies: ["setup"],
+      testMatch: /critical-parent-attendance\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
       name: "chromium-critical-academic",
       dependencies: ["setup"],
       testMatch: /critical-academic\.spec\.ts/,

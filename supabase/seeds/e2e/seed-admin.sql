@@ -147,6 +147,8 @@ DECLARE
   v_tour_invoice uuid := '00000000-0000-4000-8000-e2e000000002'::uuid;
   v_tour_receipt uuid := '00000000-0000-4000-8000-e2e000000001'::uuid;
   v_tour_receipt_path text;
+  v_task uuid;
+  v_enroll uuid;
 BEGIN
   v_parent_month := CASE WHEN v_month < 12 THEN v_month + 1 ELSE v_month - 1 END;
   -- Third due month for reject-receipt E2E (distinct from student + parent months).
@@ -757,6 +759,49 @@ BEGIN
     updated_by = v_admin,
     updated_at = now()
   WHERE slug = 'e2e-free-course';
+
+  SELECT id INTO v_task
+  FROM public.task_instances
+  WHERE section_id = v_section AND title = 'E2E Learning Task'
+  LIMIT 1;
+
+  IF v_task IS NULL THEN
+    INSERT INTO public.task_instances (
+      section_id, title, body_html, start_at, due_at, created_by, updated_by
+    ) VALUES (
+      v_section,
+      'E2E Learning Task',
+      '<p>E2E task body</p>',
+      now() - interval '1 day',
+      now() + interval '14 days',
+      v_teacher,
+      v_teacher
+    )
+    RETURNING id INTO v_task;
+  ELSE
+    UPDATE public.task_instances
+    SET
+      archived_at = NULL,
+      start_at = now() - interval '1 day',
+      due_at = now() + interval '14 days',
+      updated_by = v_teacher,
+      updated_at = now()
+    WHERE id = v_task;
+  END IF;
+
+  SELECT id INTO v_enroll
+  FROM public.section_enrollments
+  WHERE section_id = v_section AND student_id = v_student AND status = 'active'
+  LIMIT 1;
+
+  DELETE FROM public.student_task_progress
+  WHERE task_instance_id = v_task;
+
+  INSERT INTO public.student_task_progress (
+    task_instance_id, enrollment_id, student_id, status, opened_at
+  ) VALUES (
+    v_task, v_enroll, v_student, 'OPENED', now()
+  );
 END $$;
 
 DROP FUNCTION IF EXISTS public._e2e_upsert_user(text, text, public.user_role, text, text, text);

@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "student-task-from-progress",
+    date: "2026-11-04",
+    area: "academic",
+    title: t(
+      "El alumno abre su tarea desde el progreso",
+      "The student opens a task from progress",
+      "O aluno abre a tarefa a partir do progresso",
+    ),
+    summary: t(
+      "En Progreso, abres tu tarea y entregas la respuesta.",
+      "On Progress, you open your task and submit the answer.",
+      "Em Progresso, você abre a tarefa e entrega a resposta.",
+    ),
+  },
+  {
     id: "trial-class-saves",
     date: "2026-11-04",
     area: "admin",

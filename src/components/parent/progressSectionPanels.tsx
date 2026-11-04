@@ -28,6 +28,7 @@ export function progressSectionPanels(input: {
   studentLabels: Dictionary["dashboard"]["student"];
   badgesDict: Dictionary["dashboard"]["student"]["badges"];
   lessonLinks?: boolean;
+  taskDetailBase?: string;
   courseResults?: Record<string, {
     taskPercent: number | null;
     attendancePercent: number | null;
@@ -45,6 +46,7 @@ export function progressSectionPanels(input: {
         parentLabels={input.parentLabels}
         studentLabels={input.studentLabels}
         embedded
+        taskDetailBase={input.taskDetailBase}
       />
     ),
     courses: (

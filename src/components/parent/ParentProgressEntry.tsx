@@ -48,6 +48,8 @@ interface ParentProgressEntryProps {
   /** Route base for ward picker URL updates (defaults to parent progress). */
   progressBasePath?: string;
   lessonLinks?: boolean;
+  /** Student progress passes `/…/dashboard/student/tasks`. Parents omit it. */
+  taskDetailBase?: string;
   courseResults?: Record<string, {
     taskPercent: number | null;
     attendancePercent: number | null;
@@ -73,6 +75,7 @@ export function ParentProgressEntry({
   badgesDict,
   progressBasePath,
   lessonLinks = false,
+  taskDetailBase,
   courseResults,
   shellOwnsFocus = false,
 }: ParentProgressEntryProps) {
@@ -141,6 +144,7 @@ export function ParentProgressEntry({
     studentLabels,
     badgesDict,
     lessonLinks,
+    taskDetailBase,
     courseResults,
   });
 
