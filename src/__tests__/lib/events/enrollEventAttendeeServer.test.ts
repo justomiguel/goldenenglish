@@ -34,6 +34,15 @@ vi.mock("@/lib/supabase/admin", () => ({
         update(...args);
         return { eq: async () => ({ error: scene.updateError }) };
       },
+      select: () => {
+        const chain = {
+          eq: () => chain,
+          in: () => chain,
+          maybeSingle: async () => ({ data: null, error: null }),
+          then: (resolve: (value: unknown) => void) => resolve({ data: [], error: null }),
+        };
+        return chain;
+      },
     }),
   }),
 }));

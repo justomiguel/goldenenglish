@@ -111,11 +111,20 @@ describe("Pulsar admin screens", () => {
         sessionMode="pulsar-db"
         tenants={[SAMPLE_TENANT]}
         telemetryBySlug={TELEMETRY}
+        mailBySlug={{ nago: { source: "resend", used: 80, limit: 3000 } }}
       />,
     );
 
     expect(screen.getByText("Capoeira Nagô Chile")).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.admin.table.statusOnline)).toBeInTheDocument();
+    expect(screen.getByText(dict.pulsar.admin.table.mailMonth)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        dict.pulsar.admin.table.mailMonthCount
+          .replace("{used}", new Intl.NumberFormat("es").format(80))
+          .replace("{limit}", new Intl.NumberFormat("es").format(3000)),
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.admin.table.fleetChartTitle)).toBeInTheDocument();
     expect(screen.getAllByText("128").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("540").length).toBeGreaterThanOrEqual(1);

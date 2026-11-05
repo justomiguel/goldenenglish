@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FilePenLine, PenLine } from "lucide-react";
+import { Download, FilePenLine, PenLine } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { AdminContactMessagesExportModal } from "@/components/dashboard/AdminContactMessagesExportModal";
 import { AdminEditDefaultReplyModal } from "@/components/dashboard/AdminEditDefaultReplyModal";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { MessagingDefaultReplyTemplates } from "@/lib/messaging/messagingDefaultReplyConstants";
@@ -23,10 +24,21 @@ export function AdminMessagesHeaderActions({
   labels,
 }: AdminMessagesHeaderActionsProps) {
   const [editOpen, setEditOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
 
   return (
     <>
       <div className="flex flex-wrap items-center justify-end gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          className="min-h-[44px] rounded-xl border border-[var(--color-border)] px-4"
+          title={labels.contactExport.ctaTitle}
+          onClick={() => setExportOpen(true)}
+        >
+          <Download className="h-4 w-4 shrink-0" aria-hidden />
+          {labels.contactExport.cta}
+        </Button>
         <div className="hidden md:contents">
           <Button
             type="button"
@@ -50,6 +62,12 @@ export function AdminMessagesHeaderActions({
           {labels.writeMessageCta}
         </Link>
       </div>
+      <AdminContactMessagesExportModal
+        locale={locale}
+        open={exportOpen}
+        onOpenChange={setExportOpen}
+        labels={labels.contactExport}
+      />
       <AdminEditDefaultReplyModal
         locale={locale}
         open={editOpen}

@@ -5,12 +5,10 @@ import { EmailSendsAdminSettingsForm } from "@/components/dashboard/EmailSendsAd
 import type { Dictionary } from "@/types/i18n";
 
 const setEmailSendEnabledAction = vi.fn();
-const setEmailMonthlyCapAction = vi.fn();
 const refresh = vi.fn();
 
 vi.mock("@/app/[locale]/dashboard/admin/settings/emailSendsSettingsActions", () => ({
   setEmailSendEnabledAction: (...a: unknown[]) => setEmailSendEnabledAction(...a),
-  setEmailMonthlyCapAction: (...a: unknown[]) => setEmailMonthlyCapAction(...a),
 }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }));
 
@@ -29,16 +27,16 @@ const labels = {
   saved: "Guardado",
   error: "No se pudo guardar",
   emailMonthlyCapLabel: "Tope mensual de correos",
-  emailMonthlyCapHint: "Cada cuenta puede enviar hasta este número.",
-  emailMonthlyCapSave: "Guardar tope",
-  emailMonthlyCapInvalid: "Escribe un número entero entre 1 y 100000.",
+  emailMonthlyCapHint: "Resend informa este número. Aquí solo lo ves.",
+  emailMonthlyCapPulsarHint: "Este instituto envía por la cuenta de Pulsar hasta este número.",
+  emailMonthlyCapLine: "{used} / {limit}",
+  emailMonthlyCapUnread: "La clave de Resend no informa el tope.",
 } as Dictionary["admin"]["settings"];
 
 describe("EmailSendsAdminSettingsForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setEmailSendEnabledAction.mockResolvedValue({ ok: true });
-    setEmailMonthlyCapAction.mockResolvedValue({ ok: true });
   });
 
   it("shows today’s on/off value and saves a toggle", async () => {
@@ -46,7 +44,7 @@ describe("EmailSendsAdminSettingsForm", () => {
     render(
       <EmailSendsAdminSettingsForm
         locale="es"
-        monthlyCap={5000}
+        mailMonth={{ source: "resend", used: 80, limit: 3000 }}
         labels={labels}
         groups={[
           {
@@ -80,20 +78,19 @@ describe("EmailSendsAdminSettingsForm", () => {
     });
   });
 
-  it("saves the monthly cap and refreshes", async () => {
-    const user = userEvent.setup();
+  it("shows the monthly cap as text", () => {
     render(
       <EmailSendsAdminSettingsForm
-        locale="es"
-        monthlyCap={5000}
+        locale="en"
+        mailMonth={{ source: "resend", used: 80, limit: 3000 }}
         labels={labels}
         groups={[]}
       />,
     );
-    await user.clear(screen.getByRole("spinbutton"));
-    await user.type(screen.getByRole("spinbutton"), "4000");
-    await user.click(screen.getByRole("button", { name: "Guardar tope" }));
-    expect(setEmailMonthlyCapAction).toHaveBeenCalledWith({ locale: "es", cap: 4000 });
-    expect(refresh).toHaveBeenCalled();
+    const used = new Intl.NumberFormat("en").format(80);
+    const limit = new Intl.NumberFormat("en").format(3000);
+    expect(screen.getByText(`${used} / ${limit}`)).toBeInTheDocument();
+    expect(screen.queryByRole("spinbutton")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Guardar tope" })).not.toBeInTheDocument();
   });
 });

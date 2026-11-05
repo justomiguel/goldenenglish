@@ -13,6 +13,7 @@ import { PulsarAdminFleetTable } from "@/components/organisms/pulsar/PulsarAdmin
 import { PulsarCloseTenantDialog } from "@/components/organisms/pulsar/PulsarCloseTenantDialog";
 import { PulsarAdminFleetVisitChart } from "@/components/organisms/pulsar/PulsarAdminFleetVisitChart";
 import { PulsarAdminPlatformHostsCard } from "@/components/organisms/pulsar/PulsarAdminPlatformHostsCard";
+import type { MailMonthReadout } from "@/lib/email/resendMonthlyMail";
 import type { TenantTelemetrySnapshot } from "@/lib/pulsar/loadPulsarFleetTelemetry";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
 import type { Dictionary } from "@/types/i18n";
@@ -24,6 +25,7 @@ export interface PulsarAdminFleetScreenProps {
   sessionMode: "pulsar-db" | "dev-local";
   tenants: readonly PulsarTenantRecord[];
   telemetryBySlug: Record<string, TenantTelemetrySnapshot>;
+  mailBySlug?: Record<string, MailMonthReadout>;
   platformHosts?: readonly string[];
   owners?: readonly { userId: string; email: string; status: "pending" | "approved" | "rejected" }[];
   mailSettings?: {
@@ -45,6 +47,7 @@ export function PulsarAdminFleetScreen({
   sessionMode,
   tenants,
   telemetryBySlug,
+  mailBySlug = {},
   platformHosts = [],
   owners = [],
   mailSettings = { fromEmail: "", notifyEmail: "", hasApiKey: false, last: null },
@@ -172,6 +175,7 @@ export function PulsarAdminFleetScreen({
         />
 
         <PulsarAdminFleetTable
+          mailBySlug={mailBySlug}
           locale={locale}
           dict={dict}
           tenants={tenants}

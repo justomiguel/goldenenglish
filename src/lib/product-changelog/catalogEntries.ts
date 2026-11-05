@@ -1,4 +1,5 @@
 import type { ProductChangelogEntry } from "@/lib/product-changelog/catalogTypes";
+import { ENTRIES as ENTRIES_HEAD } from "@/lib/product-changelog/catalogEntriesHead";
 import { ENTRIES as ENTRIES_NOW } from "@/lib/product-changelog/catalogEntriesNow";
 import { ENTRIES as ENTRIES_NOW_PRIOR } from "@/lib/product-changelog/catalogEntriesNowPrior";
 import { ENTRIES as ENTRIES_NOW_MORE } from "@/lib/product-changelog/catalogEntriesNowMore";
@@ -11,5 +12,5 @@ import { ENTRIES as ENTRIES_3 } from "@/lib/product-changelog/catalogEntries3";
 import { ENTRIES as ENTRIES_4 } from "@/lib/product-changelog/catalogEntries4";
 
 export const PRODUCT_CHANGELOG_ENTRIES: readonly ProductChangelogEntry[] = [
-  ...ENTRIES_NOW, ...ENTRIES_NOW_PRIOR, ...ENTRIES_NOW_MORE, ...ENTRIES_RECENT, ...ENTRIES_LATEST, ...ENTRIES_TAIL, ...ENTRIES_1, ...ENTRIES_2, ...ENTRIES_3, ...ENTRIES_4,
+  ...ENTRIES_HEAD, ...ENTRIES_NOW, ...ENTRIES_NOW_PRIOR, ...ENTRIES_NOW_MORE, ...ENTRIES_RECENT, ...ENTRIES_LATEST, ...ENTRIES_TAIL, ...ENTRIES_1, ...ENTRIES_2, ...ENTRIES_3, ...ENTRIES_4,
 ];

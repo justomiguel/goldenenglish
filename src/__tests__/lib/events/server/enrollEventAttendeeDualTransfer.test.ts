@@ -28,6 +28,15 @@ vi.mock("@/lib/supabase/admin", () => ({
     rpc: hoisted.rpcFn,
     from: vi.fn(() => ({
       update: hoisted.updateFn,
+      select: () => {
+        const chain = {
+          eq: () => chain,
+          in: () => chain,
+          maybeSingle: async () => ({ data: null, error: null }),
+          then: (resolve: (value: unknown) => void) => resolve({ data: [], error: null }),
+        };
+        return chain;
+      },
     })),
   })),
 }));

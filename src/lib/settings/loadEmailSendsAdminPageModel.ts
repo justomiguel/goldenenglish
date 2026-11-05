@@ -11,16 +11,12 @@ import {
   buildEmailSendsAdminGroups,
   type EmailSendsAdminGroup,
 } from "@/lib/email/buildEmailSendsAdminGroups";
-import { readEmailMonthlyCap, EMAIL_MONTHLY_CAP_KEY } from "@/lib/email/emailMonthlyCap";
 import type { Locale } from "@/types/i18n";
 
 export async function loadEmailSendsAdminPageModel(
   locale: Locale,
   overrides: { inactivity: string; classReminder: string },
-): Promise<{
-  groups: EmailSendsAdminGroup[];
-  monthlyCap: number;
-} | null> {
+): Promise<{ groups: EmailSendsAdminGroup[] } | null> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -32,12 +28,10 @@ export async function loadEmailSendsAdminPageModel(
   const { data, error } = await supabase
     .from("site_settings")
     .select("key, value")
-    .in("key", [EMAIL_SENDS_ENABLED_KEY, CLASS_REMINDERS_ENABLED_KEY, EMAIL_MONTHLY_CAP_KEY]);
+    .in("key", [EMAIL_SENDS_ENABLED_KEY, CLASS_REMINDERS_ENABLED_KEY]);
   const rows = !error && data ? (data as { key: string; value: unknown }[]) : [];
   const sendsRow = rows.find((r) => r.key === EMAIL_SENDS_ENABLED_KEY);
-  const capRow = rows.find((r) => r.key === EMAIL_MONTHLY_CAP_KEY);
   return {
-    monthlyCap: readEmailMonthlyCap(capRow?.value),
     groups: buildEmailSendsAdminGroups(
       listEmailTemplateDefinitions(),
       parseEmailSendsEnabled(sendsRow?.value),

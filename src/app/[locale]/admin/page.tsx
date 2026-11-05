@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
+import { loadFleetMailMonth } from "@/lib/email/resendMonthlyMail";
 import { loadPulsarFleetTelemetry } from "@/lib/pulsar/loadPulsarFleetTelemetry";
 import { getPulsarStaffSession } from "@/lib/pulsar/pulsarStaffAuth";
 import {
@@ -41,7 +42,10 @@ export default async function PulsarAdminPage({ params }: PageProps) {
     loadCentrolistoGaMeasurementId(),
     loadPlatformUserProfile(session.userId),
   ]);
-  const telemetryBySlug = await loadPulsarFleetTelemetry(tenants);
+  const [telemetryBySlug, mailBySlug] = await Promise.all([
+    loadPulsarFleetTelemetry(tenants),
+    loadFleetMailMonth(tenants),
+  ]);
 
   return (
     <PulsarAdminFleetScreen
@@ -51,6 +55,7 @@ export default async function PulsarAdminPage({ params }: PageProps) {
       sessionMode={session.mode}
       tenants={tenants}
       telemetryBySlug={telemetryBySlug}
+      mailBySlug={mailBySlug}
       platformHosts={platformHosts}
       owners={owners}
       mailSettings={mailSettings}

@@ -2,23 +2,32 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Save } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
-import {
-  setEmailMonthlyCapAction,
-  setEmailSendEnabledAction,
-} from "@/app/[locale]/dashboard/admin/settings/emailSendsSettingsActions";
+import { setEmailSendEnabledAction } from "@/app/[locale]/dashboard/admin/settings/emailSendsSettingsActions";
 import {
   type EmailSendUiGroupId,
   type EmailSendsAdminGroup,
 } from "@/lib/email/buildEmailSendsAdminGroups";
+import type { MailMonthReadout } from "@/lib/email/resendMonthlyMail";
 import type { Dictionary, Locale } from "@/types/i18n";
 
 interface EmailSendsAdminSettingsFormProps {
   locale: Locale;
   groups: EmailSendsAdminGroup[];
   labels: Dictionary["admin"]["settings"];
-  monthlyCap: number;
+  mailMonth: MailMonthReadout;
+}
+
+function mailMonthLine(
+  readout: MailMonthReadout,
+  labels: Dictionary["admin"]["settings"],
+  locale: string,
+): string {
+  if (readout.source === "unread") return labels.emailMonthlyCapUnread;
+  const numFmt = new Intl.NumberFormat(locale);
+  const limit = readout.limit == null ? "—" : numFmt.format(readout.limit);
+  return labels.emailMonthlyCapLine
+    .replace("{used}", numFmt.format(readout.used))
+    .replace("{limit}", limit);
 }
 
 function groupTitle(id: EmailSendUiGroupId, labels: Dictionary["admin"]["settings"]): string {
@@ -33,27 +42,15 @@ export function EmailSendsAdminSettingsForm({
   locale,
   groups: initialGroups,
   labels,
-  monthlyCap,
+  mailMonth,
 }: EmailSendsAdminSettingsFormProps) {
   const [groups, setGroups] = useState(initialGroups);
   const [msg, setMsg] = useState<string | null>(null);
   const [busyKey, setBusyKey] = useState<string | null>(null);
-  const [capText, setCapText] = useState(String(monthlyCap));
-  const [capBusy, setCapBusy] = useState(false);
   const router = useRouter();
-
-  async function onSaveCap() {
-    setMsg(null);
-    setCapBusy(true);
-    const res = await setEmailMonthlyCapAction({ locale, cap: Number(capText) });
-    setCapBusy(false);
-    if (res.ok) {
-      setMsg(labels.saved);
-      router.refresh();
-      return;
-    }
-    setMsg(res.code === "invalid_cap" ? labels.emailMonthlyCapInvalid : labels.error);
-  }
+  const capLine = mailMonthLine(mailMonth, labels, locale);
+  const capHint =
+    mailMonth.source === "pulsar" ? labels.emailMonthlyCapPulsarHint : labels.emailMonthlyCapHint;
 
   async function onToggle(templateKey: string, next: boolean) {
     setMsg(null);
@@ -82,24 +79,9 @@ export function EmailSendsAdminSettingsForm({
     <div className="max-w-2xl rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6">
       <h2 className="text-lg font-semibold text-[var(--color-secondary)]">{labels.emailSendsTitle}</h2>
       <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{labels.emailSendsHint}</p>
-      <div className="mt-4 flex flex-wrap items-end gap-3">
-        <label className="block min-w-40 text-sm text-[var(--color-foreground)]">
-          {labels.emailMonthlyCapLabel}
-          <input
-            type="number"
-            min={1}
-            max={100000}
-            value={capText}
-            onChange={(event) => setCapText(event.target.value)}
-            className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-[var(--color-foreground)]"
-          />
-        </label>
-        <Button type="button" size="sm" isLoading={capBusy} onClick={() => void onSaveCap()}>
-          <Save className="h-4 w-4" aria-hidden />
-          {labels.emailMonthlyCapSave}
-        </Button>
-      </div>
-      <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{labels.emailMonthlyCapHint}</p>
+      <p className="mt-4 text-sm font-medium text-[var(--color-foreground)]">{labels.emailMonthlyCapLabel}</p>
+      <p className="mt-1 font-mono text-base text-[var(--color-foreground)]">{capLine}</p>
+      <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{capHint}</p>
       <div className="mt-6 space-y-6">
         {groups.map((group) => (
           <section key={group.id}>

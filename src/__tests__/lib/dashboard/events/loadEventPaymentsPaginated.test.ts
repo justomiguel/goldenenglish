@@ -4,9 +4,11 @@ import { loadEventPaymentsPaginated } from "@/lib/dashboard/events/loadEventPaym
 function queryResult(result: unknown) {
   return {
     eq: vi.fn().mockReturnThis(),
+    in: vi.fn().mockReturnThis(),
     or: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     range: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn(async () => ({ data: null, error: null })),
     then: (resolve: (value: unknown) => void) => resolve(result),
   };
 }
@@ -46,13 +48,15 @@ describe("loadEventPaymentsPaginated", () => {
     const approvedQuery = queryResult({ count: 0, error: null });
     const rejectedQuery = queryResult({ count: 0, error: null });
 
+    const empty = queryResult({ data: [], error: null });
     const from = vi
       .fn()
       .mockReturnValueOnce({ select: vi.fn(() => dataQuery) })
       .mockReturnValueOnce({ select: vi.fn(() => countQuery) })
       .mockReturnValueOnce({ select: vi.fn(() => pendingQuery) })
       .mockReturnValueOnce({ select: vi.fn(() => approvedQuery) })
-      .mockReturnValueOnce({ select: vi.fn(() => rejectedQuery) });
+      .mockReturnValueOnce({ select: vi.fn(() => rejectedQuery) })
+      .mockReturnValue({ select: vi.fn(() => empty) });
 
     const result = await loadEventPaymentsPaginated({ from } as never, {
       eventId: "evt-1",
@@ -83,13 +87,15 @@ describe("loadEventPaymentsPaginated", () => {
     const approvedQuery = queryResult({ count: 0, error: null });
     const rejectedQuery = queryResult({ count: 0, error: null });
 
+    const empty = queryResult({ data: [], error: null });
     const from = vi
       .fn()
       .mockReturnValueOnce({ select: vi.fn(() => dataQuery) })
       .mockReturnValueOnce({ select: vi.fn(() => countQuery) })
       .mockReturnValueOnce({ select: vi.fn(() => pendingQuery) })
       .mockReturnValueOnce({ select: vi.fn(() => approvedQuery) })
-      .mockReturnValueOnce({ select: vi.fn(() => rejectedQuery) });
+      .mockReturnValueOnce({ select: vi.fn(() => rejectedQuery) })
+      .mockReturnValue({ select: vi.fn(() => empty) });
 
     await loadEventPaymentsPaginated({ from } as never, {
       eventId: "evt-1",

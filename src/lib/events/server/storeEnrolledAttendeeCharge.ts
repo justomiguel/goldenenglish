@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { parseEventEmailLocale } from "@/lib/events/eventEmailCopy";
+import { loadShownAttendeeCharges } from "@/lib/events/server/loadShownAttendeeCharges";
 import { registrationFlowCharge } from "@/lib/events/registrationFlows";
 import { finalizeEnrollCharge } from "@/lib/events/resolveEventMinorTicketCharge";
 
@@ -80,10 +81,14 @@ export async function storeEnrolledAttendeeCharge(
     });
   }
 
+  const shown = error
+    ? null
+    : (await loadShownAttendeeCharges(admin, input.eventId, [input.attendeeId])).get(input.attendeeId);
+
   return {
     ok: true,
     attendeeStatus: payable.attendeeStatus,
     paymentRequired: payable.paymentRequired,
-    totalAmount: payable.totalAmount,
+    totalAmount: shown ?? payable.totalAmount,
   };
 }

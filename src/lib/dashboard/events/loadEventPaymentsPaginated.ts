@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
+import { loadShownAttendeeCharges } from "@/lib/events/server/loadShownAttendeeCharges";
 import { quotePostgrestFilterValue } from "@/lib/supabase/quotePostgrestFilterValue";
 
 export interface EventPaymentAttendeeSummary {
@@ -164,8 +165,17 @@ export async function loadEventPaymentsPaginated(
     };
   });
 
+  const shown = await loadShownAttendeeCharges(
+    adminClient,
+    params.eventId,
+    rows.map((row) => row.eventAttendeeId),
+  );
+
   return {
-    rows,
+    rows: rows.map((row) => {
+      const amount = shown.get(row.eventAttendeeId);
+      return amount == null ? row : { ...row, amount };
+    }),
     totalCount: countResult.count ?? 0,
     page,
     pageSize,

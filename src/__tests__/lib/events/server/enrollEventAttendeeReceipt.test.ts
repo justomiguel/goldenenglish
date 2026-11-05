@@ -35,6 +35,15 @@ vi.mock("@/lib/supabase/admin", () => ({
         update(...args);
         return { eq: async () => ({ error: null }) };
       },
+      select: () => {
+        const chain = {
+          eq: () => chain,
+          in: () => chain,
+          maybeSingle: async () => ({ data: null, error: null }),
+          then: (resolve: (value: unknown) => void) => resolve({ data: [], error: null }),
+        };
+        return chain;
+      },
     }),
   }),
 }));
@@ -54,6 +63,7 @@ vi.mock("@/lib/events/server/finalizeEventTransferReceipt", () => ({
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logSupabaseClientError: vi.fn(),
   logServerWarn: vi.fn(),
+  logServerActionException: vi.fn(),
 }));
 
 import { buildEventReceiptStagingPath } from "@/lib/events/eventRegistrationStagingPath";

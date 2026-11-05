@@ -8,6 +8,7 @@ import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
 import { PublicCtaModeSettingsForm } from "@/components/dashboard/PublicCtaModeSettingsForm";
 import { loadClassRemindersAdminPageModel } from "@/lib/settings/loadClassRemindersAdminPageModel";
 import { loadEmailSendsAdminPageModel } from "@/lib/settings/loadEmailSendsAdminPageModel";
+import { loadInstituteMailMonth } from "@/lib/email/loadInstituteMailMonth";
 import { InscriptionsSettingsForm } from "@/components/dashboard/InscriptionsSettingsForm";
 import { MerchSettingsForm } from "@/components/dashboard/MerchSettingsForm";
 import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
@@ -44,10 +45,13 @@ export default async function AdminSettingsPage({ params }: PageProps) {
     loadMerchEnabled(),
     getPublicCtaMode(),
   ]);
-  const emailSends = await loadEmailSendsAdminPageModel(locale as Locale, {
-    inactivity: dict.admin.settings.emailSendsLabelInactivity,
-    classReminder: dict.admin.settings.emailSendsLabelClassReminder,
-  });
+  const [emailSends, mailMonth] = await Promise.all([
+    loadEmailSendsAdminPageModel(locale as Locale, {
+      inactivity: dict.admin.settings.emailSendsLabelInactivity,
+      classReminder: dict.admin.settings.emailSendsLabelClassReminder,
+    }),
+    loadInstituteMailMonth(),
+  ]);
   const classReminders = await loadClassRemindersAdminPageModel();
   const supabase = await createClient();
   const googleCredentials = await loadGoogleTranslateCredentials(supabase);
@@ -86,7 +90,7 @@ export default async function AdminSettingsPage({ params }: PageProps) {
           <EmailSendsAdminSettingsForm
             locale={locale as Locale}
             groups={emailSends.groups}
-            monthlyCap={emailSends.monthlyCap}
+            mailMonth={mailMonth}
             labels={dict.admin.settings}
           />
         </div>

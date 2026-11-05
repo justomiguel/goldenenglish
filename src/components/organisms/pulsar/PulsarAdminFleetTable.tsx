@@ -9,15 +9,27 @@ import {
   Trash2,
 } from "lucide-react";
 import { PulsarFleetLogo } from "@/components/organisms/pulsar/PulsarFleetLogo";
+import type { MailMonthReadout } from "@/lib/email/resendMonthlyMail";
 import type { TenantTelemetrySnapshot } from "@/lib/pulsar/loadPulsarFleetTelemetry";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
 import type { Dictionary } from "@/types/i18n";
+
+function fleetMailMonthText(
+  readout: MailMonthReadout | undefined,
+  copy: Dictionary["pulsar"]["admin"]["table"],
+  numFmt: Intl.NumberFormat,
+): string {
+  if (!readout || readout.source === "unread") return copy.mailMonthUnread;
+  const limit = readout.limit == null ? "—" : numFmt.format(readout.limit);
+  return copy.mailMonthCount.replace("{used}", numFmt.format(readout.used)).replace("{limit}", limit);
+}
 
 export interface PulsarAdminFleetTableProps {
   locale: string;
   dict: Dictionary;
   tenants: readonly PulsarTenantRecord[];
   telemetryBySlug: Record<string, TenantTelemetrySnapshot>;
+  mailBySlug?: Record<string, MailMonthReadout>;
   busySlug: string | null;
   onToggleTenant: (slug: string, nextEnabled: boolean) => void;
   onDeleteTenant: (slug: string) => void;
@@ -28,6 +40,7 @@ export function PulsarAdminFleetTable({
   dict,
   tenants,
   telemetryBySlug,
+  mailBySlug = {},
   busySlug,
   onToggleTenant,
   onDeleteTenant,
@@ -43,6 +56,7 @@ export function PulsarAdminFleetTable({
             <th className="px-4 py-3.5">{copy.table.tenant}</th>
             <th className="px-4 py-3.5">{copy.table.status}</th>
             <th className="px-4 py-3.5 text-right">{copy.table.visits7d}</th>
+            <th className="px-4 py-3.5 text-right">{copy.table.mailMonth}</th>
             <th className="px-4 py-3.5 text-right">{copy.table.actions}</th>
           </tr>
         </thead>
@@ -102,6 +116,9 @@ export function PulsarAdminFleetTable({
                 </td>
                 <td className="px-4 py-4 text-right font-mono font-semibold">
                   {snap?.visits7d != null ? numFmt.format(snap.visits7d) : "—"}
+                </td>
+                <td className="px-4 py-4 text-right font-mono font-semibold">
+                  {fleetMailMonthText(mailBySlug[tenant.slug], copy.table, numFmt)}
                 </td>
                 <td className="px-4 py-4">
                   <div className="flex items-center justify-end gap-2">
