@@ -15,6 +15,7 @@ vi.mock("@/lib/pulsar/pulsarTenantStore", () => ({
   ensureTenantRegistryLoaded: async () => undefined,
 }));
 
+import { headers } from "next/headers";
 import { logServerInfo, registerRequestHeaderReader } from "@/lib/logging/serverActionLog";
 import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 import { setDynamicTenantsCache, type TenantConfig } from "@/lib/tenant/tenantRegistry";
@@ -32,6 +33,7 @@ describe("request log after tenant resolve", () => {
 
   it("writes host and tenant on sendRegistrationAdminEmails:list", async () => {
     setDynamicTenantsCache([mozarthitos]);
+    registerRequestHeaderReader(() => headers());
     const infoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
 
     await resolveRequestTenant();
@@ -49,7 +51,7 @@ describe("request log after tenant resolve", () => {
     infoSpy.mockRestore();
   });
 
-  it("reads the request when the registered reader is empty", async () => {
+  it("leaves host empty when no reader is registered", async () => {
     registerRequestHeaderReader(() => null);
     const infoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
 
@@ -58,9 +60,9 @@ describe("request log after tenant resolve", () => {
       locale: "es",
     });
 
-    const payload = infoSpy.mock.calls[0]?.[2] as { host: string; tenantSlug: string };
-    expect(payload.host).toBe("www.mozarthitos.cl");
-    expect(payload.tenantSlug).toBe("mozarthitos");
+    const payload = infoSpy.mock.calls[0]?.[2] as { host: string | null; tenantSlug: string | null };
+    expect(payload.host).toBeNull();
+    expect(payload.tenantSlug).toBeNull();
     infoSpy.mockRestore();
   });
 });

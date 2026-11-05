@@ -36,7 +36,7 @@ export async function logEmailSendOutcome(input: {
   reason?: string;
   error?: string;
   fromOverride?: boolean;
-}): void {
+}): Promise<void> {
   const payload: Record<string, unknown> = {
     kind: "email_send",
     outcome: input.outcome,

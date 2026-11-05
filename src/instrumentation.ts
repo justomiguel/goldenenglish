@@ -1,17 +1,9 @@
-import { headers } from "next/headers";
 import { pageRequestErrorMeta } from "@/lib/logging/pageRequestErrorMeta";
+import { readRequestLogHeaders } from "@/lib/logging/readRequestLogHeaders";
 import { logServerError, registerRequestHeaderReader } from "@/lib/logging/serverActionLog";
 import { GE_TENANT_HEADER } from "@/lib/tenant/tenantRegistry";
 
-registerRequestHeaderReader(async () => {
-  try {
-    const value = await headers();
-    if (!value || typeof value.get !== "function") return null;
-    return value;
-  } catch {
-    return null;
-  }
-});
+registerRequestHeaderReader(() => readRequestLogHeaders());
 
 type RequestErrorArgs = {
   path: string;

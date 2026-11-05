@@ -16,9 +16,9 @@ type HeaderGet = { get(name: string): string | null };
 type HeaderReader = () => HeaderGet | Promise<HeaderGet | null> | null;
 
 /**
- * Client screens import this module through shared loaders.
- * A static `next/headers` import would break that bundle.
- * `instrumentation.ts` registers the reader on the server.
+ * Client screens and middleware import this module.
+ * Do not import `next/headers` here. That import breaks the middleware build.
+ * `instrumentation.ts` registers the reader on the Node server.
  * Next.js 16 `headers()` returns a Promise. The reader must be awaited.
  */
 let readHeaderStore: HeaderReader = () => null;
@@ -38,15 +38,9 @@ async function liveHeaderStore(): Promise<HeaderGet | null> {
     const registered = await readHeaderStore();
     if (registered && typeof registered.get === "function") return registered;
   } catch {
-    /* The direct reader below still runs. */
-  }
-  if (typeof window !== "undefined") return null;
-  try {
-    const { readRequestLogHeaders } = await import("@/lib/logging/readRequestLogHeaders");
-    return readRequestLogHeaders();
-  } catch {
     return null;
   }
+  return null;
 }
 
 async function requestLogContext(): Promise<{ host: string | null; tenantSlug: string | null }> {
