@@ -52,7 +52,7 @@ export async function sendBrandedEmail(
   input: SendBrandedEmailInput,
 ): Promise<SendBrandedEmailResult> {
   if (!isDeliverableAuthEmail(input.to)) {
-    logEmailSendOutcome({
+    await logEmailSendOutcome({
       outcome: "skipped",
       reason: "synthetic_mailbox",
       to: input.to,
@@ -71,7 +71,7 @@ export async function sendBrandedEmail(
       templateKey: input.templateKey,
     })
   ) {
-    logEmailSendOutcome({
+    await logEmailSendOutcome({
       outcome: "skipped",
       reason: "gate_disabled",
       to: input.to,
@@ -96,7 +96,7 @@ export async function sendBrandedEmail(
         vars: input.vars,
       });
   if (!resolved) {
-    logEmailSendOutcome({
+    await logEmailSendOutcome({
       outcome: "failed",
       reason: "unknown_template_key",
       error: "unknown_template_key",
@@ -123,13 +123,13 @@ export async function sendBrandedEmail(
 
   const usage = await loadEmailMonthUsage();
   if (!emailSendFitsCap({ used: usage.used, cap: usage.cap, recipientCount: 1 })) {
-    logServerWarn("email.monthlyCap", {
+    await logServerWarn("email.monthlyCap", {
       templateKey: input.templateKey,
       used: usage.used,
       cap: usage.cap,
       code: EMAIL_MONTHLY_CAP_CODE,
     });
-    logEmailSendOutcome({
+    await logEmailSendOutcome({
       outcome: "failed",
       reason: EMAIL_MONTHLY_CAP_CODE,
       error: EMAIL_MONTHLY_CAP_CODE,
@@ -148,7 +148,7 @@ export async function sendBrandedEmail(
     html,
   });
   if (!r.ok) {
-    logEmailSendOutcome({
+    await logEmailSendOutcome({
       outcome: "failed",
       reason: "provider_error",
       error: r.error,
@@ -163,7 +163,7 @@ export async function sendBrandedEmail(
     });
     return { ok: false, error: r.error };
   }
-  logEmailSendOutcome({
+  await logEmailSendOutcome({
     outcome: "sent",
     to: input.to,
     templateKey: input.templateKey,

@@ -27,7 +27,7 @@ export function emailSendLogMeta(input: {
 }
 
 /** One `[ge:server] sendBrandedEmail` line per attempt. Never includes the mailbox or var values. */
-export function logEmailSendOutcome(input: {
+export async function logEmailSendOutcome(input: {
   outcome: EmailSendLogOutcome;
   to: string;
   templateKey: string;
@@ -47,12 +47,12 @@ export function logEmailSendOutcome(input: {
   if (input.fromOverride != null) payload.fromOverride = input.fromOverride;
 
   if (input.outcome === "failed") {
-    logServerError("sendBrandedEmail", payload);
+    await logServerError("sendBrandedEmail", payload);
     return;
   }
   if (input.outcome === "skipped") {
-    logServerWarn("sendBrandedEmail", payload);
+    await logServerWarn("sendBrandedEmail", payload);
     return;
   }
-  logServerInfo("sendBrandedEmail", payload);
+  await logServerInfo("sendBrandedEmail", payload);
 }

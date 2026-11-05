@@ -93,7 +93,7 @@ async function loadMediaForTheme(
     .order("position", { ascending: true });
 
   if (mediaErr) {
-    logSupabaseError("loadActiveTheme:select_media", mediaErr, {
+    await logSupabaseError("loadActiveTheme:select_media", mediaErr, {
       themeId,
     });
     return { media: [], mediaErr: true };
@@ -128,7 +128,7 @@ async function loadThemeBySlugWithClient(
     .maybeSingle();
 
   if (themeErr) {
-    logSupabaseError("loadActiveTheme:select_theme_by_slug", themeErr, {
+    await logSupabaseError("loadActiveTheme:select_theme_by_slug", themeErr, {
       slug,
     });
     return null;
@@ -151,7 +151,7 @@ async function loadActiveThemeRowAnon(
     .maybeSingle();
 
   if (themeErr) {
-    logSupabaseError("loadActiveTheme:select_theme", themeErr);
+    await logSupabaseError("loadActiveTheme:select_theme", themeErr);
     return null;
   }
   if (!themeRow) return null;
@@ -175,7 +175,7 @@ async function loadActiveThemeUncached(): Promise<ActiveThemeSnapshot | null> {
       const bySlug = await loadThemeBySlugWithClient(admin, brandSlug);
       if (bySlug) return bySlug;
     } catch (err) {
-      logServerException("loadActiveTheme:admin_client", err);
+      await logServerException("loadActiveTheme:admin_client", err);
     }
   }
 
@@ -183,7 +183,7 @@ async function loadActiveThemeUncached(): Promise<ActiveThemeSnapshot | null> {
   try {
     client = createAnonReadOnlyClient();
   } catch (err) {
-    logServerException("loadActiveTheme:client", err);
+    await logServerException("loadActiveTheme:client", err);
     return null;
   }
   if (!client) return null;
@@ -221,7 +221,7 @@ async function loadThemeSnapshotForTenant(slug: string): Promise<ActiveThemeSnap
     );
     return loadActiveThemeRowAnon(anon);
   } catch (err) {
-    logServerException("loadActiveTheme:tenant", err);
+    await logServerException("loadActiveTheme:tenant", err);
     return null;
   }
 }
