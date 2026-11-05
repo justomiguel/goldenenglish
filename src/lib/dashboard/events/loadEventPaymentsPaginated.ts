@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
 import { loadShownAttendeeCharges } from "@/lib/events/server/loadShownAttendeeCharges";
+import type { ShownEventChargeView } from "@/lib/events/shownEventChargeAmount";
 import { quotePostgrestFilterValue } from "@/lib/supabase/quotePostgrestFilterValue";
 
 export interface EventPaymentAttendeeSummary {
@@ -31,6 +32,7 @@ export interface EventPaymentRow {
   createdAt: string;
   updatedAt: string;
   attendee: EventPaymentAttendeeSummary;
+  chargeLines: ShownEventChargeView | null;
 }
 
 export interface PaginatedEventPaymentsParams {
@@ -162,6 +164,7 @@ export async function loadEventPaymentsPaginated(
           ? attendeeRow.seat_labels.map((item) => String(item))
           : [],
       },
+      chargeLines: null,
     };
   });
 
@@ -173,8 +176,10 @@ export async function loadEventPaymentsPaginated(
 
   return {
     rows: rows.map((row) => {
-      const amount = shown.get(row.eventAttendeeId);
-      return amount == null ? row : { ...row, amount };
+      const view = shown.get(row.eventAttendeeId);
+      if (view == null) return row;
+      const explain = view.minorTickets > 0 || view.discount != null;
+      return { ...row, amount: view.amount, chargeLines: explain ? view : null };
     }),
     totalCount: countResult.count ?? 0,
     page,

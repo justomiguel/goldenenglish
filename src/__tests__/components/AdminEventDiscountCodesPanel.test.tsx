@@ -128,6 +128,7 @@ describe("AdminEventDiscountCodesPanel", () => {
     expect(screen.getByText("Released")).toBeInTheDocument();
     expect(screen.getAllByRole("table")).toHaveLength(1);
     expect(screen.getByRole("table")).toHaveClass("ge-stack-cards");
+    expect(screen.queryByRole("progressbar")).toBeNull();
   });
 
   it("shows the amount and ticket fields only in fixed-amount mode", () => {

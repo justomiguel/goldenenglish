@@ -61,6 +61,7 @@ describe("EmailTemplateTiptapBody media", () => {
   it("inserts a video link and rejects a page that is not a video", () => {
     inserted.length = 0;
     render(<EmailTemplateTiptapBody value="<p></p>" onChange={() => {}} tiptap={tiptap} />);
+    expect(screen.queryByRole("progressbar")).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: tiptap.video }));
     fireEvent.change(screen.getByLabelText(tiptap.videoUrlFieldLabel), {

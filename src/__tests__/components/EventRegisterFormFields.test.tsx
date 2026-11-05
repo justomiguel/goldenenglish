@@ -64,6 +64,7 @@ describe("EventRegisterFormFields", () => {
       "image/jpeg,image/png,image/webp",
     );
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("progressbar")).toBeNull();
   });
 
   it("renders a file picker for file custom fields", () => {
@@ -90,5 +91,6 @@ describe("EventRegisterFormFields", () => {
       "image/jpeg,image/png,image/webp,application/pdf",
     );
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("progressbar")).toBeNull();
   });
 });

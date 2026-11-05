@@ -89,6 +89,6 @@ export async function storeEnrolledAttendeeCharge(
     ok: true,
     attendeeStatus: payable.attendeeStatus,
     paymentRequired: payable.paymentRequired,
-    totalAmount: shown ?? payable.totalAmount,
+    totalAmount: shown?.amount ?? payable.totalAmount,
   };
 }

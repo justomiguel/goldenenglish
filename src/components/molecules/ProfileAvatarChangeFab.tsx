@@ -214,11 +214,13 @@ export function ProfileAvatarChangeFab({
       />
 
       <div className="mt-2 max-w-[12.5rem] sm:max-w-none">
-        <InlineUploadProgressBar
-          label={fileUploadProgress.progressSending}
-          {...(uploading ? { indeterminate: true } : { value: 0 })}
-          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
-        />
+        {uploading ? (
+          <InlineUploadProgressBar
+            label={fileUploadProgress.progressSending}
+            indeterminate
+            className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+          />
+        ) : null}
       </div>
 
       {banner ? (

@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { revalidateAdminInbox } from "@/lib/messaging/revalidateAdminInbox";
 import { createClient } from "@/lib/supabase/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { logServerWarn, logSupabaseClientError } from "@/lib/logging/serverActionLog";
@@ -67,7 +68,7 @@ export async function setAdminPortalMessageReadState(
     return { ok: false, code: "persist_failed" };
   }
 
-  revalidatePath(`/${locale}/dashboard/admin/messages`);
+  revalidateAdminInbox(locale);
   revalidatePath(`/${locale}/dashboard/admin/messages/${parsed.data}`);
   return { ok: true };
 }

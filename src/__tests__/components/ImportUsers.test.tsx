@@ -67,6 +67,7 @@ describe("ImportUsers", () => {
     const user = userEvent.setup();
     dryRun.mockResolvedValue({ ok: false, message: "Missing role" });
     render(<ImportUsers locale="en" labels={labels} />);
+    expect(screen.queryByRole("progressbar")).toBeNull();
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(["x"], "bad.xlsx", {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

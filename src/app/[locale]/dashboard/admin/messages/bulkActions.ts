@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateAdminInbox } from "@/lib/messaging/revalidateAdminInbox";
 import { createClient } from "@/lib/supabase/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
@@ -41,7 +42,7 @@ async function assertAdminForBulk(): Promise<
 }
 
 function revalidateMailbox(locale: string, ids: string[]) {
-  revalidatePath(`/${locale}/dashboard/admin/messages`);
+  revalidateAdminInbox(locale);
   for (const id of ids.slice(0, 20)) {
     revalidatePath(`/${locale}/dashboard/admin/messages/${id}`);
   }

@@ -61,6 +61,7 @@ describe("LearningTaskTemplateLibrary", () => {
         }}
       />,
     );
+    expect(screen.queryByRole("progressbar")).toBeNull();
 
     await user.type(screen.getByLabelText("Asset label"), "Guide");
     const file = new File(["x"], "large.pdf", { type: "application/pdf" });

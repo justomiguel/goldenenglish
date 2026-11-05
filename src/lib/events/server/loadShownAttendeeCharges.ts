@@ -2,7 +2,10 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { EventDiscountApplied } from "@/lib/events/resolveEventDiscountSelection";
-import { shownEventChargeAmount } from "@/lib/events/shownEventChargeAmount";
+import {
+  shownEventChargeView,
+  type ShownEventChargeView,
+} from "@/lib/events/shownEventChargeAmount";
 import { logServerActionException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 interface AttendeeChargeRow {
@@ -53,9 +56,9 @@ export async function loadShownAttendeeCharges(
   admin: SupabaseClient,
   eventId: string,
   attendeeIds: string[],
-): Promise<Map<string, number>> {
+): Promise<Map<string, ShownEventChargeView>> {
   const ids = [...new Set(attendeeIds.filter(Boolean))];
-  const shown = new Map<string, number>();
+  const shown = new Map<string, ShownEventChargeView>();
   if (ids.length === 0) return shown;
 
   try {
@@ -150,7 +153,7 @@ export async function loadShownAttendeeCharges(
 
   for (const attendee of attendees) {
     const id = String(attendee.id);
-    const amount = shownEventChargeAmount({
+    const view = shownEventChargeView({
       currency: event.currency?.trim() || "CLP",
       isLocalResident: attendee.is_local_resident !== false,
       price: event.price == null ? null : Number(event.price),
@@ -165,7 +168,7 @@ export async function loadShownAttendeeCharges(
       familyDiscountClaimed: attendee.family_discount_claimed === true,
       appliedCode: codes.get(id) ?? null,
     });
-    if (amount != null) shown.set(id, amount);
+    if (view != null) shown.set(id, view);
   }
   return shown;
   } catch (error) {

@@ -31,6 +31,7 @@ export function AdminBadgeImageEditor(props: AdminBadgeImageEditorProps) {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function onChange(e: ChangeEvent<HTMLInputElement>) {
@@ -49,6 +50,7 @@ export function AdminBadgeImageEditor(props: AdminBadgeImageEditorProps) {
     }
     const input = e.target;
     setBusy(true);
+    setUploading(true);
     try {
       const fd = new FormData();
       fd.append("locale", locale);
@@ -63,6 +65,7 @@ export function AdminBadgeImageEditor(props: AdminBadgeImageEditorProps) {
       router.refresh();
     } finally {
       setBusy(false);
+      setUploading(false);
     }
   }
 
@@ -117,11 +120,13 @@ export function AdminBadgeImageEditor(props: AdminBadgeImageEditorProps) {
         ) : null}
       </div>
       <p className="text-xs text-[var(--color-muted-foreground)]">{labels.tipImage}</p>
-      <InlineUploadProgressBar
-        label={fileUploadProgress.progressSending}
-        {...(busy ? { indeterminate: true } : { value: 0 })}
-        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
-      />
+      {uploading ? (
+        <InlineUploadProgressBar
+          label={fileUploadProgress.progressSending}
+          indeterminate
+          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+        />
+      ) : null}
       {error ? (
         <p
           role="alert"

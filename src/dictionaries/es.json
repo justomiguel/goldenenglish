@@ -5333,6 +5333,11 @@
         "transferAnswerLabel": "Opción elegida",
         "seatLabelsLabel": "Butacas asignadas",
         "minorTicketsLabel": "Entradas de menor",
+        "chargeAdultLine": "Adultos: {count} × {price}",
+        "chargeMinorLine": "Menores: {count} × {price}",
+        "chargeCodeLine": "Cupón {code}: {amount}",
+        "chargeCodePercentLine": "Cupón {code} ({percent}%): {amount}",
+        "chargeFamilyLine": "Descuento familiar: {amount}",
         "attendeesExport": {
           "downloadXlsx": "Exportar Excel",
           "downloadPdf": "Exportar PDF",

@@ -1,5 +1,5 @@
 ---
-description: Every file upload on an institute host and on CentroListo shows a progress bar that stays on the control and reports the upload.
+description: Every file upload on an institute host and on CentroListo shows a progress bar only while the file is read or sent.
 alwaysApply: true
 ---
 
@@ -7,16 +7,17 @@ alwaysApply: true
 
 ## Rule
 
-Every user-visible file upload shows `InlineUploadProgressBar`. This covers institute screens and CentroListo screens. A file is any image, document, spreadsheet, receipt, or archive the person sends.
+Every user-visible file upload shows `InlineUploadProgressBar` while a file is read or sent. This covers institute screens and CentroListo screens. A file is any image, document, spreadsheet, receipt, or archive the person sends.
 
-The bar stays in the layout. Do not mount it only while the upload runs.
+Mount the bar when reading starts or sending starts. Unmount it when that work ends. Success, error, and cancel all end the work. Keep the error text.
+
+Do not render the bar with `value={0}` while the control is idle.
 
 ## What the bar reports
 
-1. **Idle** — `value={0}`. The label is the control name or the file hint from the dictionaries.
-2. **Reading** — determinate `value` from `0` to `100`. Use `onProgress` on `readFileAsDataUrlBase64` or `readImageFileAsBase64`.
-3. **Sending without byte progress** — `indeterminate` while the server action runs.
-4. **Signed URL or XHR** — determinate percent from `upload.onprogress`. Keep the same bar.
+1. **Reading** — determinate `value` from `0` to `100`. Use `onProgress` on `readFileAsDataUrlBase64` or `readImageFileAsBase64`.
+2. **Sending without byte progress** — `indeterminate` while the server action runs.
+3. **Signed URL or XHR** — determinate percent from `upload.onprogress`. Keep the same bar.
 
 A disabled button, a spinner, or `isLoading` alone does not replace the bar.
 
@@ -32,13 +33,14 @@ A bulk import uses `LongJobActivityModal` and `LongJobLoader` (`11-long-running-
 
 ## Do not
 
-- Hide the bar behind `busy ? <InlineUploadProgressBar /> : null`.
+- Leave the bar mounted when no file is being read or sent.
 - Add a second progress widget for the same file control.
 - Skip CentroListo because the screen is not an institute admin page.
 
 ## Checklist
 
-- [ ] The bar is in the layout before the person picks a file?
+- [ ] The bar is absent until a file read or send starts?
+- [ ] The bar is gone after the upload ends?
 - [ ] Reading reports a number, and sending reports motion or a percent?
 - [ ] Institute and CentroListo uploads both follow this rule?
 - [ ] A new file input in the same change got the bar?

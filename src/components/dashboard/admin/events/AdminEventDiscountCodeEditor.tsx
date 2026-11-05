@@ -167,10 +167,12 @@ export function AdminEventDiscountCodeEditor({ locale, eventId, labels }: AdminE
             }}
           />
         </label>
-        <InlineUploadProgressBar
-          label={labels.importFile}
-          {...(importing ? { indeterminate: true } : { value: readPercent ?? 0 })}
-        />
+        {importing || readPercent !== null ? (
+          <InlineUploadProgressBar
+            label={labels.importFile}
+            {...(importing ? { indeterminate: true } : { value: readPercent ?? 0 })}
+          />
+        ) : null}
         <Button
           type="button"
           variant="ghost"

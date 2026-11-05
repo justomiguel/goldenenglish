@@ -15,6 +15,7 @@ import { adminPortalMessageSource } from "@/lib/messaging/adminPortalMessageSour
 import { loadInboxStatusMap } from "@/lib/messaging/loadAdminMessageFollowUpFacts";
 import type { InboxMessageStatus } from "@/lib/messaging/adminMessageStatus";
 import { resolveSiteContactVisitorDisplayName } from "@/lib/messaging/siteContactVisitorDisplayName";
+import { isAdminInboxSender } from "@/lib/messaging/adminInboxSender";
 
 /** One-line preview budget for dense admin list rows. */
 const ADMIN_INBOX_PREVIEW_MAX = 120;
@@ -31,24 +32,6 @@ type MsgRow = {
   external_contact_display_name?: unknown;
   external_contact_reply_email?: unknown;
 };
-
-function isAdminInboxSender(
-  sender: { role: string } | undefined,
-  senderId: string,
-): boolean {
-  if (!sender) return false;
-  if (
-    sender.role === "teacher" ||
-    sender.role === "admin" ||
-    sender.role === "student" ||
-    sender.role === "parent"
-  ) {
-    return true;
-  }
-  return (
-    sender.role === "site_contact" && senderId === PUBLIC_SITE_CONTACT_SENDER_PROFILE_ID
-  );
-}
 
 function buildLatestStaffReplyByPeer(
   list: MsgRow[],
@@ -169,7 +152,8 @@ export async function loadAdminPortalMessagesMailbox(
     .from("portal_messages")
     .select(
       "id, sender_id, recipient_id, body_html, created_at, broadcast_batch_id, read_at, external_replied_at, external_contact_display_name, external_contact_reply_email",
-    );
+    )
+    .or(`sender_id.eq.${adminUserId},recipient_id.eq.${adminUserId}`);
 
   const f = filters ?? {};
   if (f.participantId) {
@@ -207,7 +191,7 @@ export async function loadAdminPortalMessagesMailbox(
   const latestStaffReplyByPeer = buildLatestStaffReplyByPeer(list, metaById);
   const inboundList = list.filter((m) => {
     if ((m.recipient_id as string) !== adminUserId) return false;
-    return isAdminInboxSender(metaById.get(m.sender_id as string), m.sender_id as string);
+    return isAdminInboxSender(metaById.get(m.sender_id as string)?.role, m.sender_id as string);
   });
   const statusById = await loadInboxStatusMap(
     supabase,

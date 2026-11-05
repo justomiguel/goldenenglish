@@ -136,11 +136,13 @@ export function ReceiptAutoUploadField({
           <span className="break-all font-medium text-[var(--color-foreground)]">{displayFileName}</span>
         </p>
       ) : null}
-      <InlineUploadProgressBar
-        label={fileUploadProgress.progressSending}
-        {...(busy ? { indeterminate: true } : { value: 0 })}
-        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
-      />
+      {busy ? (
+        <InlineUploadProgressBar
+          label={fileUploadProgress.progressSending}
+          indeterminate
+          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+        />
+      ) : null}
     </div>
   );
 }

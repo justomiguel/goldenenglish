@@ -144,10 +144,12 @@ export function ImportUsers({ locale, labels }: ImportUsersProps) {
         <FileUp className="h-4 w-4" aria-hidden />
         {busy ? labels.busyDryRun : labels.chooseFile}
       </Button>
-      <InlineUploadProgressBar
-        label={busy ? labels.busyDryRun : labels.chooseFile}
-        {...(busy && readPercent === null ? { indeterminate: true } : { value: readPercent ?? 0 })}
-      />
+      {busy ? (
+        <InlineUploadProgressBar
+          label={labels.busyDryRun}
+          {...(readPercent === null ? { indeterminate: true } : { value: readPercent })}
+        />
+      ) : null}
 
       {error ? (
         <p className="text-sm text-[var(--color-error)]" role="alert">

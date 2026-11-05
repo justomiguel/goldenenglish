@@ -36,6 +36,7 @@ describe("AdminUserAvatarUploadForm", () => {
         onPreview={vi.fn()}
       />,
     );
+    expect(screen.queryByRole("progressbar")).toBeNull();
     const input = container.querySelector('input[type="file"]') as HTMLInputElement;
 
     await user.upload(

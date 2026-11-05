@@ -30,16 +30,20 @@ describe("AdminMerchPhotoField upload progress", () => {
       />,
     );
 
+    expect(screen.queryByRole("progressbar")).toBeNull();
+
     const input = container.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File([new Uint8Array(4)], "hoodie.png", { type: "image/png" });
     await user.upload(input, file);
 
+    expect((await screen.findAllByRole("progressbar")).length).toBeGreaterThan(0);
     expect(await screen.findByText(en.common.fileUpload.modalTitle)).toBeInTheDocument();
     expect(screen.getByText("hoodie.png")).toBeInTheDocument();
 
     resolveUpload({ storagePath: "products/prod-1/hoodie.png" });
     await waitFor(() => {
       expect(screen.queryByText(en.common.fileUpload.modalTitle)).not.toBeInTheDocument();
+      expect(screen.queryByRole("progressbar")).toBeNull();
     });
   });
 });

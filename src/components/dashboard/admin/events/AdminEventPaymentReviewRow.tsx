@@ -21,6 +21,10 @@ import {
   AdminEventPaymentReviewActions,
   type AdminEventPaymentReviewActionsLabels,
 } from "@/components/dashboard/admin/events/AdminEventPaymentReviewActions";
+import {
+  AdminEventPaymentChargeLines,
+  type AdminEventPaymentChargeLineLabels,
+} from "@/components/dashboard/admin/events/AdminEventPaymentChargeLines";
 
 export interface AdminEventPaymentReviewRowLabels extends AdminEventPaymentReviewActionsLabels {
   amount: string;
@@ -41,6 +45,7 @@ export interface AdminEventPaymentReviewRowLabels extends AdminEventPaymentRevie
   transferAnswer?: string;
   seatLabels?: string;
   minorTickets?: string;
+  chargeLines: AdminEventPaymentChargeLineLabels;
 }
 
 interface AdminEventPaymentReviewRowProps {
@@ -104,7 +109,15 @@ export function AdminEventPaymentReviewRow({
             />
           </div>
         </div>
-        <p className="text-2xl font-semibold tracking-tight text-[var(--color-foreground)]">{amountLabel}</p>
+        <div className="text-right">
+          <p className="text-2xl font-semibold tracking-tight text-[var(--color-foreground)]">{amountLabel}</p>
+          <AdminEventPaymentChargeLines
+            locale={locale}
+            currency={row.currency}
+            lines={row.chargeLines}
+            labels={labels.chargeLines}
+          />
+        </div>
       </div>
       <div className="grid gap-4 px-4 py-4 sm:grid-cols-3">
         <Fact

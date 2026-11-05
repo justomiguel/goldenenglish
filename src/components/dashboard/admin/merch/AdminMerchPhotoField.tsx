@@ -81,17 +81,19 @@ export function AdminMerchPhotoField({
           {isUploading ? labels.photoUploading : labels.photoChoose}
         </Button>
       </div>
-      <InlineUploadProgressBar
-        className="mt-2"
-        label={
-          snapshot?.phase === "uploading"
-            ? fileUploadProgress.progressSending
-            : fileUploadProgress.progressReading
-        }
-        {...(snapshot && snapshot.percent === null
-          ? { indeterminate: true }
-          : { value: snapshot?.percent ?? 0 })}
-      />
+      {snapshot ? (
+        <InlineUploadProgressBar
+          className="mt-2"
+          label={
+            snapshot.phase === "uploading"
+              ? fileUploadProgress.progressSending
+              : fileUploadProgress.progressReading
+          }
+          {...(snapshot.percent === null
+            ? { indeterminate: true }
+            : { value: snapshot.percent })}
+        />
+      ) : null}
       {error ? <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{error}</p> : null}
       <TrackedFileUploadModal snapshot={snapshot} labels={fileUploadProgress} />
     </div>

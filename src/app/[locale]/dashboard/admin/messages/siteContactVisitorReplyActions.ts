@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { revalidateAdminInbox } from "@/lib/messaging/revalidateAdminInbox";
 import { createClient } from "@/lib/supabase/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
@@ -109,7 +110,7 @@ export async function sendAdminSiteContactVisitorReply(
     payload: { sentCopyPersisted: sentCopy.ok },
   });
 
-  revalidatePath(`/${locale}/dashboard/admin/messages`);
+  revalidateAdminInbox(locale);
   revalidatePath(`/${locale}/dashboard/admin/messages/compose`);
   revalidatePath(`/${locale}/dashboard/admin/messages/${mid.data}`);
   return { ok: true };

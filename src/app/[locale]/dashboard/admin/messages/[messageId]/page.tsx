@@ -7,6 +7,7 @@ import { redirect, notFound } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadAdminPortalMessageDetail } from "@/lib/dashboard/loadAdminPortalMessageDetail";
 import { markAdminPortalMessageRead } from "@/lib/messaging/markAdminPortalMessageAttention";
+import { revalidateAdminInbox } from "@/lib/messaging/revalidateAdminInbox";
 import { AdminPortalMessageDetailView } from "@/components/dashboard/AdminPortalMessageDetailView";
 import { AdminMessageContactActions } from "@/components/dashboard/AdminMessageContactActions";
 import { DeletePortalMessageButton } from "@/components/dashboard/DeletePortalMessageButton";
@@ -49,6 +50,7 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
   if (!detail) notFound();
 
   await markAdminPortalMessageRead(supabase, messageId);
+  revalidateAdminInbox(locale);
   const outcome = await loadAdminPortalMessageOutcome(supabase, messageId, locale, dict);
 
   const listHref = `/${locale}/dashboard/admin/messages`;

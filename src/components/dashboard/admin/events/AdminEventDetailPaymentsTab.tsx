@@ -85,6 +85,13 @@ export function AdminEventDetailPaymentsTab({
           transferAnswer: detail.transferAnswerLabel,
           seatLabels: detail.seatLabelsLabel,
           minorTickets: detail.minorTicketsLabel,
+          chargeLines: {
+            adultLine: detail.chargeAdultLine,
+            minorLine: detail.chargeMinorLine,
+            codeLine: detail.chargeCodeLine,
+            codePercentLine: detail.chargeCodePercentLine,
+            familyLine: detail.chargeFamilyLine,
+          },
         },
         pagination: {
           prev: dict.admin.table.paginationPrev,

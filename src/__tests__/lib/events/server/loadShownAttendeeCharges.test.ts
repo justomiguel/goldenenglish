@@ -59,6 +59,10 @@ describe("loadShownAttendeeCharges", () => {
     });
 
     const shown = await loadShownAttendeeCharges({ from } as never, "evt-1", ["att-1"]);
-    expect(shown.get("att-1")).toBe(12000);
+    expect(shown.get("att-1")).toMatchObject({
+      amount: 12000,
+      minorTickets: 1,
+      discount: { kind: "code", code: "FIJO", amountOff: 2000 },
+    });
   });
 });

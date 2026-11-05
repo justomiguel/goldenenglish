@@ -16,6 +16,7 @@ describe("ReceiptAutoUploadField", () => {
         onFileSelected={onFileSelected}
       />,
     );
+    expect(screen.queryByRole("progressbar")).toBeNull();
 
     const file = new File(["pdf"], "receipt.pdf", { type: "application/pdf" });
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -51,5 +52,27 @@ describe("ReceiptAutoUploadField", () => {
 
     fireEvent.click(submitBtn);
     await waitFor(() => expect(onFileSelected).toHaveBeenCalledWith(file));
+  });
+
+  it("shows the bar only while busy", () => {
+    const { rerender } = render(
+      <ReceiptAutoUploadField
+        buttonLabel={studentLabels.paySubmit}
+        fileUploadProgress={fileUploadProgress}
+        busy
+        onFileSelected={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+
+    rerender(
+      <ReceiptAutoUploadField
+        buttonLabel={studentLabels.paySubmit}
+        fileUploadProgress={fileUploadProgress}
+        busy={false}
+        onFileSelected={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("progressbar")).toBeNull();
   });
 });

@@ -120,14 +120,14 @@ export function EmailTemplateTiptapBody({ value, onChange, disabled, tiptap }: E
         onVideo={() => setVideoModalOpen(true)}
       />
       <p className="px-1 py-1 text-sm text-[var(--color-foreground)]">{tiptap.imageLimit}</p>
-      <InlineUploadProgressBar
-        label={uploadPhase === "preparing" ? tiptap.uploadProgressPreparing : tiptap.uploadProgressSending}
-        {...(uploadPhase === "sending" && typeof uploadValue === "number"
-          ? { value: uploadValue }
-          : uploadPhase
-            ? { indeterminate: true }
-            : { value: 0 })}
-      />
+      {uploadPhase ? (
+        <InlineUploadProgressBar
+          label={uploadPhase === "preparing" ? tiptap.uploadProgressPreparing : tiptap.uploadProgressSending}
+          {...(uploadPhase === "sending" && typeof uploadValue === "number"
+            ? { value: uploadValue }
+            : { indeterminate: true })}
+        />
+      ) : null}
       {uploadPhase && uploadFilename ? (
         <BlockingFileUploadModal
           open

@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { revalidateAdminInbox } from "@/lib/messaging/revalidateAdminInbox";
 import { createClient } from "@/lib/supabase/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
@@ -85,7 +86,7 @@ export async function sendAdminMessage(
       await markAdminPortalMessageRead(supabase, mid.data);
     }
   }
-  revalidatePath(`/${locale}/dashboard/admin/messages`);
+  revalidateAdminInbox(locale);
   revalidatePath(`/${locale}/dashboard/admin/messages/compose`);
   return { ok: true };
 }
@@ -138,7 +139,7 @@ export async function deleteAdminPortalMessage(
     payload: {},
   });
 
-  revalidatePath(`/${locale}/dashboard/admin/messages`);
+  revalidateAdminInbox(locale);
   revalidatePath(`/${locale}/dashboard/admin/messages/${parsed.data}`);
   return { ok: true };
 }

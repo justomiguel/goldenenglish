@@ -83,17 +83,19 @@ export function SiteThemeBrandAssetsPanel({
         </p>
       </div>
 
-      <InlineUploadProgressBar
-        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
-        label={
-          uploadUi.kind === "busy" && uploadUi.stage === "sending"
-            ? labels.uploadProgressSending
-            : labels.uploadProgressReading
-        }
-        {...(uploadUi.kind === "busy" && uploadUi.stage === "sending"
-          ? { indeterminate: true }
-          : { value: uploadUi.kind === "busy" ? uploadUi.readPercent : 0 })}
-      />
+      {uploadUi.kind === "busy" ? (
+        <InlineUploadProgressBar
+          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+          label={
+            uploadUi.stage === "sending"
+              ? labels.uploadProgressSending
+              : labels.uploadProgressReading
+          }
+          {...(uploadUi.stage === "sending"
+            ? { indeterminate: true }
+            : { value: uploadUi.readPercent })}
+        />
+      ) : null}
 
       {errorCode ? (
         <p

@@ -1,7 +1,6 @@
 "use client";
 
 import { Upload } from "lucide-react";
-import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { useId, useRef } from "react";
 import {
   EVENT_TRANSFER_RECEIPT_ACCEPT,
@@ -84,7 +83,6 @@ export function EventRegisterTransferReceiptField({
         <Upload className="h-4 w-4 shrink-0" aria-hidden />
         {labels.button}
       </button>
-      <InlineUploadProgressBar label={labels.button} value={0} />
       <p className={typography.muted} aria-live="polite">
         <span className={`break-all font-medium ${typography.body}`}>
           {file?.name ?? labels.noFile}

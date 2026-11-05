@@ -99,10 +99,12 @@ export function PulsarProfileForm({
         />
       </label>
       <p className="text-sm text-[var(--color-muted-foreground)]">{copy.photoHint}</p>
-      <InlineUploadProgressBar
-        label={sending ? copy.uploadSending : readProgress !== null ? copy.uploadReading : copy.photoHint}
-        {...(sending ? { indeterminate: true } : { value: readProgress ?? 0 })}
-      />
+      {sending || readProgress !== null ? (
+        <InlineUploadProgressBar
+          label={sending ? copy.uploadSending : copy.uploadReading}
+          {...(sending ? { indeterminate: true } : { value: readProgress ?? 0 })}
+        />
+      ) : null}
       <label className="block text-sm font-semibold" htmlFor="profile-name">
         {copy.displayName}
         <input

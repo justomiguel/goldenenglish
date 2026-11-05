@@ -58,6 +58,7 @@ export function RegistrationMatriculaPayActions({
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
+  const [receiptBusy, setReceiptBusy] = useState(false);
   const [error, setError] = useState("");
   const [receiptOk, setReceiptOk] = useState(false);
 
@@ -117,10 +118,15 @@ export function RegistrationMatriculaPayActions({
             data.set("token", token);
             data.set("locale", locale);
             data.set("sectionLabel", sectionLabel);
+            setReceiptBusy(true);
             run(async () => {
-              const result = await uploadRegistrationEnrollmentReceiptAction(data);
-              if (result.ok) setReceiptOk(true);
-              return result;
+              try {
+                const result = await uploadRegistrationEnrollmentReceiptAction(data);
+                if (result.ok) setReceiptOk(true);
+                return result;
+              } finally {
+                setReceiptBusy(false);
+              }
             });
           }}
         >
@@ -136,10 +142,9 @@ export function RegistrationMatriculaPayActions({
             accept={EVENT_TRANSFER_RECEIPT_ACCEPT}
             className="block w-full text-sm"
           />
-          <InlineUploadProgressBar
-            label={labels.uploadButton}
-            {...(pending ? { indeterminate: true } : { value: 0 })}
-          />
+          {receiptBusy ? (
+            <InlineUploadProgressBar label={labels.uploadButton} indeterminate />
+          ) : null}
           <button type="submit" className={btnClass} disabled={pending}>
             {labels.uploadButton}
           </button>
