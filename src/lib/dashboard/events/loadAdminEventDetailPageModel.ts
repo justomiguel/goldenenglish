@@ -41,7 +41,7 @@ export async function loadAdminEventDetailPageModel(input: {
   const { data: event, error: eventError } = await admin
     .from("events")
     .select(
-      "id, slug, title, description, event_date, status, capacity, location, price, price_local, price_non_local, currency, default_locale, view_count, bank_transfer_instructions, bank_transfer_sources_config, allow_family_discount, allow_minor_tickets, minor_ticket_price, allow_multiple_tickets, max_tickets_per_registration, companion_require_details, companion_collect_dni, companion_collect_birth_date, companion_collect_email, seat_map_config, collect_birth_date, show_on_home, require_phone, require_birth_date, registration_field_order, price_by_flow",
+      "id, slug, title, description, event_date, status, capacity, location, price, price_local, price_non_local, currency, default_locale, view_count, bank_transfer_instructions, bank_transfer_sources_config, allow_family_discount, allow_minor_tickets, minor_ticket_price, minor_max_age, allow_multiple_tickets, max_tickets_per_registration, companion_require_details, companion_collect_dni, companion_collect_birth_date, companion_collect_email, seat_map_config, collect_birth_date, show_on_home, require_phone, require_birth_date, registration_field_order, price_by_flow",
     )
     .eq("id", input.eventId)
     .maybeSingle();

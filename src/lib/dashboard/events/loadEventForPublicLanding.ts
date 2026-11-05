@@ -7,6 +7,7 @@ import {
   registrationFlowName,
 } from "@/lib/events/server/loadActiveRegistrationFlows";
 import { isEventLocale, type EventLocale } from "@/lib/events/domain";
+import { parseEventMinorMaxAge } from "@/lib/events/formatEventMinorAgeLegend";
 import { resolveEventTranslation } from "@/lib/events/resolveEventTranslation";
 import {
   eventHasTieredPricing,
@@ -52,6 +53,7 @@ export interface PublicEventDetail {
   allowFamilyDiscount?: boolean;
   allowMinorTickets?: boolean;
   minorTicketPrice?: number | null;
+  minorMaxAge?: number | null;
   seatMapConfig?: EventSeatMapConfig | null;
   seatLocks?: EventSeatLockSnapshot[];
   collectBirthDate: boolean;
@@ -101,7 +103,7 @@ export async function loadEventForPublicLanding(
   let request = supabase
     .from("events")
     .select(
-      "id, slug, title, description, view_count, event_date, location, price, price_local, price_non_local, currency, capacity, default_locale, bank_transfer_instructions, bank_transfer_sources_config, allow_family_discount, allow_minor_tickets, minor_ticket_price, seat_map_config, collect_birth_date, require_phone, require_birth_date, registration_field_order, price_by_flow, allow_multiple_tickets, max_tickets_per_registration, companion_require_details, companion_collect_dni, companion_collect_birth_date, companion_collect_email",
+      "id, slug, title, description, view_count, event_date, location, price, price_local, price_non_local, currency, capacity, default_locale, bank_transfer_instructions, bank_transfer_sources_config, allow_family_discount, allow_minor_tickets, minor_ticket_price, minor_max_age, seat_map_config, collect_birth_date, require_phone, require_birth_date, registration_field_order, price_by_flow, allow_multiple_tickets, max_tickets_per_registration, companion_require_details, companion_collect_dni, companion_collect_birth_date, companion_collect_email",
     )
     .is("archived_at", null);
   request = lookup.column === "id" ? request.eq("id", lookup.value) : request.eq("slug", lookup.value);
@@ -231,6 +233,7 @@ export async function loadEventForPublicLanding(
     fields,
     allowMinorTickets: Boolean(eventRow.allow_minor_tickets),
     minorTicketPrice: eventRow.minor_ticket_price == null ? null : Number(eventRow.minor_ticket_price),
+    minorMaxAge: parseEventMinorMaxAge(eventRow.minor_max_age),
     allowMultipleTickets: Boolean(eventRow.allow_multiple_tickets),
     maxTicketsPerRegistration:
       eventRow.max_tickets_per_registration == null

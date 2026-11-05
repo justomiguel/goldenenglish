@@ -15,6 +15,7 @@ import {
   createDefaultEventBankTransferSourcesConfig,
   parseEventBankTransferSourcesConfig,
 } from "@/lib/events/eventBankTransferSources";
+import { minorTicketPersistence, parseEventMinorMaxAge } from "@/lib/events/formatEventMinorAgeLegend";
 
 interface AdminEventSummaryPricingFormProps {
   locale: string;
@@ -34,6 +35,7 @@ interface AdminEventSummaryPricingFormProps {
     allowFamilyDiscount?: boolean;
     allowMinorTickets?: boolean;
     minorTicketPrice?: number | null;
+    minorMaxAge?: number | null;
     allowMultipleTickets?: boolean;
     maxTicketsPerRegistration?: number | null;
     companionRequireDetails?: boolean;
@@ -49,6 +51,9 @@ interface AdminEventSummaryPricingFormProps {
     allowMinorTicketsLabel?: string;
     minorTicketPriceLabel?: string;
     minorTicketPriceHint?: string;
+    minorMaxAgeLabel?: string;
+    minorMaxAgeHint?: string;
+    minorMaxAgeError?: string;
     currencyLabel: string;
     currencyGatewayWarning: string;
     bankTransferInstructionsLabel: string;
@@ -93,6 +98,9 @@ export function AdminEventSummaryPricingForm({
   const [minorTicketPrice, setMinorTicketPrice] = useState(
     initial.minorTicketPrice != null ? String(initial.minorTicketPrice) : "",
   );
+  const [minorMaxAge, setMinorMaxAge] = useState(
+    initial.minorMaxAge != null ? String(initial.minorMaxAge) : "",
+  );
   const [multiTicketConfig, setMultiTicketConfig] = useState<AdminEventMultiTicketConfig>({
     allowMultipleTickets: Boolean(initial.allowMultipleTickets),
     maxTicketsPerRegistration: Math.max(2, Number(initial.maxTicketsPerRegistration ?? 4)),
@@ -117,6 +125,16 @@ export function AdminEventSummaryPricingForm({
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     setMessage(null);
+    const minorMaxAgeValue = parseEventMinorMaxAge(minorMaxAge.trim());
+    const minor = minorTicketPersistence({
+      allowMinorTickets,
+      minorTicketPrice: allowMinorTickets ? parsePrice(minorTicketPrice) : null,
+      minorMaxAge: minorMaxAgeValue,
+    });
+    if (!minor.ok) {
+      setMessage(labels.minorMaxAgeError ?? labels.errorSave);
+      return;
+    }
     startTransition(async () => {
       const result = await updateEventAction({
         locale,
@@ -133,7 +151,8 @@ export function AdminEventSummaryPricingForm({
         bankTransferSourcesConfig: dualConfig,
         allowFamilyDiscount,
         allowMinorTickets,
-        minorTicketPrice: allowMinorTickets ? parsePrice(minorTicketPrice) : null,
+        minorTicketPrice: minor.minor_ticket_price,
+        minorMaxAge: minor.minor_max_age,
         allowMultipleTickets: multiTicketConfig.allowMultipleTickets,
         maxTicketsPerRegistration: multiTicketConfig.allowMultipleTickets
           ? multiTicketConfig.maxTicketsPerRegistration
@@ -144,7 +163,11 @@ export function AdminEventSummaryPricingForm({
         companionCollectBirthDate: multiTicketConfig.companionCollectBirthDate,
       });
       if (!result.ok) {
-        setMessage(labels.errorSave);
+        setMessage(
+          result.message === "minor_max_age_required"
+            ? (labels.minorMaxAgeError ?? labels.errorSave)
+            : labels.errorSave,
+        );
         return;
       }
       setMessage(labels.savedOk);
@@ -172,6 +195,8 @@ export function AdminEventSummaryPricingForm({
           allowMinorTicketsLabel: labels.allowMinorTicketsLabel,
           minorTicketPriceLabel: labels.minorTicketPriceLabel,
           minorTicketPriceHint: labels.minorTicketPriceHint,
+          minorMaxAgeLabel: labels.minorMaxAgeLabel,
+          minorMaxAgeHint: labels.minorMaxAgeHint,
           groupPriceTitle: labels.groupPriceTitle,
           groupPriceLead: labels.groupPriceLead,
           groupTicketsTitle: labels.groupTicketsTitle,
@@ -189,6 +214,8 @@ export function AdminEventSummaryPricingForm({
         onAllowMinorTicketsChange={setAllowMinorTickets}
         minorTicketPrice={minorTicketPrice}
         onMinorTicketPriceChange={setMinorTicketPrice}
+        minorMaxAge={minorMaxAge}
+        onMinorMaxAgeChange={setMinorMaxAge}
         multiTicketConfig={labels.multiTicket ? multiTicketConfig : undefined}
         multiTicketLabels={labels.multiTicket}
         onMultiTicketConfigChange={setMultiTicketConfig}

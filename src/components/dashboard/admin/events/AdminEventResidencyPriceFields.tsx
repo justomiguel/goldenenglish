@@ -20,6 +20,8 @@ interface AdminEventResidencyPriceFieldsProps {
     allowMinorTicketsLabel?: string;
     minorTicketPriceLabel?: string;
     minorTicketPriceHint?: string;
+    minorMaxAgeLabel?: string;
+    minorMaxAgeHint?: string;
   };
   onPriceLocalChange: (value: string) => void;
   onPriceNonLocalChange: (value: string) => void;
@@ -30,6 +32,8 @@ interface AdminEventResidencyPriceFieldsProps {
   onAllowMinorTicketsChange?: (checked: boolean) => void;
   minorTicketPrice?: string;
   onMinorTicketPriceChange?: (value: string) => void;
+  minorMaxAge?: string;
+  onMinorMaxAgeChange?: (value: string) => void;
 }
 
 export function AdminEventResidencyPriceFields({
@@ -47,6 +51,8 @@ export function AdminEventResidencyPriceFields({
   onAllowMinorTicketsChange,
   minorTicketPrice = "",
   onMinorTicketPriceChange,
+  minorMaxAge = "",
+  onMinorMaxAgeChange,
 }: AdminEventResidencyPriceFieldsProps) {
   const showCurrencyWarning = shouldWarnEventCurrencyGateway({
     currency,
@@ -143,6 +149,26 @@ export function AdminEventResidencyPriceFields({
           />
           {labels.minorTicketPriceHint ? (
             <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.minorTicketPriceHint}</p>
+          ) : null}
+        </div>
+      ) : null}
+      {allowMinorTickets && labels.minorMaxAgeLabel && onMinorMaxAgeChange ? (
+        <div>
+          <Label htmlFor="event-minor-max-age">{labels.minorMaxAgeLabel}</Label>
+          <Input
+            id="event-minor-max-age"
+            type="number"
+            min={1}
+            max={99}
+            step="1"
+            value={minorMaxAge}
+            onChange={(e) => onMinorMaxAgeChange(e.target.value)}
+            disabled={disabled}
+            required
+            className="mt-1 max-w-xs"
+          />
+          {labels.minorMaxAgeHint ? (
+            <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.minorMaxAgeHint}</p>
           ) : null}
         </div>
       ) : null}

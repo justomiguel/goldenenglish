@@ -24,6 +24,7 @@ const EVENT_COLUMNS = [
   "price_non_local",
   "allow_minor_tickets",
   "minor_ticket_price",
+  "minor_max_age",
   "currency",
   "default_locale",
   "cover_image_path",

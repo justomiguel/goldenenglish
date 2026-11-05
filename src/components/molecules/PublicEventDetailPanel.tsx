@@ -18,6 +18,8 @@ interface PublicEventDetailPanelProps {
   currency: string;
   registerHref: string;
   surfaceVariant?: PublicEventSurfaceVariant;
+  minorAgeLegend?: string | null;
+  minorPriceLabel?: string | null;
   labels: {
     registrationCardTitle: string;
     dateLabel: string;
@@ -65,6 +67,8 @@ export function PublicEventDetailPanel({
   currency,
   registerHref,
   surfaceVariant = "default",
+  minorAgeLegend = null,
+  minorPriceLabel = null,
   labels,
 }: PublicEventDetailPanelProps) {
   const formattedDate = formatEventDate(eventDate, locale);
@@ -108,6 +112,12 @@ export function PublicEventDetailPanel({
             variant="featured"
           />
         )}
+        {minorAgeLegend ? (
+          <p className="mt-2 text-sm text-[var(--color-foreground)]">
+            {minorAgeLegend}
+            {minorPriceLabel ? <span className="mt-1 block">{minorPriceLabel}</span> : null}
+          </p>
+        ) : null}
       </MetaRow>
 
       <div className={chrome.footer}>

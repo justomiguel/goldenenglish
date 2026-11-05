@@ -13,6 +13,7 @@ import { loadEventRegistrationPaymentMethods } from "@/lib/events/server/loadEve
 import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
 import { resolveBankTransferInstructions } from "@/lib/billing/resolveBankTransferInstructions";
 import { fillEventTransferReceiptMaxMbTemplate } from "@/lib/events/eventTransferReceiptLimits";
+import { eventMinorTicketLabelsWithAge } from "@/lib/events/formatEventMinorAgeLegend";
 import { EventRegisterForm } from "@/components/organisms/EventRegisterForm";
 import { loadPublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
 import { publicEventRegisterPageClasses } from "@/lib/events/publicEventSurfaceClasses";
@@ -111,7 +112,11 @@ export default async function EventRegistrationFormPreviewPage({ params }: PageP
           transferSource: register.transferSource,
           seatMap: register.seatMap,
           companions: register.companions,
-          minorTickets: register.minorTickets,
+          minorTickets: eventMinorTicketLabelsWithAge(
+            register.minorTickets,
+            event.minorMaxAge,
+            register.minorTickets.hintWithAge,
+          ),
           selectPlaceholder: register.selectPlaceholder,
           fileUploadProgressSending: dict.common.fileUpload.progressSending,
           customFieldFile: register.customFieldFile,

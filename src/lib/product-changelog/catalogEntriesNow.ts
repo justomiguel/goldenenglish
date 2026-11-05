@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "event-minor-max-age",
+    date: "2026-11-05",
+    area: "events",
+    title: t(
+      "El evento dice hasta qué edad es menor",
+      "The event states the maximum age for a minor",
+      "O evento diz até que idade é menor",
+    ),
+    summary: t(
+      "Si el evento vende entrada de menor, el sitio muestra la edad máxima en la ficha y en la inscripción.",
+      "When the event sells a minor ticket, the site shows the maximum age on the page and on the form.",
+      "Se o evento vende ingresso de menor, o site mostra a idade máxima na ficha e na inscrição.",
+    ),
+  },
+  {
     id: "event-receipt-direct-upload",
     date: "2026-11-05",
     area: "events",
@@ -225,21 +240,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "Puedes crear una ruta como conjuntos de cursos y asignarla a una sección.",
       "You can create a route as sets of courses and assign it to a section.",
       "Você pode criar uma rota como conjuntos de cursos e atribuí-la a uma turma.",
-    ),
-  },
-  {
-    id: "centrolisto-ga-measurement-id",
-    date: "2026-11-02",
-    area: "admin",
-    title: t(
-      "CentroListo guarda el ID de Google Analytics",
-      "CentroListo stores the Google Analytics id",
-      "O CentroListo guarda o ID do Google Analytics",
-    ),
-    summary: t(
-      "En el panel puedes pegar el ID de medición. La web lo usa en la siguiente visita, sin un deploy.",
-      "In the panel you can paste the measurement id. The site uses it on the next visit, without a deploy.",
-      "No painel você pode colar o ID de medição. O site o usa na próxima visita, sem um deploy.",
     ),
   },
 ];

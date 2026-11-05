@@ -33,6 +33,8 @@ interface AdminEventPricingFieldsProps {
     allowMinorTicketsLabel?: string;
     minorTicketPriceLabel?: string;
     minorTicketPriceHint?: string;
+    minorMaxAgeLabel?: string;
+    minorMaxAgeHint?: string;
     groupPriceTitle?: string;
     groupPriceLead?: string;
     groupTicketsTitle?: string;
@@ -50,6 +52,8 @@ interface AdminEventPricingFieldsProps {
   onAllowMinorTicketsChange?: (checked: boolean) => void;
   minorTicketPrice?: string;
   onMinorTicketPriceChange?: (value: string) => void;
+  minorMaxAge?: string;
+  onMinorMaxAgeChange?: (value: string) => void;
   multiTicketConfig?: AdminEventMultiTicketConfig;
   multiTicketLabels?: AdminEventMultiTicketLabels;
   onMultiTicketConfigChange?: (next: AdminEventMultiTicketConfig) => void;
@@ -76,6 +80,8 @@ export function AdminEventPricingFields({
   onAllowMinorTicketsChange,
   minorTicketPrice,
   onMinorTicketPriceChange,
+  minorMaxAge,
+  onMinorMaxAgeChange,
   multiTicketConfig,
   multiTicketLabels,
   onMultiTicketConfigChange,
@@ -121,6 +127,8 @@ export function AdminEventPricingFields({
           onAllowMinorTicketsChange={onAllowMinorTicketsChange}
           minorTicketPrice={minorTicketPrice}
           onMinorTicketPriceChange={onMinorTicketPriceChange}
+          minorMaxAge={minorMaxAge}
+          onMinorMaxAgeChange={onMinorMaxAgeChange}
         />
       </AdminEventPricingGroup>
 

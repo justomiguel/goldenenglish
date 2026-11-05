@@ -64,6 +64,7 @@ describe("duplicateEventPlan", () => {
         ...source,
         allow_minor_tickets: true,
         minor_ticket_price: 4000,
+        minor_max_age: 12,
         bank_transfer_sources_config: { enabled: true },
         seat_map_config: { enabled: true },
       },
@@ -72,6 +73,7 @@ describe("duplicateEventPlan", () => {
     expect(row).toMatchObject({
       allow_minor_tickets: true,
       minor_ticket_price: 4000,
+      minor_max_age: 12,
       bank_transfer_sources_config: { enabled: true },
       seat_map_config: { enabled: true },
     });

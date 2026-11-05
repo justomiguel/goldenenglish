@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "centrolisto-ga-measurement-id",
+    date: "2026-11-02",
+    area: "admin",
+    title: t(
+      "CentroListo guarda el ID de Google Analytics",
+      "CentroListo stores the Google Analytics id",
+      "O CentroListo guarda o ID do Google Analytics",
+    ),
+    summary: t(
+      "En el panel puedes pegar el ID de medición. La web lo usa en la siguiente visita, sin un deploy.",
+      "In the panel you can paste the measurement id. The site uses it on the next visit, without a deploy.",
+      "No painel você pode colar o ID de medição. O site o usa na próxima visita, sem um deploy.",
+    ),
+  },
+  {
     id: "centrolisto-country-prices",
     date: "2026-11-02",
     area: "site",

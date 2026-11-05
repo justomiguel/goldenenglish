@@ -5490,6 +5490,9 @@
         "allowMinorTicketsLabel": "Permitir menores de idade com preço diferenciado",
         "minorTicketPriceLabel": "Preço de menor",
         "minorTicketPriceHint": "A idade é verificada no evento.",
+        "minorMaxAgeLabel": "Idade máxima do menor",
+        "minorMaxAgeHint": "Essa idade ainda conta como menor. Aparece no site.",
+        "minorMaxAgeError": "Informe a idade máxima do menor, de 1 a 99.",
         "currencyLabel": "Moeda",
         "currencyGatewayWarning": "Esta moeda não é compatível com Mercado Pago nem Flow, portanto não será possível cobrar online. Só funcionará a transferência bancária. Use CLP ou ARS para habilitar o pagamento online.",
         "bankTransferInstructionsLabel": "Dados para transferência bancária",
@@ -5734,6 +5737,7 @@
       "priceLabel": "Preço",
       "priceLocal": "Residentes locais",
       "priceNonLocal": "Não residentes",
+      "minorAgeLine": "Menores até {age} anos",
       "viewDetail": "Ver evento",
       "registerCta": "Inscrever-se",
       "backToEvents": "Voltar aos eventos",
@@ -5930,6 +5934,7 @@
       "minorTickets": {
         "label": "Quantos ingressos são de menor",
         "hint": "A idade é verificada no evento.",
+        "hintWithAge": "Menor: até {age} anos. A idade é verificada no evento.",
         "adultLine": "Adultos: {{count}} × {{price}}",
         "childLine": "Menores: {{count}} × {{price}}",
         "invalid": "Revise quantos ingressos são de menor."

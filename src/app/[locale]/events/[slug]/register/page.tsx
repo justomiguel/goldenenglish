@@ -12,6 +12,7 @@ import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTrans
 import { resolveBankTransferInstructions } from "@/lib/billing/resolveBankTransferInstructions";
 import { resolveSessionEventAdminEditHref } from "@/lib/dashboard/events/resolveSessionEventAdminEditHref";
 import { fillEventTransferReceiptMaxMbTemplate } from "@/lib/events/eventTransferReceiptLimits";
+import { eventMinorTicketLabelsWithAge } from "@/lib/events/formatEventMinorAgeLegend";
 import { EventRegisterSurfaceEntry } from "@/components/organisms/EventRegisterSurfaceEntry";
 import { PublicEventAdminEditLink } from "@/components/molecules/PublicEventAdminEditLink";
 import { loadPublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
@@ -139,7 +140,11 @@ export default async function EventRegisterPage({ params }: PageProps) {
           transferSource: dict.events.register.transferSource,
           seatMap: dict.events.register.seatMap,
           companions: dict.events.register.companions,
-          minorTickets: dict.events.register.minorTickets,
+          minorTickets: eventMinorTicketLabelsWithAge(
+            dict.events.register.minorTickets,
+            event.minorMaxAge,
+            dict.events.register.minorTickets.hintWithAge,
+          ),
           selectPlaceholder: dict.events.register.selectPlaceholder,
           fileUploadProgressSending: dict.common.fileUpload.progressSending,
           customFieldFile: {

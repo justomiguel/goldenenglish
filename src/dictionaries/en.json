@@ -5600,6 +5600,9 @@
         "allowMinorTicketsLabel": "Allow minors at a different price",
         "minorTicketPriceLabel": "Minor price",
         "minorTicketPriceHint": "Age is checked at the event.",
+        "minorMaxAgeLabel": "Maximum age for a minor",
+        "minorMaxAgeHint": "That age still counts as a minor. It appears on the site.",
+        "minorMaxAgeError": "Enter the maximum age for a minor, from 1 to 99.",
         "currencyLabel": "Currency",
         "currencyGatewayWarning": "This currency is not supported by Mercado Pago or Flow, so online payment will not be available. Only bank transfer will work. Use CLP or ARS to enable online payment.",
         "bankTransferInstructionsLabel": "Bank transfer details",
@@ -5887,6 +5890,7 @@
       "priceLabel": "Price",
       "priceLocal": "Local residents",
       "priceNonLocal": "Non-local",
+      "minorAgeLine": "Minors up to {age} years",
       "viewDetail": "View event",
       "registerCta": "Register now",
       "backToEvents": "Back to events",
@@ -6093,6 +6097,7 @@
       "minorTickets": {
         "label": "How many tickets are for a minor",
         "hint": "Age is checked at the event.",
+        "hintWithAge": "Minor: up to {age} years. Age is checked at the event.",
         "adultLine": "Adults: {{count}} × {{price}}",
         "childLine": "Minors: {{count}} × {{price}}",
         "invalid": "Check how many tickets are for a minor."

@@ -125,6 +125,7 @@ export function AdminEventDetailSummaryTab({
               allowMinorTickets: Boolean(event.allow_minor_tickets),
               minorTicketPrice:
                 event.minor_ticket_price == null ? null : Number(event.minor_ticket_price),
+              minorMaxAge: event.minor_max_age == null ? null : Number(event.minor_max_age),
               allowMultipleTickets: Boolean(event.allow_multiple_tickets),
               maxTicketsPerRegistration:
                 event.max_tickets_per_registration == null
@@ -143,6 +144,9 @@ export function AdminEventDetailSummaryTab({
               allowMinorTicketsLabel: pricing.allowMinorTicketsLabel,
               minorTicketPriceLabel: pricing.minorTicketPriceLabel,
               minorTicketPriceHint: pricing.minorTicketPriceHint,
+              minorMaxAgeLabel: pricing.minorMaxAgeLabel,
+              minorMaxAgeHint: pricing.minorMaxAgeHint,
+              minorMaxAgeError: pricing.minorMaxAgeError,
               currencyLabel: pricing.currencyLabel,
               currencyGatewayWarning: pricing.currencyGatewayWarning,
               bankTransferInstructionsLabel: pricing.bankTransferInstructionsLabel,

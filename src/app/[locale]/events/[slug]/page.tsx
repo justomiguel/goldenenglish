@@ -26,6 +26,8 @@ import {
 } from "@/lib/site/buildResolvedPublicShareMetadata";
 import { buildPublicShareTitle, clipShareDescription } from "@/lib/site/publicShareText";
 import { loadPublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
+import { formatEventMinorAgeLegend } from "@/lib/events/formatEventMinorAgeLegend";
+import { formatEventMoneyAmount } from "@/lib/events/resolveEventPublicPriceDisplay";
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -95,6 +97,11 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
     ? stripFirstImageFromHtml(event.description)
     : event.description;
   const publicLabels = dict.events.public;
+  const minorAgeLegend = formatEventMinorAgeLegend(publicLabels.minorAgeLine, event.minorMaxAge);
+  const minorPriceLabel =
+    minorAgeLegend && event.minorTicketPrice != null
+      ? formatEventMoneyAmount(event.minorTicketPrice, event.currency, locale)
+      : null;
   const panelLabels = {
     registrationCardTitle: publicLabels.registrationCardTitle,
     dateLabel: publicLabels.dateLabel,
@@ -174,6 +181,8 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
                 : null
             }
             currency={event.currency}
+            minorAgeLegend={minorAgeLegend}
+            minorPriceLabel={minorPriceLabel}
             registerHref={`/${locale}/events/${event.slug}/register`}
             labels={panelLabels}
           />

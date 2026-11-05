@@ -43,6 +43,7 @@ export interface DuplicateEventSource {
   companion_collect_email: boolean;
   allow_minor_tickets?: boolean;
   minor_ticket_price?: number | null;
+  minor_max_age?: number | null;
 }
 
 export function buildDuplicateEventInsert(
@@ -64,6 +65,7 @@ export function buildDuplicateEventInsert(
       ? {
           allow_minor_tickets: source.allow_minor_tickets,
           minor_ticket_price: source.minor_ticket_price ?? null,
+          minor_max_age: source.minor_max_age ?? null,
         }
       : {}),
     currency: source.currency,

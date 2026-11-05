@@ -10,7 +10,8 @@ import {
   type EventBankTransferSourcesConfig,
 } from "@/lib/events/eventBankTransferSources";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
-import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { minorTicketPersistence } from "@/lib/events/formatEventMinorAgeLegend";
+import { logServerWarn, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
   adminEventsPath,
   requireAdminEventActor,
@@ -128,6 +129,7 @@ export async function updateEventAction(input: {
   allowFamilyDiscount?: boolean;
   allowMinorTickets?: boolean;
   minorTicketPrice?: number | null;
+  minorMaxAge?: number | null;
   allowMultipleTickets?: boolean;
   maxTicketsPerRegistration?: number | null;
   companionRequireDetails?: boolean;
@@ -150,6 +152,18 @@ export async function updateEventAction(input: {
     input.bankTransferSourcesConfig === undefined
       ? undefined
       : sanitizeEventBankTransferSourcesConfig(input.bankTransferSourcesConfig);
+  const minorColumns =
+    input.allowMinorTickets === undefined
+      ? null
+      : minorTicketPersistence({
+          allowMinorTickets: Boolean(input.allowMinorTickets),
+          minorTicketPrice: input.minorTicketPrice,
+          minorMaxAge: input.minorMaxAge,
+        });
+  if (minorColumns && !minorColumns.ok) {
+    await logServerWarn("updateEventAction", { code: minorColumns.code, eventId: input.eventId });
+    return { ok: false, message: minorColumns.code };
+  }
   const { error } = await admin
     .from("events")
     .update({
@@ -167,10 +181,11 @@ export async function updateEventAction(input: {
       bank_transfer_instructions: bankTransferInstructions,
       ...(bankTransferSourcesConfig !== undefined ? { bank_transfer_sources_config: bankTransferSourcesConfig } : {}),
       ...(input.allowFamilyDiscount !== undefined ? { allow_family_discount: Boolean(input.allowFamilyDiscount) } : {}),
-      ...(input.allowMinorTickets !== undefined
+      ...(minorColumns?.ok
         ? {
-            allow_minor_tickets: Boolean(input.allowMinorTickets),
-            minor_ticket_price: input.allowMinorTickets ? input.minorTicketPrice ?? null : null,
+            allow_minor_tickets: minorColumns.allow_minor_tickets,
+            minor_ticket_price: minorColumns.minor_ticket_price,
+            minor_max_age: minorColumns.minor_max_age,
           }
         : {}),
       ...(input.allowMultipleTickets !== undefined
@@ -200,6 +215,15 @@ export async function updateEventAction(input: {
         enabled: Boolean(bankTransferSourcesConfig?.enabled),
         mode: bankTransferSourcesConfig?.mode ?? null,
       },
+    });
+  }
+
+  if (minorColumns?.ok) {
+    await recordSystemAudit({
+      action: "event_minor_ticket_age_updated",
+      resourceType: "event",
+      resourceId: input.eventId,
+      payload: { minor_max_age: minorColumns.minor_max_age },
     });
   }
 

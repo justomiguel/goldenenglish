@@ -34,5 +34,25 @@ describe("PublicEventDetailPanel", () => {
     expect(screen.getByText("Academia")).toBeInTheDocument();
     expect(document.body.textContent).toMatch(/40\.000,00/);
     expect(document.body.textContent).toMatch(/80\.000,00/);
+    expect(screen.queryByText("Menores hasta 12 años")).not.toBeInTheDocument();
+  });
+
+  it("shows the minor age and the minor price under the price", () => {
+    render(
+      <PublicEventDetailPanel
+        locale="es"
+        eventDate="2026-11-29T17:00:00.000Z"
+        location="Santiago"
+        priceSource={{ price: 80000, priceLocal: 80000, priceNonLocal: 80000 }}
+        currency="CLP"
+        registerHref="/es/events/capoeira-me-chama/register"
+        minorAgeLegend="Menores hasta 12 años"
+        minorPriceLabel="$4.000,00"
+        labels={labels}
+      />,
+    );
+
+    expect(screen.getByText("Menores hasta 12 años")).toBeInTheDocument();
+    expect(screen.getByText("$4.000,00")).toBeInTheDocument();
   });
 });
