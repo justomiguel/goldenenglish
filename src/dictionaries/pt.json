@@ -5931,11 +5931,18 @@
         "legendReserved": "Reservado",
         "legendPending": "Pendente de pagamento",
         "legendPurchased": "Comprado",
+        "legendHeld": "Outra pessoa está escolhendo",
         "legendSelected": "Sua seleção",
         "seatAriaTemplate": "{label} ({state})",
         "seatCountMismatch": "Escolha exatamente um assento para cada ingresso antes de continuar.",
         "seatAlreadyTaken": "Um dos assentos escolhidos acabou de ser ocupado. Escolha outro lugar livre.",
-        "invalidSeat": "O assento selecionado não é válido."
+        "invalidSeat": "O assento selecionado não é válido.",
+        "lostSeatsNotice": "Estes assentos já não estão livres: {labels}. Escolha outro. Seus outros dados continuam salvos.",
+        "useSuggestedSeats": "Usar assentos sugeridos",
+        "chooseAnotherSeat": "Escolher outro assento",
+        "holdCountdown": "Guardamos seus assentos por {time}.",
+        "holdExpired": "A reserva dos seus assentos terminou. Escolha de novo.",
+        "holdFailed": "Não foi possível reservar estes assentos. Tente de novo."
       },
       "customFieldFile": {
         "fileButton": "Escolher arquivo",

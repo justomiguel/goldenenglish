@@ -6094,11 +6094,18 @@
         "legendReserved": "Reserved",
         "legendPending": "Pending payment",
         "legendPurchased": "Purchased",
+        "legendHeld": "Someone else is choosing",
         "legendSelected": "Your selection",
         "seatAriaTemplate": "{label} ({state})",
         "seatCountMismatch": "Pick one seat for each ticket before you continue.",
         "seatAlreadyTaken": "One of the chosen seats was just taken. Pick another free seat.",
-        "invalidSeat": "The selected seat is not valid."
+        "invalidSeat": "The selected seat is not valid.",
+        "lostSeatsNotice": "These seats are no longer free: {labels}. Choose another seat. Your other data is safe.",
+        "useSuggestedSeats": "Use suggested seats",
+        "chooseAnotherSeat": "Choose another seat",
+        "holdCountdown": "We keep your seats for {time}.",
+        "holdExpired": "Your seat hold ended. Pick the seats again.",
+        "holdFailed": "We could not hold these seats. Try again."
       },
       "customFieldFile": {
         "fileButton": "Choose file",

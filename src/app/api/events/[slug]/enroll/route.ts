@@ -87,6 +87,7 @@ export async function POST(
           transferOptionId?: string;
           transferSourceKey?: string;
           seatKeys?: unknown;
+          seatHoldToken?: string;
           ticketPackageId?: string;
           companions?: unknown;
           minorTicketCount?: number;
@@ -200,6 +201,8 @@ export async function POST(
       seatKeys: Array.isArray(body.seatKeys)
         ? body.seatKeys.filter((item): item is string => typeof item === "string")
         : [],
+      seatHoldToken: typeof body.seatHoldToken === "string" ? body.seatHoldToken : null,
+      maxTicketsPerRegistration: event.maxTicketsPerRegistration,
       slug,
       requireTransferReceipt: body.paymentMethod === "transfer",
       receiptStagingPath:

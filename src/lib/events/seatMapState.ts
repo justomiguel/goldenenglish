@@ -5,11 +5,11 @@ import {
   type GeneratedFloorSeat,
 } from "@/lib/events/seatMapModel";
 
-export type EventSeatVisualState = "free" | "reserved" | "pending" | "purchased";
+export type EventSeatVisualState = "free" | "reserved" | "pending" | "purchased" | "held";
 
 export interface EventSeatLockSnapshot {
   seatKey: string;
-  attendeeStatus: "pending_payment" | "confirmed";
+  attendeeStatus: "pending_payment" | "confirmed" | "held";
 }
 
 export interface ResolvedFloorSeat extends GeneratedFloorSeat {
@@ -19,10 +19,16 @@ export interface ResolvedFloorSeat extends GeneratedFloorSeat {
 export function resolveFloorSeatsWithState(
   floor: EventSeatFloor,
   locks: readonly EventSeatLockSnapshot[],
+  heldByOthers: readonly string[] = [],
 ): ResolvedFloorSeat[] {
   const lockBySeatKey = new Map<string, "pending_payment" | "confirmed">();
+  const held = new Set(heldByOthers);
   for (const lock of locks) {
-    lockBySeatKey.set(lock.seatKey, lock.attendeeStatus);
+    if (lock.attendeeStatus === "pending_payment" || lock.attendeeStatus === "confirmed") {
+      lockBySeatKey.set(lock.seatKey, lock.attendeeStatus);
+    } else if (lock.attendeeStatus === "held") {
+      held.add(lock.seatKey);
+    }
   }
 
   return generateFloorSeats(floor).map((seat) => {
@@ -32,11 +38,26 @@ export function resolveFloorSeatsWithState(
       state = "purchased";
     } else if (lockStatus === "pending_payment") {
       state = "pending";
+    } else if (held.has(seat.seatKey)) {
+      state = "held";
     } else if (seat.staffReserved) {
       state = "reserved";
     }
     return { ...seat, state };
   });
+}
+
+export function purchasableSeatKeys(
+  config: EventSeatMapConfig | null | undefined,
+): Set<string> {
+  const keys = new Set<string>();
+  if (!config) return keys;
+  for (const floor of config.floors) {
+    for (const seat of generateFloorSeats(floor)) {
+      if (!seat.staffReserved) keys.add(seat.seatKey);
+    }
+  }
+  return keys;
 }
 
 export function isEventSeatMapActive(
@@ -59,6 +80,7 @@ export type ValidateEventSeatSelectionResult =
 export function validateEventSeatSelection(input: {
   config: EventSeatMapConfig | null | undefined;
   locks: readonly EventSeatLockSnapshot[];
+  heldByOthers?: readonly string[];
   selectedSeatKeys: readonly string[];
   requiredSeatCount: number;
 }): ValidateEventSeatSelectionResult {
@@ -77,7 +99,7 @@ export function validateEventSeatSelection(input: {
 
   const seatByKey = new Map<string, ResolvedFloorSeat>();
   for (const floor of input.config.floors) {
-    for (const seat of resolveFloorSeatsWithState(floor, input.locks)) {
+    for (const seat of resolveFloorSeatsWithState(floor, input.locks, input.heldByOthers ?? [])) {
       seatByKey.set(seat.seatKey, seat);
     }
   }

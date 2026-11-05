@@ -6094,11 +6094,18 @@
         "legendReserved": "Reservado",
         "legendPending": "Pendiente de pago",
         "legendPurchased": "Comprado",
+        "legendHeld": "Alguien más la está eligiendo",
         "legendSelected": "Tu selección",
         "seatAriaTemplate": "{label} ({state})",
         "seatCountMismatch": "Elige exactamente una butaca por cada entrada antes de continuar.",
         "seatAlreadyTaken": "Una de las butacas elegidas acaba de ocuparse. Elige otra ubicación libre.",
-        "invalidSeat": "La ubicación seleccionada no es válida."
+        "invalidSeat": "La ubicación seleccionada no es válida.",
+        "lostSeatsNotice": "Estas butacas ya no están libres: {labels}. Elige otra. Tus demás datos siguen guardados.",
+        "useSuggestedSeats": "Usar butacas sugeridas",
+        "chooseAnotherSeat": "Elige otra butaca",
+        "holdCountdown": "Guardamos tus butacas por {time}.",
+        "holdExpired": "La reserva de tus butacas terminó. Elige de nuevo.",
+        "holdFailed": "No pudimos reservar estas butacas. Intenta de nuevo."
       },
       "customFieldFile": {
         "fileButton": "Elegir archivo",

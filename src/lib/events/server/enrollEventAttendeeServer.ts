@@ -12,10 +12,13 @@ import { notifyAdminsEventRegistered } from "@/lib/email/notifyAdminsPurchasePay
 import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
 import type { EventSeatMapConfig } from "@/lib/events/seatMapModel";
 import { isEventSeatMapActive, validateEventSeatSelection } from "@/lib/events/seatMapState";
+import { hashSeatHoldToken } from "@/lib/events/seatHoldToken";
+import { loadEventSeatLocks } from "@/lib/events/server/eventSeatLocksServer";
 import {
-  loadEventSeatLocks,
-  lockSeatsForAttendee,
-} from "@/lib/events/server/eventSeatLocksServer";
+  claimEventSeats,
+  holdEventSeats,
+  loadEventSeatHoldRows,
+} from "@/lib/events/server/eventSeatHoldsServer";
 import type {
   EventCompanionPayload,
   EventFieldPayloadEntry,
@@ -58,6 +61,8 @@ export interface EnrollEventAttendeeServerInput {
   } | null;
   seatMapConfig?: EventSeatMapConfig | null;
   seatKeys?: string[];
+  seatHoldToken?: string | null;
+  maxTicketsPerRegistration?: number | null;
   minorTicketCount?: number;
   allowMinorTickets?: boolean;
   minorTicketPrice?: number | null;
@@ -76,6 +81,7 @@ export interface EnrollEventAttendeeServerResult {
   seats: number;
   /** Recomputed by the database; whatever the client believed is ignored. */
   totalAmount: number | null;
+  takenSeatKeys?: string[];
 }
 
 const ENROLL_MAIL_CODES = new Set(["confirmed", "payment_pending", "waitlist"]);
@@ -114,28 +120,60 @@ export async function enrollEventAttendeeServer(
   if (!minorPreview.ok) return emptyEventEnrollment(minorPreview.reason);
 
   let assignedSeats: Array<{ seatKey: string; seatLabel: string }> = [];
+  let seatTokenHash: string | null = null;
   if (isEventSeatMapActive(input.seatMapConfig)) {
+    seatTokenHash = hashSeatHoldToken(input.seatHoldToken);
+    if (!seatTokenHash) return emptyEventEnrollment("seat_hold_required");
+    const holds = await loadEventSeatHoldRows(admin, input.eventId, seatTokenHash);
     const locks = await loadEventSeatLocks(admin, input.eventId);
+    const requiredSeatCount = 1 + (input.companions?.length ?? 0);
     const seatCheck = validateEventSeatSelection({
       config: input.seatMapConfig,
       locks,
+      heldByOthers: holds.heldByOthers,
       selectedSeatKeys: input.seatKeys ?? [],
-      requiredSeatCount: 1 + (input.companions?.length ?? 0),
+      requiredSeatCount,
     });
-    if (!seatCheck.ok) return emptyEventEnrollment(seatCheck.code);
+    if (!seatCheck.ok) {
+      if (seatCheck.code !== "seat_already_taken") return emptyEventEnrollment(seatCheck.code);
+      const taken = (input.seatKeys ?? []).filter((key) =>
+        holds.heldByOthers.includes(key) || locks.some((lock) => lock.seatKey === key),
+      );
+      return { ...emptyEventEnrollment(seatCheck.code), takenSeatKeys: taken };
+    }
+    const held = await holdEventSeats(admin, {
+      eventId: input.eventId,
+      tokenHash: seatTokenHash,
+      seatKeys: seatCheck.assignedSeats.map((seat) => seat.seatKey),
+      maxSeats: input.maxTicketsPerRegistration ?? requiredSeatCount,
+    });
+    if (!held.ok) return emptyEventEnrollment(held.code);
+    if (held.taken.length > 0) {
+      return { ...emptyEventEnrollment("seat_already_taken"), takenSeatKeys: held.taken };
+    }
     assignedSeats = seatCheck.assignedSeats;
   }
 
   const result = await callEnrollEventAttendeeRpc(admin, input, discountCode);
   if (!result.attendeeId || !ENROLL_MAIL_CODES.has(result.resultCode)) return result;
 
-  if (assignedSeats.length > 0) {
-    const lockRes = await lockSeatsForAttendee(admin, {
+  if (assignedSeats.length > 0 && seatTokenHash) {
+    const claimed = await claimEventSeats(admin, {
       eventId: input.eventId,
       attendeeId: result.attendeeId,
+      tokenHash: seatTokenHash,
       seats: assignedSeats,
     });
-    if (!lockRes.ok) return emptyEventEnrollment(lockRes.code);
+    if (!claimed.ok) {
+      const { error: rollbackError } = await admin
+        .from("event_attendees")
+        .delete()
+        .eq("id", result.attendeeId);
+      if (rollbackError) {
+        await logServerWarn("events.seats.claim.rollback", { attendeeId: result.attendeeId });
+      }
+      return { ...emptyEventEnrollment(claimed.code), takenSeatKeys: claimed.taken };
+    }
   }
 
   const stored = await storeEnrolledAttendeeCharge(admin, {

@@ -21,6 +21,7 @@ import {
 import { loadEventDiscountCodeUses } from "@/lib/dashboard/events/loadEventDiscountCodeUses";
 import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
 import { loadEventSeatLocks } from "@/lib/events/server/eventSeatLocksServer";
+import { loadEventSeatHoldRows } from "@/lib/events/server/eventSeatHoldsServer";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export async function loadAdminEventDetailPageModel(input: {
@@ -150,6 +151,12 @@ export async function loadAdminEventDetailPageModel(input: {
     await loadBankTransferInstructionsSetting(admin);
   const seatLocks =
     input.tab === "seats" ? await loadEventSeatLocks(admin, input.eventId) : [];
+  if (input.tab === "seats") {
+    const holds = await loadEventSeatHoldRows(admin, input.eventId, null);
+    for (const seatKey of holds.heldByOthers) {
+      seatLocks.push({ seatKey, attendeeStatus: "held" });
+    }
+  }
 
   return {
     event,

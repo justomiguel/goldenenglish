@@ -54,6 +54,8 @@ export interface EventRegisterSubmitPayload {
   transferOptionId?: string | null;
   transferSourceKey?: string | null;
   seatKeys?: string[];
+  seatHoldToken?: string | null;
+  onSeatConflict?: (keys: string[]) => void;
   companions?: EventCompanionPayload[];
   minorTicketCount?: number;
   transferOptionRequired?: string;
@@ -160,7 +162,12 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
       const body = (await response.json().catch(() => null)) as {
         ok?: boolean;
         code?: string;
-        result?: { attendeeId?: string | null; paymentRequired?: boolean; resultCode?: string };
+        result?: {
+          attendeeId?: string | null;
+          paymentRequired?: boolean;
+          resultCode?: string;
+          takenSeatKeys?: string[];
+        };
       } | null;
       if (!response.ok || !body?.ok) {
         if (body?.code === "transfer_option_required" && payload.transferOptionRequired) {
@@ -176,6 +183,9 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
       if (resultCode === "receipt_attach_failed") {
         setMessage(labels.receiptAttachFailed);
         return;
+      }
+      if (resultCode === "seat_already_taken") {
+        payload.onSeatConflict?.(body.result?.takenSeatKeys ?? payload.seatKeys ?? []);
       }
       if (resultCode && payload.discountErrors?.[resultCode]) {
         setMessage(payload.discountErrors[resultCode]);

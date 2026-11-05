@@ -27,16 +27,25 @@ export interface EventRegisterSeatPickerLabels {
   legendReserved: string;
   legendPending: string;
   legendPurchased: string;
+  legendHeld: string;
   legendSelected: string;
   seatAriaTemplate: string;
   seatCountMismatch: string;
   seatAlreadyTaken: string;
   invalidSeat: string;
+  lostSeatsNotice: string;
+  useSuggestedSeats: string;
+  chooseAnotherSeat: string;
+  holdCountdown: string;
+  holdExpired: string;
+  holdFailed: string;
 }
 
 interface EventRegisterSeatPickerProps {
   config: EventSeatMapConfig;
   locks: readonly EventSeatLockSnapshot[];
+  heldByOthers?: readonly string[];
+  lostSeatKeys?: readonly string[];
   requiredSeatCount: number;
   selectedSeatKeys: readonly string[];
   onSelectedSeatKeysChange: (next: string[]) => void;
@@ -47,6 +56,7 @@ function stateLabel(state: EventSeatVisualState, labels: EventRegisterSeatPicker
   if (state === "free") return labels.legendFree;
   if (state === "reserved") return labels.legendReserved;
   if (state === "pending") return labels.legendPending;
+  if (state === "held") return labels.legendHeld;
   return labels.legendPurchased;
 }
 
@@ -54,6 +64,7 @@ function seatToneClasses(state: EventSeatVisualState, isSelected: boolean): stri
   if (isSelected) return "text-[var(--color-secondary)] ring-2 ring-[var(--color-foreground)] rounded-md scale-105";
   if (state === "purchased") return "cursor-not-allowed text-[var(--color-muted-foreground)]/45";
   if (state === "pending") return "cursor-not-allowed text-[var(--color-warning)]";
+  if (state === "held") return "cursor-not-allowed text-[var(--color-muted-foreground)]";
   if (state === "reserved") return "cursor-not-allowed text-[var(--color-secondary)]/55";
   return "text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] hover:scale-105";
 }
@@ -61,6 +72,8 @@ function seatToneClasses(state: EventSeatVisualState, isSelected: boolean): stri
 export function EventRegisterSeatPicker({
   config,
   locks,
+  heldByOthers = [],
+  lostSeatKeys = [],
   requiredSeatCount,
   selectedSeatKeys,
   onSelectedSeatKeysChange,
@@ -76,7 +89,7 @@ export function EventRegisterSeatPicker({
   const stateBySeatKey = new Map<string, EventSeatVisualState>();
   const labelByKey = new Map<string, string>();
   for (const floor of config.floors) {
-    for (const seat of resolveFloorSeatsWithState(floor, locks)) {
+    for (const seat of resolveFloorSeatsWithState(floor, locks, heldByOthers)) {
       stateBySeatKey.set(seat.seatKey, seat.state);
       labelByKey.set(seat.seatKey, seat.seatLabel);
     }
@@ -113,7 +126,7 @@ export function EventRegisterSeatPicker({
   );
 
   return (
-    <section className="space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/20 p-3 sm:p-4">
+    <section id="event-seat-map" className="space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/20 p-3 sm:p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 className="text-base font-semibold text-[var(--color-foreground)]">{labels.title}</h3>
@@ -148,6 +161,7 @@ export function EventRegisterSeatPicker({
         <span className="inline-flex items-center gap-1.5"><TheaterSeatIcon className="h-4 w-4 text-[var(--color-secondary)] ring-1 ring-[var(--color-foreground)] rounded-xs" />{labels.legendSelected}</span>
         <span className="inline-flex items-center gap-1.5"><TheaterSeatIcon className="h-4 w-4 text-[var(--color-secondary)]/55" />{labels.legendReserved}</span>
         <span className="inline-flex items-center gap-1.5"><TheaterSeatIcon className="h-4 w-4 text-[var(--color-warning)]" />{labels.legendPending}</span>
+        <span className="inline-flex items-center gap-1.5"><TheaterSeatIcon className="h-4 w-4 text-[var(--color-muted-foreground)]" />{labels.legendHeld}</span>
         <span className="inline-flex items-center gap-1.5"><TheaterSeatIcon crossed className="h-4 w-4 text-[var(--color-muted-foreground)]/45" />{labels.legendPurchased}</span>
       </div>
 
@@ -185,6 +199,7 @@ export function EventRegisterSeatPicker({
                           }
                           const state = stateBySeatKey.get(cell.seatKey) ?? "free";
                           const isSelected = selectedSet.has(cell.seatKey);
+                          const isLost = lostSeatKeys.includes(cell.seatKey);
                           const ariaLabel = labels.seatAriaTemplate
                             .replace("{label}", cell.seatLabel)
                             .replace("{state}", isSelected ? labels.legendSelected : stateLabel(state, labels));
@@ -199,7 +214,7 @@ export function EventRegisterSeatPicker({
                                 aria-pressed={isSelected}
                                 title={ariaLabel}
                                 onClick={() => toggleSeat(cell.seatKey)}
-                                className={`flex aspect-square w-full items-center justify-center transition ${seatToneClasses(state, isSelected)}`}
+                                className={`flex aspect-square w-full items-center justify-center transition ${seatToneClasses(state, isSelected)} ${isLost ? "ring-2 ring-[var(--color-error)] rounded-md" : ""}`}
                               >
                                 <TheaterSeatIcon seatNumber={cell.seatNumber} crossed={state === "purchased"} className="h-full w-full" />
                               </button>

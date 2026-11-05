@@ -128,6 +128,8 @@ describe("seatMapModel and seatMapState", () => {
     expect(withStates.find((s) => s.seatKey === "platea-baja:blk-1:0:1")?.state).toBe("purchased");
     expect(withStates.find((s) => s.seatKey === "platea-baja:blk-1:1:0")?.state).toBe("reserved");
     expect(withStates.find((s) => s.seatKey === "platea-baja:blk-1:0:2")?.state).toBe("free");
+    const held = resolveFloorSeatsWithState(floor, [], ["platea-baja:blk-1:0:2"]);
+    expect(held.find((s) => s.seatKey === "platea-baja:blk-1:0:2")?.state).toBe("held");
 
     // Disabled seat map skips seat validation
     expect(

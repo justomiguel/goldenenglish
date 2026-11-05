@@ -41,7 +41,7 @@ export function AdminEventSeatMapCanvas({
   const [dragCurrent, setDragCurrent] = useState<{ r: number; c: number } | null>(null);
   const [strokeBrush, setStrokeBrush] = useState<SeatPaintBrush>("hidden");
 
-  const lockMap = new Map<string, "pending_payment" | "confirmed">();
+  const lockMap = new Map<string, "pending_payment" | "confirmed" | "held">();
   for (const lock of seatLocks) {
     lockMap.set(lock.seatKey, lock.attendeeStatus);
   }
@@ -202,6 +202,8 @@ export function AdminEventSeatMapCanvas({
                         cellClasses = "border-[var(--color-border)] bg-[var(--color-muted-foreground)] text-[var(--color-background)]";
                       } else if (lockStatus === "pending_payment") {
                         cellClasses = "border-[var(--color-warning)] bg-[var(--color-warning)] text-[var(--color-foreground)]";
+                      } else if (lockStatus === "held") {
+                        cellClasses = "border-[var(--color-border)] bg-[var(--color-muted)] text-[var(--color-foreground)]";
                       } else if (cell.hidden) {
                         cellClasses = "border-dashed border-[var(--color-border)] bg-transparent text-[var(--color-muted-foreground)]/40";
                       } else if (cell.staffReserved) {

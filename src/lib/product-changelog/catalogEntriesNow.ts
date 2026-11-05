@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "event-seat-holds",
+    date: "2026-11-05",
+    area: "events",
+    title: t(
+      "La butaca queda reservada mientras completas la inscripción",
+      "Your seat stays reserved while you finish the form",
+      "O assento fica reservado enquanto você termina a inscrição",
+    ),
+    summary: t(
+      "Si otra persona toma tu butaca, el sitio dice cuál se perdió y conserva el resto de tus datos.",
+      "If someone else takes your seat, the site names the lost seat and keeps the rest of your data.",
+      "Se outra pessoa ficar com o seu assento, o site diz qual se perdeu e guarda o resto dos seus dados.",
+    ),
+  },
+  {
     id: "event-minor-max-age",
     date: "2026-11-05",
     area: "events",

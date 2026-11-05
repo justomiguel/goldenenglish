@@ -24,6 +24,10 @@
     {
       "path": "/api/cron/admin-weekly-digest",
       "schedule": "0 12 * * 1"
+    },
+    {
+      "path": "/api/cron/event-seat-holds-cleanup",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

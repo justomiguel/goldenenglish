@@ -31,6 +31,7 @@ export function EventRegisterPwa({
         paymentMethods={paymentMethods}
         surfaceVariant={surfaceVariant}
         labels={labels}
+        seatNoticePlacement="sticky"
       />
     </section>
   );

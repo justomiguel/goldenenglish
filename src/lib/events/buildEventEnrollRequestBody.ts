@@ -30,6 +30,7 @@ export function buildEventEnrollRequestBody(input: {
   transferOptionId?: string | null;
   transferSourceKey?: string | null;
   seatKeys?: string[];
+  seatHoldToken?: string | null;
   companions?: EventCompanionPayload[];
   minorTicketCount?: number;
   receiptStagingPath?: string | null;
@@ -55,6 +56,7 @@ export function buildEventEnrollRequestBody(input: {
     ...(input.transferOptionId ? { transferOptionId: input.transferOptionId } : {}),
     ...(input.transferSourceKey ? { transferSourceKey: input.transferSourceKey } : {}),
     ...(input.seatKeys && input.seatKeys.length > 0 ? { seatKeys: input.seatKeys } : {}),
+    ...(input.seatHoldToken ? { seatHoldToken: input.seatHoldToken } : {}),
     ...(input.companions && input.companions.length > 0 ? { companions: input.companions } : {}),
     ...(input.minorTicketCount && input.minorTicketCount > 0
       ? { minorTicketCount: input.minorTicketCount }

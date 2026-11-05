@@ -1,6 +1,6 @@
 "use client";
 
-import type { Dispatch, SetStateAction } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { EventRegisterFamilyDiscount } from "@/components/organisms/EventRegisterFamilyDiscount";
 import { EventRegisterDiscountCode } from "@/components/organisms/EventRegisterDiscountCode";
 import { EventRegisterFormFooter } from "@/components/organisms/EventRegisterFormFooter";
@@ -14,8 +14,7 @@ import { EventRegisterPaymentPicker } from "@/components/organisms/EventRegister
 import { EventRegisterResidencyPicker } from "@/components/organisms/EventRegisterResidencyPicker";
 import { EventRegisterTransferReceiptField } from "@/components/organisms/EventRegisterTransferReceiptField";
 import { EventRegisterDualTransferSection } from "@/components/organisms/EventRegisterDualTransferSection";
-import { EventRegisterSeatPicker } from "@/components/organisms/EventRegisterSeatPicker";
-import { EventRegisterMultiTicketSection } from "@/components/organisms/EventRegisterMultiTicketSection";
+import { EventRegisterTicketStep } from "@/components/organisms/EventRegisterTicketStep";
 import { EventRegisterMinorTicketsField } from "@/components/organisms/EventRegisterMinorTicketsField";
 import {
   EventRegisterTotalSummaryCard,
@@ -43,6 +42,12 @@ interface EventRegisterPurchaseFlowProps {
   setAppliedCode: Dispatch<SetStateAction<EventDiscountApplied | null>>;
   showSeatPicker: boolean;
   totals: EventRegistrationTotals;
+  seatHold?: {
+    locks: EventRegisterPurchaseFlowProps["event"]["seatLocks"];
+    heldByOthers: string[];
+    lostSeatKeys: string[];
+  };
+  seatNotice?: ReactNode;
 }
 
 export function EventRegisterPurchaseFlow({
@@ -59,6 +64,8 @@ export function EventRegisterPurchaseFlow({
   setAppliedCode,
   showSeatPicker,
   totals,
+  seatHold,
+  seatNotice,
 }: EventRegisterPurchaseFlowProps) {
   const hasTicketStep = Boolean(event.allowMultipleTickets && labels.companions) || showSeatPicker;
   const showPay =
@@ -94,30 +101,15 @@ export function EventRegisterPurchaseFlow({
 
       {ticketStep ? (
         <EventRegisterStep step={ticketStep} title={labels.steps.tickets} lead={labels.steps.ticketsLead}>
-          {event.allowMultipleTickets && labels.companions ? (
-            <EventRegisterMultiTicketSection
-              ticketQuantity={form.payment.ticketQuantity}
-              onTicketQuantityChange={form.payment.setTicketQuantity}
-              requireCompanionDetails={Boolean(event.companionRequireDetails)}
-              collectDni={Boolean(event.companionCollectDni)}
-              collectEmail={Boolean(event.companionCollectEmail)}
-              collectBirthDate={Boolean(event.companionCollectBirthDate)}
-              companions={form.payment.companions}
-              onCompanionChange={form.payment.updateCompanion}
-              disabled={form.footer.isPending}
-              labels={labels.companions}
-            />
-          ) : null}
-          {showSeatPicker && event.seatMapConfig && labels.seatMap ? (
-            <EventRegisterSeatPicker
-              config={event.seatMapConfig}
-              locks={event.seatLocks ?? []}
-              requiredSeatCount={seats}
-              selectedSeatKeys={form.payment.selectedSeatKeys}
-              onSelectedSeatKeysChange={form.payment.setSelectedSeatKeys}
-              labels={labels.seatMap}
-            />
-          ) : null}
+          <EventRegisterTicketStep
+            event={event}
+            labels={labels}
+            form={form}
+            showSeatPicker={showSeatPicker}
+            seats={seats}
+            seatHold={seatHold}
+            seatNotice={seatNotice}
+          />
         </EventRegisterStep>
       ) : null}
 

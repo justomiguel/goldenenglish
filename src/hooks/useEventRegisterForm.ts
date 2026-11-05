@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type MutableRefObject } from "react";
 import { resolveAttendeeIsMinor } from "@/lib/events/resolveAttendeeIsMinor";
 import { resolveRegistrationFlowView } from "@/lib/events/registrationFlows";
 import type { EventRegistrationPaymentMethod } from "@/lib/events/resolveEventRegistrationPaymentMethods";
@@ -20,6 +20,8 @@ interface UseEventRegisterFormInput {
   appliedCode?: EventDiscountApplied | null;
   payableAmount?: number | null;
   discountErrors?: { invalid_code: string; no_uses: string; discount_conflict: string };
+  seatHoldTokenRef?: MutableRefObject<string>;
+  onSeatConflictRef?: MutableRefObject<(keys: string[]) => void>;
 }
 
 export function useEventRegisterForm({
@@ -32,6 +34,8 @@ export function useEventRegisterForm({
   appliedCode = null,
   payableAmount = null,
   discountErrors,
+  seatHoldTokenRef,
+  onSeatConflictRef,
 }: UseEventRegisterFormInput) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -163,6 +167,8 @@ export function useEventRegisterForm({
       transferOptionId: payment.transferOptionId,
       transferSourceKey: payment.transferSourceKey,
       seatKeys: payment.selectedSeatKeys,
+      seatHoldToken: seatHoldTokenRef?.current ?? null,
+      onSeatConflict: (keys) => onSeatConflictRef?.current(keys),
       companions: resolvedCompanions,
       minorTicketCount: payment.minorTicketCount,
       transferOptionRequired: labels.transferSource.optionRequired,
