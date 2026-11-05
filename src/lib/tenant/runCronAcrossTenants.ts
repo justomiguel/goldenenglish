@@ -18,7 +18,7 @@ export async function runCronAcrossTenants(
   if (!isMultiTenantEnabled()) return work();
   const error = tenantRegistryError();
   if (error) {
-    logServerError("cron.tenants", { code: error });
+    await logServerError("cron.tenants", { code: error });
     return NextResponse.json({ ok: false, message: "tenant_config_invalid" }, { status: 500 });
   }
 
@@ -32,7 +32,12 @@ export async function runCronAcrossTenants(
       if (!response.ok) failures += 1;
     } catch (err) {
       failures += 1;
-      logServerException("cron.tenant", err, { slug: tenant.slug });
+      const host = tenant.hosts.find((item) => item.trim().length > 0);
+      await logServerException("cron.tenant", err, {
+        slug: tenant.slug,
+        tenantSlug: tenant.slug,
+        ...(host ? { host } : {}),
+      });
       summaries.push({ slug: tenant.slug, status: 500 });
     }
   }

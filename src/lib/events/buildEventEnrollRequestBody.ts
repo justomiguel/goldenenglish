@@ -32,6 +32,7 @@ export function buildEventEnrollRequestBody(input: {
   seatKeys?: string[];
   companions?: EventCompanionPayload[];
   minorTicketCount?: number;
+  receiptStagingPath?: string | null;
 }) {
   return {
     captchaToken: "manual-placeholder",
@@ -58,5 +59,6 @@ export function buildEventEnrollRequestBody(input: {
     ...(input.minorTicketCount && input.minorTicketCount > 0
       ? { minorTicketCount: input.minorTicketCount }
       : {}),
+    ...(input.receiptStagingPath ? { receiptStagingPath: input.receiptStagingPath } : {}),
   };
 }

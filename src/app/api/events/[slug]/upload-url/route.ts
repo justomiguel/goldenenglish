@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { uploadEventAttendeeFieldFileServer } from "@/lib/events/server/uploadEventAttendeeFieldFileServer";
+import { prepareEventRegistrationUpload } from "@/lib/events/server/prepareEventRegistrationUpload";
 import { logServerException, logServerWarn } from "@/lib/logging/serverActionLog";
 
 export const runtime = "nodejs";
@@ -39,6 +39,7 @@ export async function POST(
   try {
     const ip = clientIp(request);
     if (isRateLimited(ip)) {
+      await logServerWarn("api.events.uploadUrl", { reason: "rate_limited" });
       return NextResponse.json(
         { ok: false, code: "rate_limited" },
         { status: 429, headers: { "Cache-Control": "private, no-store" } },
@@ -46,41 +47,46 @@ export async function POST(
     }
 
     const { slug } = await context.params;
-    const form = await request.formData();
-    const fieldId = String(form.get("fieldId") ?? "").trim();
-    const email = String(form.get("email") ?? "").trim();
-    const dniOrPassport = String(form.get("dniOrPassport") ?? "").trim();
-    const locale = String(form.get("locale") ?? "es").trim() || "es";
-    const file = form.get("file");
+    const body = (await request.json().catch(() => null)) as
+      | {
+          email?: string;
+          dniOrPassport?: string;
+          locale?: string;
+          fileName?: string;
+          mimeType?: string;
+          byteSize?: number;
+          kind?: string;
+          fieldId?: string;
+        }
+      | null;
 
-    if (!fieldId || !email || !dniOrPassport || !(file instanceof File)) {
-      logServerWarn("api.events.fieldFile", { reason: "invalid_body", slug });
+    if (!body || (body.kind !== "receipt" && body.kind !== "field")) {
+      await logServerWarn("api.events.uploadUrl", { reason: "invalid_body", slug });
       return NextResponse.json(
         { ok: false, code: "invalid_body" },
         { status: 400, headers: { "Cache-Control": "private, no-store" } },
       );
     }
 
-    const fileBytes = Buffer.from(await file.arrayBuffer());
-    const result = await uploadEventAttendeeFieldFileServer({
+    const result = await prepareEventRegistrationUpload({
       slug,
-      locale,
-      fieldId,
-      email,
-      dniOrPassport,
-      fileName: file.name || "upload",
-      fileBytes,
-      fileMime: file.type || "application/octet-stream",
+      locale: body.locale?.trim() || "es",
+      email: String(body.email ?? ""),
+      dniOrPassport: String(body.dniOrPassport ?? ""),
+      fileName: String(body.fileName ?? ""),
+      mimeType: String(body.mimeType ?? ""),
+      byteSize: Number(body.byteSize ?? 0),
+      kind: body.kind,
+      fieldId: body.fieldId ?? null,
     });
 
     if (!result.ok) {
       const status =
         result.code === "event_not_found" || result.code === "field_not_found"
           ? 404
-          : result.code === "invalid_file"
-            ? 400
-            : 500;
-
+          : result.code === "sign_failed"
+            ? 500
+            : 400;
       return NextResponse.json(
         { ok: false, code: result.code },
         { status, headers: { "Cache-Control": "private, no-store" } },
@@ -88,16 +94,11 @@ export async function POST(
     }
 
     return NextResponse.json(
-      {
-        ok: true,
-        path: result.path,
-        fileSizeBytes: result.fileSizeBytes,
-        fileMimeType: result.fileMimeType,
-      },
+      { ok: true, path: result.path, token: result.token },
       { headers: { "Cache-Control": "private, no-store" } },
     );
   } catch (error) {
-    logServerException("api/events/field-file", error);
+    logServerException("api/events/upload-url", error);
     return NextResponse.json(
       { ok: false, code: "server_error" },
       { status: 500, headers: { "Cache-Control": "private, no-store" } },

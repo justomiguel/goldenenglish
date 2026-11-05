@@ -108,12 +108,6 @@ export function buildAdminDailyNavItems(
     ...(blogItem ? [blogItem] : []),
     ...(merchItem ? [merchItem] : []),
     {
-      href: `${base}/cms/templates`,
-      label: dict.templates,
-      iconId: "cms",
-      tip: dict.tipTemplates,
-    },
-    {
       href: `${base}/institute`,
       label: dict.institute,
       iconId: "institute",

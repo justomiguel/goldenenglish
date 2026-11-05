@@ -5,6 +5,7 @@
  */
 
 import { serializeUnknownError } from "@/lib/logging/serializeUnknownError";
+import { getAlsTenant } from "@/lib/tenant/alsTenantAccessor";
 import { normalizeHost } from "@/lib/tenant/parseTenantConfigJson";
 
 export { serializeUnknownError };
@@ -12,35 +13,70 @@ export { serializeUnknownError };
 const PREFIX = "[ge:server]";
 
 type HeaderGet = { get(name: string): string | null };
+type HeaderReader = () => HeaderGet | Promise<HeaderGet | null> | null;
 
 /**
  * Client screens import this module through shared loaders.
  * A static `next/headers` import would break that bundle.
  * `instrumentation.ts` registers the reader on the server.
+ * Next.js 16 `headers()` returns a Promise. The reader must be awaited.
  */
-let readHeaderStore: () => HeaderGet | null = () => null;
+let readHeaderStore: HeaderReader = () => null;
 
-export function registerRequestHeaderReader(reader: () => HeaderGet | null): void {
+export function registerRequestHeaderReader(reader: HeaderReader): void {
   readHeaderStore = reader;
 }
 
-function requestLogContext(): { host: string | null; tenantSlug: string | null } {
+function nonEmpty(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const text = value.trim();
+  return text.length > 0 ? text : null;
+}
+
+async function liveHeaderStore(): Promise<HeaderGet | null> {
   try {
-    const headerStore = readHeaderStore();
-    if (!headerStore || typeof headerStore.get !== "function") {
-      return { host: null, tenantSlug: null };
-    }
-    const raw = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
-    const slug = headerStore.get("x-ge-tenant")?.trim() || null;
-    return { host: raw ? normalizeHost(raw) : null, tenantSlug: slug };
+    const registered = await readHeaderStore();
+    if (registered && typeof registered.get === "function") return registered;
   } catch {
-    return { host: null, tenantSlug: null };
+    /* The direct reader below still runs. */
+  }
+  if (typeof window !== "undefined") return null;
+  try {
+    const { readRequestLogHeaders } = await import("@/lib/logging/readRequestLogHeaders");
+    return readRequestLogHeaders();
+  } catch {
+    return null;
   }
 }
 
-function withRequestLogMeta(meta?: Record<string, unknown>): Record<string, unknown> {
-  const ctx = requestLogContext();
-  return { host: ctx.host, tenantSlug: ctx.tenantSlug, ...meta };
+async function requestLogContext(): Promise<{ host: string | null; tenantSlug: string | null }> {
+  let host: string | null = null;
+  let tenantSlug: string | null = null;
+  const headerStore = await liveHeaderStore();
+  if (headerStore) {
+    const raw = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
+    host = raw ? normalizeHost(raw) : null;
+    tenantSlug = headerStore.get("x-ge-tenant")?.trim() || null;
+  }
+
+  const als = getAlsTenant();
+  if (als?.slug) tenantSlug = als.slug;
+  if (!host) {
+    const alsHost = als?.hosts?.find((item) => item.trim().length > 0) ?? "";
+    host = alsHost ? normalizeHost(alsHost) : null;
+  }
+  return { host, tenantSlug };
+}
+
+async function withRequestLogMeta(meta?: Record<string, unknown>): Promise<Record<string, unknown>> {
+  const ctx = await requestLogContext();
+  const metaHost = nonEmpty(meta?.host);
+  const metaSlug = nonEmpty(meta?.tenantSlug);
+  return {
+    ...meta,
+    host: metaHost ? normalizeHost(metaHost) : ctx.host,
+    tenantSlug: metaSlug ? metaSlug.toLowerCase() : ctx.tenantSlug,
+  };
 }
 
 type PostgrestLike = {
@@ -53,14 +89,14 @@ type PostgrestLike = {
 /**
  * PostgREST / Supabase JS error object from `.error` on a query (no throw).
  */
-export function logSupabaseClientError(
+export async function logSupabaseClientError(
   scope: string,
   error: PostgrestLike | null | undefined,
   meta?: Record<string, unknown>,
-): void {
+): Promise<void> {
   if (!error?.message && !error?.code) return;
   console.error(PREFIX, scope, {
-    ...withRequestLogMeta(meta),
+    ...(await withRequestLogMeta(meta)),
     supabase: {
       message: error.message,
       code: error.code,
@@ -73,21 +109,25 @@ export function logSupabaseClientError(
 /**
  * Thrown errors (assertAdmin, bugs, network) from a server action catch block.
  */
-export function logServerActionException(
+export async function logServerActionException(
   scope: string,
   err: unknown,
   meta?: Record<string, unknown>,
-): void {
-  console.error(PREFIX, scope, withRequestLogMeta({ ...meta, error: serializeUnknownError(err) }));
+): Promise<void> {
+  console.error(
+    PREFIX,
+    scope,
+    await withRequestLogMeta({ ...meta, error: serializeUnknownError(err) }),
+  );
 }
 
 /** Unexpected logical outcome (e.g. insert succeeded but returned no row id). */
-export function logServerActionInvariantViolation(
+export async function logServerActionInvariantViolation(
   scope: string,
   reason: string,
   meta?: Record<string, unknown>,
-): void {
-  console.error(PREFIX, scope, withRequestLogMeta({ reason, ...meta }));
+): Promise<void> {
+  console.error(PREFIX, scope, await withRequestLogMeta({ reason, ...meta }));
 }
 
 /** Alias for route handlers and server utilities (same behavior as logServerActionException). */
@@ -99,23 +139,35 @@ export const logSupabaseError = logSupabaseClientError;
 /**
  * Session/autorización esperada (p. ej. assertAdmin). No es bug; usa `warn` para no confundir con 500.
  */
-export function logServerAuthzDenied(scope: string, meta?: Record<string, unknown>): void {
-  console.warn(PREFIX, scope, withRequestLogMeta({ kind: "authz_denied", ...meta }));
+export async function logServerAuthzDenied(
+  scope: string,
+  meta?: Record<string, unknown>,
+): Promise<void> {
+  console.warn(PREFIX, scope, await withRequestLogMeta({ kind: "authz_denied", ...meta }));
 }
 
 /** Diagnóstico operativo (no error de app): filtros locales, branching previsto. Sin PII. */
-export function logServerWarn(scope: string, meta?: Record<string, unknown>): void {
-  console.warn(PREFIX, scope, withRequestLogMeta(meta));
+export async function logServerWarn(
+  scope: string,
+  meta?: Record<string, unknown>,
+): Promise<void> {
+  console.warn(PREFIX, scope, await withRequestLogMeta(meta));
 }
 
 /** Breadcrumb operativo (envío aceptado, conteos). Sin PII. */
-export function logServerInfo(scope: string, meta?: Record<string, unknown>): void {
-  console.info(PREFIX, scope, withRequestLogMeta(meta));
+export async function logServerInfo(
+  scope: string,
+  meta?: Record<string, unknown>,
+): Promise<void> {
+  console.info(PREFIX, scope, await withRequestLogMeta(meta));
 }
 
 /** Fallo operativo con meta plana (sin wrappear en Error). Sin PII. */
-export function logServerError(scope: string, meta?: Record<string, unknown>): void {
-  console.error(PREFIX, scope, withRequestLogMeta(meta));
+export async function logServerError(
+  scope: string,
+  meta?: Record<string, unknown>,
+): Promise<void> {
+  console.error(PREFIX, scope, await withRequestLogMeta(meta));
 }
 
 type AuthAdminErrLike = {
@@ -133,11 +185,11 @@ type AuthAdminErrLike = {
  * `authInviteCollisionEmailMeta()` (`@/lib/logging/authInviteAttemptLogMeta`) — privileged ops
  * correlation (same login address used with Supabase Auth).
  */
-export function logAuthAdminCreateUserFailure(
+export async function logAuthAdminCreateUserFailure(
   scope: string,
   error: AuthAdminErrLike | null | undefined,
   meta?: Record<string, unknown>,
-): void {
+): Promise<void> {
   const message = error?.message != null ? String(error.message) : "";
   const code = error?.code != null ? String(error.code) : "";
   const statusRaw = error?.status;
@@ -147,9 +199,14 @@ export function logAuthAdminCreateUserFailure(
       : typeof statusRaw === "string" && /^[0-9]+$/.test(statusRaw)
         ? Number.parseInt(statusRaw, 10)
         : undefined;
-  console.error(PREFIX, scope, withRequestLogMeta({
-    kind: "auth_admin_create_user_failure",
-    ...meta,
-    auth_error: message || code || statusRaw != null ? { message, code, status: statusNum ?? statusRaw } : null,
-  }));
+  console.error(
+    PREFIX,
+    scope,
+    await withRequestLogMeta({
+      kind: "auth_admin_create_user_failure",
+      ...meta,
+      auth_error:
+        message || code || statusRaw != null ? { message, code, status: statusNum ?? statusRaw } : null,
+    }),
+  );
 }

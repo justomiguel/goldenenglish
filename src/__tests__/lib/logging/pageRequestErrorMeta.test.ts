@@ -8,6 +8,7 @@ describe("pageRequestErrorMeta", () => {
       path: "/es",
       method: "GET",
       hostHeader: "www.liorastudio.cl",
+      tenantHeader: "Liora",
       routePath: "/[locale]",
       routeType: "render",
       digest: "13648600",
@@ -15,6 +16,7 @@ describe("pageRequestErrorMeta", () => {
 
     expect(meta).toMatchObject({
       host: "www.liorastudio.cl",
+      tenantSlug: "liora",
       path: "/es",
       method: "GET",
       routePath: "/[locale]",

@@ -83,6 +83,7 @@ export interface EventRegisterFormLabels {
     tooLarge: string;
     invalidType: string;
     uploadFailed: string;
+    receiptAttachFailed: string;
     inputAriaLabel: string;
   };
   transferInstructions: {

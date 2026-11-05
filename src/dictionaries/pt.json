@@ -5870,7 +5870,8 @@
         "required": "Envie o comprovante de transferência para continuar.",
         "tooLarge": "O arquivo excede o limite de {max} MB.",
         "invalidType": "Use uma imagem ou um PDF.",
-        "uploadFailed": "Sua inscrição foi registrada, mas não foi possível enviar o comprovante. Entre em contato com o organizador.",
+        "uploadFailed": "Não foi possível enviar o comprovante. Verifique a conexão e tente de novo.",
+        "receiptAttachFailed": "Não foi possível guardar o comprovante. Envie a inscrição outra vez.",
         "inputAriaLabel": "Selecionar comprovante de transferência"
       },
       "transferInstructions": {

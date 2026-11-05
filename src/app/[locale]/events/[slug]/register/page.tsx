@@ -130,6 +130,7 @@ export default async function EventRegisterPage({ params }: PageProps) {
             ),
             invalidType: dict.events.register.transferReceipt.invalidType,
             uploadFailed: dict.events.register.transferReceipt.uploadFailed,
+            receiptAttachFailed: dict.events.register.transferReceipt.receiptAttachFailed,
             inputAriaLabel: dict.events.register.transferReceipt.inputAriaLabel,
           },
           transferInstructions: {

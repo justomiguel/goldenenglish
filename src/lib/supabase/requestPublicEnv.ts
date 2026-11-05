@@ -42,10 +42,10 @@ function snapshot(): Pick<
   };
 }
 
-function logMissingSupabaseEnv(diag: RequestSupabaseEnvDiagnosis): void {
+async function logMissingSupabaseEnv(diag: RequestSupabaseEnvDiagnosis): Promise<void> {
   if (diag.url && diag.anonKey) return;
   if (diag.reason === "pulsar_host") return;
-  logServerError("supabase.request_env_missing", {
+  await logServerError("supabase.request_env_missing", {
     reason: diag.reason,
     host: diag.host,
     tenantSlug: diag.tenantSlug,
@@ -73,7 +73,7 @@ export async function readRequestSupabaseEnvDiagnosis(): Promise<RequestSupabase
       reason,
       ...snapshot(),
     };
-    logMissingSupabaseEnv(diag);
+    await logMissingSupabaseEnv(diag);
     return diag;
   }
 
@@ -88,7 +88,7 @@ export async function readRequestSupabaseEnvDiagnosis(): Promise<RequestSupabase
       tenantSlug: null,
       reason: "registry_error",
     };
-    logMissingSupabaseEnv(diag);
+    await logMissingSupabaseEnv(diag);
     return diag;
   }
   if (host && isPulsarCrawlHost(host)) {
@@ -103,7 +103,7 @@ export async function readRequestSupabaseEnvDiagnosis(): Promise<RequestSupabase
       tenantSlug: null,
       reason: "tenant_not_resolved",
     };
-    logMissingSupabaseEnv(diag);
+    await logMissingSupabaseEnv(diag);
     return diag;
   }
 
@@ -122,7 +122,7 @@ export async function readRequestSupabaseEnvDiagnosis(): Promise<RequestSupabase
     tenantSlug: tenant.slug,
     reason,
   };
-  logMissingSupabaseEnv(diag);
+  await logMissingSupabaseEnv(diag);
   return diag;
 }
 

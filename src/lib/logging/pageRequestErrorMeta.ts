@@ -13,14 +13,17 @@ export function pageRequestErrorMeta(args: {
   path: string;
   method: string;
   hostHeader: string | string[] | null | undefined;
+  tenantHeader?: string | string[] | null;
   routePath: string;
   routeType: string;
   digest?: string;
 }): Record<string, unknown> {
   const serialized = serializeUnknownError(args.error);
   const rawHost = headerValue(args.hostHeader);
+  const tenantSlug = headerValue(args.tenantHeader)?.toLowerCase() || null;
   return {
     host: rawHost ? normalizeHost(rawHost) : null,
+    ...(tenantSlug ? { tenantSlug } : {}),
     path: args.path,
     method: args.method,
     routePath: args.routePath,

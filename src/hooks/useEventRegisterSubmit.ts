@@ -2,18 +2,13 @@
 
 import { useState } from "react";
 import type { EventRegistrationPaymentMethod } from "@/lib/events/resolveEventRegistrationPaymentMethods";
-import type {
-  EventCompanionPayload,
-  EventFormFieldDefinition,
-  EventFieldPayloadEntry,
-} from "@/lib/events/types";
+import type { EventCompanionPayload, EventFormFieldDefinition } from "@/lib/events/types";
 import { validateEventTransferReceiptFile } from "@/lib/events/eventTransferReceiptLimits";
 import {
   fillEventFormFieldMaxMbTemplate,
   validateEventFormFieldFile,
 } from "@/lib/events/validateEventFormFieldFile";
-import { uploadEventPaymentReceipt } from "@/lib/client/uploadEventPaymentReceipt";
-import { uploadEventAttendeeFieldFile } from "@/lib/client/uploadEventAttendeeFieldFile";
+import { collectEventRegisterUploads } from "@/lib/client/collectEventRegisterUploads";
 import { startEventGatewayPayment } from "@/lib/client/startEventGatewayPayment";
 import { buildEventEnrollRequestBody } from "@/lib/events/buildEventEnrollRequestBody";
 
@@ -69,6 +64,7 @@ export interface EventRegisterSubmitLabels {
   error: string;
   transferReceiptRequired: string;
   transferReceiptUploadFailed: string;
+  receiptAttachFailed: string;
   paymentStartFailed: string;
   customFieldFileRequired: string;
   customFieldFileTooLarge: string;
@@ -80,29 +76,18 @@ interface UseEventRegisterSubmitArgs {
   labels: EventRegisterSubmitLabels;
 }
 
-function buildTextFieldValues(
-  fields: EventFormFieldDefinition[],
-  fieldValues: Record<string, string>,
-): EventFieldPayloadEntry[] {
-  return fields
-    .filter((field) => !isFileFieldType(field.fieldType))
-    .map((field) => ({
-      fieldId: field.id,
-      valueText: fieldValues[field.id] ?? "",
-    }))
-    .filter((entry) => Boolean(entry.valueText?.trim()));
-}
-
 export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
   const [message, setMessage] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [uploadingFieldId, setUploadingFieldId] = useState<string | null>(null);
+  const [uploadPercent, setUploadPercent] = useState<number | null>(null);
 
   async function submit(payload: EventRegisterSubmitPayload) {
     setIsPending(true);
     setMessage("");
     setUploadingFieldId(null);
+    setUploadPercent(null);
 
     if (payload.requiresTransferReceipt) {
       const fileCheck = validateEventTransferReceiptFile(payload.receiptFile);
@@ -137,41 +122,39 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
     }
 
     try {
-      const uploadedFieldValues: EventFieldPayloadEntry[] = [];
-      for (const field of fileFields) {
-        const file = payload.fieldFiles[field.id];
-        if (!file) continue;
-
-        setUploadingFieldId(field.id);
-        const uploaded = await uploadEventAttendeeFieldFile({
-          slug: payload.slug,
-          locale: payload.locale,
-          fieldId: field.id,
-          email: payload.email,
-          dniOrPassport: payload.dni,
-          file,
-        });
-        setUploadingFieldId(null);
-
-        if (!uploaded.ok) {
-          setMessage(labels.customFieldFileUploadFailed);
-          return;
-        }
-
-        uploadedFieldValues.push({
-          fieldId: field.id,
-          fileStoragePath: uploaded.path,
-          fileSizeBytes: uploaded.fileSizeBytes,
-          fileMimeType: uploaded.fileMimeType,
-        });
+      const uploaded = await collectEventRegisterUploads({
+        slug: payload.slug,
+        locale: payload.locale,
+        email: payload.email,
+        dniOrPassport: payload.dni,
+        fields: payload.fields,
+        fieldValues: payload.fieldValues,
+        fieldFiles: payload.fieldFiles,
+        receiptFile: payload.receiptFile,
+        requiresReceipt: payload.requiresTransferReceipt,
+        onProgress: setUploadPercent,
+        onField: setUploadingFieldId,
+      });
+      if (!uploaded.ok) {
+        setMessage(
+          uploaded.code === "receipt_upload_failed"
+            ? labels.transferReceiptUploadFailed
+            : labels.customFieldFileUploadFailed,
+        );
+        return;
       }
-
-      const fieldValues = [...buildTextFieldValues(payload.fields, payload.fieldValues), ...uploadedFieldValues];
+      setUploadPercent(null);
 
       const response = await fetch(`/api/events/${payload.slug}/enroll`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildEventEnrollRequestBody({ ...payload, fieldValues })),
+        body: JSON.stringify(
+          buildEventEnrollRequestBody({
+            ...payload,
+            fieldValues: uploaded.fieldValues,
+            receiptStagingPath: uploaded.receiptPath,
+          }),
+        ),
       });
 
       const body = (await response.json().catch(() => null)) as {
@@ -190,6 +173,10 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
         return;
       }
       const resultCode = body.result?.resultCode ?? "";
+      if (resultCode === "receipt_attach_failed") {
+        setMessage(labels.receiptAttachFailed);
+        return;
+      }
       if (resultCode && payload.discountErrors?.[resultCode]) {
         setMessage(payload.discountErrors[resultCode]);
         return;
@@ -197,21 +184,6 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
 
       const attendeeId = body.result?.attendeeId ?? null;
       const paymentRequired = Boolean(body.result?.paymentRequired);
-      if (payload.requiresTransferReceipt && attendeeId && paymentRequired && payload.receiptFile) {
-        const upload = await uploadEventPaymentReceipt({
-          slug: payload.slug,
-          attendeeId,
-          email: payload.email,
-          dniOrPassport: payload.dni,
-          file: payload.receiptFile,
-        });
-        if (!upload.ok) {
-          setMessage(labels.transferReceiptUploadFailed);
-          return;
-        }
-        setSuccessOpen(true);
-        return;
-      }
 
       const wantsOnlinePayment =
         payload.showPaymentPicker &&
@@ -243,5 +215,5 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
     }
   }
 
-  return { submit, message, isPending, successOpen, setMessage, uploadingFieldId };
+  return { submit, message, isPending, successOpen, setMessage, uploadingFieldId, uploadPercent };
 }

@@ -1,5 +1,6 @@
 import "server-only";
 import { headers } from "next/headers";
+import { registerRequestHeaderReader } from "@/lib/logging/serverActionLog";
 import { getAlsTenant } from "@/lib/tenant/alsTenantAccessor";
 import {
   type TenantConfig,
@@ -8,6 +9,16 @@ import {
   tenantFromHeaderGet,
   tenantRegistryError,
 } from "@/lib/tenant/tenantRegistry";
+
+registerRequestHeaderReader(async () => {
+  try {
+    const value = await headers();
+    if (!value || typeof value.get !== "function") return null;
+    return value;
+  } catch {
+    return null;
+  }
+});
 
 /** True when the current HTTP request targets the Pulsar platform host (`pulsarlab.cl` or `DEV_TENANT_SLUG=pulsar`). */
 export async function isPulsarPlatformRequest(): Promise<boolean> {

@@ -46,7 +46,7 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   /** App Router APIs live at `/api/*`, not under `[locale]` — skip locale prefix redirect. */
   if (pathname === "/api" || pathname.startsWith("/api/")) {
     await ensureTenantRegistryLoaded();
-    const blocked = blockUnknownTenant(request);
+    const blocked = await blockUnknownTenant(request);
     if (blocked) return blocked;
     const { response } = await updateSession(request);
     return response;
@@ -71,7 +71,7 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   }
 
   await ensureTenantRegistryLoaded();
-  const blocked = blockUnknownTenant(request);
+  const blocked = await blockUnknownTenant(request);
   if (blocked) return blocked;
 
   const hasLocale = locales.some(
@@ -113,14 +113,14 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   return response;
 }
 
-function blockUnknownTenant(request: NextRequest): NextResponse | null {
+async function blockUnknownTenant(request: NextRequest): Promise<NextResponse | null> {
   const status = tenantHostBlockStatus(
     (name) => request.headers.get(name),
     request.nextUrl.pathname,
   );
   if (!status) return null;
   const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
-  logServerWarn("tenant.host_blocked", {
+  await logServerWarn("tenant.host_blocked", {
     status,
     host,
     pathname: request.nextUrl.pathname,

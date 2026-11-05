@@ -237,6 +237,7 @@ export function EventRegisterPurchaseFlow({
           submitLabel={labels.submit}
           isPending={form.footer.isPending}
           fileUploadProgressSending={labels.fileUploadProgressSending}
+          uploadPercent={form.footer.uploadPercent}
           message={form.footer.message}
           surfaceVariant={surfaceVariant}
           preview={preview}

@@ -15,6 +15,9 @@ Treat `pulsarlab.vercel.app` as a Pulsar platform host, the same way as `pulsarl
 
 ## Out of scope
 
-- Other `*.vercel.app` preview URLs.
 - DNS, Vercel domain setup, or removing `TENANTS_CONFIG_JSON`.
 - Changing `PULSAR_HOSTS` when that env var is set. A set value still replaces the default list.
+
+## Update 2026-11-05
+
+A deployment URL of a known Pulsar `*.vercel.app` host is Pulsar. `pulsarlab-4efsp9rum-justomiguels-projects.vercel.app` uses slug `pulsar` and does not return 404.

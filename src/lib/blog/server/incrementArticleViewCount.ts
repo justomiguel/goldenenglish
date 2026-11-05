@@ -18,25 +18,8 @@ async function incrementBlogArticleStoredCount(
   });
   if (!error) return true;
 
-  const { data: row, error: readError } = await supabase
-    .from("blog_articles")
-    .select("view_count")
-    .eq("id", articleId);
-  if (readError || !row?.[0]) {
-    logSupabaseClientError("blog.increment_view.read", readError, { articleId });
-    return false;
-  }
-
-  const fallback = await supabase
-    .from("blog_articles")
-    .update({ view_count: Number(row[0].view_count ?? 0) + 1 })
-    .eq("id", articleId);
-  if (fallback.error) {
-    logSupabaseClientError("blog.increment_view.update", fallback.error, { articleId });
-    return false;
-  }
-
-  return true;
+  await logSupabaseClientError("blog.increment_view.rpc", error, { articleId });
+  return false;
 }
 
 export async function incrementArticleViewCount(

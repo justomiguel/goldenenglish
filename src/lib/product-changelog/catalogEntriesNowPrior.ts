@@ -3,6 +3,51 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "centrolisto-country-prices",
+    date: "2026-11-02",
+    area: "site",
+    title: t(
+      "CentroListo muestra precios por país",
+      "CentroListo shows prices by country",
+      "O CentroListo mostra preços por país",
+    ),
+    summary: t(
+      "En el sitio puedes elegir Chile, Argentina, Uruguay o Paraguay. Los precios cambian con ese país. Argentina y Uruguay usan voseo.",
+      "On the site you can choose Chile, Argentina, Uruguay, or Paraguay. Prices follow that country. Argentina and Uruguay use voseo.",
+      "No site você pode escolher Chile, Argentina, Uruguai ou Paraguai. Os preços seguem esse país. Argentina e Uruguai usam voseo.",
+    ),
+  },
+  {
+    id: "registration-inscriptions-cohort-sections",
+    date: "2026-11-02",
+    area: "admin",
+    title: t(
+      "Inscripciones asigna secciones de la cohorte web",
+      "Registrations assign sections from the web cohort",
+      "Inscrições atribuem seções da coorte web",
+    ),
+    summary: t(
+      "Al asignar una sección ves solo las de la cohorte de inscripciones web. El botón nombra esa cohorte y abre sus secciones.",
+      "When you assign a section you see only the web inscriptions cohort. The button names that cohort and opens its sections.",
+      "Ao atribuir uma seção você vê só a coorte de inscrições web. O botão nomeia essa coorte e abre as seções dela.",
+    ),
+  },
+  {
+    id: "centrolisto-three-offers",
+    date: "2026-10-30",
+    area: "site",
+    title: t(
+      "CentroListo muestra tres soluciones y sus precios",
+      "CentroListo shows three solutions and their prices",
+      "O CentroListo mostra três soluções e seus preços",
+    ),
+    summary: t(
+      "Presencia es gratis con una plantilla. Gestión y Ecosistema tienen mensualidad en Chile. El diseño exclusivo se cotiza.",
+      "Presence is free with a template. Management and Ecosystem have a monthly fee in Chile. A custom design is quoted.",
+      "Presença é grátis com um modelo. Gestão e Ecossistema têm mensalidade no Chile. O design exclusivo é orçado.",
+    ),
+  },
+  {
     id: "pulsar-tenant-create-defaults",
     date: "2026-10-30",
     area: "admin",

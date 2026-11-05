@@ -1,0 +1,30 @@
+---
+alwaysApply: true
+description: Ask the user before you choose among real readings of a request. Do not guess the surface, the role, or a deletion.
+---
+
+# Ask when you are unsure
+
+## Rule
+
+If a request has more than one real reading, ask before you edit. State the facts you already checked. Ask one question. Wait for the answer.
+
+A direct order with one reading does not need a question. Do not ask about an implementation detail that the spec or the repo already fixes.
+
+## Ask in these cases
+
+- The same words can mean two screens, two roles, or two hosts.
+- A change would remove or hide a control that already exists.
+- You would pick a default that the user did not name.
+
+## Do this
+
+1. Say where the thing is now.
+2. Name the options in one sentence each.
+3. Stop the edit that depends on the answer.
+
+```text
+Plantillas in the institute admin opens that site's themes.
+Plantillas in the CentroListo staff rail opens the client template catalog.
+Do you want the institute item removed?
+```

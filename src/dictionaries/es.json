@@ -6033,7 +6033,8 @@
         "required": "Sube el comprobante de transferencia para continuar.",
         "tooLarge": "El archivo supera el límite de {max} MB.",
         "invalidType": "Usa una imagen o un PDF.",
-        "uploadFailed": "Tu inscripción se registró, pero no pudimos subir el comprobante. Contacta al organizador.",
+        "uploadFailed": "No pudimos subir el comprobante. Revisa tu conexión e intenta de nuevo.",
+        "receiptAttachFailed": "No pudimos guardar el comprobante. Envía la inscripción otra vez.",
         "inputAriaLabel": "Seleccionar comprobante de transferencia"
       },
       "transferInstructions": {

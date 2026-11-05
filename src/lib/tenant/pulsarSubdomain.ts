@@ -76,6 +76,33 @@ export function pulsarPreviewApexes(pulsarHosts: readonly string[]): string[] {
   return apexes;
 }
 
+const VERCEL_APP_SUFFIX = ".vercel.app";
+
+/** True when `host` is the production alias or a deployment URL of a known `*.vercel.app` host. */
+export function isVercelDeploymentOfKnownHost(host: string, knownHosts: readonly string[]): boolean {
+  const label = vercelAppLabel(host);
+  if (!label) return false;
+  const projects = knownHosts
+    .map((item) => vercelAppLabel(item))
+    .filter((item): item is string => item !== null)
+    .sort((left, right) => right.length - left.length);
+  for (const project of projects) {
+    if (label === project) return true;
+    if (!label.startsWith(`${project}-`)) continue;
+    const rest = label.slice(project.length + 1);
+    if (/^[a-z0-9]{8,12}-[a-z0-9-]+$/u.test(rest)) return true;
+    if (rest.startsWith("git-") && rest.length > "git-".length) return true;
+  }
+  return false;
+}
+
+function vercelAppLabel(host: string): string | null {
+  const normalized = normalizeHost(host);
+  if (!normalized.endsWith(VERCEL_APP_SUFFIX)) return null;
+  const label = normalized.slice(0, -VERCEL_APP_SUFFIX.length);
+  return label || null;
+}
+
 export function previewHostsForTenantSlug(
   slug: string,
   pulsarHosts: readonly string[],

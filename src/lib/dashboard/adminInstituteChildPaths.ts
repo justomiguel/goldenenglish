@@ -29,8 +29,6 @@ export function isAdminInstituteChildPath(pathname: string, base: string): boole
   if (adminUserDetailId(pathname, base)) return false;
   const blog = `${base}/cms/blog`;
   if (pathname === blog || pathname.startsWith(`${blog}/`)) return false;
-  const templates = `${base}/cms/templates`;
-  if (pathname === templates || pathname.startsWith(`${templates}/`)) return false;
   for (const suffix of INSTITUTE_PREFIXES) {
     const full = `${base}${suffix}`;
     if (pathname === full || pathname.startsWith(`${full}/`)) return true;

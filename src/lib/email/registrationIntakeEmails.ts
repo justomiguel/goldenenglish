@@ -133,7 +133,7 @@ export async function sendRegistrationAdminEmails(input: {
       .eq("role", "admin")
       .limit(200);
     if (error) {
-      logSupabaseClientError("sendRegistrationAdminEmails:list", error, {
+      await logSupabaseClientError("sendRegistrationAdminEmails:list", error, {
         templateKey: input.templateKey,
         locale: input.locale,
       });
@@ -147,7 +147,7 @@ export async function sendRegistrationAdminEmails(input: {
         .map((id) => (byId.get(id) ?? "").trim().toLowerCase())
         .filter((email) => isDeliverableAuthEmail(email)),
     )];
-    logServerInfo("sendRegistrationAdminEmails:list", {
+    await logServerInfo("sendRegistrationAdminEmails:list", {
       templateKey: input.templateKey,
       locale: input.locale,
       adminIds: adminIds.length,
@@ -155,7 +155,7 @@ export async function sendRegistrationAdminEmails(input: {
       deliverable: emails.length,
     });
     if (emails.length === 0) {
-      logServerWarn("sendRegistrationAdminEmails:list", {
+      await logServerWarn("sendRegistrationAdminEmails:list", {
         reason: "no_deliverable_admins",
         templateKey: input.templateKey,
         adminIds: adminIds.length,
@@ -170,12 +170,12 @@ export async function sendRegistrationAdminEmails(input: {
         vars: input.vars,
       });
       if (!sent.ok) {
-        logServerException("sendRegistrationAdminEmails:send", new Error(sent.error), {
+        await logServerException("sendRegistrationAdminEmails:send", new Error(sent.error), {
           templateKey: input.templateKey,
         });
       }
     }
   } catch (err) {
-    logServerException("sendRegistrationAdminEmails", err);
+    await logServerException("sendRegistrationAdminEmails", err);
   }
 }

@@ -7,6 +7,7 @@ import type { CommercialPlan } from "../pulsar/commercialPlan";
 import { normalizeHost, parseTenantConfigJson } from "./parseTenantConfigJson";
 import {
   isBareLocalDevHost,
+  isVercelDeploymentOfKnownHost,
   tenantSlugFromPulsarSubdomain,
 } from "./pulsarSubdomain";
 
@@ -150,7 +151,8 @@ export function isPulsarHost(host: string | null | undefined): boolean {
   if (!host) return false;
   const normalized = normalizeHost(host);
   if (!normalized) return false;
-  return getPulsarHosts().includes(normalized);
+  const known = getPulsarHosts();
+  return known.includes(normalized) || isVercelDeploymentOfKnownHost(normalized, known);
 }
 
 /** Platform host, or bare localhost while `dev:pulsar` is the selected target. */

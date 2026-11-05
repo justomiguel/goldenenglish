@@ -54,11 +54,12 @@ export function useEventRegisterForm({
     tutorRelationship: "",
   });
 
-  const { submit, message, isPending, successOpen, uploadingFieldId } = useEventRegisterSubmit({
+  const { submit, message, isPending, successOpen, uploadingFieldId, uploadPercent } = useEventRegisterSubmit({
     labels: {
       error: labels.error,
       transferReceiptRequired: labels.transferReceipt.required,
       transferReceiptUploadFailed: labels.transferReceipt.uploadFailed,
+      receiptAttachFailed: labels.transferReceipt.receiptAttachFailed,
       paymentStartFailed: labels.payment.startFailed,
       customFieldFileRequired: labels.customFieldFile.required,
       customFieldFileTooLarge: labels.customFieldFile.tooLarge,
@@ -228,7 +229,7 @@ export function useEventRegisterForm({
         setTutor((current) => ({ ...current, [key]: value })),
       isMinor,
     },
-    footer: { consent, setConsent, message, isPending },
+    footer: { consent, setConsent, message, isPending, uploadPercent },
     flow: {
       ask: Boolean(flowView?.askFlow),
       options: (event.flows ?? []).map((flow) => ({ id: flow.id, name: flow.name, price: flow.price })),

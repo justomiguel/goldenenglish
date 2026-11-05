@@ -8,7 +8,7 @@ import {
 
 const dict = es as unknown as Dictionary;
 
-// REGRESSION CHECK: Staff plantillas must stay after Analítica. Owner nav must stay free of that path.
+// REGRESSION CHECK: Staff plantillas stay on /admin/plantillas. Owner plantillas stay on /cuenta/plantillas.
 
 describe("buildPulsarPanelNav", () => {
   it("lists staff tools and leaves public pages out", () => {
@@ -33,6 +33,7 @@ describe("buildPulsarPanelNav", () => {
     const nav = buildPulsarPanelNav({ locale: "es", role: "owner", dict });
     expect(nav.panel.map((item) => [item.label, item.href])).toEqual([
       [dict.pulsar.account.homeTitle, "/es/cuenta"],
+      [dict.pulsar.admin.templatesNav, "/es/cuenta/plantillas"],
       [dict.pulsar.account.create, "/es/cuenta/nuevo"],
       [dict.pulsar.panelNav.messages, "/es/cuenta/mensajes"],
       [dict.pulsar.panelNav.account, "/es/cuenta/perfil"],
@@ -56,5 +57,14 @@ describe("isPulsarPanelItemActive", () => {
     expect(isPulsarPanelItemActive(templates, "/es/admin/plantillas", null)).toBe(true);
     expect(isPulsarPanelItemActive(templates, "/es/admin", null)).toBe(false);
     expect(isPulsarPanelItemActive(sites, "/es/admin/plantillas", null)).toBe(false);
+  });
+
+  it("marks owner plantillas only on the owner path", () => {
+    const owner = buildPulsarPanelNav({ locale: "es", role: "owner", dict });
+    const templates = owner.panel.find((item) => item.id === "templates")!;
+    const home = owner.panel[0]!;
+    expect(isPulsarPanelItemActive(templates, "/es/cuenta/plantillas", null)).toBe(true);
+    expect(isPulsarPanelItemActive(home, "/es/cuenta/plantillas", null)).toBe(false);
+    expect(isPulsarPanelItemActive(templates, "/es/admin/plantillas", null)).toBe(false);
   });
 });

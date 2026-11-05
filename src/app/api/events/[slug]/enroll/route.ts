@@ -91,6 +91,7 @@ export async function POST(
           companions?: unknown;
           minorTicketCount?: number;
           flowId?: string;
+          receiptStagingPath?: string;
         }
       | null;
 
@@ -199,6 +200,10 @@ export async function POST(
       seatKeys: Array.isArray(body.seatKeys)
         ? body.seatKeys.filter((item): item is string => typeof item === "string")
         : [],
+      slug,
+      requireTransferReceipt: body.paymentMethod === "transfer",
+      receiptStagingPath:
+        typeof body.receiptStagingPath === "string" ? body.receiptStagingPath : null,
     });
 
     return NextResponse.json({ ok: true, result }, {

@@ -40,6 +40,7 @@ export function buildPulsarPanelNav(input: {
         ]
       : [
           panelItem("sites", `/${locale}/cuenta`, dict.pulsar.account.homeTitle),
+          panelItem("templates", `/${locale}/cuenta/plantillas`, dict.pulsar.admin.templatesNav),
           panelItem("new", `/${locale}/cuenta/nuevo`, dict.pulsar.account.create),
           panelItem("messages", `/${locale}/cuenta/mensajes`, dict.pulsar.panelNav.messages),
           panelItem("profile", `/${locale}/cuenta/perfil`, dict.pulsar.panelNav.account),

@@ -18,6 +18,7 @@ interface EventRegisterFormFooterProps {
   receiptFieldError: string;
   submitLabel: string;
   isPending: boolean;
+  uploadPercent?: number | null;
   fileUploadProgressSending: string;
   message: string;
   surfaceVariant?: PublicEventSurfaceVariant;
@@ -32,6 +33,7 @@ export function EventRegisterFormFooter({
   receiptFieldError,
   submitLabel,
   isPending,
+  uploadPercent = null,
   fileUploadProgressSending,
   message,
   surfaceVariant = "default",
@@ -66,7 +68,11 @@ export function EventRegisterFormFooter({
 
       <InlineUploadProgressBar
         label={fileUploadProgressSending}
-        {...(isPending ? { indeterminate: true } : { value: 0 })}
+        {...(isPending
+          ? typeof uploadPercent === "number"
+            ? { value: uploadPercent }
+            : { indeterminate: true }
+          : { value: 0 })}
         className={publicEventRegisterProgressClass(surfaceVariant)}
       />
 

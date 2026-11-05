@@ -6033,7 +6033,8 @@
         "required": "Upload your bank transfer proof to continue.",
         "tooLarge": "The file exceeds the {max} MB limit.",
         "invalidType": "Use an image or a PDF.",
-        "uploadFailed": "Your registration was saved, but we could not upload the proof. Contact the organizer.",
+        "uploadFailed": "We could not upload the receipt. Check your connection and try again.",
+        "receiptAttachFailed": "We could not save the receipt. Send the registration again.",
         "inputAriaLabel": "Select bank transfer proof"
       },
       "transferInstructions": {

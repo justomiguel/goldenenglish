@@ -3,6 +3,51 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "event-receipt-direct-upload",
+    date: "2026-11-05",
+    area: "events",
+    title: t(
+      "El comprobante de un evento se sube antes de inscribir",
+      "An event receipt uploads before the registration is saved",
+      "O comprovante de um evento sobe antes da inscrição",
+    ),
+    summary: t(
+      "Una foto de hasta 15 MB ya no deja un invitado en pago pendiente si la subida falla.",
+      "A photo up to 15 MB no longer leaves a guest pending payment when the upload fails.",
+      "Uma foto de até 15 MB já não deixa um convidado com pagamento pendente se o envio falhar.",
+    ),
+  },
+  {
+    id: "plantillas-owner-rail",
+    date: "2026-11-05",
+    area: "admin",
+    title: t(
+      "Plantillas queda en CentroListo y sale de la barra del instituto",
+      "Templates stay in CentroListo and leave the institute sidebar",
+      "Modelos ficam no CentroListo e saem da barra do instituto",
+    ),
+    summary: t(
+      "El dueño abre Plantillas en su cuenta. El admin del instituto ya no la ve en la barra.",
+      "The owner opens Templates in the account. The institute admin no longer sees it in the sidebar.",
+      "O dono abre Modelos na conta. O admin do instituto já não a vê na barra.",
+    ),
+  },
+  {
+    id: "blog-public-view-count",
+    date: "2026-11-05",
+    area: "cms",
+    title: t(
+      "La visita a un artículo publicado suma una vista",
+      "A visit to a published article adds one view",
+      "A visita a um artigo publicado soma uma visualização",
+    ),
+    summary: t(
+      "El contador sube en el artículo público sin pedir permiso de edición.",
+      "The counter rises on the public article without an edit permission.",
+      "O contador sobe no artigo público sem pedir permissão de edição.",
+    ),
+  },
+  {
     id: "centrolisto-template-catalog",
     date: "2026-11-05",
     area: "site",
@@ -195,51 +240,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "En el panel puedes pegar el ID de medición. La web lo usa en la siguiente visita, sin un deploy.",
       "In the panel you can paste the measurement id. The site uses it on the next visit, without a deploy.",
       "No painel você pode colar o ID de medição. O site o usa na próxima visita, sem um deploy.",
-    ),
-  },
-  {
-    id: "centrolisto-country-prices",
-    date: "2026-11-02",
-    area: "site",
-    title: t(
-      "CentroListo muestra precios por país",
-      "CentroListo shows prices by country",
-      "O CentroListo mostra preços por país",
-    ),
-    summary: t(
-      "En el sitio puedes elegir Chile, Argentina, Uruguay o Paraguay. Los precios cambian con ese país. Argentina y Uruguay usan voseo.",
-      "On the site you can choose Chile, Argentina, Uruguay, or Paraguay. Prices follow that country. Argentina and Uruguay use voseo.",
-      "No site você pode escolher Chile, Argentina, Uruguai ou Paraguai. Os preços seguem esse país. Argentina e Uruguai usam voseo.",
-    ),
-  },
-  {
-    id: "registration-inscriptions-cohort-sections",
-    date: "2026-11-02",
-    area: "admin",
-    title: t(
-      "Inscripciones asigna secciones de la cohorte web",
-      "Registrations assign sections from the web cohort",
-      "Inscrições atribuem seções da coorte web",
-    ),
-    summary: t(
-      "Al asignar una sección ves solo las de la cohorte de inscripciones web. El botón nombra esa cohorte y abre sus secciones.",
-      "When you assign a section you see only the web inscriptions cohort. The button names that cohort and opens its sections.",
-      "Ao atribuir uma seção você vê só a coorte de inscrições web. O botão nomeia essa coorte e abre as seções dela.",
-    ),
-  },
-  {
-    id: "centrolisto-three-offers",
-    date: "2026-10-30",
-    area: "site",
-    title: t(
-      "CentroListo muestra tres soluciones y sus precios",
-      "CentroListo shows three solutions and their prices",
-      "O CentroListo mostra três soluções e seus preços",
-    ),
-    summary: t(
-      "Presencia es gratis con una plantilla. Gestión y Ecosistema tienen mensualidad en Chile. El diseño exclusivo se cotiza.",
-      "Presence is free with a template. Management and Ecosystem have a monthly fee in Chile. A custom design is quoted.",
-      "Presença é grátis com um modelo. Gestão e Ecossistema têm mensalidade no Chile. O design exclusivo é orçado.",
     ),
   },
 ];

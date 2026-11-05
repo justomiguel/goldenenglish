@@ -1,10 +1,13 @@
 import "server-only";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
-import { serializeEventFieldValuesForEnrollRpc } from "@/lib/events/serializeEventFieldValuesForEnrollRpc";
 import { resolveEventMinorTicketCharge } from "@/lib/events/resolveEventMinorTicketCharge";
+import {
+  assertEventRegistrationStaging,
+  eventStagingFileMeta,
+} from "@/lib/events/eventRegistrationStagingPath";
+import { finalizeEventTransferReceipt } from "@/lib/events/server/finalizeEventTransferReceipt";
 import { storeEnrolledAttendeeCharge } from "@/lib/events/server/storeEnrolledAttendeeCharge";
+import { logServerWarn } from "@/lib/logging/serverActionLog";
 import { notifyAdminsEventRegistered } from "@/lib/email/notifyAdminsPurchasePayment";
 import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
 import type { EventSeatMapConfig } from "@/lib/events/seatMapModel";
@@ -18,6 +21,10 @@ import type {
   EventFieldPayloadEntry,
   EventTutorPayload,
 } from "@/lib/events/types";
+import {
+  callEnrollEventAttendeeRpc,
+  emptyEventEnrollment,
+} from "@/lib/events/server/enrollEventAttendeeRpc";
 
 export interface EnrollEventAttendeeServerInput {
   eventId: string;
@@ -54,6 +61,9 @@ export interface EnrollEventAttendeeServerInput {
   minorTicketCount?: number;
   allowMinorTickets?: boolean;
   minorTicketPrice?: number | null;
+  slug?: string | null;
+  requireTransferReceipt?: boolean;
+  receiptStagingPath?: string | null;
 }
 
 export interface EnrollEventAttendeeServerResult {
@@ -62,89 +72,10 @@ export interface EnrollEventAttendeeServerResult {
   paymentRequired: boolean;
   paymentId: string | null;
   resultCode: string;
-  /** Seats bought. On `insufficient_seats` this is how many are left instead. */
+  /** Seats bought. On `insufficient_seats` this is how many are left instead of seats bought. */
   seats: number;
   /** Recomputed by the database; whatever the client believed is ignored. */
   totalAmount: number | null;
-}
-
-async function callEnrollRpc(
-  client: SupabaseClient,
-  input: EnrollEventAttendeeServerInput,
-  discountCode: string,
-): Promise<EnrollEventAttendeeServerResult> {
-  const flowUnitPrice = input.registrationFlow?.price;
-  const { data, error } = await client.rpc(
-    discountCode ? "enroll_event_attendee_with_discount" : "enroll_event_attendee",
-    {
-    p_event_id: input.eventId,
-    p_user_id: input.userId ?? null,
-    p_first_name: input.firstName,
-    p_last_name: input.lastName,
-    p_dni_or_passport: input.dniOrPassport,
-    p_email: input.email,
-    p_phone: input.phone ?? null,
-    p_birth_date: input.birthDate ?? null,
-    p_tutor_id: input.tutor?.tutorId ?? null,
-    p_tutor_first_name: input.tutor?.tutorFirstName ?? null,
-    p_tutor_last_name: input.tutor?.tutorLastName ?? null,
-    p_tutor_dni_or_passport: input.tutor?.tutorDniOrPassport ?? null,
-    p_tutor_email: input.tutor?.tutorEmail ?? null,
-    p_tutor_phone: input.tutor?.tutorPhone ?? null,
-    p_tutor_relationship: input.tutor?.tutorRelationship ?? null,
-    p_source: input.source,
-    p_is_local_resident: input.isLocalResident ?? true,
-    p_field_values: serializeEventFieldValuesForEnrollRpc(input.fieldValues),
-    p_ticket_package_id: input.ticketPackageId ?? null,
-    p_companions: serializeCompanionsForEnrollRpc(input.companions ?? []),
-    ...(discountCode
-      ? {
-          p_discount_code: discountCode,
-          p_flow_unit_price: flowUnitPrice == null ? null : flowUnitPrice,
-        }
-      : {}),
-  });
-
-  if (error) {
-    logSupabaseClientError("enrollEventAttendeeServer:rpc", error, { eventId: input.eventId });
-    return failure("rpc_error");
-  }
-
-  const row = Array.isArray(data) ? data[0] : null;
-  if (!row) return failure("rpc_empty");
-
-  return {
-    attendeeId: row.attendee_id ? String(row.attendee_id) : null,
-    attendeeStatus: row.attendee_status ? String(row.attendee_status) : null,
-    paymentRequired: Boolean(row.payment_required),
-    paymentId: row.payment_id ? String(row.payment_id) : null,
-    resultCode: String(row.result_code ?? "unknown"),
-    seats: Number(row.seats ?? 0),
-    totalAmount: row.total_amount == null ? null : Number(row.total_amount),
-  };
-}
-
-function failure(resultCode: string): EnrollEventAttendeeServerResult {
-  return {
-    attendeeId: null,
-    attendeeStatus: null,
-    paymentRequired: false,
-    paymentId: null,
-    resultCode,
-    seats: 0,
-    totalAmount: null,
-  };
-}
-
-function serializeCompanionsForEnrollRpc(companions: EventCompanionPayload[]) {
-  return companions.map((companion) => ({
-    first_name: companion.firstName,
-    last_name: companion.lastName,
-    dni_or_passport: companion.dniOrPassport ?? null,
-    email: companion.email ?? null,
-    birth_date: companion.birthDate ?? null,
-    field_values: serializeEventFieldValuesForEnrollRpc(companion.fieldValues ?? []),
-  }));
 }
 
 const ENROLL_MAIL_CODES = new Set(["confirmed", "payment_pending", "waitlist"]);
@@ -154,7 +85,25 @@ export async function enrollEventAttendeeServer(
 ): Promise<EnrollEventAttendeeServerResult> {
   const admin = await createAdminClient();
   const discountCode = input.discountCode?.trim() ?? "";
-  if (discountCode && input.familyDiscountClaimed === true) return failure("discount_conflict");
+  if (discountCode && input.familyDiscountClaimed === true) {
+    return emptyEventEnrollment("discount_conflict");
+  }
+  const fileGate = assertEventRegistrationStaging({
+    eventId: input.eventId,
+    slug: input.slug ?? "",
+    email: input.email,
+    dniOrPassport: input.dniOrPassport,
+    requireReceipt: Boolean(input.requireTransferReceipt),
+    receiptPath: input.receiptStagingPath ?? "",
+    filePaths: input.fieldValues.flatMap((entry) =>
+      entry.fileStoragePath ? [{ fieldId: entry.fieldId, path: entry.fileStoragePath }] : [],
+    ),
+  });
+  if (!fileGate.ok) {
+    await logServerWarn("events.enroll.staging", { reason: fileGate.code, eventId: input.eventId });
+    return emptyEventEnrollment(fileGate.code);
+  }
+
   const minorPreview = resolveEventMinorTicketCharge({
     seats: 1 + (input.companions?.length ?? 0),
     minorTickets: input.minorTicketCount ?? 0,
@@ -162,7 +111,7 @@ export async function enrollEventAttendeeServer(
     minorUnitPrice: input.minorTicketPrice ?? null,
     allowMinorTickets: Boolean(input.allowMinorTickets),
   });
-  if (!minorPreview.ok) return failure(minorPreview.reason);
+  if (!minorPreview.ok) return emptyEventEnrollment(minorPreview.reason);
 
   let assignedSeats: Array<{ seatKey: string; seatLabel: string }> = [];
   if (isEventSeatMapActive(input.seatMapConfig)) {
@@ -173,11 +122,11 @@ export async function enrollEventAttendeeServer(
       selectedSeatKeys: input.seatKeys ?? [],
       requiredSeatCount: 1 + (input.companions?.length ?? 0),
     });
-    if (!seatCheck.ok) return failure(seatCheck.code);
+    if (!seatCheck.ok) return emptyEventEnrollment(seatCheck.code);
     assignedSeats = seatCheck.assignedSeats;
   }
 
-  const result = await callEnrollRpc(admin, input, discountCode);
+  const result = await callEnrollEventAttendeeRpc(admin, input, discountCode);
   if (!result.attendeeId || !ENROLL_MAIL_CODES.has(result.resultCode)) return result;
 
   if (assignedSeats.length > 0) {
@@ -186,7 +135,7 @@ export async function enrollEventAttendeeServer(
       attendeeId: result.attendeeId,
       seats: assignedSeats,
     });
-    if (!lockRes.ok) return failure(lockRes.code);
+    if (!lockRes.ok) return emptyEventEnrollment(lockRes.code);
   }
 
   const stored = await storeEnrolledAttendeeCharge(admin, {
@@ -206,7 +155,22 @@ export async function enrollEventAttendeeServer(
     rpcPaymentRequired: result.paymentRequired,
     seats: result.seats,
   });
-  if (!stored.ok) return failure(stored.reason);
+  if (!stored.ok) return emptyEventEnrollment(stored.reason);
+
+  if (stored.paymentRequired && input.requireTransferReceipt) {
+    const file = eventStagingFileMeta(input.receiptStagingPath ?? "");
+    const attached = await finalizeEventTransferReceipt(admin, {
+      eventId: input.eventId,
+      attendeeId: result.attendeeId,
+      amount: stored.totalAmount ?? 0,
+      currency: input.currency?.trim() || "CLP",
+      stagingPath: input.receiptStagingPath ?? "",
+      fileName: file.fileName,
+      mime: file.mime,
+      uploadedByUserId: input.userId ?? null,
+    });
+    if (!attached.ok) return emptyEventEnrollment("receipt_attach_failed");
+  }
 
   await sendEventAttendeeNotification({
     attendeeId: result.attendeeId,

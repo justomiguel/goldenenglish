@@ -64,6 +64,9 @@ describe("Pulsar host resolution and dynamic tenant cache", () => {
     expect(isPulsarHost("pulsarlab.cl")).toBe(true);
     expect(isPulsarHost("www.pulsarlab.cl:443")).toBe(true);
     expect(isPulsarHost("pulsarlab.vercel.app")).toBe(true);
+    expect(isPulsarHost("pulsarlab-4efsp9rum-justomiguels-projects.vercel.app")).toBe(true);
+    expect(isPulsarHost("pulsarlab-git-main-justomiguels-projects.vercel.app")).toBe(true);
+    expect(isPulsarHost("other-4efsp9rum-justomiguels-projects.vercel.app")).toBe(false);
     expect(isPulsarHost("centrolisto.cl")).toBe(true);
     expect(isPulsarHost("www.centrolisto.cl:443")).toBe(true);
     expect(isPulsarHost("capoeiranago.cl")).toBe(false);
@@ -101,6 +104,13 @@ describe("Pulsar host resolution and dynamic tenant cache", () => {
       tenantHostBlockStatus(
         (name) => (name === "host" ? "pulsarlab.vercel.app" : null),
         "/es",
+      ),
+    ).toBeNull();
+    expect(
+      tenantHostBlockStatus(
+        (name) =>
+          name === "host" ? "pulsarlab-4efsp9rum-justomiguels-projects.vercel.app" : null,
+        "/",
       ),
     ).toBeNull();
     expect(

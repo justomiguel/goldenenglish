@@ -29,7 +29,6 @@ describe("buildAdminDailyNavItems", () => {
       `${BASE}/academic`,
       `${BASE}/finance`,
       `${BASE}/events`,
-      `${BASE}/cms/templates`,
       `${BASE}/institute`,
     ]);
   });
@@ -47,7 +46,6 @@ describe("buildAdminDailyNavItems", () => {
       `${BASE}/finance`,
       `${BASE}/events`,
       `${BASE}/cms/blog`,
-      `${BASE}/cms/templates`,
       `${BASE}/institute`,
     ]);
   });
@@ -65,16 +63,14 @@ describe("buildAdminDailyNavItems", () => {
       `${BASE}/finance`,
       `${BASE}/events`,
       `${BASE}/merch`,
-      `${BASE}/cms/templates`,
       `${BASE}/institute`,
     ]);
   });
 
   it("lists blog then merch when both flags", () => {
-    expect(hrefs({ includeBlogNav: true, includeMerchNav: true }).slice(-4)).toEqual([
+    expect(hrefs({ includeBlogNav: true, includeMerchNav: true }).slice(-3)).toEqual([
       `${BASE}/cms/blog`,
       `${BASE}/merch`,
-      `${BASE}/cms/templates`,
       `${BASE}/institute`,
     ]);
   });
@@ -103,6 +99,7 @@ describe("buildAdminDailyNavItems", () => {
   it("does not list glossary or email templates on the daily rail", () => {
     const set = new Set(hrefs({ includeBlogNav: true }));
     expect(set.has(`${BASE}/glossary`)).toBe(false);
+    expect(set.has(`${BASE}/cms/templates`)).toBe(false);
     expect(set.has(`${BASE}/communications/templates`)).toBe(false);
   });
 
@@ -122,7 +119,6 @@ describe("buildAdminDailyNavItems", () => {
       "academic",
       "finance",
       "events",
-      "cms",
       "institute",
     ]);
   });
