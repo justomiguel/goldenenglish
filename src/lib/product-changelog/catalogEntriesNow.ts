@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "centrolisto-template-catalog",
+    date: "2026-11-05",
+    area: "site",
+    title: t(
+      "El panel de CentroListo lista las plantillas de sitio",
+      "The CentroListo panel lists the site templates",
+      "O painel do CentroListo lista os modelos de site",
+    ),
+    summary: t(
+      "En Plantillas revisas las diez portadas y abres cada una completa.",
+      "On Templates you review the ten covers and open each full page.",
+      "Em Modelos você revisa as dez capas e abre cada página completa.",
+    ),
+  },
+  {
     id: "student-task-from-progress",
     date: "2026-11-04",
     area: "academic",

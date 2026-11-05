@@ -85,6 +85,7 @@ describe("app/sitemap", () => {
     expect(entries.some((e) => e.url.includes("/clientes"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/contacto"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/login"))).toBe(false);
+    expect(entries.some((e) => e.url.includes("/admin/plantillas"))).toBe(false);
     expect(entries.some((e) => e.url.includes("/preguntas"))).toBe(false);
     expect(entries.some((e) => e.url.includes("/blog"))).toBe(false);
     expect(entries.some((e) => e.url.includes("/events"))).toBe(false);

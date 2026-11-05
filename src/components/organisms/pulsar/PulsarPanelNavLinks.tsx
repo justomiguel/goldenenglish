@@ -3,6 +3,7 @@ import {
   BarChart3,
   Building2,
   Inbox,
+  LayoutTemplate,
   Mail,
   Plus,
   UserRound,
@@ -20,6 +21,7 @@ const ICONS: Record<string, LucideIcon> = {
   mail: Mail,
   messages: Inbox,
   analytics: BarChart3,
+  templates: LayoutTemplate,
   new: Plus,
   profile: UserRound,
 };
