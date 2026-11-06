@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { setInscriptionsEnabled } from "@/app/[locale]/dashboard/admin/settings/actions";
 import { setMerchEnabled } from "@/app/[locale]/dashboard/admin/settings/setMerchEnabled";
-import { setRegisterShowAllSections } from "@/app/[locale]/dashboard/admin/settings/setRegisterShowAllSections";
+import { setRegisterSectionMode } from "@/app/[locale]/dashboard/admin/settings/setRegisterSectionMode";
 
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
@@ -79,23 +79,39 @@ describe("setMerchEnabled", () => {
   });
 });
 
-describe("setRegisterShowAllSections", () => {
+describe("setRegisterSectionMode", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("returns ok false when admin check fails", async () => {
     mockAssertAdmin.mockRejectedValue(new Error("no"));
-    expect(await setRegisterShowAllSections("es", true)).toEqual({ ok: false });
+    expect(await setRegisterSectionMode("es", "student_choice")).toEqual({ ok: false });
   });
 
-  it("returns ok true after revalidation paths", async () => {
+  it("returns ok false for an unknown mode and does not write", async () => {
     mockAssertAdmin.mockResolvedValue({});
+    const upsert = vi.fn();
     mockCreateClient.mockResolvedValue({
-      from: () => ({
-        upsert: vi.fn().mockResolvedValue({ error: null }),
-      }),
+      from: () => ({ upsert }),
     });
-    expect(await setRegisterShowAllSections("en", true)).toEqual({ ok: true });
+    expect(await setRegisterSectionMode("es", "nope" as "student_choice")).toEqual({ ok: false });
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it("upserts register_section_mode", async () => {
+    mockAssertAdmin.mockResolvedValue({});
+    const upsert = vi.fn().mockResolvedValue({ error: null });
+    mockCreateClient.mockResolvedValue({
+      from: () => ({ upsert }),
+    });
+    expect(await setRegisterSectionMode("en", "admin_assign")).toEqual({ ok: true });
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: "register_section_mode",
+        value: "admin_assign",
+      }),
+      { onConflict: "key" },
+    );
   });
 });

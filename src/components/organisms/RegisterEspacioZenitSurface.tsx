@@ -10,6 +10,7 @@ import { resolveEspacioZenitHeaderLogo } from "@/lib/landing/resolveEspacioZenit
 import { RegisterForm } from "@/components/register/RegisterForm";
 import { EspacioZenitRegisterHeader } from "@/components/molecules/EspacioZenitRegisterHeader";
 import { EspacioZenitFontRoot } from "@/components/organisms/EspacioZenitFontRoot";
+import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export interface RegisterEspacioZenitSurfaceProps {
@@ -23,7 +24,7 @@ export interface RegisterEspacioZenitSurfaceProps {
   mediaMap?: LandingMediaMap;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
-  showAllSections?: boolean;
+  sectionMode?: RegisterSectionMode;
 }
 
 export function RegisterEspacioZenitSurface({
@@ -37,7 +38,7 @@ export function RegisterEspacioZenitSurface({
   extrasPack = null,
   intent = "reserve",
   sessionEmail = null,
-  showAllSections = false,
+  sectionMode = "first_open",
 }: RegisterEspacioZenitSurfaceProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveEspacioZenitHeaderLogo(brand, mediaMap);
@@ -105,7 +106,7 @@ export function RegisterEspacioZenitSurface({
               enrollmentLink={enrollmentLink}
               extrasPack={extrasPack}
               intent={intent}
-              showAllSections={showAllSections}
+              sectionMode={sectionMode}
             />
           </div>
 

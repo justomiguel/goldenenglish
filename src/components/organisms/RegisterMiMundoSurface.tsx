@@ -12,6 +12,7 @@ import { MiMundoFontRoot } from "@/components/organisms/MiMundoFontRoot";
 import { MiMundoFloatingDoodles } from "@/components/molecules/MiMundoFloatingDoodles";
 import { MiMundoCursorTrail } from "@/components/molecules/MiMundoCursorTrail";
 import { MiMundoButterflyTrails } from "@/components/molecules/MiMundoButterflyTrails";
+import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export interface RegisterMiMundoSurfaceProps {
@@ -24,7 +25,7 @@ export interface RegisterMiMundoSurfaceProps {
   extrasPack?: "nago" | null;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
-  showAllSections?: boolean;
+  sectionMode?: RegisterSectionMode;
 }
 
 /**
@@ -46,7 +47,7 @@ export function RegisterMiMundoSurface({
   extrasPack = null,
   intent = "reserve",
   sessionEmail = null,
-  showAllSections = false,
+  sectionMode = "first_open",
 }: RegisterMiMundoSurfaceProps) {
   const prefix = `/${locale}`;
   const t = (path: string) => marketingLandingCopy(dict, "mm", path);
@@ -204,7 +205,7 @@ export function RegisterMiMundoSurface({
                 enrollmentLink={enrollmentLink}
                 extrasPack={extrasPack}
                 intent={intent}
-                showAllSections={showAllSections}
+                sectionMode={sectionMode}
               />
             </div>
 

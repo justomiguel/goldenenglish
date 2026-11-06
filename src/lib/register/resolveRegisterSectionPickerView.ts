@@ -4,6 +4,7 @@ import {
   normalizeRegisterPickerOptions,
   type RegistrationSectionPickerOption,
 } from "@/lib/register/registrationSectionPicker";
+import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export function resolveRegisterChoosableIds(
@@ -17,21 +18,27 @@ export function resolveRegisterChoosableIds(
 
 export function resolveRegisterSectionPickerView(input: {
   choosableIds: string[];
-  showAllSections: boolean;
+  sectionMode: RegisterSectionMode;
 }): {
   showPicker: boolean;
   hiddenPreferredSectionId: string;
 } {
+  if (input.sectionMode === "admin_assign") {
+    return {
+      showPicker: false,
+      hiddenPreferredSectionId: REGISTRATION_UNDECIDED_FORM_VALUE,
+    };
+  }
   const hiddenPreferredSectionId = input.choosableIds[0] ?? REGISTRATION_UNDECIDED_FORM_VALUE;
   return {
-    showPicker: input.showAllSections && input.choosableIds.length > 1,
+    showPicker: input.sectionMode === "student_choice" && input.choosableIds.length > 1,
     hiddenPreferredSectionId,
   };
 }
 
 export function initialRegisterSelectedSectionIds(input: {
   choosableIds: string[];
-  showAllSections: boolean;
+  sectionMode: RegisterSectionMode;
   hasEnrollmentLink?: boolean;
 }): string[] {
   if (input.hasEnrollmentLink) return [];

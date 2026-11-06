@@ -50,8 +50,8 @@ vi.mock("@/app/[locale]/dashboard/admin/settings/actions", () => ({
   setInscriptionsEnabled: vi.fn().mockResolvedValue({ ok: true }),
 }));
 
-vi.mock("@/app/[locale]/dashboard/admin/settings/setRegisterShowAllSections", () => ({
-  setRegisterShowAllSections: vi.fn().mockResolvedValue({ ok: true }),
+vi.mock("@/app/[locale]/dashboard/admin/settings/setRegisterSectionMode", () => ({
+  setRegisterSectionMode: vi.fn().mockResolvedValue({ ok: true }),
 }));
 
 vi.mock("@/app/[locale]/dashboard/admin/payments/actions", () => ({

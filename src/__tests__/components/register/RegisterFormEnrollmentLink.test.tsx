@@ -155,6 +155,30 @@ describe("RegisterForm in enrollment-link mode", () => {
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
   });
 
+  it("keeps the locked section when the public mode assigns later", async () => {
+    const user = userEvent.setup();
+    await renderForm({
+      sectionOptions: [{ id: link.sectionId, label: "Ciclo — B" }],
+      enrollmentLink: link,
+      sectionMode: "admin_assign",
+    });
+
+    await user.type(screen.getByLabelText("DNI"), "12345678");
+    await user.click(screen.getByRole("button", { name: "Continuar" }));
+    expect(await screen.findByLabelText("Nombre")).toBeInTheDocument();
+    await user.type(screen.getByLabelText("Nombre"), "Ana");
+    await user.type(screen.getByLabelText("Apellido"), "Pérez");
+    await user.click(screen.getByText("set-birth-date"));
+    await user.type(screen.getByLabelText("Email"), "ana@example.com");
+    await user.type(screen.getByLabelText("Teléfono"), "3624000000");
+    await user.click(screen.getByRole("checkbox"));
+    await user.click(screen.getByRole("button", { name: "Enviar" }));
+
+    expect(submitPublicRegistration).not.toHaveBeenCalled();
+    const raw = submitSectionLinkRegistration.mock.calls[0]?.[2] as { preferred_section_id?: string };
+    expect(raw.preferred_section_id).toBe(link.sectionId);
+  });
+
   it("submits through the token action, passing the token", async () => {
     const user = userEvent.setup();
     await renderForm({ sectionOptions: [], enrollmentLink: link });

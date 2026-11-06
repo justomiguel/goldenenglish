@@ -10,6 +10,7 @@ import { RegisterForm } from "@/components/register/RegisterForm";
 import { MozarthitosReveal } from "@/components/molecules/MozarthitosReveal";
 import { MozarthitosRegisterHeader } from "@/components/molecules/MozarthitosRegisterHeader";
 import { MozarthitosFontRoot } from "@/components/organisms/MozarthitosFontRoot";
+import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export interface RegisterMozarthitosSurfaceProps {
@@ -23,7 +24,7 @@ export interface RegisterMozarthitosSurfaceProps {
   mediaMap?: LandingMediaMap;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
-  showAllSections?: boolean;
+  sectionMode?: RegisterSectionMode;
 }
 
 export function RegisterMozarthitosSurface({
@@ -37,7 +38,7 @@ export function RegisterMozarthitosSurface({
   extrasPack = null,
   intent = "reserve",
   sessionEmail = null,
-  showAllSections = false,
+  sectionMode = "first_open",
 }: RegisterMozarthitosSurfaceProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveLandingImageSrcForTheme(
@@ -132,7 +133,7 @@ export function RegisterMozarthitosSurface({
               enrollmentLink={enrollmentLink}
               extrasPack={extrasPack}
               intent={intent}
-              showAllSections={showAllSections}
+              sectionMode={sectionMode}
             />
           </div>
           <p className="mt-8 flex justify-center md:justify-start">

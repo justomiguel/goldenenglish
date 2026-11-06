@@ -16,6 +16,7 @@ import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackFo
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import { collectRegisterExtrasPrefill } from "@/lib/register/packs/nago/collectRegisterExtrasPrefill";
 import { initialRegisterSelectedSectionIds, resolveRegisterChoosableIds } from "@/lib/register/resolveRegisterSectionPickerView";
+import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import { useRegisterDniDraft } from "@/hooks/useRegisterDniDraft";
 
 const PUBLIC_FORM_CLASS =
@@ -34,7 +35,7 @@ interface RegisterFormProps {
   embedded?: boolean;
   onRegistered?: () => void;
   onLeave?: () => void;
-  showAllSections?: boolean;
+  sectionMode?: RegisterSectionMode;
 }
 
 export function RegisterForm({
@@ -48,7 +49,7 @@ export function RegisterForm({
   embedded = false,
   onRegistered,
   onLeave,
-  showAllSections = false,
+  sectionMode = "first_open",
 }: RegisterFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const { dni, setDni, step, setStep, clearDraft } = useRegisterDniDraft(locale, intent);
@@ -67,7 +68,7 @@ export function RegisterForm({
   const [selectedSectionIds, setSelectedSectionIds] = useState<string[]>(() =>
     initialRegisterSelectedSectionIds({
       choosableIds: resolveRegisterChoosableIds(sectionOptions, intent),
-      showAllSections,
+      sectionMode,
       hasEnrollmentLink: Boolean(enrollmentLink),
     }),
   );
@@ -195,7 +196,7 @@ export function RegisterForm({
             selectedSectionIds={selectedSectionIds}
             onSelectedSectionIdsChange={setSelectedSectionIds}
             enrollmentLink={enrollmentLink}
-            showAllSections={showAllSections}
+            sectionMode={sectionMode}
             intent={intent}
             step={step}
             extrasPack={extrasPack}

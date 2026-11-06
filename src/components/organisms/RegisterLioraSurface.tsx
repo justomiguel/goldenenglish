@@ -8,6 +8,7 @@ import { RegisterForm } from "@/components/register/RegisterForm";
 import { LioraRegisterHeader } from "@/components/molecules/LioraRegisterHeader";
 import { LioraFontRoot } from "@/components/organisms/LioraFontRoot";
 import { LIORA_SEDE_KEYS } from "@/lib/landing/lioraSchedule";
+import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export interface RegisterLioraSurfaceProps {
@@ -20,7 +21,7 @@ export interface RegisterLioraSurfaceProps {
   extrasPack?: "nago" | null;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
-  showAllSections?: boolean;
+  sectionMode?: RegisterSectionMode;
 }
 
 export function RegisterLioraSurface({
@@ -33,7 +34,7 @@ export function RegisterLioraSurface({
   extrasPack = null,
   intent = "reserve",
   sessionEmail = null,
-  showAllSections = false,
+  sectionMode = "first_open",
 }: RegisterLioraSurfaceProps) {
   const prefix = `/${locale}`;
   const t = (path: string) => marketingLandingCopy(dict, "liora", path);
@@ -96,7 +97,7 @@ export function RegisterLioraSurface({
               enrollmentLink={enrollmentLink}
               extrasPack={extrasPack}
               intent={intent}
-              showAllSections={showAllSections}
+              sectionMode={sectionMode}
             />
           </div>
           <p className="mt-8 flex justify-center md:justify-start">

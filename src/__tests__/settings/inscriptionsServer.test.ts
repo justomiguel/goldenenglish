@@ -19,6 +19,7 @@ vi.mock("@/lib/supabase/server", () => ({
 
 import {
   getInscriptionsEnabled,
+  getRegisterSectionMode,
   getRegisterShowAllSections,
   parseConfiguredCohortId,
   parseSiteSettingsBoolean,
@@ -28,6 +29,7 @@ import {
 describe("getInscriptionsEnabled", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockFrom.mockImplementation(() => chain);
     chain.maybeSingle.mockResolvedValue({ data: null });
   });
 
@@ -65,6 +67,7 @@ describe("parseSiteSettingsBoolean", () => {
 describe("getRegisterShowAllSections", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockFrom.mockImplementation(() => chain);
     chain.maybeSingle.mockResolvedValue({ data: null });
   });
 
@@ -75,6 +78,45 @@ describe("getRegisterShowAllSections", () => {
   it("reads a true boolean", async () => {
     chain.maybeSingle.mockResolvedValue({ data: { value: true } });
     await expect(getRegisterShowAllSections()).resolves.toBe(true);
+  });
+});
+
+describe("getRegisterSectionMode", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function mockSettings(rows: Record<string, unknown>) {
+    mockFrom.mockImplementation(() => {
+      let key = "";
+      const query = {
+        select: () => query,
+        eq: (_column: string, value: string) => {
+          key = value;
+          return query;
+        },
+        maybeSingle: async () =>
+          Object.prototype.hasOwnProperty.call(rows, key)
+            ? { data: { value: rows[key] } }
+            : { data: null },
+      };
+      return query;
+    });
+  }
+
+  it("returns the stored mode", async () => {
+    mockSettings({ register_section_mode: "admin_assign", register_show_all_sections: false });
+    await expect(getRegisterSectionMode()).resolves.toBe("admin_assign");
+  });
+
+  it("follows the old boolean when the mode row is missing", async () => {
+    mockSettings({ register_show_all_sections: true });
+    await expect(getRegisterSectionMode()).resolves.toBe("student_choice");
+  });
+
+  it("uses the first open section when both rows are missing", async () => {
+    mockSettings({});
+    await expect(getRegisterSectionMode()).resolves.toBe("first_open");
   });
 });
 
@@ -121,5 +163,20 @@ describe("parseConfiguredCohortId & resolveRegistrationCohortState", () => {
     );
     expect(state.activeCohort).toEqual(cohort2026);
     expect(state.configuredCohortId).toBeNull();
+  });
+
+  it("rejects an object whose cohortId is not a UUID", () => {
+    expect(parseConfiguredCohortId({ cohortId: "  not-a-uuid " })).toBeNull();
+  });
+
+  it("uses the first cohort when no cohort is current", () => {
+    const state = resolveRegistrationCohortState([cohort2027], null);
+    expect(state.currentCohort).toBeNull();
+    expect(state.activeCohort).toEqual(cohort2027);
+  });
+
+  it("returns no active cohort when the list is empty", () => {
+    const state = resolveRegistrationCohortState([], null);
+    expect(state.activeCohort).toBeNull();
   });
 });

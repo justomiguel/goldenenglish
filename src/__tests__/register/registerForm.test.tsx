@@ -17,6 +17,7 @@ vi.mock("@/app/[locale]/register/lookupRegistrationStudentAction", () => ({
 }));
 
 import { RegisterForm } from "@/components/register/RegisterForm";
+import { REGISTRATION_UNDECIDED_FORM_VALUE } from "@/lib/register/registrationSectionConstants";
 
 const SECTION_ID = "00000000-0000-4000-8000-000000000001";
 const SECTION_OPTIONS = [{ id: SECTION_ID, label: "2026 — B1 Morning" }];
@@ -387,7 +388,7 @@ describe("RegisterForm", () => {
           ...SECTION_OPTIONS,
           { id: secondId, label: "2026 — B1 Afternoon" },
         ]}
-        showAllSections
+        sectionMode="student_choice"
       />,
     );
     await continueFromDniStep("12345678");
@@ -401,6 +402,50 @@ describe("RegisterForm", () => {
         dictEn.register.assignedSectionLine.replace("{section}", SECTION_OPTIONS[0].label),
       ),
     ).not.toBeInTheDocument();
+  });
+
+  it("posts the undecided section when staff assign later", async () => {
+    submitPublicRegistration.mockResolvedValue({ ok: true });
+    const secondId = "00000000-0000-4000-8000-000000000002";
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={[
+          ...SECTION_OPTIONS,
+          { id: secondId, label: "2026 — B1 Afternoon" },
+        ]}
+        sectionMode="admin_assign"
+      />,
+    );
+    await continueFromDniStep("12345678");
+    await waitFor(() => {
+      expect(screen.getByLabelText(dictEn.register.firstName)).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("combobox", { name: dictEn.register.level })).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        dictEn.register.assignedSectionLine.replace("{section}", SECTION_OPTIONS[0].label),
+      ),
+    ).not.toBeInTheDocument();
+    fillStudentNameFields();
+    pickRegisterBirthIso("2000-06-15");
+    fireEvent.change(screen.getByLabelText(dictEn.register.email), {
+      target: { value: "a@b.co" },
+    });
+    fireEvent.change(screen.getByLabelText(dictEn.register.phone), {
+      target: { value: "+100" },
+    });
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: dictEn.register.submit }));
+    await waitFor(() => {
+      expect(screen.getByText(dictEn.register.successTitle)).toBeInTheDocument();
+    });
+    expect(submitPublicRegistration).toHaveBeenCalledWith(
+      "es",
+      expect.objectContaining({ preferred_section_id: REGISTRATION_UNDECIDED_FORM_VALUE }),
+    );
   });
 
   it("names the first open section when show-all is off and more than one exists", async () => {

@@ -7,6 +7,7 @@ import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { RegisterForm } from "@/components/register/RegisterForm";
 import { NagoRegisterHeader } from "@/components/molecules/NagoRegisterHeader";
 import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
+import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import { resolveNagoLogo } from "@/lib/landing/nagoLogo";
 
@@ -20,7 +21,7 @@ export interface RegisterNagoSurfaceProps {
   extrasPack?: "nago" | null;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
-  showAllSections?: boolean;
+  sectionMode?: RegisterSectionMode;
 }
 
 export function RegisterNagoSurface({
@@ -33,7 +34,7 @@ export function RegisterNagoSurface({
   extrasPack = null,
   intent = "reserve",
   sessionEmail = null,
-  showAllSections = false,
+  sectionMode = "first_open",
 }: RegisterNagoSurfaceProps) {
   const prefix = `/${locale}`;
   const nago = dict.landing.nago;
@@ -89,7 +90,7 @@ export function RegisterNagoSurface({
               enrollmentLink={enrollmentLink}
               extrasPack={extrasPack}
               intent={intent}
-              showAllSections={showAllSections}
+              sectionMode={sectionMode}
             />
           </div>
           <p className="mt-8 flex justify-center md:justify-start">

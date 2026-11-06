@@ -9,6 +9,7 @@ import { RegisterMiMundoSurface } from "@/components/organisms/RegisterMiMundoSu
 import { RegisterMozarthitosSurface } from "@/components/organisms/RegisterMozarthitosSurface";
 import { RegisterNagoSurface } from "@/components/organisms/RegisterNagoSurface";
 import { extrasPackForTemplateKind } from "@/lib/register/packs/extrasPackForTemplateKind";
+import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 interface RegisterSurfaceByTemplateProps {
@@ -22,7 +23,7 @@ interface RegisterSurfaceByTemplateProps {
   enrollmentLink?: SectionEnrollmentLinkContext;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
-  showAllSections?: boolean;
+  sectionMode?: RegisterSectionMode;
 }
 
 /**

@@ -4,32 +4,45 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
-import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import {
+  logServerAuthzDenied,
+  logServerWarn,
+  logSupabaseClientError,
+} from "@/lib/logging/serverActionLog";
+import {
+  isRegisterSectionMode,
+  type RegisterSectionMode,
+} from "@/lib/settings/registerSectionMode";
 
-export async function setRegisterShowAllSections(
+export async function setRegisterSectionMode(
   locale: string,
-  enabled: boolean,
+  mode: RegisterSectionMode,
 ): Promise<{ ok: boolean }> {
   try {
     await assertAdmin();
   } catch {
-    logServerAuthzDenied("setRegisterShowAllSections");
+    logServerAuthzDenied("setRegisterSectionMode");
+    return { ok: false };
+  }
+
+  if (!isRegisterSectionMode(mode)) {
+    void logServerWarn("setRegisterSectionMode", { reason: "validation", mode });
     return { ok: false };
   }
 
   const supabase = await createClient();
   const { error } = await supabase.from("site_settings").upsert(
     {
-      key: "register_show_all_sections",
-      value: enabled,
+      key: "register_section_mode",
+      value: mode,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "key" },
   );
 
   if (error) {
-    logSupabaseClientError("setRegisterShowAllSections", error, {
-      key: "register_show_all_sections",
+    logSupabaseClientError("setRegisterSectionMode", error, {
+      key: "register_section_mode",
     });
     return { ok: false };
   }
@@ -37,8 +50,8 @@ export async function setRegisterShowAllSections(
   void recordSystemAudit({
     action: "site_settings_upsert",
     resourceType: "site_settings",
-    resourceId: "register_show_all_sections",
-    payload: { value: enabled },
+    resourceId: "register_section_mode",
+    payload: { value: mode },
   });
 
   revalidatePath(`/${locale}`);

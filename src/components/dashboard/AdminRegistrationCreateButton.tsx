@@ -114,7 +114,7 @@ export function AdminRegistrationCreateButton({
           legalAgeMajority={legalAgeMajority}
           sectionOptions={effectiveSectionOptions}
           extrasPack={extrasPack}
-          showAllSections
+          sectionMode="student_choice"
           embedded
           onRegistered={() => {
             setNotice(labels.createSuccess);

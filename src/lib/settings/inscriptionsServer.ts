@@ -1,4 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
+import {
+  parseRegisterSectionMode,
+  type RegisterSectionMode,
+} from "@/lib/settings/registerSectionMode";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -75,6 +79,23 @@ export async function getInscriptionsEnabled(): Promise<boolean> {
 /** Reads `site_settings.register_show_all_sections` (defaults to false if missing). */
 export async function getRegisterShowAllSections(): Promise<boolean> {
   return readSiteSettingsBoolean("register_show_all_sections", false);
+}
+
+/** Reads `register_section_mode`, then falls back to the old show-all boolean. */
+export async function getRegisterSectionMode(): Promise<RegisterSectionMode> {
+  const supabase = await createClient();
+  const [{ data: modeRow }, { data: legacyRow }] = await Promise.all([
+    supabase.from("site_settings").select("value").eq("key", "register_section_mode").maybeSingle(),
+    supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "register_show_all_sections")
+      .maybeSingle(),
+  ]);
+  return parseRegisterSectionMode(
+    modeRow?.value,
+    parseSiteSettingsBoolean(legacyRow?.value, false),
+  );
 }
 
 /** Loads non-archived cohorts and resolves the cohort active for public web registrations. */

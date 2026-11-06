@@ -8,6 +8,7 @@ import { RegisterSiteHeader } from "@/components/molecules/RegisterSiteHeader";
 import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
 import { PublicPrivacyFooterLink } from "@/components/molecules/PublicPrivacyFooterLink";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
+import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export interface RegisterClassicSurfaceProps {
@@ -20,7 +21,7 @@ export interface RegisterClassicSurfaceProps {
   extrasPack?: "nago" | null;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
-  showAllSections?: boolean;
+  sectionMode?: RegisterSectionMode;
 }
 
 export function RegisterClassicSurface({
@@ -33,7 +34,7 @@ export function RegisterClassicSurface({
   extrasPack = null,
   intent = "reserve",
   sessionEmail = null,
-  showAllSections = false,
+  sectionMode = "first_open",
 }: RegisterClassicSurfaceProps) {
   const copy = dict.landing.classic.register;
 
@@ -70,7 +71,7 @@ export function RegisterClassicSurface({
               enrollmentLink={enrollmentLink}
               extrasPack={extrasPack}
               intent={intent}
-              showAllSections={showAllSections}
+              sectionMode={sectionMode}
             />
           </div>
           <p className="mt-8 flex justify-center lg:justify-start">

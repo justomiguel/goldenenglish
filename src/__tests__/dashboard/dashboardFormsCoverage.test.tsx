@@ -5,7 +5,7 @@ import { mockPathname, mockPush, mockRefresh } from "@/test/navigationMock";
 
 const createDashboardUser = vi.hoisted(() => vi.fn());
 const setInscriptionsEnabled = vi.hoisted(() => vi.fn());
-const setRegisterShowAllSections = vi.hoisted(() => vi.fn());
+const setRegisterSectionMode = vi.hoisted(() => vi.fn());
 const reviewPayment = vi.hoisted(() => vi.fn());
 const deleteRegistration = vi.hoisted(() => vi.fn());
 const acceptRegistration = vi.hoisted(() => vi.fn());
@@ -23,8 +23,8 @@ vi.mock("@/app/[locale]/dashboard/admin/settings/actions", () => ({
   setInscriptionsEnabled,
 }));
 
-vi.mock("@/app/[locale]/dashboard/admin/settings/setRegisterShowAllSections", () => ({
-  setRegisterShowAllSections,
+vi.mock("@/app/[locale]/dashboard/admin/settings/setRegisterSectionMode", () => ({
+  setRegisterSectionMode,
 }));
 
 vi.mock("@/app/[locale]/dashboard/admin/payments/actions", () => ({
@@ -74,7 +74,7 @@ describe("dashboard coverage", () => {
     mockPathname.mockReturnValue("/es/dashboard/admin/users");
     createDashboardUser.mockResolvedValue({ ok: true, userId: "test-user" });
     setInscriptionsEnabled.mockResolvedValue({ ok: true });
-    setRegisterShowAllSections.mockResolvedValue({ ok: true });
+    setRegisterSectionMode.mockResolvedValue({ ok: true });
     reviewPayment.mockResolvedValue({ ok: true });
     deleteRegistration.mockResolvedValue({ ok: true });
     acceptRegistration.mockResolvedValue({

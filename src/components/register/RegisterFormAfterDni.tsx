@@ -6,6 +6,7 @@ import { RegisterStudentFieldset } from "@/components/register/RegisterStudentFi
 import type { RegisterTutorPrefillValues } from "@/components/register/RegisterTutorFieldset";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
+import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import type { Dictionary } from "@/types/i18n";
 
@@ -36,7 +37,7 @@ export function RegisterFormAfterDni({
   selectedSectionIds,
   onSelectedSectionIdsChange,
   enrollmentLink,
-  showAllSections,
+  sectionMode,
   intent,
   step,
   extrasPack,
@@ -70,7 +71,7 @@ export function RegisterFormAfterDni({
   selectedSectionIds: string[];
   onSelectedSectionIdsChange: (ids: string[]) => void;
   enrollmentLink?: SectionEnrollmentLinkContext;
-  showAllSections: boolean;
+  sectionMode: RegisterSectionMode;
   intent: RegisterIntent;
   step: "details" | "extras";
   extrasPack: RegistrationExtrasPackId | null;
@@ -118,7 +119,7 @@ export function RegisterFormAfterDni({
         selectedSectionIds={selectedSectionIds}
         onSelectedSectionIdsChange={onSelectedSectionIdsChange}
         enrollmentLink={enrollmentLink}
-        showAllSections={showAllSections}
+        sectionMode={sectionMode}
         intent={intent}
         hidden={step === "extras"}
         submitType={extrasPack === "nago" && step === "details" ? "button" : "submit"}

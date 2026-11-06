@@ -10,6 +10,7 @@ import {
   resolveRegisterChoosableIds,
   resolveRegisterSectionPickerView,
 } from "@/lib/register/resolveRegisterSectionPickerView";
+import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import { RegisterPrivacyConsent } from "@/components/register/RegisterPrivacyConsent";
 import {
@@ -34,7 +35,7 @@ interface RegisterFormContactAndSectionsProps {
   selectedSectionIds: string[];
   onSelectedSectionIdsChange: (next: string[]) => void;
   enrollmentLink?: SectionEnrollmentLinkContext;
-  showAllSections?: boolean;
+  sectionMode?: RegisterSectionMode;
   intent?: RegisterIntent;
   hidden?: boolean;
   submitType?: "submit" | "button";
@@ -55,7 +56,7 @@ export function RegisterFormContactAndSections({
   selectedSectionIds,
   onSelectedSectionIdsChange,
   enrollmentLink,
-  showAllSections = false,
+  sectionMode = "first_open",
   intent = "reserve",
   hidden = false,
   submitType = "submit",
@@ -63,7 +64,7 @@ export function RegisterFormContactAndSections({
 }: RegisterFormContactAndSectionsProps) {
   const pickerView = resolveRegisterSectionPickerView({
     choosableIds: resolveRegisterChoosableIds(sectionOptions, intent),
-    showAllSections,
+    sectionMode,
   });
   const assignedSectionLabel = resolveRegisterAssignedSectionLabel({
     sectionOptions,

@@ -6,15 +6,19 @@ import {
   setInscriptionsEnabled,
   setRegistrationCohortAction,
 } from "@/app/[locale]/dashboard/admin/settings/actions";
-import { setRegisterShowAllSections } from "@/app/[locale]/dashboard/admin/settings/setRegisterShowAllSections";
+import { setRegisterSectionMode } from "@/app/[locale]/dashboard/admin/settings/setRegisterSectionMode";
 import { Label } from "@/components/atoms/Label";
 import type { RegistrationCohortConfig } from "@/lib/settings/inscriptionsServer";
+import {
+  REGISTER_SECTION_MODES,
+  type RegisterSectionMode,
+} from "@/lib/settings/registerSectionMode";
 import type { Dictionary } from "@/types/i18n";
 
 interface InscriptionsSettingsFormProps {
   locale: string;
   initialEnabled: boolean;
-  initialShowAllSections?: boolean;
+  initialSectionMode?: RegisterSectionMode;
   labels: Dictionary["admin"]["settings"];
   cohortConfig?: RegistrationCohortConfig;
 }
@@ -22,12 +26,12 @@ interface InscriptionsSettingsFormProps {
 export function InscriptionsSettingsForm({
   locale,
   initialEnabled,
-  initialShowAllSections = false,
+  initialSectionMode = "first_open",
   labels,
   cohortConfig,
 }: InscriptionsSettingsFormProps) {
   const [enabled, setEnabled] = useState(initialEnabled);
-  const [showAllSections, setShowAllSections] = useState(initialShowAllSections);
+  const [sectionMode, setSectionMode] = useState<RegisterSectionMode>(initialSectionMode);
   const [selectedCohortId, setSelectedCohortId] = useState<string>(
     cohortConfig?.configuredCohortId ?? "",
   );
@@ -46,17 +50,32 @@ export function InscriptionsSettingsForm({
     }
   }
 
-  async function onToggleShowAllSections(next: boolean) {
+  async function onSectionMode(next: RegisterSectionMode) {
     setMsg(null);
-    const res = await setRegisterShowAllSections(locale, next);
+    const res = await setRegisterSectionMode(locale, next);
     if (res.ok) {
-      setShowAllSections(next);
+      setSectionMode(next);
       setMsg(labels.saved);
       router.refresh();
     } else {
       setMsg(labels.error);
     }
   }
+
+  const modeCopy: Record<RegisterSectionMode, { label: string; hint: string }> = {
+    student_choice: {
+      label: labels.registerSectionModeStudent,
+      hint: labels.registerSectionModeStudentHint,
+    },
+    first_open: {
+      label: labels.registerSectionModeFirstOpen,
+      hint: labels.registerSectionModeFirstOpenHint,
+    },
+    admin_assign: {
+      label: labels.registerSectionModeAdmin,
+      hint: labels.registerSectionModeAdminHint,
+    },
+  };
 
   async function onCohortChange(nextCohortId: string) {
     setMsg(null);
@@ -102,25 +121,33 @@ export function InscriptionsSettingsForm({
           {labels.inscriptions}
         </span>
       </label>
-      <label
-        className="mt-4 flex cursor-pointer items-start gap-3"
-        title={labels.registerShowAllSectionsTooltip}
-      >
-        <input
-          type="checkbox"
-          className="mt-0.5 h-5 w-5 rounded border-[var(--color-border)]"
-          checked={showAllSections}
-          onChange={(e) => void onToggleShowAllSections(e.target.checked)}
-        />
-        <span>
-          <span className="block font-medium text-[var(--color-foreground)]">
-            {labels.registerShowAllSections}
-          </span>
-          <span className="mt-1 block text-xs text-[var(--color-muted-foreground)]">
-            {labels.registerShowAllSectionsHint}
-          </span>
-        </span>
-      </label>
+      <fieldset className="mt-4 space-y-3">
+        <legend className="font-medium text-[var(--color-foreground)]">
+          {labels.registerSectionModeLabel}
+        </legend>
+        <p className="text-xs text-[var(--color-muted-foreground)]">
+          {labels.registerSectionModeHint}
+        </p>
+        {REGISTER_SECTION_MODES.map((value) => (
+          <label key={value} className="flex cursor-pointer items-start gap-3">
+            <input
+              type="radio"
+              name="register-section-mode"
+              className="mt-1 h-4 w-4 border-[var(--color-border)]"
+              checked={sectionMode === value}
+              onChange={() => void onSectionMode(value)}
+            />
+            <span>
+              <span className="block font-medium text-[var(--color-foreground)]">
+                {modeCopy[value].label}
+              </span>
+              <span className="mt-1 block text-xs text-[var(--color-muted-foreground)]">
+                {modeCopy[value].hint}
+              </span>
+            </span>
+          </label>
+        ))}
+      </fieldset>
 
       {cohortConfig && cohortConfig.cohorts.length > 0 ? (
         <div className="mt-6 space-y-3 border-t border-[var(--color-border)] pt-4">

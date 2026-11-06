@@ -6,7 +6,7 @@ import {
 } from "@/lib/i18n/dictionaries";
 import { resolvePublicBrand } from "@/lib/brand/resolvePublicBrand";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
-import { getInscriptionsEnabled, getRegisterShowAllSections } from "@/lib/settings/inscriptionsServer";
+import { getInscriptionsEnabled, getRegisterSectionMode } from "@/lib/settings/inscriptionsServer";
 import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
 import { resolveRegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import { RegisterSurfaceByTemplate } from "@/components/organisms/RegisterSurfaceByTemplate";
@@ -57,14 +57,14 @@ export default async function RegisterPage({ params, searchParams }: PageProps) 
     );
   }
 
-  const [baseDict, brand, snapshot, legalAgeMajority, sessionEmail, showAllSections] =
+  const [baseDict, brand, snapshot, legalAgeMajority, sessionEmail, sectionMode] =
     await Promise.all([
       getDictionary(locale),
       resolvePublicBrand(loc),
       loadActiveTheme(),
       getLegalAgeMajorityFromSystem(),
       loadRequestSessionEmail(),
-      getRegisterShowAllSections(),
+      getRegisterSectionMode(),
     ]);
 
   const templateKind = snapshot?.theme.templateKind ?? "classic";
@@ -115,7 +115,7 @@ export default async function RegisterPage({ params, searchParams }: PageProps) 
     sectionOptions,
     intent: resolved.kind === "ok" ? resolved.intent : resolved.to,
     sessionEmail,
-    showAllSections,
+    sectionMode,
   };
 
   return (
