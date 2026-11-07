@@ -1,6 +1,6 @@
 # Mozarthitos — entry CTAs to "Encuentra tu clase" (mini-spec)
 
-Status: draft (waiting for approval)
+Status: approved (2026-11-07)
 Date: 2026-11-07
 Tenant template: `mozarthitos` (`site_theme_kind`)
 Parent spec: `docs/superpowers/specs/2026-11-07-mozarthitos-family-guide-design.md`
@@ -23,7 +23,7 @@ Give a new family three visible ways into the guide on the mozarthitos tenant. K
 
 1. **Hero secondary CTA** (`LandingMozarthitosSections.tsx`).
    - `href`: `buildGuidePageHref(locale)` → `/[locale]/encuentra-tu-clase`.
-   - Label: `marketingLandingCopy(dict, brand, "mz.guide.entryCta")` (CMS-editable). If the CMS helper does not resolve `mz.*` keys, read `dict.landing.mz.guide.entryCta` after `applyLandingContentOverrides`.
+   - Label: `marketingLandingCopy(dict, brand, "guide.entryCta")`. That helper already reads `dict.landing.<brand>.*`, so the CMS key stays `mz.guide.entryCta`.
    - Icon: keep a leading Lucide icon (`Compass` or `Sparkles`), `aria-hidden` (rule 16).
    - The yellow register CTAs (`landingRegisterCtasFromDict`) do not change and stay first.
    - The `#quienes` link is removed from the hero. The header still has "Quiénes somos".

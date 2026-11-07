@@ -62,4 +62,16 @@ describe("PublicPwaTabBar", () => {
       "nago",
     );
   });
+
+  it("marks Cursos current on the Mozarthitos family guide", () => {
+    mockPathname.mockReturnValue("/es/encuentra-tu-clase");
+    renderBar({ coursesHref: "/es/encuentra-tu-clase", variant: "mozarthitos" });
+
+    expect(screen.getByRole("link", { name: "Cursos" })).toHaveAttribute(
+      "href",
+      "/es/encuentra-tu-clase",
+    );
+    expect(screen.getByRole("link", { name: "Cursos" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Inicio" })).not.toHaveAttribute("aria-current");
+  });
 });
