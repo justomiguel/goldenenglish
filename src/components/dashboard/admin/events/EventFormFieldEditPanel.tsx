@@ -7,6 +7,7 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { updateEventFormFieldAction } from "@/app/[locale]/dashboard/admin/events/actions";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { EventFormFieldTypeConfigPanel } from "@/components/dashboard/admin/events/EventFormFieldTypeConfigPanel";
 import { parseEventFormFieldAllowedMimeTypes } from "@/lib/events/parseEventFormFieldAllowedMimeTypes";
 import {
@@ -126,9 +127,12 @@ export function EventFormFieldEditPanel({
       });
       if (!result.ok) {
         setError(
-          result.message === "invalid_select_options"
-            ? labels.errorSelectOptions
-            : labels.errorSave,
+          revealFailureCode(
+            result.message === "invalid_select_options"
+              ? labels.errorSelectOptions
+              : labels.errorSave,
+            result.message,
+          ),
         );
         return;
       }

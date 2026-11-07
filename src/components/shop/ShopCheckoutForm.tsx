@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { startShopCheckoutAction } from "@/app/[locale]/tienda/checkout/actions";
+import { explainCodedFailure } from "@/lib/errors/revealFailureCode";
 import type { ShopCheckoutGateway } from "@/lib/shop/types";
 import type { ShopCheckoutPreviewLine } from "@/lib/shop/loadShopCheckoutPreview";
 
@@ -15,6 +16,7 @@ export type ShopCheckoutFormLabels = {
   noGateway: string;
   studentForbidden: string;
   error: string;
+  failures?: Partial<Record<string, string>>;
 };
 
 interface ShopCheckoutFormProps {
@@ -52,7 +54,13 @@ export function ShopCheckoutForm({
         lines: [{ variantId: line.variantId, quantity: line.quantity }],
       });
       if (!result.ok) {
-        setMessage(result.code === "student_forbidden" ? labels.studentForbidden : labels.error);
+        setMessage(
+          explainCodedFailure(
+            result.code,
+            { ...labels.failures, student_forbidden: labels.studentForbidden },
+            labels.error,
+          ),
+        );
       }
     });
   }

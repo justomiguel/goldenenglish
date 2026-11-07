@@ -10,6 +10,7 @@ import {
   unpublishEventAction,
 } from "@/app/[locale]/dashboard/admin/events/actions";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 
 interface AdminEventPublishBarProps {
   locale: string;
@@ -44,7 +45,7 @@ export function AdminEventPublishBar({
     startTransition(async () => {
       const result = await publishEventAction(locale, eventId);
       if (!result.ok) {
-        setMessage(labels.publishError);
+        setMessage(revealFailureCode(labels.publishError, result.message));
         return;
       }
       setMessage(labels.publishSuccess);
@@ -57,7 +58,7 @@ export function AdminEventPublishBar({
     startTransition(async () => {
       const result = await unpublishEventAction(locale, eventId);
       if (!result.ok) {
-        setMessage(labels.unpublishError);
+        setMessage(revealFailureCode(labels.unpublishError, result.message));
         return;
       }
       setMessage(labels.unpublishSuccess);

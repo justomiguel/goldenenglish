@@ -3,6 +3,7 @@
 import { Download, FileSpreadsheet, FileText } from "lucide-react";
 import { useState } from "react";
 import { exportEventAttendeesAction } from "@/app/[locale]/dashboard/admin/events/exportAttendeesAction";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { logClientException } from "@/lib/logging/clientLog";
 
 function downloadBase64(base64: string, mime: string, filename: string) {
@@ -51,13 +52,17 @@ export function AdminEventAttendeesExportButtons({
     try {
       const res = await exportEventAttendeesAction({ locale, eventId, format });
       if (!res.ok) {
-        setError(res.message === "validation" ? labels.exportError : res.message);
+        setError(
+          res.message === "validation"
+            ? revealFailureCode(labels.exportError, "validation")
+            : res.message,
+        );
         return;
       }
       downloadBase64(res.artifact.base64, res.artifact.mimeType, res.artifact.filename);
     } catch (err) {
       logClientException("AdminEventAttendeesExportButtons:download", err, { eventId, format });
-      setError(labels.exportError);
+      setError(revealFailureCode(labels.exportError, "unexpected"));
     } finally {
       setBusy(null);
     }

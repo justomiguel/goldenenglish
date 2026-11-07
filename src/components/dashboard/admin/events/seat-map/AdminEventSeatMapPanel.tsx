@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Layers, Plus, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { saveEventSeatMapConfigAction } from "@/app/[locale]/dashboard/admin/events/eventSeatMapActions";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import {
   applySeatBrushToBlock,
   applyStagePositionToFloor,
@@ -91,7 +92,7 @@ export function AdminEventSeatMapPanel({
         syncCapacity,
       });
       if (!result.ok) {
-        setFeedback({ ok: false, text: labels.errorSave });
+        setFeedback({ ok: false, text: revealFailureCode(labels.errorSave, result.message) });
         return;
       }
       setFeedback({ ok: true, text: labels.savedOk });

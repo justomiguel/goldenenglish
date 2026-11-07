@@ -21,6 +21,7 @@ import {
   resolveParseErrorOrUnknown,
 } from "@/lib/import/importStudentsMessages";
 import { IMPORT_JOB_CANCELLED_BY_USER } from "@/lib/import/importJobErrorCodes";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import type { ImportJobActivityEntry } from "@/types/importJob";
 import { useLongJobPoll } from "@/hooks/useLongJobPoll";
 import { useImportJobCancel } from "@/hooks/useImportJobCancel";
@@ -175,7 +176,9 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
       } catch (e) {
         setSummary(labels.genericError);
         setDetail(
-          e instanceof Error ? resolveImportSurfaceMessage(e.message, labels) : labels.unknownError,
+          e instanceof Error
+            ? resolveImportSurfaceMessage(e.message, labels)
+            : revealFailureCode(labels.unknownError, "unexpected"),
         );
       } finally {
         setLogModalLive(false);

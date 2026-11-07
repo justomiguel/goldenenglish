@@ -11,6 +11,10 @@ import {
 import { collectEventRegisterUploads } from "@/lib/client/collectEventRegisterUploads";
 import { startEventGatewayPayment } from "@/lib/client/startEventGatewayPayment";
 import { buildEventEnrollRequestBody } from "@/lib/events/buildEventEnrollRequestBody";
+import {
+  explainEventEnrollOutcome,
+  type EventRegisterErrorCopy,
+} from "@/lib/events/eventRegisterFailureMessage";
 
 function isOnlineGatewayMethod(method: EventRegistrationPaymentMethod): method is "mercadopago" | "flow" {
   return method === "mercadopago" || method === "flow";
@@ -72,6 +76,7 @@ export interface EventRegisterSubmitLabels {
   customFieldFileTooLarge: string;
   customFieldFileInvalidType: string;
   customFieldFileUploadFailed: string;
+  errors?: Partial<EventRegisterErrorCopy>;
 }
 
 interface UseEventRegisterSubmitArgs {
@@ -162,38 +167,47 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
       const body = (await response.json().catch(() => null)) as {
         ok?: boolean;
         code?: string;
+        seats?: number | null;
         result?: {
           attendeeId?: string | null;
           paymentRequired?: boolean;
           resultCode?: string;
+          seats?: number | null;
           takenSeatKeys?: string[];
         };
       } | null;
-      if (!response.ok || !body?.ok) {
-        if (body?.code === "transfer_option_required" && payload.transferOptionRequired) {
-          setMessage(payload.transferOptionRequired);
-        } else if (body?.code === "transfer_source_required" && payload.transferSourceRequired) {
-          setMessage(payload.transferSourceRequired);
-        } else {
-          setMessage(labels.error);
+      const outcome = explainEventEnrollOutcome({
+        httpOk: response.ok,
+        bodyOk: Boolean(body?.ok),
+        status: response.status,
+        code: body?.code,
+        resultCode: body?.result?.resultCode,
+        seats: body?.result?.seats ?? body?.seats,
+        generic: labels.error,
+        errors: labels.errors,
+        fields: payload.fields,
+        locale: payload.locale,
+        overrides: {
+          ...payload.discountErrors,
+          ...(payload.transferOptionRequired
+            ? { transfer_option_required: payload.transferOptionRequired }
+            : {}),
+          ...(payload.transferSourceRequired
+            ? { transfer_source_required: payload.transferSourceRequired }
+            : {}),
+          receipt_attach_failed: labels.receiptAttachFailed,
+        },
+      });
+      if (outcome) {
+        if (outcome.notifyTakenSeats) {
+          payload.onSeatConflict?.(body?.result?.takenSeatKeys ?? payload.seatKeys ?? []);
         }
-        return;
-      }
-      const resultCode = body.result?.resultCode ?? "";
-      if (resultCode === "receipt_attach_failed") {
-        setMessage(labels.receiptAttachFailed);
-        return;
-      }
-      if (resultCode === "seat_already_taken") {
-        payload.onSeatConflict?.(body.result?.takenSeatKeys ?? payload.seatKeys ?? []);
-      }
-      if (resultCode && payload.discountErrors?.[resultCode]) {
-        setMessage(payload.discountErrors[resultCode]);
+        setMessage(outcome.message);
         return;
       }
 
-      const attendeeId = body.result?.attendeeId ?? null;
-      const paymentRequired = Boolean(body.result?.paymentRequired);
+      const attendeeId = body?.result?.attendeeId ?? null;
+      const paymentRequired = Boolean(body?.result?.paymentRequired);
 
       const wantsOnlinePayment =
         payload.showPaymentPicker &&
@@ -218,7 +232,7 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
 
       setSuccessOpen(true);
     } catch {
-      setMessage(labels.error);
+      setMessage(labels.errors?.network?.trim() || labels.error);
     } finally {
       setUploadingFieldId(null);
       setIsPending(false);

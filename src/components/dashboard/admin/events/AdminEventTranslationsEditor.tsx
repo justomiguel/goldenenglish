@@ -14,6 +14,7 @@ import { EventDescriptionEditor } from "@/components/dashboard/admin/events/Even
 import { EVENT_LOCALES, type EventLocale, type EventTranslationRow } from "@/lib/events/domain";
 import { applyMediaInsertToAllEventDescriptions } from "@/lib/learning-content/insertRichEditorMediaAtBlockIndex";
 import type { MediaSyncToAllLocalesPayload } from "@/lib/learning-content/insertAcademicEditorMedia";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { mergeEventTranslations } from "@/lib/events/server/loadEventTranslations";
 import {
   saveEventTranslationsAction,
@@ -106,7 +107,7 @@ export function AdminEventTranslationsEditor({
         translations: EVENT_LOCALES.map((locale) => draft[locale]),
       });
       if (!result.ok) {
-        setMessage(labels.errorSave);
+        setMessage(revealFailureCode(labels.errorSave, result.message));
         return;
       }
       setMessage(labels.savedOk);
@@ -130,7 +131,14 @@ export function AdminEventTranslationsEditor({
         location: source.location ?? undefined,
       });
       if (!result.ok || !result.fields) {
-        setMessage(result.message === "google_key_missing" ? labels.googleKeyMissing : labels.errorTranslate);
+        setMessage(
+          revealFailureCode(
+            !result.ok && result.message === "google_key_missing"
+              ? labels.googleKeyMissing
+              : labels.errorTranslate,
+            result.ok ? "missing_fields" : result.message,
+          ),
+        );
         return;
       }
       patchCurrent({

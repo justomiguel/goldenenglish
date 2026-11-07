@@ -13,6 +13,7 @@ import { EventFormFieldAddPanel } from "@/components/dashboard/admin/events/Even
 import { EventFormDroppableFields } from "@/components/dashboard/admin/events/EventFormDroppableFields";
 import { useEventFormFieldBoard } from "@/components/dashboard/admin/events/eventFormFieldBoardContext";
 import type { EventFormQuestionOrderItem } from "@/lib/events/buildEventFormQuestionItems";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { flowFieldContainerId } from "@/lib/events/placeRegistrationField";
 
 interface FlowField {
@@ -109,7 +110,7 @@ export function EventFormFlowCard({
         name: name.trim(),
         price: amount,
       });
-      setError(result.ok ? null : labels.errorSave);
+      setError(result.ok ? null : revealFailureCode(labels.errorSave, result.message));
       if (result.ok) router.refresh();
     });
   }
@@ -130,7 +131,7 @@ export function EventFormFlowCard({
         order: next.map((field) => `field:${field.id}`),
       });
       if (result.ok) router.refresh();
-      else setError(labels.errorSave);
+      else setError(revealFailureCode(labels.errorSave, result.message));
     });
   }
 
@@ -138,7 +139,7 @@ export function EventFormFlowCard({
     startTransition(async () => {
       const result = await archiveEventRegistrationFlowAction({ locale, eventId, flowId: flow.id });
       if (result.ok) router.refresh();
-      else setError(labels.errorSave);
+      else setError(revealFailureCode(labels.errorSave, result.message));
     });
   }
 

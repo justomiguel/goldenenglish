@@ -6,6 +6,7 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { submitPublicQuestionnaireAction } from "@/app/[locale]/q/[slug]/actions";
 import { buildQuestionnaireSharePath } from "@/lib/site/publicSharePaths";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { pickI18n, pickI18nOptions } from "@/lib/questionnaires/pickI18n";
 import type { QuestionnaireAnswerInput, QuestionnaireQuestion } from "@/lib/questionnaires/types";
 import type { Dictionary } from "@/types/i18n";
@@ -213,9 +214,15 @@ function QuestionField({
 }
 
 function submitError(code: string, labels: Labels): string {
-  if (code === "login_required") return labels.errorLogin;
-  if (code === "already_submitted") return labels.errorAlready;
-  if (code === "invalid_option") return labels.errorOption;
-  if (code === "closed" || code === "not_found") return labels.errorClosed;
-  return labels.errorValidation;
+  const mapped =
+    code === "login_required"
+      ? labels.errorLogin
+      : code === "already_submitted"
+        ? labels.errorAlready
+        : code === "invalid_option"
+          ? labels.errorOption
+          : code === "closed" || code === "not_found"
+            ? labels.errorClosed
+            : labels.errorValidation;
+  return revealFailureCode(mapped, code);
 }

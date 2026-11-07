@@ -12,6 +12,7 @@ import {
   saveEventDiscountCodeAction,
 } from "@/app/[locale]/dashboard/admin/events/eventDiscountCodeActions";
 import type { AdminEventDiscountCodeLabels } from "@/components/dashboard/admin/events/adminEventDiscountCodeLabels";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 
 interface AdminEventDiscountCodeEditorProps {
   locale: string;
@@ -48,7 +49,8 @@ function LabeledInput({
 
 function errorText(labels: AdminEventDiscountCodeLabels, code: string | undefined): string {
   if (!code) return labels.error;
-  return labels.errors[code as keyof AdminEventDiscountCodeLabels["errors"]] ?? labels.error;
+  const sentence = labels.errors[code as keyof AdminEventDiscountCodeLabels["errors"]] ?? labels.error;
+  return revealFailureCode(sentence, code);
 }
 
 function saveWorkbook(base64: string): void {

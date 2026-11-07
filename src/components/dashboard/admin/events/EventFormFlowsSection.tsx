@@ -8,6 +8,7 @@ import {
   updateEventPriceByFlowAction,
 } from "@/app/[locale]/dashboard/admin/events/eventRegistrationFlowActions";
 import { Button } from "@/components/atoms/Button";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { EventFormFlowCard } from "@/components/dashboard/admin/events/EventFormFlowCard";
 import { EventFormFieldAddPanel } from "@/components/dashboard/admin/events/EventFormFieldAddPanel";
 import type { ComponentProps } from "react";
@@ -88,7 +89,12 @@ export function EventFormFlowsSection({
     startTransition(async () => {
       const result = await updateEventPriceByFlowAction({ locale, eventId, priceByFlow: checked });
       if (!result.ok) {
-        setError(result.message === "price_mode_conflict" ? labels.priceConflict : labels.errorSave);
+        setError(
+          revealFailureCode(
+            result.message === "price_mode_conflict" ? labels.priceConflict : labels.errorSave,
+            result.message,
+          ),
+        );
         return;
       }
       setError(null);
@@ -110,7 +116,7 @@ export function EventFormFlowsSection({
         price: amount,
       });
       if (!result.ok) {
-        setError(labels.errorSave);
+        setError(revealFailureCode(labels.errorSave, result.message));
         return;
       }
       setName("");

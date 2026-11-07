@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import type { Dictionary } from "@/types/i18n";
 import type {
   AdminStudentCurrentCohortAssignment,
@@ -39,7 +40,7 @@ function errorMessage(labels: UserLabels, code: StudentCurrentCohortAssignmentCo
     NOT_ENROLLED: labels.detailSectionAssignErrNotEnrolled,
     RPC: labels.detailSectionAssignErrRpc,
   };
-  return map[code] ?? labels.detailSectionAssignErrRpc;
+  return revealFailureCode(map[code] ?? labels.detailSectionAssignErrRpc, code);
 }
 
 export function AdminStudentCurrentCohortAssignmentCard({

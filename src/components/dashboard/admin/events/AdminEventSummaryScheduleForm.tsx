@@ -11,6 +11,7 @@ import {
   eventDatetimeLocalToIso,
   isoToEventDatetimeLocalValue,
 } from "@/lib/events/eventDatetimeLocal";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 
 interface AdminEventSummaryScheduleFormProps {
   locale: string;
@@ -76,7 +77,7 @@ export function AdminEventSummaryScheduleForm({
         bankTransferInstructions: initial.bankTransferInstructions,
       });
       if (!result.ok) {
-        setMessage(labels.errorSave);
+        setMessage(revealFailureCode(labels.errorSave, result.message));
         return;
       }
       setMessage(labels.savedOk);

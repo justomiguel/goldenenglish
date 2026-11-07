@@ -41,6 +41,7 @@ export default async function ShopCheckoutPage({ params, searchParams }: PagePro
         noGateway: dict.shop.checkout.noGateway,
         studentForbidden: dict.shop.checkout.studentForbidden,
         error: dict.shop.checkout.error,
+        failures: dict.shop.checkout.failures,
       }}
     />
   );

@@ -6,6 +6,7 @@ import { Trash2 } from "lucide-react";
 import { deleteEventAttendeeAction } from "@/app/[locale]/dashboard/admin/events/actions";
 import { Button } from "@/components/atoms/Button";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 
 export interface AdminEventAttendeeDeleteButtonLabels {
   delete: string;
@@ -59,10 +60,15 @@ export function AdminEventAttendeeDeleteButton({
   }
 
   function failureCopy(message: string): string {
-    if (message === "notify_failed") return labels.errorNotify;
-    if (message === "no_email") return labels.errorNoEmail;
-    if (message === "reason_required") return labels.errorReason;
-    return labels.errorDelete;
+    const sentence =
+      message === "notify_failed"
+        ? labels.errorNotify
+        : message === "no_email"
+          ? labels.errorNoEmail
+          : message === "reason_required"
+            ? labels.errorReason
+            : labels.errorDelete;
+    return revealFailureCode(sentence, message);
   }
 
   async function confirmDelete() {

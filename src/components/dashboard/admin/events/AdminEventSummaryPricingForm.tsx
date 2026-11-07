@@ -15,6 +15,7 @@ import {
   createDefaultEventBankTransferSourcesConfig,
   parseEventBankTransferSourcesConfig,
 } from "@/lib/events/eventBankTransferSources";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { minorTicketPersistence, parseEventMinorMaxAge } from "@/lib/events/formatEventMinorAgeLegend";
 
 interface AdminEventSummaryPricingFormProps {
@@ -164,9 +165,12 @@ export function AdminEventSummaryPricingForm({
       });
       if (!result.ok) {
         setMessage(
-          result.message === "minor_max_age_required"
-            ? (labels.minorMaxAgeError ?? labels.errorSave)
-            : labels.errorSave,
+          revealFailureCode(
+            result.message === "minor_max_age_required"
+              ? (labels.minorMaxAgeError ?? labels.errorSave)
+              : labels.errorSave,
+            result.message,
+          ),
         );
         return;
       }

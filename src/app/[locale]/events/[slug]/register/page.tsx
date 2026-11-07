@@ -95,6 +95,7 @@ export default async function EventRegisterPage({ params }: PageProps) {
           familyDiscountPay: dict.events.register.familyDiscountPay,
           discountCode: dict.events.register.discountCode,
           error: dict.events.register.error,
+          errors: dict.events.register.errors,
           successModal: dict.events.register.successModal,
           captchaRequired: dict.events.register.captchaRequired,
           tutor: {

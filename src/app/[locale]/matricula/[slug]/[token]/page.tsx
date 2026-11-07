@@ -87,6 +87,7 @@ export default async function MatriculaPayPage({
           uploadButton: r.enrollmentPayUploadButton,
           pickSection: r.enrollmentPayPickSection,
           error: r.enrollmentPayError,
+          failures: r.payFailure,
           receiptOk: r.enrollmentPayReceiptOk,
           acceptOffer: r.enrollmentPayOfferAccept,
         },

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Copy } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { duplicateEventAction } from "@/app/[locale]/dashboard/admin/events/eventDuplicateAction";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 
 interface AdminEventDuplicateButtonProps {
   locale: string;
@@ -23,7 +24,7 @@ export function AdminEventDuplicateButton({ locale, eventId, labels }: AdminEven
     const result = await duplicateEventAction({ locale, eventId });
     setPending(false);
     if (!result.ok || !result.eventId) {
-      setError(labels.error);
+      setError(revealFailureCode(labels.error, result.ok ? "missing_event" : result.message));
       return;
     }
     router.push(`/${locale}/dashboard/admin/events/${result.eventId}`);

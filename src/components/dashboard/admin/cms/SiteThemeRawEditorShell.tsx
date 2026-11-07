@@ -18,6 +18,7 @@ import type {
 import type { RawPropertyRow } from "@/lib/cms/buildRawPropertyRows";
 import type { SiteThemeRow } from "@/types/theming";
 import type { Dictionary } from "@/types/i18n";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { SiteThemeRawEditorAddForm } from "./SiteThemeRawEditorAddForm";
 import { SiteThemeRawEditorTable } from "./SiteThemeRawEditorTable";
 import {
@@ -173,7 +174,7 @@ export function SiteThemeRawEditorShell({
           role="alert"
           className="rounded-[var(--layout-border-radius)] border border-[var(--color-error)]/30 bg-[var(--color-error)]/5 px-3 py-2 text-sm text-[var(--color-error)]"
         >
-          {labels.errors[errorCode] ?? labels.errors.persist_failed}
+          {revealFailureCode(labels.errors[errorCode] ?? labels.errors.persist_failed, errorCode)}
         </p>
       ) : null}
 

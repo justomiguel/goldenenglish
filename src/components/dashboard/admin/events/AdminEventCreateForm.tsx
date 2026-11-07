@@ -13,6 +13,7 @@ import type { AdminEventDualTransferLabels } from "@/components/dashboard/admin/
 import { createDefaultEventBankTransferSourcesConfig } from "@/lib/events/eventBankTransferSources";
 import { EventDescriptionEditor } from "@/components/dashboard/admin/events/EventDescriptionEditor";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { isEventLocale } from "@/lib/events/domain";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { Dictionary } from "@/types/i18n";
@@ -119,7 +120,7 @@ export function AdminEventCreateForm({
         defaultLocale: isEventLocale(locale) ? locale : "es",
       });
       if (!result.ok || !result.eventId) {
-        setError(labels.errorSave);
+        setError(revealFailureCode(labels.errorSave, result.ok ? "missing_event" : result.message));
         return;
       }
       router.push(`/${locale}/dashboard/admin/events/${result.eventId}`);

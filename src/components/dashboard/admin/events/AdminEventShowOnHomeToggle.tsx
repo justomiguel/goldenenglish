@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Megaphone } from "lucide-react";
 import { updateEventShowOnHomeAction } from "@/app/[locale]/dashboard/admin/events/eventShowOnHomeActions";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 
 interface AdminEventShowOnHomeToggleProps {
   locale: string;
@@ -36,7 +37,7 @@ export function AdminEventShowOnHomeToggle({
         showOnHome: checked,
       });
       if (!result.ok) {
-        setError(labels.errorSave);
+        setError(revealFailureCode(labels.errorSave, result.message));
         return;
       }
       router.refresh();

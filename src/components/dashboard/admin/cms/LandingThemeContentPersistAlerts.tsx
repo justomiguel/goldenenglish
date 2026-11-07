@@ -1,6 +1,7 @@
 "use client";
 
 import type { SiteThemeActionErrorCode } from "@/app/[locale]/dashboard/admin/cms/siteThemeActionShared";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import type { Dictionary } from "@/types/i18n";
 
 type Labels = Dictionary["admin"]["cms"]["templates"]["landing"];
@@ -26,7 +27,7 @@ export function LandingThemeContentPersistAlerts({
           role="alert"
           className="rounded-[var(--layout-border-radius)] border border-[var(--color-error)]/30 bg-[var(--color-error)]/5 px-3 py-2 text-sm text-[var(--color-error)]"
         >
-          {labels.errors[errorCode] ?? labels.errors.persist_failed}
+          {revealFailureCode(labels.errors[errorCode] ?? labels.errors.persist_failed, errorCode)}
         </p>
       ) : null}
       {savedAt && !pending && !errorCode ? (

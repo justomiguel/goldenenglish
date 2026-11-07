@@ -8,6 +8,7 @@ import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { QuestionnaireQuestionAddPanel } from "@/components/dashboard/admin/questionnaires/QuestionnaireQuestionAddPanel";
 import { QuestionnaireQuestionList } from "@/components/dashboard/admin/questionnaires/QuestionnaireQuestionList";
 import { updateQuestionnaireMetaAction } from "@/app/[locale]/dashboard/admin/settings/questionnaires/actions";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { pickI18n } from "@/lib/questionnaires/pickI18n";
 import { defaultLocale } from "@/lib/i18n/dictionaries";
 import type { QuestionnaireQuestion, QuestionnaireRecord, QuestionnaireStatus, QuestionnaireVisibility } from "@/lib/questionnaires/types";
@@ -139,10 +140,17 @@ export function QuestionnaireEditorShell({
 }
 
 function metaError(code: string, labels: Labels): string {
-  if (code === "title") return labels.errorTitle;
-  if (code === "slug") return labels.errorSlug;
-  if (code === "slug_taken") return labels.errorSlugTaken;
-  if (code === "publish_empty") return labels.errorPublishEmpty;
-  if (code === "publish_options") return labels.errorPublishOptions;
-  return labels.errorSave;
+  const mapped =
+    code === "title"
+      ? labels.errorTitle
+      : code === "slug"
+        ? labels.errorSlug
+        : code === "slug_taken"
+          ? labels.errorSlugTaken
+          : code === "publish_empty"
+            ? labels.errorPublishEmpty
+            : code === "publish_options"
+              ? labels.errorPublishOptions
+              : labels.errorSave;
+  return revealFailureCode(mapped, code);
 }

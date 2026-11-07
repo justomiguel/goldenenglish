@@ -5,6 +5,7 @@ import {
   requestPasswordResetAction,
   type RequestPasswordResetActionState,
 } from "@/app/[locale]/forgot-password/actions";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { logClientException } from "@/lib/logging/clientLog";
 import type { Dictionary } from "@/types/i18n";
 
@@ -52,7 +53,7 @@ export function useRequestPasswordReset(opts: UseRequestPasswordResetOptions) {
       setSubmittedEmail(trimmed);
     } catch (err) {
       logClientException("useRequestPasswordReset:submit", err);
-      setError(opts.errors.generic);
+      setError(revealFailureCode(opts.errors.generic, "network"));
     } finally {
       setIsLoading(false);
     }

@@ -3,6 +3,51 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "event-sale-pulse",
+    date: "2026-11-07",
+    area: "events",
+    title: t(
+      "El evento muestra cómo viene la inscripción",
+      "The event shows how enrollment is going",
+      "O evento mostra como vai a inscrição",
+    ),
+    summary: t(
+      "Al inicio de la ficha ves confirmadas, pagos pendientes y, si hay cupo, cuántos asientos libres quedan y qué porcentaje son.",
+      "At the start of the event page you see confirmed seats, pending payments, and, when room remains, how many seats are free and what percent that is.",
+      "No início da ficha você vê confirmadas, pagamentos pendentes e, se há lugar, quantos assentos livres ficam e que percentagem são.",
+    ),
+  },
+  {
+    id: "failure-code-on-screen",
+    date: "2026-11-07",
+    area: "registrations",
+    title: t(
+      "El aviso de error incluye el código para el reclamo",
+      "The error notice includes the code for a claim",
+      "O aviso de erro inclui o código para a reclamação",
+    ),
+    summary: t(
+      "Si un pago, una compra o un ingreso fallan, el aviso dice la causa y un código que puedes citar.",
+      "If a payment, a purchase, or an enrollment fails, the notice states the cause and a code you can quote.",
+      "Se um pagamento, uma compra ou uma matrícula falha, o aviso diz a causa e um código que você pode citar.",
+    ),
+  },
+  {
+    id: "event-register-failure-detail",
+    date: "2026-11-07",
+    area: "events",
+    title: t(
+      "La inscripción al evento explica por qué no se envió",
+      "Event registration explains why it did not send",
+      "A inscrição do evento explica por que não foi enviada",
+    ),
+    summary: t(
+      "Si el formulario falla, el aviso dice el motivo, como un correo inválido, un cupo agotado o un documento repetido.",
+      "If the form fails, the notice states the reason, such as an invalid email, no seats left, or a repeated document.",
+      "Se o formulário falha, o aviso diz o motivo, como um e-mail inválido, vagas esgotadas ou um documento repetido.",
+    ),
+  },
+  {
     id: "centrolisto-home-single-cta",
     date: "2026-11-07",
     area: "site",
