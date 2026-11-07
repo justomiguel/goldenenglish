@@ -1,0 +1,65 @@
+---
+alwaysApply: true
+description: Every failure a person sees names the cause, a stable code they can quote, and the next step. Do not ship a generic error.
+---
+
+# Discriminated errors — no generic failure copy
+
+## Rule
+
+A person who hits a failure must see why it failed. The same failure must carry a stable code that support can find in the logs. Do not show only "try again" or "we could not process this."
+
+This applies in every place a person can read a failure. That includes institute screens, CentroListo screens, public forms, dashboards, API JSON, toasts, banners, modals, emails, and long-job status. Web and PWA use the same codes and the same sentences.
+
+## What the person sees
+
+1. Name the cause in the active locale. Put the sentence in `src/dictionaries/en.json`, `es.json`, and `pt.json` when that namespace exists there.
+2. Say what they can do next. Examples: fix a field, wait, or contact the institute.
+3. Show a stable code they can quote in a claim. Keep the code in the same message as the sentence.
+4. Name the field when validation failed.
+5. Map each server or RPC code to its own sentence. Do not fold distinct causes into one string.
+6. If no sentence exists for a code, show the code. Ask the person to send that code with the claim. Do not hide the code behind a generic sentence.
+
+Spanish follows **`40-neutral-spanish-copy.mdc`**. Copy placement follows **`09-i18n-copy.mdc`**.
+
+## What support sees
+
+1. Return the same code on the action or route payload (`code` or `resultCode`).
+2. Log that code with `[ge:server]`, a stable `scope`, and the ids already in scope. Follow **`25-server-error-logging.mdc`**.
+3. Keep passwords, tokens, SQL, stack traces, raw database text, and another person's data out of the sentence. That detail stays in the log.
+
+## Forbidden
+
+- One fallback sentence for every non-success response.
+- A client that drops `code` or `resultCode` and renders only `labels.error`.
+- A spinner or `isLoading` as the only failure signal.
+- A new dictionary key such as `error` or `generic` used as the only text for many causes.
+- A sentence that names the machinery ("unexpected error", "invalid payload") and does not name the cause.
+
+```text
+Bad: We could not process your registration. Try again.
+Good: This national ID is already registered for this event. Use another ID or contact the institute. Code: duplicate_dni
+```
+
+## When you touch an old path
+
+If the path you add or edit still uses one generic sentence for many causes, replace that path in the same change. Give each cause its own code and its own sentence. Do not leave the generic sentence as the only text.
+
+Do not start a repo-wide rewrite unless the task asks for it.
+
+## Tests
+
+A test must fail when a known code renders the generic sentence. Cover one validation code, one business code, and the unknown-code path. The unknown-code assertion must see the raw code in the message.
+
+## Reference
+
+Event registration is the pattern: `src/lib/events/eventEnrollIssueCode.ts` and `src/lib/events/eventRegisterFailureMessage.ts`.
+
+## Checklist
+
+- [ ] Does each cause have its own code and its own sentence in `en.json`, `es.json`, and `pt.json`?
+- [ ] Does the sentence say why it failed and what to do next?
+- [ ] Can the person quote the code in a claim?
+- [ ] Does the server log use that same code?
+- [ ] Do Web and PWA read the same copy?
+- [ ] Does a test lock a known code and the unknown-code path?

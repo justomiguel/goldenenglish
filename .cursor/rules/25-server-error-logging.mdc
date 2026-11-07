@@ -58,3 +58,4 @@ Read module header comments inside `serverActionLog.ts` before spawning parallel
 - **`04-security.mdc`** — secret hygiene.
 - **`08`** — product analytics vs infra logs distinctions.
 - **`17-trust-boundary-handlers.mdc`** — log trust-bound failures with purposeful scopes.
+- **`50-discriminated-user-errors.mdc`** — the person sees the same stable code, plus a sentence that names the cause. The log does not replace that sentence.
