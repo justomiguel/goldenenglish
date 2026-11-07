@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import {
   formatPaidWithMethod,
+  paidMethodLine,
   parsePaidOn,
   parseStaffFeeAmount,
   paymentMethodSchema,
@@ -50,5 +51,19 @@ describe("formatPaidWithMethod", () => {
         locale: "en",
       }),
     ).toContain("Cash");
+  });
+});
+
+describe("paidMethodLine", () => {
+  it("returns null when the method is missing", () => {
+    expect(
+      paidMethodLine({
+        template: "Paid {method} · {date}",
+        method: null,
+        paidOn: "2026-03-12",
+        locale: "en",
+        labels: { cash: "Cash", transfer: "Transfer", card: "Card", gateway: "Gateway", other: "Other" },
+      }),
+    ).toBeNull();
   });
 });

@@ -1,8 +1,8 @@
 import { canCreateFreeSite } from "@/lib/pulsar/freeSitePlan";
 
-/** Signed-out visitors register. A session opens the free page form. */
+/** Signed-out visitors register. A session opens the panel. */
 export function pulsarStartFreePath(locale: string, signedIn: boolean): string {
-  return signedIn ? `/${locale}/cuenta/nuevo` : `/${locale}/cuenta/registro`;
+  return signedIn ? `/${locale}/cuenta` : `/${locale}/cuenta/registro`;
 }
 
 /** Pending and approved logins can open a free page. Rejected cannot. */

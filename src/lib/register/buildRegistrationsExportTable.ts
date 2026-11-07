@@ -5,6 +5,7 @@ import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
 import { extrasPackForTemplateKind } from "@/lib/register/packs/extrasPackForTemplateKind";
 import { parseNagoTenantExtras } from "@/lib/register/packs/nago/parseNagoTenantExtras";
+import { formatMozarthitosGuideSummary } from "@/lib/register/packs/mozarthitos/formatMozarthitosGuideSummary";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -37,7 +38,9 @@ export function buildRegistrationsExportTable(
     return trimmed || empty;
   };
 
-  const includeNago = extrasPackForTemplateKind(opts.activeTemplateKind ?? "classic") === "nago";
+  const pack = extrasPackForTemplateKind(opts.activeTemplateKind ?? "classic");
+  const includeNago = pack === "nago";
+  const includeGuide = pack === "mozarthitos";
   const nagoHeaders = includeNago
     ? [
         labels.nagoNationality,
@@ -75,6 +78,7 @@ export function buildRegistrationsExportTable(
       labels.status,
       labels.received,
       ...nagoHeaders,
+      ...(includeGuide ? [labels.mozarthitosGuide.exportColumn] : []),
     ],
     rows: rows.map((r) => {
       const extras = includeNago ? parseNagoTenantExtras(r.tenantExtras) : null;
@@ -123,6 +127,9 @@ export function buildRegistrationsExportTable(
         statusText(labels, r.status),
         r.created_at ? new Date(r.created_at).toLocaleString(opts.locale) : empty,
         ...nagoCells,
+        ...(includeGuide
+          ? [text(formatMozarthitosGuideSummary(r.tenantExtras, labels.mozarthitosGuide))]
+          : []),
       ];
     }),
   };

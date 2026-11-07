@@ -4,6 +4,7 @@ import {
   sectionCollectionsMonthCellClasses,
 } from "@/lib/billing/sectionCollectionsMonthCellClasses";
 import { SECTION_COLLECTIONS_MONTH_STATUS_ICONS } from "@/lib/billing/sectionCollectionsMonthStatusIcons";
+import { paidMethodLine } from "@/lib/billing/paymentMethod";
 import type { StudentMonthlyPaymentCell } from "@/types/studentMonthlyPayments";
 
 export interface SectionCollectionsMonthCellProps {
@@ -23,6 +24,12 @@ export interface SectionCollectionsMonthCellProps {
     statusOutOfPeriod: string;
     statusNoPlan: string;
     expectedAmount: string;
+    paidWithMethod?: string;
+    paymentMethodCash?: string;
+    paymentMethodTransfer?: string;
+    paymentMethodCard?: string;
+    paymentMethodGateway?: string;
+    paymentMethodOther?: string;
   };
   selectable?: boolean;
   selected?: boolean;
@@ -89,6 +96,19 @@ export function SectionCollectionsMonthCell({
   const todayIdx = year * 12 + todayMonth;
   const isOverdue = cell.status === "due" && cellIdx < todayIdx;
   const expectedAmount = formatExpectedAmount(cell, locale, currency);
+  const paidLine = paidMethodLine({
+    template: labels.paidWithMethod,
+    method: cell.paymentMethod,
+    paidOn: cell.paidOn,
+    locale,
+    labels: {
+      cash: labels.paymentMethodCash,
+      transfer: labels.paymentMethodTransfer,
+      card: labels.paymentMethodCard,
+      gateway: labels.paymentMethodGateway,
+      other: labels.paymentMethodOther,
+    },
+  });
   const hasScholarshipDiscount = scholarshipDiscountPercent != null;
   const aria = [
     ariaPrefix,
@@ -96,6 +116,7 @@ export function SectionCollectionsMonthCell({
     statusLabel(cell.status, labels),
     hasScholarshipDiscount ? `${scholarshipDiscountPercent}%` : null,
     expectedAmount ? `${labels.expectedAmount}: ${expectedAmount}` : null,
+    paidLine,
   ].filter(Boolean).join(" · ");
 
   const selectedRing = selected

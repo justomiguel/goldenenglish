@@ -43,21 +43,25 @@ export function PulsarSiteChromePwa({
         style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         <div className="flex min-h-14 items-center justify-between gap-2 px-4">
-          <Link href={href(`/${locale}`)} className="inline-flex min-h-11 items-center" aria-label={dict.pulsar.meta.brandName}>
-            <CentroListoLogoMark size="sm" />
-          </Link>
-          <div className="flex min-w-0 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex min-w-0 items-center gap-1">
+            <Link href={href(`/${locale}`)} className="inline-flex min-h-11 items-center" aria-label={dict.pulsar.meta.brandName}>
+              <CentroListoLogoMark size="sm" />
+            </Link>
             <CentrolistoMarketPicker market={market} copy={dict.pulsar.market} />
-            {email ? (
+          </div>
+          <div className="flex min-w-0 items-center gap-1">
+            {email && !showThumb ? (
               <Link
                 href={href(`/${locale}/cuenta`)}
                 className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] px-3 text-sm font-semibold text-[var(--color-foreground)]"
               >
                 <LayoutDashboard className="h-4 w-4" aria-hidden />
-                <span>{nav.admin}</span>
+                <span>{nav.enterPanel}</span>
               </Link>
             ) : null}
-            <PulsarSessionMenu locale={locale} email={email} copy={dict.pulsar.session} />
+            {email && showThumb ? null : (
+              <PulsarSessionMenu locale={locale} email={email} copy={dict.pulsar.session} />
+            )}
           </div>
         </div>
       </header>
@@ -74,13 +78,20 @@ export function PulsarSiteChromePwa({
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         {showThumb ? (
-          <Link
-            href={href(pulsarStartFreePath(locale, Boolean(email)))}
-            className="flex min-h-12 items-center justify-between gap-3 bg-[var(--color-primary)] px-5 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)]"
-          >
-            <span>{nav.startFree}</span>
-            <ArrowRight className="h-4 w-4" aria-hidden />
-          </Link>
+          <div className="flex min-h-12 items-center bg-[var(--color-primary)]">
+            <Link
+              href={href(pulsarStartFreePath(locale, Boolean(email)))}
+              className="flex min-h-12 flex-1 items-center justify-between gap-3 px-5 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)]"
+            >
+              <span>{email ? nav.enterPanel : nav.startFree}</span>
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+            {email ? (
+              <div className="pr-2">
+                <PulsarSessionMenu locale={locale} email={email} copy={dict.pulsar.session} />
+              </div>
+            ) : null}
+          </div>
         ) : null}
         <ul className="grid grid-cols-4">
           {NAV.map((item) => {

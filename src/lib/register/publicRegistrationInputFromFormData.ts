@@ -1,6 +1,7 @@
 import type { PublicRegistrationFormDraft } from "@/lib/register/publicRegistrationSchema";
 import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
 import { readNagoExtrasFromFormData } from "@/lib/register/packs/nago/readNagoExtrasFromFormData";
+import { readMozarthitosExtrasFromFormData } from "@/lib/register/packs/mozarthitos/readMozarthitosExtrasFromFormData";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export function publicRegistrationInputFromFormData(
@@ -22,7 +23,12 @@ export function publicRegistrationInputFromFormData(
     tutor_email: String(fd.get("tutor_email") ?? ""),
     tutor_phone: String(fd.get("tutor_phone") ?? ""),
     tutor_relationship: String(fd.get("tutor_relationship") ?? ""),
-    tenant_extras: extrasPack === "nago" ? readNagoExtrasFromFormData(fd) : undefined,
+    tenant_extras:
+      extrasPack === "nago"
+        ? readNagoExtrasFromFormData(fd)
+        : extrasPack === "mozarthitos"
+          ? readMozarthitosExtrasFromFormData(fd)
+          : undefined,
     intent,
     privacy_accepted: fd.get("privacy_accepted") === "yes",
   };

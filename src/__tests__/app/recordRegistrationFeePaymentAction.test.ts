@@ -113,6 +113,7 @@ describe("recordRegistrationFeePaymentAction", () => {
     );
     const result = await recordRegistrationFeePaymentAction(base);
     expect(result).toEqual({ ok: true });
+    expect(mocks.audit).toHaveBeenCalled();
     expect(mocks.accept).toHaveBeenCalledWith(
       expect.objectContaining({
         paidCapture: true,

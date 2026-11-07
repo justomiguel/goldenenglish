@@ -42,6 +42,8 @@ export interface CohortCollectionsBulkEnrollmentRaw {
   enrollment_fee_receipt_url?: string | null;
   enrollment_fee_receipt_status?: string | null;
   last_enrollment_paid_at?: string | null;
+  enrollment_fee_paid_method?: string | null;
+  enrollment_fee_paid_on?: string | null;
   scholarship_discount_percent?: number | string | null;
   scholarship_valid_from_year?: number | null;
   scholarship_valid_from_month?: number | null;
@@ -68,6 +70,8 @@ export interface CohortCollectionsBulkPaymentRaw {
   amount: number | string | null;
   status: StudentMonthlyPaymentRecord["status"];
   receipt_url: string | null;
+  payment_method?: string | null;
+  paid_on?: string | null;
 }
 
 export interface CohortCollectionsBulkScholarshipRaw {

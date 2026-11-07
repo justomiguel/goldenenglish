@@ -13,7 +13,6 @@ import { LandingNagoExperience } from "@/components/organisms/LandingNagoExperie
 import { LandingNagoMestre } from "@/components/organisms/LandingNagoMestre";
 import { LandingNagoHorarios } from "@/components/organisms/LandingNagoHorarios";
 import { LandingNagoAccion } from "@/components/organisms/LandingNagoAccion";
-import { LandingNagoEvents } from "@/components/organisms/LandingNagoEvents";
 import { LandingNagoTestimonials } from "@/components/organisms/LandingNagoTestimonials";
 import { LandingNagoConvert } from "@/components/organisms/LandingNagoConvert";
 import { NagoLandingLeadForm } from "@/components/organisms/NagoLandingLeadForm";
@@ -89,7 +88,6 @@ export function LandingNagoSections({
       <LandingNagoMestre dict={dict} locale={locale} />
       <LandingNagoHorarios dict={dict} locale={locale} registerCtas={registerCtas} />
       <LandingNagoAccion dict={dict} />
-      <LandingNagoEvents dict={dict} locale={locale} />
       <NagoLandingGallery dict={dict} />
       <LandingNagoTestimonials dict={dict} />
       <LandingNagoConvert dict={dict} locale={locale} registerCtas={registerCtas} />

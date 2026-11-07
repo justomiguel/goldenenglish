@@ -2,8 +2,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { locales } from "@/lib/i18n/dictionaries";
 
 const mockGetPublicSiteUrl = vi.fn<() => URL | null>();
-const { mockCreateClient } = vi.hoisted(() => ({
+const { mockCreateClient, mockLoadActiveTheme } = vi.hoisted(() => ({
   mockCreateClient: vi.fn(),
+  mockLoadActiveTheme: vi.fn(),
+}));
+
+vi.mock("@/lib/theme/loadActiveTheme", () => ({
+  loadActiveTheme: () => mockLoadActiveTheme(),
 }));
 
 vi.mock("@/lib/site/publicUrl", () => ({
@@ -19,6 +24,24 @@ import sitemap from "@/app/sitemap";
 describe("app/sitemap", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockLoadActiveTheme.mockResolvedValue(null);
+  });
+
+  it("adds the family guide only on the Mozarthitos template", async () => {
+    mockGetPublicSiteUrl.mockReturnValue(new URL("https://mozarthitos.test"));
+    const empty = vi.fn().mockResolvedValue({ data: [] });
+    const chain: Record<string, unknown> = {};
+    for (const key of ["select", "eq", "not", "lte", "is"]) chain[key] = vi.fn(() => chain);
+    chain.limit = empty;
+    mockCreateClient.mockReturnValue({ from: () => chain });
+
+    mockLoadActiveTheme.mockResolvedValue({ theme: { templateKind: "mozarthitos" } });
+    const mz = await sitemap();
+    expect(mz.filter((e) => e.url.endsWith("/encuentra-tu-clase"))).toHaveLength(locales.length);
+
+    mockLoadActiveTheme.mockResolvedValue({ theme: { templateKind: "classic" } });
+    const classic = await sitemap();
+    expect(classic.some((e) => e.url.includes("encuentra-tu-clase"))).toBe(false);
   });
 
   it("returns empty list when base URL is unknown", async () => {

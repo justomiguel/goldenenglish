@@ -11,6 +11,7 @@ import { RegisterNagoSurface } from "@/components/organisms/RegisterNagoSurface"
 import { extrasPackForTemplateKind } from "@/lib/register/packs/extrasPackForTemplateKind";
 import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
+import type { MzGuideChoice } from "@/lib/landing/mozarthitos/familyGuideCatalog";
 
 interface RegisterSurfaceByTemplateProps {
   templateKind: string;
@@ -24,6 +25,8 @@ interface RegisterSurfaceByTemplateProps {
   intent?: RegisterIntent;
   sessionEmail?: string | null;
   sectionMode?: RegisterSectionMode;
+  /** Mozarthitos family guide choice from `?guide=`; other templates ignore it. */
+  guide?: MzGuideChoice | null;
 }
 
 /**
@@ -34,6 +37,7 @@ interface RegisterSurfaceByTemplateProps {
 export function RegisterSurfaceByTemplate({
   templateKind,
   mediaMap,
+  guide = null,
   ...shellProps
 }: RegisterSurfaceByTemplateProps) {
   const extrasPack = extrasPackForTemplateKind(templateKind);
@@ -42,7 +46,7 @@ export function RegisterSurfaceByTemplate({
     return <RegisterEspacioZenitSurface {...withPack} mediaMap={mediaMap} />;
   }
   if (templateKind === "mozarthitos") {
-    return <RegisterMozarthitosSurface {...withPack} mediaMap={mediaMap} />;
+    return <RegisterMozarthitosSurface {...withPack} mediaMap={mediaMap} guide={guide} />;
   }
   if (templateKind === "nago") {
     return <RegisterNagoSurface {...withPack} />;

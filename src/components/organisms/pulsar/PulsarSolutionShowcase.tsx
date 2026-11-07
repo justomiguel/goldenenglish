@@ -55,59 +55,56 @@ export function PulsarSolutionShowcase({ locale, dict, market = "cl" }: PulsarSo
             {pricing.seePrices}
           </Link>
         </div>
-        <div className="mt-14 space-y-20">
+        <ul aria-label={copy.sectionTitle} className="mt-14 grid items-stretch gap-8 lg:grid-cols-3">
           {PULSAR_SOLUTION_SLUGS.map((slug, index) => {
             const item = dict.pulsar.solutionSet[slug];
             const landing = withCentrolistoMarket(`/${locale}/soluciones/${slug}`, market);
             return (
-              <article key={slug} className={`${styles.pricePanel} grid items-center gap-8 lg:grid-cols-2 lg:gap-14`}>
-                <PulsarReveal from={FROM[slug]} delay={DELAY[index]} className={slug === "gestion" ? "lg:order-2" : undefined}>
-                  <Link href={landing} className={`${styles.frameShift} block`}>
-                    <PulsarBrowserShot
-                      src={STAGE_SRC[slug]}
-                      alt={slug === "gestion" ? copy.adminAlt : copy.publicSiteAlt}
-                    />
-                    {slug === "ecosistema" ? (
-                      <div className="mt-4 max-w-[16rem]">
-                        <PulsarBrowserShot src="/centrolisto/product/admin-hub.jpg" alt={copy.adminAlt} />
-                      </div>
-                    ) : null}
-                  </Link>
-                </PulsarReveal>
-                <div className={slug === "gestion" ? "lg:order-1" : undefined}>
-                  <p className="text-sm font-medium text-[var(--color-muted-foreground)]">{item.navLabel}</p>
-                  <PulsarOfferPrice dict={dict} slug={slug} market={market} />
-                  <h3 className="mt-4 font-display text-3xl font-medium tracking-tight text-[var(--color-foreground)]">
-                    <Link href={landing} className="transition-colors hover:text-[var(--color-primary)]">
-                      {item.headline}
+              <li key={slug} className="min-w-0">
+                <article className={`${styles.pricePanel} flex h-full flex-col`}>
+                  <PulsarReveal from={FROM[slug]} delay={DELAY[index]}>
+                    <Link href={landing} className={`${styles.frameShift} block`}>
+                      <PulsarBrowserShot
+                        src={STAGE_SRC[slug]}
+                        alt={slug === "gestion" ? copy.adminAlt : copy.publicSiteAlt}
+                      />
                     </Link>
-                  </h3>
-                  <p className="mt-3 text-base leading-relaxed text-[var(--color-foreground)]">{item.lead}</p>
-                  <ul className="mt-5 space-y-2">
-                    {item.benefits.slice(0, 3).map((benefit) => (
-                      <li key={benefit} className="text-sm leading-relaxed text-[var(--color-muted-foreground)]">
-                        {benefit}
-                      </li>
-                    ))}
-                  </ul>
-                  {slug === "presencia" ? (
-                    <p className="mt-5 text-sm font-medium text-[var(--color-foreground)]">{pricing.templateRule}</p>
-                  ) : null}
-                  <div className="mt-6 flex flex-col items-start gap-3">
-                    <PulsarActionLink href={buttonHref(locale, slug, market)} tone={slug === "presencia" ? "primary" : "quiet"} eventName={EVENT[slug]}>
-                      {item.cta}
-                    </PulsarActionLink>
+                  </PulsarReveal>
+                  <div className="mt-6 flex flex-1 flex-col">
+                    <p className="text-sm font-medium text-[var(--color-muted-foreground)]">{item.navLabel}</p>
+                    <PulsarOfferPrice dict={dict} slug={slug} market={market} />
+                    <h3 className="mt-4 font-display text-2xl font-medium tracking-tight text-[var(--color-foreground)]">
+                      <Link href={landing} className="transition-colors hover:text-[var(--color-primary)]">
+                        {item.headline}
+                      </Link>
+                    </h3>
+                    <p className="mt-3 text-sm leading-relaxed text-[var(--color-foreground)]">{item.lead}</p>
+                    <ul className="mt-5 space-y-2">
+                      {item.benefits.slice(0, 3).map((benefit) => (
+                        <li key={benefit} className="text-sm leading-relaxed text-[var(--color-muted-foreground)]">
+                          {benefit}
+                        </li>
+                      ))}
+                    </ul>
                     {slug === "presencia" ? (
-                      <PulsarActionLink href={withCentrolistoMarket(`/${locale}/contacto?interes=medida`, market)} tone="quiet" eventName="cl_quote_custom">
-                        {pricing.customCta}
-                      </PulsarActionLink>
+                      <p className="mt-5 text-sm font-medium text-[var(--color-foreground)]">{pricing.templateRule}</p>
                     ) : null}
+                    <div className="mt-auto flex flex-col items-start gap-3 pt-6">
+                      <PulsarActionLink href={buttonHref(locale, slug, market)} tone={slug === "presencia" ? "primary" : "quiet"} eventName={EVENT[slug]}>
+                        {item.cta}
+                      </PulsarActionLink>
+                      {slug === "presencia" ? (
+                        <PulsarActionLink href={withCentrolistoMarket(`/${locale}/contacto?interes=medida`, market)} tone="quiet" eventName="cl_quote_custom">
+                          {pricing.customCta}
+                        </PulsarActionLink>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-              </article>
+                </article>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </div>
     </section>
   );

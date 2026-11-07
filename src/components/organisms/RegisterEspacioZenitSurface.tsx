@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
 import Link from "next/link";
 import { LogIn } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
@@ -20,7 +21,7 @@ export interface RegisterEspacioZenitSurfaceProps {
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
-  extrasPack?: "nago" | null;
+  extrasPack?: RegistrationExtrasPackId | null;
   mediaMap?: LandingMediaMap;
   intent?: RegisterIntent;
   sessionEmail?: string | null;

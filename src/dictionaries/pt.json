@@ -3368,6 +3368,96 @@
         "instagramUrl": "https://www.instagram.com/mozarthitos/",
         "formHint": "Utilize os canais de contato do instituto ou o fluxo de inscrição quando disponível para entrar em contato com a equipe pela web."
       },
+      "guide": {
+        "metaTitle": "Encontre sua aula",
+        "metaDescription": "Responda duas perguntas e descubra a aula do método Mago Diapasón para seu filho, presencial em Las Condes ou online.",
+        "entryCta": "Encontre a aula dele",
+        "title": "Encontre a aula para seu filho ou filha",
+        "lead": "Responda duas perguntas. Mostramos a etapa do método Mago Diapasón para seu filho, na nossa sede ou de casa.",
+        "stepLabel": "Passo {current} de {total}",
+        "ageQuestion": "Quantos anos ele tem?",
+        "attendanceQuestion": "Vocês podem vir à nossa sede em Las Condes?",
+        "age": {
+          "under_6m": "Menos de 6 meses",
+          "6m_2y": "De 6 meses a 2 anos",
+          "3y_4y": "3 ou 4 anos",
+          "5y_7y": "De 5 a 7 anos",
+          "8y_plus": "8 anos ou mais",
+          "adult": "Sou adulto e quero cantar"
+        },
+        "attendance": {
+          "in_person": "Sim, podemos ir a Las Condes",
+          "remote": "Não, preferimos de casa",
+          "unsure": "Ainda não sei"
+        },
+        "back": "Voltar",
+        "restart": "Mudar respostas",
+        "resultKicker": "Recomendamos",
+        "alsoTitle": "Também pode interessar",
+        "inClassLabel": "Na aula",
+        "yourPartLabel": "Sua parte",
+        "lengthLabel": "Duração",
+        "stage": {
+          "baby_mago": {
+            "title": "Baby Mago",
+            "ages": "De 6 meses a 2 anos",
+            "inClass": "Canta, brinca e toca percussão com os personagens da história «Viajando ao país da música».",
+            "yourPart": "Você participa de toda a aula com seu filho e vocês repetem as músicas em casa.",
+            "length": "30 minutos"
+          },
+          "little_musicians": {
+            "title": "Pequenos músicos",
+            "ages": "De 3 a 7 anos",
+            "inClass": "Começa a seguir partituras com o Mago Diapasón. Treina memória, atenção e concentração.",
+            "yourPart": "Você acompanha o processo e vocês praticam juntos em casa com o material da aula.",
+            "length": "30 minutos"
+          },
+          "instrument": {
+            "title": "Violino ou violoncelo",
+            "ages": "A partir de 5 anos",
+            "inClass": "Aprende violino ou violoncelo em um grupo pequeno de 2 a 5 crianças.",
+            "yourPart": "Você acompanha a prática em casa com as orientações do professor.",
+            "length": "30 minutos"
+          },
+          "adult_choir": {
+            "title": "Coral para adultos",
+            "ages": "A partir de 18 anos",
+            "inClass": "Você canta em grupo e aprende técnica vocal e leitura musical.",
+            "yourPart": "Não precisa de experiência.",
+            "length": "60 minutos, à noite"
+          }
+        },
+        "offer": {
+          "in_person": {
+            "title": "Presencial em Las Condes",
+            "body": "Uma aula por semana na nossa sede.",
+            "cta": "Reservar aula experimental"
+          },
+          "live_online": {
+            "title": "Aula ao vivo online",
+            "body": "Uma aula ao vivo por semana, por vídeo, com uma professora do método.",
+            "cta": "Reservar aula experimental online"
+          },
+          "pack": {
+            "title": "Pacote gravado",
+            "body": "Aulas gravadas para fazer em casa, no seu ritmo.",
+            "cta": "Começar com o pacote"
+          },
+          "contact": {
+            "title": "Fale conosco",
+            "body": "Esta etapa ainda não tem modalidade online. Conte o que procura e orientamos você.",
+            "cta": "Entrar em contato"
+          }
+        },
+        "choirLink": "E você? Conheça nosso coral para adultos",
+        "waitlist": {
+          "title": "Seu bebê pode começar aos 6 meses",
+          "body": "O Baby Mago começa aos 6 meses. Deixe seus dados e avisamos quando ele puder participar.",
+          "cta": "Deixar meus dados"
+        },
+        "registerSummary": "Sua escolha: {stage} · {modality}",
+        "registerSummaryChange": "Mudar"
+      },
       "footerCta": "Pronto para fazer música juntos? Marque a sua visita ou o seu lugar na academia."
     },
     "ez": {
@@ -3743,12 +3833,27 @@
       "galeria": {
         "sectionTitle": "Galeria",
         "verMas": "Ver mais fotos",
-        "carouselPrev": "Foto anterior",
-        "carouselNext": "Próxima foto",
+        "carouselPrev": "Anterior",
+        "carouselNext": "Seguinte",
         "carouselPosition": "Foto {current} de {total}",
         "carouselLoading": "Carregando foto",
         "previewOpenAria": "Abrir foto {n} maior",
-        "lightboxClose": "Fechar"
+        "previewOpenVideoAria": "Reproduzir vídeo {n}",
+        "lightboxClose": "Fechar",
+        "all": "Todas",
+        "filterLabel": "Eventos da galeria",
+        "mediaPosition": "Item {current} de {total}",
+        "backToEvents": "Voltar aos eventos",
+        "kindPhoto": "Foto",
+        "kindVideo": "Vídeo",
+        "videosHeading": "Vídeos",
+        "playVideo": "Reproduzir",
+        "pauseVideo": "Pausar",
+        "seekVideo": "Posição do vídeo",
+        "events": {
+          "conexionInternacional2025": "Conexión Internacional 2025",
+          "capoeiraMeChama2022": "Capoeira me chama 2022"
+        }
       },
       "lead": {
         "name": "Nome",
@@ -6439,7 +6544,13 @@
           "statusDue": "Não pago",
           "statusOutOfPeriod": "Fora do período de pagamento",
           "statusNoPlan": "Nenhum plano de taxas ativo",
-          "expectedAmount": "Valor esperado"
+          "expectedAmount": "Valor esperado",
+          "paidWithMethod": "Pagou {method} · {date}",
+          "paymentMethodCash": "Dinheiro",
+          "paymentMethodTransfer": "Transferência",
+          "paymentMethodCard": "Cartão",
+          "paymentMethodGateway": "Gateway",
+          "paymentMethodOther": "Outro"
         },
         "benefits": {
           "enrollmentExempt": "Inscrição isenta",
@@ -7275,6 +7386,32 @@
       "editLevelPlaceholder": "A1",
       "emptyValue": "-",
       "nagoExtrasTitle": "Ficha Nagô",
+      "mozarthitosGuide": {
+        "title": "Guia para famílias",
+        "stage": "Etapa",
+        "modality": "Modalidade",
+        "ageBand": "Idade indicada",
+        "exportColumn": "Guia",
+        "stages": {
+          "baby_mago": "Baby Mago",
+          "little_musicians": "Pequenos músicos",
+          "instrument": "Violino ou violoncelo",
+          "adult_choir": "Coral para adultos"
+        },
+        "modalities": {
+          "in_person": "Presencial",
+          "live_online": "Online ao vivo",
+          "pack": "Pacote gravado"
+        },
+        "ages": {
+          "under_6m": "Menos de 6 meses",
+          "6m_2y": "De 6 meses a 2 anos",
+          "3y_4y": "3 ou 4 anos",
+          "5y_7y": "De 5 a 7 anos",
+          "8y_plus": "8 anos ou mais",
+          "adult": "Sou adulto e quero cantar"
+        }
+      },
       "nagoNationality": "Nacionalidade",
       "nagoAddress": "Endereço",
       "nagoCommune": "Comuna",
@@ -15576,6 +15713,7 @@
       "clients": "Clientes",
       "contact": "Contratar",
       "admin": "Painel",
+      "enterPanel": "Entrar no painel",
       "cta": "Ver uma demonstração",
       "pricing": "Preços",
       "startFree": "Começar grátis",

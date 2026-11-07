@@ -43,4 +43,24 @@ describe("PulsarSiteChrome", () => {
       expect(link).not.toHaveAttribute("aria-current");
     }
   });
+
+  it("opens the panel for a signed-in person and signs out with an icon", () => {
+    render(
+      <PulsarSiteChrome locale="es" dict={dict} email="owner@school.test" activeNav="home">
+        <p>page</p>
+      </PulsarSiteChrome>,
+    );
+
+    const header = screen.getByRole("banner");
+    expect(within(header).getByRole("link", { name: dict.pulsar.nav.enterPanel })).toHaveAttribute(
+      "href",
+      "/es/cuenta",
+    );
+    expect(within(header).queryByRole("link", { name: dict.pulsar.nav.startFree })).toBeNull();
+    const signOut = within(header).getByRole("button", { name: dict.pulsar.session.signOut });
+    expect(signOut).not.toHaveTextContent(dict.pulsar.session.signOut);
+    expect(within(header).getByRole("combobox", { name: dict.pulsar.market.label })).toHaveTextContent(
+      dict.pulsar.market.cl,
+    );
+  });
 });

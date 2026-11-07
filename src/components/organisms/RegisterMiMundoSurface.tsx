@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
 import Link from "next/link";
 import { Heart, LogIn, Sparkles, Sprout } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
@@ -22,7 +23,7 @@ export interface RegisterMiMundoSurfaceProps {
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
-  extrasPack?: "nago" | null;
+  extrasPack?: RegistrationExtrasPackId | null;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
   sectionMode?: RegisterSectionMode;

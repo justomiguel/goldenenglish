@@ -46,6 +46,8 @@ export interface SectionCollectionsStudentInput {
   enrollmentFeeReceiptSignedUrl?: string | null;
   /** Matrícula marcada pagada desde admin sin flujo de comprobante (último registro en section_enrollments). */
   lastEnrollmentPaidAt?: string | null;
+  enrollmentFeePaidMethod?: string | null;
+  enrollmentFeePaidOn?: string | null;
 }
 
 export interface BuildSectionCollectionsViewInput {
@@ -135,6 +137,8 @@ export function buildSectionCollectionsView(
       enrollmentFeeReceiptStatus: s.enrollmentFeeReceiptStatus ?? null,
       enrollmentFeeReceiptSignedUrl: s.enrollmentFeeReceiptSignedUrl ?? null,
       lastEnrollmentPaidAt: s.lastEnrollmentPaidAt ?? null,
+      enrollmentFeePaidMethod: s.enrollmentFeePaidMethod ?? null,
+      enrollmentFeePaidOn: s.enrollmentFeePaidOn ?? null,
       billingScope: "plan-year",
       sectionBillingMode: input.sectionBillingMode ?? null,
       cohortDefaultMonthlyFee: input.cohortDefaultMonthlyFee ?? null,

@@ -21,6 +21,11 @@ import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { createRequestLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
+import {
+  formatGuideToken,
+  MZ_GUIDE_REGISTER_PARAM,
+  parseGuideToken,
+} from "@/lib/landing/mozarthitos/guideToken";
 
 export const metadata: Metadata = {
   robots: { index: true, follow: true },
@@ -30,7 +35,7 @@ export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ intent?: string; reschedule?: string }>;
+  searchParams: Promise<{ intent?: string; reschedule?: string; guide?: string }>;
 }
 
 export default async function RegisterPage({ params, searchParams }: PageProps) {
@@ -40,21 +45,22 @@ export default async function RegisterPage({ params, searchParams }: PageProps) 
     redirect(`/${locale}`);
   }
 
-  const [{ intent: requestedIntent, reschedule }, siteMode] = await Promise.all([
+  const [{ intent: requestedIntent, reschedule, guide: rawGuide }, siteMode] = await Promise.all([
     searchParams,
     getPublicCtaMode(),
   ]);
   const rescheduleToken = typeof reschedule === "string" ? reschedule.trim() : "";
+  const guide = parseGuideToken(rawGuide);
   const resolved = resolveRegisterIntent({
     siteMode,
     requested: requestedIntent ?? null,
   });
   if (resolved.kind === "redirect" && !rescheduleToken) {
-    redirect(
-      resolved.to === "trial"
-        ? `/${locale}/register?intent=trial`
-        : `/${locale}/register`,
-    );
+    const query = new URLSearchParams();
+    if (resolved.to === "trial") query.set("intent", "trial");
+    if (guide) query.set(MZ_GUIDE_REGISTER_PARAM, formatGuideToken(guide));
+    const qs = query.toString();
+    redirect(`/${locale}/register${qs ? `?${qs}` : ""}`);
   }
 
   const [baseDict, brand, snapshot, legalAgeMajority, sessionEmail, sectionMode] =
@@ -128,6 +134,7 @@ export default async function RegisterPage({ params, searchParams }: PageProps) 
       <RegisterSurfaceByTemplate
         templateKind={templateKind}
         mediaMap={mediaMap}
+        guide={guide}
         {...shellProps}
       />
     </PublicExperienceShell>

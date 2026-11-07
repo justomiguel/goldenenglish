@@ -12,6 +12,7 @@ import { SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH } from "@/lib/billing/sec
 import { SectionCollectionsEnrollmentFeeCell } from "./SectionCollectionsEnrollmentFeeCell";
 import { SectionCollectionsMonthCell } from "./SectionCollectionsMonthCell";
 import { SectionCollectionsStudentBenefits } from "./SectionCollectionsStudentBenefits";
+import { paidMethodLine } from "@/lib/billing/paymentMethod";
 
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
 
@@ -108,10 +109,24 @@ export function SectionCollectionsMatrixStudentRow({
           <SectionCollectionsEnrollmentFeeCell
             student={student}
             view={view}
-            ariaLabel={dict.matrix.enrollmentFeeChipAria.replace(
-              "{name}",
-              student.studentName,
-            )}
+            ariaLabel={[
+              dict.matrix.enrollmentFeeChipAria.replace("{name}", student.studentName),
+              paidMethodLine({
+                template: dict.monthCell.paidWithMethod,
+                method: student.row.enrollmentFeePaidMethod,
+                paidOn: student.row.enrollmentFeePaidOn,
+                locale,
+                labels: {
+                  cash: dict.monthCell.paymentMethodCash,
+                  transfer: dict.monthCell.paymentMethodTransfer,
+                  card: dict.monthCell.paymentMethodCard,
+                  gateway: dict.monthCell.paymentMethodGateway,
+                  other: dict.monthCell.paymentMethodOther,
+                },
+              }),
+            ]
+              .filter(Boolean)
+              .join(" · ")}
             selectable={enrollmentMatrixSelectable}
             selected={isCellSelected?.(0) ?? false}
             onToggle={

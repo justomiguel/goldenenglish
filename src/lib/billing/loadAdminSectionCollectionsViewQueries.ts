@@ -44,6 +44,8 @@ export interface EnrollmentRow {
   enrollment_fee_receipt_url: string | null;
   enrollment_fee_receipt_status: string | null;
   last_enrollment_paid_at: string | null;
+  enrollment_fee_paid_method?: string | null;
+  enrollment_fee_paid_on?: string | null;
   scholarship_discount_percent: number | string | null;
   scholarship_valid_from_year: number | null;
   scholarship_valid_from_month: number | null;
@@ -70,6 +72,8 @@ export interface PaymentRow {
   amount: number | string | null;
   status: StudentMonthlyPaymentRecord["status"];
   receipt_url: string | null;
+  payment_method?: string | null;
+  paid_on?: string | null;
 }
 
 export type ScholarshipDbRow = {
@@ -172,7 +176,7 @@ export async function loadActiveEnrollments(
   const { data } = await supabase
     .from("section_enrollments")
     .select(
-      "id, student_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, last_enrollment_paid_at, scholarship_discount_percent, scholarship_valid_from_year, scholarship_valid_from_month, scholarship_valid_until_year, scholarship_valid_until_month, scholarship_is_active",
+      "id, student_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, last_enrollment_paid_at, enrollment_fee_paid_method, enrollment_fee_paid_on, scholarship_discount_percent, scholarship_valid_from_year, scholarship_valid_from_month, scholarship_valid_until_year, scholarship_valid_until_month, scholarship_is_active",
     )
     .eq("section_id", sectionId)
     .eq("status", "active");
@@ -185,6 +189,8 @@ export async function loadActiveEnrollments(
     enrollment_fee_receipt_url: row.enrollment_fee_receipt_url ?? null,
     enrollment_fee_receipt_status: row.enrollment_fee_receipt_status ?? null,
     last_enrollment_paid_at: row.last_enrollment_paid_at ?? null,
+    enrollment_fee_paid_method: row.enrollment_fee_paid_method ?? null,
+    enrollment_fee_paid_on: row.enrollment_fee_paid_on ?? null,
     scholarship_discount_percent: row.scholarship_discount_percent ?? null,
     scholarship_valid_from_year: row.scholarship_valid_from_year ?? null,
     scholarship_valid_from_month: row.scholarship_valid_from_month ?? null,

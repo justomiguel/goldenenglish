@@ -4,6 +4,12 @@ import { LandingNagoSections } from "@/components/organisms/LandingNagoSections"
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/app/[locale]/contact/actions", () => ({
   submitPublicContactForm: vi.fn().mockResolvedValue({ ok: true }),
 }));
@@ -20,7 +26,9 @@ describe("LandingNagoSections", () => {
     expect(container.querySelector(".nago-scroll-root")).toBeTruthy();
     expect(container.querySelector(".nago-scroll-progress")).toBeTruthy();
     expect(container.querySelector(".nago-hero-ken")).toBeTruthy();
-    expect(container.querySelector('img[src*="nago-hero-roda.png"]')).toBeTruthy();
+    expect(
+      container.querySelector('img[src*="conexion-internacional-2025/38.jpg"]'),
+    ).toBeTruthy();
     expect(title.textContent).toMatch(/transform/i);
   });
 
@@ -32,6 +40,9 @@ describe("LandingNagoSections", () => {
     expect(screen.getByRole("heading", { name: dictEn.landing.nago.programas.sectionTitle })).toBeTruthy();
     expect(container.querySelectorAll(".nago-program-card-bar")).toHaveLength(4);
     expect(screen.getByRole("heading", { name: dictEn.landing.nago.mestre.title })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: dictEn.landing.nago.accion.sectionTitle })).toBeTruthy();
+    expect(container.querySelectorAll('img[src*="nago-accion-"]')).toHaveLength(4);
+    expect(container.querySelector('img[src*="conexion-internacional-2025/01.jpg"]')).toBeTruthy();
   });
 
   it("points public WhatsApp contact to the Ñuñoa number", () => {

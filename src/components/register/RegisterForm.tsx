@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import {
   continueRegistrationDni,
   submitRegistrationForm,
@@ -36,6 +36,8 @@ interface RegisterFormProps {
   onRegistered?: () => void;
   onLeave?: () => void;
   sectionMode?: RegisterSectionMode;
+  /** Tenant-specific hidden fields rendered inside the form (e.g. a pack tag). */
+  formExtras?: ReactNode;
 }
 
 export function RegisterForm({
@@ -50,6 +52,7 @@ export function RegisterForm({
   onRegistered,
   onLeave,
   sectionMode = "first_open",
+  formExtras = null,
 }: RegisterFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const { dni, setDni, step, setStep, clearDraft } = useRegisterDniDraft(locale, intent);
@@ -161,6 +164,7 @@ export function RegisterForm({
         className={embedded ? EMBEDDED_FORM_CLASS : PUBLIC_FORM_CLASS}
       >
         <input type="hidden" name="intent" value={intent} />
+        {formExtras}
         {step === "dni" ? (
           <RegisterDniStep
             dict={formDict}

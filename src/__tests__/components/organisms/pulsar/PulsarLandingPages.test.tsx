@@ -1,6 +1,6 @@
 // REGRESSION CHECK: CentroListo public pages render the home, product ledger,
 // school directory, and a calm conversation page.
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
@@ -37,6 +37,10 @@ describe("CentroListo multi-page growth & marketing views", () => {
     expect(screen.queryByText(dict.pulsar.home.craftsLine)).toBeNull();
     expect(screen.queryByText(dict.pulsar.home.offerStrip)).toBeNull();
     expect(screen.getByRole("heading", { name: dict.pulsar.solutions.sectionTitle })).toBeInTheDocument();
+    const columns = screen.getByRole("list", { name: dict.pulsar.solutions.sectionTitle });
+    expect(columns).toHaveClass("lg:grid-cols-3");
+    const homeColumns = within(columns).getAllByRole("listitem").filter((item) => item.parentElement === columns);
+    expect(homeColumns).toHaveLength(3);
     expect(screen.getByRole("heading", { name: dict.pulsar.solutions.storyTitle })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: dict.pulsar.solutionSet.gestion.cta })).toHaveAttribute(
       "href",
@@ -56,7 +60,7 @@ describe("CentroListo multi-page growth & marketing views", () => {
     expect(screen.queryByRole("link", { name: dict.pulsar.home.primaryCta })).toBeNull();
     expect(screen.queryByRole("link", { name: dict.pulsar.home.demoCta })).toBeNull();
     expect(screen.queryByRole("link", { name: dict.pulsar.home.bottomCta.primaryCta })).toBeNull();
-    expect(screen.getByRole("radio", { name: dict.pulsar.market.cl })).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByRole("combobox", { name: dict.pulsar.market.label })).toHaveTextContent(dict.pulsar.market.cl);
     const signupLinks = screen.getAllByRole("link", { name: dict.pulsar.home.freeSiteCta });
     expect(signupLinks.length).toBeGreaterThan(0);
     for (const link of signupLinks) {

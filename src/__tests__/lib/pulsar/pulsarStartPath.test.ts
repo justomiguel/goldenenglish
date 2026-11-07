@@ -1,4 +1,4 @@
-// REGRESSION CHECK: Empezar gratis must open the create form for any existing login.
+// REGRESSION CHECK: A signed-in person opens the panel. Create-site rules stay separate.
 import { describe, expect, it } from "vitest";
 import {
   ownerMayCreateFreeSite,
@@ -11,8 +11,8 @@ describe("pulsarStartFreePath", () => {
     expect(pulsarStartFreePath("es", false)).toBe("/es/cuenta/registro");
   });
 
-  it("sends any signed-in account to the create form", () => {
-    expect(pulsarStartFreePath("es", true)).toBe("/es/cuenta/nuevo");
+  it("sends any signed-in account to the panel", () => {
+    expect(pulsarStartFreePath("es", true)).toBe("/es/cuenta");
     expect(ownerMayCreateFreeSite("pending")).toBe(true);
     expect(ownerMayCreateFreeSite("approved")).toBe(true);
     expect(ownerMayCreateFreeSite("rejected")).toBe(false);

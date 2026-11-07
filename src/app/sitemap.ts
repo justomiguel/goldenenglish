@@ -5,12 +5,18 @@ import { createClient } from "@/lib/supabase/server";
 import { PULSAR_SEGMENT_SLUGS } from "@/lib/pulsar/pulsarSegmentSlugs";
 import { PULSAR_SOLUTION_SLUGS } from "@/lib/pulsar/pulsarSolutionSlugs";
 import { isPulsarCrawlHost } from "@/lib/tenant/tenantRegistry";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
+import { MZ_GUIDE_PATH } from "@/lib/landing/mozarthitos/guideToken";
 
 export const dynamic = "force-dynamic";
 
 /** Public marketing + auth entry; admin/dashboard excluded (noindex elsewhere). */
 const INDEXED_PATHS = ["", "/login", "/contact", "/privacidad", "/blog", "/events"] as const;
 const ANSWER_PATH = "/preguntas";
+/** Routes that exist only on one template (the page returns 404 on the others). */
+const TEMPLATE_INDEXED_PATHS: Record<string, readonly string[]> = {
+  mozarthitos: [`/${MZ_GUIDE_PATH}`],
+};
 const PULSAR_PATHS = [
   "",
   "/producto",
@@ -40,7 +46,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = await getRequestPublicSiteUrl();
   if (!base) return [];
   if (isPulsarCrawlHost(base.host)) return staticEntries(base, PULSAR_PATHS);
-  const indexedPaths = [...INDEXED_PATHS, ANSWER_PATH] as const;
+  const snapshot = await loadActiveTheme();
+  const templatePaths = TEMPLATE_INDEXED_PATHS[snapshot?.theme.templateKind ?? ""] ?? [];
+  const indexedPaths = [...INDEXED_PATHS, ANSWER_PATH, ...templatePaths];
 
   const supabase = await createClient();
   const { data: blogTranslations } = await supabase

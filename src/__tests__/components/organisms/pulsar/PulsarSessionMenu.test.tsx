@@ -36,7 +36,9 @@ describe("PulsarSessionMenu", () => {
     signOutMock.mockResolvedValue({ ok: true });
     const user = userEvent.setup();
     render(<PulsarSessionMenu locale="es" email="owner@school.test" copy={copy} />);
-    await user.click(screen.getByRole("button", { name: copy.signOut }));
+    const signOut = screen.getByRole("button", { name: copy.signOut });
+    expect(signOut).not.toHaveTextContent(copy.signOut);
+    await user.click(signOut);
     expect(signOutMock).toHaveBeenCalledWith("es");
     expect(pushMock).toHaveBeenCalledWith("/es");
     expect(refreshMock).toHaveBeenCalledOnce();

@@ -93,7 +93,7 @@ export async function loadAdminSectionCollectionsView(
     ),
     supabase
       .from("payments")
-      .select("id, student_id, section_id, month, year, amount, status, receipt_url")
+      .select("id, student_id, section_id, month, year, amount, status, receipt_url, payment_method, paid_on")
       .eq("section_id", sectionId)
       .eq("year", opts.todayYear)
       .in("student_id", studentIds),
@@ -123,6 +123,8 @@ export async function loadAdminSectionCollectionsView(
       amount: raw.amount == null ? null : Number(raw.amount),
       status: raw.status,
       receiptSignedUrl: null,
+      paymentMethod: raw.payment_method ?? null,
+      paidOn: raw.paid_on ?? null,
     });
     paymentsByStudent.set(raw.student_id, list);
   }
@@ -173,6 +175,8 @@ export async function loadAdminSectionCollectionsView(
       ),
       enrollmentFeeReceiptSignedUrl: null,
       lastEnrollmentPaidAt: enrollment?.last_enrollment_paid_at ?? null,
+      enrollmentFeePaidMethod: enrollment?.enrollment_fee_paid_method ?? null,
+      enrollmentFeePaidOn: enrollment?.enrollment_fee_paid_on ?? null,
       activePromotionLabel: activePromotionLabel(promotionsByStudent.get(id)),
       payments: paymentsByStudent.get(id) ?? [],
       enrolledAt: enrolledAtByStudent.get(id) ?? null,

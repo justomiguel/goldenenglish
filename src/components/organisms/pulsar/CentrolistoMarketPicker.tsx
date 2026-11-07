@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MarketFlag } from "@/components/atoms/MarketFlag";
 import {
@@ -21,12 +21,32 @@ export function CentrolistoMarketPicker({ market, copy }: CentrolistoMarketPicke
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const listId = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     writeCentrolistoMarketCookie(market);
   }, [market]);
 
+  useEffect(() => {
+    if (!open) return;
+    function onPointer(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
   function onChange(value: string) {
+    setOpen(false);
     if (!isCentrolistoMarketCode(value) || value === market) return;
     writeCentrolistoMarketCookie(value);
     const params = new URLSearchParams(searchParams.toString());
@@ -36,28 +56,48 @@ export function CentrolistoMarketPicker({ market, copy }: CentrolistoMarketPicke
   }
 
   return (
-    <div role="radiogroup" aria-label={copy.label} className="inline-flex shrink-0 items-center gap-0.5">
-      {CENTROLISTO_MARKETS.map((code) => {
-        const selected = code === market;
-        return (
-          <button
-            key={code}
-            type="button"
-            role="radio"
-            aria-checked={selected}
-            aria-label={copy[code]}
-            title={copy[code]}
-            onClick={() => onChange(code)}
-            className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-[var(--layout-border-radius)] border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] ${
-              selected
-                ? "border-[var(--color-foreground)] bg-[var(--color-muted)]"
-                : "border-transparent hover:bg-[var(--color-muted)]"
-            }`}
-          >
-            <MarketFlag code={code} />
-          </button>
-        );
-      })}
+    <div ref={rootRef} className="relative shrink-0">
+      <button
+        type="button"
+        role="combobox"
+        aria-label={copy.label}
+        aria-controls={listId}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        onClick={() => setOpen((current) => !current)}
+        className="inline-flex min-h-11 items-center gap-1.5 rounded-[var(--layout-border-radius)] px-2 text-xs text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+      >
+        <MarketFlag code={market} />
+        <span>{copy[market]}</span>
+      </button>
+      {open ? (
+        <ul
+          id={listId}
+          role="listbox"
+          aria-label={copy.label}
+          className="absolute left-0 top-full z-50 mt-1 min-w-40 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] py-1"
+        >
+          {CENTROLISTO_MARKETS.map((code) => {
+            const selected = code === market;
+            return (
+              <li key={code}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={selected}
+                  onClick={() => onChange(code)}
+                  className={`flex min-h-11 w-full items-center gap-2 px-2 text-xs text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)] ${
+                    selected ? "bg-[var(--color-muted)]" : ""
+                  }`}
+                >
+                  <MarketFlag code={code} />
+                  <span>{copy[code]}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
     </div>
   );
 }

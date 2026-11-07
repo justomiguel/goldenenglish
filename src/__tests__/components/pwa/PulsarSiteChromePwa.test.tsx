@@ -24,15 +24,14 @@ describe("PulsarSiteChromePwa", () => {
         <p>page</p>
       </PulsarSiteChromePwa>,
     );
-    expect(screen.getByRole("link", { name: dict.pulsar.nav.admin })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: dict.pulsar.nav.enterPanel })).toHaveAttribute(
       "href",
       "/es/cuenta",
     );
-    expect(screen.getByRole("button", { name: dict.pulsar.session.signOut })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: dict.pulsar.nav.startFree })).toHaveAttribute(
-      "href",
-      "/es/cuenta/nuevo",
+    expect(screen.getByRole("button", { name: dict.pulsar.session.signOut })).not.toHaveTextContent(
+      dict.pulsar.session.signOut,
     );
+    expect(screen.queryByRole("link", { name: dict.pulsar.nav.startFree })).toBeNull();
     expect(screen.getByRole("link", { name: dict.pulsar.nav.pricing })).toHaveAttribute(
       "href",
       "/es/precios",
@@ -41,8 +40,8 @@ describe("PulsarSiteChromePwa", () => {
     const home = screen.getByRole("link", { name: dict.pulsar.nav.home });
     expect(home).toHaveAttribute("aria-current", "page");
     expect(home).toHaveClass("bg-[var(--color-muted)]");
-    expect(screen.getByRole("radiogroup", { name: dict.pulsar.market.label })).toBeInTheDocument();
-    expect(screen.getByRole("radio", { name: dict.pulsar.market.py })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: dict.pulsar.market.label })).toHaveTextContent(dict.pulsar.market.cl);
+    expect(screen.queryByRole("option", { name: dict.pulsar.market.py })).toBeNull();
   });
 
   it("shows sign-in and hides the thumb link on the conversation page", () => {
@@ -51,7 +50,7 @@ describe("PulsarSiteChromePwa", () => {
         <p>page</p>
       </PulsarSiteChromePwa>,
     );
-    expect(screen.queryByRole("link", { name: dict.pulsar.nav.admin })).toBeNull();
+    expect(screen.queryByRole("link", { name: dict.pulsar.nav.enterPanel })).toBeNull();
     expect(screen.getByRole("link", { name: dict.pulsar.session.signIn })).toHaveAttribute(
       "href",
       "/es/cuenta/login",
@@ -63,5 +62,19 @@ describe("PulsarSiteChromePwa", () => {
     expect(screen.getByRole("link", { name: dict.pulsar.nav.home })).not.toHaveClass(
       "bg-[var(--color-muted)]",
     );
+  });
+
+  it("keeps the panel link in the top bar when the thumb is hidden", () => {
+    render(
+      <PulsarSiteChromePwa locale="es" dict={dict} email="owner@school.test" activeNav="contact">
+        <p>page</p>
+      </PulsarSiteChromePwa>,
+    );
+    expect(screen.getByRole("link", { name: dict.pulsar.nav.enterPanel })).toHaveAttribute(
+      "href",
+      "/es/cuenta",
+    );
+    expect(screen.queryByRole("link", { name: dict.pulsar.nav.startFree })).toBeNull();
+    expect(screen.getByRole("button", { name: dict.pulsar.session.signOut })).toBeInTheDocument();
   });
 });

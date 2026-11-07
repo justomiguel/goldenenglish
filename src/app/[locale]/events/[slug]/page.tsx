@@ -25,6 +25,8 @@ import {
   resolveInstituteOpenGraphLocale,
 } from "@/lib/site/buildResolvedPublicShareMetadata";
 import { buildPublicShareTitle, clipShareDescription } from "@/lib/site/publicShareText";
+import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
+import { buildPublicEventJsonLd } from "@/lib/events/buildPublicEventJsonLd";
 import { loadPublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
 import { formatEventMinorAgeLegend } from "@/lib/events/formatEventMinorAgeLegend";
 import { formatEventMoneyAmount } from "@/lib/events/resolveEventPublicPriceDisplay";
@@ -71,9 +73,11 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
   const paymentBannerStatus = normalizeEventPaymentBannerStatus(payment);
   const dict = await getDictionary(locale);
   const supabase = await createClient();
-  const [event, surfaceVariant] = await Promise.all([
+  const [event, surfaceVariant, brand, origin] = await Promise.all([
     loadEventForPublicLanding(supabase, slug, locale),
     loadPublicEventSurfaceVariant(),
+    getBrandForRequest(),
+    getRequestPublicSiteUrl(),
   ]);
   if (!event) notFound();
 
@@ -113,16 +117,27 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
     registerCta: publicLabels.registerCta,
   };
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Event",
+  const publicOrigin = origin?.origin ?? null;
+  const registerPath = `/${locale}/events/${event.slug}/register`;
+  const jsonLd = buildPublicEventJsonLd({
     name: event.title,
     description: htmlToPlain(event.description),
     startDate: event.eventDate,
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    eventStatus: "https://schema.org/EventScheduled",
-    ...(coverImageUrl ? { image: coverImageUrl } : {}),
-  };
+    location: event.location,
+    coverImageUrl,
+    publicOrigin,
+    currency: event.currency,
+    price: event.price,
+    priceLocal: event.priceLocal,
+    priceNonLocal: event.priceNonLocal,
+    priceByFlow: event.priceByFlow,
+    flowPrices: event.flows.map((flow) => flow.price),
+    packagePrices: event.packages.map((pkg) => pkg.price),
+    brandName: brand.name,
+    brandUrl: publicOrigin ?? "",
+    contactAddress: brand.contactAddress,
+    offerUrl: publicOrigin ? new URL(registerPath, publicOrigin).toString() : registerPath,
+  });
 
   return (
     <main className="space-y-6">

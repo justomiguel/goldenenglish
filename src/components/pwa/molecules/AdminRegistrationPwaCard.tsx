@@ -16,6 +16,7 @@ import { registrationIntentLabel } from "@/lib/register/registrationIntentLabel"
 import { AdminRegistrationIntakeActions } from "@/components/dashboard/AdminRegistrationIntakeActions";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import { AdminRegistrationNagoExtras } from "@/components/dashboard/AdminRegistrationNagoExtras";
+import { AdminRegistrationMozarthitosGuide } from "@/components/dashboard/AdminRegistrationMozarthitosGuide";
 import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
 
 type RegLabels = Dictionary["admin"]["registrations"];
@@ -167,6 +168,10 @@ export function AdminRegistrationPwaCard({
           tenantExtras={r.tenantExtras}
           locale={locale}
           labels={labels}
+        />
+        <AdminRegistrationMozarthitosGuide
+          tenantExtras={r.tenantExtras}
+          labels={labels.mozarthitosGuide}
         />
         {onBusy && onIntakeDone ? (
           <AdminRegistrationIntakeActions

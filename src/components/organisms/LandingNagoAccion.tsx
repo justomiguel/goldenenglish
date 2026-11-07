@@ -5,10 +5,10 @@ import { NAGO_TEMPLATE } from "@/lib/landing/nagoTemplateImages";
 import { NagoReveal } from "@/components/organisms/NagoReveal";
 
 const THUMBS = [
-  NAGO_TEMPLATE.gal01,
-  NAGO_TEMPLATE.gal02,
-  NAGO_TEMPLATE.gal03,
-  NAGO_TEMPLATE.gal04,
+  NAGO_TEMPLATE.accion01,
+  NAGO_TEMPLATE.accion02,
+  NAGO_TEMPLATE.accion03,
+  NAGO_TEMPLATE.accion04,
 ] as const;
 
 export function LandingNagoAccion({ dict }: { dict: Dictionary }) {

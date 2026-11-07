@@ -20,7 +20,8 @@ describe("CentrolistoMarketPicker", () => {
   it("replaces the URL with the chosen country and keeps other query keys", () => {
     replace.mockClear();
     render(<CentrolistoMarketPicker market="cl" copy={dict.pulsar.market} />);
-    fireEvent.click(screen.getByRole("radio", { name: dict.pulsar.market.ar }));
+    fireEvent.click(screen.getByRole("combobox", { name: dict.pulsar.market.label }));
+    fireEvent.click(screen.getByRole("option", { name: dict.pulsar.market.ar }));
     expect(replace).toHaveBeenCalledWith("/es?utm=1&pais=ar");
     expect(document.cookie).toContain("centrolisto_market=ar");
   });

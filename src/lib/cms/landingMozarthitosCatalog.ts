@@ -1,4 +1,5 @@
 import type { LandingSectionSlug } from "@/types/theming";
+import { MOZARTHITOS_GUIDE_COPY_KEYS } from "@/lib/cms/landingMozarthitosGuideCopyKeys";
 
 /**
  * Editable copy + media slots for the `mozarthitos` landing shell.
@@ -51,7 +52,7 @@ export const MOZARTHITOS_LANDING_COPY_KEYS_BY_SECTION: Readonly<
     "mz.map.embedSrc",
     "mz.map.iframeTitle",
   ],
-  niveles: [],
+  niveles: MOZARTHITOS_GUIDE_COPY_KEYS,
   certificaciones: [
     "mz.contact.title",
     "mz.contact.subtitle",

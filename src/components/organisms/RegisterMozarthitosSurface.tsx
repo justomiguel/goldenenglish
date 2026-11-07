@@ -12,6 +12,10 @@ import { MozarthitosRegisterHeader } from "@/components/molecules/MozarthitosReg
 import { MozarthitosFontRoot } from "@/components/organisms/MozarthitosFontRoot";
 import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
+import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
+import type { MzGuideChoice } from "@/lib/landing/mozarthitos/familyGuideCatalog";
+import { formatGuideToken, MZ_GUIDE_FORM_FIELD } from "@/lib/landing/mozarthitos/guideToken";
+import { MozarthitosRegisterGuideSummary } from "@/components/molecules/MozarthitosRegisterGuideSummary";
 
 export interface RegisterMozarthitosSurfaceProps {
   locale: string;
@@ -20,11 +24,12 @@ export interface RegisterMozarthitosSurfaceProps {
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
-  extrasPack?: "nago" | null;
+  extrasPack?: RegistrationExtrasPackId | null;
   mediaMap?: LandingMediaMap;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
   sectionMode?: RegisterSectionMode;
+  guide?: MzGuideChoice | null;
 }
 
 export function RegisterMozarthitosSurface({
@@ -39,6 +44,7 @@ export function RegisterMozarthitosSurface({
   intent = "reserve",
   sessionEmail = null,
   sectionMode = "first_open",
+  guide = null,
 }: RegisterMozarthitosSurfaceProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveLandingImageSrcForTheme(
@@ -123,6 +129,9 @@ export function RegisterMozarthitosSurface({
             <p className="mx-auto mt-4 max-w-2xl text-[var(--mz-ink-on-white)]/85 md:mx-0 md:text-lg">
               {mz.register.shellLead}
             </p>
+            {guide ? (
+              <MozarthitosRegisterGuideSummary locale={locale} guide={guide} labels={mz.guide} />
+            ) : null}
           </header>
           <div className="mz-public-sheet w-full rounded-[28px] p-1">
             <RegisterForm
@@ -134,6 +143,11 @@ export function RegisterMozarthitosSurface({
               extrasPack={extrasPack}
               intent={intent}
               sectionMode={sectionMode}
+              formExtras={
+                guide ? (
+                  <input type="hidden" name={MZ_GUIDE_FORM_FIELD} value={formatGuideToken(guide)} />
+                ) : null
+              }
             />
           </div>
           <p className="mt-8 flex justify-center md:justify-start">

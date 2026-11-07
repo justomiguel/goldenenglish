@@ -1,10 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
-import { NAGO_TEMPLATE_GALLERY_URLS } from "@/lib/landing/nagoTemplateImages";
+import {
+  NAGO_GALLERY_EVENT_COPY,
+  nagoGalleryImagesFor,
+  nagoGalleryVideosFor,
+  type NagoGalleryEventId,
+} from "@/lib/landing/nagoGalleryCatalog";
+import { NagoGalleryEventGroups } from "@/components/organisms/NagoGalleryEventGroups";
+import { NagoGalleryLightbox } from "@/components/organisms/NagoGalleryLightbox";
 import { NagoReveal } from "@/components/organisms/NagoReveal";
 import { useNagoSound } from "@/components/organisms/NagoSoundRoot";
 
@@ -12,13 +18,27 @@ export interface NagoLandingGalleryProps {
   dict: Dictionary;
 }
 
+type GalleryLane = "image" | "video";
+
 export function NagoLandingGallery({ dict }: NagoLandingGalleryProps) {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
-  const images = NAGO_TEMPLATE_GALLERY_URLS;
-  const total = images.length;
+  const [lane, setLane] = useState<GalleryLane>("image");
+  const [eventId, setEventId] = useState<NagoGalleryEventId | null>(null);
+  const photos = eventId ? nagoGalleryImagesFor(eventId) : [];
+  const videos = eventId ? nagoGalleryVideosFor(eventId) : [];
+  const laneItems = lane === "video" ? videos : photos;
+  const total = laneItems.length;
   const { playSignature } = useNagoSound();
   const t = (key: string) => marketingLandingCopy(dict, "nago", `galeria.${key}`);
+
+  const openMedia = (nextEvent: NagoGalleryEventId, nextLane: GalleryLane, start: number) => {
+    setEventId(nextEvent);
+    setLane(nextLane);
+    setIndex(start);
+    setOpen(true);
+    playSignature();
+  };
 
   const goPrev = useCallback(() => {
     setIndex((i) => (i - 1 + total) % total);
@@ -27,12 +47,6 @@ export function NagoLandingGallery({ dict }: NagoLandingGalleryProps) {
   const goNext = useCallback(() => {
     setIndex((i) => (i + 1) % total);
   }, [total]);
-
-  const openAt = (start: number) => {
-    setIndex(start);
-    setOpen(true);
-    playSignature();
-  };
 
   useEffect(() => {
     if (!open) return;
@@ -50,11 +64,12 @@ export function NagoLandingGallery({ dict }: NagoLandingGalleryProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, goPrev, goNext]);
 
-  if (total === 0) return null;
-
-  const positionLabel = t("carouselPosition")
+  const current = laneItems[index];
+  const positionLabel = t("mediaPosition")
     .replace("{current}", String(index + 1))
     .replace("{total}", String(total));
+  const photoLabel = (i: number) => t("previewOpenAria").replace("{n}", String(i + 1));
+  const videoLabel = (i: number) => t("previewOpenVideoAria").replace("{n}", String(i + 1));
 
   return (
     <section
@@ -66,79 +81,31 @@ export function NagoLandingGallery({ dict }: NagoLandingGalleryProps) {
           {t("sectionTitle")}
         </h2>
       </NagoReveal>
-      <div className="nago-masonry mx-auto mt-10 max-w-7xl">
-        {images.map((src, i) => (
-          <NagoReveal
-            key={src}
-            variant="media"
-            className="nago-masonry-item"
-            delay={i < 6 ? (((i % 3) + 1) as 1 | 2 | 3) : undefined}
-          >
-            <button
-              type="button"
-              className="relative block w-full overflow-hidden border-0 bg-transparent p-0"
-              onClick={() => openAt(i)}
-              aria-label={t("previewOpenAria").replace("{n}", String(i + 1))}
-            >
-              <Image
-                src={src}
-                alt=""
-                width={i % 2 === 0 ? 720 : 560}
-                height={i % 2 === 0 ? 960 : 420}
-                className="h-auto w-full object-cover"
-                sizes="(max-width:640px) 100vw, 33vw"
-              />
-            </button>
-          </NagoReveal>
-        ))}
-      </div>
-
-      {open ? (
-        <div
-          className="nago-lightbox"
-          role="dialog"
-          aria-modal="true"
-          aria-label={t("sectionTitle")}
-        >
-          <p className="sr-only" aria-live="polite">
-            {positionLabel}
-          </p>
-          <button
-            type="button"
-            className="absolute right-4 top-4 nago-btn px-3 py-2 text-xs"
-            onClick={() => setOpen(false)}
-          >
-            {t("lightboxClose")}
-          </button>
-          <div className="relative flex w-full max-w-5xl items-center gap-3">
-            <button
-              type="button"
-              className="nago-btn shrink-0 px-3"
-              onClick={goPrev}
-              aria-label={t("carouselPrev")}
-            >
-              ←
-            </button>
-            <div className="relative aspect-[4/3] min-h-[40vh] w-full">
-              <Image
-                key={images[index]}
-                src={images[index]}
-                alt=""
-                fill
-                className="object-contain"
-                sizes="90vw"
-              />
-            </div>
-            <button
-              type="button"
-              className="nago-btn shrink-0 px-3"
-              onClick={goNext}
-              aria-label={t("carouselNext")}
-            >
-              →
-            </button>
-          </div>
-        </div>
+      <NagoGalleryEventGroups
+        eventName={(id) => t(NAGO_GALLERY_EVENT_COPY[id])}
+        videosLabel={t("videosHeading")}
+        playLabel={t("playVideo")}
+        photoLabel={photoLabel}
+        videoLabel={videoLabel}
+        onOpenPhoto={(id, i) => openMedia(id, "image", i)}
+        onOpenVideo={(id, i) => openMedia(id, "video", i)}
+      />
+      {open && current ? (
+        <NagoGalleryLightbox
+          item={current}
+          title={t("sectionTitle")}
+          positionLabel={positionLabel}
+          kindLabel={t(current.kind === "video" ? "kindVideo" : "kindPhoto")}
+          closeLabel={t("lightboxClose")}
+          prevLabel={t("carouselPrev")}
+          nextLabel={t("carouselNext")}
+          playLabel={t("playVideo")}
+          pauseLabel={t("pauseVideo")}
+          seekLabel={t("seekVideo")}
+          onClose={() => setOpen(false)}
+          onPrev={goPrev}
+          onNext={goNext}
+        />
       ) : null}
     </section>
   );

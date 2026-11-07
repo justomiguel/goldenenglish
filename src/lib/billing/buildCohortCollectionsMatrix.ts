@@ -126,6 +126,8 @@ export function buildCohortCollectionsMatrix(
       amount: p.amount == null ? null : Number(p.amount),
       status: p.status,
       receiptSignedUrl: null,
+      paymentMethod: p.payment_method ?? null,
+      paidOn: p.paid_on ?? null,
     });
     paymentsByStudentSection.set(key, list);
   }
@@ -166,6 +168,8 @@ export function buildCohortCollectionsMatrix(
           ),
           enrollmentFeeReceiptSignedUrl: null,
           lastEnrollmentPaidAt: e.last_enrollment_paid_at ?? null,
+          enrollmentFeePaidMethod: e.enrollment_fee_paid_method ?? null,
+          enrollmentFeePaidOn: e.enrollment_fee_paid_on ?? null,
           activePromotionLabel: activePromotionLabel(
             promotionsByStudent.get(e.student_id),
           ),

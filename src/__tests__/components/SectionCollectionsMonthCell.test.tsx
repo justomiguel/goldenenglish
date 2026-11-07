@@ -45,4 +45,37 @@ describe("SectionCollectionsMonthCell", () => {
     expect(screen.getByRole("button").className).not.toContain("--color-success");
     expect(screen.getByRole("button").className).toContain("#6d28d9");
   });
+
+  it("puts the payment method and date on the paid cell tooltip", () => {
+    render(
+      <SectionCollectionsMonthCell
+        cell={{
+          month: 3,
+          year: 2026,
+          status: "approved",
+          expectedAmount: 100,
+          fullMonthExpectedAmount: 100,
+          currency: "USD",
+          proration: null,
+          recordedAmount: 100,
+          paymentId: "pay-1",
+          receiptSignedUrl: null,
+          isCurrent: false,
+          paymentMethod: "cash",
+          paidOn: "2026-03-12",
+        }}
+        monthLabel="Mar"
+        todayMonth={6}
+        year={2026}
+        ariaPrefix="Ana Student"
+        locale="en"
+        labels={{
+          ...labels,
+          paidWithMethod: "Paid {method} · {date}",
+          paymentMethodCash: "Cash",
+        }}
+      />,
+    );
+    expect(screen.getByRole("button")).toHaveAttribute("title", expect.stringContaining("Cash"));
+  });
 });

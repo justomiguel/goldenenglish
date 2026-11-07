@@ -48,6 +48,81 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
     ),
   },
   {
+    id: "nago-gallery-by-event",
+    date: "2026-11-07",
+    area: "site",
+    title: t(
+      "La galería de Nagô agrupa fotos y videos por evento",
+      "The Nagô gallery groups photos and videos by event",
+      "A galeria da Nagô agrupa fotos e vídeos por evento",
+    ),
+    summary: t(
+      "Cada evento muestra tres fotos y, si hay videos, una franja aparte. También cambian la foto del mestre y las de acción.",
+      "Each event shows three photos and, when videos exist, a separate strip. The mestre photo and the action photos change too.",
+      "Cada evento mostra três fotos e, se há vídeos, uma faixa à parte. A foto do mestre e as de ação também mudam.",
+    ),
+  },
+  {
+    id: "mozarthitos-find-your-class",
+    date: "2026-11-07",
+    area: "registrations",
+    title: t(
+      "Mozarthitos guía a la familia hasta su clase",
+      "Mozarthitos guides a family to its class",
+      "Mozarthitos guia a família até a turma",
+    ),
+    summary: t(
+      "Encuentra tu clase pregunta la edad y la modalidad, y deja esa elección en la inscripción.",
+      "Find your class asks the age and the format, and keeps that choice on the registration.",
+      "Encontra a sua turma pergunta a idade e a modalidade, e guarda essa escolha na inscrição.",
+    ),
+  },
+  {
+    id: "collections-paid-method-tooltip",
+    date: "2026-11-07",
+    area: "finance",
+    title: t(
+      "La matriz de cobranza muestra el medio de pago",
+      "The collections matrix shows the payment method",
+      "A matriz de cobrança mostra o meio de pagamento",
+    ),
+    summary: t(
+      "Una cuota pagada muestra el medio y la fecha. La matrícula de la fila usa el mismo dato.",
+      "A paid month shows the method and the date. The row enrollment fee uses the same fact.",
+      "Uma mensalidade paga mostra o meio e a data. A matrícula da linha usa o mesmo dado.",
+    ),
+  },
+  {
+    id: "centrolisto-solution-columns",
+    date: "2026-11-07",
+    area: "site",
+    title: t(
+      "Presencia, Gestión y Ecosistema quedan en tres columnas",
+      "Presence, Management, and Ecosystem sit in three columns",
+      "Presença, Gestão e Ecossistema ficam em três colunas",
+    ),
+    summary: t(
+      "En el home y en Precios las tres soluciones se comparan lado a lado. En el teléfono siguen en una columna.",
+      "On the home and on Prices the three solutions sit side by side. On a phone they stay in one column.",
+      "Na home e em Preços as três soluções ficam lado a lado. No telefone seguem em uma coluna.",
+    ),
+  },
+  {
+    id: "centrolisto-country-combo-panel",
+    date: "2026-11-07",
+    area: "site",
+    title: t(
+      "El país queda junto al logo y la sesión abre el panel",
+      "The country sits by the logo and the session opens the panel",
+      "O país fica junto do logo e a sessão abre o painel",
+    ),
+    summary: t(
+      "El control muestra la bandera y el nombre. Con sesión, la acción principal dice Entrar al panel y salir es un ícono.",
+      "The control shows the flag and the name. With a session, the main action says Enter the panel and sign-out is an icon.",
+      "O controle mostra a bandeira e o nome. Com sessão, a ação principal diz Entrar no painel e sair é um ícone.",
+    ),
+  },
+  {
     id: "centrolisto-home-single-cta",
     date: "2026-11-07",
     area: "site",
@@ -150,36 +225,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "El monto coincide con el que vio la persona: cupón y precio de menor.",
       "The amount matches what the person saw: coupon and minor price.",
       "O valor coincide com o que a pessoa viu: cupom e preço de menor.",
-    ),
-  },
-  {
-    id: "email-month-resend-readout",
-    date: "2026-11-05",
-    area: "communications",
-    title: t(
-      "El tope mensual de correos se ve y no se edita",
-      "The monthly mail cap is visible and cannot be edited",
-      "O limite mensal de e-mails aparece e não se edita",
-    ),
-    summary: t(
-      "El instituto ve el número. CentroListo lo ve al lado de cada instituto, según la clave de Resend.",
-      "The institute sees the number. CentroListo sees it next to each institute, from the Resend key.",
-      "O instituto vê o número. O CentroListo vê ao lado de cada instituto, pela chave da Resend.",
-    ),
-  },
-  {
-    id: "contact-form-message-export",
-    date: "2026-11-05",
-    area: "communications",
-    title: t(
-      "Puedes exportar los mensajes del formulario",
-      "You can export contact-form messages",
-      "Você pode exportar as mensagens do formulário",
-    ),
-    summary: t(
-      "En Mensajes eliges los campos y descargas Excel o un PDF con la marca. Puedes incluir todos o los últimos 2000.",
-      "In Messages you choose the fields and download Excel or a branded PDF. You can include all messages or the latest 2000.",
-      "Em Mensagens você escolhe os campos e baixa Excel ou um PDF com a marca. Pode incluir todas ou as últimas 2000.",
     ),
   },
 ];

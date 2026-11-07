@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
 import { LogIn } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
@@ -18,7 +19,7 @@ export interface RegisterLioraSurfaceProps {
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
-  extrasPack?: "nago" | null;
+  extrasPack?: RegistrationExtrasPackId | null;
   intent?: RegisterIntent;
   sessionEmail?: string | null;
   sectionMode?: RegisterSectionMode;

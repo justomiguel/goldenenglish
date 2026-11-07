@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, LayoutDashboard, MessageCircle } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 import { CentroListoLogoMark } from "@/components/organisms/pulsar/CentroListoLogoMark";
 import { CentrolistoMarketPicker } from "@/components/organisms/pulsar/CentrolistoMarketPicker";
 import { PulsarSegmentNav } from "@/components/organisms/pulsar/PulsarSegmentNav";
@@ -49,6 +49,7 @@ export function PulsarSiteChrome({
           <Link href={href(`/${locale}`)} className="inline-flex shrink-0 items-center" aria-label={dict.pulsar.meta.brandName}>
             <CentroListoLogoMark size="md" />
           </Link>
+          <CentrolistoMarketPicker market={market} copy={dict.pulsar.market} />
           <nav className="hidden min-w-0 flex-1 items-center gap-x-3 overflow-x-auto whitespace-nowrap [scrollbar-width:none] lg:flex [&::-webkit-scrollbar]:hidden">
             {links.map((item) => {
               const current = activeNav === item.key;
@@ -69,24 +70,15 @@ export function PulsarSiteChrome({
             })}
           </nav>
           <div className="ml-auto flex shrink-0 items-center gap-2">
-            <CentrolistoMarketPicker market={market} copy={dict.pulsar.market} />
-            {email ? (
-              <Link
-                href={href(`/${locale}/cuenta`)}
-                className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] px-3 text-sm font-semibold text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]"
-              >
-                <LayoutDashboard className="h-4 w-4" aria-hidden />
-                <span>{nav.admin}</span>
-              </Link>
-            ) : null}
-            <PulsarSessionMenu locale={locale} email={email} copy={dict.pulsar.session} />
+            {email ? null : <PulsarSessionMenu locale={locale} email={email} copy={dict.pulsar.session} />}
             <Link
               href={href(pulsarStartFreePath(locale, Boolean(email)))}
               className="hidden min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)] lg:inline-flex"
             >
               <ArrowRight className="h-4 w-4" aria-hidden />
-              <span>{nav.startFree}</span>
+              <span>{email ? nav.enterPanel : nav.startFree}</span>
             </Link>
+            {email ? <PulsarSessionMenu locale={locale} email={email} copy={dict.pulsar.session} /> : null}
           </div>
         </div>
       </header>

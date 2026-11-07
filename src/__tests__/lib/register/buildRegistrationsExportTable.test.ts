@@ -79,4 +79,23 @@ describe("buildRegistrationsExportTable", () => {
     expect(classic.headers).not.toContain(labels.nagoNationality);
     expect(nago.headers).toContain(labels.nagoNationality);
   });
+
+  it("adds the family guide column only on the Mozarthitos theme", () => {
+    const tagged: AdminRegistrationRow = {
+      ...minor,
+      tenantExtras: {
+        pack: "mozarthitos",
+        schemaVersion: 1,
+        guide: { stage: "little_musicians", modality: "in_person", ageBand: "3y_4y" },
+      },
+    };
+    const g = labels.mozarthitosGuide;
+    const mz = build([tagged, minor], "mozarthitos");
+    expect(mz.headers.at(-1)).toBe(g.exportColumn);
+    expect(mz.rows[0]?.at(-1)).toBe(
+      `${g.stages.little_musicians} · ${g.modalities.in_person} · ${g.ages["3y_4y"]}`,
+    );
+    expect(mz.rows[1]?.at(-1)).toBe(labels.emptyValue);
+    expect(build([tagged], "classic").headers).not.toContain(g.exportColumn);
+  });
 });

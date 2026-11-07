@@ -4,6 +4,7 @@ import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate"
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import { AdminRegistrationNagoExtras } from "@/components/dashboard/AdminRegistrationNagoExtras";
+import { AdminRegistrationMozarthitosGuide } from "@/components/dashboard/AdminRegistrationMozarthitosGuide";
 import { AdminRegistrationIntakeActions } from "@/components/dashboard/AdminRegistrationIntakeActions";
 import { AdminRegistrationTrialSeats } from "@/components/dashboard/AdminRegistrationTrialSeats";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
@@ -110,6 +111,10 @@ export function AdminRegistrationExpandedDetails({
           tenantExtras={row.tenantExtras}
           locale={locale}
           labels={labels}
+        />
+        <AdminRegistrationMozarthitosGuide
+          tenantExtras={row.tenantExtras}
+          labels={labels.mozarthitosGuide}
         />
         <AdminRegistrationTrialSeats
           locale={locale}

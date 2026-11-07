@@ -66,3 +66,21 @@ export function formatPaidWithMethod(input: {
   }).format(new Date(`${input.paidOn}T00:00:00Z`));
   return input.template.replace("{method}", input.methodLabel).replace("{date}", date);
 }
+
+export function paidMethodLine(input: {
+  template: string | undefined;
+  method: string | null | undefined;
+  paidOn: string | null | undefined;
+  locale: string;
+  labels: Record<PaymentMethod, string | undefined>;
+}): string | null {
+  const parsed = paymentMethodSchema.safeParse(input.method);
+  const methodLabel = parsed.success ? input.labels[parsed.data] : null;
+  if (!parsed.success || !input.paidOn || !input.template || !methodLabel) return null;
+  return formatPaidWithMethod({
+    template: input.template,
+    methodLabel,
+    paidOn: input.paidOn,
+    locale: input.locale,
+  });
+}

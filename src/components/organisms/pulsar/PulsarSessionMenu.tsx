@@ -45,10 +45,11 @@ export function PulsarSessionMenu({
       type="button"
       onClick={signOut}
       disabled={pending}
-      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-semibold text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)] disabled:opacity-60"
+      aria-label={copy.signOut}
+      title={copy.signOut}
+      className="inline-flex h-11 w-11 items-center justify-center rounded-[var(--layout-border-radius)] border-2 border-[var(--color-foreground)] bg-[var(--color-background)] text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)] disabled:opacity-60"
     >
-      <LogOut className="h-4 w-4" aria-hidden />
-      {copy.signOut}
+      <LogOut className="h-5 w-5" strokeWidth={2.5} aria-hidden />
     </button>
   );
 }

@@ -7,9 +7,13 @@ describe("extrasPackForTemplateKind", () => {
     expect(extrasPackForTemplateKind("nago")).toBe("nago");
   });
 
+  it("returns mozarthitos only for the mozarthitos template", () => {
+    expect(extrasPackForTemplateKind("mozarthitos")).toBe("mozarthitos");
+  });
+
   it("returns null for every other catalog kind", () => {
     for (const kind of SITE_THEME_KINDS) {
-      if (kind === "nago") continue;
+      if (kind === "nago" || kind === "mozarthitos") continue;
       expect(extrasPackForTemplateKind(kind)).toBeNull();
     }
   });

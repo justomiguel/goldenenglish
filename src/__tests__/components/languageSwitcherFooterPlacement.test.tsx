@@ -24,6 +24,8 @@ import { LandingNagoSections } from "@/components/organisms/LandingNagoSections"
 
 vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname(),
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/supabase/client", () => ({
