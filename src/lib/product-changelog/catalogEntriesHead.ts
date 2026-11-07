@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "event-register-failure-detail",
+    date: "2026-11-07",
+    area: "events",
+    title: t(
+      "La inscripción al evento explica por qué no se envió",
+      "Event registration explains why it did not send",
+      "A inscrição do evento explica por que não foi enviada",
+    ),
+    summary: t(
+      "Si el formulario falla, el aviso dice el motivo, como un correo inválido, un cupo agotado o un documento repetido.",
+      "If the form fails, the notice states the reason, such as an invalid email, no seats left, or a repeated document.",
+      "Se o formulário falha, o aviso diz o motivo, como um e-mail inválido, vagas esgotadas ou um documento repetido.",
+    ),
+  },
+  {
     id: "upload-bar-only-while-sending",
     date: "2026-11-05",
     area: "admin",

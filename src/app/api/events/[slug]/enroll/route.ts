@@ -8,6 +8,7 @@ import { validateEventPurchasePayload } from "@/lib/events/validateEventPurchase
 import { validateEventTransferSelection } from "@/lib/events/eventTransferPresentation";
 import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
 import { logServerException } from "@/lib/logging/serverActionLog";
+import { eventEnrollIssueCode } from "@/lib/events/eventEnrollIssueCode";
 
 export const runtime = "nodejs";
 
@@ -142,7 +143,14 @@ export async function POST(
       { ticketPackageId: body.ticketPackageId, companions: body.companions },
     );
     if (!purchase.ok) {
-      return NextResponse.json({ ok: false, code: purchase.code }, { status: 400 });
+      return NextResponse.json(
+        {
+          ok: false,
+          code: purchase.code,
+          ...(purchase.code === "too_many_tickets" ? { seats: event.maxTicketsPerRegistration } : {}),
+        },
+        { status: 400, headers: { "Cache-Control": "private, no-store" } },
+      );
     }
 
     const needsGlobalAccount =
@@ -214,7 +222,8 @@ export async function POST(
     });
   } catch (error) {
     if (error instanceof ZodError) {
-      const code = error.issues[0]?.message ?? "invalid_body";
+      const issue = error.issues[0];
+      const code = issue ? eventEnrollIssueCode(issue) : "invalid_body";
       return NextResponse.json(
         { ok: false, code },
         { status: 400, headers: { "Cache-Control": "private, no-store" } },

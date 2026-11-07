@@ -69,6 +69,7 @@ export function useEventRegisterForm({
       customFieldFileTooLarge: labels.customFieldFile.tooLarge,
       customFieldFileInvalidType: labels.customFieldFile.invalidType,
       customFieldFileUploadFailed: labels.customFieldFile.uploadFailed,
+      errors: labels.errors,
     },
   });
 

@@ -147,6 +147,33 @@ describe("validateEventAttendeePayload", () => {
     },
   ];
 
+  it("asks for the tutor when a minor form sends blank tutor strings", () => {
+    expect(() =>
+      validateEventAttendeePayload({
+        base: {
+          firstName: "Ana",
+          lastName: "Perez",
+          dniOrPassport: "123",
+          email: "ana@example.com",
+          birthDate: "2012-02-01",
+        },
+        tutor: {
+          tutorFirstName: "",
+          tutorLastName: " ",
+          tutorDniOrPassport: "",
+          tutorEmail: "",
+          tutorPhone: "",
+          tutorRelationship: "",
+        },
+        fieldValues: [{ fieldId: fields[0]!.id, valueText: "ABC" }],
+        fields,
+        legalAgeMajority: 18,
+        collectBirthDate: true,
+        now: new Date("2026-05-27T00:00:00.000Z"),
+      }),
+    ).toThrowError(/event_tutor_required/);
+  });
+
   it("requires tutor details for minors", () => {
     expect(() =>
       validateEventAttendeePayload({
