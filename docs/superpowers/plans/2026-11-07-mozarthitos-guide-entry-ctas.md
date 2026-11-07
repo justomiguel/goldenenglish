@@ -1,5 +1,7 @@
 # Mozarthitos guide entry CTAs
 
+Amendment: the hero has one yellow button, "Vive la experiencia". The courses section has no button. The phone Cursos tab stays on `#cursos`. The guide result already opens the pre-registration form.
+
 Spec: `docs/superpowers/specs/2026-11-07-mozarthitos-guide-entry-ctas-design.md`
 
 ## Correction
