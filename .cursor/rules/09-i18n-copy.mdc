@@ -46,7 +46,7 @@ When building a **visible full name** from profile fields (`first_name` / `last_
 ## Agent checklist
 
 - [ ] New or changed UI strings: added to **`en.json` + `es.json`**, consumed through the project’s dictionary access pattern (no raw JSX English/Spanish for user-visible text). Spanish follows **`40-neutral-spanish-copy.mdc`**.
-- [ ] User-facing errors from server actions: return a **stable code** or use dictionary-backed messaging on the client/server boundary — avoid ad-hoc English sentences only in TS.
+- [ ] User-facing errors: return a **stable code** and a dictionary sentence that names the cause. Follow **`50-discriminated-user-errors.mdc`**. Do not use one generic sentence for many causes.
 - [ ] Metadata / SEO: follow **`06-seo-performance.mdc`**; translatable descriptions use the same dictionary / `generateMetadata` pattern as the rest of the locale tree.
 - [ ] A11y strings users hear or screen readers announce as content: from dictionaries, not hardcoded.
 
