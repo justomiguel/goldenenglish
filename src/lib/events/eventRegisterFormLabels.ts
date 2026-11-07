@@ -1,3 +1,4 @@
+import type { EventRegisterErrorCopy } from "@/lib/events/eventRegisterFailureMessage";
 import type { EventRegisterSeatPickerLabels } from "@/components/organisms/EventRegisterSeatPicker";
 import type { EventRegisterCompanionsLabels } from "@/components/organisms/EventRegisterMultiTicketSection";
 import type { EventRegisterMinorTicketsLabels } from "@/components/organisms/EventRegisterMinorTicketsField";
@@ -44,6 +45,7 @@ export interface EventRegisterFormLabels {
     off: string;
   };
   error: string;
+  errors?: Partial<EventRegisterErrorCopy>;
   successModal: {
     title: string;
     body: string;

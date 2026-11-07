@@ -98,6 +98,7 @@ export default async function EventRegistrationFormPreviewPage({ params }: PageP
           familyDiscountPay: register.familyDiscountPay,
           discountCode: register.discountCode,
           error: register.error,
+          errors: register.errors,
           successModal: register.successModal,
           captchaRequired: register.captchaRequired,
           tutor: register.tutor,

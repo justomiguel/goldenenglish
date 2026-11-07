@@ -20,6 +20,11 @@ const labels = {
   customFieldFileTooLarge: "too-large",
   customFieldFileInvalidType: "bad-type",
   customFieldFileUploadFailed: "file-upload-failed",
+  errors: {
+    emailInvalid: "Correo inválido",
+    duplicateDocument: "Documento repetido",
+    network: "Sin conexión",
+  },
 };
 
 function payload(file: File) {
@@ -72,5 +77,41 @@ describe("useEventRegisterSubmit receipt", () => {
     expect(result.current.message).toBe("upload-failed");
     expect(result.current.successOpen).toBe(false);
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("shows the server reason instead of the generic sentence", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ ok: false, code: "email_invalid" }), { status: 400 }),
+    );
+    const { result } = renderHook(() => useEventRegisterSubmit({ labels }));
+    const file = new File([new Uint8Array([1])], "pago.jpg", { type: "image/jpeg" });
+
+    await act(async () => {
+      await result.current.submit({ ...payload(file), requiresTransferReceipt: false });
+    });
+
+    expect(result.current.message).toBe("Correo inválido");
+    expect(result.current.successOpen).toBe(false);
+  });
+
+  it("does not open success when the enrollment row was rejected", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          ok: true,
+          result: { attendeeId: null, resultCode: "duplicate_dni", seats: 0 },
+        }),
+        { status: 200 },
+      ),
+    );
+    const { result } = renderHook(() => useEventRegisterSubmit({ labels }));
+    const file = new File([new Uint8Array([1])], "pago.jpg", { type: "image/jpeg" });
+
+    await act(async () => {
+      await result.current.submit({ ...payload(file), requiresTransferReceipt: false });
+    });
+
+    expect(result.current.message).toBe("Documento repetido");
+    expect(result.current.successOpen).toBe(false);
   });
 });

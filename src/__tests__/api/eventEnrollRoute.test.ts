@@ -111,6 +111,14 @@ describe("POST /api/events/[slug]/enroll", () => {
     expect(body.result.totalAmount).toBe(15000);
   });
 
+  it("returns a stable code when the email is not valid", async () => {
+    const res = await post({ base: { ...base, email: "not-an-email" } });
+
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toMatchObject({ code: "email_invalid" });
+    expect(mockEnroll).not.toHaveBeenCalled();
+  });
+
   it("refuses companions on an event that sells one seat at a time", async () => {
     const res = await post({ companions: [{ firstName: "Ana", lastName: "Ruiz" }] });
 

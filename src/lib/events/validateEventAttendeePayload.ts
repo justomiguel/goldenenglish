@@ -31,6 +31,15 @@ function buildBaseSchema(requirePhone: boolean, requireBirthDate: boolean) {
   });
 }
 
+function omitBlankTutorStrings(tutor: EventTutorPayload): EventTutorPayload {
+  const next = { ...tutor };
+  for (const key of Object.keys(next) as Array<keyof EventTutorPayload>) {
+    const value = next[key];
+    if (typeof value === "string" && value.trim() === "") delete next[key];
+  }
+  return next;
+}
+
 const tutorSchema = z.object({
   tutorId: z.string().uuid().optional(),
   tutorFirstName: z.string().trim().max(120).optional(),
@@ -72,7 +81,9 @@ export function validateEventAttendeePayload(
     ? input.base
     : { ...input.base, birthDate: undefined };
   const parsedBase = buildBaseSchema(input.requirePhone ?? false, requireBirthDate).parse(baseInput);
-  const parsedTutor = tutorSchema.parse(collectBirthDate ? input.tutor : {});
+  const parsedTutor = tutorSchema.parse(
+    collectBirthDate ? omitBlankTutorStrings(input.tutor) : {},
+  );
   const flowIds = input.flowIds ?? [];
   const flowSelection = fieldsForRegistrationFlow({
     fields: input.fields,
