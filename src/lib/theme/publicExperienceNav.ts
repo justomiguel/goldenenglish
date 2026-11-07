@@ -13,7 +13,6 @@ const COURSES_ANCHOR: Record<string, string> = {
   classic: "niveles",
   editorial: "niveles",
   minimal: "niveles",
-  mozarthitos: "cursos",
   espaciozenit: "disciplinas",
   nago: "clases",
   mimundo: "salas",
@@ -25,6 +24,11 @@ const COURSES_ANCHOR: Record<string, string> = {
   idiomas: "dia",
 };
 
+/** Full path (no hash) when the courses tab opens a page instead of a landing anchor. */
+const COURSES_PATH: Record<string, string> = {
+  mozarthitos: "/encuentra-tu-clase",
+};
+
 const THEMED: ReadonlySet<string> = new Set([
   "mozarthitos",
   "espaciozenit",
@@ -34,6 +38,8 @@ const THEMED: ReadonlySet<string> = new Set([
 ]);
 
 export function publicPwaCoursesHref(kind: string, locale: string): string {
+  const path = COURSES_PATH[kind];
+  if (path) return `/${locale}${path}`;
   const anchor = COURSES_ANCHOR[kind] ?? "niveles";
   return `/${locale}#${anchor}`;
 }

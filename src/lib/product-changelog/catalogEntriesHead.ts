@@ -72,9 +72,9 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "Mozarthitos guia a família até a turma",
     ),
     summary: t(
-      "Encuentra tu clase pregunta la edad y la modalidad, y deja esa elección en la inscripción.",
-      "Find your class asks the age and the format, and keeps that choice on the registration.",
-      "Encontra a sua turma pergunta a idade e a modalidade, e guarda essa escolha na inscrição.",
+      "El inicio, la sección de cursos y la pestaña Cursos del teléfono abren Encuentra tu clase. La guía pregunta la edad y la modalidad, y deja esa elección en la inscripción.",
+      "The home hero, the courses section, and the phone Courses tab open Find your class. The guide asks the age and the format, and keeps that choice on the registration.",
+      "O início, a seção de cursos e a aba Cursos do telefone abrem Encontra a sua turma. O guia pergunta a idade e a modalidade, e guarda essa escolha na inscrição.",
     ),
   },
   {

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Music2, Plane, Sparkles, UserPlus } from "lucide-react";
+import { Compass, Music2, Plane, UserPlus } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { SiteThemeKind } from "@/types/theming";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
@@ -10,6 +10,7 @@ import {
   marketingLandingCopy,
   marketingLandingParagraphs,
 } from "@/lib/landing/mzLandingCopy";
+import { buildGuidePageHref } from "@/lib/landing/mozarthitos/guideToken";
 import { LandingHeroPhoto } from "@/components/molecules/LandingHeroPhoto";
 import { MozarthitosReveal } from "@/components/molecules/MozarthitosReveal";
 import { MozarthitosBioTabs } from "@/components/organisms/MozarthitosBioTabs";
@@ -111,11 +112,11 @@ export function LandingMozarthitosSections({
                       </Link>
                     ))}
                     <Link
-                      href={`/${locale}#quienes`}
+                      href={buildGuidePageHref(locale)}
                       className="inline-flex min-h-[48px] w-full flex-1 items-center justify-center gap-2 rounded-full border-2 border-white/80 bg-white/12 px-5 py-3 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/22 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:min-w-[11rem]"
                     >
-                      <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
-                      {marketingLandingCopy(dict, brand, "hero.ctaPrimary")}
+                      <Compass className="h-4 w-4 shrink-0" aria-hidden />
+                      {marketingLandingCopy(dict, brand, "guide.entryCta")}
                     </Link>
                   </div>
                 </div>

@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import dictEs from "@/dictionaries/es.json";
 import type { Dictionary } from "@/types/i18n";
@@ -67,5 +67,16 @@ describe("LandingMozarthitosSections hero LCP", () => {
     );
     expect(portrait).toBeTruthy();
     expect(portrait).not.toHaveAttribute("data-priority", "true");
+  });
+
+  it("opens the family guide from the secondary CTA and keeps register first", () => {
+    render(<LandingMozarthitosSections dict={dict} locale="es" />);
+    const links = screen.getAllByRole("link");
+    expect(links[0]).toHaveAttribute("href", "/es/register");
+    expect(links[0]).toHaveAccessibleName(dict.landing.hero.ctaReserveSpot);
+    const guide = screen.getByRole("link", { name: "Encuentra su clase" });
+    expect(guide).toHaveAttribute("href", "/es/encuentra-tu-clase");
+    expect(screen.queryByRole("link", { name: "Conoce la academia" })).toBeNull();
+    expect(links.some((link) => link.getAttribute("href")?.includes("#quienes"))).toBe(false);
   });
 });
