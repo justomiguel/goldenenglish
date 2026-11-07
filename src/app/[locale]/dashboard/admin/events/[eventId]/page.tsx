@@ -7,6 +7,7 @@ import { loadAdminEventDetailPageModel } from "@/lib/dashboard/events/loadAdminE
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { AdminBackLink } from "@/components/dashboard/AdminBackLink";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
+import { AdminEventSalePulse } from "@/components/dashboard/admin/events/AdminEventSalePulse";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -59,6 +60,8 @@ export default async function AdminEventDetailPage({ params, searchParams }: Pag
         iconId="events"
         tourAnchor={ADMIN_TOUR_ANCHORS.eventDetailTitle}
       />
+
+      <AdminEventSalePulse locale={locale} sale={model.sale} labels={detail.sale} />
 
       <AdminEventDetailTabs
         current={tab}

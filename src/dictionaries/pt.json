@@ -5308,6 +5308,14 @@
         "eventDate": "Data",
         "status": "Status",
         "viewCount": "Visualizações",
+        "sale": {
+          "title": "Como vai a inscrição",
+          "progress": "{{confirmed}} confirmadas e {{pending}} com pagamento pendente.",
+          "approved": "{{count}} pagamentos aprovados.",
+          "free": "Ficam {{count}} lugares livres, {{percent}}% da lotação.",
+          "freeUnderOne": "Ficam {{count}} lugares livres, menos de 1% da lotação.",
+          "full": "Não ficam lugares livres."
+        },
         "attendeesTitle": "Participantes",
         "attendeesPaidByHolder": "Pago pelo titular",
         "attendeesFamilyDiscount": "Desconto família",

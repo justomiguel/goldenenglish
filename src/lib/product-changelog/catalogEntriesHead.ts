@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "event-sale-pulse",
+    date: "2026-11-07",
+    area: "events",
+    title: t(
+      "El evento muestra cómo viene la inscripción",
+      "The event shows how enrollment is going",
+      "O evento mostra como vai a inscrição",
+    ),
+    summary: t(
+      "Al inicio de la ficha ves confirmadas, pagos pendientes y, si hay cupo, cuántos asientos libres quedan y qué porcentaje son.",
+      "At the start of the event page you see confirmed seats, pending payments, and, when room remains, how many seats are free and what percent that is.",
+      "No início da ficha você vê confirmadas, pagamentos pendentes e, se há lugar, quantos assentos livres ficam e que percentagem são.",
+    ),
+  },
+  {
     id: "failure-code-on-screen",
     date: "2026-11-07",
     area: "registrations",

@@ -5316,6 +5316,14 @@
         "eventDate": "Date",
         "status": "Status",
         "viewCount": "Views",
+        "sale": {
+          "title": "How enrollment is going",
+          "progress": "{{confirmed}} confirmed and {{pending}} awaiting payment.",
+          "approved": "{{count}} approved payments.",
+          "free": "{{count}} seats are free, {{percent}}% of capacity.",
+          "freeUnderOne": "{{count}} seats are free, under 1% of capacity.",
+          "full": "No seats are free."
+        },
         "attendeesTitle": "Attendees",
         "attendeesEmpty": "No registrations yet.",
         "attendeesSearchPlaceholder": "Search by name, ID, email, or phone…",

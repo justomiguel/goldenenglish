@@ -5316,6 +5316,14 @@
         "eventDate": "Fecha",
         "status": "Estado",
         "viewCount": "Vistas",
+        "sale": {
+          "title": "Cómo viene la inscripción",
+          "progress": "{{confirmed}} confirmadas y {{pending}} con pago pendiente.",
+          "approved": "{{count}} pagos aprobados.",
+          "free": "Quedan {{count}} asientos libres, el {{percent}}% del cupo.",
+          "freeUnderOne": "Quedan {{count}} asientos libres, menos del 1% del cupo.",
+          "full": "No quedan asientos libres."
+        },
         "attendeesTitle": "Asistentes",
         "attendeesEmpty": "Todavía no hay inscripciones.",
         "attendeesSearchPlaceholder": "Buscar por nombre, documento, email o teléfono…",

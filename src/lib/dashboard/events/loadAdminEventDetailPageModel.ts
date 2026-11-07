@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { loadEventAttendeesPaginated, loadEventAttendeesCount } from "@/lib/dashboard/events/loadEventAttendeesPaginated";
+import { loadEventOccupyingCounts } from "@/lib/dashboard/events/loadEventOccupyingCounts";
+import { summarizeEventSale } from "@/lib/events/summarizeEventSale";
 import { loadEventAttendeeCustomFieldValues } from "@/lib/dashboard/events/loadEventAttendeeCustomFieldValues";
 import { loadEventPaymentsPaginated } from "@/lib/dashboard/events/loadEventPaymentsPaginated";
 import { loadEventTranslations } from "@/lib/events/server/loadEventTranslations";
@@ -52,6 +54,8 @@ export async function loadAdminEventDetailPageModel(input: {
     });
   }
   if (!event) notFound();
+
+  const occupyingCountsPromise = loadEventOccupyingCounts(admin, input.eventId);
 
   const defaultLocale: EventLocale = isEventLocale(String(event.default_locale ?? "es"))
     ? (String(event.default_locale) as EventLocale)
@@ -149,6 +153,13 @@ export async function loadAdminEventDetailPageModel(input: {
   const discountCodes = loadedCodes.map((row) => ({ ...row, uses: usesByCode.get(row.id) ?? [] }));
   const { instructions: globalBankTransferInstructions } =
     await loadBankTransferInstructionsSetting(admin);
+  const occupyingCounts = await occupyingCountsPromise;
+  const sale = summarizeEventSale({
+    capacity: Number(event.capacity ?? 0),
+    confirmedCount: occupyingCounts.confirmed,
+    pendingPaymentCount: occupyingCounts.pending,
+    approvedPaymentCount: eventPayments.statusCounts.approved,
+  });
   const seatLocks =
     input.tab === "seats" ? await loadEventSeatLocks(admin, input.eventId) : [];
   if (input.tab === "seats") {
@@ -186,5 +197,6 @@ export async function loadAdminEventDetailPageModel(input: {
     discountCodeUsesTruncated: loadedUses.truncated,
     globalBankTransferInstructions,
     seatLocks,
+    sale,
   };
 }
