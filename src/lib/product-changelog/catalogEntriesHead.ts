@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "failure-code-on-screen",
+    date: "2026-11-07",
+    area: "registrations",
+    title: t(
+      "El aviso de error incluye el código para el reclamo",
+      "The error notice includes the code for a claim",
+      "O aviso de erro inclui o código para a reclamação",
+    ),
+    summary: t(
+      "Si un pago, una compra o un ingreso fallan, el aviso dice la causa y un código que puedes citar.",
+      "If a payment, a purchase, or an enrollment fails, the notice states the cause and a code you can quote.",
+      "Se um pagamento, uma compra ou uma matrícula falha, o aviso diz a causa e um código que você pode citar.",
+    ),
+  },
+  {
     id: "event-register-failure-detail",
     date: "2026-11-07",
     area: "events",

@@ -13,6 +13,7 @@ import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { createClient } from "@/lib/supabase/client";
 import { bootstrapFirstAdminAction } from "@/app/[locale]/setup/first-run/bootstrapFirstAdminAction";
 
@@ -60,7 +61,7 @@ export function BootstrapAdminForm({
       bootstrap_closed: k.bootstrap_closed,
       bootstrap_admin_exists: k.bootstrap_admin_exists,
     };
-    return mapped[code] ?? k.generic;
+    return revealFailureCode(mapped[code] ?? k.generic, code);
   };
 
   const submit = async () => {

@@ -6272,6 +6272,25 @@
     "enrollmentPayUploadButton": "Enviar comprobante",
     "enrollmentPayPickSection": "Elige otro horario con cupo",
     "enrollmentPayError": "No se pudo completar. Intenta de nuevo o escríbenos.",
+    "payFailure": {
+      "not_found": "No encontramos esta inscripción. Pide un enlace nuevo.",
+      "enrolled": "Esta inscripción ya está confirmada.",
+      "section_full": "Ese horario se llenó. Elige otro o escríbenos.",
+      "already_captured": "Este pago ya quedó registrado.",
+      "no_amount": "Este ingreso no tiene un monto para cobrar. Escríbenos.",
+      "no_payer_email": "Falta un correo para enviar el pago. Escríbenos.",
+      "currency_unsupported": "Ese medio de pago no acepta la moneda del instituto.",
+      "method_unavailable": "Ese medio de pago no está disponible. Prueba otro o escríbenos.",
+      "no_public_url": "No pudimos armar el enlace de retorno. Escríbenos.",
+      "gateway_error": "El medio de pago no inició el cobro. Prueba de nuevo o escríbenos.",
+      "invalid_file": "El comprobante tiene que ser una imagen o un PDF.",
+      "storage_failed": "No pudimos guardar el comprobante. Prueba de nuevo.",
+      "update_failed": "El archivo se guardó, pero el pago no quedó registrado. Escríbenos.",
+      "validation": "Revisa los datos e inténtalo de nuevo.",
+      "expired": "El plazo para confirmar este cupo ya venció. Pide un enlace nuevo.",
+      "no_section": "Elige al menos un horario con cupo.",
+      "accept_failed": "No pudimos confirmar el cupo. Escríbenos."
+    },
     "enrollmentPayReceiptOk": "Listo. Recibimos el comprobante.",
     "trial": {
       "shellTitle": "Agenda tu clase de prueba",
@@ -13526,7 +13545,16 @@
       "payMercadoPago": "Pagar con Mercado Pago",
       "noGateway": "El pago en línea no está configurado. Contacta al instituto.",
       "studentForbidden": "Los estudiantes no pueden pagar. Pide a un apoderado que complete la compra.",
-      "error": "No pudimos iniciar el pago. Revisa el stock e inténtalo de nuevo."
+      "error": "No pudimos iniciar el pago. Revisa el stock e inténtalo de nuevo.",
+      "failures": {
+        "empty_cart": "El carrito está vacío.",
+        "flag_off": "La tienda no está habilitada.",
+        "student_forbidden": "Los estudiantes no pueden pagar. Pide a un apoderado que complete la compra.",
+        "wrong_role": "Esta cuenta no puede pagar en la tienda.",
+        "inactive_variant": "Esa opción ya no está a la venta.",
+        "insufficient_stock": "No queda stock de esa opción.",
+        "no_gateway": "El pago en línea no está configurado. Contacta al instituto."
+      }
     },
     "order": {
       "title": "Tu pedido",

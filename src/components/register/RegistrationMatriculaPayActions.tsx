@@ -13,6 +13,7 @@ import {
   startTrialFeeMercadoPagoAction,
 } from "@/app/[locale]/clase-prueba/trialFeePayActions";
 import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
+import { explainCodedFailure } from "@/lib/errors/revealFailureCode";
 import { EVENT_TRANSFER_RECEIPT_ACCEPT } from "@/lib/events/eventTransferReceiptLimits";
 import type { RegistrationPublicPayMethod } from "@/lib/register/resolveRegistrationPublicPayMethods";
 
@@ -24,6 +25,7 @@ export type RegistrationMatriculaPayActionLabels = {
   uploadButton: string;
   pickSection: string;
   error: string;
+  failures?: Partial<Record<string, string>>;
   receiptOk: string;
   acceptOffer?: string;
 };
@@ -62,12 +64,12 @@ export function RegistrationMatriculaPayActions({
   const [error, setError] = useState("");
   const [receiptOk, setReceiptOk] = useState(false);
 
-  function run(action: () => Promise<{ ok: boolean }>) {
+  function run(action: () => Promise<{ ok: true } | { ok: false; code?: string }>) {
     setError("");
     start(async () => {
       const result = await action();
       if (!result.ok) {
-        setError(labels.error);
+        setError(explainCodedFailure(result.code, labels.failures, labels.error));
         return;
       }
       await router.refresh();

@@ -14,6 +14,7 @@ import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import type { AdminShopOrderRow } from "@/lib/shop/loadAdminShopOrders";
 import type { AdminShopTransition } from "@/lib/shop/shopOrderActionShared";
 import type { ShopOrderStatus } from "@/lib/shop/types";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import type { Dictionary } from "@/types/i18n";
 
 const FILTERS: Array<ShopOrderStatus | "all"> = [
@@ -30,11 +31,17 @@ type Labels = Dictionary["admin"]["merch"];
 type StatusLabels = Dictionary["shop"]["order"]["status"];
 
 function errorText(code: string, labels: Labels): string {
-  if (code === "illegal_status") return labels.errorIllegalStatus;
-  if (code === "not_found") return labels.errorNotFound;
-  if (code === "forbidden") return labels.errorForbidden;
-  if (code === "invalid_input") return labels.errorAssign;
-  return labels.genericActionError;
+  const mapped =
+    code === "illegal_status"
+      ? labels.errorIllegalStatus
+      : code === "not_found"
+        ? labels.errorNotFound
+        : code === "forbidden"
+          ? labels.errorForbidden
+          : code === "invalid_input"
+            ? labels.errorAssign
+            : labels.genericActionError;
+  return revealFailureCode(mapped, code);
 }
 
 export function AdminMerchOrdersScreen({

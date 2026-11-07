@@ -5,6 +5,7 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { QuestionnaireQuestionPreview } from "@/components/dashboard/admin/questionnaires/QuestionnaireQuestionPreview";
 import { addQuestionnaireQuestionAction } from "@/app/[locale]/dashboard/admin/settings/questionnaires/questionActions";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { QUESTIONNAIRE_QUESTION_TYPES, type QuestionnaireQuestionType } from "@/lib/questionnaires/types";
 import type { Dictionary } from "@/types/i18n";
 
@@ -43,11 +44,14 @@ export function QuestionnaireQuestionAddPanel({
           });
           if (!result.ok) {
             setError(
-              result.code === "publish_options"
-                ? labels.errorPublishOptions
-                : result.code === "cap"
-                  ? labels.errorQuestionCap
-                  : labels.errorSave,
+              revealFailureCode(
+                result.code === "publish_options"
+                  ? labels.errorPublishOptions
+                  : result.code === "cap"
+                    ? labels.errorQuestionCap
+                    : labels.errorSave,
+                result.code,
+              ),
             );
             return;
           }

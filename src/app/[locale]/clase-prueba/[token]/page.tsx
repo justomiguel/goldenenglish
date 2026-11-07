@@ -57,6 +57,7 @@ export default async function TrialFeePayPage({
           uploadButton: r.enrollmentPayUploadButton,
           pickSection: r.enrollmentPayPickSection,
           error: r.trial.payError,
+          failures: r.payFailure,
           receiptOk: r.enrollmentPayReceiptOk,
         },
         variant: "trial",

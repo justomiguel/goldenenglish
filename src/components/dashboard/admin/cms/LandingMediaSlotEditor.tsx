@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import {
@@ -51,9 +52,9 @@ export interface LandingMediaSlotEditorProps {
 const ACCEPTED_MIME_LIST = LANDING_MEDIA_ACCEPTED_MIME.join(",");
 
 function errorMessage(labels: Labels, code: ErrorCode): string {
-  if (code === "client_too_large") return labels.fileTooLarge;
-  if (code === "client_mime") return labels.fileTypeInvalid;
-  return labels.errors[code] ?? labels.errors.persist_failed;
+  if (code === "client_too_large") return revealFailureCode(labels.fileTooLarge, code);
+  if (code === "client_mime") return revealFailureCode(labels.fileTypeInvalid, code);
+  return revealFailureCode(labels.errors[code] ?? labels.errors.persist_failed, code);
 }
 
 export function LandingMediaSlotEditor({

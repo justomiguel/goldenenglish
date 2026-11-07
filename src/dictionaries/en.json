@@ -6272,6 +6272,25 @@
     "enrollmentPayUploadButton": "Send receipt",
     "enrollmentPayPickSection": "Pick another open schedule",
     "enrollmentPayError": "That did not work. Try again or contact us.",
+    "payFailure": {
+      "not_found": "We could not find this registration. Ask for a new link.",
+      "enrolled": "This registration is already confirmed.",
+      "section_full": "That schedule is full. Pick another one or write to us.",
+      "already_captured": "This payment is already recorded.",
+      "no_amount": "This enrollment has no amount to charge. Write to us.",
+      "no_payer_email": "A payment email is missing. Write to us.",
+      "currency_unsupported": "That payment method does not accept the institute currency.",
+      "method_unavailable": "That payment method is not available. Try another one or write to us.",
+      "no_public_url": "We could not build the return link. Write to us.",
+      "gateway_error": "The payment method did not start the charge. Try again or write to us.",
+      "invalid_file": "The receipt must be an image or a PDF.",
+      "storage_failed": "We could not store the receipt. Try again.",
+      "update_failed": "The file was stored, but the payment was not recorded. Write to us.",
+      "validation": "Check the details and try again.",
+      "expired": "The deadline to confirm this seat has passed. Ask for a new link.",
+      "no_section": "Pick at least one open schedule.",
+      "accept_failed": "We could not confirm the seat. Write to us."
+    },
     "enrollmentPayReceiptOk": "Done. We received the receipt.",
     "trial": {
       "shellTitle": "Book your trial class",
@@ -13526,7 +13545,16 @@
       "payMercadoPago": "Pay with Mercado Pago",
       "noGateway": "Online payment is not configured. Contact the institute.",
       "studentForbidden": "Students cannot pay. Ask a parent to complete the purchase.",
-      "error": "We could not start payment. Check stock and try again."
+      "error": "We could not start payment. Check stock and try again.",
+      "failures": {
+        "empty_cart": "The cart is empty.",
+        "flag_off": "The shop is turned off.",
+        "student_forbidden": "Students cannot pay. Ask a parent to complete the purchase.",
+        "wrong_role": "This account cannot pay in the shop.",
+        "inactive_variant": "That option is no longer for sale.",
+        "insufficient_stock": "That option is out of stock.",
+        "no_gateway": "Online payment is not configured. Contact the institute."
+      }
     },
     "order": {
       "title": "Your order",

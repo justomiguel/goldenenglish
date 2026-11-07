@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { trackEvent } from "@/lib/analytics/trackClient";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { logClientException } from "@/lib/logging/clientLog";
 import type { Dictionary } from "@/types/i18n";
 import { parseAuthRedirectParams } from "@/lib/auth/parseAuthRedirectParams";
@@ -176,7 +177,7 @@ export function useResetPassword(opts: UseResetPasswordOptions) {
         logClientException("useResetPassword:updateUser", updateError, {
           code: updateError.code,
         });
-        setError(opts.errors.updateFailed);
+        setError(revealFailureCode(opts.errors.updateFailed, updateError.code || "update_failed"));
         return;
       }
 
@@ -201,7 +202,7 @@ export function useResetPassword(opts: UseResetPasswordOptions) {
       }
     } catch (err) {
       logClientException("useResetPassword:submit_throw", err);
-      setError(opts.errors.generic);
+      setError(revealFailureCode(opts.errors.generic, "unexpected"));
     } finally {
       setIsLoading(false);
     }

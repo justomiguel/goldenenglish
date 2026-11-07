@@ -6,6 +6,7 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { QuestionnaireQuestionPreview } from "@/components/dashboard/admin/questionnaires/QuestionnaireQuestionPreview";
 import { updateQuestionnaireQuestionAction } from "@/app/[locale]/dashboard/admin/settings/questionnaires/questionActions";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { defaultLocale } from "@/lib/i18n/dictionaries";
 import { pickI18n, pickI18nOptions } from "@/lib/questionnaires/pickI18n";
 import { QUESTIONNAIRE_QUESTION_TYPES, type QuestionnaireQuestion, type QuestionnaireQuestionType } from "@/lib/questionnaires/types";
@@ -55,11 +56,14 @@ export function QuestionnaireQuestionEditPanel({
           });
           if (!result.ok) {
             setError(
-              result.code === "shape_locked"
-                ? labels.shapeLocked
-                : result.code === "publish_options"
-                  ? labels.errorPublishOptions
-                  : labels.errorSave,
+              revealFailureCode(
+                result.code === "shape_locked"
+                  ? labels.shapeLocked
+                  : result.code === "publish_options"
+                    ? labels.errorPublishOptions
+                    : labels.errorSave,
+                result.code,
+              ),
             );
             return;
           }

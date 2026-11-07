@@ -108,6 +108,7 @@ export default async function TrialConvertPage({
         flow: dict.register.enrollmentPayFlow,
         mercadoPago: dict.register.enrollmentPayMercadoPago,
         error: labels.convertError,
+        failures: dict.register.payFailure,
         nonePayable: labels.convertNonePayable,
       }}
     />

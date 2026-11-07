@@ -73,7 +73,9 @@ describe("ImportStudents", () => {
     fireEvent.change(input, { target: { files: [file] } });
     await waitFor(() => {
       expect(screen.getByText(labels.parseError)).toBeInTheDocument();
-      expect(document.querySelector("pre")?.textContent).toBe(labels.parseCsvFailed);
+      expect(document.querySelector("pre")?.textContent).toBe(
+        `${labels.parseCsvFailed} (${IMPORT_PARSE_CSV_FAILED})`,
+      );
     });
   });
 
@@ -241,7 +243,7 @@ describe("ImportStudents", () => {
     });
     await waitFor(() => {
       expect(screen.getByText(labels.genericError)).toBeInTheDocument();
-      expect(document.querySelector("pre")?.textContent).toBe(labels.unknownError);
+      expect(document.querySelector("pre")?.textContent).toBe(`${labels.unknownError} (unexpected)`);
     });
   });
 });

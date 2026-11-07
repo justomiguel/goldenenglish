@@ -12,6 +12,7 @@ import {
   createQuestionnaireAction,
 } from "@/app/[locale]/dashboard/admin/settings/questionnaires/actions";
 import { clientAbsoluteUrl } from "@/lib/client/publicUrl";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { buildQuestionnaireSharePath } from "@/lib/site/publicSharePaths";
 import type { AdminQuestionnaireListRow } from "@/lib/questionnaires/loadAdminQuestionnaires";
 import type { Dictionary } from "@/types/i18n";
@@ -38,7 +39,9 @@ export function QuestionnaireAdminListScreen({
     startTransition(async () => {
       const result = await createQuestionnaireAction(locale, title);
       if (!result.ok) {
-        setError(result.code === "title" ? labels.errorTitle : labels.errorSave);
+        setError(
+          revealFailureCode(result.code === "title" ? labels.errorTitle : labels.errorSave, result.code),
+        );
         return;
       }
       router.push(`/${locale}/dashboard/admin/settings/questionnaires/${result.id}`);

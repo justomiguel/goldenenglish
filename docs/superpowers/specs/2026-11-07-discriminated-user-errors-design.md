@@ -8,7 +8,7 @@
 - `AGENTS.md` lists the rule.
 - `09-i18n-copy.mdc` and `25-server-error-logging.mdc` point at it.
 
-**Out of scope:** Rewriting every generic string already in the product. The next edit that touches such a path replaces that path.
+**Out of scope:** Rewriting every retry sentence that is already the only cause for one action. This change uncovers paths that drop a stable code.
 
 **Surfaces (Web vs PWA):** No screen change in this change. The rule applies to both trees. Web and PWA must read the same codes and the same dictionary sentences.
 

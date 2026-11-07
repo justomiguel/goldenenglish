@@ -18,6 +18,7 @@ import {
   updateEventRegistrationFlowFieldOrderAction,
 } from "@/app/[locale]/dashboard/admin/events/eventRegistrationFlowActions";
 import { updateEventRegistrationFieldOrderAction } from "@/app/[locale]/dashboard/admin/events/eventRegistrationFieldActions";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { EventFormFieldBoardContext } from "@/components/dashboard/admin/events/eventFormFieldBoardContext";
 import type { EventFormQuestionOrderItem } from "@/lib/events/buildEventFormQuestionItems";
 import {
@@ -100,7 +101,7 @@ export function EventFormFieldBoard({
         });
         if (!assigned.ok) {
           setContainers(before);
-          setError(errorSave);
+          setError(revealFailureCode(errorSave, assigned.message));
           return;
         }
       }
@@ -111,7 +112,7 @@ export function EventFormFieldBoard({
           order: after[SHARED_FIELD_CONTAINER] ?? [],
         });
         if (!saved.ok) {
-          setError(errorSave);
+          setError(revealFailureCode(errorSave, saved.message));
           return;
         }
       }
@@ -125,7 +126,7 @@ export function EventFormFieldBoard({
           order: tokens.filter((token) => token.startsWith("field:")),
         });
         if (!saved.ok) {
-          setError(errorSave);
+          setError(revealFailureCode(errorSave, saved.message));
           return;
         }
       }

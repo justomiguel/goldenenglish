@@ -90,7 +90,7 @@ describe("useEventRegisterSubmit receipt", () => {
       await result.current.submit({ ...payload(file), requiresTransferReceipt: false });
     });
 
-    expect(result.current.message).toBe("Correo inválido");
+    expect(result.current.message).toBe("Correo inválido (email_invalid)");
     expect(result.current.successOpen).toBe(false);
   });
 
@@ -111,7 +111,7 @@ describe("useEventRegisterSubmit receipt", () => {
       await result.current.submit({ ...payload(file), requiresTransferReceipt: false });
     });
 
-    expect(result.current.message).toBe("Documento repetido");
+    expect(result.current.message).toBe("Documento repetido (duplicate_dni)");
     expect(result.current.successOpen).toBe(false);
   });
 });

@@ -15,6 +15,7 @@ import {
 import type { SiteThemeActionResult } from "@/app/[locale]/dashboard/admin/cms/siteThemeActionShared";
 import type { SiteThemeRow } from "@/types/theming";
 import type { Dictionary } from "@/types/i18n";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import type { ThemePreviewTokens } from "@/lib/cms/themePreviewTokens";
 import { SiteThemeTemplatesGrid } from "./SiteThemeTemplatesGrid";
 import { SiteThemeTemplatesHeader } from "./siteThemeTemplatesHeader";
@@ -83,7 +84,7 @@ export function SiteThemeTemplatesShell({
     if (target === "dialog") {
       setDialog((prev) => ({ ...prev, errorCode: result.code }));
     } else {
-      setRowError(labels.errors[result.code] ?? labels.errors.persist_failed);
+      setRowError(revealFailureCode(labels.errors[result.code] ?? labels.errors.persist_failed, result.code));
     }
   }
 

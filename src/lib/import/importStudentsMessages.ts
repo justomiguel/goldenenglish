@@ -1,3 +1,4 @@
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import type { Dictionary } from "@/types/i18n";
 import type { BulkImportResult } from "@/lib/import/bulkImportStudents";
 import {
@@ -48,12 +49,12 @@ function resolveImportRowDetailMessage(code: string, labels: ImportLabels): stri
     case IMPORT_ROW_UNKNOWN:
       return labels.rowResultUnknownError;
     default:
-      return labels.rowResultUnknownError;
+      return revealFailureCode(labels.rowResultUnknownError, code);
   }
 }
 
 export function resolveParseErrorOrUnknown(code: string, labels: ImportLabels): string {
-  return resolveParseErrorLine(code, labels) ?? labels.unknownError;
+  return revealFailureCode(resolveParseErrorLine(code, labels) ?? labels.unknownError, code);
 }
 
 function resolveParseErrorLine(code: string, labels: ImportLabels): string | null {
@@ -70,7 +71,7 @@ function resolveParseErrorLine(code: string, labels: ImportLabels): string | nul
 }
 
 export function resolveImportSurfaceMessage(raw: string | undefined, labels: ImportLabels): string {
-  if (!raw) return labels.unknownError;
+  if (!raw) return revealFailureCode(labels.unknownError, "unknown");
   if (raw === IMPORT_INVALID_CSV_PAYLOAD) return labels.invalidCsvPayload;
   if (raw === IMPORT_JOB_CANCELLED_BY_USER) return labels.importCancelledByUser;
   const parseLine = resolveParseErrorLine(raw, labels);

@@ -28,25 +28,25 @@ describe("eventRegisterFailureMessage", () => {
   it("names a known rejection instead of the generic sentence", () => {
     expect(
       eventRegisterFailureMessage({ code: "email_invalid", generic, errors }),
-    ).toBe("Correo inválido");
+    ).toBe("Correo inválido (email_invalid)");
     expect(
       eventRegisterFailureMessage({ code: "duplicate_dni", generic, errors }),
-    ).toBe("Documento repetido");
+    ).toBe("Documento repetido (duplicate_dni)");
   });
 
   it("fills the remaining seats and the ticket maximum", () => {
     expect(
       eventRegisterFailureMessage({ code: "insufficient_seats", generic, errors, seats: 2 }),
-    ).toBe("Quedan 2");
+    ).toBe("Quedan 2 (insufficient_seats)");
     expect(
       eventRegisterFailureMessage({ code: "insufficient_seats", generic, errors, seats: 0 }),
-    ).toBe("Agotado");
+    ).toBe("Agotado (insufficient_seats)");
     expect(
       eventRegisterFailureMessage({ code: "too_many_tickets", generic, errors, seats: 4 }),
-    ).toBe("Máximo 4");
+    ).toBe("Máximo 4 (too_many_tickets)");
     expect(
       eventRegisterFailureMessage({ code: "too_many_tickets", generic, errors }),
-    ).toBe("Demasiadas");
+    ).toBe("Demasiadas (too_many_tickets)");
   });
 
   it("names the extra field when the code carries its id", () => {
@@ -57,7 +57,7 @@ describe("eventRegisterFailureMessage", () => {
         errors,
         fieldLabel: "Colegio",
       }),
-    ).toBe("Completa Colegio");
+    ).toBe("Completa Colegio (required_field_missing:field-1)");
   });
 
   it("prefers an override such as a discount sentence", () => {
@@ -68,11 +68,11 @@ describe("eventRegisterFailureMessage", () => {
         errors,
         overrides: { invalid_code: "Código no" },
       }),
-    ).toBe("Código no");
+    ).toBe("Código no (invalid_code)");
   });
 
-  it("keeps the generic sentence for an unknown code", () => {
-    expect(eventRegisterFailureMessage({ code: "mystery", generic, errors })).toBe(generic);
+  it("keeps an unknown code next to the fallback sentence", () => {
+    expect(eventRegisterFailureMessage({ code: "mystery", generic, errors })).toBe(`${generic} (mystery)`);
   });
 });
 
@@ -98,7 +98,7 @@ describe("explainEventEnrollOutcome", () => {
         generic,
         errors,
       }),
-    ).toEqual({ message: "Documento repetido", notifyTakenSeats: false });
+    ).toEqual({ message: "Documento repetido (duplicate_dni)", notifyTakenSeats: false });
   });
 
   it("explains an HTTP rejection and a server failure", () => {
@@ -111,7 +111,7 @@ describe("explainEventEnrollOutcome", () => {
         generic,
         errors,
       })?.message,
-    ).toBe("Correo inválido");
+    ).toBe("Correo inválido (email_invalid)");
     expect(
       explainEventEnrollOutcome({
         httpOk: false,
@@ -120,6 +120,6 @@ describe("explainEventEnrollOutcome", () => {
         generic,
         errors,
       })?.message,
-    ).toBe("Servidor");
+    ).toBe("Servidor (server_error)");
   });
 });

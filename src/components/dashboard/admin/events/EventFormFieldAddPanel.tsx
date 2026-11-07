@@ -7,6 +7,7 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { addEventFormFieldAction } from "@/app/[locale]/dashboard/admin/events/actions";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { EventFormFieldTypeConfigPanel } from "@/components/dashboard/admin/events/EventFormFieldTypeConfigPanel";
 import { normalizeEventFormFieldKey } from "@/lib/events/normalizeEventFormFieldKey";
 import { parseEventFormFieldAllowedMimeTypes } from "@/lib/events/parseEventFormFieldAllowedMimeTypes";
@@ -140,7 +141,12 @@ export function EventFormFieldAddPanel({
         flowId,
       });
       if (!result.ok) {
-        setError(result.message === "duplicate_key" ? labels.errorDuplicateKey : labels.errorSave);
+        setError(
+          revealFailureCode(
+            result.message === "duplicate_key" ? labels.errorDuplicateKey : labels.errorSave,
+            result.message,
+          ),
+        );
         return;
       }
       resetForm();

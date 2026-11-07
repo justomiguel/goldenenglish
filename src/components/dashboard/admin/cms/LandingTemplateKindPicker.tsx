@@ -8,6 +8,7 @@ import { setSiteThemeKindAction } from "@/app/[locale]/dashboard/admin/cms/setSi
 import type { Dictionary } from "@/types/i18n";
 import type { SiteThemeKind } from "@/types/theming";
 import { SITE_THEME_KINDS } from "@/types/theming";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 
 type Labels = Dictionary["admin"]["cms"]["templates"]["landing"]["kindPicker"];
 
@@ -70,7 +71,7 @@ export function LandingTemplateKindPicker({
           role="alert"
           className="rounded-[var(--layout-border-radius)] border border-[var(--color-error)]/30 bg-[var(--color-error)]/5 px-3 py-2 text-sm text-[var(--color-error)]"
         >
-          {labels.errors[errorCode] ?? labels.errors.persist_failed}
+          {revealFailureCode(labels.errors[errorCode] ?? labels.errors.persist_failed, errorCode)}
         </p>
       ) : null}
 

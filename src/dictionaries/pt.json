@@ -6109,6 +6109,25 @@
     "enrollmentPayUploadButton": "Enviar comprovativo",
     "enrollmentPayPickSection": "Escolhe outro horário com vaga",
     "enrollmentPayError": "Não foi possível concluir. Tenta de novo ou fala connosco.",
+    "payFailure": {
+      "not_found": "Não encontramos esta inscrição. Peça um link novo.",
+      "enrolled": "Esta inscrição já está confirmada.",
+      "section_full": "Esse horário encheu. Escolha outro ou escreva para nós.",
+      "already_captured": "Este pagamento já foi registrado.",
+      "no_amount": "Esta matrícula não tem um valor para cobrar. Escreva para nós.",
+      "no_payer_email": "Falta um e-mail para enviar o pagamento. Escreva para nós.",
+      "currency_unsupported": "Esse meio de pagamento não aceita a moeda do instituto.",
+      "method_unavailable": "Esse meio de pagamento não está disponível. Tente outro ou escreva para nós.",
+      "no_public_url": "Não foi possível montar o link de retorno. Escreva para nós.",
+      "gateway_error": "O meio de pagamento não iniciou a cobrança. Tente de novo ou escreva para nós.",
+      "invalid_file": "O comprovante tem de ser uma imagem ou um PDF.",
+      "storage_failed": "Não foi possível guardar o comprovante. Tente de novo.",
+      "update_failed": "O arquivo foi guardado, mas o pagamento não ficou registrado. Escreva para nós.",
+      "validation": "Revise os dados e tente de novo.",
+      "expired": "O prazo para confirmar esta vaga já venceu. Peça um link novo.",
+      "no_section": "Escolha pelo menos um horário com vaga.",
+      "accept_failed": "Não foi possível confirmar a vaga. Escreva para nós."
+    },
     "enrollmentPayReceiptOk": "Pronto. Recebemos o comprovativo.",
     "trial": {
       "shellTitle": "Agende sua aula experimental",
@@ -13362,7 +13381,16 @@
       "payMercadoPago": "Pagar com Mercado Pago",
       "noGateway": "O pagamento online não está configurado. Contacte o instituto.",
       "studentForbidden": "Os estudantes não podem pagar. Peça a um encarregado para concluir a compra.",
-      "error": "Não foi possível iniciar o pagamento. Verifique o stock e tente novamente."
+      "error": "Não foi possível iniciar o pagamento. Verifique o stock e tente novamente.",
+      "failures": {
+        "empty_cart": "O carrinho está vazio.",
+        "flag_off": "A loja não está habilitada.",
+        "student_forbidden": "Os estudantes não podem pagar. Peça a um encarregado para concluir a compra.",
+        "wrong_role": "Esta conta não pode pagar na loja.",
+        "inactive_variant": "Essa opção já não está à venda.",
+        "insufficient_stock": "Essa opção está esgotada.",
+        "no_gateway": "O pagamento online não está configurado. Contacte o instituto."
+      }
     },
     "order": {
       "title": "O seu pedido",

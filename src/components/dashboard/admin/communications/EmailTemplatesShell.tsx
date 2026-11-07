@@ -15,6 +15,7 @@ import { EmailTemplateEditor } from "./EmailTemplateEditor";
 import { EmailTemplatePreview } from "./EmailTemplatePreview";
 import { buildBrandForPreview, buildSampleVars, defaultsFor, type EmailTemplatesShellBrand, type EmailTemplatesShellEntry } from "./emailTemplateShellHelpers";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 
 export type { EmailTemplatesShellBrand, EmailTemplatesShellEntry } from "./emailTemplateShellHelpers";
 
@@ -214,7 +215,7 @@ export function EmailTemplatesShell({
           </Button>
           {errorCode ? (
             <span role="alert" className="text-sm text-[var(--color-error)]">
-              {labels.errors[errorCode] ?? labels.errors.persist_failed}
+              {revealFailureCode(labels.errors[errorCode] ?? labels.errors.persist_failed, errorCode)}
             </span>
           ) : null}
           {savedAt && !pending && !errorCode ? (

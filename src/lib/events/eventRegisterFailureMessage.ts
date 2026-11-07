@@ -1,3 +1,4 @@
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import type { EventFormFieldDefinition } from "@/lib/events/types";
 
 export interface EventRegisterErrorCopy {
@@ -140,43 +141,50 @@ export function eventRegisterFailureMessage(input: {
   overrides?: Record<string, string>;
 }): string {
   const code = input.code?.trim() ?? "";
+  const say = (text: string) => revealFailureCode(text, code);
   const override = input.overrides?.[code]?.trim();
-  if (override) return override;
+  if (override) return say(override);
 
   const field = FIELD_CODE.exec(code);
   if (field?.[1] === "required_field_missing") {
-    return input.fieldLabel
-      ? fill(sentence(input.errors, "fieldRequired", input.generic), { field: input.fieldLabel })
-      : sentence(input.errors, "fieldRequiredPlain", input.generic);
+    return say(
+      input.fieldLabel
+        ? fill(sentence(input.errors, "fieldRequired", input.generic), { field: input.fieldLabel })
+        : sentence(input.errors, "fieldRequiredPlain", input.generic),
+    );
   }
   if (field?.[1] === "file_too_large") {
-    return input.fieldLabel
-      ? fill(sentence(input.errors, "fieldFileTooLarge", input.generic), { field: input.fieldLabel })
-      : sentence(input.errors, "fieldFileTooLargePlain", input.generic);
+    return say(
+      input.fieldLabel
+        ? fill(sentence(input.errors, "fieldFileTooLarge", input.generic), { field: input.fieldLabel })
+        : sentence(input.errors, "fieldFileTooLargePlain", input.generic),
+    );
   }
   if (field?.[1] === "file_mime_not_allowed") {
-    return input.fieldLabel
-      ? fill(sentence(input.errors, "fieldFileType", input.generic), { field: input.fieldLabel })
-      : sentence(input.errors, "fieldFileTypePlain", input.generic);
+    return say(
+      input.fieldLabel
+        ? fill(sentence(input.errors, "fieldFileType", input.generic), { field: input.fieldLabel })
+        : sentence(input.errors, "fieldFileTypePlain", input.generic),
+    );
   }
-  if (field?.[1] === "unknown_field") return sentence(input.errors, "invalidBody", input.generic);
+  if (field?.[1] === "unknown_field") return say(sentence(input.errors, "invalidBody", input.generic));
 
   if (code === "insufficient_seats") {
     const left = seatCount(input.seats);
-    if (left === 0) return sentence(input.errors, "soldOut", input.generic);
-    if (left == null) return sentence(input.errors, "insufficientSeatsPlain", input.generic);
-    return fill(sentence(input.errors, "insufficientSeats", input.generic), { count: String(left) });
+    if (left === 0) return say(sentence(input.errors, "soldOut", input.generic));
+    if (left == null) return say(sentence(input.errors, "insufficientSeatsPlain", input.generic));
+    return say(fill(sentence(input.errors, "insufficientSeats", input.generic), { count: String(left) }));
   }
 
   if (code === "too_many_tickets") {
     const max = seatCount(input.seats);
-    if (max == null || max < 1) return sentence(input.errors, "tooManyTicketsPlain", input.generic);
-    return fill(sentence(input.errors, "tooManyTickets", input.generic), { max: String(max) });
+    if (max == null || max < 1) return say(sentence(input.errors, "tooManyTicketsPlain", input.generic));
+    return say(fill(sentence(input.errors, "tooManyTickets", input.generic), { max: String(max) }));
   }
 
   const key = SIMPLE[code];
-  if (!key) return input.generic;
-  return sentence(input.errors, key, input.generic);
+  if (!key) return say(input.generic);
+  return say(sentence(input.errors, key, input.generic));
 }
 
 export function explainEventEnrollOutcome(input: {

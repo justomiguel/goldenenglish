@@ -10,6 +10,7 @@ import {
   revertEventPaymentApprovalAction,
 } from "@/app/[locale]/dashboard/admin/events/actions";
 import { Button } from "@/components/atoms/Button";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
@@ -84,7 +85,7 @@ export function AdminEventPaymentReviewActions({
 
     setBusy(false);
     if (!result.ok) {
-      setError(labels.errorSave);
+      setError(revealFailureCode(labels.errorSave, result.message));
       return;
     }
     router.refresh();
@@ -96,7 +97,7 @@ export function AdminEventPaymentReviewActions({
     const result = await deleteEventPaymentAction(locale, paymentId, eventId);
     setBusy(false);
     if (!result.ok) {
-      setError(labels.errorDelete);
+      setError(revealFailureCode(labels.errorDelete, result.message));
       setDeleteOpen(false);
       return;
     }
@@ -115,7 +116,7 @@ export function AdminEventPaymentReviewActions({
     );
     setBusy(false);
     if (!result.ok) {
-      setError(result.message === "not_revertible" ? labels.errorNotRevertible : labels.errorSave);
+      setError(revealFailureCode(result.message === "not_revertible" ? labels.errorNotRevertible : labels.errorSave, result.message));
       setRevertOpen(false);
       return;
     }

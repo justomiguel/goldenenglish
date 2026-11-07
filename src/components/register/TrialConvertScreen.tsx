@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/atoms/Button";
 import { startTrialConvertAction } from "@/app/[locale]/unirse/trialConvertActions";
 import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
+import { explainCodedFailure } from "@/lib/errors/revealFailureCode";
 import type { RegistrationPublicPayMethod } from "@/lib/register/resolveRegistrationPublicPayMethods";
 
 export type TrialConvertSeatView = {
@@ -53,6 +54,7 @@ export function TrialConvertScreen({
     flow: string;
     mercadoPago: string;
     error: string;
+    failures?: Partial<Record<string, string>>;
     nonePayable: string;
   };
 }) {
@@ -72,7 +74,7 @@ export function TrialConvertScreen({
         sectionIds: selected,
         method,
       });
-      if (!result.ok) setError(labels.error);
+      if (!result.ok) setError(explainCodedFailure(result.code, labels.failures, labels.error));
     });
   }
 

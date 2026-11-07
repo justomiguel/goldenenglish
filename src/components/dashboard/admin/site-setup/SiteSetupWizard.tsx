@@ -14,6 +14,7 @@ import {
 import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { useSiteSetupWizardState } from "@/hooks/useSiteSetupWizardState";
 import { isValidBillingCurrency } from "@/lib/billing/billingCurrencyConstants";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 import type { SiteSetupCurrentValues } from "@/lib/site/loadSiteSetupCurrentValues";
 import { ADMIN_TOUR_ANCHORS, ADMIN_TUTORIAL_ACTIVATE_SITE_SETUP_LEGAL_BILLING_STEP_EVENT } from "@/lib/admin-tutorials/selectors";
 
@@ -66,7 +67,7 @@ export function SiteSetupWizard({
   const resolveError = useCallback(
     (code: string) => {
       const map = labels.errors as Record<string, string>;
-      return map[code] ?? labels.errors.generic;
+      return revealFailureCode(map[code] ?? labels.errors.generic, code);
     },
     [labels.errors],
   );

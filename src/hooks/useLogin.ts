@@ -17,6 +17,7 @@ import {
   safeInternalPath,
   resolveIdentifierToEmail,
 } from "@/lib/auth/loginSubmitSupport";
+import { revealFailureCode } from "@/lib/errors/revealFailureCode";
 
 interface LoginErrors {
   invalidCredentials: string;
@@ -125,7 +126,7 @@ export function useLogin(errorMessages: LoginErrors, options: UseLoginOptions) {
           hasUser: Boolean(data.user),
           userIdPresent: Boolean(data.user?.id),
         });
-        setError(errorMessages.generic);
+        setError(revealFailureCode(errorMessages.generic, "no_session"));
         trackEvent("action", AnalyticsEntity.authLogin, {
           method,
           success: false,
@@ -162,7 +163,7 @@ export function useLogin(errorMessages: LoginErrors, options: UseLoginOptions) {
         message: e.message,
         stack: loginDiagnosticsVerbose() ? e.stack : undefined,
       });
-      setError(errorMessages.generic);
+      setError(revealFailureCode(errorMessages.generic, "unexpected"));
       trackEvent("action", AnalyticsEntity.authLogin, {
         method,
         success: false,
