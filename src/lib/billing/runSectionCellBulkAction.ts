@@ -1,5 +1,5 @@
 import { bulkSectionEnrollmentExemptionAction } from "@/app/[locale]/dashboard/admin/finance/collections/[sectionId]/bulkSectionEnrollmentExemptionAction";
-import { markEnrollmentFeePaidNow } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/enrollmentFeeActions";
+import { markEnrollmentFeePaidNow } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/markEnrollmentFeePaidNow";
 import { uniqueSortedMonths } from "@/app/[locale]/dashboard/admin/payments/recordPaymentWithoutReceiptActionShared";
 import {
   runRecordPaymentExemptBulk,
@@ -22,6 +22,8 @@ export interface SectionCellBulkActionInput {
   labels: Dictionary["admin"]["billing"];
   scholarshipPercent?: number;
   note?: string;
+  paymentMethod?: string;
+  paidOn?: string;
 }
 
 export interface SectionCellBulkActionResult {
@@ -49,6 +51,8 @@ export async function runSectionCellBulkAction({
   labels,
   scholarshipPercent,
   note,
+  paymentMethod,
+  paidOn,
 }: SectionCellBulkActionInput): Promise<SectionCellBulkActionResult> {
   const totalCells = Array.from(cellsByStudent.values()).reduce(
     (sum, months) => sum + months.length,
@@ -78,13 +82,21 @@ export async function runSectionCellBulkAction({
             months: monthlyMonths,
             locale,
             adminNote: note,
+            paymentMethod,
+            paidOn,
             labels,
           });
           if (result.ok) successCount += monthlyMonths.length;
           else failedCount += monthlyMonths.length;
         }
         if (enrollmentSel) {
-          const r = await markEnrollmentFeePaidNow({ locale, studentId, sectionId });
+          const r = await markEnrollmentFeePaidNow({
+            locale,
+            studentId,
+            sectionId,
+            method: paymentMethod,
+            paidOn,
+          });
           if (r.ok) successCount += 1;
           else failedCount += 1;
         }

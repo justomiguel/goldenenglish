@@ -44,7 +44,7 @@ describe("PulsarPricingView", () => {
     const quotes = screen.getAllByRole("link", { name: dict.pulsar.pricing.customCta });
     for (const link of quotes) expect(link).toHaveAttribute("href", "/es/contacto?interes=medida");
     expect(screen.getByText(dict.pulsar.pricing.faqs[0].q)).toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: dict.pulsar.market.label })).toHaveValue("cl");
+    expect(screen.getByRole("radio", { name: dict.pulsar.market.cl })).toHaveAttribute("aria-checked", "true");
     expect(screen.queryByText("Hasta 50 alumnos activos.")).toBeNull();
     expect(screen.getAllByText(/rutas de cursos/).length).toBeGreaterThan(0);
   });
@@ -59,7 +59,7 @@ describe("PulsarPricingView", () => {
     expect(text).not.toContain("108.400");
     expect(text).toContain("232.300");
     expect(document.body.textContent).toContain("Podés crear");
-    expect(screen.getByRole("combobox", { name: dict.pulsar.market.label })).toHaveValue("ar");
+    expect(screen.getByRole("radio", { name: arDict.pulsar.market.ar })).toHaveAttribute("aria-checked", "true");
     const pricingLinks = screen.getAllByRole("link", { name: dict.pulsar.nav.pricing });
     expect(pricingLinks.some((link) => link.getAttribute("href") === "/es/precios?pais=ar")).toBe(true);
   });

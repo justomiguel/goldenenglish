@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { todayIsoDate, type PaymentMethod } from "@/lib/billing/paymentMethod";
 import {
   AdminRecordPaymentActionBar,
   type RecordPaymentBulkAction,
@@ -46,6 +47,8 @@ export function AdminRecordPaymentPanel({
     useAdminRecordPaymentMonthSelection(monthStates);
   const [resolvedScholarshipPercent, setResolvedScholarshipPercent] = useState<number | null>(null);
   const [modalAdminNote, setModalAdminNote] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
+  const [paidOn, setPaidOn] = useState(todayIsoDate);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<RecordPaymentBulkAction | null>(null);
@@ -90,6 +93,8 @@ export function AdminRecordPaymentPanel({
       scholarshipConfirmReady,
       exemptConfirmReady,
       modalAdminNote,
+      paymentMethod,
+      paidOn,
       resolvedScholarshipPercent,
       setBusy,
       setMsg,
@@ -187,6 +192,10 @@ export function AdminRecordPaymentPanel({
             referenceMonthlyAmount={sectionMonthlyFeeAmount}
             referenceMonthlyCurrency={sectionMonthlyFeeCurrency}
             onAdminNoteChange={setModalAdminNote}
+            paymentMethod={paymentMethod}
+            paidOn={paidOn}
+            onPaymentMethodChange={setPaymentMethod}
+            onPaidOnChange={setPaidOn}
             onResolvedScholarshipPercentChange={setResolvedScholarshipPercent}
           />
         }

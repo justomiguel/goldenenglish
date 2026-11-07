@@ -18,8 +18,11 @@ interface EventRegisterTicketStepProps {
     locks?: readonly EventSeatLockSnapshot[];
     heldByOthers?: readonly string[];
     lostSeatKeys?: readonly string[];
+    onBeforeSelect?: (seatKey: string) => Promise<boolean>;
+    onSeatRefused?: (seatKey: string) => void;
   };
   seatNotice?: ReactNode;
+  ticketPart?: "all" | "quantity";
 }
 
 export function EventRegisterTicketStep({
@@ -30,6 +33,7 @@ export function EventRegisterTicketStep({
   seats,
   seatHold,
   seatNotice,
+  ticketPart = "all",
 }: EventRegisterTicketStepProps) {
   return (
     <>
@@ -45,6 +49,7 @@ export function EventRegisterTicketStep({
           onCompanionChange={form.payment.updateCompanion}
           disabled={form.footer.isPending}
           labels={labels.companions}
+          part={ticketPart === "quantity" ? "quantity" : "all"}
         />
       ) : null}
       {showSeatPicker && event.seatMapConfig && labels.seatMap ? (
@@ -58,6 +63,8 @@ export function EventRegisterTicketStep({
             requiredSeatCount={seats}
             selectedSeatKeys={form.payment.selectedSeatKeys}
             onSelectedSeatKeysChange={form.payment.setSelectedSeatKeys}
+            onBeforeSelect={seatHold?.onBeforeSelect}
+            onSeatRefused={seatHold?.onSeatRefused}
             labels={labels.seatMap}
           />
         </>

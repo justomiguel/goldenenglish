@@ -36,7 +36,9 @@ export function EventRegisterSeatHoldNotice({
       style={sticky ? { bottom: "max(0.75rem, env(safe-area-inset-bottom))" } : undefined}
     >
       {notice ? <p className="text-sm text-[var(--color-foreground)]">{notice}</p> : null}
-      {countdown ? <p className="text-sm text-[var(--color-muted-foreground)]">{countdown}</p> : null}
+      {countdown ? (
+        <p className="text-2xl font-medium tabular-nums text-[var(--color-foreground)]">{countdown}</p>
+      ) : null}
       {notice ? (
         <div className="flex flex-wrap gap-2">
           <Button type="button" variant="primary" className="min-h-[44px]" onClick={onChooseAnother}>

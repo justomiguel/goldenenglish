@@ -194,6 +194,8 @@ export function buildStudentMonthlyPaymentsRow(
       recordedAmount: row?.amount ?? null,
       paymentId: row?.id ?? null,
       receiptSignedUrl: row?.receiptSignedUrl ?? null,
+      paymentMethod: row?.paymentMethod ?? null,
+      paidOn: row?.paidOn ?? null,
       isCurrent: m === todayMonth && year === todayYear,
     });
   }
@@ -239,6 +241,8 @@ export function buildStudentMonthlyPaymentsRow(
     enrollmentFeeReceiptStatus: input.enrollmentFeeReceiptStatus ?? null,
     enrollmentFeeReceiptSignedUrl: input.enrollmentFeeReceiptSignedUrl ?? null,
     lastEnrollmentPaidAt: input.lastEnrollmentPaidAt ?? null,
+    enrollmentFeePaidMethod: input.enrollmentFeePaidMethod ?? null,
+    enrollmentFeePaidOn: input.enrollmentFeePaidOn ?? null,
     allowAdvanceMonthlyPayment: input.allowAdvanceMonthlyPayment ?? false,
   };
 }

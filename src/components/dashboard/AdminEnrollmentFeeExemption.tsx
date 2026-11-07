@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Save } from "lucide-react";
 import { clearEnrollmentFeeManualPaidAt } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/clearEnrollmentFeeManualPaidAction";
 import {
-  markEnrollmentFeePaidNow,
   reviewEnrollmentFeeReceipt,
   setEnrollmentFeeExemption,
 } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/enrollmentFeeActions";
@@ -14,6 +13,7 @@ import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { EnrollmentFeeClearManualPaidConfirm } from "@/components/dashboard/EnrollmentFeeClearManualPaidConfirm";
 import { AdminEnrollmentFeeManualPaidToolbar } from "@/components/dashboard/AdminEnrollmentFeeManualPaidToolbar";
+import { AdminEnrollmentFeeMarkPaidModal } from "@/components/dashboard/AdminEnrollmentFeeMarkPaidModal";
 import { AdminEnrollmentFeeReceiptPanel } from "@/components/dashboard/AdminEnrollmentFeeReceiptPanel";
 import type { Dictionary } from "@/types/i18n";
 import type { Locale } from "@/types/i18n";
@@ -60,6 +60,7 @@ export function AdminEnrollmentFeeExemption({
   const [msg, setMsg] = useState<string | null>(null);
   const [receiptStatus, setReceiptStatus] = useState(initialReceiptStatus);
   const [clearPaidConfirmOpen, setClearPaidConfirmOpen] = useState(false);
+  const [markPaidOpen, setMarkPaidOpen] = useState(false);
 
   async function saveExemption(e: React.FormEvent) {
     e.preventDefault();
@@ -71,19 +72,6 @@ export function AdminEnrollmentFeeExemption({
       sectionId: sectionId ?? undefined,
       exempt,
       reason: reason.trim() || undefined,
-    });
-    setBusy(false);
-    setMsg(res.ok ? labels.saved : res.message ?? labels.error);
-    if (res.ok) router.refresh();
-  }
-
-  async function markPaid() {
-    setBusy(true);
-    setMsg(null);
-    const res = await markEnrollmentFeePaidNow({
-      locale,
-      studentId,
-      sectionId: sectionId ?? undefined,
     });
     setBusy(false);
     setMsg(res.ok ? labels.saved : res.message ?? labels.error);
@@ -207,7 +195,7 @@ export function AdminEnrollmentFeeExemption({
         receiptStatus={receiptStatus}
         readOnly={readOnly}
         busy={busy}
-        onMarkPaid={() => void markPaid()}
+        onMarkPaid={() => setMarkPaidOpen(true)}
         onOpenClearConfirm={() => setClearPaidConfirmOpen(true)}
       />
 
@@ -220,6 +208,14 @@ export function AdminEnrollmentFeeExemption({
         confirmLabel={labels.enrollmentClearManualPaid}
         busy={busy}
         onConfirm={() => void clearManualPaidConfirmed()}
+      />
+      <AdminEnrollmentFeeMarkPaidModal
+        open={markPaidOpen}
+        onOpenChange={setMarkPaidOpen}
+        locale={locale}
+        studentId={studentId}
+        sectionId={sectionId}
+        labels={labels}
       />
 
       <AdminEnrollmentFeeReceiptPanel

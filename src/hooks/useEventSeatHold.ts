@@ -99,6 +99,42 @@ export function useEventSeatHold(input: {
     applyLoss(keys);
   }
 
+  function reportUnavailable(seatKey: string) {
+    setLostSeatKeys((current) => (current.includes(seatKey) ? current : [...current, seatKey]));
+    trackEvent("action", `event:${input.eventId}`, { kind: "seat_lost", seatCount: 1 });
+  }
+
+  async function confirmSeat(seatKey: string): Promise<boolean> {
+    if (!input.enabled || !token) {
+      setHoldFailed(true);
+      return false;
+    }
+    try {
+      const response = await fetch(`/api/events/${input.slug}/seats?locale=${input.locale}`, {
+        headers: { "x-seat-hold-token": token },
+      });
+      const body = (await response.json().catch(() => null)) as SeatSnapshot | null;
+      if (!response.ok || !body) {
+        setHoldFailed(true);
+        return false;
+      }
+      const locks = Array.isArray(body.locks) ? body.locks : [];
+      const heldByOthers = Array.isArray(body.heldByOthers) ? body.heldByOthers : [];
+      setSnapshot((current) => ({ locks, heldByOthers, expiresAt: body.expiresAt ?? current.expiresAt }));
+      const taken = locks.some((lock) => lock.seatKey === seatKey) || heldByOthers.includes(seatKey);
+      if (taken) {
+        setHoldFailed(false);
+        reportUnavailable(seatKey);
+        return false;
+      }
+      setHoldFailed(false);
+      return true;
+    } catch {
+      setHoldFailed(true);
+      return false;
+    }
+  }
+
   useEffect(() => {
     if (!input.enabled || !token) return;
     let stop = false;
@@ -191,6 +227,8 @@ export function useEventSeatHold(input: {
     suggestions,
     holdFailed,
     reportTaken,
+    reportUnavailable,
+    confirmSeat,
     acknowledgeLost: () => setLostSeatKeys([]),
     useSuggestions: () => {
       const next = [...selectedRef.current, ...suggestions].slice(0, input.requiredCount);

@@ -46,7 +46,7 @@ export function PulsarSiteChromePwa({
           <Link href={href(`/${locale}`)} className="inline-flex min-h-11 items-center" aria-label={dict.pulsar.meta.brandName}>
             <CentroListoLogoMark size="sm" />
           </Link>
-          <div className="flex items-center gap-1">
+          <div className="flex min-w-0 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <CentrolistoMarketPicker market={market} copy={dict.pulsar.market} />
             {email ? (
               <Link
@@ -93,7 +93,7 @@ export function PulsarSiteChromePwa({
                   aria-current={current ? "page" : undefined}
                   className={`flex min-h-14 flex-col items-center justify-center gap-1 border-t-2 px-1 text-[11px] ${
                     current
-                      ? "border-[var(--color-primary)] text-[var(--color-foreground)]"
+                      ? "border-[var(--color-primary)] bg-[var(--color-muted)] text-[var(--color-foreground)]"
                       : "border-transparent text-[var(--color-muted-foreground)]"
                   }`}
                 >

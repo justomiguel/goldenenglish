@@ -8,6 +8,7 @@ import { logServerException } from "@/lib/logging/serverActionLog";
 import { notifyAdminRecordedPayment } from "@/lib/email/billingPaymentEmails";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
+import { parsePaidOn, todayIsoDate } from "@/lib/billing/paymentMethod";
 import { recordOnePaymentWithoutReceipt } from "@/lib/billing/recordPaymentWithoutReceiptCore";
 import { auditFinanceAction } from "@/lib/audit";
 import {
@@ -52,6 +53,8 @@ export async function recordPaymentWithoutReceipt(
   const k = ad.actionErrors.recordPaymentAdmin;
   const locale = resolveRecordPaymentLocale(p.locale);
   const note = p.adminNote?.trim() || null;
+  const paidOn = parsePaidOn(p.paidOn ?? todayIsoDate(), todayIsoDate());
+  if (!paidOn) return { ok: false, message: k.invalidData };
   const batchId = randomUUID();
 
   const r = await recordOnePaymentWithoutReceipt(supabase, {
@@ -60,6 +63,8 @@ export async function recordPaymentWithoutReceipt(
     year: p.year,
     month: p.month,
     adminNote: note,
+    paymentMethod: p.paymentMethod,
+    paidOn,
     actorId: actor.id,
     correlationId: batchId,
   });
@@ -130,6 +135,8 @@ export async function recordPaymentsWithoutReceiptBulk(
 
   const locale = resolveRecordPaymentLocale(p.locale);
   const note = p.adminNote?.trim() || null;
+  const paidOn = parsePaidOn(p.paidOn ?? todayIsoDate(), todayIsoDate());
+  if (!paidOn) return { ok: false, message: k.invalidData };
   const batchId = randomUUID();
   const results: { month: number; ok: boolean; message?: string }[] = [];
   let recorded = 0;
@@ -141,6 +148,8 @@ export async function recordPaymentsWithoutReceiptBulk(
       year: p.year,
       month,
       adminNote: note,
+      paymentMethod: p.paymentMethod,
+      paidOn,
       actorId: actor.id,
       correlationId: batchId,
     });

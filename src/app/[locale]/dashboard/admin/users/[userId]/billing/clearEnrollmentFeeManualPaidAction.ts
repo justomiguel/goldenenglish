@@ -54,7 +54,12 @@ export async function clearEnrollmentFeeManualPaidAt(raw: {
         return { ok: false, message: b.enrollmentNotPaidRecorded };
       }
 
-      const payload: Record<string, unknown> = { last_enrollment_paid_at: null };
+      const payload: Record<string, unknown> = {
+        last_enrollment_paid_at: null,
+        enrollment_fee_paid_method: null,
+        enrollment_fee_paid_amount: null,
+        enrollment_fee_paid_on: null,
+      };
       if (row.enrollment_fee_receipt_status === "approved") {
         payload.enrollment_fee_receipt_status = "pending";
       }

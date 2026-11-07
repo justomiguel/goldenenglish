@@ -1,3 +1,4 @@
+import { todayIsoDate } from "@/lib/billing/paymentMethod";
 import { resolveSectionPlanMonthlyAmount } from "@/lib/billing/resolveSectionPlanMonthlyAmount";
 import {
   auditNewMonthlyGatewayPayment,
@@ -110,6 +111,8 @@ export async function upsertApprovedMonthlyPaymentCore(
       status: "approved",
       admin_notes: noteLabel,
       gateway_provider: input.gatewayProvider,
+      payment_method: "gateway",
+      paid_on: todayIsoDate(),
       ...(slot.parentId ? { parent_id: slot.parentId } : {}),
       ...(input.mpPreferenceId ? { mp_preference_id: input.mpPreferenceId } : {}),
     })

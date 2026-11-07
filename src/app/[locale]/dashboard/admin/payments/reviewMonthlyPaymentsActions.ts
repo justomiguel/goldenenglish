@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { todayIsoDate } from "@/lib/billing/paymentMethod";
 import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { defaultLocale, getDictionary } from "@/lib/i18n/dictionaries";
@@ -60,11 +61,13 @@ export async function reviewPayment(
     return { ok: false, message: errDict.actionErrors.paymentsReview.gatewayManaged };
   }
 
+  const approved = parsed.data.status === "approved";
   const { error } = await supabase
     .from("payments")
     .update({
       status: parsed.data.status,
       admin_notes: parsed.data.adminNotes ?? null,
+      ...(approved ? { payment_method: "transfer", paid_on: todayIsoDate() } : {}),
     })
     .eq("id", parsed.data.paymentId);
 

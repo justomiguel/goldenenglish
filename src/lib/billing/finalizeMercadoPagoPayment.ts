@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { auditFinanceAction } from "@/lib/audit";
+import { todayIsoDate } from "@/lib/billing/paymentMethod";
 import { resolveSectionPlanMonthlyAmount } from "@/lib/billing/resolveSectionPlanMonthlyAmount";
 import type { MercadoPagoPaymentPayload } from "@/lib/payment-gateways/mercadopago/mercadoPagoGetPayment";
 import { mercadoPagoGetPayment } from "@/lib/payment-gateways/mercadopago/mercadoPagoGetPayment";
@@ -161,6 +162,8 @@ export async function finalizeMercadoPagoPayment(input: {
         ? `${payRow.admin_notes} | mercadopago`
         : "mercadopago",
       gateway_provider: "mercadopago",
+      payment_method: "gateway",
+      paid_on: todayIsoDate(),
     })
     .eq("id", payRow.id as string)
     .in("status", ["pending", "rejected"]);
@@ -224,7 +227,6 @@ export async function finalizeMercadoPagoPayment(input: {
       payment_id: payRow.id,
     }),
   });
-
   const loc = await resolveUserLocale(input.admin, studentId);
   void notifyMonthlyPaymentDecision({
     studentId,
@@ -240,8 +242,7 @@ export async function finalizeMercadoPagoPayment(input: {
   for (const l of ["en", "es"] as const) {
     revalidateStudentBillingPaths(l, studentId);
     revalidatePath(`/${l}/dashboard/admin/finance`, "layout");
-    revalidatePath(`/${l}/dashboard/student/payments`);
-    revalidatePath(`/${l}/dashboard/parent/payments`);
+    revalidatePath(`/${l}/dashboard/student/payments`); revalidatePath(`/${l}/dashboard/parent/payments`);
   }
 
   return { ok: true, approved: true, paymentId: payRow.id as string };

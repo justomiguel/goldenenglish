@@ -17,7 +17,6 @@ import { SectionCollectionsCellActionModal } from "./SectionCollectionsCellActio
 import { SectionCollectionsMatrixToolbar } from "./SectionCollectionsMatrixToolbar";
 
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
-
 export interface SectionCollectionsMatrixWorkspaceProps {
   view: SectionCollectionsView;
   dict: CollectionsDict;
@@ -126,7 +125,13 @@ export function SectionCollectionsMatrixWorkspace({
   }
 
   const handleCellActionConfirm = useCallback(
-    async (params: { action: SectionCellBulkAction; scholarshipPercent?: number; note?: string }) => {
+    async (params: {
+      action: SectionCellBulkAction;
+      scholarshipPercent?: number;
+      note?: string;
+      paymentMethod?: string;
+      paidOn?: string;
+    }) => {
       setCellActionBusy(true);
       setCellActionNotice(null);
       const result = await runSectionCellBulkAction({
@@ -138,6 +143,8 @@ export function SectionCollectionsMatrixWorkspace({
         labels: billingLabels,
         scholarshipPercent: params.scholarshipPercent,
         note: params.note,
+        paymentMethod: params.paymentMethod,
+        paidOn: params.paidOn,
       });
       setCellActionBusy(false);
       setCellActionModalAction(null);

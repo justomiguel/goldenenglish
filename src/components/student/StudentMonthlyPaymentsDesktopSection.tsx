@@ -2,6 +2,7 @@
 
 import { Tag } from "lucide-react";
 import { StudentMonthlyPaymentCell } from "@/components/student/StudentMonthlyPaymentCell";
+import { StudentPaidWithMethodLine } from "@/components/student/StudentPaidWithMethodLine";
 import {
   StudentMonthlyPaymentFocus,
   type SubmitMonthlyReceiptAction,
@@ -200,6 +201,13 @@ export function StudentMonthlyPaymentsDesktopSection({
             </p>
           ) : null}
         </div>
+      ) : row.enrollmentFeePaidMethod ? (
+        <StudentPaidWithMethodLine
+          method={row.enrollmentFeePaidMethod}
+          paidOn={row.enrollmentFeePaidOn}
+          locale={locale}
+          labels={labels}
+        />
       ) : row.enrollmentFeeAmount > 0 && row.enrollmentId ? (
         <StudentEnrollmentFeeUpload
           locale={locale}

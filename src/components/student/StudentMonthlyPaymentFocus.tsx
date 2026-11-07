@@ -188,7 +188,13 @@ export function StudentMonthlyPaymentFocus({
       ) : null}
 
       {!isLocked && cell.status === "approved" ? (
-        <StudentMonthlyPaymentFocusApprovedNotice locale={locale} paymentId={cell.paymentId} labels={labels} />
+        <StudentMonthlyPaymentFocusApprovedNotice
+          locale={locale}
+          paymentId={cell.paymentId}
+          paymentMethod={cell.paymentMethod}
+          paidOn={cell.paidOn}
+          labels={labels}
+        />
       ) : null}
 
       {!isLocked && cell.status === "exempt" ? (

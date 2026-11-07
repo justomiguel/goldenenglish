@@ -38,12 +38,11 @@ describe("PulsarSiteChromePwa", () => {
       "/es/precios",
     );
     expect(screen.getByRole("navigation", { name: dict.pulsar.session.navAria })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: dict.pulsar.nav.home })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
-    expect(screen.getByRole("combobox", { name: dict.pulsar.market.label })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Paraguay" })).toBeInTheDocument();
+    const home = screen.getByRole("link", { name: dict.pulsar.nav.home });
+    expect(home).toHaveAttribute("aria-current", "page");
+    expect(home).toHaveClass("bg-[var(--color-muted)]");
+    expect(screen.getByRole("radiogroup", { name: dict.pulsar.market.label })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: dict.pulsar.market.py })).toBeInTheDocument();
   });
 
   it("shows sign-in and hides the thumb link on the conversation page", () => {
@@ -58,5 +57,11 @@ describe("PulsarSiteChromePwa", () => {
       "/es/cuenta/login",
     );
     expect(screen.queryByRole("link", { name: dict.pulsar.nav.startFree })).toBeNull();
+    const contact = screen.getByRole("link", { name: dict.pulsar.nav.contact });
+    expect(contact).toHaveAttribute("aria-current", "page");
+    expect(contact).toHaveClass("bg-[var(--color-muted)]");
+    expect(screen.getByRole("link", { name: dict.pulsar.nav.home })).not.toHaveClass(
+      "bg-[var(--color-muted)]",
+    );
   });
 });

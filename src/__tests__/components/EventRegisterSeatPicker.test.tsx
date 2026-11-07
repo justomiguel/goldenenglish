@@ -2,7 +2,7 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { EventRegisterSeatPicker } from "@/components/organisms/EventRegisterSeatPicker";
 import type { EventSeatMapConfig } from "@/lib/events/seatMapModel";
 import en from "@/dictionaries/en.json";
@@ -78,5 +78,24 @@ describe("EventRegisterSeatPicker", () => {
 
     await user.click(freeSeat);
     expect(screen.getByText("Platea Baja · A-1")).toBeInTheDocument();
+  });
+
+  it("does not keep a free-looking seat when the availability check fails", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <EventRegisterSeatPicker
+        config={config}
+        locks={[]}
+        requiredSeatCount={1}
+        selectedSeatKeys={[]}
+        onSelectedSeatKeysChange={onChange}
+        onBeforeSelect={async () => false}
+        labels={en.events.register.seatMap}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: /Platea Baja · A-1/i }));
+    await Promise.resolve();
+    expect(onChange).not.toHaveBeenCalled();
   });
 });

@@ -3,6 +3,36 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "centrolisto-home-single-cta",
+    date: "2026-11-07",
+    area: "site",
+    title: t(
+      "El home de CentroListo deja un solo botón",
+      "The CentroListo home keeps one button",
+      "A home do CentroListo fica com um botão",
+    ),
+    summary: t(
+      "Crear mi página gratis es la acción del home. El país se elige con banderas y el menú marca la página actual.",
+      "Create my free page is the home action. The country is chosen with flags, and the menu marks the current page.",
+      "Criar minha página grátis é a ação da home. O país se escolhe com bandeiras e o menu marca a página atual.",
+    ),
+  },
+  {
+    id: "staff-cash-payments",
+    date: "2026-11-06",
+    area: "finance",
+    title: t(
+      "El equipo registra pagos en efectivo",
+      "Staff can record cash payments",
+      "A equipe registra pagamentos em dinheiro",
+    ),
+    summary: t(
+      "Matrícula y mensualidad guardan el medio y la fecha. La familia ve cómo se pagó.",
+      "Enrollment fee and monthly fee store the method and the date. The family sees how it was paid.",
+      "A matrícula e a mensalidade guardam o meio e a data. A família vê como foi pago.",
+    ),
+  },
+  {
     id: "register-section-assignment-mode",
     date: "2026-11-06",
     area: "registrations",

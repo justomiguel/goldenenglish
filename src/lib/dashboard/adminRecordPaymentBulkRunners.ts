@@ -21,9 +21,11 @@ export async function runRecordPaymentPaidBulk(args: {
   months: number[];
   locale: Locale;
   adminNote?: string;
+  paymentMethod?: string;
+  paidOn?: string;
   labels: Dictionary["admin"]["billing"];
 }): Promise<{ ok: true; message: string } | { ok: false; message: string }> {
-  const { studentId, sectionId, year, months, locale, adminNote, labels } = args;
+  const { studentId, sectionId, year, months, locale, adminNote, paymentMethod, paidOn, labels } = args;
   const r = await recordPaymentsWithoutReceiptBulk({
     studentId,
     sectionId,
@@ -31,6 +33,8 @@ export async function runRecordPaymentPaidBulk(args: {
     months,
     locale,
     adminNote,
+    paymentMethod: paymentMethod ?? "cash",
+    paidOn,
   });
   if (!r.ok) return { ok: false, message: r.message };
   const failed = r.results.filter((row) => !row.ok);

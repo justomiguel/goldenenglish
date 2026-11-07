@@ -1075,6 +1075,2101 @@
         "timeLabel": "Horario de preferencia"
       }
     },
+    "skins": {
+      "deportes": {
+        "inicio": {
+          "label": "Inicio",
+          "scene": "Inscripciones abiertas",
+          "title": "Aprende a jugar. Luego, juega en equipo.",
+          "body": "Entrenamos a niños y jóvenes, desde los primeros toques hasta el partido del sábado. La primera clase es de prueba y no tiene costo.",
+          "cta": "Pide una clase de prueba",
+          "heroCta": "Mira los horarios",
+          "imageAlt": "Cancha por la mañana, antes del entrenamiento"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "9:10. Iniciación. Primeros toques y juego libre."
+            },
+            {
+              "text": "10:00. Formación. Técnica, pases y partido corto."
+            },
+            {
+              "text": "11:00. Competencia. Táctica y el partido del sábado."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Nuestra historia",
+          "body": "Empezamos en una cancha de barrio y seguimos formando jugadores con disciplina, respeto y ganas de volver.",
+          "manifesto": []
+        },
+        "oferta": {
+          "label": "Programas",
+          "body": "Cada clase tiene calentamiento, trabajo con balón y un partido corto. Los grupos se mantienen chicos.",
+          "items": [
+            {
+              "id": "futbol",
+              "name": "Fútbol infantil",
+              "line": "Primeros toques, pases y juego en equipo.",
+              "detail": "Grupos de 6 a 12 años. Cada clase termina con un partido corto."
+            },
+            {
+              "id": "basquet",
+              "name": "Básquetbol",
+              "line": "Bote, tiro y lectura del juego.",
+              "detail": "Para quien ya probó otro deporte o empieza de cero."
+            },
+            {
+              "id": "atletismo",
+              "name": "Atletismo",
+              "line": "Correr, saltar y lanzar.",
+              "detail": "Una base física que sirve para cualquier deporte."
+            },
+            {
+              "id": "voley",
+              "name": "Vóleibol",
+              "line": "Saque, recepción y comunicación.",
+              "detail": "Grupos mixtos desde los 10 años."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Cómo trabajamos",
+          "body": "Puedes venir el sábado por la mañana o entre semana, al salir del colegio.",
+          "pillars": [
+            {
+              "title": "Grupos chicos",
+              "line": "Cada entrenador conoce el nombre y el avance de cada jugador."
+            },
+            {
+              "title": "Técnica antes que resultado",
+              "line": "Primero el gesto bien hecho. El marcador llega después."
+            },
+            {
+              "title": "Respeto en la cancha",
+              "line": "Se saluda al rival, se escucha al árbitro y se ayuda al compañero."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Horarios",
+          "body": "Hay iniciación, formación y un grupo que ya compite. La edad y la experiencia definen el lugar.",
+          "levels": [
+            {
+              "id": "iniciacion",
+              "label": "Iniciación"
+            },
+            {
+              "id": "formacion",
+              "label": "Formación"
+            },
+            {
+              "id": "competencia",
+              "label": "Competencia"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "futbol",
+              "levelId": "iniciacion",
+              "when": "Sábado 9:10",
+              "place": "Cancha 1"
+            },
+            {
+              "itemId": "futbol",
+              "levelId": "formacion",
+              "when": "Sábado 10:00",
+              "place": "Cancha 1"
+            },
+            {
+              "itemId": "futbol",
+              "levelId": "competencia",
+              "when": "Martes y jueves 18:00",
+              "place": "Cancha 2"
+            },
+            {
+              "itemId": "basquet",
+              "levelId": "iniciacion",
+              "when": "Lunes 17:30",
+              "place": "Gimnasio"
+            },
+            {
+              "itemId": "basquet",
+              "levelId": "formacion",
+              "when": "Miércoles 18:30",
+              "place": "Gimnasio"
+            },
+            {
+              "itemId": "atletismo",
+              "levelId": "iniciacion",
+              "when": "Viernes 17:00",
+              "place": "Pista"
+            },
+            {
+              "itemId": "voley",
+              "levelId": "formacion",
+              "when": "Jueves 19:00",
+              "place": "Gimnasio"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Equipo",
+          "people": [
+            {
+              "name": "Diego Salinas",
+              "role": "Fútbol",
+              "line": "Lleva quince años entrenando categorías infantiles."
+            },
+            {
+              "name": "Carla Núñez",
+              "role": "Básquetbol y vóleibol",
+              "line": "Ordena el juego con pocas palabras y mucha práctica."
+            },
+            {
+              "name": "Pablo Rey",
+              "role": "Preparación física",
+              "line": "Cuida que cada jugador entrene según su edad."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Al cerrar el año",
+          "body": "Durante el año jugamos partidos y torneos locales. El avance se ve en la cancha.",
+          "title": "Un club que se encuentra cada semana.",
+          "closingBody": "Las familias acompañan los partidos y los jugadores vuelven por el grupo."
+        },
+        "admision": {
+          "label": "Cómo se entra",
+          "steps": [
+            {
+              "title": "Pide la clase de prueba",
+              "line": "Nos dices la edad y el deporte que le interesa."
+            },
+            {
+              "title": "Ven a entrenar",
+              "line": "Trae ropa cómoda, zapatillas y agua."
+            },
+            {
+              "title": "Elige el grupo",
+              "line": "El entrenador te sugiere el nivel y el horario."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Preguntas",
+          "entries": [
+            {
+              "q": "¿Desde qué edad pueden entrenar?",
+              "a": "Desde los 5 años en iniciación. Los grupos se arman por edad."
+            },
+            {
+              "q": "¿Qué necesito para la clase de prueba?",
+              "a": "Ropa cómoda, zapatillas y una botella de agua."
+            },
+            {
+              "q": "¿Hay que competir?",
+              "a": "No. El grupo de competencia es opcional. El jugador entra cuando quiere."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contacto",
+          "laterTitle": "Ven a conocer la cancha.",
+          "laterBody": "Escríbenos y te decimos el grupo, el horario y qué llevar a la clase de prueba."
+        }
+      },
+      "jardin": {
+        "inicio": {
+          "label": "Inicio",
+          "scene": "Matrículas abiertas",
+          "title": "Un lugar para jugar, descubrir y crecer.",
+          "body": "Acompañamos a los niños en sus primeros años, con juego, música y una rutina clara. Puedes visitar la sala antes de decidir.",
+          "cta": "Agenda una visita",
+          "heroCta": "Conoce las salas",
+          "imageAlt": "Sala en silencio al inicio del día"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "8:05. Llegada. Juego tranquilo en la sala."
+            },
+            {
+              "text": "10:30. Patio, canto y un taller corto."
+            },
+            {
+              "text": "16:10. Cierre del día y salida con la familia."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Nuestra historia",
+          "body": "Armamos este jardín para que la infancia tenga tiempo de jugar, de preguntar y de sentirse en casa.",
+          "manifesto": []
+        },
+        "oferta": {
+          "label": "Programas",
+          "body": "La jornada incluye juego, patio, música, alimentación y un descanso. Cada grupo tiene dos adultos de referencia.",
+          "items": [
+            {
+              "id": "cuna",
+              "name": "Sala cuna",
+              "line": "De los 6 meses a los 2 años.",
+              "detail": "Brazos, canciones y una rutina que no cambia de golpe."
+            },
+            {
+              "id": "medio",
+              "name": "Nivel medio",
+              "line": "De 2 a 4 años.",
+              "detail": "Juego con otros, palabras nuevas y mucho patio."
+            },
+            {
+              "id": "transicion",
+              "name": "Transición",
+              "line": "De 4 a 6 años.",
+              "detail": "Cuentos, números y el paso al colegio, sin apuro."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Cómo trabajamos",
+          "body": "Puedes elegir media jornada o jornada completa. Las dos comparten la misma sala y el mismo equipo.",
+          "pillars": [
+            {
+              "title": "Juego",
+              "line": "El juego es la forma en que un niño aprende."
+            },
+            {
+              "title": "Rutina clara",
+              "line": "Cada día tiene el mismo orden. Eso da calma."
+            },
+            {
+              "title": "Familias cerca",
+              "line": "Te contamos cómo fue el día con hechos concretos."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Horarios",
+          "body": "Recibimos desde sala cuna hasta el grupo que se prepara para el colegio. Cada nivel tiene su ritmo.",
+          "levels": [
+            {
+              "id": "media",
+              "label": "Media jornada"
+            },
+            {
+              "id": "completa",
+              "label": "Jornada completa"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "cuna",
+              "levelId": "media",
+              "when": "Lunes a viernes 8:00 a 12:30",
+              "place": "Sala 1"
+            },
+            {
+              "itemId": "cuna",
+              "levelId": "completa",
+              "when": "Lunes a viernes 8:00 a 16:30",
+              "place": "Sala 1"
+            },
+            {
+              "itemId": "medio",
+              "levelId": "media",
+              "when": "Lunes a viernes 8:00 a 12:30",
+              "place": "Sala 2"
+            },
+            {
+              "itemId": "medio",
+              "levelId": "completa",
+              "when": "Lunes a viernes 8:00 a 16:30",
+              "place": "Sala 2"
+            },
+            {
+              "itemId": "transicion",
+              "levelId": "media",
+              "when": "Lunes a viernes 8:00 a 12:30",
+              "place": "Sala 3"
+            },
+            {
+              "itemId": "transicion",
+              "levelId": "completa",
+              "when": "Lunes a viernes 8:00 a 16:30",
+              "place": "Sala 3"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Equipo",
+          "people": [
+            {
+              "name": "Paula Medina",
+              "role": "Directora",
+              "line": "Recibe a cada familia en la primera visita."
+            },
+            {
+              "name": "Lucía Torres",
+              "role": "Educadora de sala cuna",
+              "line": "Cuida el sueño, la comida y los primeros pasos."
+            },
+            {
+              "name": "Camila Rojas",
+              "role": "Educadora de transición",
+              "line": "Prepara el paso al colegio con cuentos y juegos."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Al cerrar el año",
+          "body": "El año cierra con una muestra para las familias. Cada ingreso empieza con un periodo de adaptación.",
+          "title": "Familias que se conocen",
+          "closingBody": "Cada reunión de familias termina con una idea para la casa."
+        },
+        "admision": {
+          "label": "Cómo se entra",
+          "steps": [
+            {
+              "title": "Agenda una visita",
+              "line": "Conoces la sala en un horario real."
+            },
+            {
+              "title": "Conversamos",
+              "line": "Hablamos de la edad, el sueño y la rutina de la casa."
+            },
+            {
+              "title": "Empieza la adaptación",
+              "line": "Los primeros días son cortos y un adulto acompaña."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Preguntas",
+          "entries": [
+            {
+              "q": "¿Desde qué edad reciben?",
+              "a": "Desde los 6 meses hasta los 6 años."
+            },
+            {
+              "q": "¿Incluye alimentación?",
+              "a": "Sí. La jornada completa incluye almuerzo y colación."
+            },
+            {
+              "q": "¿Puedo visitar antes de inscribir?",
+              "a": "Sí. La visita es el primer paso."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contacto",
+          "laterTitle": "Ven a conocer las salas.",
+          "laterBody": "Cuéntanos la edad de tu hijo y te proponemos una visita y la jornada que mejor encaja."
+        }
+      },
+      "colegio": {
+        "inicio": {
+          "label": "Inicio",
+          "scene": "Admisión abierta",
+          "title": "Una escuela que acompaña a cada estudiante.",
+          "body": "Formamos desde los primeros años hasta la enseñanza media, en grupos chicos. Puedes conocer una sala antes de inscribirte.",
+          "cta": "Agenda una visita",
+          "heroCta": "Conoce el proyecto",
+          "imageAlt": "Patio del colegio antes del primer timbre"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "7:40. Llegada y bienvenida en el patio."
+            },
+            {
+              "text": "8:00. Empiezan las clases del día."
+            },
+            {
+              "text": "15:30. Talleres y salida."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Nuestra historia",
+          "body": "Nacimos como una escuela de barrio. Hoy seguimos con la misma idea: conocer a cada estudiante por su nombre.",
+          "manifesto": []
+        },
+        "oferta": {
+          "label": "Programas",
+          "body": "La propuesta une clases, arte, deporte y un seguimiento cercano. Los grupos se mantienen chicos a propósito.",
+          "items": [
+            {
+              "id": "inicial",
+              "name": "Nivel inicial",
+              "line": "Prekínder y kínder.",
+              "detail": "Juego, lectura en voz alta y primeros números."
+            },
+            {
+              "id": "basica",
+              "name": "Enseñanza básica",
+              "line": "De primero a octavo.",
+              "detail": "Lectura, matemática, ciencias y deporte cada semana."
+            },
+            {
+              "id": "media",
+              "name": "Enseñanza media",
+              "line": "Los últimos cuatro años.",
+              "detail": "Proyectos, orientación y preparación para lo que sigue."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Cómo trabajamos",
+          "body": "Hay jornada de mañana y jornada completa. La familia elige según la edad y la rutina de la casa.",
+          "pillars": [
+            {
+              "title": "Grupos chicos",
+              "line": "Cada profesor conoce a sus estudiantes por su nombre."
+            },
+            {
+              "title": "Seguimiento cercano",
+              "line": "La familia recibe un informe claro cada trimestre."
+            },
+            {
+              "title": "Arte y deporte",
+              "line": "Son parte del horario, no un extra."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Horarios",
+          "body": "Acompañamos desde el nivel inicial hasta la enseñanza media. Cada curso tiene su sala y su equipo.",
+          "levels": [
+            {
+              "id": "manana",
+              "label": "Jornada de mañana"
+            },
+            {
+              "id": "completa",
+              "label": "Jornada completa"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "inicial",
+              "levelId": "manana",
+              "when": "Lunes a viernes 8:00 a 12:30",
+              "place": "Edificio inicial"
+            },
+            {
+              "itemId": "inicial",
+              "levelId": "completa",
+              "when": "Lunes a viernes 8:00 a 15:30",
+              "place": "Edificio inicial"
+            },
+            {
+              "itemId": "basica",
+              "levelId": "manana",
+              "when": "Lunes a viernes 8:00 a 13:15",
+              "place": "Edificio principal"
+            },
+            {
+              "itemId": "basica",
+              "levelId": "completa",
+              "when": "Lunes a viernes 8:00 a 15:30",
+              "place": "Edificio principal"
+            },
+            {
+              "itemId": "media",
+              "levelId": "completa",
+              "when": "Lunes a viernes 8:00 a 16:10",
+              "place": "Edificio principal"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Equipo",
+          "people": [
+            {
+              "name": "Laura Fuentes",
+              "role": "Directora académica",
+              "line": "Acompaña a cada curso y conversa con las familias."
+            },
+            {
+              "name": "Javier Soto",
+              "role": "Profesor de ciencias",
+              "line": "Lleva la clase al laboratorio y al patio."
+            },
+            {
+              "name": "Marta Gil",
+              "role": "Orientadora",
+              "line": "Escucha a los estudiantes y ayuda a elegir el camino."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Al cerrar el año",
+          "body": "Al cerrar el ciclo, el estudiante lleva un informe claro y la preparación para el paso que sigue.",
+          "title": "Una comunidad que se conoce",
+          "closingBody": "Las familias participan en ferias, muestras y reuniones durante el año."
+        },
+        "admision": {
+          "label": "Cómo se entra",
+          "steps": [
+            {
+              "title": "Agenda una visita",
+              "line": "Recorres el colegio con el equipo de admisión."
+            },
+            {
+              "title": "Entrevista con la familia",
+              "line": "Conversamos sobre el estudiante y sus intereses."
+            },
+            {
+              "title": "Matrícula",
+              "line": "Si hay cupo, completas los datos y la fecha de inicio."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Preguntas",
+          "entries": [
+            {
+              "q": "¿Hay jornada completa?",
+              "a": "Sí. También hay jornada de mañana en los primeros niveles."
+            },
+            {
+              "q": "¿Cuántos estudiantes hay por curso?",
+              "a": "Los cursos son chicos, con un máximo de 25 estudiantes."
+            },
+            {
+              "q": "¿Cuándo abre la admisión?",
+              "a": "La admisión abre en agosto para el año siguiente."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contacto",
+          "laterTitle": "Recorre el colegio antes de decidir.",
+          "laterBody": "Agenda una visita, conoce una sala y conversa con el equipo de admisión."
+        }
+      },
+      "musica": {
+        "inicio": {
+          "label": "Inicio",
+          "scene": "Para todas las edades",
+          "title": "Toca desde la primera clase.",
+          "body": "Piano, guitarra, canto y más, para niños y adultos. No necesitas saber música para empezar. La clase de prueba es para conocer a tu profesor.",
+          "cta": "Pide una clase de prueba",
+          "heroCta": "Elige tu instrumento",
+          "imageAlt": "Sala de ensayo antes de la clase"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "16:00. Iniciación infantil. Juego, ritmo y primeras notas."
+            },
+            {
+              "text": "18:20. Clase individual de instrumento."
+            },
+            {
+              "text": "19:40. Ensayo de conjunto."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Nuestra historia",
+          "body": "Abrimos la escuela para que cualquiera pueda sentirse músico, tenga cuatro años o esté empezando de adulto.",
+          "manifesto": []
+        },
+        "oferta": {
+          "label": "Programas",
+          "body": "En la clase tocas de verdad: una canción, un ejercicio y la tarea de la semana. El profesor sigue tu ritmo.",
+          "items": [
+            {
+              "id": "piano",
+              "name": "Piano",
+              "line": "Lectura, técnica y repertorio.",
+              "detail": "Clases individuales de 45 minutos."
+            },
+            {
+              "id": "guitarra",
+              "name": "Guitarra",
+              "line": "Acordes, ritmo y canciones.",
+              "detail": "Guitarra clásica o eléctrica, según lo que quieras tocar."
+            },
+            {
+              "id": "canto",
+              "name": "Canto",
+              "line": "Respiración, afinación y repertorio.",
+              "detail": "Para quien canta en la ducha o en un coro."
+            },
+            {
+              "id": "iniciacion",
+              "name": "Iniciación musical",
+              "line": "Para niños de 4 a 7 años.",
+              "detail": "Ritmo, juego y primeras notas en grupo."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Cómo trabajamos",
+          "body": "Puedes tomar una clase individual o sumarte a un ensamble. Hay horario de mañana y de tarde.",
+          "pillars": [
+            {
+              "title": "Tocar desde el primer día",
+              "line": "Cada clase termina con algo que suena."
+            },
+            {
+              "title": "Tu ritmo",
+              "line": "El profesor ajusta la tarea a tu semana."
+            },
+            {
+              "title": "Tocar con otros",
+              "line": "Ensambles y recitales para compartir lo aprendido."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Horarios",
+          "body": "Hay iniciación, nivel intermedio y nivel avanzado. Si ya tocas, entras en el grupo que te corresponde.",
+          "levels": [
+            {
+              "id": "inicial",
+              "label": "Iniciación"
+            },
+            {
+              "id": "intermedio",
+              "label": "Intermedio"
+            },
+            {
+              "id": "avanzado",
+              "label": "Avanzado"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "iniciacion",
+              "levelId": "inicial",
+              "when": "Sábado 10:00",
+              "place": "Sala grande"
+            },
+            {
+              "itemId": "piano",
+              "levelId": "inicial",
+              "when": "Lunes 16:00",
+              "place": "Sala 2"
+            },
+            {
+              "itemId": "piano",
+              "levelId": "avanzado",
+              "when": "Miércoles 19:00",
+              "place": "Sala 2"
+            },
+            {
+              "itemId": "guitarra",
+              "levelId": "inicial",
+              "when": "Martes 18:20",
+              "place": "Sala 3"
+            },
+            {
+              "itemId": "guitarra",
+              "levelId": "intermedio",
+              "when": "Jueves 18:20",
+              "place": "Sala 3"
+            },
+            {
+              "itemId": "canto",
+              "levelId": "intermedio",
+              "when": "Viernes 19:40",
+              "place": "Sala grande"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Equipo",
+          "people": [
+            {
+              "name": "Elena Paz",
+              "role": "Piano",
+              "line": "Enseña a leer partitura sin perder las ganas de tocar."
+            },
+            {
+              "name": "Bruno Leiva",
+              "role": "Guitarra",
+              "line": "Arma el repertorio con las canciones que traes."
+            },
+            {
+              "name": "Rosa Campos",
+              "role": "Canto e iniciación",
+              "line": "Trabaja la voz con calma y mucho juego."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Al cerrar el año",
+          "body": "Dos veces al año hay un recital. Quien quiere, sube al escenario. Quien prefiere, sigue practicando.",
+          "title": "La música se comparte",
+          "closingBody": "Cada recital termina con las familias y los alumnos en la misma sala."
+        },
+        "admision": {
+          "label": "Cómo se entra",
+          "steps": [
+            {
+              "title": "Cuéntanos qué quieres tocar",
+              "line": "Instrumento, edad y un horario que te quede bien."
+            },
+            {
+              "title": "Toma la clase de prueba",
+              "line": "Conoces al profesor y tocas desde el primer minuto."
+            },
+            {
+              "title": "Reserva tu horario",
+              "line": "Elegimos juntos el día fijo de tu clase."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Preguntas",
+          "entries": [
+            {
+              "q": "¿Necesito tener instrumento?",
+              "a": "No para empezar. En la sede hay instrumentos para la clase."
+            },
+            {
+              "q": "¿Puedo empezar de adulto?",
+              "a": "Sí. Muchos alumnos empiezan después de los 30."
+            },
+            {
+              "q": "¿Cuánto dura cada clase?",
+              "a": "Las clases individuales duran 45 minutos. Las grupales duran una hora."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contacto",
+          "laterTitle": "Elige instrumento y horario.",
+          "laterBody": "Cuéntanos qué quieres tocar y te proponemos un profesor, un horario y una primera clase de prueba."
+        }
+      },
+      "idiomas": {
+        "inicio": {
+          "label": "Inicio",
+          "scene": "Clase de prueba sin costo",
+          "title": "Habla desde la primera clase.",
+          "body": "Inglés y otros idiomas para niños, adolescentes y adultos. Ubicamos tu nivel y armamos un grupo chico, en la sede o en vivo.",
+          "cta": "Pide una clase de prueba",
+          "heroCta": "Descubre tu nivel",
+          "imageAlt": "Aula antes de la clase de la tarde"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "10:00. Inglés para niños. Juego y conversación."
+            },
+            {
+              "text": "19:05. Adolescentes y adultos. Clase de conversación."
+            },
+            {
+              "text": "20:30. Taller de conversación."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Nuestra historia",
+          "body": "Enseñamos el idioma para usarlo: en el trabajo, en un viaje o en la próxima conversación.",
+          "manifesto": []
+        },
+        "oferta": {
+          "label": "Programas",
+          "body": "Cada clase practica hablar, escuchar y escribir. Los grupos son chicos para que todos participen.",
+          "items": [
+            {
+              "id": "ingles-ninos",
+              "name": "Inglés para niños",
+              "line": "De 6 a 12 años.",
+              "detail": "Juego, canciones y conversación en grupos chicos."
+            },
+            {
+              "id": "ingles-adultos",
+              "name": "Inglés para adolescentes y adultos",
+              "line": "Del nivel A1 al C1.",
+              "detail": "Hablas en cada clase, con casos de trabajo, estudio y viaje."
+            },
+            {
+              "id": "frances",
+              "name": "Francés",
+              "line": "Del A1 al B2.",
+              "detail": "Clases en vivo, con el mismo profesor todo el nivel."
+            },
+            {
+              "id": "examenes",
+              "name": "Preparación de exámenes",
+              "line": "Para certificaciones internacionales.",
+              "detail": "Simulacros, corrección escrita y práctica oral."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Cómo trabajamos",
+          "body": "Puedes estudiar en la sede o en una clase en vivo. El programa y el profesor son los mismos.",
+          "pillars": [
+            {
+              "title": "Hablar desde el inicio",
+              "line": "Cada clase tiene tiempo para conversar."
+            },
+            {
+              "title": "Grupos chicos",
+              "line": "Máximo ocho estudiantes por grupo."
+            },
+            {
+              "title": "Avance medible",
+              "line": "Al cerrar cada nivel ves qué puedes hacer con el idioma."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Horarios",
+          "body": "Recorremos el marco común, de A1 a C2. Antes de entrar, hacemos una prueba corta de nivel.",
+          "levels": [
+            {
+              "id": "basico",
+              "label": "Básico (A1-A2)"
+            },
+            {
+              "id": "intermedio",
+              "label": "Intermedio (B1-B2)"
+            },
+            {
+              "id": "avanzado",
+              "label": "Avanzado (C1)"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "ingles-ninos",
+              "levelId": "basico",
+              "when": "Sábado 10:00",
+              "place": "Sede"
+            },
+            {
+              "itemId": "ingles-adultos",
+              "levelId": "basico",
+              "when": "Lunes y miércoles 19:05",
+              "place": "Sede"
+            },
+            {
+              "itemId": "ingles-adultos",
+              "levelId": "intermedio",
+              "when": "Martes y jueves 19:05",
+              "place": "En vivo"
+            },
+            {
+              "itemId": "ingles-adultos",
+              "levelId": "avanzado",
+              "when": "Jueves 20:30",
+              "place": "Sede"
+            },
+            {
+              "itemId": "frances",
+              "levelId": "basico",
+              "when": "Martes 18:00",
+              "place": "En vivo"
+            },
+            {
+              "itemId": "examenes",
+              "levelId": "intermedio",
+              "when": "Viernes 18:30",
+              "place": "Sede"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Equipo",
+          "people": [
+            {
+              "name": "Sarah Moreno",
+              "role": "Inglés",
+              "line": "Hace hablar a todo el grupo antes de corregir."
+            },
+            {
+              "name": "Daniel Ibarra",
+              "role": "Inglés para exámenes",
+              "line": "Prepara cada simulacro como si fuera el examen real."
+            },
+            {
+              "name": "Claire Duval",
+              "role": "Francés",
+              "line": "Empieza por el oído y deja la regla para después."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Al cerrar el año",
+          "body": "Preparamos exámenes internacionales y entregamos el certificado del instituto al cerrar cada nivel.",
+          "title": "Un idioma se aprende con otros",
+          "closingBody": "Los talleres de conversación reúnen a estudiantes de todos los niveles."
+        },
+        "admision": {
+          "label": "Cómo se entra",
+          "steps": [
+            {
+              "title": "Haz la prueba de nivel",
+              "line": "Es corta y nos dice en qué grupo empiezas."
+            },
+            {
+              "title": "Toma una clase de prueba",
+              "line": "Conoces al profesor y al grupo sin costo."
+            },
+            {
+              "title": "Elige horario y modalidad",
+              "line": "En la sede o en vivo, con el mismo programa."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Preguntas",
+          "entries": [
+            {
+              "q": "¿Cómo sé mi nivel?",
+              "a": "Con una prueba corta antes de empezar. No tiene costo."
+            },
+            {
+              "q": "¿Las clases en vivo son iguales?",
+              "a": "Sí. El programa, el profesor y el grupo son los mismos."
+            },
+            {
+              "q": "¿Entregan certificado?",
+              "a": "Sí. Al aprobar cada nivel recibes el certificado del instituto."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contacto",
+          "laterTitle": "Descubre tu nivel y tu horario.",
+          "laterBody": "Escríbenos, cuéntanos tu meta y te proponemos una clase de prueba en el grupo que te corresponde."
+        }
+      },
+      "deportes2": {
+        "inicio": {
+          "label": "Inicio",
+          "scene": "No mires el movimiento. Sé el movimiento.",
+          "title": "Tu límite es solo el comienzo",
+          "body": "Entras a una clase. Sales con un plan, un coach y un grupo que te espera.",
+          "cta": "Agenda tu clase de prueba",
+          "heroCta": "Encuentra tu disciplina",
+          "imageAlt": "Composición de velocidad sobre fondo oscuro"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "07:00. Fuerza. El cuerpo despierta con carga."
+            },
+            {
+              "text": "12:30. Ritmo. Carrera o agua, según el día."
+            },
+            {
+              "text": "19:10. Cierre. Movilidad y el grupo."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Manifiesto",
+          "body": "El límite no es un muro. Es la línea desde donde sales.",
+          "manifesto": [
+            {
+              "text": "El límite no es un muro."
+            },
+            {
+              "text": "Es la línea desde donde sales."
+            },
+            {
+              "text": "Entras con tu ritmo."
+            },
+            {
+              "text": "Sales con el grupo."
+            }
+          ]
+        },
+        "oferta": {
+          "label": "Disciplinas",
+          "body": "Seis disciplinas. Cada una con su ritmo, su sala y su coach.",
+          "items": [
+            {
+              "id": "funcional",
+              "name": "Entrenamiento funcional",
+              "line": "Fuerza que se mueve.",
+              "detail": "Empujas, tiras y giras. Los grupos se quedan chicos."
+            },
+            {
+              "id": "cross",
+              "name": "Cross training",
+              "line": "Trabajo corto. Intensidad real.",
+              "detail": "Estaciones, reloj y una meta que se puede medir."
+            },
+            {
+              "id": "boxeo",
+              "name": "Boxeo",
+              "line": "Pies, guardia y aire.",
+              "detail": "Técnica primero. El contacto llega cuando estás listo."
+            },
+            {
+              "id": "natacion",
+              "name": "Natación",
+              "line": "Largo, respiración, calma.",
+              "detail": "Agua para empezar o para afinar el ritmo."
+            },
+            {
+              "id": "running",
+              "name": "Running",
+              "line": "Zancada y pulso.",
+              "detail": "Salidas en grupo. El plan cambia con tu marca."
+            },
+            {
+              "id": "yoga",
+              "name": "Yoga y movilidad",
+              "line": "El cuerpo vuelve a su sitio.",
+              "detail": "Después de la carga, o como práctica propia."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Método",
+          "body": "Puedes entrenar temprano, al mediodía o al salir del trabajo.",
+          "pillars": [
+            {
+              "title": "Entrenamiento personalizado",
+              "line": "El plan sale de tu punto de partida."
+            },
+            {
+              "title": "Coaches de alto rendimiento",
+              "line": "Alguien mira la técnica, no solo el reloj."
+            },
+            {
+              "title": "Comunidad que impulsa",
+              "line": "El grupo te espera aunque el día pese."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Horarios",
+          "body": "Inicio, medio y rendimiento. El nivel se confirma en la primera clase.",
+          "levels": [
+            {
+              "id": "inicio",
+              "label": "Inicio"
+            },
+            {
+              "id": "medio",
+              "label": "Medio"
+            },
+            {
+              "id": "rendimiento",
+              "label": "Rendimiento"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "funcional",
+              "levelId": "inicio",
+              "when": "Lunes 07:00",
+              "place": "Sala norte"
+            },
+            {
+              "itemId": "cross",
+              "levelId": "medio",
+              "when": "Martes 06:45",
+              "place": "Box"
+            },
+            {
+              "itemId": "cross",
+              "levelId": "rendimiento",
+              "when": "Jueves 19:00",
+              "place": "Box"
+            },
+            {
+              "itemId": "boxeo",
+              "levelId": "inicio",
+              "when": "Martes 20:00",
+              "place": "Ring"
+            },
+            {
+              "itemId": "boxeo",
+              "levelId": "rendimiento",
+              "when": "Viernes 19:30",
+              "place": "Ring"
+            },
+            {
+              "itemId": "natacion",
+              "levelId": "inicio",
+              "when": "Sábado 09:00",
+              "place": "Pileta"
+            },
+            {
+              "itemId": "running",
+              "levelId": "inicio",
+              "when": "Miércoles 07:15",
+              "place": "Parque"
+            },
+            {
+              "itemId": "running",
+              "levelId": "rendimiento",
+              "when": "Domingo 08:00",
+              "place": "Costanera"
+            },
+            {
+              "itemId": "yoga",
+              "levelId": "inicio",
+              "when": "Jueves 08:00",
+              "place": "Sala sur"
+            },
+            {
+              "itemId": "yoga",
+              "levelId": "medio",
+              "when": "Viernes 18:00",
+              "place": "Sala sur"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Coaches",
+          "people": [
+            {
+              "name": "Mara Vidal",
+              "role": "Fuerza",
+              "line": "Funcional y cross. Corrige antes de subir la carga."
+            },
+            {
+              "name": "Leo Duarte",
+              "role": "Ritmo",
+              "line": "Running y natación. El pulso manda el día."
+            },
+            {
+              "name": "Noa Ferreyra",
+              "role": "Movilidad",
+              "line": "Yoga y boxeo técnico. Cuida la articulación y la guardia."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Comunidad",
+          "body": "No entrenas contra una pantalla. Entras a una sala que ya está en movimiento.",
+          "title": "El grupo empuja",
+          "closingBody": "El avance se ve en la marca, en la técnica y en las veces que vuelves."
+        },
+        "admision": {
+          "label": "Cómo empezar",
+          "steps": [
+            {
+              "title": "Elige la disciplina",
+              "line": "Mira los horarios y el nivel de cada grupo."
+            },
+            {
+              "title": "Agenda la clase de prueba",
+              "line": "Un coach te recibe y mira tu punto de partida."
+            },
+            {
+              "title": "Arma tu plan",
+              "line": "Sales con días fijos y una meta para el mes."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Preguntas",
+          "entries": [
+            {
+              "q": "¿Necesito experiencia?",
+              "a": "No. El primer nivel es para empezar de cero."
+            },
+            {
+              "q": "¿Puedo combinar disciplinas?",
+              "a": "Sí. Muchos combinan fuerza con movilidad durante la semana."
+            },
+            {
+              "q": "¿Qué llevo a la clase de prueba?",
+              "a": "Ropa de entrenamiento, agua y una toalla."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contacto",
+          "laterTitle": "El próximo nivel empieza hoy",
+          "laterBody": "Elige la disciplina y agenda la clase de prueba."
+        }
+      },
+      "jardin2": {
+        "inicio": {
+          "label": "Inicio",
+          "scene": "Un mundo enorme comienza con una pequeña pregunta.",
+          "title": "Pequeños pasos. Grandes descubrimientos.",
+          "body": "Aquí un niño pregunta, prueba y vuelve al día siguiente con ganas de contar lo que encontró.",
+          "cta": "Agenda una visita",
+          "heroCta": "Conoce nuestro jardín",
+          "imageAlt": "Collage de hojas, nube y una semilla sobre papel crema"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "08:10. Llegada. Un adulto recibe a cada familia en la puerta."
+            },
+            {
+              "text": "10:40. Patio y taller. El grupo explora con las manos."
+            },
+            {
+              "text": "16:00. Cierre. La familia se lleva una frase del día."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Filosofía",
+          "body": "Aprendemos jugando, con tiempo para mirar y para preguntar.",
+          "manifesto": [
+            {
+              "text": "Una pregunta."
+            },
+            {
+              "text": "Una semilla."
+            },
+            {
+              "text": "Un patio."
+            },
+            {
+              "text": "Un niño que vuelve mañana."
+            }
+          ]
+        },
+        "oferta": {
+          "label": "Etapas",
+          "body": "Cuatro etapas, de la sala cuna a la transición. Cada una tiene su ritmo.",
+          "items": [
+            {
+              "id": "cuna",
+              "name": "Sala cuna",
+              "line": "0 a 2 años. Vínculo y calma.",
+              "detail": "Brazos, canción y un rincón que no cambia de golpe."
+            },
+            {
+              "id": "menor",
+              "name": "Nivel medio menor",
+              "line": "2 a 3 años. Nombrar lo que toca.",
+              "detail": "Agua, tierra y una palabra nueva cada semana."
+            },
+            {
+              "id": "mayor",
+              "name": "Nivel medio mayor",
+              "line": "3 a 4 años. Juego con otros.",
+              "detail": "Historias cortas, turnos y un proyecto que dura varios días."
+            },
+            {
+              "id": "transicion",
+              "name": "Transición",
+              "line": "4 a 6 años. Preguntar con precisión.",
+              "detail": "Huerta, biblioteca y el paso hacia el colegio, sin apuro."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Método",
+          "body": "Jornada de mañana o jornada completa. La sala y el equipo son los mismos.",
+          "pillars": [
+            {
+              "title": "Curiosidad",
+              "line": "La pregunta del niño ordena la mañana."
+            },
+            {
+              "title": "Autonomía",
+              "line": "Hace solo lo que ya puede. Pide ayuda cuando no."
+            },
+            {
+              "title": "Comunidad",
+              "line": "Aprende con otros, no al lado de otros."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Jornadas",
+          "body": "La edad abre la puerta. La visita confirma si el grupo le queda bien.",
+          "levels": [
+            {
+              "id": "manana",
+              "label": "Jornada de mañana"
+            },
+            {
+              "id": "completa",
+              "label": "Jornada completa"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "cuna",
+              "levelId": "manana",
+              "when": "Lunes a viernes 8:00 a 12:30",
+              "place": "Sala 1"
+            },
+            {
+              "itemId": "cuna",
+              "levelId": "completa",
+              "when": "Lunes a viernes 8:00 a 16:30",
+              "place": "Sala 1"
+            },
+            {
+              "itemId": "menor",
+              "levelId": "manana",
+              "when": "Lunes a viernes 8:00 a 12:30",
+              "place": "Sala 2"
+            },
+            {
+              "itemId": "menor",
+              "levelId": "completa",
+              "when": "Lunes a viernes 8:00 a 16:30",
+              "place": "Sala 2"
+            },
+            {
+              "itemId": "mayor",
+              "levelId": "completa",
+              "when": "Lunes a viernes 8:00 a 16:30",
+              "place": "Sala 3"
+            },
+            {
+              "itemId": "transicion",
+              "levelId": "manana",
+              "when": "Lunes a viernes 8:00 a 12:30",
+              "place": "Sala 4"
+            },
+            {
+              "itemId": "transicion",
+              "levelId": "completa",
+              "when": "Lunes a viernes 8:00 a 16:30",
+              "place": "Sala 4"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Equipo",
+          "people": [
+            {
+              "name": "Inés Palma",
+              "role": "Sala cuna",
+              "line": "Cuida el ritmo de los más chicos y la entrada de cada familia."
+            },
+            {
+              "name": "Sara Molina",
+              "role": "Niveles medios",
+              "line": "Arma los talleres de tierra, agua y cuento."
+            },
+            {
+              "name": "Luz Herrera",
+              "role": "Transición",
+              "line": "Acompaña el juego largo y el paso hacia el colegio."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Familias",
+          "body": "Te escribimos cuando el día cambia de verdad. La visita la hace un adulto del jardín, no un folleto. La adaptación tiene su tiempo. No la apuramos. No mostramos sellos ni acreditaciones que no tenemos.",
+          "title": "Confianza para las familias",
+          "closingBody": "No mostramos sellos que no tenemos. El año cierra con una muestra para las familias."
+        },
+        "admision": {
+          "label": "Admisión",
+          "steps": [
+            {
+              "title": "Visita",
+              "line": "Conoces la sala y el patio en un horario real."
+            },
+            {
+              "title": "Conversación",
+              "line": "Hablamos de la edad, el sueño y lo que la familia necesita."
+            },
+            {
+              "title": "Cupo",
+              "line": "Si hay lugar y el grupo calza, queda la fecha de inicio."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Preguntas",
+          "entries": [
+            {
+              "q": "¿Desde qué edad reciben?",
+              "a": "Desde sala cuna, cerca de los primeros meses, hasta los 6 años."
+            },
+            {
+              "q": "¿Qué horarios hay?",
+              "a": "Mañana o jornada completa. El equipo de la sala es el mismo."
+            },
+            {
+              "q": "¿Puedo visitar antes?",
+              "a": "Sí. La visita es el primer paso. No hay inscripción a ciegas."
+            },
+            {
+              "q": "¿Cómo es la adaptación?",
+              "a": "Empieza corta y crece. Un adulto de referencia acompaña esos días."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contacto",
+          "laterTitle": "Ven a conocer el patio.",
+          "laterBody": "La visita es corta. Caminas una sala, ves el ritmo del día y haces las preguntas que traes."
+        }
+      },
+      "colegio2": {
+        "inicio": {
+          "label": "Inicio",
+          "scene": "No preparamos alumnos para el futuro. Los preparamos para crearlo.",
+          "title": "El futuro comienza aquí.",
+          "body": "Descubrir. Cuestionar. Crear. Transformar.",
+          "cta": "Agenda una visita",
+          "heroCta": "Explora nuestro proyecto educativo",
+          "imageAlt": "Líneas de arquitectura, una órbita y un plano sobre azul noche"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "08:00. La jornada abre con una pregunta, no con una lista."
+            },
+            {
+              "text": "11:20. Taller. Ciencia, arte o cancha, según el curso."
+            },
+            {
+              "text": "16:10. Cierre. El estudiante se lleva una tarea que puede mostrar."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Manifiesto",
+          "body": "Aprender no es memorizar. Es atreverse a preguntar y a volver a intentar.",
+          "manifesto": [
+            {
+              "text": "Aprender no es memorizar."
+            },
+            {
+              "text": "Crear es una forma de pensar."
+            },
+            {
+              "text": "Equivocarse también es avanzar."
+            },
+            {
+              "text": "El mundo necesita personas que se atrevan."
+            }
+          ]
+        },
+        "oferta": {
+          "label": "Etapas",
+          "body": "Parvularia, básica y media. Cada etapa cambia el tamaño de la pregunta.",
+          "items": [
+            {
+              "id": "parvularia",
+              "name": "Educación parvularia",
+              "line": "Primeros años. Juego con una pregunta adentro.",
+              "detail": "Patio, cuento y el primer taller de manos."
+            },
+            {
+              "id": "basica",
+              "name": "Educación básica",
+              "line": "Enseñanza básica. Leer el mundo y medirlo.",
+              "detail": "Ciencia aplicada, lectura larga y deporte en serio."
+            },
+            {
+              "id": "media",
+              "name": "Educación media",
+              "line": "Enseñanza media. Un proyecto que se puede defender.",
+              "detail": "Investigación, arte y una salida al barrio."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Modelo",
+          "body": "Jornada de mañana y jornada completa. El proyecto es el mismo.",
+          "pillars": [
+            {
+              "title": "Excelencia académica",
+              "line": "La exigencia se nota en la pregunta, no en el volumen de tareas."
+            },
+            {
+              "title": "Tecnología e innovación",
+              "line": "La herramienta entra cuando ya hay un problema real."
+            },
+            {
+              "title": "Desarrollo socioemocional",
+              "line": "El grupo aprende a disentir sin perderse."
+            },
+            {
+              "title": "Ciudadanía global",
+              "line": "El barrio y el mundo caben en la misma clase."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Agenda",
+          "body": "El curso se confirma en la visita. La edad no decide sola.",
+          "levels": [
+            {
+              "id": "academia",
+              "label": "Academia"
+            },
+            {
+              "id": "arte",
+              "label": "Arte"
+            },
+            {
+              "id": "deporte",
+              "label": "Deporte"
+            },
+            {
+              "id": "comunidad",
+              "label": "Comunidad"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "basica",
+              "levelId": "academia",
+              "when": "12 mar · 09:00",
+              "place": "Feria de ciencias"
+            },
+            {
+              "itemId": "media",
+              "levelId": "arte",
+              "when": "20 mar · 18:30",
+              "place": "Muestra de taller"
+            },
+            {
+              "itemId": "basica",
+              "levelId": "deporte",
+              "when": "4 abr · 10:00",
+              "place": "Encuentro de cancha"
+            },
+            {
+              "itemId": "parvularia",
+              "levelId": "comunidad",
+              "when": "11 abr · 16:00",
+              "place": "Puertas abiertas"
+            },
+            {
+              "itemId": "media",
+              "levelId": "academia",
+              "when": "2 may · 08:30",
+              "place": "Defensa de proyectos"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Equipo",
+          "people": [
+            {
+              "name": "Ana Rivas",
+              "role": "Ciencias",
+              "line": "Pide el dato antes de la opinión."
+            },
+            {
+              "name": "Martín Ortiz",
+              "role": "Artes",
+              "line": "Trata el ensayo como parte de la obra."
+            },
+            {
+              "name": "Elena Cruz",
+              "role": "Historia y ciudadanía",
+              "line": "Saca la clase al barrio cuando el tema lo pide."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Vida",
+          "body": "Clubes. Debate, ajedrez y música después de la última clase. Talleres. Cortos, con un resultado que se puede mostrar. Encuentros. Familias y estudiantes en la misma mesa, una vez al mes.",
+          "title": "La vida después de la clase",
+          "closingBody": "El cierre de ciclo se ve en un proyecto, no en un sello inventado."
+        },
+        "admision": {
+          "label": "Admisión",
+          "steps": [
+            {
+              "title": "Conoce el colegio",
+              "line": "Lees el proyecto y miras una jornada real."
+            },
+            {
+              "title": "Agenda una visita",
+              "line": "Caminas una sala con alguien del equipo."
+            },
+            {
+              "title": "Inicia la postulación",
+              "line": "Dejas tus datos y te escribimos para coordinar una visita."
+            },
+            {
+              "title": "Sigue el proceso",
+              "line": "Una conversación, no un formulario eterno."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Preguntas",
+          "entries": [
+            {
+              "q": "¿Qué etapas hay?",
+              "a": "Parvularia, enseñanza básica y enseñanza media."
+            },
+            {
+              "q": "¿Puedo visitar el colegio antes de postular?",
+              "a": "Sí. Agendas una visita, recorres una sala y conversas con el equipo de admisión."
+            },
+            {
+              "q": "¿Hay jornada completa?",
+              "a": "Sí, y también jornada de mañana. El proyecto no cambia."
+            },
+            {
+              "q": "¿Cómo se entera la familia?",
+              "a": "Con una nota corta cuando el día cambia de verdad."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contacto",
+          "laterTitle": "El futuro de tus hijos merece algo extraordinario.",
+          "laterBody": "La visita es una conversación. Recorres una sala y preguntas lo que la familia necesita saber."
+        }
+      },
+      "idiomas2": {
+        "inicio": {
+          "label": "Inicio",
+          "scene": "Tu mundo no termina donde termina tu idioma.",
+          "title": "Habla más. Vive más.",
+          "body": "El próximo idioma puede cambiar tu historia.",
+          "cta": "Empieza a hablar",
+          "heroCta": "Encuentra tu idioma",
+          "imageAlt": "Bloques de tipo enorme y una forma geométrica"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "09:00. Conversación. Hablas desde el primer minuto."
+            },
+            {
+              "text": "18:30. Práctica real. Un caso de trabajo o de viaje."
+            },
+            {
+              "text": "20:10. Cierre. Una meta para la semana."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Manifiesto",
+          "body": "Un idioma abre una conversación, un trabajo, otra ciudad.",
+          "manifesto": [
+            {
+              "text": "Una conversación."
+            },
+            {
+              "text": "Un nuevo trabajo."
+            },
+            {
+              "text": "Otra ciudad."
+            },
+            {
+              "text": "Un mundo entero."
+            }
+          ]
+        },
+        "oferta": {
+          "label": "Idiomas",
+          "body": "Cinco idiomas. Cada uno con su ritmo y su primera meta.",
+          "items": [
+            {
+              "id": "en",
+              "name": "Inglés",
+              "line": "Hablar en el trabajo y en la calle.",
+              "detail": "A1 · 12 semanas"
+            },
+            {
+              "id": "fr",
+              "name": "Francés",
+              "line": "Leer, pedir y contar.",
+              "detail": "A1 · 14 semanas"
+            },
+            {
+              "id": "pt",
+              "name": "Portugués",
+              "line": "Entrar en una conversación real.",
+              "detail": "A1 · 12 semanas"
+            },
+            {
+              "id": "de",
+              "name": "Alemán",
+              "line": "Ordenar la frase y perder el miedo.",
+              "detail": "A1 · 16 semanas"
+            },
+            {
+              "id": "it",
+              "name": "Italiano",
+              "line": "Sonar natural en lo cotidiano.",
+              "detail": "A1 · 12 semanas"
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Método",
+          "body": "Presencial, en vivo o particular. Eliges cómo estudiar.",
+          "pillars": [
+            {
+              "title": "Habla desde el día uno",
+              "line": "La primera clase ya es una conversación corta."
+            },
+            {
+              "title": "Práctica del mundo real",
+              "line": "Trabajo, viaje o estudio. El caso es concreto."
+            },
+            {
+              "title": "Un avance que se nota",
+              "line": "Cada mes miras qué puedes decir y qué todavía no."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Cursos",
+          "body": "De A1 a C1. Una prueba corta orienta tu nivel de inicio.",
+          "levels": [
+            {
+              "id": "a1",
+              "label": "A1"
+            },
+            {
+              "id": "a2",
+              "label": "A2"
+            },
+            {
+              "id": "b1",
+              "label": "B1"
+            },
+            {
+              "id": "b2",
+              "label": "B2"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "en",
+              "levelId": "a1",
+              "when": "Lun y mié · 19:00",
+              "place": "Inglés para empezar · Clases presenciales"
+            },
+            {
+              "itemId": "en",
+              "levelId": "b1",
+              "when": "Mar y jue · 18:30",
+              "place": "Inglés de trabajo · Clases en vivo"
+            },
+            {
+              "itemId": "fr",
+              "levelId": "a2",
+              "when": "Sáb · 10:00",
+              "place": "Francés en conversación · Clases presenciales"
+            },
+            {
+              "itemId": "pt",
+              "levelId": "a1",
+              "when": "A convenir",
+              "place": "Portugués a tu ritmo · Clases particulares"
+            },
+            {
+              "itemId": "de",
+              "levelId": "a1",
+              "when": "Lun · 20:00",
+              "place": "Alemán desde cero · Clases en vivo"
+            },
+            {
+              "itemId": "it",
+              "levelId": "b2",
+              "when": "Mié · 19:30",
+              "place": "Italiano para discutir · Clases presenciales"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Profesores",
+          "people": [
+            {
+              "name": "Maya Cole",
+              "role": "Inglés",
+              "line": "Corta la frase larga y te hace repetir la útil."
+            },
+            {
+              "name": "Lucía Benoit",
+              "role": "Francés",
+              "line": "Trabaja el oído antes que la regla."
+            },
+            {
+              "name": "Jonas Keller",
+              "role": "Alemán",
+              "line": "Ordena el verbo y celebra el intento."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Mundo",
+          "body": "Viajes. Pides, te pierdes y vuelves a preguntar. Trabajo. Una reunión corta deja de darte miedo. Estudios. Lees un texto y puedes discutirlo. Cultura. Una canción o una película sin subtítulo eterno. Vínculos. Una amistad que no cabe en un traductor.",
+          "title": "Dónde lo vas a usar",
+          "closingBody": "Al inscribirte, te explicamos las opciones de certificación para tu idioma y tu nivel."
+        },
+        "admision": {
+          "label": "Cómo empezar",
+          "steps": [
+            {
+              "title": "Descubre tu nivel",
+              "line": "Una prueba corta te orienta. No es un certificado oficial."
+            },
+            {
+              "title": "Toma una clase de prueba",
+              "line": "Hablas con el grupo desde el primer minuto."
+            },
+            {
+              "title": "Elige curso y modalidad",
+              "line": "Presencial, en vivo o particular."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Preguntas",
+          "entries": [
+            {
+              "q": "¿Qué idiomas enseñan?",
+              "a": "Inglés, francés, portugués, alemán e italiano."
+            },
+            {
+              "q": "¿El test de nivel es oficial?",
+              "a": "No. Orienta el grupo de inicio. La clase de prueba lo confirma."
+            },
+            {
+              "q": "¿Puedo cambiar de modalidad?",
+              "a": "Sí, al cerrar cada ciclo, si hay cupo en el grupo."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contacto",
+          "laterTitle": "El mundo no espera. Tú tampoco.",
+          "laterBody": "Empieza por una clase de prueba. Ahí confirmamos tu nivel."
+        }
+      },
+      "musica2": {
+        "inicio": {
+          "label": "Inicio",
+          "scene": "No naciste para escuchar desde afuera.",
+          "title": "El mundo necesita tu sonido.",
+          "body": "Tu sonido empieza aquí.",
+          "cta": "Quiero mi clase de prueba",
+          "heroCta": "Encuentra tu instrumento",
+          "imageAlt": "Onda y un bloque de color sobre fondo negro"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "17:00. Ensayo. El grupo afina y entra."
+            },
+            {
+              "text": "19:10. Clase. Una frase, una corrección, otra vez."
+            },
+            {
+              "text": "21:00. Cierre. Alguien se queda a grabar una idea."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Manifiesto",
+          "body": "No importa si nunca tocaste una nota. Importa empezar.",
+          "manifesto": [
+            {
+              "text": "No importa si nunca tocaste una nota."
+            },
+            {
+              "text": "No importa si empezaste tarde."
+            },
+            {
+              "text": "No importa si todavía no encontraste tu estilo."
+            },
+            {
+              "text": "Lo importante es empezar."
+            }
+          ]
+        },
+        "oferta": {
+          "label": "Instrumentos",
+          "body": "Seis caminos: guitarra, piano, batería, canto, bajo y producción.",
+          "items": [
+            {
+              "id": "guitarra",
+              "name": "Guitarra",
+              "line": "Acordes que ya puedes cantar.",
+              "detail": "Inicio a avanzado · Presencial"
+            },
+            {
+              "id": "piano",
+              "name": "Piano",
+              "line": "Las dos manos, sin apuro.",
+              "detail": "Inicio a avanzado · Presencial o en vivo"
+            },
+            {
+              "id": "bateria",
+              "name": "Batería",
+              "line": "Tiempo, golpe y silencio.",
+              "detail": "Inicio e intermedio · Presencial"
+            },
+            {
+              "id": "canto",
+              "name": "Canto",
+              "line": "La voz como instrumento, no como adorno.",
+              "detail": "Inicio a avanzado · Presencial o en vivo"
+            },
+            {
+              "id": "bajo",
+              "name": "Bajo",
+              "line": "El piso de la canción.",
+              "detail": "Inicio e intermedio · Presencial"
+            },
+            {
+              "id": "produccion",
+              "name": "Producción musical",
+              "line": "Grabas una idea y la ordenas.",
+              "detail": "Intermedio y avanzado · En vivo"
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Método",
+          "body": "Presencial o en vivo. El instrumento es el mismo.",
+          "pillars": [
+            {
+              "title": "Aprende tocando",
+              "line": "La primera clase ya suena."
+            },
+            {
+              "title": "Crea tu propio sonido",
+              "line": "La técnica sirve a lo que quieres decir."
+            },
+            {
+              "title": "Comparte el escenario",
+              "line": "Ensayo, jam y una muestra con público de verdad."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Horarios",
+          "body": "Principiante, intermedio y avanzado. El nivel se confirma al tocar.",
+          "levels": [
+            {
+              "id": "inicio",
+              "label": "Principiante"
+            },
+            {
+              "id": "medio",
+              "label": "Intermedio"
+            },
+            {
+              "id": "avanzado",
+              "label": "Avanzado"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "guitarra",
+              "levelId": "inicio",
+              "when": "Lunes 18:00",
+              "place": "Guitarra inicial · Presencial"
+            },
+            {
+              "itemId": "piano",
+              "levelId": "medio",
+              "when": "Martes 19:30",
+              "place": "Piano intermedio · En vivo"
+            },
+            {
+              "itemId": "bateria",
+              "levelId": "inicio",
+              "when": "Jueves 17:00",
+              "place": "Batería inicial · Presencial"
+            },
+            {
+              "itemId": "canto",
+              "levelId": "avanzado",
+              "when": "Sábado 11:00",
+              "place": "Canto avanzado · Presencial"
+            },
+            {
+              "itemId": "bajo",
+              "levelId": "inicio",
+              "when": "Lunes 20:00",
+              "place": "Bajo inicial · Presencial"
+            },
+            {
+              "itemId": "produccion",
+              "levelId": "medio",
+              "when": "Martes 20:30",
+              "place": "Producción · En vivo"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Profesores",
+          "people": [
+            {
+              "name": "Teo Vargas",
+              "role": "Guitarra y bajo",
+              "line": "Corrige la mano antes de subir el volumen."
+            },
+            {
+              "name": "Lila Mora",
+              "role": "Canto",
+              "line": "Trabaja el aire y la frase, no el grito."
+            },
+            {
+              "name": "Nico Beltrán",
+              "role": "Piano y producción",
+              "line": "Pasa del teclado a la grabación en la misma hora."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Escena",
+          "body": "Ensayos. La misma sala, el mismo pulso, otra versión. Jam. Entras con una idea y sales con una canción ajena también. En vivo. Una muestra corta. El miedo se queda en el pasillo. Grabación. Un take, una escucha, un arreglo. Comunidad. Alguien te espera para cerrar el tema.",
+          "title": "La música pasa con otros",
+          "closingBody": "El avance se escucha en el escenario, no en un sello."
+        },
+        "admision": {
+          "label": "Cómo empezar",
+          "steps": [
+            {
+              "title": "Elige tu instrumento",
+              "line": "Mira los seis caminos y elige uno para empezar."
+            },
+            {
+              "title": "Reserva la clase de prueba",
+              "line": "Tocas desde el primer minuto con un profesor."
+            },
+            {
+              "title": "Entra a tu grupo",
+              "line": "El nivel se confirma al tocar y queda tu horario fijo."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Preguntas",
+          "entries": [
+            {
+              "q": "¿Necesito saber música?",
+              "a": "No. El nivel principiante empieza desde la primera nota."
+            },
+            {
+              "q": "¿Hay clases en vivo?",
+              "a": "Sí. Piano, canto y producción también se dan en vivo."
+            },
+            {
+              "q": "¿Puedo tocar en una muestra?",
+              "a": "Sí, si quieres. Subir al escenario es una invitación, no una obligación."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contacto",
+          "laterTitle": "Tu primera nota puede cambiarlo todo.",
+          "laterBody": "La clase de prueba es para tocar, no para mirar un folleto."
+        }
+      }
+    },
     "questionnaires": {
       "title": "Cuestionarios",
       "cta": "Abrir",
@@ -4715,6 +6810,16 @@
       "recordPaymentMatrixLead": "{section} · {year}. Selecciona solo los meses que quieres registrar ahora.",
       "recordPaymentMatrixAuditBadge": "Auditado por mes",
       "recordPaymentNote": "Nota interna (opcional)",
+      "paymentMethodLabel": "Medio de pago",
+      "paidOnLabel": "Fecha de cobro",
+      "paymentAmountLabel": "Monto",
+      "paymentAmountInvalid": "Escribe un monto mayor que cero",
+      "paymentMethodCash": "Efectivo",
+      "paymentMethodTransfer": "Transferencia",
+      "paymentMethodCard": "Tarjeta",
+      "paymentMethodGateway": "Pasarela",
+      "paymentMethodOther": "Otro",
+      "paidWithMethod": "Pagó {method} · {date}",
       "recordPaymentNotePlaceholder": "Ej. referencia de transferencia, fecha de acreditación",
       "recordPaymentSubmit": "Registrar como pagado",
       "recordPaymentSuccess": "Pago registrado. Se notificó a la familia por mail si hay correo válido.",
@@ -5258,6 +7363,18 @@
         "waive": "Eximir y dar de alta",
         "waiveReason": "Motivo de la exención",
         "waiveReasonRequired": "Escribe un motivo corto",
+        "recordPayment": "Registrar pago",
+        "recordPaymentHint": "El alumno queda inscrito como pagado, no como exento.",
+        "recordPaymentAmount": "Monto",
+        "recordPaymentAmountInvalid": "Escribe un monto mayor que cero",
+        "needsSectionError": "Asigna una sección antes de registrar el pago",
+        "paymentMethodLabel": "Medio de pago",
+        "paidOnLabel": "Fecha de cobro",
+        "paymentMethodCash": "Efectivo",
+        "paymentMethodTransfer": "Transferencia",
+        "paymentMethodCard": "Tarjeta",
+        "paymentMethodGateway": "Pasarela",
+        "paymentMethodOther": "Otro",
         "approveReceipt": "Aprobar comprobante",
         "rejectReceipt": "Rechazar comprobante",
         "rejectNote": "Nota para la familia",
@@ -11925,6 +14042,12 @@
         "lockedOutOfPeriod": "Este mes está fuera de la ventana de pago de esta sección.",
         "lockedNoPlan": "Todavía no hay un plan de cuota publicado para esta sección.",
         "alreadyApproved": "Este mes ya está saldado.",
+        "paidWithMethod": "Pagó {method} · {date}",
+        "paymentMethodCash": "efectivo",
+        "paymentMethodTransfer": "transferencia",
+        "paymentMethodCard": "tarjeta",
+        "paymentMethodGateway": "pasarela",
+        "paymentMethodOther": "otro",
         "exemptHint": "Tu beca cubre este mes.",
         "payWithFlow": "Pagar online con Flow",
         "payWithFlowHint": "Tarjeta, transferencia u otros medios disponibles en Flow (Chile).",

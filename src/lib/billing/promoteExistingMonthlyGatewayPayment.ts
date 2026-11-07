@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { todayIsoDate } from "@/lib/billing/paymentMethod";
 import { auditFinanceAction } from "@/lib/audit";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import type {
@@ -94,6 +95,8 @@ export async function promoteExistingMonthlyGatewayPayment(
       amount: input.gatewayAmount,
       admin_notes: row.admin_notes ? `${row.admin_notes} | ${input.noteLabel}` : input.noteLabel,
       gateway_provider: input.gatewayProvider,
+      payment_method: "gateway",
+      paid_on: todayIsoDate(),
       ...(input.parentId ? { parent_id: input.parentId } : {}),
     })
     .eq("id", row.id)

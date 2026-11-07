@@ -192,6 +192,7 @@ describe("loadActiveTheme", () => {
           is_active: true,
           properties: { "color.primary": "#A31A22", "bogus.key": 42 },
           content: { hero: { kicker: { es: "Felices fiestas" } } },
+          skin_content: { v: 1, sections: { inicio: { title: { es: "Hola" } } } },
           created_at: "2026-12-01T00:00:00Z",
           updated_at: "2026-12-10T00:00:00Z",
           updated_by: "user-1",
@@ -226,6 +227,7 @@ describe("loadActiveTheme", () => {
     expect(snap?.theme.content).toEqual({
       hero: { kicker: { es: "Felices fiestas" } },
     });
+    expect(snap?.theme.skinContent.v).toBe(1);
     /** Section outside LANDING_SECTION_SLUGS is filtered out. */
     expect(snap?.media).toHaveLength(1);
     expect(snap?.media[0]).toMatchObject({

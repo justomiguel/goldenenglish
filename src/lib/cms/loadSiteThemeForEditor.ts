@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { parseSkinContent } from "@/lib/landing/skin/skinContentSchema";
 import { logSupabaseError } from "@/lib/logging/serverActionLog";
 import { loadProperties } from "@/lib/theme/themeParser";
 import {
@@ -31,6 +32,7 @@ interface ThemeRowFromDb {
   template_kind: unknown;
   properties: unknown;
   content: unknown;
+  skin_content?: unknown;
   blocks: unknown;
   archived_at: string | null;
   created_at: string;
@@ -62,6 +64,7 @@ function mapRow(row: ThemeRowFromDb): SiteThemeRow {
     templateKind: isSiteThemeKind(row.template_kind) ? row.template_kind : "classic",
     properties: parseOverrides(row.properties),
     content: parseContent(row.content),
+    skinContent: parseSkinContent(row.skin_content),
     blocks: parseLandingBlocks(row.blocks),
     archivedAt: row.archived_at ? String(row.archived_at) : null,
     createdAt: String(row.created_at),
@@ -88,7 +91,7 @@ export async function loadSiteThemeForEditor(
   const { data, error } = await supabase
     .from("site_themes")
     .select(
-      "id, slug, name, is_active, is_system_default, template_kind, properties, content, blocks, archived_at, created_at, updated_at, updated_by",
+      "id, slug, name, is_active, is_system_default, template_kind, properties, content, skin_content, blocks, archived_at, created_at, updated_at, updated_by",
     )
     .eq("id", themeId)
     .maybeSingle();

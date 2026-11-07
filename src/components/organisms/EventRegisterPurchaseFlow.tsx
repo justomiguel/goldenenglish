@@ -1,9 +1,9 @@
 "use client";
 
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { EventRegisterFamilyDiscount } from "@/components/organisms/EventRegisterFamilyDiscount";
-import { EventRegisterDiscountCode } from "@/components/organisms/EventRegisterDiscountCode";
+import { EventRegisterAmountStep } from "@/components/organisms/EventRegisterAmountStep";
 import { EventRegisterFormFooter } from "@/components/organisms/EventRegisterFormFooter";
+import { EventRegisterMultiTicketSection } from "@/components/organisms/EventRegisterMultiTicketSection";
 import { EventRegisterStep } from "@/components/organisms/EventRegisterStep";
 import { EventRegisterWhoStep } from "@/components/organisms/EventRegisterWhoStep";
 import type { EventRegistrationPaymentMethod } from "@/lib/events/resolveEventRegistrationPaymentMethods";
@@ -11,22 +11,12 @@ import type { PublicEventDetail } from "@/lib/dashboard/events/loadEventForPubli
 import type { EventRegisterFormLabels } from "@/lib/events/eventRegisterFormLabels";
 import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
 import { EventRegisterPaymentPicker } from "@/components/organisms/EventRegisterPaymentPicker";
-import { EventRegisterResidencyPicker } from "@/components/organisms/EventRegisterResidencyPicker";
 import { EventRegisterTransferReceiptField } from "@/components/organisms/EventRegisterTransferReceiptField";
 import { EventRegisterDualTransferSection } from "@/components/organisms/EventRegisterDualTransferSection";
 import { EventRegisterTicketStep } from "@/components/organisms/EventRegisterTicketStep";
-import { EventRegisterMinorTicketsField } from "@/components/organisms/EventRegisterMinorTicketsField";
-import {
-  EventRegisterTotalSummaryCard,
-  type EventRegistrationTotals,
-} from "@/components/organisms/EventRegisterTotalSummaryCard";
+import { type EventRegistrationTotals } from "@/components/organisms/EventRegisterTotalSummaryCard";
 import type { useEventRegisterForm } from "@/hooks/useEventRegisterForm";
-import {
-  clearEventDiscountCode,
-  selectEventDiscountCode,
-  selectEventFamilyDiscount,
-  type EventDiscountApplied,
-} from "@/lib/events/resolveEventDiscountSelection";
+import { type EventDiscountApplied } from "@/lib/events/resolveEventDiscountSelection";
 
 interface EventRegisterPurchaseFlowProps {
   locale: string;
@@ -46,6 +36,8 @@ interface EventRegisterPurchaseFlowProps {
     locks: EventRegisterPurchaseFlowProps["event"]["seatLocks"];
     heldByOthers: string[];
     lostSeatKeys: string[];
+    onBeforeSelect?: (seatKey: string) => Promise<boolean>;
+    onSeatRefused?: (seatKey: string) => void;
   };
   seatNotice?: ReactNode;
 }
@@ -73,11 +65,27 @@ export function EventRegisterPurchaseFlow({
     form.payment.showTransferInstructions ||
     form.payment.requiresTransferReceipt;
   let step = 1;
+  const seatsFirst = showSeatPicker && hasTicketStep;
+  const earlyTicketStep = seatsFirst ? String(step++) : null;
   const whoStep = String(step++);
-  const ticketStep = hasTicketStep ? String(step++) : null;
+  const lateTicketStep = hasTicketStep && !seatsFirst ? String(step++) : null;
   const amountStep = String(step++);
   const lastStep = String(step++);
   const seats = event.allowMultipleTickets ? form.payment.ticketQuantity : 1;
+  const ticketBlock = (stepNo: string, ticketPart: "all" | "quantity") => (
+    <EventRegisterStep step={stepNo} title={labels.steps.tickets} lead={labels.steps.ticketsLead}>
+      <EventRegisterTicketStep
+        event={event}
+        labels={labels}
+        form={form}
+        showSeatPicker={showSeatPicker}
+        seats={seats}
+        seatHold={seatHold}
+        seatNotice={seatNotice}
+        ticketPart={ticketPart}
+      />
+    </EventRegisterStep>
+  );
 
   return (
     <form
@@ -90,6 +98,8 @@ export function EventRegisterPurchaseFlow({
         form.handleSubmit(eventForm);
       }}
     >
+      {earlyTicketStep ? ticketBlock(earlyTicketStep, "quantity") : null}
+
       <EventRegisterWhoStep
         step={whoStep}
         locale={locale}
@@ -99,86 +109,38 @@ export function EventRegisterPurchaseFlow({
         form={form}
       />
 
-      {ticketStep ? (
-        <EventRegisterStep step={ticketStep} title={labels.steps.tickets} lead={labels.steps.ticketsLead}>
-          <EventRegisterTicketStep
-            event={event}
-            labels={labels}
-            form={form}
-            showSeatPicker={showSeatPicker}
-            seats={seats}
-            seatHold={seatHold}
-            seatNotice={seatNotice}
-          />
-        </EventRegisterStep>
+      {seatsFirst && event.companionRequireDetails && labels.companions ? (
+        <EventRegisterMultiTicketSection
+          ticketQuantity={form.payment.ticketQuantity}
+          onTicketQuantityChange={form.payment.setTicketQuantity}
+          requireCompanionDetails
+          collectDni={Boolean(event.companionCollectDni)}
+          collectEmail={Boolean(event.companionCollectEmail)}
+          collectBirthDate={Boolean(event.companionCollectBirthDate)}
+          companions={form.payment.companions}
+          onCompanionChange={form.payment.updateCompanion}
+          disabled={form.footer.isPending}
+          labels={labels.companions}
+          part="companions"
+        />
       ) : null}
 
-      <EventRegisterStep step={amountStep} title={labels.steps.amount} lead={labels.steps.amountLead}>
-        {event.hasTieredPricing && !event.priceByFlow ? (
-          <EventRegisterResidencyPicker
-            value={form.residency.isLocalResident}
-            onChange={form.residency.setIsLocalResident}
-            labels={labels.residency}
-            currency={event.currency}
-            priceLocal={event.priceLocal}
-            priceNonLocal={event.priceNonLocal}
-            surfaceVariant={surfaceVariant}
-          />
-        ) : null}
-        {event.allowFamilyDiscount ? (
-          <EventRegisterFamilyDiscount
-            baseAmount={totals.subtotal}
-            currency={event.currency}
-            locale={locale}
-            freeLabel={labels.free}
-            checked={familyDiscount}
-            onChange={(checked) => {
-              const next = selectEventFamilyDiscount(checked, appliedCode);
-              setFamilyDiscount(next.family);
-              setAppliedCode(next.applied);
-            }}
-            label={labels.familyDiscount}
-            payLabel={labels.familyDiscountPay}
-          />
-        ) : null}
-        <EventRegisterDiscountCode
-          slug={event.slug}
-          locale={locale}
-          currency={event.currency}
-          freeLabel={labels.free}
-          flowId={form.flow.flowId}
-          isLocalResident={form.residency.isLocalResident}
-          disabled={form.footer.isPending}
-          applied={appliedCode}
-          payAmount={appliedCode?.kind === "percent" ? totals.finalTotal : null}
-          onApplied={(next) => {
-            const selection = selectEventDiscountCode(next);
-            setFamilyDiscount(selection.family);
-            setAppliedCode(selection.applied);
-          }}
-          onClear={() => setAppliedCode(clearEventDiscountCode(familyDiscount).applied)}
-          labels={labels.discountCode}
-        />
-        {event.allowMinorTickets && labels.minorTickets ? (
-          <EventRegisterMinorTicketsField
-            seats={seats}
-            count={form.payment.minorTicketCount}
-            disabled={form.footer.isPending}
-            labels={labels.minorTickets}
-            onChange={form.payment.setMinorTicketCount}
-          />
-        ) : null}
-        <EventRegisterTotalSummaryCard
-          totals={totals}
-          currency={event.currency}
-          locale={locale}
-          freeLabel={labels.free}
-          totalLabel={labels.companions?.totalLabel ?? labels.steps.amount}
-          totalHintTemplate={labels.companions?.totalHint}
-          minorLines={labels.minorTickets}
-          fixedAmountLabels={labels.discountCode}
-        />
-      </EventRegisterStep>
+      {lateTicketStep ? ticketBlock(lateTicketStep, "all") : null}
+
+      <EventRegisterAmountStep
+        step={amountStep}
+        locale={locale}
+        event={event}
+        surfaceVariant={surfaceVariant}
+        labels={labels}
+        form={form}
+        totals={totals}
+        seats={seats}
+        familyDiscount={familyDiscount}
+        setFamilyDiscount={setFamilyDiscount}
+        appliedCode={appliedCode}
+        setAppliedCode={setAppliedCode}
+      />
 
       <EventRegisterStep
         step={lastStep}

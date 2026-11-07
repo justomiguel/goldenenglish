@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Gift } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -19,6 +20,7 @@ import type { Dictionary } from "@/types/i18n";
 import { AdminRegistrationJoinBillingFields } from "@/components/dashboard/AdminRegistrationJoinBillingFields";
 import { AdminRegistrationProposeSchedule } from "@/components/dashboard/AdminRegistrationProposeSchedule";
 import { AdminRegistrationSectionChoices } from "@/components/dashboard/AdminRegistrationSectionChoices";
+import { AdminRegistrationRecordPayment } from "@/components/dashboard/AdminRegistrationRecordPayment";
 import type { JoinBillingDisposition } from "@/lib/billing/joinBillingDispositionSchema";
 
 type IntakeLabels = Dictionary["admin"]["registrations"]["intake"];
@@ -91,7 +93,7 @@ export function AdminRegistrationIntakeActions({
     const res = await fn();
     onBusy(null);
     if (!res.ok) {
-      setError(res.code === "section_full" ? labels.sectionFullError : labels.actionError);
+      setError(res.code === "section_full" ? labels.sectionFullError : res.code === "needs_section" ? labels.needsSectionError : labels.actionError);
       return;
     }
     onDone();
@@ -107,6 +109,18 @@ export function AdminRegistrationIntakeActions({
         onChange={setJoinDisposition}
         labels={joinBilling}
       />
+      {kind === "collect" || kind === "receipt" ? (
+        <AdminRegistrationRecordPayment
+          locale={locale}
+          registrationId={row.id}
+          defaultAmount={row.snapshotTotal ?? 0}
+          labels={labels}
+          busy={busy}
+          joinDisposition={joinDisposition}
+          onRequireDisposition={requireDisposition}
+          onRun={(fn) => void run(fn)}
+        />
+      ) : null}
       {kind === "waive" ? (
         <>
           <Label htmlFor={`waive-${row.id}`}>{labels.waiveReason}</Label>
@@ -133,6 +147,7 @@ export function AdminRegistrationIntakeActions({
               );
             }}
           >
+            <Gift className="h-4 w-4" aria-hidden />
             {labels.waive}
           </Button>
         </>

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { paymentMethodSchema } from "@/lib/billing/paymentMethod";
 import type { RecordPaymentWithoutReceiptErrorCode } from "@/lib/billing/recordPaymentWithoutReceiptCore";
 import type { Dictionary, Locale } from "@/types/i18n";
 import { defaultLocale } from "@/lib/i18n/dictionaries";
@@ -10,6 +11,8 @@ export const recordPaymentSingleSchema = z.object({
   month: z.number().int().min(1).max(12),
   locale: z.string().min(2).max(8),
   adminNote: z.string().max(2000).optional(),
+  paymentMethod: paymentMethodSchema.default("cash"),
+  paidOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 });
 
 export const recordPaymentBulkSchema = z.object({
@@ -22,6 +25,8 @@ export const recordPaymentBulkSchema = z.object({
     .max(12),
   locale: z.string().min(2).max(8),
   adminNote: z.string().max(2000).optional(),
+  paymentMethod: paymentMethodSchema.default("cash"),
+  paidOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 });
 
 export function resolveRecordPaymentLocale(s: string): Locale {

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { auditFinanceAction } from "@/lib/audit";
+import { todayIsoDate } from "@/lib/billing/paymentMethod";
 import { resolveSectionPlanMonthlyAmount } from "@/lib/billing/resolveSectionPlanMonthlyAmount";
 import type { FlowFetchStatusResult, FlowStatusPayload } from "@/lib/payment-gateways/flow/flowFetchPaymentStatus";
 import { flowFetchPaymentStatus } from "@/lib/payment-gateways/flow/flowFetchPaymentStatus";
@@ -161,6 +162,8 @@ export async function finalizeMonthlyPaymentFromFlowGateway(input: {
       amount: flowAmount,
       admin_notes: "flow.cl",
       gateway_provider: "flow",
+      payment_method: "gateway",
+      paid_on: todayIsoDate(),
     })
     .eq("id", payRow.id as string)
     .in("status", ["pending", "rejected"]);

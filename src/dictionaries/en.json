@@ -1075,6 +1075,2101 @@
         "timeLabel": "Preferred time"
       }
     },
+    "skins": {
+      "deportes": {
+        "inicio": {
+          "label": "Start",
+          "scene": "Enrollment is open",
+          "title": "Learn the game. Then play it with a team.",
+          "body": "We train children and teens, from first touches to the Saturday match. The first class is a free trial.",
+          "cta": "Ask for a trial class",
+          "heroCta": "See the schedule",
+          "imageAlt": "Morning field before practice"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "9:10. Starters. First touches and free play."
+            },
+            {
+              "text": "10:00. Development. Skill, passing, and a short match."
+            },
+            {
+              "text": "11:00. Match group. Tactics and the Saturday game."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Our story",
+          "body": "We started on a neighborhood field. We still teach skill, respect, and the wish to come back.",
+          "manifesto": []
+        },
+        "oferta": {
+          "label": "Programs",
+          "body": "Each class has a warm-up, ball work, and a short match. Groups stay small.",
+          "items": [
+            {
+              "id": "futbol",
+              "name": "Kids' football",
+              "line": "First touches, passes and team play.",
+              "detail": "Groups for ages 6 to 12. Every class ends with a short match."
+            },
+            {
+              "id": "basquet",
+              "name": "Basketball",
+              "line": "Dribbling, shooting and reading the game.",
+              "detail": "For kids who tried another sport or start from zero."
+            },
+            {
+              "id": "atletismo",
+              "name": "Athletics",
+              "line": "Run, jump and throw.",
+              "detail": "A physical base that helps in any sport."
+            },
+            {
+              "id": "voley",
+              "name": "Volleyball",
+              "line": "Serve, reception and talking on court.",
+              "detail": "Mixed groups from age 10."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "How we work",
+          "body": "You can come on Saturday morning or on a weekday after school.",
+          "pillars": [
+            {
+              "title": "Small groups",
+              "line": "Each coach knows every player's name and progress."
+            },
+            {
+              "title": "Technique before results",
+              "line": "First the right movement. The score comes later."
+            },
+            {
+              "title": "Respect on the field",
+              "line": "Players greet the rival, listen to the referee and help teammates."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Schedule",
+          "body": "We have starters, a development group, and a match group. Age and experience set the place.",
+          "levels": [
+            {
+              "id": "iniciacion",
+              "label": "Beginners"
+            },
+            {
+              "id": "formacion",
+              "label": "Development"
+            },
+            {
+              "id": "competencia",
+              "label": "Competition"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "futbol",
+              "levelId": "iniciacion",
+              "when": "Saturday 9:10",
+              "place": "Field 1"
+            },
+            {
+              "itemId": "futbol",
+              "levelId": "formacion",
+              "when": "Saturday 10:00",
+              "place": "Field 1"
+            },
+            {
+              "itemId": "futbol",
+              "levelId": "competencia",
+              "when": "Tuesday and Thursday 18:00",
+              "place": "Field 2"
+            },
+            {
+              "itemId": "basquet",
+              "levelId": "iniciacion",
+              "when": "Monday 17:30",
+              "place": "Gym"
+            },
+            {
+              "itemId": "basquet",
+              "levelId": "formacion",
+              "when": "Wednesday 18:30",
+              "place": "Gym"
+            },
+            {
+              "itemId": "atletismo",
+              "levelId": "iniciacion",
+              "when": "Friday 17:00",
+              "place": "Track"
+            },
+            {
+              "itemId": "voley",
+              "levelId": "formacion",
+              "when": "Thursday 19:00",
+              "place": "Gym"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Team",
+          "people": [
+            {
+              "name": "Diego Salinas",
+              "role": "Football",
+              "line": "Has coached youth teams for fifteen years."
+            },
+            {
+              "name": "Carla Núñez",
+              "role": "Basketball and volleyball",
+              "line": "Organizes the game with few words and a lot of practice."
+            },
+            {
+              "name": "Pablo Rey",
+              "role": "Fitness coach",
+              "line": "Makes sure each player trains for their age."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "At the end of the year",
+          "body": "During the year we play friendly matches and local tournaments. Progress shows on the field.",
+          "title": "A club that meets every week.",
+          "closingBody": "Families come to the matches and players come back for the group."
+        },
+        "admision": {
+          "label": "How to join",
+          "steps": [
+            {
+              "title": "Ask for a trial class",
+              "line": "Tell us the age and the sport they like."
+            },
+            {
+              "title": "Come and train",
+              "line": "Bring comfortable clothes, sneakers and water."
+            },
+            {
+              "title": "Choose the group",
+              "line": "The coach suggests the level and the schedule."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Questions",
+          "entries": [
+            {
+              "q": "From what age can kids train?",
+              "a": "From age 5 in the beginners group. Groups are set by age."
+            },
+            {
+              "q": "What do I need for the trial class?",
+              "a": "Comfortable clothes, sneakers and a water bottle."
+            },
+            {
+              "q": "Do kids have to compete?",
+              "a": "No. The competition group is optional. Players join when they want to."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contact",
+          "laterTitle": "Come and see the field.",
+          "laterBody": "Write to us. We will tell you the group, the time, and what to bring to the trial."
+        }
+      },
+      "jardin": {
+        "inicio": {
+          "label": "Start",
+          "scene": "Enrollment is open",
+          "title": "A place to play, discover, and grow.",
+          "body": "We stay with children in their first years, through play, music, and a clear routine. You can visit a room before you decide.",
+          "cta": "Book a visit",
+          "heroCta": "See the rooms",
+          "imageAlt": "Quiet classroom at the start of the day"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "8:05. Arrival. Quiet play in the room."
+            },
+            {
+              "text": "10:30. Yard, songs, and a short workshop."
+            },
+            {
+              "text": "16:10. End of the day and pickup."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Our story",
+          "body": "We built this kindergarten so childhood has time to play, to ask, and to feel at home.",
+          "manifesto": []
+        },
+        "oferta": {
+          "label": "Programs",
+          "body": "The day includes play, the yard, music, meals, and a rest. Each group has two familiar adults.",
+          "items": [
+            {
+              "id": "cuna",
+              "name": "Nursery",
+              "line": "From 6 months to 2 years.",
+              "detail": "Arms, songs and a routine that does not change suddenly."
+            },
+            {
+              "id": "medio",
+              "name": "Toddlers",
+              "line": "From 2 to 4 years.",
+              "detail": "Play with others, new words and plenty of yard time."
+            },
+            {
+              "id": "transicion",
+              "name": "Pre-K",
+              "line": "From 4 to 6 years.",
+              "detail": "Stories, numbers and the move to school, without rush."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "How we work",
+          "body": "You can choose a half day or a full day. Both share the same room and the same team.",
+          "pillars": [
+            {
+              "title": "Play",
+              "line": "Play is how a child learns."
+            },
+            {
+              "title": "A clear routine",
+              "line": "Each day keeps the same order. That brings calm."
+            },
+            {
+              "title": "Families close by",
+              "line": "We tell you how the day went with concrete facts."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Schedule",
+          "body": "We welcome children from the nursery to the group preparing for school. Each level has its own pace.",
+          "levels": [
+            {
+              "id": "media",
+              "label": "Half day"
+            },
+            {
+              "id": "completa",
+              "label": "Full day"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "cuna",
+              "levelId": "media",
+              "when": "Monday to Friday 8:00 to 12:30",
+              "place": "Room 1"
+            },
+            {
+              "itemId": "cuna",
+              "levelId": "completa",
+              "when": "Monday to Friday 8:00 to 16:30",
+              "place": "Room 1"
+            },
+            {
+              "itemId": "medio",
+              "levelId": "media",
+              "when": "Monday to Friday 8:00 to 12:30",
+              "place": "Room 2"
+            },
+            {
+              "itemId": "medio",
+              "levelId": "completa",
+              "when": "Monday to Friday 8:00 to 16:30",
+              "place": "Room 2"
+            },
+            {
+              "itemId": "transicion",
+              "levelId": "media",
+              "when": "Monday to Friday 8:00 to 12:30",
+              "place": "Room 3"
+            },
+            {
+              "itemId": "transicion",
+              "levelId": "completa",
+              "when": "Monday to Friday 8:00 to 16:30",
+              "place": "Room 3"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Team",
+          "people": [
+            {
+              "name": "Paula Medina",
+              "role": "Director",
+              "line": "Welcomes every family on the first visit."
+            },
+            {
+              "name": "Lucía Torres",
+              "role": "Nursery teacher",
+              "line": "Looks after sleep, meals and first steps."
+            },
+            {
+              "name": "Camila Rojas",
+              "role": "Pre-K teacher",
+              "line": "Prepares the move to school with stories and games."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "At the end of the year",
+          "body": "The year ends with a showing for families. Each new child starts with a settling-in period.",
+          "title": "Families who know each other",
+          "closingBody": "Each family meeting ends with an idea for home."
+        },
+        "admision": {
+          "label": "How to join",
+          "steps": [
+            {
+              "title": "Book a visit",
+              "line": "You see the room during a real day."
+            },
+            {
+              "title": "We talk",
+              "line": "We talk about age, sleep and the routine at home."
+            },
+            {
+              "title": "Settling in starts",
+              "line": "The first days are short and an adult stays close."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Questions",
+          "entries": [
+            {
+              "q": "From what age do you take children?",
+              "a": "From 6 months to 6 years."
+            },
+            {
+              "q": "Are meals included?",
+              "a": "Yes. The full day includes lunch and a snack."
+            },
+            {
+              "q": "Can I visit before enrolling?",
+              "a": "Yes. The visit is the first step."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contact",
+          "laterTitle": "Come and see the rooms.",
+          "laterBody": "Tell us your child's age. We will suggest a visit and the day that fits."
+        }
+      },
+      "colegio": {
+        "inicio": {
+          "label": "Start",
+          "scene": "Admission is open",
+          "title": "A school that stays close to each student.",
+          "body": "We teach from the early years through secondary school, in small groups. You can see a classroom before you enroll.",
+          "cta": "Book a visit",
+          "heroCta": "See our approach",
+          "imageAlt": "School courtyard before the first bell"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "7:40. Arrival and welcome in the yard."
+            },
+            {
+              "text": "8:00. The day's classes begin."
+            },
+            {
+              "text": "15:30. Workshops and dismissal."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Our story",
+          "body": "We began as a neighborhood school. We still want every teacher to know each student by name.",
+          "manifesto": []
+        },
+        "oferta": {
+          "label": "Programs",
+          "body": "The program joins classes, art, sport, and close follow-up. Groups stay small on purpose.",
+          "items": [
+            {
+              "id": "inicial",
+              "name": "Early years",
+              "line": "Pre-K and kindergarten.",
+              "detail": "Play, reading aloud and first numbers."
+            },
+            {
+              "id": "basica",
+              "name": "Primary school",
+              "line": "From first to eighth grade.",
+              "detail": "Reading, math, science and sport every week."
+            },
+            {
+              "id": "media",
+              "name": "Secondary school",
+              "line": "The last four years.",
+              "detail": "Projects, guidance and preparation for what comes next."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "How we work",
+          "body": "There is a morning day and a full day. Families choose by age and by the home routine.",
+          "pillars": [
+            {
+              "title": "Small classes",
+              "line": "Each teacher knows students by name."
+            },
+            {
+              "title": "Close follow-up",
+              "line": "Families get a clear report every term."
+            },
+            {
+              "title": "Art and sport",
+              "line": "They are part of the timetable, not an extra."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Schedule",
+          "body": "We teach from early years through secondary school. Each class has its own room and team.",
+          "levels": [
+            {
+              "id": "manana",
+              "label": "Morning schedule"
+            },
+            {
+              "id": "completa",
+              "label": "Full day"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "inicial",
+              "levelId": "manana",
+              "when": "Monday to Friday 8:00 to 12:30",
+              "place": "Early years building"
+            },
+            {
+              "itemId": "inicial",
+              "levelId": "completa",
+              "when": "Monday to Friday 8:00 to 15:30",
+              "place": "Early years building"
+            },
+            {
+              "itemId": "basica",
+              "levelId": "manana",
+              "when": "Monday to Friday 8:00 to 13:15",
+              "place": "Main building"
+            },
+            {
+              "itemId": "basica",
+              "levelId": "completa",
+              "when": "Monday to Friday 8:00 to 15:30",
+              "place": "Main building"
+            },
+            {
+              "itemId": "media",
+              "levelId": "completa",
+              "when": "Monday to Friday 8:00 to 16:10",
+              "place": "Main building"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Team",
+          "people": [
+            {
+              "name": "Laura Fuentes",
+              "role": "Academic director",
+              "line": "Follows every class and talks with families."
+            },
+            {
+              "name": "Javier Soto",
+              "role": "Science teacher",
+              "line": "Takes the class to the lab and the yard."
+            },
+            {
+              "name": "Marta Gil",
+              "role": "School counselor",
+              "line": "Listens to students and helps them choose a path."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "At the end of the year",
+          "body": "At the end of the cycle, the student leaves with a clear report and the next step prepared.",
+          "title": "A community that knows each other",
+          "closingBody": "Families take part in fairs, shows and meetings during the year."
+        },
+        "admision": {
+          "label": "How to join",
+          "steps": [
+            {
+              "title": "Book a visit",
+              "line": "You tour the school with the admissions team."
+            },
+            {
+              "title": "Family interview",
+              "line": "We talk about the student and their interests."
+            },
+            {
+              "title": "Enrollment",
+              "line": "If there is a place, you complete the details and start date."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Questions",
+          "entries": [
+            {
+              "q": "Is there a full day?",
+              "a": "Yes. The early years also have a morning schedule."
+            },
+            {
+              "q": "How many students per class?",
+              "a": "Classes are small, with at most 25 students."
+            },
+            {
+              "q": "When does admission open?",
+              "a": "Admission opens in August for the next year."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contact",
+          "laterTitle": "Walk through the school before you decide.",
+          "laterBody": "Book a visit, see a classroom, and talk with the admissions team."
+        }
+      },
+      "musica": {
+        "inicio": {
+          "label": "Start",
+          "scene": "For every age",
+          "title": "Play from the first lesson.",
+          "body": "Piano, guitar, voice, and more, for children and adults. You do not need to read music to start. The trial is a chance to meet your teacher.",
+          "cta": "Ask for a trial class",
+          "heroCta": "Choose your instrument",
+          "imageAlt": "Practice room before the lesson"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "16:00. Children's start. Play, rhythm, and first notes."
+            },
+            {
+              "text": "18:20. Private instrument lesson."
+            },
+            {
+              "text": "19:40. Ensemble rehearsal."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Our story",
+          "body": "We opened so anyone can feel like a musician, at age four or as an adult beginner.",
+          "manifesto": []
+        },
+        "oferta": {
+          "label": "Programs",
+          "body": "In class you really play: a song, an exercise, and the week's practice. The teacher follows your pace.",
+          "items": [
+            {
+              "id": "piano",
+              "name": "Piano",
+              "line": "Reading, technique and repertoire.",
+              "detail": "Individual 45-minute lessons."
+            },
+            {
+              "id": "guitarra",
+              "name": "Guitar",
+              "line": "Chords, rhythm and songs.",
+              "detail": "Classical or electric guitar, as you prefer."
+            },
+            {
+              "id": "canto",
+              "name": "Singing",
+              "line": "Breathing, pitch and repertoire.",
+              "detail": "For people who sing in the shower or in a choir."
+            },
+            {
+              "id": "iniciacion",
+              "name": "Early music",
+              "line": "For children aged 4 to 7.",
+              "detail": "Rhythm, games and first notes in a group."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "How we work",
+          "body": "You can take a private lesson or join an ensemble. Morning and afternoon times are open.",
+          "pillars": [
+            {
+              "title": "Play from day one",
+              "line": "Every lesson ends with something that sounds."
+            },
+            {
+              "title": "Your pace",
+              "line": "The teacher adapts the practice to your week."
+            },
+            {
+              "title": "Play with others",
+              "line": "Ensembles and recitals to share what you learn."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Schedule",
+          "body": "We have a start level, an intermediate level, and an advanced level. If you already play, we place you.",
+          "levels": [
+            {
+              "id": "inicial",
+              "label": "Beginner"
+            },
+            {
+              "id": "intermedio",
+              "label": "Intermediate"
+            },
+            {
+              "id": "avanzado",
+              "label": "Advanced"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "iniciacion",
+              "levelId": "inicial",
+              "when": "Saturday 10:00",
+              "place": "Big room"
+            },
+            {
+              "itemId": "piano",
+              "levelId": "inicial",
+              "when": "Monday 16:00",
+              "place": "Room 2"
+            },
+            {
+              "itemId": "piano",
+              "levelId": "avanzado",
+              "when": "Wednesday 19:00",
+              "place": "Room 2"
+            },
+            {
+              "itemId": "guitarra",
+              "levelId": "inicial",
+              "when": "Tuesday 18:20",
+              "place": "Room 3"
+            },
+            {
+              "itemId": "guitarra",
+              "levelId": "intermedio",
+              "when": "Thursday 18:20",
+              "place": "Room 3"
+            },
+            {
+              "itemId": "canto",
+              "levelId": "intermedio",
+              "when": "Friday 19:40",
+              "place": "Big room"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Team",
+          "people": [
+            {
+              "name": "Elena Paz",
+              "role": "Piano",
+              "line": "Teaches sight-reading without losing the joy of playing."
+            },
+            {
+              "name": "Bruno Leiva",
+              "role": "Guitar",
+              "line": "Builds the repertoire from the songs you bring."
+            },
+            {
+              "name": "Rosa Campos",
+              "role": "Singing and early music",
+              "line": "Works on the voice calmly and with lots of play."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "At the end of the year",
+          "body": "Twice a year there is a recital. You can play on stage, or keep practicing and listen.",
+          "title": "Music is shared",
+          "closingBody": "Each recital ends with families and students in the same room."
+        },
+        "admision": {
+          "label": "How to join",
+          "steps": [
+            {
+              "title": "Tell us what you want to play",
+              "line": "Instrument, age and a time that suits you."
+            },
+            {
+              "title": "Take the trial lesson",
+              "line": "You meet the teacher and play from the first minute."
+            },
+            {
+              "title": "Book your time",
+              "line": "Together we choose your regular lesson day."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Questions",
+          "entries": [
+            {
+              "q": "Do I need my own instrument?",
+              "a": "Not to start. The school has instruments for class."
+            },
+            {
+              "q": "Can I start as an adult?",
+              "a": "Yes. Many students start after 30."
+            },
+            {
+              "q": "How long is each lesson?",
+              "a": "Individual lessons last 45 minutes. Group lessons last one hour."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contact",
+          "laterTitle": "Choose an instrument and a time.",
+          "laterBody": "Tell us what you want to play. We will suggest a teacher, a time, and a first trial lesson."
+        }
+      },
+      "idiomas": {
+        "inicio": {
+          "label": "Start",
+          "scene": "Free trial class",
+          "title": "Speak from the first class.",
+          "body": "English and other languages for children, teens, and adults. We find your level and build a small group, on site or live online.",
+          "cta": "Ask for a trial class",
+          "heroCta": "Find your level",
+          "imageAlt": "Classroom before the evening lesson"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "10:00. English for children. Play and talk."
+            },
+            {
+              "text": "19:05. Teens and adults. Conversation class."
+            },
+            {
+              "text": "20:30. Conversation workshop."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Our story",
+          "body": "We teach the language so you can use it at work, on a trip, or in the next conversation.",
+          "manifesto": []
+        },
+        "oferta": {
+          "label": "Programs",
+          "body": "Each class practices speaking, listening, and writing. Groups stay small so everyone talks.",
+          "items": [
+            {
+              "id": "ingles-ninos",
+              "name": "English for kids",
+              "line": "Ages 6 to 12.",
+              "detail": "Games, songs and conversation in small groups."
+            },
+            {
+              "id": "ingles-adultos",
+              "name": "English for teens and adults",
+              "line": "From A1 to C1.",
+              "detail": "You speak in every class, with work, study and travel cases."
+            },
+            {
+              "id": "frances",
+              "name": "French",
+              "line": "From A1 to B2.",
+              "detail": "Live classes with the same teacher for the whole level."
+            },
+            {
+              "id": "examenes",
+              "name": "Exam preparation",
+              "line": "For international certificates.",
+              "detail": "Mock exams, written feedback and speaking practice."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "How we work",
+          "body": "You can study on site or in a live class. The program and the teacher stay the same.",
+          "pillars": [
+            {
+              "title": "Speak from the start",
+              "line": "Every class has time to talk."
+            },
+            {
+              "title": "Small groups",
+              "line": "At most eight students per group."
+            },
+            {
+              "title": "Progress you can measure",
+              "line": "At the end of each level you see what you can do with the language."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Schedule",
+          "body": "We follow the common framework, from A1 to C2. Before you join, we give a short level check.",
+          "levels": [
+            {
+              "id": "basico",
+              "label": "Basic (A1-A2)"
+            },
+            {
+              "id": "intermedio",
+              "label": "Intermediate (B1-B2)"
+            },
+            {
+              "id": "avanzado",
+              "label": "Advanced (C1)"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "ingles-ninos",
+              "levelId": "basico",
+              "when": "Saturday 10:00",
+              "place": "Campus"
+            },
+            {
+              "itemId": "ingles-adultos",
+              "levelId": "basico",
+              "when": "Monday and Wednesday 19:05",
+              "place": "Campus"
+            },
+            {
+              "itemId": "ingles-adultos",
+              "levelId": "intermedio",
+              "when": "Tuesday and Thursday 19:05",
+              "place": "Live online"
+            },
+            {
+              "itemId": "ingles-adultos",
+              "levelId": "avanzado",
+              "when": "Thursday 20:30",
+              "place": "Campus"
+            },
+            {
+              "itemId": "frances",
+              "levelId": "basico",
+              "when": "Tuesday 18:00",
+              "place": "Live online"
+            },
+            {
+              "itemId": "examenes",
+              "levelId": "intermedio",
+              "when": "Friday 18:30",
+              "place": "Campus"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Team",
+          "people": [
+            {
+              "name": "Sarah Moreno",
+              "role": "English",
+              "line": "Gets the whole group talking before correcting."
+            },
+            {
+              "name": "Daniel Ibarra",
+              "role": "Exam English",
+              "line": "Runs each mock exam as if it were the real one."
+            },
+            {
+              "name": "Claire Duval",
+              "role": "French",
+              "line": "Starts with listening and leaves rules for later."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "At the end of the year",
+          "body": "We prepare international exams and give the institute certificate when you finish a level.",
+          "title": "A language is learned with others",
+          "closingBody": "Conversation workshops bring together students from every level."
+        },
+        "admision": {
+          "label": "How to join",
+          "steps": [
+            {
+              "title": "Take the level test",
+              "line": "It is short and tells us which group you start in."
+            },
+            {
+              "title": "Take a trial class",
+              "line": "You meet the teacher and the group at no cost."
+            },
+            {
+              "title": "Choose a time and format",
+              "line": "On campus or live, with the same program."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Questions",
+          "entries": [
+            {
+              "q": "How do I know my level?",
+              "a": "With a short test before you start. It is free."
+            },
+            {
+              "q": "Are live classes the same?",
+              "a": "Yes. The program, the teacher and the group are the same."
+            },
+            {
+              "q": "Do you give a certificate?",
+              "a": "Yes. When you pass each level, you get the institute's certificate."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contact",
+          "laterTitle": "Find your level and your time.",
+          "laterBody": "Write to us, tell us your goal, and we will offer a trial in the group that fits you."
+        }
+      },
+      "deportes2": {
+        "inicio": {
+          "label": "Start",
+          "scene": "Do not watch the movement. Be the movement.",
+          "title": "Your limit is only the start",
+          "body": "You walk into a class. You leave with a plan, a coach, and a group that expects you.",
+          "cta": "Book your trial class",
+          "heroCta": "Find your discipline",
+          "imageAlt": "Speed composition on a dark field"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "07:00. Strength. The body wakes up under load."
+            },
+            {
+              "text": "12:30. Pace. Run or water, depending on the day."
+            },
+            {
+              "text": "19:10. Close. Mobility and the group."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Manifesto",
+          "body": "The limit is not a wall. It is the line you leave from.",
+          "manifesto": [
+            {
+              "text": "The limit is not a wall."
+            },
+            {
+              "text": "It is the line you leave from."
+            },
+            {
+              "text": "You arrive at your pace."
+            },
+            {
+              "text": "You leave with the group."
+            }
+          ]
+        },
+        "oferta": {
+          "label": "Disciplines",
+          "body": "Six disciplines. Each one has its pace, its room, and its coach.",
+          "items": [
+            {
+              "id": "funcional",
+              "name": "Functional training",
+              "line": "Strength that moves.",
+              "detail": "You push, pull, and turn. Groups stay small."
+            },
+            {
+              "id": "cross",
+              "name": "Cross training",
+              "line": "Short work. Real intensity.",
+              "detail": "Stations, a clock, and a mark you can measure."
+            },
+            {
+              "id": "boxeo",
+              "name": "Boxing",
+              "line": "Feet, guard, and air.",
+              "detail": "Skill first. Contact comes when you are ready."
+            },
+            {
+              "id": "natacion",
+              "name": "Swimming",
+              "line": "Length, breath, calm.",
+              "detail": "Water to begin, or to sharpen the pace."
+            },
+            {
+              "id": "running",
+              "name": "Running",
+              "line": "Stride and pulse.",
+              "detail": "Group starts. The plan changes with your mark."
+            },
+            {
+              "id": "yoga",
+              "name": "Yoga and mobility",
+              "line": "The body returns to its place.",
+              "detail": "After the load, or as its own practice."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Method",
+          "body": "You can train early, at midday, or after work.",
+          "pillars": [
+            {
+              "title": "Personal training",
+              "line": "The plan starts from your starting point."
+            },
+            {
+              "title": "High-performance coaches",
+              "line": "Someone watches the skill, not only the clock."
+            },
+            {
+              "title": "A community that pushes",
+              "line": "The group expects you even on a heavy day."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Schedule",
+          "body": "Start, middle, and performance. The first class confirms the level.",
+          "levels": [
+            {
+              "id": "inicio",
+              "label": "Start"
+            },
+            {
+              "id": "medio",
+              "label": "Middle"
+            },
+            {
+              "id": "rendimiento",
+              "label": "Performance"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "funcional",
+              "levelId": "inicio",
+              "when": "Monday 07:00",
+              "place": "North room"
+            },
+            {
+              "itemId": "cross",
+              "levelId": "medio",
+              "when": "Tuesday 06:45",
+              "place": "Box"
+            },
+            {
+              "itemId": "cross",
+              "levelId": "rendimiento",
+              "when": "Thursday 19:00",
+              "place": "Box"
+            },
+            {
+              "itemId": "boxeo",
+              "levelId": "inicio",
+              "when": "Tuesday 20:00",
+              "place": "Ring"
+            },
+            {
+              "itemId": "boxeo",
+              "levelId": "rendimiento",
+              "when": "Friday 19:30",
+              "place": "Ring"
+            },
+            {
+              "itemId": "natacion",
+              "levelId": "inicio",
+              "when": "Saturday 09:00",
+              "place": "Pool"
+            },
+            {
+              "itemId": "running",
+              "levelId": "inicio",
+              "when": "Wednesday 07:15",
+              "place": "Park"
+            },
+            {
+              "itemId": "running",
+              "levelId": "rendimiento",
+              "when": "Sunday 08:00",
+              "place": "River path"
+            },
+            {
+              "itemId": "yoga",
+              "levelId": "inicio",
+              "when": "Thursday 08:00",
+              "place": "South room"
+            },
+            {
+              "itemId": "yoga",
+              "levelId": "medio",
+              "when": "Friday 18:00",
+              "place": "South room"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Coaches",
+          "people": [
+            {
+              "name": "Mara Vidal",
+              "role": "Strength",
+              "line": "Functional work and cross. She corrects before the load goes up."
+            },
+            {
+              "name": "Leo Duarte",
+              "role": "Pace",
+              "line": "Running and swimming. The pulse sets the day."
+            },
+            {
+              "name": "Noa Ferreyra",
+              "role": "Mobility",
+              "line": "Yoga and boxing skill. She protects the joint and the guard."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Community",
+          "body": "You do not train against a screen. You enter a room that is already moving.",
+          "title": "The group pushes",
+          "closingBody": "Progress shows in the mark, the skill, and the days you come back."
+        },
+        "admision": {
+          "label": "How to start",
+          "steps": [
+            {
+              "title": "Pick a discipline",
+              "line": "Check the schedule and level of each group."
+            },
+            {
+              "title": "Book the trial class",
+              "line": "A coach meets you and sees your starting point."
+            },
+            {
+              "title": "Build your plan",
+              "line": "You leave with set days and a goal for the month."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Questions",
+          "entries": [
+            {
+              "q": "Do I need experience?",
+              "a": "No. The first level is for starting from zero."
+            },
+            {
+              "q": "Can I combine disciplines?",
+              "a": "Yes. Many people mix strength and mobility during the week."
+            },
+            {
+              "q": "What do I bring to the trial class?",
+              "a": "Training clothes, water and a towel."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contact",
+          "laterTitle": "The next level starts today",
+          "laterBody": "Pick a discipline and book the trial class."
+        }
+      },
+      "jardin2": {
+        "inicio": {
+          "label": "Start",
+          "scene": "A huge world starts with a small question.",
+          "title": "Small steps. Large discoveries.",
+          "body": "Here a child asks, tries, and comes back the next day ready to tell what they found.",
+          "cta": "Book a visit",
+          "heroCta": "See our school",
+          "imageAlt": "Paper collage of leaves, a cloud, and a seed on warm cream"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "08:10. Arrival. An adult meets each family at the door."
+            },
+            {
+              "text": "10:40. Yard and workshop. The group explores with their hands."
+            },
+            {
+              "text": "16:00. Close. The family takes home one sentence from the day."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Philosophy",
+          "body": "We learn by playing, with time to look and time to ask.",
+          "manifesto": [
+            {
+              "text": "A question."
+            },
+            {
+              "text": "A seed."
+            },
+            {
+              "text": "A yard."
+            },
+            {
+              "text": "A child who comes back tomorrow."
+            }
+          ]
+        },
+        "oferta": {
+          "label": "Stages",
+          "body": "Four stages, from the infant room to the transition year. Each one has its pace.",
+          "items": [
+            {
+              "id": "cuna",
+              "name": "Infant room",
+              "line": "0 to 2 years. Bond and calm.",
+              "detail": "Arms, a song, and a corner that does not change all at once."
+            },
+            {
+              "id": "menor",
+              "name": "Younger preschool",
+              "line": "2 to 3 years. Name what you touch.",
+              "detail": "Water, soil, and one new word each week."
+            },
+            {
+              "id": "mayor",
+              "name": "Older preschool",
+              "line": "3 to 4 years. Play with others.",
+              "detail": "Short stories, turns, and a project that lasts several days."
+            },
+            {
+              "id": "transicion",
+              "name": "Transition",
+              "line": "4 to 6 years. Ask with precision.",
+              "detail": "Garden, library, and the step toward school, without rush."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Method",
+          "body": "Morning or full day. The room and the team stay the same.",
+          "pillars": [
+            {
+              "title": "Curiosity",
+              "line": "The child's question sets the morning."
+            },
+            {
+              "title": "Autonomy",
+              "line": "They do alone what they already can. They ask when they cannot."
+            },
+            {
+              "title": "Community",
+              "line": "They learn with others, not beside others."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Daily schedule",
+          "body": "Age opens the door. The visit confirms whether the group fits.",
+          "levels": [
+            {
+              "id": "manana",
+              "label": "Morning day"
+            },
+            {
+              "id": "completa",
+              "label": "Full day"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "cuna",
+              "levelId": "manana",
+              "when": "Monday to Friday 8:00 to 12:30",
+              "place": "Room 1"
+            },
+            {
+              "itemId": "cuna",
+              "levelId": "completa",
+              "when": "Monday to Friday 8:00 to 16:30",
+              "place": "Room 1"
+            },
+            {
+              "itemId": "menor",
+              "levelId": "manana",
+              "when": "Monday to Friday 8:00 to 12:30",
+              "place": "Room 2"
+            },
+            {
+              "itemId": "menor",
+              "levelId": "completa",
+              "when": "Monday to Friday 8:00 to 16:30",
+              "place": "Room 2"
+            },
+            {
+              "itemId": "mayor",
+              "levelId": "completa",
+              "when": "Monday to Friday 8:00 to 16:30",
+              "place": "Room 3"
+            },
+            {
+              "itemId": "transicion",
+              "levelId": "manana",
+              "when": "Monday to Friday 8:00 to 12:30",
+              "place": "Room 4"
+            },
+            {
+              "itemId": "transicion",
+              "levelId": "completa",
+              "when": "Monday to Friday 8:00 to 16:30",
+              "place": "Room 4"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Team",
+          "people": [
+            {
+              "name": "Inés Palma",
+              "role": "Infant room",
+              "line": "She keeps the pace of the youngest and each family's arrival."
+            },
+            {
+              "name": "Sara Molina",
+              "role": "Middle years",
+              "line": "She builds the workshops of soil, water, and story."
+            },
+            {
+              "name": "Luz Herrera",
+              "role": "Transition",
+              "line": "She stays with long play and the step toward school."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Families",
+          "body": "We write when the day truly changes. The visit is with an adult from the school, not a brochure. Settling in takes time. We do not rush it. We do not show seals or accreditations we do not have.",
+          "title": "Trust for families",
+          "closingBody": "We do not show seals we do not have. The year ends with a showing for families."
+        },
+        "admision": {
+          "label": "Admission",
+          "steps": [
+            {
+              "title": "Visit",
+              "line": "You see the room and the yard during a real hour."
+            },
+            {
+              "title": "Talk",
+              "line": "We talk about age, sleep, and what the family needs."
+            },
+            {
+              "title": "Place",
+              "line": "If there is room and the group fits, the start date stays."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Questions",
+          "entries": [
+            {
+              "q": "From what age?",
+              "a": "From the infant room, near the first months, until age 6."
+            },
+            {
+              "q": "What hours are there?",
+              "a": "Morning or full day. The room team stays the same."
+            },
+            {
+              "q": "Can I visit first?",
+              "a": "Yes. The visit is the first step. There is no blind enrollment."
+            },
+            {
+              "q": "How does settling in work?",
+              "a": "It starts short and grows. One reference adult stays those days."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contact",
+          "laterTitle": "Come and see the yard.",
+          "laterBody": "The visit is short. You walk one room, see the day, and ask what you brought with you."
+        }
+      },
+      "colegio2": {
+        "inicio": {
+          "label": "Start",
+          "scene": "We do not prepare students for the future. We prepare them to create it.",
+          "title": "The future starts here.",
+          "body": "Discover. Question. Create. Transform.",
+          "cta": "Book a visit",
+          "heroCta": "Explore our educational project",
+          "imageAlt": "Architectural lines, an orbit, and a plan on night blue"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "08:00. The day opens with a question, not a list."
+            },
+            {
+              "text": "11:20. Workshop. Science, art, or the field, by grade."
+            },
+            {
+              "text": "16:10. Close. The student takes home work they can show."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Manifesto",
+          "body": "Learning is not memorizing. It is daring to ask and to try again.",
+          "manifesto": [
+            {
+              "text": "Learning is not memorizing."
+            },
+            {
+              "text": "Making is a way of thinking."
+            },
+            {
+              "text": "Getting it wrong is also progress."
+            },
+            {
+              "text": "The world needs people who dare."
+            }
+          ]
+        },
+        "oferta": {
+          "label": "Stages",
+          "body": "Early years, primary, and secondary. Each stage changes the size of the question.",
+          "items": [
+            {
+              "id": "parvularia",
+              "name": "Early years",
+              "line": "First years. Play with a question inside.",
+              "detail": "Yard, story, and the first hands-on workshop."
+            },
+            {
+              "id": "basica",
+              "name": "Primary",
+              "line": "Primary school. Read the world and measure it.",
+              "detail": "Applied science, long reading, and sport taken seriously."
+            },
+            {
+              "id": "media",
+              "name": "Secondary",
+              "line": "Secondary school. A project you can defend.",
+              "detail": "Research, art, and a walk into the neighborhood."
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Model",
+          "body": "Morning or full day. The project stays the same.",
+          "pillars": [
+            {
+              "title": "Academic excellence",
+              "line": "The demand shows in the question, not in the volume of homework."
+            },
+            {
+              "title": "Technology and innovation",
+              "line": "The tool arrives when there is already a real problem."
+            },
+            {
+              "title": "Social and emotional growth",
+              "line": "The group learns to disagree without getting lost."
+            },
+            {
+              "title": "Global citizenship",
+              "line": "The neighborhood and the world fit in the same class."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Calendar",
+          "body": "The grade is confirmed at the visit. Age does not decide alone.",
+          "levels": [
+            {
+              "id": "academia",
+              "label": "Academic"
+            },
+            {
+              "id": "arte",
+              "label": "Arts"
+            },
+            {
+              "id": "deporte",
+              "label": "Sport"
+            },
+            {
+              "id": "comunidad",
+              "label": "Community"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "basica",
+              "levelId": "academia",
+              "when": "12 Mar · 09:00",
+              "place": "Science fair"
+            },
+            {
+              "itemId": "media",
+              "levelId": "arte",
+              "when": "20 Mar · 18:30",
+              "place": "Studio showing"
+            },
+            {
+              "itemId": "basica",
+              "levelId": "deporte",
+              "when": "4 Apr · 10:00",
+              "place": "Field meet"
+            },
+            {
+              "itemId": "parvularia",
+              "levelId": "comunidad",
+              "when": "11 Apr · 16:00",
+              "place": "Open doors"
+            },
+            {
+              "itemId": "media",
+              "levelId": "academia",
+              "when": "2 May · 08:30",
+              "place": "Project defense"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Team",
+          "people": [
+            {
+              "name": "Ana Rivas",
+              "role": "Science",
+              "line": "She asks for the data before the opinion."
+            },
+            {
+              "name": "Martín Ortiz",
+              "role": "Arts",
+              "line": "He treats the rehearsal as part of the work."
+            },
+            {
+              "name": "Elena Cruz",
+              "role": "History and citizenship",
+              "line": "She takes the class into the neighborhood when the topic asks for it."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Life",
+          "body": "Clubs. Debate, chess, and music after the last class. Workshops. Short, with a result you can show. Gatherings. Families and students at the same table, once a month.",
+          "title": "Life after class",
+          "closingBody": "The end of a cycle shows in a project, not in an invented seal."
+        },
+        "admision": {
+          "label": "Admission",
+          "steps": [
+            {
+              "title": "Know the school",
+              "line": "You read the project and watch a real day."
+            },
+            {
+              "title": "Book a visit",
+              "line": "You walk one room with someone from the team."
+            },
+            {
+              "title": "Start the application",
+              "line": "You leave your details and we write to you to arrange a visit."
+            },
+            {
+              "title": "Continue the process",
+              "line": "A conversation, not an endless form."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Questions",
+          "entries": [
+            {
+              "q": "Which stages are there?",
+              "a": "Early years, primary, and secondary."
+            },
+            {
+              "q": "Can I visit the school before applying?",
+              "a": "Yes. You book a visit, see a classroom and talk with the admissions team."
+            },
+            {
+              "q": "Is there a full day?",
+              "a": "Yes, and also a morning day. The project does not change."
+            },
+            {
+              "q": "How does the family hear news?",
+              "a": "With a short note when the day truly changes."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contact",
+          "laterTitle": "Your children's future deserves something extraordinary.",
+          "laterBody": "The visit is a conversation. You walk one room and ask what the family needs to know."
+        }
+      },
+      "idiomas2": {
+        "inicio": {
+          "label": "Start",
+          "scene": "Your world does not end where your language ends.",
+          "title": "Speak more. Live more.",
+          "body": "The next language can change your story.",
+          "cta": "Start speaking",
+          "heroCta": "Find your language",
+          "imageAlt": "Huge type blocks and a geometric shape"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "09:00. Conversation. You speak from the first minute."
+            },
+            {
+              "text": "18:30. Real practice. A work case or a trip."
+            },
+            {
+              "text": "20:10. Close. One goal for the week."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Manifesto",
+          "body": "A language opens a conversation, a job, another city.",
+          "manifesto": [
+            {
+              "text": "A conversation."
+            },
+            {
+              "text": "A new job."
+            },
+            {
+              "text": "Another city."
+            },
+            {
+              "text": "A whole world."
+            }
+          ]
+        },
+        "oferta": {
+          "label": "Languages",
+          "body": "Five languages. Each one has its pace and its first goal.",
+          "items": [
+            {
+              "id": "en",
+              "name": "English",
+              "line": "Speak at work and on the street.",
+              "detail": "A1 · 12 weeks"
+            },
+            {
+              "id": "fr",
+              "name": "French",
+              "line": "Read, ask, and tell.",
+              "detail": "A1 · 14 weeks"
+            },
+            {
+              "id": "pt",
+              "name": "Portuguese",
+              "line": "Enter a real conversation.",
+              "detail": "A1 · 12 weeks"
+            },
+            {
+              "id": "de",
+              "name": "German",
+              "line": "Order the sentence and lose the fear.",
+              "detail": "A1 · 16 weeks"
+            },
+            {
+              "id": "it",
+              "name": "Italian",
+              "line": "Sound natural in daily life.",
+              "detail": "A1 · 12 weeks"
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Method",
+          "body": "On site, live, or one to one. You choose how to study.",
+          "pillars": [
+            {
+              "title": "Speak from day one",
+              "line": "The first class is already a short conversation."
+            },
+            {
+              "title": "Real-world practice",
+              "line": "Work, travel, or study. The case is concrete."
+            },
+            {
+              "title": "Progress you can see",
+              "line": "Each month you look at what you can say and what you still cannot."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Courses",
+          "body": "From A1 to C1. A short test guides your starting level.",
+          "levels": [
+            {
+              "id": "a1",
+              "label": "A1"
+            },
+            {
+              "id": "a2",
+              "label": "A2"
+            },
+            {
+              "id": "b1",
+              "label": "B1"
+            },
+            {
+              "id": "b2",
+              "label": "B2"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "en",
+              "levelId": "a1",
+              "when": "Mon and Wed · 19:00",
+              "place": "English to start · In-person classes"
+            },
+            {
+              "itemId": "en",
+              "levelId": "b1",
+              "when": "Tue and Thu · 18:30",
+              "place": "English for work · Live classes"
+            },
+            {
+              "itemId": "fr",
+              "levelId": "a2",
+              "when": "Sat · 10:00",
+              "place": "French in conversation · In-person classes"
+            },
+            {
+              "itemId": "pt",
+              "levelId": "a1",
+              "when": "To arrange",
+              "place": "Portuguese at your pace · Private classes"
+            },
+            {
+              "itemId": "de",
+              "levelId": "a1",
+              "when": "Mon · 20:00",
+              "place": "German from zero · Live classes"
+            },
+            {
+              "itemId": "it",
+              "levelId": "b2",
+              "when": "Wed · 19:30",
+              "place": "Italian for debate · In-person classes"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Teachers",
+          "people": [
+            {
+              "name": "Maya Cole",
+              "role": "English",
+              "line": "She cuts the long sentence and makes you repeat the useful one."
+            },
+            {
+              "name": "Lucía Benoit",
+              "role": "French",
+              "line": "She trains the ear before the rule."
+            },
+            {
+              "name": "Jonas Keller",
+              "role": "German",
+              "line": "He sets the verb and celebrates the attempt."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "World",
+          "body": "Travel. You ask, you get lost, and you ask again. Work. A short meeting stops scaring you. Study. You read a text and you can argue with it. Culture. A song or a film without endless subtitles. People. A friendship that does not fit in a translator.",
+          "title": "Where you will use it",
+          "closingBody": "When you enroll, we explain the certification options for your language and level."
+        },
+        "admision": {
+          "label": "How to start",
+          "steps": [
+            {
+              "title": "Find your level",
+              "line": "A short test guides you. It is not an official certificate."
+            },
+            {
+              "title": "Take a trial class",
+              "line": "You speak with the group from the first minute."
+            },
+            {
+              "title": "Choose a course and format",
+              "line": "In person, live or one-to-one."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Questions",
+          "entries": [
+            {
+              "q": "Which languages do you teach?",
+              "a": "English, French, Portuguese, German and Italian."
+            },
+            {
+              "q": "Is the level test official?",
+              "a": "No. It suggests a starting group. The trial class confirms it."
+            },
+            {
+              "q": "Can I switch formats?",
+              "a": "Yes, at the end of each cycle, if the group has a place."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contact",
+          "laterTitle": "The world does not wait. Neither do you.",
+          "laterBody": "Start with a trial class. That is where we confirm your level."
+        }
+      },
+      "musica2": {
+        "inicio": {
+          "label": "Start",
+          "scene": "You were not born to listen from the outside.",
+          "title": "The world needs your sound.",
+          "body": "Your sound starts here.",
+          "cta": "I want my trial class",
+          "heroCta": "Find your instrument",
+          "imageAlt": "A wave and a color block on a black field"
+        },
+        "ritmo": {
+          "lines": [
+            {
+              "text": "17:00. Rehearsal. The group tunes and enters."
+            },
+            {
+              "text": "19:10. Class. One phrase, one correction, again."
+            },
+            {
+              "text": "21:00. Close. Someone stays to record an idea."
+            }
+          ]
+        },
+        "historia": {
+          "label": "Manifesto",
+          "body": "It does not matter if you never played a note. It matters that you start.",
+          "manifesto": [
+            {
+              "text": "It does not matter if you never played a note."
+            },
+            {
+              "text": "It does not matter if you started late."
+            },
+            {
+              "text": "It does not matter if you have not found your style."
+            },
+            {
+              "text": "What matters is to start."
+            }
+          ]
+        },
+        "oferta": {
+          "label": "Instruments",
+          "body": "Six paths: guitar, piano, drums, voice, bass, and production.",
+          "items": [
+            {
+              "id": "guitarra",
+              "name": "Guitar",
+              "line": "Chords you can already sing.",
+              "detail": "Beginner to advanced · In person"
+            },
+            {
+              "id": "piano",
+              "name": "Piano",
+              "line": "Both hands, without rush.",
+              "detail": "Beginner to advanced · In person or live"
+            },
+            {
+              "id": "bateria",
+              "name": "Drums",
+              "line": "Time, hit, and silence.",
+              "detail": "Beginner and intermediate · In person"
+            },
+            {
+              "id": "canto",
+              "name": "Voice",
+              "line": "The voice as an instrument, not an ornament.",
+              "detail": "Beginner to advanced · In person or live"
+            },
+            {
+              "id": "bajo",
+              "name": "Bass",
+              "line": "The floor of the song.",
+              "detail": "Beginner and intermediate · In person"
+            },
+            {
+              "id": "produccion",
+              "name": "Music production",
+              "line": "You record an idea and you shape it.",
+              "detail": "Intermediate and advanced · Live"
+            }
+          ]
+        },
+        "metodo": {
+          "label": "Method",
+          "body": "In the room or live. The instrument stays the same.",
+          "pillars": [
+            {
+              "title": "Learn by playing",
+              "line": "The first class already makes a sound."
+            },
+            {
+              "title": "Make your own sound",
+              "line": "Technique serves what you want to say."
+            },
+            {
+              "title": "Share the stage",
+              "line": "Rehearsal, jam, and a showing with a real audience."
+            }
+          ]
+        },
+        "horarios": {
+          "label": "Times",
+          "body": "Beginner, intermediate, and advanced. The level is confirmed by playing.",
+          "levels": [
+            {
+              "id": "inicio",
+              "label": "Beginner"
+            },
+            {
+              "id": "medio",
+              "label": "Intermediate"
+            },
+            {
+              "id": "avanzado",
+              "label": "Advanced"
+            }
+          ],
+          "slots": [
+            {
+              "itemId": "guitarra",
+              "levelId": "inicio",
+              "when": "Monday 18:00",
+              "place": "Beginner guitar · In person"
+            },
+            {
+              "itemId": "piano",
+              "levelId": "medio",
+              "when": "Tuesday 19:30",
+              "place": "Intermediate piano · Live"
+            },
+            {
+              "itemId": "bateria",
+              "levelId": "inicio",
+              "when": "Thursday 17:00",
+              "place": "Beginner drums · In person"
+            },
+            {
+              "itemId": "canto",
+              "levelId": "avanzado",
+              "when": "Saturday 11:00",
+              "place": "Advanced voice · In person"
+            },
+            {
+              "itemId": "bajo",
+              "levelId": "inicio",
+              "when": "Monday 20:00",
+              "place": "Beginner bass · In person"
+            },
+            {
+              "itemId": "produccion",
+              "levelId": "medio",
+              "when": "Tuesday 20:30",
+              "place": "Production · Live"
+            }
+          ]
+        },
+        "equipo": {
+          "label": "Teachers",
+          "people": [
+            {
+              "name": "Teo Vargas",
+              "role": "Guitar and bass",
+              "line": "He corrects the hand before the volume goes up."
+            },
+            {
+              "name": "Lila Mora",
+              "role": "Voice",
+              "line": "She works the air and the phrase, not the shout."
+            },
+            {
+              "name": "Nico Beltrán",
+              "role": "Piano and production",
+              "line": "He moves from the keyboard to the recording in the same hour."
+            }
+          ]
+        },
+        "comunidad": {
+          "label": "Stage",
+          "body": "Rehearsals. The same room, the same pulse, another version. Jam. You enter with an idea and leave with someone else's song too. Live. A short showing. The fear stays in the hall. Recording. One take, one listen, one arrangement. Community. Someone waits for you to finish the tune.",
+          "title": "Music happens with others",
+          "closingBody": "Progress is heard on stage, not on a seal."
+        },
+        "admision": {
+          "label": "How to start",
+          "steps": [
+            {
+              "title": "Choose your instrument",
+              "line": "Look at the six paths and pick one to start."
+            },
+            {
+              "title": "Book the trial lesson",
+              "line": "You play from the first minute with a teacher."
+            },
+            {
+              "title": "Join your group",
+              "line": "Your level is confirmed by playing, and you get a fixed time."
+            }
+          ]
+        },
+        "faq": {
+          "label": "Questions",
+          "entries": [
+            {
+              "q": "Do I need to know music?",
+              "a": "No. The beginner level starts from the first note."
+            },
+            {
+              "q": "Are there live online classes?",
+              "a": "Yes. Piano, voice and production are also taught live online."
+            },
+            {
+              "q": "Can I play in a show?",
+              "a": "Yes, if you want. Going on stage is an invitation, not a duty."
+            }
+          ]
+        },
+        "contacto": {
+          "label": "Contact",
+          "laterTitle": "Your first note can change everything.",
+          "laterBody": "The trial class is for playing, not for reading a brochure."
+        }
+      }
+    },
     "questionnaires": {
       "title": "Questionnaires",
       "cta": "Open",
@@ -4715,6 +6810,16 @@
       "recordPaymentMatrixLead": "{section} · {year}. Select only the months you want to record now.",
       "recordPaymentMatrixAuditBadge": "Audited per month",
       "recordPaymentNote": "Internal note (optional)",
+      "paymentMethodLabel": "Payment method",
+      "paidOnLabel": "Date received",
+      "paymentAmountLabel": "Amount",
+      "paymentAmountInvalid": "Enter an amount greater than zero",
+      "paymentMethodCash": "Cash",
+      "paymentMethodTransfer": "Transfer",
+      "paymentMethodCard": "Card",
+      "paymentMethodGateway": "Gateway",
+      "paymentMethodOther": "Other",
+      "paidWithMethod": "Paid {method} · {date}",
       "recordPaymentNotePlaceholder": "E.g. transfer reference, date received",
       "recordPaymentSubmit": "Record as paid",
       "recordPaymentSuccess": "Payment recorded. The family was notified by email if we have a valid address.",
@@ -5258,6 +7363,18 @@
         "waive": "Waive and enrol",
         "waiveReason": "Waiver reason",
         "waiveReasonRequired": "Enter a short reason",
+        "recordPayment": "Record payment",
+        "recordPaymentHint": "The student is enrolled as paid, not as exempt.",
+        "recordPaymentAmount": "Amount",
+        "recordPaymentAmountInvalid": "Enter an amount greater than zero",
+        "needsSectionError": "Assign a section before you record the payment",
+        "paymentMethodLabel": "Payment method",
+        "paidOnLabel": "Date received",
+        "paymentMethodCash": "Cash",
+        "paymentMethodTransfer": "Transfer",
+        "paymentMethodCard": "Card",
+        "paymentMethodGateway": "Gateway",
+        "paymentMethodOther": "Other",
         "approveReceipt": "Approve receipt",
         "rejectReceipt": "Reject receipt",
         "rejectNote": "Note for the family",
@@ -11925,6 +14042,12 @@
         "lockedOutOfPeriod": "This month is outside the payment window for this section.",
         "lockedNoPlan": "There is no published fee plan for this section yet.",
         "alreadyApproved": "This month is already settled.",
+        "paidWithMethod": "Paid {method} · {date}",
+        "paymentMethodCash": "cash",
+        "paymentMethodTransfer": "transfer",
+        "paymentMethodCard": "card",
+        "paymentMethodGateway": "gateway",
+        "paymentMethodOther": "other",
         "exemptHint": "Your scholarship covers this month.",
         "payWithFlow": "Pay online with Flow",
         "payWithFlowHint": "Card, bank transfer, or other methods available from Flow (Chile).",

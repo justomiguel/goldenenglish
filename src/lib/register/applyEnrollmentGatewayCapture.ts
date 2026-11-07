@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { todayIsoDate } from "@/lib/billing/paymentMethod";
 import { amountsMatchForCurrency } from "@/lib/billing/upsertApprovedMonthlyPaymentSupport";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
@@ -96,6 +97,7 @@ export async function applyEnrollmentGatewayCapture(input: {
     dict,
     registrationId: input.registrationId,
     paidCapture: true,
+    feePayment: { method: "gateway", amount: expected, paidOn: todayIsoDate() },
     enrollServiceRole: true,
   });
   if (!accepted.ok) return { ok: false };

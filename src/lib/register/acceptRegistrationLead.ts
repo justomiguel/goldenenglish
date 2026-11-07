@@ -18,6 +18,7 @@ import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { failAfterStudentCreated } from "@/lib/register/acceptRegistrationHelpers";
 import { resolveExistingStudentByDni } from "@/lib/register/resolveExistingStudentByDni";
 import { finalizeAcceptedRegistrationLead } from "@/lib/register/finalizeAcceptedRegistrationLead";
+import type { StaffFeePayment } from "@/lib/billing/paymentMethod";
 import type { JoinBillingDisposition } from "@/lib/billing/joinBillingDispositionSchema";
 import type { Dictionary } from "@/types/i18n";
 
@@ -34,6 +35,7 @@ export async function acceptRegistrationLead(input: {
   password?: string;
   birthDate?: string;
   paidCapture?: boolean;
+  feePayment?: StaffFeePayment;
   enrollServiceRole?: boolean;
   waiveReason?: string;
   skipFamilyWelcome?: boolean;
@@ -205,6 +207,7 @@ export async function acceptRegistrationLead(input: {
     courseId,
     applicantUndecided,
     paidCapture: input.paidCapture,
+    feePayment: input.feePayment,
     enrollServiceRole: input.enrollServiceRole,
     waiveReason: input.waiveReason,
     skipFamilyWelcome: input.skipFamilyWelcome,

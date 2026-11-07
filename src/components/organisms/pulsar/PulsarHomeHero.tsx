@@ -13,8 +13,6 @@ export interface PulsarHomeHeroProps {
 export function PulsarHomeHero({ locale, dict, market = "cl" }: PulsarHomeHeroProps) {
   const copy = dict.pulsar.home;
   const lines = copy.title.split(/(?<=\.)\s+/).filter(Boolean);
-  const explore = `/${locale}#plataforma`;
-  const demo = withCentrolistoMarket(`/${locale}/contacto?interes=unsure`, market);
   const free = withCentrolistoMarket(`/${locale}/cuenta/registro`, market);
   const plan = withCentrolistoMarket(`/${locale}/soluciones/presencia#gratis`, market);
 
@@ -35,14 +33,8 @@ export function PulsarHomeHero({ locale, dict, market = "cl" }: PulsarHomeHeroPr
           <p className={`${styles.heroLine} mt-6 max-w-lg text-lg leading-relaxed text-[var(--color-foreground)]`} style={{ animationDelay: "520ms" }}>
             {copy.lead}
           </p>
-          <div className={`${styles.heroLine} mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap`} style={{ animationDelay: "980ms" }}>
-            <PulsarActionLink href={explore} tone="primary" eventName="cl_explore_platform">
-              {copy.primaryCta}
-            </PulsarActionLink>
-            <PulsarActionLink href={demo} tone="quiet" eventName="cl_demo_request">
-              {copy.demoCta}
-            </PulsarActionLink>
-            <PulsarActionLink href={free} tone="quiet" eventName="cl_create_free_page">
+          <div className={`${styles.heroLine} mt-8`} style={{ animationDelay: "980ms" }}>
+            <PulsarActionLink href={free} tone="primary" eventName="cl_create_free_page">
               {copy.freeSiteCta}
             </PulsarActionLink>
           </div>

@@ -78,6 +78,35 @@ describe("useEventSeatHold", () => {
     });
   });
 
+  it("rejects a seat when the fresh map says someone else holds it", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ locks: [], heldByOthers: ["f1:b1:0:1"], expiresAt: null }),
+      })),
+    );
+    const { result } = renderHook(() =>
+      useEventSeatHold({
+        enabled: true,
+        slug: "gala",
+        eventId: "ev-confirm",
+        locale: "es",
+        config,
+        requiredCount: 1,
+        initialLocks: [],
+        selectedSeatKeys: [],
+        onSelectedSeatKeysChange: vi.fn(),
+      }),
+    );
+    let accepted = true;
+    await act(async () => {
+      accepted = await result.current.confirmSeat("f1:b1:0:1");
+    });
+    expect(accepted).toBe(false);
+    expect(result.current.lostSeatKeys).toContain("f1:b1:0:1");
+  });
+
   it("stores one token for the event", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => ({ locks: [], heldByOthers: [] }) })));
     renderHook(() =>

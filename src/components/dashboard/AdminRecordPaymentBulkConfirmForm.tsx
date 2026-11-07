@@ -2,6 +2,8 @@
 
 import { Label } from "@/components/atoms/Label";
 import { ScholarshipDiscountFields } from "@/components/molecules/ScholarshipDiscountFields";
+import { StaffPaymentCaptureFields } from "@/components/molecules/StaffPaymentCaptureFields";
+import type { PaymentMethod } from "@/lib/billing/paymentMethod";
 import type { RecordPaymentBulkAction } from "@/components/dashboard/AdminRecordPaymentActionBar";
 import type { Dictionary, Locale } from "@/types/i18n";
 
@@ -20,6 +22,10 @@ export interface AdminRecordPaymentBulkConfirmFormProps {
   referenceMonthlyAmount: number | null;
   referenceMonthlyCurrency: string | null;
   onAdminNoteChange: (v: string) => void;
+  paymentMethod: PaymentMethod;
+  paidOn: string;
+  onPaymentMethodChange: (v: PaymentMethod) => void;
+  onPaidOnChange: (v: string) => void;
   onResolvedScholarshipPercentChange: (v: number | null) => void;
 }
 
@@ -36,6 +42,10 @@ export function AdminRecordPaymentBulkConfirmForm({
   referenceMonthlyAmount,
   referenceMonthlyCurrency,
   onAdminNoteChange,
+  paymentMethod,
+  paidOn,
+  onPaymentMethodChange,
+  onPaidOnChange,
   onResolvedScholarshipPercentChange,
 }: AdminRecordPaymentBulkConfirmFormProps) {
   if (pendingAction === "revert") {
@@ -59,7 +69,30 @@ export function AdminRecordPaymentBulkConfirmForm({
   }
   if (pendingAction === "paid") {
     return (
-      <div>
+      <div className="space-y-3">
+        <StaffPaymentCaptureFields
+          idPrefix="record-payment-bulk"
+          method={paymentMethod}
+          paidOn={paidOn}
+          amount=""
+          showAmount={false}
+          disabled={busy}
+          labels={{
+            paymentMethodLabel: labels.paymentMethodLabel,
+            paidOnLabel: labels.paidOnLabel,
+            amountLabel: labels.paymentAmountLabel,
+            methods: {
+              cash: labels.paymentMethodCash,
+              transfer: labels.paymentMethodTransfer,
+              card: labels.paymentMethodCard,
+              gateway: labels.paymentMethodGateway,
+              other: labels.paymentMethodOther,
+            },
+          }}
+          onMethod={onPaymentMethodChange}
+          onPaidOn={onPaidOnChange}
+          onAmount={() => undefined}
+        />
         <Label htmlFor={paidNoteId} className="text-xs">
           {labels.recordPaymentNote}
         </Label>

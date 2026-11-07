@@ -18,6 +18,8 @@ export interface StudentMonthlyPaymentRecord {
   amount: number | null;
   status: "pending" | "approved" | "rejected" | "exempt";
   receiptSignedUrl: string | null;
+  paymentMethod?: string | null;
+  paidOn?: string | null;
 }
 
 export interface BuildStudentMonthlyPaymentsRowInput {
@@ -56,6 +58,8 @@ export interface BuildStudentMonthlyPaymentsRowInput {
   enrollmentFeeReceiptSignedUrl?: string | null;
   /** When staff recorded payment outside the receipt-review flow. */
   lastEnrollmentPaidAt?: string | null;
+  enrollmentFeePaidMethod?: string | null;
+  enrollmentFeePaidOn?: string | null;
   /** Months (period index) covered by an annual settlement — scholarship % is not applied in the matrix. */
   annualSettlementCoverage?: AnnualSettlementCoverageIndexSet | null;
   /**

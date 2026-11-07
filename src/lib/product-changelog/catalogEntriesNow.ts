@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "event-seat-timer-first",
+    date: "2026-11-06",
+    area: "events",
+    title: t(
+      "Las butacas se eligen antes del nombre",
+      "Seats are chosen before the name",
+      "Os assentos são escolhidos antes do nome",
+    ),
+    summary: t(
+      "Si el evento tiene mapa, primero eliges la cantidad y las butacas. El reloj aparece al elegir y solo si la butaca sigue libre.",
+      "On a seat-map event, you pick the ticket count and the seats first. The clock appears when you choose a seat, and only if that seat is still free.",
+      "Se o evento tem mapa, primeiro você escolhe a quantidade e os assentos. O relógio aparece ao escolher e só se o assento ainda está livre.",
+    ),
+  },
+  {
     id: "event-seat-holds",
     date: "2026-11-05",
     area: "events",
@@ -225,36 +240,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "Cada horario tiene una sala privada. El profesor y los alumnos entran desde su panel.",
       "Each weekly slot has a private room. The teacher and students join from their dashboard.",
       "Cada horário tem uma sala privada. O professor e os alunos entram pelo painel.",
-    ),
-  },
-  {
-    id: "free-site-contact-form",
-    date: "2026-11-03",
-    area: "site",
-    title: t(
-      "El sitio gratis muestra contacto, mapa y un formulario",
-      "A free site shows contact, a map, and a form",
-      "O site grátis mostra contato, mapa e um formulário",
-    ),
-    summary: t(
-      "Cada sitio gratis envía hasta 50 mensajes al correo de la cuenta de CentroListo.",
-      "Each free site sends up to 50 messages to the CentroListo account email.",
-      "Cada site grátis envia até 50 mensagens para o e-mail da conta do CentroListo.",
-    ),
-  },
-  {
-    id: "lms-course-catalog-hierarchy",
-    date: "2026-11-02",
-    area: "academic",
-    title: t(
-      "Los cursos se agrupan por categoría, hashtag y campos del instituto",
-      "Courses group by category, hashtag, and institute fields",
-      "Os cursos se agrupam por categoria, hashtag e campos do instituto",
-    ),
-    summary: t(
-      "Puedes crear una ruta como conjuntos de cursos y asignarla a una sección.",
-      "You can create a route as sets of courses and assign it to a section.",
-      "Você pode criar uma rota como conjuntos de cursos e atribuí-la a uma turma.",
     ),
   },
 ];

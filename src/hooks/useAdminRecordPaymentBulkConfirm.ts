@@ -22,6 +22,8 @@ export function useAdminRecordPaymentBulkConfirm(args: {
   scholarshipConfirmReady: boolean;
   exemptConfirmReady: boolean;
   modalAdminNote: string;
+  paymentMethod?: string;
+  paidOn?: string;
   resolvedScholarshipPercent: number | null;
   setBusy: (v: boolean) => void;
   setMsg: (v: string | null) => void;
@@ -42,6 +44,8 @@ export function useAdminRecordPaymentBulkConfirm(args: {
     scholarshipConfirmReady,
     exemptConfirmReady,
     modalAdminNote,
+    paymentMethod,
+    paidOn,
     resolvedScholarshipPercent,
     setBusy,
     setMsg,
@@ -69,6 +73,8 @@ export function useAdminRecordPaymentBulkConfirm(args: {
               months,
               locale,
               adminNote: modalAdminNote.trim() || undefined,
+              paymentMethod,
+              paidOn,
               labels,
             })
           : pendingAction === "revert"
@@ -125,6 +131,8 @@ export function useAdminRecordPaymentBulkConfirm(args: {
     year,
     locale,
     modalAdminNote,
+    paymentMethod,
+    paidOn,
     resolvedScholarshipPercent,
     labels,
     setSelected,

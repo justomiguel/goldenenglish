@@ -1,5 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { auditFinanceAction } from "@/lib/audit";
+import type { PaymentMethod } from "@/lib/billing/paymentMethod";
+import { todayIsoDate } from "@/lib/billing/paymentMethod";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
   isStudentActivelyEnrolledInSection,
@@ -24,6 +26,8 @@ export interface RecordOnePaymentInput {
   year: number;
   month: number;
   adminNote: string | null;
+  paymentMethod?: PaymentMethod;
+  paidOn?: string;
   actorId: string;
   /** Same id for all rows in a bulk operation (audit correlation). */
   correlationId: string | null;
@@ -88,7 +92,7 @@ export async function recordOnePaymentWithoutReceipt(
 
   const { data: payRow } = await supabase
     .from("payments")
-    .select("id, status, amount, section_id, admin_notes")
+    .select("id, status, amount, section_id, admin_notes, payment_method, paid_on")
     .eq("student_id", p.studentId)
     .eq("section_id", p.sectionId)
     .eq("year", y)
@@ -100,6 +104,8 @@ export async function recordOnePaymentWithoutReceipt(
   if (payRow?.status === "exempt")
     return { success: false, code: "cannot_override_exempt", month: m };
 
+  const method = p.paymentMethod ?? "cash";
+  const paidOn = p.paidOn ?? todayIsoDate();
   let paymentId: string;
   if (payRow) {
     paymentId = payRow.id as string;
@@ -109,6 +115,8 @@ export async function recordOnePaymentWithoutReceipt(
         status: "approved",
         amount: plan.amount,
         admin_notes: p.adminNote,
+        payment_method: method,
+        paid_on: paidOn,
       })
       .eq("id", paymentId)
       .in("status", ["pending", "rejected"] as const);
@@ -130,6 +138,8 @@ export async function recordOnePaymentWithoutReceipt(
         amount: plan.amount,
         status: "approved",
         admin_notes: p.adminNote,
+        payment_method: method,
+        paid_on: paidOn,
       })
       .select("id")
       .single();
@@ -154,12 +164,13 @@ export async function recordOnePaymentWithoutReceipt(
     beforeValues: payRow
       ? { status: String(payRow.status), amount: payRow.amount }
       : { status: null, amount: null },
-    afterValues: { status: "approved", amount: plan.amount },
+    afterValues: { status: "approved", amount: plan.amount, payment_method: method, paid_on: paidOn },
     metadata: {
       student_id: p.studentId,
       month: m,
       year: y,
       section_id: p.sectionId,
+      payment_method: method,
     },
     correlationId: p.correlationId,
   });
@@ -171,6 +182,8 @@ export async function recordOnePaymentWithoutReceipt(
           status: String(payRow.status),
           amount: payRow.amount as number | null,
           admin_notes: (payRow.admin_notes as string | null) ?? null,
+          payment_method: (payRow.payment_method as string | null) ?? null,
+          paid_on: (payRow.paid_on as string | null) ?? null,
         })
         .eq("id", paymentId);
     } else {

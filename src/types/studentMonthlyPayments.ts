@@ -44,6 +44,8 @@ export interface StudentMonthlyPaymentCell {
   paymentId: string | null;
   /** Pre-signed URL to the receipt, when present. */
   receiptSignedUrl: string | null;
+  paymentMethod?: string | null;
+  paidOn?: string | null;
   /** True for the month that matches "today" (in the locale's calendar). */
   isCurrent: boolean;
 }
@@ -86,6 +88,8 @@ export interface StudentMonthlyPaymentSectionRow {
    * Staff marked enrollment fee paid manually (no receipt approval). When set, month-0 chip should show paid.
    */
   lastEnrollmentPaidAt: string | null;
+  enrollmentFeePaidMethod?: string | null;
+  enrollmentFeePaidOn?: string | null;
   /** When false, portal blocks Flow/receipt for months after the current calendar month. */
   allowAdvanceMonthlyPayment: boolean;
 }

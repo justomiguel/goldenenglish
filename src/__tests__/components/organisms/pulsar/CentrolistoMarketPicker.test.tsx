@@ -1,4 +1,4 @@
-// REGRESSION CHECK: The country select writes the cookie and keeps other query keys.
+// REGRESSION CHECK: A country flag writes the cookie and keeps other query keys.
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -20,9 +20,7 @@ describe("CentrolistoMarketPicker", () => {
   it("replaces the URL with the chosen country and keeps other query keys", () => {
     replace.mockClear();
     render(<CentrolistoMarketPicker market="cl" copy={dict.pulsar.market} />);
-    fireEvent.change(screen.getByRole("combobox", { name: dict.pulsar.market.label }), {
-      target: { value: "ar" },
-    });
+    fireEvent.click(screen.getByRole("radio", { name: dict.pulsar.market.ar }));
     expect(replace).toHaveBeenCalledWith("/es?utm=1&pais=ar");
     expect(document.cookie).toContain("centrolisto_market=ar");
   });

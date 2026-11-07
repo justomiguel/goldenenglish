@@ -7,6 +7,8 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { ScholarshipDiscountFields } from "@/components/molecules/ScholarshipDiscountFields";
+import { StaffPaymentCaptureFields } from "@/components/molecules/StaffPaymentCaptureFields";
+import { todayIsoDate, type PaymentMethod } from "@/lib/billing/paymentMethod";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { SectionCellBulkAction } from "./SectionCollectionsCellActionBar";
 
@@ -24,6 +26,8 @@ export interface SectionCollectionsCellActionModalProps {
     action: SectionCellBulkAction;
     scholarshipPercent?: number;
     note?: string;
+    paymentMethod?: PaymentMethod;
+    paidOn?: string;
   }) => void;
   busy: boolean;
   dict: CollectionsDict;
@@ -50,6 +54,8 @@ export function SectionCollectionsCellActionModal({
   const titleId = useId();
   const [resolvedPercent, setResolvedPercent] = useState<number | null>(null);
   const [note, setNote] = useState("");
+  const [method, setMethod] = useState<PaymentMethod>("cash");
+  const [paidOn, setPaidOn] = useState(todayIsoDate);
 
   const d = dict.cellActions;
 
@@ -97,6 +103,8 @@ export function SectionCollectionsCellActionModal({
       scholarshipPercent:
         action === "scholarship" && resolvedPercent != null ? resolvedPercent : undefined,
       note: note.trim() || undefined,
+      paymentMethod: action === "paid" ? method : undefined,
+      paidOn: action === "paid" ? paidOn : undefined,
     });
   }
 
@@ -128,6 +136,32 @@ export function SectionCollectionsCellActionModal({
         ) : null}
         {includesEnrollmentFee && action === "exempt" ? (
           <p className="text-sm text-[var(--color-muted-foreground)]">{d.includesEnrollmentFeeExemptNote}</p>
+        ) : null}
+
+        {action === "paid" ? (
+          <StaffPaymentCaptureFields
+            idPrefix="cell-paid"
+            method={method}
+            paidOn={paidOn}
+            amount=""
+            showAmount={false}
+            disabled={busy}
+            labels={{
+              paymentMethodLabel: billingLabels.paymentMethodLabel,
+              paidOnLabel: billingLabels.paidOnLabel,
+              amountLabel: billingLabels.paymentAmountLabel,
+              methods: {
+                cash: billingLabels.paymentMethodCash,
+                transfer: billingLabels.paymentMethodTransfer,
+                card: billingLabels.paymentMethodCard,
+                gateway: billingLabels.paymentMethodGateway,
+                other: billingLabels.paymentMethodOther,
+              },
+            }}
+            onMethod={setMethod}
+            onPaidOn={setPaidOn}
+            onAmount={() => undefined}
+          />
         ) : null}
 
         {action === "scholarship" ? (

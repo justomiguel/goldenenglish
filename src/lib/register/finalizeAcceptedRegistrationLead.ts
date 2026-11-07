@@ -12,7 +12,9 @@ import {
 import { registrationWelcomeSectionLabel } from "@/lib/register/registrationWelcomeSectionLabel";
 import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistrationSectionIds";
 import { resolveAcceptLeadWrite } from "@/lib/register/resolveAcceptLeadWrite";
+import { auditFinanceAction } from "@/lib/audit/domainAudit";
 import { runJoinBillingDisposition } from "@/lib/billing/runJoinBillingDisposition";
+import type { StaffFeePayment } from "@/lib/billing/paymentMethod";
 import type { JoinBillingDisposition } from "@/lib/billing/joinBillingDispositionSchema";
 import { parseJoinPackageSnapshot } from "@/lib/register/parseJoinPackageSnapshot";
 import type { Dictionary } from "@/types/i18n";
@@ -40,6 +42,7 @@ export async function finalizeAcceptedRegistrationLead(input: {
   courseId: string | null;
   applicantUndecided: boolean;
   paidCapture?: boolean;
+  feePayment?: StaffFeePayment;
   enrollServiceRole?: boolean;
   waiveReason?: string;
   skipFamilyWelcome?: boolean;
@@ -101,12 +104,57 @@ export async function finalizeAcceptedRegistrationLead(input: {
     }
   }
   if (input.paidCapture && committed.length > 0) {
-    await admin
+    const fee = input.feePayment;
+    const paidPatch = {
+      last_enrollment_paid_at: new Date().toISOString(),
+      ...(fee
+        ? {
+            enrollment_fee_paid_method: fee.method,
+            enrollment_fee_paid_amount: fee.amount,
+            enrollment_fee_paid_on: fee.paidOn,
+          }
+        : {}),
+    };
+    const { error: paidErr } = await admin
       .from("section_enrollments")
-      .update({ last_enrollment_paid_at: new Date().toISOString() })
+      .update(paidPatch)
       .eq("student_id", studentId)
       .eq("status", "active")
       .in("section_id", committed);
+    if (paidErr) {
+      return { ok: false, message: localizeRegistrationAcceptError(dict, "save_failed") };
+    }
+    if (fee) {
+      const audit = await auditFinanceAction({
+        actorId: input.actorId,
+        actorRole: "admin",
+        action: "approve",
+        resourceType: "registration",
+        resourceId: String(reg.id),
+        summary: "Staff or gateway recorded the enrollment fee",
+        beforeValues: { enrollment_fee_paid_method: null },
+        afterValues: {
+          enrollment_fee_paid_method: fee.method,
+          enrollment_fee_paid_amount: fee.amount,
+          enrollment_fee_paid_on: fee.paidOn,
+        },
+        metadata: { student_id: studentId, payment_method: fee.method },
+      });
+      if (!audit?.ok) {
+        await admin
+          .from("section_enrollments")
+          .update({
+            last_enrollment_paid_at: null,
+            enrollment_fee_paid_method: null,
+            enrollment_fee_paid_amount: null,
+            enrollment_fee_paid_on: null,
+          })
+          .eq("student_id", studentId)
+          .eq("status", "active")
+          .in("section_id", committed);
+        return { ok: false, message: localizeRegistrationAcceptError(dict, "save_failed") };
+      }
+    }
   }
   if (input.waiveReason && committed.length > 0) {
     await admin

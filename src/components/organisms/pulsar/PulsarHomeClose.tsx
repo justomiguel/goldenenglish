@@ -30,11 +30,8 @@ export function PulsarHomeClose({ locale, dict, market = "cl" }: PulsarHomeClose
             {copy.bottomCta.title}
           </h2>
           <p className="mt-4 max-w-md text-base leading-relaxed text-[var(--color-foreground)]">{copy.bottomCta.lead}</p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <PulsarActionLink href={withCentrolistoMarket(`/${locale}/contacto?interes=unsure`, market)} tone="primary" eventName="cl_demo_request">
-              {copy.bottomCta.primaryCta}
-            </PulsarActionLink>
-            <PulsarActionLink href={withCentrolistoMarket(`/${locale}/cuenta/registro`, market)} tone="quiet" eventName="cl_create_free_page">
+          <div className="mt-8">
+            <PulsarActionLink href={withCentrolistoMarket(`/${locale}/cuenta/registro`, market)} tone="primary" eventName="cl_create_free_page">
               {copy.freeSiteCta}
             </PulsarActionLink>
           </div>

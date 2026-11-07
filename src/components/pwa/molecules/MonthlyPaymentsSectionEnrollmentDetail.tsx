@@ -1,6 +1,7 @@
 "use client";
 
 import { MonthlyPaymentsPwaNestedDetail } from "@/components/pwa/molecules/MonthlyPaymentsPwaNestedDetail";
+import { StudentPaidWithMethodLine } from "@/components/student/StudentPaidWithMethodLine";
 import {
   StudentEnrollmentFeeUpload,
   type SubmitEnrollmentFeeReceiptAction,
@@ -40,6 +41,13 @@ export function MonthlyPaymentsSectionEnrollmentDetail({
     >
       {row.enrollmentFeeExempt ? (
         <EnrollmentExemptNotice row={row} labels={labels} />
+      ) : row.enrollmentFeePaidMethod ? (
+        <StudentPaidWithMethodLine
+          method={row.enrollmentFeePaidMethod}
+          paidOn={row.enrollmentFeePaidOn}
+          locale={locale}
+          labels={labels}
+        />
       ) : row.enrollmentFeeAmount > 0 && row.enrollmentId ? (
         <StudentEnrollmentFeeUpload
           locale={locale}

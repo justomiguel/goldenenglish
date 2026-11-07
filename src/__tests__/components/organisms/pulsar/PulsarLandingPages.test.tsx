@@ -53,10 +53,10 @@ describe("CentroListo multi-page growth & marketing views", () => {
     );
     expect(screen.getByText(dict.pulsar.clients.voices[0].quote)).toBeInTheDocument();
     expect(screen.getByText(dict.pulsar.clients.voices[5].quote)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: dict.pulsar.home.primaryCta })).toHaveAttribute(
-      "href",
-      "/es#plataforma",
-    );
+    expect(screen.queryByRole("link", { name: dict.pulsar.home.primaryCta })).toBeNull();
+    expect(screen.queryByRole("link", { name: dict.pulsar.home.demoCta })).toBeNull();
+    expect(screen.queryByRole("link", { name: dict.pulsar.home.bottomCta.primaryCta })).toBeNull();
+    expect(screen.getByRole("radio", { name: dict.pulsar.market.cl })).toHaveAttribute("aria-checked", "true");
     const signupLinks = screen.getAllByRole("link", { name: dict.pulsar.home.freeSiteCta });
     expect(signupLinks.length).toBeGreaterThan(0);
     for (const link of signupLinks) {

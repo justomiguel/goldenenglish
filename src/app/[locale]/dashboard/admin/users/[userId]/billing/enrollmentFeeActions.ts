@@ -6,6 +6,7 @@ import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { sendEnrollmentExemptionEmail } from "@/lib/email/billingBenefitEmails";
 import type { Locale } from "@/types/i18n";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { todayIsoDate } from "@/lib/billing/paymentMethod";
 import { revalidateStudentBillingPaths } from "./revalidateStudentBilling";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
@@ -98,54 +99,6 @@ export async function setEnrollmentFeeExemption(raw: {
   }
 }
 
-export async function markEnrollmentFeePaidNow(raw: {
-  locale: Locale;
-  studentId: string;
-  sectionId?: string;
-}): Promise<{ ok: boolean; message?: string }> {
-  const dict = await getDictionary(raw.locale);
-  const b = dict.actionErrors.billingStudent;
-
-  const sid = z.string().uuid().safeParse(raw.studentId);
-  if (!sid.success) return { ok: false, message: b.invalidStudent };
-  const sectionId = raw.sectionId ? z.string().uuid().safeParse(raw.sectionId) : null;
-  if (sectionId && !sectionId.success) return { ok: false, message: b.invalidData };
-
-  try {
-    const { supabase } = await assertAdmin();
-    const { data: prof } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", sid.data)
-      .single();
-    if (prof?.role !== "student") return { ok: false, message: b.notAStudent };
-
-    const target = sectionId?.data;
-    const query = target
-      ? supabase
-          .from("section_enrollments")
-          .update({ last_enrollment_paid_at: new Date().toISOString() })
-          .eq("student_id", sid.data)
-          .eq("section_id", target)
-          .eq("status", "active")
-      : supabase
-          .from("profiles")
-          .update({ last_enrollment_paid_at: new Date().toISOString() })
-          .eq("id", sid.data);
-    const { error } = await query;
-    if (error) {
-      logSupabaseClientError("markEnrollmentFeePaidNow:profilesUpdate", error, { studentId: sid.data });
-      return { ok: false, message: b.saveFailed };
-    }
-
-    revalidateStudentBillingPaths(raw.locale, sid.data);
-    return { ok: true };
-  } catch (err) {
-    logServerException("markEnrollmentFeePaidNow", err);
-    return { ok: false, message: b.forbidden };
-  }
-}
-
 export async function reviewEnrollmentFeeReceipt(raw: {
   locale: Locale;
   studentId: string;
@@ -167,6 +120,8 @@ export async function reviewEnrollmentFeeReceipt(raw: {
     };
     if (raw.decision === "approved") {
       updatePayload.last_enrollment_paid_at = new Date().toISOString();
+      updatePayload.enrollment_fee_paid_method = "transfer";
+      updatePayload.enrollment_fee_paid_on = todayIsoDate();
     }
 
     const { error } = await supabase

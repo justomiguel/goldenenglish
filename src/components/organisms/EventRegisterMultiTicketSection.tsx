@@ -30,6 +30,7 @@ interface EventRegisterMultiTicketSectionProps {
   onCompanionChange: (index: number, partial: Partial<EventCompanionPayload>) => void;
   disabled?: boolean;
   labels: EventRegisterCompanionsLabels;
+  part?: "all" | "quantity" | "companions";
 }
 
 export function EventRegisterMultiTicketSection({
@@ -43,9 +44,14 @@ export function EventRegisterMultiTicketSection({
   onCompanionChange,
   disabled,
   labels,
+  part = "all",
 }: EventRegisterMultiTicketSectionProps) {
+  const showQuantity = part !== "companions";
+  const showCompanions = part !== "quantity" && requireCompanionDetails && ticketQuantity > 1;
+  if (!showQuantity && !showCompanions) return null;
   return (
     <section className="space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/15 p-4">
+      {showQuantity ? (
       <div className="max-w-xs">
         <Label htmlFor="event-register-ticket-quantity">{labels.quantityLabel}</Label>
         <Input
@@ -63,8 +69,9 @@ export function EventRegisterMultiTicketSection({
         />
         <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.quantityHint}</p>
       </div>
+      ) : null}
 
-      {requireCompanionDetails && ticketQuantity > 1 ? (
+      {showCompanions ? (
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-[var(--color-foreground)]">{labels.title}</h4>
           {Array.from({ length: ticketQuantity - 1 }, (_, index) => {

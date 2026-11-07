@@ -8,8 +8,6 @@ export {
 } from "./upsertStudentScholarship";
 export { setPeriodExemption } from "./periodExemptionActions";
 export { applyExemptionRange } from "./applyExemptionRangeAction";
-export {
-  setEnrollmentFeeExemption,
-  markEnrollmentFeePaidNow,
-} from "./enrollmentFeeActions";
+export { setEnrollmentFeeExemption } from "./enrollmentFeeActions";
+export { markEnrollmentFeePaidNow } from "./markEnrollmentFeePaidNow";
 export { clearEnrollmentFeeManualPaidAt } from "./clearEnrollmentFeeManualPaidAction";

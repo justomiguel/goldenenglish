@@ -9,11 +9,13 @@ import {
   resolveStagePosition,
 } from "@/lib/events/seatMapMatrixPainter";
 import { generateFloorCells, type EventSeatMapConfig } from "@/lib/events/seatMapModel";
+import { decideSeatToggle } from "@/lib/events/decideSeatToggle";
 import {
   resolveFloorSeatsWithState,
   type EventSeatLockSnapshot,
   type EventSeatVisualState,
 } from "@/lib/events/seatMapState";
+import { seatStateLabel, seatToneClasses } from "@/components/organisms/eventSeatPickerChrome";
 
 export interface EventRegisterSeatPickerLabels {
   title: string;
@@ -49,24 +51,9 @@ interface EventRegisterSeatPickerProps {
   requiredSeatCount: number;
   selectedSeatKeys: readonly string[];
   onSelectedSeatKeysChange: (next: string[]) => void;
+  onBeforeSelect?: (seatKey: string) => Promise<boolean>;
+  onSeatRefused?: (seatKey: string) => void;
   labels: EventRegisterSeatPickerLabels;
-}
-
-function stateLabel(state: EventSeatVisualState, labels: EventRegisterSeatPickerLabels): string {
-  if (state === "free") return labels.legendFree;
-  if (state === "reserved") return labels.legendReserved;
-  if (state === "pending") return labels.legendPending;
-  if (state === "held") return labels.legendHeld;
-  return labels.legendPurchased;
-}
-
-function seatToneClasses(state: EventSeatVisualState, isSelected: boolean): string {
-  if (isSelected) return "text-[var(--color-secondary)] ring-2 ring-[var(--color-foreground)] rounded-md scale-105";
-  if (state === "purchased") return "cursor-not-allowed text-[var(--color-muted-foreground)]/45";
-  if (state === "pending") return "cursor-not-allowed text-[var(--color-warning)]";
-  if (state === "held") return "cursor-not-allowed text-[var(--color-muted-foreground)]";
-  if (state === "reserved") return "cursor-not-allowed text-[var(--color-secondary)]/55";
-  return "text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] hover:scale-105";
 }
 
 export function EventRegisterSeatPicker({
@@ -77,6 +64,8 @@ export function EventRegisterSeatPicker({
   requiredSeatCount,
   selectedSeatKeys,
   onSelectedSeatKeysChange,
+  onBeforeSelect,
+  onSeatRefused,
   labels,
 }: EventRegisterSeatPickerProps) {
   const [activeFloorId, setActiveFloorId] = useState<string | null>(config.floors[0]?.id ?? null);
@@ -96,15 +85,24 @@ export function EventRegisterSeatPicker({
   }
 
   function toggleSeat(seatKey: string) {
-    if (selectedSet.has(seatKey)) {
-      onSelectedSeatKeysChange(selectedSeatKeys.filter((item) => item !== seatKey));
+    const state = stateBySeatKey.get(seatKey) ?? "free";
+    const decision = decideSeatToggle({
+      seatKey,
+      state,
+      selectedSeatKeys,
+      requiredCount: requiredSeatCount,
+    });
+    if (decision.action === "refuse") {
+      onSeatRefused?.(decision.seatKey);
       return;
     }
-    if (selectedSeatKeys.length >= requiredSeatCount) {
-      onSelectedSeatKeysChange([...selectedSeatKeys.slice(1), seatKey]);
+    if (decision.action === "remove" || !onBeforeSelect) {
+      onSelectedSeatKeysChange(decision.next);
       return;
     }
-    onSelectedSeatKeysChange([...selectedSeatKeys, seatKey]);
+    void onBeforeSelect(seatKey).then((ok) => {
+      if (ok) onSelectedSeatKeysChange(decision.next);
+    });
   }
 
   const countText = labels.selectedCount
@@ -202,14 +200,14 @@ export function EventRegisterSeatPicker({
                           const isLost = lostSeatKeys.includes(cell.seatKey);
                           const ariaLabel = labels.seatAriaTemplate
                             .replace("{label}", cell.seatLabel)
-                            .replace("{state}", isSelected ? labels.legendSelected : stateLabel(state, labels));
+                            .replace("{state}", isSelected ? labels.legendSelected : seatStateLabel(state, labels));
 
                           return (
                             <span key={cell.seatKey} className="contents">
                               {aisleNode}
                               <button
                                 type="button"
-                                disabled={state !== "free"}
+                                disabled={state !== "free" && !isSelected}
                                 aria-label={ariaLabel}
                                 aria-pressed={isSelected}
                                 title={ariaLabel}

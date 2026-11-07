@@ -70,6 +70,8 @@ export async function revertOneApprovedPayment(
     .update({
       status: "pending",
       admin_notes: nextNotes,
+      payment_method: null,
+      paid_on: null,
     })
     .eq("id", paymentId)
     .eq("status", "approved");

@@ -45,26 +45,30 @@ export function PulsarSiteChrome({
   return (
     <div className="cl-surface flex min-h-screen flex-col bg-[var(--color-background)] text-[var(--color-foreground)]">
       <header className="sticky top-0 z-40 border-b border-[var(--color-border)] bg-[var(--color-background)]/92 backdrop-blur">
-        <div className="mx-auto flex min-h-16 max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2 sm:px-6">
-          <Link href={href(`/${locale}`)} className="inline-flex items-center" aria-label={dict.pulsar.meta.brandName}>
+        <div className="mx-auto flex h-16 max-w-7xl flex-nowrap items-center gap-3 px-4 sm:px-6">
+          <Link href={href(`/${locale}`)} className="inline-flex shrink-0 items-center" aria-label={dict.pulsar.meta.brandName}>
             <CentroListoLogoMark size="md" />
           </Link>
-          <nav className="hidden max-w-3xl flex-wrap items-center justify-end gap-x-4 gap-y-1 lg:flex">
-            {links.map((item) => (
-              <Link
-                key={item.key}
-                href={item.href}
-                className={`text-sm transition-colors ${
-                  activeNav === item.key
-                    ? "text-[var(--color-foreground)]"
-                    : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+          <nav className="hidden min-w-0 flex-1 items-center gap-x-3 overflow-x-auto whitespace-nowrap [scrollbar-width:none] lg:flex [&::-webkit-scrollbar]:hidden">
+            {links.map((item) => {
+              const current = activeNav === item.key;
+              return (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  aria-current={current ? "page" : undefined}
+                  className={`shrink-0 rounded-[var(--layout-border-radius)] px-2 py-1 text-sm whitespace-nowrap transition-colors ${
+                    current
+                      ? "bg-[var(--color-muted)] text-[var(--color-foreground)]"
+                      : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
-          <div className="flex items-center gap-3">
+          <div className="ml-auto flex shrink-0 items-center gap-2">
             <CentrolistoMarketPicker market={market} copy={dict.pulsar.market} />
             {email ? (
               <Link

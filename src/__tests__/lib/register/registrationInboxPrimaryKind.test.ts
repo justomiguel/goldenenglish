@@ -9,17 +9,17 @@ describe("registrationInboxPrimaryKind", () => {
     ).toBe("accept");
   });
 
-  it("offers waive for waiting payment, including corrupt none+total", () => {
+  it("offers cash collection for waiting payment, including corrupt none+total", () => {
     expect(
       registrationInboxPrimaryKind({
         status: "new",
         intakeState: "awaiting_fee",
         snapshotTotal: 80,
       }),
-    ).toBe("waive");
+    ).toBe("collect");
     expect(
       registrationInboxPrimaryKind({ status: "new", intakeState: "none", snapshotTotal: 80 }),
-    ).toBe("waive");
+    ).toBe("collect");
   });
 
   it("routes receipt and assign states", () => {

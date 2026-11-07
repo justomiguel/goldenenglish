@@ -1,3 +1,4 @@
+import type { SkinContentV1 } from "@/lib/landing/skin/skinModel";
 import type { ThemeProperties } from "@/lib/theme/themeParser";
 
 /** Cache tag invalidated when admin activates/edits the live theme. */
@@ -143,6 +144,8 @@ export interface SiteThemeRow {
   templateKind: SiteThemeKind;
   properties: ThemePropertyOverrides;
   content: SiteThemeContent;
+  /** Canonical CentroListo skin content (`site_themes.skin_content`). */
+  skinContent: SkinContentV1;
   blocks: ReadonlyArray<LandingBlock>;
   archivedAt: string | null;
   createdAt: string;

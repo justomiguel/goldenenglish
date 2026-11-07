@@ -15,8 +15,8 @@ import { useEventSeatHold } from "@/hooks/useEventSeatHold";
 import { seatLabelsForKeys } from "@/lib/events/suggestNearbyFreeSeats";
 import { EventRegisterSeatHoldNotice } from "@/components/organisms/EventRegisterSeatHoldNotice";
 
-function formatHoldClock(expiresAt: string): string {
-  const ms = new Date(expiresAt).getTime() - Date.now();
+function formatHoldClock(expiresAt: string, now: number): string {
+  const ms = new Date(expiresAt).getTime() - now;
   const total = Math.max(0, Math.floor(ms / 1000));
   const minutes = Math.floor(total / 60);
   const seconds = total % 60;
@@ -50,6 +50,7 @@ export function EventRegisterForm({
   const [appliedCode, setAppliedCode] = useState<EventDiscountApplied | null>(null);
   const seatHoldTokenRef = useRef("");
   const onSeatConflictRef = useRef<(keys: string[]) => void>(() => {});
+  const [now, setNow] = useState(() => Date.now());
   const form = useEventRegisterForm({
     locale,
     event,
@@ -97,11 +98,24 @@ export function EventRegisterForm({
   const lostLabels = event.seatMapConfig
     ? seatLabelsForKeys(event.seatMapConfig, seatHold.lostSeatKeys).join(", ")
     : "";
-  const notice = seatHold.lostSeatKeys.length > 0 && labels.seatMap
-    ? labels.seatMap.lostSeatsNotice.replace("{labels}", lostLabels)
+  const notice = labels.seatMap
+    ? seatHold.lostSeatKeys.length > 0
+      ? labels.seatMap.lostSeatsNotice.replace("{labels}", lostLabels)
+      : seatHold.holdFailed
+        ? labels.seatMap.holdFailed
+        : null
     : null;
-  const countdown = seatHold.expiresAt && labels.seatMap && form.payment.selectedSeatKeys.length > 0
-    ? labels.seatMap.holdCountdown.replace("{time}", formatHoldClock(seatHold.expiresAt))
+  const seatsSelected = form.payment.selectedSeatKeys.length > 0;
+  useEffect(() => {
+    if (!seatsSelected || !seatHold.expiresAt) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [seatsSelected, seatHold.expiresAt]);
+  const holdRemaining = seatHold.expiresAt ? new Date(seatHold.expiresAt).getTime() - now : 0;
+  const countdown = seatHold.expiresAt && labels.seatMap && seatsSelected
+    ? holdRemaining <= 0
+      ? labels.seatMap.holdExpired
+      : labels.seatMap.holdCountdown.replace("{time}", formatHoldClock(seatHold.expiresAt, now))
     : null;
   const totals = resolveEventRegistrationTotals({
     unitPrice: form.payment.unitPrice,
@@ -134,6 +148,8 @@ export function EventRegisterForm({
           locks: seatHold.locks,
           heldByOthers: seatHold.heldByOthers,
           lostSeatKeys: seatHold.lostSeatKeys,
+          onBeforeSelect: seatHold.confirmSeat,
+          onSeatRefused: seatHold.reportUnavailable,
         }}
         seatNotice={
           seatNoticePlacement === "inline" && labels.seatMap ? (

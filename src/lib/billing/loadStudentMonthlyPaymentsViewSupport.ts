@@ -45,6 +45,8 @@ export type EnrollmentRow = {
   enrollment_fee_receipt_url?: string | null;
   enrollment_fee_receipt_status?: string | null;
   last_enrollment_paid_at?: string | null;
+  enrollment_fee_paid_method?: string | null;
+  enrollment_fee_paid_on?: string | null;
 };
 
 export type StudentMonthlySectionMeta = {
@@ -65,6 +67,8 @@ export type StudentMonthlySectionMeta = {
   enrollmentFeeReceiptStatus: "pending" | "approved" | "rejected" | null;
   enrollmentFeeReceiptSignedUrl: string | null;
   lastEnrollmentPaidAt: string | null;
+  enrollmentFeePaidMethod: string | null;
+  enrollmentFeePaidOn: string | null;
   scholarships: ScholarshipRow[];
   cohortDefaultMonthlyFee: number | null;
 };
@@ -115,5 +119,7 @@ export async function mapEnrollmentRowToSectionMeta(
     scholarships,
     enrollmentFeeReceiptSignedUrl: receiptSignedUrl,
     lastEnrollmentPaidAt: row.last_enrollment_paid_at ?? null,
+    enrollmentFeePaidMethod: row.enrollment_fee_paid_method ?? null,
+    enrollmentFeePaidOn: row.enrollment_fee_paid_on ?? null,
   };
 }

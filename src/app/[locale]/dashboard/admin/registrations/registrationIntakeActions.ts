@@ -10,7 +10,10 @@ import { assertSectionInInscriptionsCohort } from "@/lib/register/assertSectionI
 import { requestedSectionsHaveOpenSeats } from "@/lib/register/requestedSectionsHaveOpenSeats";
 import { buildRegistrationEnrollmentFeeInsertFields } from "@/lib/register/buildRegistrationEnrollmentFeeInsertFields";
 import { receiptSignedUrlForAdmin } from "@/lib/payments/receiptSignedUrl";
-import { parseRegistrationIntakeState } from "@/lib/register/registrationIntake";
+import {
+  parseRegistrationIntakeState,
+  snapshotTotalFromUnknown,
+} from "@/lib/register/registrationIntake";
 import {
   emailRegistrationReceiptRejected,
   loadRegistrationIntakeLead,
@@ -19,6 +22,7 @@ import {
 } from "@/lib/register/registrationIntakeActionSupport";
 import { startAdminRegistrationEnrollmentFeeFlow } from "@/lib/register/startAdminRegistrationEnrollmentFeeFlow";
 import { notifyPublicRegistrationReceived } from "@/lib/register/completePublicRegistrationSubmit";
+import { todayIsoDate } from "@/lib/billing/paymentMethod";
 import {
   parseJoinDispositionInput,
   type JoinBillingDisposition,
@@ -79,6 +83,11 @@ export async function approveRegistrationReceiptAction(input: {
     dict,
     registrationId: input.registrationId,
     paidCapture: true,
+    feePayment: {
+      method: "transfer",
+      amount: Math.max(snapshotTotalFromUnknown(lead.fee_snapshot), 0.01),
+      paidOn: todayIsoDate(),
+    },
     joinDisposition: disposition,
     actorId: auth.userId,
   });
@@ -178,6 +187,11 @@ export async function assignRegistrationSectionAction(input: {
       dict,
       registrationId: input.registrationId,
       paidCapture: true,
+      feePayment: {
+        method: "gateway",
+        amount: Math.max(snapshotTotalFromUnknown(lead.fee_snapshot), 0.01),
+        paidOn: todayIsoDate(),
+      },
       joinDisposition: disposition,
       actorId: auth.userId,
     });

@@ -13,10 +13,8 @@ import {
   tenantRegistryError,
 } from "@/lib/tenant/tenantRegistry";
 import { logServerException, logSupabaseError } from "@/lib/logging/serverActionLog";
-import {
-  isSiteThemeKind,
-  parseLandingBlocks,
-} from "@/lib/cms/landingBlocksCatalog";
+import { isSiteThemeKind, parseLandingBlocks } from "@/lib/cms/landingBlocksCatalog";
+import { parseSkinContent } from "@/lib/landing/skin/skinContentSchema";
 import { getSiteBrandThemeSlug } from "@/lib/theme/siteBrandThemeSlug";
 import {
   type ActiveThemeSnapshot,
@@ -31,7 +29,7 @@ import {
 } from "@/types/theming";
 
 const THEME_SELECT_FIELDS =
-  "id, slug, name, is_active, is_system_default, template_kind, properties, content, blocks, archived_at, created_at, updated_at, updated_by";
+  "id, slug, name, is_active, is_system_default, template_kind, properties, content, skin_content, blocks, archived_at, created_at, updated_at, updated_by";
 
 function parseOverrides(raw: unknown): ThemePropertyOverrides {
   if (!raw || typeof raw !== "object") return {};
@@ -56,6 +54,7 @@ function mapRowToTheme(themeRow: {
   template_kind: unknown;
   properties: unknown;
   content: unknown;
+  skin_content?: unknown;
   blocks: unknown;
   archived_at: unknown;
   created_at: unknown;
@@ -73,6 +72,7 @@ function mapRowToTheme(themeRow: {
       : "classic",
     properties: parseOverrides(themeRow.properties),
     content: parseContent(themeRow.content),
+    skinContent: parseSkinContent(themeRow.skin_content),
     blocks: parseLandingBlocks(themeRow.blocks),
     archivedAt: themeRow.archived_at ? String(themeRow.archived_at) : null,
     createdAt: String(themeRow.created_at),
@@ -139,7 +139,6 @@ async function loadThemeBySlugWithClient(
   const { media } = await loadMediaForTheme(client, theme.id);
   return { theme, media };
 }
-
 async function loadActiveThemeRowAnon(
   client: SupabaseClient,
 ): Promise<ActiveThemeSnapshot | null> {

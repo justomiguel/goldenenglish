@@ -46,3 +46,9 @@ export function centrolistoMarketCookieAssignment(
   const securePart = secure ? "; Secure" : "";
   return `${CENTROLISTO_MARKET_COOKIE}=${code}; Path=/; Max-Age=31536000; SameSite=Lax${securePart}`;
 }
+
+/** Writes the market cookie in the browser. Kept outside React so the assignment is allowed. */
+export function writeCentrolistoMarketCookie(code: CentrolistoMarketCode): void {
+  if (typeof document === "undefined") return;
+  document.cookie = centrolistoMarketCookieAssignment(code, window.location.protocol === "https:");
+}

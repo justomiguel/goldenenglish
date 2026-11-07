@@ -35,7 +35,7 @@ export async function loadStudentMonthlyPaymentsView(
   const activeEnrollmentResult = await supabase
     .from("section_enrollments")
     .select(
-      "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(name, default_enrollment_fee_amount, default_monthly_fee))",
+      "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, last_enrollment_paid_at, enrollment_fee_paid_method, enrollment_fee_paid_on, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(name, default_enrollment_fee_amount, default_monthly_fee))",
     )
     .eq("student_id", studentId)
     .eq("status", "active");
@@ -44,7 +44,7 @@ export async function loadStudentMonthlyPaymentsView(
       ? await supabase
           .from("section_enrollments")
           .select(
-            "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(name, default_enrollment_fee_amount, default_monthly_fee))",
+            "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, enrollment_fee_paid_method, enrollment_fee_paid_on, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(name, default_enrollment_fee_amount, default_monthly_fee))",
           )
           .eq("student_id", studentId)
           .eq("status", "active")
@@ -151,6 +151,8 @@ export async function loadStudentMonthlyPaymentsView(
       enrollmentFeeReceiptStatus: s.enrollmentFeeReceiptStatus,
       enrollmentFeeReceiptSignedUrl: s.enrollmentFeeReceiptSignedUrl,
       lastEnrollmentPaidAt: s.lastEnrollmentPaidAt,
+      enrollmentFeePaidMethod: s.enrollmentFeePaidMethod,
+      enrollmentFeePaidOn: s.enrollmentFeePaidOn,
       monthlyFeeChargeMode: s.monthlyFeeChargeMode,
       allowAdvanceMonthlyPayment: s.allowAdvanceMonthlyPayment,
       sectionBillingMode: billingModeBySection.get(s.sectionId) ?? null,

@@ -10,6 +10,8 @@ type PaymentRow = {
   amount: number | string | null;
   status: StudentMonthlyPaymentRecord["status"];
   receipt_url: string | null;
+  payment_method?: string | null;
+  paid_on?: string | null;
 };
 
 /**
@@ -26,7 +28,7 @@ export async function loadStudentYearSectionPaymentsMap(
 
   const { data: payments } = await supabase
     .from("payments")
-    .select("id, section_id, month, year, amount, status, receipt_url")
+    .select("id, section_id, month, year, amount, status, receipt_url, payment_method, paid_on")
     .eq("student_id", studentId)
     .eq("year", year)
     .in("section_id", sectionIds);
@@ -39,6 +41,8 @@ export async function loadStudentYearSectionPaymentsMap(
       amount: p.amount == null ? null : Number(p.amount),
       status: p.status,
       receiptSignedUrl: await studentReceiptSignedUrl(supabase, studentId, p.receipt_url),
+      paymentMethod: p.payment_method ?? null,
+      paidOn: p.paid_on ?? null,
     })),
   );
   for (const rec of records) {

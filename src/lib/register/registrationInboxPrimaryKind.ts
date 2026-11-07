@@ -4,7 +4,7 @@ import {
   type RegistrationIntakeState,
 } from "@/lib/register/registrationIntake";
 
-export type RegistrationInboxPrimaryKind = "accept" | "waive" | "receipt" | "assign";
+export type RegistrationInboxPrimaryKind = "accept" | "waive" | "collect" | "receipt" | "assign";
 
 export function registrationInboxPrimaryKind(row: {
   status: string;
@@ -15,7 +15,7 @@ export function registrationInboxPrimaryKind(row: {
   const intakeState = row.intakeState ?? "none";
   const snapshotTotal = row.snapshotTotal ?? 0;
   if (isRegistrationAwaitingFee({ status: row.status, intakeState, snapshotTotal })) {
-    return "waive";
+    return snapshotTotal > 0 ? "collect" : "waive";
   }
   if (intakeState === "receipt_pending") return "receipt";
   if (

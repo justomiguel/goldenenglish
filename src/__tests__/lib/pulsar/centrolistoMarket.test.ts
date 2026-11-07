@@ -3,6 +3,7 @@ import {
   centrolistoMarketCookieAssignment,
   resolveCentrolistoMarket,
   withCentrolistoMarket,
+  writeCentrolistoMarketCookie,
 } from "@/lib/pulsar/centrolistoMarket";
 
 // REGRESSION CHECK: Query wins over the cookie. An unknown code falls back to Chile.
@@ -25,5 +26,10 @@ describe("centrolistoMarket", () => {
     expect(centrolistoMarketCookieAssignment("py", true)).toContain("SameSite=Lax");
     expect(centrolistoMarketCookieAssignment("py", true)).toContain("Secure");
     expect(centrolistoMarketCookieAssignment("py", false)).not.toContain("Secure");
+  });
+
+  it("writes the market cookie in the browser", () => {
+    writeCentrolistoMarketCookie("ar");
+    expect(document.cookie).toContain("centrolisto_market=ar");
   });
 });
