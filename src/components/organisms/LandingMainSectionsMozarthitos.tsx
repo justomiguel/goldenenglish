@@ -28,8 +28,6 @@ export function LandingMainSectionsMozarthitos({
   mediaMap,
   blogEnabled = false,
   merchEnabled = false,
-  publicCtaMode,
-  inscriptionsEnabled,
 }: LandingMainSectionsMozarthitosProps) {
   const logoSrc = resolveLandingImageSrcForTheme(
     "mozarthitos",
@@ -69,8 +67,6 @@ export function LandingMainSectionsMozarthitos({
           dict={dict}
           locale={locale}
           mediaMap={mediaMap}
-          publicCtaMode={publicCtaMode}
-          inscriptionsEnabled={inscriptionsEnabled}
         />
       </main>
     </MozarthitosFontRoot>

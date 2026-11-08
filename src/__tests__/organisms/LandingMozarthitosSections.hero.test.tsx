@@ -69,14 +69,13 @@ describe("LandingMozarthitosSections hero LCP", () => {
     expect(portrait).not.toHaveAttribute("data-priority", "true");
   });
 
-  it("opens the family guide from the secondary CTA and keeps register first", () => {
+  it("opens the family guide from the only yellow hero CTA", () => {
     render(<LandingMozarthitosSections dict={dict} locale="es" />);
     const links = screen.getAllByRole("link");
-    expect(links[0]).toHaveAttribute("href", "/es/register");
-    expect(links[0]).toHaveAccessibleName(dict.landing.hero.ctaReserveSpot);
-    const guide = screen.getByRole("link", { name: "Encuentra su clase" });
-    expect(guide).toHaveAttribute("href", "/es/encuentra-tu-clase");
-    expect(screen.queryByRole("link", { name: "Conoce la academia" })).toBeNull();
-    expect(links.some((link) => link.getAttribute("href")?.includes("#quienes"))).toBe(false);
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAccessibleName("Vive la experiencia");
+    expect(links[0]).toHaveAttribute("href", "/es/encuentra-tu-clase");
+    expect(links[0].className).toContain("bg-[var(--mz-yellow)]");
+    expect(screen.queryByRole("link", { name: dict.landing.hero.ctaReserveSpot })).toBeNull();
   });
 });

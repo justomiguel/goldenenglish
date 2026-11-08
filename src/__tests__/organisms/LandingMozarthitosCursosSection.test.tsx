@@ -17,13 +17,12 @@ beforeAll(() => {
 const dict = dictEs as Dictionary;
 
 describe("LandingMozarthitosCursosSection", () => {
-  it("opens the family guide on the remote path from the online CTA", () => {
+  it("does not add a second call to action next to the course copy", () => {
     render(
       <LandingMozarthitosCursosSection dict={dict} locale="es" imgOferta={(file) => `/img/${file}`} />,
     );
 
-    const online = screen.getByRole("link", { name: "Modalidad Online" });
-    expect(online).toHaveAttribute("href", "/es/encuentra-tu-clase?modalidad=remote");
-    expect(online).not.toHaveAttribute("href", "/es#contacto");
+    expect(screen.queryByRole("link", { name: "Modalidad Online" })).toBeNull();
+    expect(screen.queryByRole("link")).toBeNull();
   });
 });

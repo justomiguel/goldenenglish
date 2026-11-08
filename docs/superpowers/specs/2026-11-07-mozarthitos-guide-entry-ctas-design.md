@@ -1,6 +1,6 @@
 # Mozarthitos — entry CTAs to "Encuentra tu clase" (mini-spec)
 
-Status: approved (2026-11-07)
+Status: approved (2026-11-07, amended the same day)
 Date: 2026-11-07
 Tenant template: `mozarthitos` (`site_theme_kind`)
 Parent spec: `docs/superpowers/specs/2026-11-07-mozarthitos-family-guide-design.md`
@@ -17,52 +17,47 @@ The family guide page `/[locale]/encuentra-tu-clase` ships and works. No link on
 
 ## Intent
 
-Give a new family three visible ways into the guide on the mozarthitos tenant. Keep the register CTA as the primary hero action.
+Give a new family one yellow button into the guide on the mozarthitos tenant. The guide already ends on the pre-registration form.
 
 ## Decisions
 
-1. **Hero secondary CTA** (`LandingMozarthitosSections.tsx`).
+1. **One hero CTA** (`LandingMozarthitosSections.tsx`).
+   - Remove the register buttons and the outline button. The hero has one yellow button.
    - `href`: `buildGuidePageHref(locale)` → `/[locale]/encuentra-tu-clase`.
-   - Label: `marketingLandingCopy(dict, brand, "guide.entryCta")`. That helper already reads `dict.landing.<brand>.*`, so the CMS key stays `mz.guide.entryCta`.
-   - Icon: keep a leading Lucide icon (`Compass` or `Sparkles`), `aria-hidden` (rule 16).
-   - The yellow register CTAs (`landingRegisterCtasFromDict`) do not change and stay first.
-   - The `#quienes` link is removed from the hero. The header still has "Quiénes somos".
-2. **`#cursos` online CTA** (`LandingMozarthitosCursosSection.tsx`).
-   - `href`: `buildGuidePageHref(locale, { attendance: "remote" })` → `/[locale]/encuentra-tu-clase?modalidad=remote`. The family answers only the age step.
-   - Label: keep `cursos.onlineCta` and the `Laptop` icon. Only the target changes.
-3. **PWA tab bar "Cursos" tab** (`publicPwaCoursesHref` in `src/lib/theme/publicExperienceNav.ts`).
-   - For `mozarthitos` only, return `/[locale]/encuentra-tu-clase`. Other kinds keep their `#anchor`.
-   - The active-tab check in `PublicPwaTabBar` uses `pathname === href`, so the tab shows as current on the guide page. A query string on the guide page does not break this, because `usePathname()` has no query.
-   - Do not import from `src/lib/landing/mozarthitos/` into the theme module if it creates a cycle. If it does, move `MZ_GUIDE_PATH` usage behind a small map entry (`mozarthitos: "/encuentra-tu-clase"` path vs anchor).
-4. **Header nav.** No change. The desktop header already holds six to eight links.
-5. **Analytics.** No new event. Anonymous visitors cannot post to `/api/analytics/events` (parent spec). The funnel outcome stays `tenant_extras.guide` on the registration.
-6. **Changelog.** Entry `mozarthitos-find-your-class` exists with today's date. Update its `summary` in three locales to say the hero, the courses section, and the phone tab bar open the guide. No new entry.
+   - Label: `marketingLandingCopy(dict, brand, "guide.entryCta")`. Default copy: es `Vive la experiencia`, en `Live the experience`, pt `Viva a experiência`. The CMS key stays `mz.guide.entryCta`.
+   - Icon: leading `Compass`, `aria-hidden` (rule 16).
+   - The header still has "Quiénes somos".
+2. **`#cursos` section.** Remove the online CTA button. The section text stays. The hero button is the only call to action into the guide.
+3. **PWA tab bar "Cursos" tab.** Keep `/[locale]#cursos`. The tab opens the courses section. It does not open the guide.
+4. **End of the guide.** The result buttons already open `/[locale]/register` with the guide token. That page is the pre-registration form. Do not change those links. The contact offer stays on `#contacto` when a stage has no online class.
+5. **Header nav.** No change. The desktop header already holds six to eight links.
+6. **Analytics.** No new event. Anonymous visitors cannot post to `/api/analytics/events` (parent spec). The funnel outcome stays `tenant_extras.guide` on the registration.
+7. **Changelog.** Update the `mozarthitos-find-your-class` summary in three locales. Say the home has one yellow button that opens the guide, and the guide ends on the pre-registration form.
 
 ## Surfaces (Web vs PWA)
 
 Tier A public journey.
 
-- **Web (`web-desktop`).** Hero secondary CTA and `#cursos` online CTA change target. Layout and styles do not change.
-- **PWA (`web-mobile` / `pwa-mobile`).** The landing JSX is shared, so both CTAs change on the phone too. Touch targets stay `min-h-[48px]`. The "Cursos" tab in `PublicPwaTabBar` opens the guide for mozarthitos only.
-- **Other tenants.** `publicPwaCoursesHref` output does not change for `classic`, `nago`, `espaciozenit`, `mimundo`, `liora`, and the generic kinds.
+- **Web (`web-desktop`).** The hero shows one yellow button. The courses section has no button. Touch target stays `min-h-[48px]`.
+- **PWA (`web-mobile` / `pwa-mobile`).** The landing JSX is shared, so the phone hero has the same one button. The "Cursos" tab still opens `#cursos`.
+- **Other tenants.** `publicPwaCoursesHref` does not change.
 
 ## Tests (Vitest, self-contained)
 
-- `publicExperienceNav.test.ts`: `publicPwaCoursesHref("mozarthitos", "es")` returns `/es/encuentra-tu-clase`. Existing assertions for other kinds stay.
-- `LandingMozarthitosSections.hero.test.tsx`: the hero has a link to `/es/encuentra-tu-clase` with the `entryCta` label. The register CTAs still render first. No hero link to `#quienes`.
-- Cursos section test (new or extended): the online CTA `href` is `/es/encuentra-tu-clase?modalidad=remote`. No link to `#contacto` from that button.
-- `PublicPwaTabBar.test.tsx`: with `coursesHref="/es/encuentra-tu-clase"` and pathname `/es/encuentra-tu-clase`, the Cursos tab has `aria-current="page"`.
-- `REGRESSION CHECK` note in the nav test: changing the mozarthitos courses target affects only that tenant's tab bar.
+- `publicExperienceNav.test.ts`: `publicPwaCoursesHref("mozarthitos", "es")` returns `/es#cursos`.
+- `LandingMozarthitosSections.hero.test.tsx`: the hero has one link, "Vive la experiencia", to `/es/encuentra-tu-clase`, with the yellow button class. No register link.
+- Cursos section test: the section renders no link.
+- `REGRESSION CHECK` note in the nav test: the Mozarthitos courses tab stays on `#cursos`.
 
 ## Manual QA (user)
 
-- Desktop landing: the hero secondary button opens the guide. The "Modalidad online" button opens the guide on the age step with "desde casa" preselected.
-- Phone and installed PWA: the same two buttons, and the "Cursos" tab opens the guide and shows as active.
+- Desktop and phone: the yellow "Vive la experiencia" button opens the guide. The courses section has no button. The phone Cursos tab opens the courses section.
+- Finish the two questions. The result button opens the pre-registration form with the chosen class.
 - Edit `mz.guide.entryCta` in the CMS and check the hero label.
 
 ## Done when
 
-- The three entry points open the guide on the mozarthitos tenant.
+- The mozarthitos hero has one yellow button, and that button opens the guide.
 - Other tenants' landing and tab bar do not change.
 - The tests above pass. The changelog summary mentions the entry points.
 
