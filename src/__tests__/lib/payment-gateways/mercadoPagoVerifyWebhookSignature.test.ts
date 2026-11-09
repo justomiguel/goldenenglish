@@ -27,7 +27,7 @@ describe("mercadoPagoVerifyWebhookSignature", () => {
         dataId,
         nowMs: nowMsWithinWindow,
       }),
-    ).toBe(true);
+    ).toEqual({ ok: true });
   });
 
   it("rejects invalid hash", () => {
@@ -39,7 +39,7 @@ describe("mercadoPagoVerifyWebhookSignature", () => {
         dataId,
         nowMs: nowMsWithinWindow,
       }),
-    ).toBe(false);
+    ).toEqual({ ok: false, code: "digest_mismatch" });
   });
 
   it("rejects missing headers", () => {
@@ -51,7 +51,31 @@ describe("mercadoPagoVerifyWebhookSignature", () => {
         dataId,
         nowMs: nowMsWithinWindow,
       }),
-    ).toBe(false);
+    ).toEqual({ ok: false, code: "missing_signature" });
+  });
+
+  it("names an empty secret", () => {
+    expect(
+      mercadoPagoVerifyWebhookSignature({
+        webhookSecret: "  ",
+        xSignature: `ts=${ts},v1=${sign()}`,
+        xRequestId: requestId,
+        dataId,
+        nowMs: nowMsWithinWindow,
+      }),
+    ).toEqual({ ok: false, code: "missing_secret" });
+  });
+
+  it("names a signature that has no ts or v1", () => {
+    expect(
+      mercadoPagoVerifyWebhookSignature({
+        webhookSecret: secret,
+        xSignature: "foo=bar",
+        xRequestId: requestId,
+        dataId,
+        nowMs: nowMsWithinWindow,
+      }),
+    ).toEqual({ ok: false, code: "malformed_signature" });
   });
 
   it("rejects expired timestamp (>5 min old)", () => {
@@ -66,7 +90,7 @@ describe("mercadoPagoVerifyWebhookSignature", () => {
         dataId,
         nowMs: tooLateMs,
       }),
-    ).toBe(false);
+    ).toEqual({ ok: false, code: "timestamp_out_of_window" });
   });
 
   it("rejects future timestamp (>5 min ahead)", () => {
@@ -81,7 +105,7 @@ describe("mercadoPagoVerifyWebhookSignature", () => {
         dataId,
         nowMs: tooEarlyMs,
       }),
-    ).toBe(false);
+    ).toEqual({ ok: false, code: "timestamp_out_of_window" });
   });
 
   it("accepts timestamp at exact boundary (5 min)", () => {
@@ -96,6 +120,6 @@ describe("mercadoPagoVerifyWebhookSignature", () => {
         dataId,
         nowMs: exactBoundaryMs,
       }),
-    ).toBe(true);
+    ).toEqual({ ok: true });
   });
 });

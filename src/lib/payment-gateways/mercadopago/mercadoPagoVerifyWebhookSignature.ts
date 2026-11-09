@@ -11,16 +11,30 @@ export type MercadoPagoWebhookSignatureInput = {
   nowMs?: number;
 };
 
+export type MercadoPagoWebhookSignatureCode =
+  | "missing_secret"
+  | "missing_signature"
+  | "missing_data_id"
+  | "malformed_signature"
+  | "timestamp_out_of_window"
+  | "digest_mismatch";
+
+export type MercadoPagoWebhookSignatureResult =
+  | { ok: true }
+  | { ok: false; code: MercadoPagoWebhookSignatureCode };
+
 /**
  * Validates MercadoPago webhook `x-signature` (HMAC-SHA256).
  * Manifest: id:{dataId};request-id:{xRequestId};ts:{ts};
  */
 export function mercadoPagoVerifyWebhookSignature(
   input: MercadoPagoWebhookSignatureInput,
-): boolean {
+): MercadoPagoWebhookSignatureResult {
   const secret = input.webhookSecret.trim();
+  if (!secret) return { ok: false, code: "missing_secret" };
   const header = input.xSignature?.trim() ?? "";
-  if (!secret || !header || !input.dataId.trim()) return false;
+  if (!header) return { ok: false, code: "missing_signature" };
+  if (!input.dataId.trim()) return { ok: false, code: "missing_data_id" };
 
   let ts = "";
   let v1 = "";
@@ -29,12 +43,14 @@ export function mercadoPagoVerifyWebhookSignature(
     if (k?.trim() === "ts") ts = v?.trim() ?? "";
     if (k?.trim() === "v1") v1 = v?.trim() ?? "";
   }
-  if (!ts || !v1) return false;
+  if (!ts || !v1) return { ok: false, code: "malformed_signature" };
 
   const tsNum = Number(ts);
-  if (!Number.isFinite(tsNum)) return false;
+  if (!Number.isFinite(tsNum)) return { ok: false, code: "malformed_signature" };
   const now = input.nowMs ?? Date.now();
-  if (Math.abs(now - tsNum * 1000) > MAX_TIMESTAMP_DRIFT_MS) return false;
+  if (Math.abs(now - tsNum * 1000) > MAX_TIMESTAMP_DRIFT_MS) {
+    return { ok: false, code: "timestamp_out_of_window" };
+  }
 
   const requestId = input.xRequestId?.trim() ?? "";
   const manifest = `id:${input.dataId};request-id:${requestId};ts:${ts};`;
@@ -43,8 +59,9 @@ export function mercadoPagoVerifyWebhookSignature(
   try {
     const a = Buffer.from(expected, "utf8");
     const b = Buffer.from(v1, "utf8");
-    return a.length === b.length && timingSafeEqual(a, b);
+    if (a.length === b.length && timingSafeEqual(a, b)) return { ok: true };
   } catch {
-    return false;
+    return { ok: false, code: "digest_mismatch" };
   }
+  return { ok: false, code: "digest_mismatch" };
 }

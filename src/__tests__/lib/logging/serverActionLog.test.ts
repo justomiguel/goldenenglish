@@ -36,6 +36,13 @@ describe("serializeUnknownError", () => {
 
 describe("logAuthAdminCreateUserFailure", () => {
   it("logs structured auth diagnostics with ge:server prefix", async () => {
+    registerRequestHeaderReader(() => ({
+      get: (name) => {
+        if (name === "host") return "nago.cl";
+        if (name === "x-ge-tenant") return "nago";
+        return null;
+      },
+    }));
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     await logAuthAdminCreateUserFailure("unitTest:createUser", { message: "m", code: "x", status: "422" }, {
       classified_issue: "unexpected",

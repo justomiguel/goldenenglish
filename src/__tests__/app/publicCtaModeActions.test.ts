@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { revalidatePath } from "next/cache";
 import { setPublicCtaMode } from "@/app/[locale]/dashboard/admin/settings/publicCtaModeActions";
 
 vi.mock("next/cache", () => ({
@@ -38,5 +39,6 @@ describe("setPublicCtaMode", () => {
       }),
     });
     expect(await setPublicCtaMode("en", "both")).toEqual({ ok: true });
+    expect(revalidatePath).toHaveBeenCalledWith("/en/dashboard/admin/registrations");
   });
 });

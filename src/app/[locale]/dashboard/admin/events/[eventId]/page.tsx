@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { assertAdmin } from "@/lib/dashboard/assertAdmin";
+import { requireAdminPage } from "@/lib/dashboard/requireAdminPage";
 import { AdminEventDetailTabs, parseEventAdminTab } from "@/components/dashboard/admin/events/AdminEventDetailTabs";
 import { AdminEventDetailTabContent } from "@/components/dashboard/admin/events/AdminEventDetailTabContent";
 import { loadAdminEventDetailPageModel } from "@/lib/dashboard/events/loadAdminEventDetailPageModel";
@@ -28,8 +28,8 @@ interface PageProps {
 }
 
 export default async function AdminEventDetailPage({ params, searchParams }: PageProps) {
-  await assertAdmin();
   const { locale, eventId } = await params;
+  await requireAdminPage(locale);
   const sp = await searchParams;
   const tab = parseEventAdminTab(sp.tab);
   const dict = await getDictionary(locale);

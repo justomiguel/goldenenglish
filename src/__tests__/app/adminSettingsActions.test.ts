@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { revalidatePath } from "next/cache";
 import { setInscriptionsEnabled } from "@/app/[locale]/dashboard/admin/settings/actions";
 import { setMerchEnabled } from "@/app/[locale]/dashboard/admin/settings/setMerchEnabled";
 import { setRegisterSectionMode } from "@/app/[locale]/dashboard/admin/settings/setRegisterSectionMode";
@@ -45,6 +46,7 @@ describe("setInscriptionsEnabled", () => {
       }),
     });
     expect(await setInscriptionsEnabled("en", false)).toEqual({ ok: true });
+    expect(revalidatePath).toHaveBeenCalledWith("/en/dashboard/admin/registrations");
   });
 });
 
@@ -106,6 +108,7 @@ describe("setRegisterSectionMode", () => {
       from: () => ({ upsert }),
     });
     expect(await setRegisterSectionMode("en", "admin_assign")).toEqual({ ok: true });
+    expect(revalidatePath).toHaveBeenCalledWith("/en/dashboard/admin/registrations");
     expect(upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         key: "register_section_mode",

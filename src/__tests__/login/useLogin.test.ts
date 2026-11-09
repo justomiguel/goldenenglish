@@ -478,7 +478,7 @@ describe("useLogin", () => {
     });
 
     expect(result.current.error).toBe(
-      "An error occurred. Please try again.",
+      "An error occurred. Please try again. (unexpected)",
     );
     expect(result.current.isLoading).toBe(false);
   });
@@ -540,7 +540,7 @@ describe("useLogin", () => {
       await result.current.handleSubmit();
     });
 
-    expect(result.current.error).toBe("An error occurred. Please try again.");
+    expect(result.current.error).toBe("An error occurred. Please try again. (no_session)");
     expect(assignSpy).not.toHaveBeenCalled();
   });
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { after } from "next/server";
 import Link from "next/link";
 import { ArrowLeft, Reply, ReplyAll } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -50,7 +51,9 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
   if (!detail) notFound();
 
   await markAdminPortalMessageRead(supabase, messageId);
-  revalidateAdminInbox(locale);
+  after(() => {
+    revalidateAdminInbox(locale);
+  });
   const outcome = await loadAdminPortalMessageOutcome(supabase, messageId, locale, dict);
 
   const listHref = `/${locale}/dashboard/admin/messages`;

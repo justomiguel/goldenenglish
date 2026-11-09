@@ -143,7 +143,6 @@ export const SCREEN_TOUR_DEFS_ACADEMIC_CMS = {
   "admin-settings": [
     { key: "intro", anchor: null },
     { key: "titleBlock", anchor: ADMIN_TOUR_ANCHORS.settingsTitle },
-    { key: "inscriptions", anchor: ADMIN_TOUR_ANCHORS.settingsInscriptions },
     { key: "emailSends", anchor: ADMIN_TOUR_ANCHORS.settingsEmailSends },
     { key: "classReminders", anchor: ADMIN_TOUR_ANCHORS.settingsClassReminders },
     { key: "blogTranslate", anchor: ADMIN_TOUR_ANCHORS.settingsBlogTranslate, optional: true },

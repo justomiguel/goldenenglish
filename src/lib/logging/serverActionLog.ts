@@ -73,6 +73,17 @@ async function withRequestLogMeta(meta?: Record<string, unknown>): Promise<Recor
   };
 }
 
+async function emitServerLog(
+  level: "error" | "warn" | "info",
+  scope: string,
+  meta?: Record<string, unknown>,
+): Promise<void> {
+  const payload = await withRequestLogMeta(meta);
+  if (level === "error") console.error(PREFIX, scope, payload);
+  else if (level === "warn") console.warn(PREFIX, scope, payload);
+  else console.info(PREFIX, scope, payload);
+}
+
 type PostgrestLike = {
   message?: string;
   code?: string;
@@ -89,8 +100,8 @@ export async function logSupabaseClientError(
   meta?: Record<string, unknown>,
 ): Promise<void> {
   if (!error?.message && !error?.code) return;
-  console.error(PREFIX, scope, {
-    ...(await withRequestLogMeta(meta)),
+  await emitServerLog("error", scope, {
+    ...meta,
     supabase: {
       message: error.message,
       code: error.code,
@@ -108,11 +119,7 @@ export async function logServerActionException(
   err: unknown,
   meta?: Record<string, unknown>,
 ): Promise<void> {
-  console.error(
-    PREFIX,
-    scope,
-    await withRequestLogMeta({ ...meta, error: serializeUnknownError(err) }),
-  );
+  await emitServerLog("error", scope, { ...meta, error: serializeUnknownError(err) });
 }
 
 /** Unexpected logical outcome (e.g. insert succeeded but returned no row id). */
@@ -121,7 +128,7 @@ export async function logServerActionInvariantViolation(
   reason: string,
   meta?: Record<string, unknown>,
 ): Promise<void> {
-  console.error(PREFIX, scope, await withRequestLogMeta({ reason, ...meta }));
+  await emitServerLog("error", scope, { reason, ...meta });
 }
 
 /** Alias for route handlers and server utilities (same behavior as logServerActionException). */
@@ -137,7 +144,7 @@ export async function logServerAuthzDenied(
   scope: string,
   meta?: Record<string, unknown>,
 ): Promise<void> {
-  console.warn(PREFIX, scope, await withRequestLogMeta({ kind: "authz_denied", ...meta }));
+  await emitServerLog("warn", scope, { kind: "authz_denied", ...meta });
 }
 
 /** Diagnóstico operativo (no error de app): filtros locales, branching previsto. Sin PII. */
@@ -145,7 +152,7 @@ export async function logServerWarn(
   scope: string,
   meta?: Record<string, unknown>,
 ): Promise<void> {
-  console.warn(PREFIX, scope, await withRequestLogMeta(meta));
+  await emitServerLog("warn", scope, meta);
 }
 
 /** Breadcrumb operativo (envío aceptado, conteos). Sin PII. */
@@ -153,7 +160,7 @@ export async function logServerInfo(
   scope: string,
   meta?: Record<string, unknown>,
 ): Promise<void> {
-  console.info(PREFIX, scope, await withRequestLogMeta(meta));
+  await emitServerLog("info", scope, meta);
 }
 
 /** Fallo operativo con meta plana (sin wrappear en Error). Sin PII. */
@@ -161,7 +168,7 @@ export async function logServerError(
   scope: string,
   meta?: Record<string, unknown>,
 ): Promise<void> {
-  console.error(PREFIX, scope, await withRequestLogMeta(meta));
+  await emitServerLog("error", scope, meta);
 }
 
 type AuthAdminErrLike = {
@@ -193,14 +200,10 @@ export async function logAuthAdminCreateUserFailure(
       : typeof statusRaw === "string" && /^[0-9]+$/.test(statusRaw)
         ? Number.parseInt(statusRaw, 10)
         : undefined;
-  console.error(
-    PREFIX,
-    scope,
-    await withRequestLogMeta({
-      kind: "auth_admin_create_user_failure",
-      ...meta,
-      auth_error:
-        message || code || statusRaw != null ? { message, code, status: statusNum ?? statusRaw } : null,
-    }),
-  );
+  await emitServerLog("error", scope, {
+    kind: "auth_admin_create_user_failure",
+    ...meta,
+    auth_error:
+      message || code || statusRaw != null ? { message, code, status: statusNum ?? statusRaw } : null,
+  });
 }

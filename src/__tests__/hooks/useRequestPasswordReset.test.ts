@@ -79,7 +79,7 @@ describe("useRequestPasswordReset", () => {
     await act(async () => {
       await result.current.handleSubmit();
     });
-    expect(result.current.error).toBe("something failed");
+    expect(result.current.error).toBe("something failed (network)");
     consoleSpy.mockRestore();
   });
 

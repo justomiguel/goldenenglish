@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminEventsScreen } from "@/components/organisms/AdminEventsScreen";
 import { loadPaginatedAdminEvents, type EventSortKey } from "@/lib/dashboard/events/loadPaginatedAdminEvents";
 import { loadAdminEventsListAggregates } from "@/lib/dashboard/events/loadAdminEventsListAggregates";
-import { assertAdmin } from "@/lib/dashboard/assertAdmin";
+import { requireAdminPage } from "@/lib/dashboard/requireAdminPage";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { AdminEventsStatsRow } from "@/components/dashboard/AdminEventsStatsRow";
@@ -19,8 +19,8 @@ interface PageProps {
 }
 
 export default async function AdminEventsPage({ params, searchParams }: PageProps) {
-  await assertAdmin();
   const { locale } = await params;
+  await requireAdminPage(locale);
   const dict = await getDictionary(locale);
   const sp = await searchParams;
   const page = Math.max(1, Number.parseInt(String(sp.page ?? "1"), 10) || 1);

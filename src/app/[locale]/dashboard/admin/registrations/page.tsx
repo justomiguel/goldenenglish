@@ -16,7 +16,8 @@ import {
   loadRegistrationStatusCounts,
 } from "@/lib/dashboard/loadRegistrationStatusCounts";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
-import { AdminRegistrationCohortBar } from "@/components/dashboard/AdminRegistrationCohortBar";
+import { AdminRegistrationsConfigPanel } from "@/components/dashboard/AdminRegistrationsConfigPanel";
+import { AdminRegistrationsTabs } from "@/components/dashboard/AdminRegistrationsTabs";
 import { AdminRegistrationCreateButton } from "@/components/dashboard/AdminRegistrationCreateButton";
 import { AdminRegistrationsStatsRow } from "@/components/dashboard/AdminRegistrationsStatsRow";
 import {
@@ -35,6 +36,7 @@ import { getBrandForRequest } from "@/lib/brand/server";
 import { resolveWhatsAppCountry } from "@/lib/whatsapp/resolveWhatsAppDigits";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
+import { parseRegistrationsPageTab } from "@/lib/register/parseRegistrationsPageTab";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -74,6 +76,27 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
   const { locale } = await params;
   const rawSp = await searchParams;
   const dict = await getDictionary(locale);
+  const tab = parseRegistrationsPageTab(typeof rawSp.tab === "string" ? rawSp.tab : undefined);
+  const tabLabels = {
+    list: dict.admin.registrations.pageTabList,
+    config: dict.admin.registrations.pageTabConfig,
+    aria: dict.admin.registrations.pageTabsAria,
+  };
+  if (tab === "config") {
+    return (
+      <div>
+        <AdminPageHeader
+          title={dict.admin.registrations.title}
+          lead={dict.admin.registrations.lead}
+          iconId="registrations"
+          tourAnchor={ADMIN_TOUR_ANCHORS.registrationsTitle}
+        />
+        <AdminRegistrationsTabs labels={tabLabels}>
+          <AdminRegistrationsConfigPanel locale={locale} labels={dict.admin.settings} />
+        </AdminRegistrationsTabs>
+      </div>
+    );
+  }
   const paginationParams = parseSearchParams(rawSp);
 
   const supabase = await createClient();
@@ -152,11 +175,7 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
           />
         }
       />
-      <AdminRegistrationCohortBar
-        locale={locale}
-        labels={dict.admin.registrations}
-        cohortConfig={cohortConfig}
-      />
+      <AdminRegistrationsTabs labels={tabLabels}>
       <AdminRegistrationsStatsRow
         locale={locale}
         labels={dict.admin.registrations.stats}
@@ -194,6 +213,7 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
           createSectionHref={createSectionHref}
         />
       </div>
+      </AdminRegistrationsTabs>
     </div>
   );
 }

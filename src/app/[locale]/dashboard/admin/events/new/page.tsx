@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { assertAdmin } from "@/lib/dashboard/assertAdmin";
+import { requireAdminPage } from "@/lib/dashboard/requireAdminPage";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
 import { AdminEventCreateForm } from "@/components/dashboard/admin/events/AdminEventCreateForm";
@@ -16,8 +16,8 @@ interface PageProps {
 }
 
 export default async function AdminEventNewPage({ params }: PageProps) {
-  await assertAdmin();
   const { locale } = await params;
+  await requireAdminPage(locale);
   const dict = await getDictionary(locale);
   const admin = await createAdminClient();
   const { instructions: globalInstructions } = await loadBankTransferInstructionsSetting(admin);

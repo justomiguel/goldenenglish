@@ -7272,6 +7272,9 @@
       "mobileSortSheetTitle": "Ordenar inscrições",
       "whatsappCta": "WhatsApp",
       "lead": "Futuros alunos do formulário público.",
+      "pageTabList": "Inscrições",
+      "pageTabConfig": "Configuração",
+      "pageTabsAria": "Seções de inscrições web",
       "none": "Ainda não há inscrições",
       "filterLabel": "Procurar",
       "filterPlaceholder": "Nome, e-mail, RG/RUT/passaporte, telefone, nível, status…",
@@ -10278,6 +10281,10 @@
             "title": "📋 O que é esta lista",
             "description": "O cabeçalho marca a caixa de inscrições — distinta do diretório de Usuários até aceitar."
           },
+          "tabs": {
+            "title": "🗂️ Duas áreas",
+            "description": "Inscrições mostra a fila. Configuração guarda o formulário público, o modo de seção, os botões e a coorte."
+          },
           "toolbar": {
             "title": "🔎 Buscar um pedido",
             "description": "A busca e os contadores mostram quantos pedidos batem com o filtro frente ao total."
@@ -11326,7 +11333,7 @@
       "adminSettings": {
         "meta": {
           "title": "Ajustes",
-          "description": "Toggles do instituto: inscrições, lembretes, integrações."
+          "description": "Interruptores do instituto: e-mail, lembretes e tradução opcional."
         },
         "doneBtn": "Concluir",
         "nextBtn": "Próximo",
@@ -11336,15 +11343,11 @@
         "steps": {
           "intro": {
             "title": "⚙️ Ajustes do instituto",
-            "description": "Interruptores operacionais: inscrição pública, lembretes de aula e chaves de tradução opcionais."
+            "description": "Interruptores de e-mail, lembretes de aula e uma chave de tradução opcional. A inscrição pública fica em Inscrições online."
           },
           "titleBlock": {
             "title": "📋 Título de ajustes",
             "description": "Você edita ajustes do instituto, não um perfil individual."
-          },
-          "inscriptions": {
-            "title": "📝 Inscrições públicas",
-            "description": "Ative ou pause o funil de inscrição pública quando não aceitar novos formulários."
           },
           "classReminders": {
             "title": "⏰ Lembretes de aula",
@@ -11356,7 +11359,7 @@
           },
           "closing": {
             "title": "✅ Mudar de propósito",
-            "description": "Os ajustes são de todo o instituto. Confirme com a equipe antes de cortar inscrições em campanha."
+            "description": "Estes ajustes valem para todo o instituto. Confirme com a equipe antes de mudá-los."
           },
           "emailSends": {
             "title": "✉️ Envios de e-mail",

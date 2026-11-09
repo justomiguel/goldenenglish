@@ -7279,6 +7279,9 @@
       "mobileSortSheetTitle": "Sort registrations",
       "whatsappCta": "WhatsApp",
       "lead": "Prospective students from the public form.",
+      "pageTabList": "Registrations",
+      "pageTabConfig": "Configuration",
+      "pageTabsAria": "Web registration sections",
       "none": "No registrations yet",
       "filterLabel": "Search",
       "filterPlaceholder": "Name, email, ID / RUT / passport, phone, level, status…",
@@ -10441,6 +10444,10 @@
             "title": "📋 What this list is",
             "description": "The heading marks the registrations inbox — separate from the Users directory until someone is accepted."
           },
+          "tabs": {
+            "title": "🗂️ Two areas",
+            "description": "Registrations shows the queue. Configuration holds the public form, the section mode, the public buttons, and the cohort."
+          },
           "toolbar": {
             "title": "🔎 Find a request",
             "description": "Search and counters help you see how many requests match your filter versus the full queue."
@@ -11489,7 +11496,7 @@
       "adminSettings": {
         "meta": {
           "title": "Settings",
-          "description": "Institute-wide toggles: registrations, reminders, integrations helpers."
+          "description": "Institute-wide toggles: email, reminders, and optional translation."
         },
         "doneBtn": "Done",
         "nextBtn": "Next",
@@ -11499,15 +11506,11 @@
         "steps": {
           "intro": {
             "title": "⚙️ Institute settings",
-            "description": "Operational switches that affect public registration, class reminders, and optional translation keys."
+            "description": "Switches for email, class reminders, and an optional translation key. Public registration settings live under Online registrations."
           },
           "titleBlock": {
             "title": "📋 Settings title",
             "description": "You are editing institute-scoped settings, not a single user profile."
-          },
-          "inscriptions": {
-            "title": "📝 Public registrations",
-            "description": "Enable or pause the public registration funnel when you are not accepting new interest forms."
           },
           "classReminders": {
             "title": "⏰ Class reminders",
@@ -11519,7 +11522,7 @@
           },
           "closing": {
             "title": "✅ Change deliberately",
-            "description": "Settings are institute-wide. Confirm with your team before disabling registrations mid-campaign."
+            "description": "These settings apply to the whole institute. Confirm with your team before you change them."
           },
           "emailSends": {
             "title": "✉️ Email sends",

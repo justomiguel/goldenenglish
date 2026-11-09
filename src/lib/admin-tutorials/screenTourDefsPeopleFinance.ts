@@ -71,6 +71,7 @@ export const SCREEN_TOUR_DEFS_PEOPLE_FINANCE = {
   "admin-registrations": [
     { key: "intro", anchor: null },
     { key: "titleBlock", anchor: ADMIN_TOUR_ANCHORS.registrationsTitle },
+    { key: "tabs", anchor: ADMIN_TOUR_ANCHORS.registrationsTabs },
     { key: "toolbar", anchor: ADMIN_TOUR_ANCHORS.registrationsToolbar },
     { key: "table", anchor: ADMIN_TOUR_ANCHORS.registrationsTable },
     { key: "closing", anchor: null },

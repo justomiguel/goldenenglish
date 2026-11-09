@@ -1,4 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
+import { normalizeHost } from "@/lib/tenant/parseTenantConfigJson";
 import { finalizeMercadoPagoPayment } from "@/lib/billing/finalizeMercadoPagoPayment";
 import { loadPaymentGatewayEncryptionKeyRaw32 } from "@/lib/payment-gateways/loadPaymentGatewayEncryptionKey";
 import { loadMercadoPagoCredentialsPlain } from "@/lib/payment-gateways/mercadopago/loadMercadoPagoCredentialsPlain";
@@ -10,6 +12,12 @@ import { finalizeEnrollmentPaymentFromMercadoPago } from "@/lib/register/finaliz
 import { finalizeTrialPaymentFromMercadoPago } from "@/lib/register/finalizeTrialPaymentFromMercadoPago";
 import { finalizeShopOrderFromMercadoPago } from "@/lib/shop/finalizeShopOrderFromMercadoPago";
 import { finalizeCourseOrderFromMercadoPago } from "@/lib/courses/finalizeCourseOrderFromMercadoPago";
+
+function webhookHost(req: Request): string | null {
+  const raw = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? new URL(req.url).host;
+  const host = normalizeHost(raw);
+  return host || null;
+}
 
 function parseCountry(raw: string | null): PaymentGatewayCountryCode | null {
   const c = raw?.trim().toUpperCase();
@@ -71,16 +79,20 @@ export async function POST(req: Request): Promise<Response> {
 
     const xSignature = req.headers.get("x-signature");
     const xRequestId = req.headers.get("x-request-id");
-    const valid = mercadoPagoVerifyWebhookSignature({
+    const signature = mercadoPagoVerifyWebhookSignature({
       webhookSecret: creds.webhookSecret,
       xSignature,
       xRequestId,
       dataId: resolvedDataId,
     });
-    if (!valid) {
+    if (!signature.ok) {
+      const tenant = await resolveRequestTenant();
       logServerWarn("mpWebhook:invalid_signature", {
         country,
+        code: signature.code,
         data_id_prefix: resolvedDataId.slice(0, 8),
+        host: webhookHost(req),
+        tenantSlug: tenant?.slug ?? null,
       });
       return new Response("unauthorized", { status: 401 });
     }

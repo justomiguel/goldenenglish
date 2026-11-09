@@ -7279,6 +7279,9 @@
       "mobileSortSheetTitle": "Ordenar inscripciones",
       "whatsappCta": "WhatsApp",
       "lead": "Contactos desde el formulario público.",
+      "pageTabList": "Inscripciones",
+      "pageTabConfig": "Configuración",
+      "pageTabsAria": "Secciones de inscripciones web",
       "none": "Todavía no hay solicitudes",
       "filterLabel": "Buscar",
       "filterPlaceholder": "Nombre, correo, DNI / RUT / pasaporte, teléfono, nivel, estado…",
@@ -10441,6 +10444,10 @@
             "title": "📋 Qué es esta lista",
             "description": "El encabezado marca la bandeja de inscripciones — distinta del directorio de Usuarios hasta aceptar."
           },
+          "tabs": {
+            "title": "🗂️ Dos áreas",
+            "description": "Inscripciones muestra la cola. Configuración guarda el formulario público, el modo de sección, los botones y la cohorte."
+          },
           "toolbar": {
             "title": "🔎 Buscar una solicitud",
             "description": "La búsqueda y los contadores muestran cuántas solicitudes coinciden con el filtro frente al total."
@@ -11489,7 +11496,7 @@
       "adminSettings": {
         "meta": {
           "title": "Ajustes",
-          "description": "Toggles del instituto: inscripciones, recordatorios, integraciones."
+          "description": "Interruptores del instituto: correo, recordatorios y traducción opcional."
         },
         "doneBtn": "Listo",
         "nextBtn": "Siguiente",
@@ -11499,15 +11506,11 @@
         "steps": {
           "intro": {
             "title": "⚙️ Ajustes del instituto",
-            "description": "Interruptores operativos: inscripción pública, recordatorios de clase y claves de traducción opcionales."
+            "description": "Interruptores de correo, recordatorios de clase y una clave de traducción opcional. La inscripción pública está en Inscripciones web."
           },
           "titleBlock": {
             "title": "📋 Título de ajustes",
             "description": "Editas ajustes del instituto, no un perfil individual."
-          },
-          "inscriptions": {
-            "title": "📝 Inscripciones públicas",
-            "description": "Activa o pausa el embudo de inscripción pública cuando no aceptas formularios nuevos."
           },
           "classReminders": {
             "title": "⏰ Recordatorios de clase",
@@ -11519,7 +11522,7 @@
           },
           "closing": {
             "title": "✅ Cambiar a propósito",
-            "description": "Los ajustes son de todo el instituto. Confirma con el equipo antes de cortar inscripciones en campaña."
+            "description": "Estos ajustes valen para todo el instituto. Confirma con tu equipo antes de cambiarlos."
           },
           "emailSends": {
             "title": "✉️ Envíos de email",

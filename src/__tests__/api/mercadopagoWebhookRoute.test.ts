@@ -44,6 +44,11 @@ vi.mock("@/lib/logging/serverActionLog", () => ({
   logServerWarn: vi.fn(),
 }));
 
+vi.mock("@/lib/tenant/tenantRequestContext", () => ({
+  resolveRequestTenant: () => Promise.resolve({ slug: "nago" }),
+}));
+
+import { logServerWarn } from "@/lib/logging/serverActionLog";
 import { POST } from "@/app/api/payments/mercadopago/webhook/route";
 
 const secret = "webhook-secret";
@@ -67,6 +72,7 @@ function webhookRequest(opts?: { country?: string; signature?: string | null }) 
       headers: {
         "x-signature": xSignature ?? "",
         "x-request-id": requestId,
+        "x-forwarded-host": "www.nago.cl",
         "content-type": "application/json",
       },
       body: JSON.stringify({ type: "payment", data: { id: dataId } }),
@@ -102,6 +108,13 @@ describe("POST /api/payments/mercadopago/webhook", () => {
     const res = await POST(webhookRequest({ signature: `ts=${ts},v1=badhash` }));
     expect(res.status).toBe(401);
     expect(mockFinalize).not.toHaveBeenCalled();
+    expect(logServerWarn).toHaveBeenCalledWith("mpWebhook:invalid_signature", {
+      country: "CL",
+      code: "digest_mismatch",
+      data_id_prefix: dataId.slice(0, 8),
+      host: "www.nago.cl",
+      tenantSlug: "nago",
+    });
   });
 
   it("returns 200 and finalizes on valid signature", async () => {

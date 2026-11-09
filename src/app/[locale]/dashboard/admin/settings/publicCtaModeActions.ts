@@ -52,5 +52,6 @@ export async function setPublicCtaMode(
   revalidatePath(`/${locale}`);
   revalidatePath(`/${locale}/register`);
   revalidatePath(`/${locale}/dashboard/admin/settings`);
+  revalidatePath(`/${locale}/dashboard/admin/registrations`);
   return { ok: true };
 }

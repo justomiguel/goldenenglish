@@ -1,15 +1,7 @@
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import {
-  getInscriptionsEnabled,
-  getRegisterSectionMode,
-  loadRegistrationCohortConfig,
-} from "@/lib/settings/inscriptionsServer";
-import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
-import { PublicCtaModeSettingsForm } from "@/components/dashboard/PublicCtaModeSettingsForm";
 import { loadClassRemindersAdminPageModel } from "@/lib/settings/loadClassRemindersAdminPageModel";
 import { loadEmailSendsAdminPageModel } from "@/lib/settings/loadEmailSendsAdminPageModel";
 import { loadInstituteMailMonth } from "@/lib/email/loadInstituteMailMonth";
-import { InscriptionsSettingsForm } from "@/components/dashboard/InscriptionsSettingsForm";
 import { MerchSettingsForm } from "@/components/dashboard/MerchSettingsForm";
 import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
 import { EmailSendsAdminSettingsForm } from "@/components/dashboard/EmailSendsAdminSettingsForm";
@@ -38,14 +30,8 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function AdminSettingsPage({ params }: PageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
-  const [enabled, sectionMode, cohortConfig, merchEnabled, publicCtaMode] = await Promise.all([
-    getInscriptionsEnabled(),
-    getRegisterSectionMode(),
-    loadRegistrationCohortConfig(),
+  const [merchEnabled, emailSends, mailMonth] = await Promise.all([
     loadMerchEnabled(),
-    getPublicCtaMode(),
-  ]);
-  const [emailSends, mailMonth] = await Promise.all([
     loadEmailSendsAdminPageModel(locale as Locale, {
       inactivity: dict.admin.settings.emailSendsLabelInactivity,
       classReminder: dict.admin.settings.emailSendsLabelClassReminder,
@@ -64,27 +50,11 @@ export default async function AdminSettingsPage({ params }: PageProps) {
         iconId="settings"
         tourAnchor={ADMIN_TOUR_ANCHORS.settingsTitle}
       />
-      <div data-tour={ADMIN_TOUR_ANCHORS.settingsInscriptions}>
-        <InscriptionsSettingsForm
-          locale={locale}
-          initialEnabled={enabled}
-          initialSectionMode={sectionMode}
-          labels={dict.admin.settings}
-          cohortConfig={cohortConfig}
-        />
-        <PublicCtaModeSettingsForm
-          locale={locale}
-          initialMode={publicCtaMode}
-          labels={dict.admin.settings}
-        />
-        <div className="mt-8">
-          <MerchSettingsForm
-            locale={locale}
-            initialEnabled={merchEnabled}
-            labels={dict.admin.settings}
-          />
-        </div>
-      </div>
+      <MerchSettingsForm
+        locale={locale}
+        initialEnabled={merchEnabled}
+        labels={dict.admin.settings}
+      />
       {emailSends ? (
         <div className="mt-8" data-tour={ADMIN_TOUR_ANCHORS.settingsEmailSends}>
           <EmailSendsAdminSettingsForm

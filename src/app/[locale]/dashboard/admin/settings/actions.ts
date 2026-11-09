@@ -44,6 +44,7 @@ export async function setInscriptionsEnabled(
 
   revalidatePath(`/${locale}`);
   revalidatePath(`/${locale}/register`);
+  revalidatePath(`/${locale}/dashboard/admin/registrations`);
   return { ok: true };
 }
 
