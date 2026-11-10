@@ -1,5 +1,4 @@
 "use client";
-
 import { Fragment } from "react";
 import { AdminRegistrationAcceptModal } from "@/components/dashboard/AdminRegistrationAcceptModal";
 import { AdminRegistrationDeleteModal } from "@/components/dashboard/AdminRegistrationDeleteModal";
@@ -33,6 +32,7 @@ export function AdminRegistrationsTableDesktop({
   tableLabels,
   userLabels,
   currentCohortSections,
+  sectionOptionsByCohort,
   currentCohortName,
   createSectionHref,
   usesCefrLevel = false,
@@ -54,7 +54,6 @@ export function AdminRegistrationsTableDesktop({
     "px-3 py-2 text-xs uppercase text-[var(--color-muted-foreground)]";
   const sectionNameById = new Map((currentCohortSections ?? []).map((s) => [s.id, s.name]));
   const COLUMN_COUNT = 10;
-
   return (
     <div className="space-y-4">
       {u.toast ? (
@@ -173,6 +172,7 @@ export function AdminRegistrationsTableDesktop({
                 onRevertToNew={u.onRevertToNew}
                 onStartEnrollmentFee={u.onStartEnrollmentFee}
                 onStartJoinCharge={u.onStartJoinCharge}
+                sectionOptionsByCohort={sectionOptionsByCohort}
               />
               {u.expandedId === r.id ? (
                 <AdminRegistrationExpandedDetails

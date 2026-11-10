@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPublicLanding";
+import { openPublishedEvent } from "@/lib/events/server/openPublishedEvent";
 import { validateEventAttendeePayload } from "@/lib/events/validateEventAttendeePayload";
 import { enrollEventAttendeeServer } from "@/lib/events/server/enrollEventAttendeeServer";
 import { validateEventPurchasePayload } from "@/lib/events/validateEventPurchasePayload";
@@ -107,7 +107,8 @@ export async function POST(
 
     const locale = body.locale?.trim() || "es";
     const supabase = await createClient();
-    const event = await loadEventForPublicLanding(supabase, slug, locale);
+    const source = await openPublishedEvent(slug, locale);
+    const event = source?.event ?? null;
     if (!event) {
       return NextResponse.json({ ok: false, code: "event_not_found" }, { status: 404 });
     }
@@ -157,7 +158,7 @@ export async function POST(
       body.paymentMethod === "transfer" &&
       Boolean(event.bankTransferSourcesConfig?.included.includes("global"));
     const globalTransferInstructions = needsGlobalAccount
-      ? (await loadBankTransferInstructionsSetting(supabase)).instructions
+      ? (await loadBankTransferInstructionsSetting(source?.client ?? supabase)).instructions
       : null;
     const transferCheck = validateEventTransferSelection({
       requiresTransferReceipt: body.paymentMethod === "transfer",

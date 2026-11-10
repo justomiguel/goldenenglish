@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
-import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPublicLanding";
+import { openPublishedEvent } from "@/lib/events/server/openPublishedEvent";
 import { hashSeatHoldToken } from "@/lib/events/seatHoldToken";
 import { isEventSeatMapActive } from "@/lib/events/seatMapState";
 import { loadEventSeatLocks } from "@/lib/events/server/eventSeatLocksServer";
@@ -25,13 +23,13 @@ export async function GET(
     }
     const { slug } = await context.params;
     const locale = new URL(request.url).searchParams.get("locale")?.trim() || "es";
-    const supabase = await createClient();
-    const event = await loadEventForPublicLanding(supabase, slug, locale);
-    if (!event || !isEventSeatMapActive(event.seatMapConfig)) {
+    const source = await openPublishedEvent(slug, locale);
+    const event = source?.event ?? null;
+    if (!event || !source || !isEventSeatMapActive(event.seatMapConfig)) {
       return NextResponse.json({ ok: false, code: "event_not_found" }, { status: 404, headers: PRIVATE_NO_STORE });
     }
     const tokenHash = hashSeatHoldToken(request.headers.get("x-seat-hold-token"));
-    const admin = await createAdminClient();
+    const admin = source.client;
     const [locks, holds] = await Promise.all([
       loadEventSeatLocks(admin, event.id),
       loadEventSeatHoldRows(admin, event.id, tokenHash),

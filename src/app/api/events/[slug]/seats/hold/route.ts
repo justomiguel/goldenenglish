@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
-import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPublicLanding";
+import { openPublishedEvent } from "@/lib/events/server/openPublishedEvent";
 import { hashSeatHoldToken } from "@/lib/events/seatHoldToken";
 import { isEventSeatMapActive, purchasableSeatKeys } from "@/lib/events/seatMapState";
 import {
@@ -18,10 +16,9 @@ import { logServerException, logServerWarn } from "@/lib/logging/serverActionLog
 export const runtime = "nodejs";
 
 async function loadSeatEvent(slug: string, locale: string) {
-  const supabase = await createClient();
-  const event = await loadEventForPublicLanding(supabase, slug, locale);
-  if (!event || !isEventSeatMapActive(event.seatMapConfig)) return null;
-  return event;
+  const source = await openPublishedEvent(slug, locale);
+  if (!source || !isEventSeatMapActive(source.event.seatMapConfig)) return null;
+  return source;
 }
 
 function tokenFrom(request: Request, bodyToken?: unknown): string | null {
@@ -45,8 +42,9 @@ export async function POST(
       seatKeys?: unknown;
     } | null;
     const locale = body?.locale?.trim() || "es";
-    const event = await loadSeatEvent(slug, locale);
-    if (!event?.seatMapConfig) {
+    const source = await loadSeatEvent(slug, locale);
+    const event = source?.event ?? null;
+    if (!event?.seatMapConfig || !source) {
       return NextResponse.json({ ok: false, code: "event_not_found" }, { status: 404, headers: PRIVATE_NO_STORE });
     }
     const tokenHash = tokenFrom(request, body?.token);
@@ -66,7 +64,7 @@ export async function POST(
       );
     }
     const maxSeats = event.allowMultipleTickets ? (event.maxTicketsPerRegistration ?? 50) : 1;
-    const held = await holdEventSeats(await createAdminClient(), {
+    const held = await holdEventSeats(source.client, {
       eventId: event.id,
       tokenHash,
       seatKeys,
@@ -99,15 +97,16 @@ export async function DELETE(
   try {
     const { slug } = await context.params;
     const locale = new URL(request.url).searchParams.get("locale")?.trim() || "es";
-    const event = await loadSeatEvent(slug, locale);
-    if (!event) {
+    const source = await loadSeatEvent(slug, locale);
+    const event = source?.event ?? null;
+    if (!event || !source) {
       return NextResponse.json({ ok: false, code: "event_not_found" }, { status: 404, headers: PRIVATE_NO_STORE });
     }
     const tokenHash = tokenFrom(request);
     if (!tokenHash) {
       return NextResponse.json({ ok: false, code: "invalid_token" }, { status: 400, headers: PRIVATE_NO_STORE });
     }
-    await releaseEventSeatHolds(await createAdminClient(), { eventId: event.id, tokenHash });
+    await releaseEventSeatHolds(source.client, { eventId: event.id, tokenHash });
     return NextResponse.json({ ok: true }, { headers: PRIVATE_NO_STORE });
   } catch (error) {
     logServerException("api/events/seats/hold.delete", error);

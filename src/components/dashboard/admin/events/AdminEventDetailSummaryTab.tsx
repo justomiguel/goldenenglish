@@ -3,6 +3,7 @@ import { AdminEventDuplicateButton } from "@/components/dashboard/admin/events/A
 import { AdminEventSummarySection } from "@/components/dashboard/admin/events/AdminEventSummarySection";
 import { AdminEventPublishBar } from "@/components/dashboard/admin/events/AdminEventPublishBar";
 import { AdminEventShowOnHomeToggle } from "@/components/dashboard/admin/events/AdminEventShowOnHomeToggle";
+import { AdminEventShareSection } from "@/components/dashboard/admin/events/AdminEventShareSection";
 import { AdminEventSummaryScheduleForm } from "@/components/dashboard/admin/events/AdminEventSummaryScheduleForm";
 import { AdminEventSummaryPricingForm } from "@/components/dashboard/admin/events/AdminEventSummaryPricingForm";
 import { AdminEventTranslationsEditor } from "@/components/dashboard/admin/events/AdminEventTranslationsEditor";
@@ -59,6 +60,15 @@ export function AdminEventDetailSummaryTab({
         />
         <AdminEventDuplicateButton locale={locale} eventId={eventId} labels={detail.duplicate} />
       </div>
+      <AdminEventShareSection
+        locale={locale}
+        eventId={eventId}
+        access={model.shareAccess}
+        ownerName={model.ownerName}
+        grants={model.shareGrants}
+        sites={model.shareSites}
+        labels={detail.share}
+      />
 
       <AdminEventSummarySection
         icon={CalendarClock}

@@ -1,11 +1,13 @@
 "use server";
 
 import { z } from "zod";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
-  requireAdminEventActor,
+  openEventWrite,
+  openEventWriteByRow,
+} from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
+import {
   revalidateEventFormSurfaces,
   type EventMutationResult,
 } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
@@ -22,9 +24,6 @@ export async function addEventFormFieldAction(input: {
   allowedMimeTypes?: string[];
   flowId?: string | null;
 }): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-
   const { normalizeEventFormFieldKey } = await import("@/lib/events/normalizeEventFormFieldKey");
   const normalizedKey = normalizeEventFormFieldKey(input.fieldKey);
   if (!normalizedKey.ok) return { ok: false, message: "invalid_field_key" };
@@ -57,7 +56,9 @@ export async function addEventFormFieldAction(input: {
       )
     : {};
 
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(input.eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const { error } = await admin.from("event_form_fields").insert({
     event_id: input.eventId,
     field_key: normalizedKey.value,
@@ -88,14 +89,13 @@ const updateEventFormFieldSchema = z.object({
 });
 
 export async function updateEventFormFieldAction(raw: unknown): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-
   const parsed = updateEventFormFieldSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, fieldId, label, required, selectOptions, allowedMimeTypes } = parsed.data;
-  const admin = await createAdminClient();
+  const opened = await openEventWriteByRow("event_form_fields", fieldId);
+  if (!opened.ok) return { ok: false, message: opened.code === "forbidden" ? "forbidden" : "field_not_found" };
+  const admin = opened.client;
   const { data: field, error: lookupError } = await admin
     .from("event_form_fields")
     .select(
@@ -174,9 +174,9 @@ export async function updateEventFormFieldAction(raw: unknown): Promise<EventMut
 }
 
 export async function archiveEventFormFieldAction(locale: string, fieldId: string): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await openEventWriteByRow("event_form_fields", fieldId);
+  if (!opened.ok) return { ok: false, message: opened.code === "forbidden" ? "forbidden" : "field_not_found" };
+  const admin = opened.client;
   const { data: field, error: lookupError } = await admin
     .from("event_form_fields")
     .select("event_id")

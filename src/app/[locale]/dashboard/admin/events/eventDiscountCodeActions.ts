@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createAdminClient } from "@/lib/supabase/admin";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { openEventWrite } from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { buildEventDiscountCodesXlsx } from "@/lib/events/export/buildEventDiscountCodesXlsx";
 import { generateEventDiscountCodes } from "@/lib/events/generateEventDiscountCodes";
@@ -12,7 +13,6 @@ import { loadEventDiscountCodes } from "@/lib/dashboard/events/loadEventDiscount
 import type { ParsedEventDiscountCode } from "@/lib/events/parseEventDiscountCodeSheet";
 import {
   adminEventsPath,
-  requireAdminEventActor,
 } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
 
 export interface EventDiscountCodeActionResult {
@@ -48,7 +48,7 @@ function refresh(locale: string, eventId: string): void {
 }
 
 async function eventCurrency(
-  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  admin: SupabaseClient,
   eventId: string,
 ): Promise<string> {
   const { data } = await admin.from("events").select("currency").eq("id", eventId).maybeSingle();
@@ -75,9 +75,9 @@ export async function saveEventDiscountCodeAction(input: {
   amount: string;
   tickets: string;
 }): Promise<EventDiscountCodeActionResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, code: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(input.eventId);
+  if (!opened.ok) return { ok: false, code: opened.code };
+  const admin = opened.client;
   const current = await loadEventDiscountCodes(admin, input.eventId);
   const occupied = new Map(current.map((row) => [row.code.toLowerCase(), row.reserved + row.consumed]));
   const matrix =
@@ -103,11 +103,11 @@ export async function importEventDiscountCodesAction(input: {
   kind: DiscountKind;
   fileBase64: string;
 }): Promise<EventDiscountCodeActionResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, code: "forbidden" };
   const matrix = readDiscountCodeMatrix(input.fileBase64);
   if (!matrix) return { ok: false, code: "file" };
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(input.eventId);
+  if (!opened.ok) return { ok: false, code: opened.code };
+  const admin = opened.client;
   const current = await loadEventDiscountCodes(admin, input.eventId);
   const occupied = new Map(current.map((row) => [row.code.toLowerCase(), row.reserved + row.consumed]));
   const parsed = parseEventDiscountCodeSheet(matrix, occupied, {
@@ -135,9 +135,9 @@ export async function generateEventDiscountCodesAction(input: {
   amount: string;
   tickets: string;
 }): Promise<EventDiscountCodeActionResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, code: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(input.eventId);
+  if (!opened.ok) return { ok: false, code: opened.code };
+  const admin = opened.client;
   const current = await loadEventDiscountCodes(admin, input.eventId);
   const generated = generateEventDiscountCodes({
     quantity: input.quantity,
@@ -170,9 +170,9 @@ export async function exportEventDiscountCodesAction(input: {
   eventId: string;
   kind: DiscountKind;
 }): Promise<EventDiscountCodeActionResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, code: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(input.eventId);
+  if (!opened.ok) return { ok: false, code: opened.code };
+  const admin = opened.client;
   const current = await loadEventDiscountCodes(admin, input.eventId);
   const rows = current
     .filter((row) => row.kind === input.kind)
@@ -193,9 +193,9 @@ export async function deleteEventDiscountCodeAction(input: {
   eventId: string;
   codeId: string;
 }): Promise<EventDiscountCodeActionResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, code: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(input.eventId);
+  if (!opened.ok) return { ok: false, code: opened.code };
+  const admin = opened.client;
   const { data, error } = await admin.rpc("delete_event_discount_code", { p_code_id: input.codeId });
   if (error) return { ok: false, code: "delete_failed" };
   const status = String(data ?? "");

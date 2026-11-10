@@ -8,9 +8,16 @@ interface AdminEventListCardProps {
   row: AdminEventRow;
   manageLabel: string;
   freeLabel: string;
+  sharedFromLabel: string;
 }
 
-export function AdminEventListCard({ locale, row, manageLabel, freeLabel }: AdminEventListCardProps) {
+export function AdminEventListCard({
+  locale,
+  row,
+  manageLabel,
+  freeLabel,
+  sharedFromLabel,
+}: AdminEventListCardProps) {
   const when = new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
@@ -19,7 +26,14 @@ export function AdminEventListCard({ locale, row, manageLabel, freeLabel }: Admi
   return (
     <article className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4">
       <div className="flex items-start justify-between gap-3">
-        <h3 className="min-w-0 text-base font-semibold text-[var(--color-foreground)]">{row.title}</h3>
+        <h3 className="min-w-0 text-base font-semibold text-[var(--color-foreground)]">
+          {row.title}
+          {row.ownerName ? (
+            <span className="mt-0.5 block text-xs font-normal text-[var(--color-muted-foreground)]">
+              {sharedFromLabel.replace("{site}", row.ownerName)}
+            </span>
+          ) : null}
+        </h3>
         <span className="inline-flex shrink-0 rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-semibold capitalize text-sky-800">
           {row.status}
         </span>

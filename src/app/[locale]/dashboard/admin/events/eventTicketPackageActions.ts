@@ -1,11 +1,14 @@
 "use server";
 
 import { z } from "zod";
-import { createAdminClient } from "@/lib/supabase/admin";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
-  requireAdminEventActor,
+  openEventWrite,
+  openEventWriteByRow,
+} from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
+import {
   revalidateEventFormSurfaces,
   type EventMutationResult,
 } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
@@ -34,14 +37,13 @@ function cleanBenefits(benefits: string[]): string[] {
 }
 
 export async function addEventTicketPackageAction(raw: unknown): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-
   const parsed = packageSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, name, price, capacity, benefits } = parsed.data;
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const eventRow = await admin.from("events").select("price_by_flow").eq("id", eventId).maybeSingle();
   if (eventRow.data?.price_by_flow) return { ok: false, message: "price_mode_conflict" };
   const position = await nextPosition(admin, eventId);
@@ -72,14 +74,13 @@ export async function addEventTicketPackageAction(raw: unknown): Promise<EventMu
 }
 
 export async function updateEventTicketPackageAction(raw: unknown): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-
   const parsed = updateSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, packageId, name, price, capacity, benefits } = parsed.data;
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const existing = await loadPackage(admin, packageId);
   if (!existing || existing.eventId !== eventId) {
     return { ok: false, message: "package_not_found" };
@@ -108,14 +109,13 @@ export async function updateEventTicketPackageAction(raw: unknown): Promise<Even
 }
 
 export async function moveEventTicketPackageAction(raw: unknown): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-
   const parsed = moveSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, packageId, direction } = parsed.data;
-  const admin = await createAdminClient();
+  const opened = await openEventWriteByRow("event_ticket_packages", packageId);
+  if (!opened.ok) return { ok: false, message: opened.code === "forbidden" ? "forbidden" : "package_not_found" };
+  const admin = opened.client;
   const existing = await loadPackage(admin, packageId);
   if (!existing) return { ok: false, message: "package_not_found" };
 
@@ -152,10 +152,9 @@ export async function archiveEventTicketPackageAction(
   locale: string,
   packageId: string,
 ): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-
-  const admin = await createAdminClient();
+  const opened = await openEventWriteByRow("event_ticket_packages", packageId);
+  if (!opened.ok) return { ok: false, message: opened.code === "forbidden" ? "forbidden" : "package_not_found" };
+  const admin = opened.client;
   const existing = await loadPackage(admin, packageId);
   if (!existing) return { ok: false, message: "package_not_found" };
 
@@ -186,7 +185,7 @@ export async function archiveEventTicketPackageAction(
   return { ok: true };
 }
 
-type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
+type AdminClient = SupabaseClient;
 
 async function loadPackage(
   admin: AdminClient,

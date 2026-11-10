@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { RotateCcw } from "lucide-react";
+import styles from "@/components/organisms/pulsar/centrolistoMotion.module.css";
 
 export interface CentroListoLogoMarkProps {
   size?: "sm" | "md";
@@ -32,11 +33,13 @@ export function CentroListoLogoMark({
       >
         <path
           d="M62 28C54 20 39 19 29 27C19 35 19 52 29 61C39 70 56 68 65 56C68 52 67 44 60 42C53 40 45 45 46 51"
+          pathLength={1}
+          className={styles.logoLoop}
           stroke="var(--color-primary)"
           strokeWidth="4.5"
           strokeLinecap="round"
         />
-        <circle cx="48" cy="44" r="5.5" fill="var(--color-accent)" />
+        <circle cx="48" cy="44" r="5.5" className={styles.logoSeed} fill="var(--color-accent)" />
       </svg>
       {showWordmark ? (
         <span className="font-[family-name:var(--font-display)] text-xl font-normal tracking-tight text-[var(--color-foreground)]">

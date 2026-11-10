@@ -3,7 +3,6 @@ import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { notifyRegistrationWelcome } from "@/lib/email/registrationIntakeEmails";
 import { notifyAdminsRegistrationPlacement } from "@/lib/email/notifyAdminsRegistrationPlacement";
 import { failAfterStudentCreated } from "@/lib/register/acceptRegistrationHelpers";
-import { enrollRequestedSectionsOnAccept } from "@/lib/register/enrollRequestedSectionsOnAccept";
 import { localizeRegistrationAcceptError } from "@/lib/register/localizeRegistrationAcceptError";
 import {
   applyNagoExtrasOnAccept,
@@ -61,11 +60,10 @@ export async function finalizeAcceptedRegistrationLead(input: {
       reg.preferred_section_id != null ? String(reg.preferred_section_id) : null,
     additionalSectionIds,
   });
-  const pendingSectionIds = input.enrollServiceRole
-    ? await enrollRequestedSectionsOnAccept(input.enrollClient, studentId, requestedIds, {
-        serviceRole: true,
-      })
-    : await enrollRequestedSectionsOnAccept(input.enrollClient, studentId, requestedIds);
+  void requestedIds;
+  void input.enrollClient;
+  void input.enrollServiceRole;
+  const pendingSectionIds: string[] = [];
 
   try {
     await applyNagoExtrasOnAccept({
@@ -78,6 +76,7 @@ export async function finalizeAcceptedRegistrationLead(input: {
     /* extras mapping must not roll back accept */
   }
 
+  const fee = input.paidCapture ? input.feePayment : undefined;
   const write = {
     ...resolveAcceptLeadWrite({
       requestedCount: requestedIds.length,
@@ -86,6 +85,14 @@ export async function finalizeAcceptedRegistrationLead(input: {
       studentId,
     }),
     proposed_section_id: null,
+    ...(fee
+      ? {
+          fee_captured: true,
+          enrollment_fee_paid_method: fee.method,
+          enrollment_fee_paid_amount: fee.amount,
+          enrollment_fee_paid_on: fee.paidOn,
+        }
+      : {}),
   };
   const committed = requestedIds.filter((id) => !pendingSectionIds.includes(id));
   if (committed.length > 0) {

@@ -1,8 +1,13 @@
 /** @vitest-environment node */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { notifyAttendeeViaResend, scene } = vi.hoisted(() => ({
+const { notifyAttendeeViaResend, brandFrameForSlug, ownerAdminClient, scene } = vi.hoisted(() => ({
   notifyAttendeeViaResend: vi.fn(async () => true),
+  brandFrameForSlug: vi.fn(async () => ({
+    brand: { name: "Matiss" },
+    origin: "https://matiss.example",
+  })),
+  ownerAdminClient: vi.fn(() => ({ kind: "entry-templates" })),
   scene: {
     kind: "full" as
       | "full"
@@ -13,8 +18,19 @@ const { notifyAttendeeViaResend, scene } = vi.hoisted(() => ({
       | "no-date"
       | "blank"
       | "null-flow"
+      | "entry"
       | "throw",
   },
+}));
+
+vi.mock("@/lib/events/server/eventMailBrand", () => ({
+  brandFrameForSlug: (...args: unknown[]) => brandFrameForSlug(...args),
+  eventEntryMailSlug: (value: unknown) =>
+    typeof value === "string" && value.trim().length > 0 ? value.trim() : null,
+}));
+
+vi.mock("@/lib/events/server/resolveEventDataClient", () => ({
+  ownerAdminClient: (...args: unknown[]) => ownerAdminClient(...args),
 }));
 
 vi.mock("@/lib/events/server/notifyAttendeeViaResend", () => ({
@@ -45,6 +61,7 @@ vi.mock("@/lib/supabase/admin", () => ({
                     registration_locale: scene.kind === "no-flow" ? null : "en",
                     registration_flow_id: scene.kind === "no-flow" ? null : "flow-1",
                     event_id: "event-1",
+                    entry_host_slug: scene.kind === "entry" ? "matiss" : null,
                   },
                   error: null,
                 };
@@ -71,6 +88,7 @@ vi.mock("@/lib/supabase/admin", () => ({
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logSupabaseClientError: vi.fn(),
   logServerException: vi.fn(),
+  logServerError: vi.fn(),
 }));
 
 import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
@@ -142,6 +160,20 @@ describe("sendEventAttendeeNotification", () => {
     await sendEventAttendeeNotification({ attendeeId: "att-1", templateKey: "events.registered" });
     expect(notifyAttendeeViaResend).toHaveBeenLastCalledWith(
       expect.objectContaining({ vars: expect.objectContaining({ flowName: "" }) }),
+    );
+  });
+
+  it("sends later mail with the brand of the site where the person registered", async () => {
+    scene.kind = "entry";
+    await sendEventAttendeeNotification({ attendeeId: "att-1", templateKey: "events.payment_approved" });
+    expect(brandFrameForSlug).toHaveBeenCalledWith("matiss");
+    expect(ownerAdminClient).toHaveBeenCalledWith("matiss");
+    expect(notifyAttendeeViaResend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        brand: { name: "Matiss" },
+        origin: "https://matiss.example",
+        templateClient: { kind: "entry-templates" },
+      }),
     );
   });
 

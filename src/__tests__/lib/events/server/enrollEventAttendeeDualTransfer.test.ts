@@ -49,6 +49,18 @@ vi.mock("@/lib/email/notifyAdminsPurchasePayment", () => ({
   notifyAdminsEventRegistered: vi.fn(async () => undefined),
 }));
 
+vi.mock("@/lib/events/server/resolveEventDataClient", () => ({
+  resolveEventDataClient: async () => {
+    const { createAdminClient } = await import("@/lib/supabase/admin");
+    return {
+      ok: true as const,
+      client: await createAdminClient(),
+      ownerSlug: "local",
+      access: "local" as const,
+    };
+  },
+}));
+
 import { enrollEventAttendeeServer } from "@/lib/events/server/enrollEventAttendeeServer";
 
 describe("enrollEventAttendeeServer dual transfer persistence", () => {

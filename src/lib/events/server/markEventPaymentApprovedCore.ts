@@ -111,6 +111,7 @@ export async function markEventPaymentApprovedCore(
     await sendEventAttendeeNotification({
       attendeeId,
       templateKey: "events.payment_approved",
+      dataClient: input.admin,
     });
     await notifyAdminsEventPaymentPaid(input.paymentId);
   }

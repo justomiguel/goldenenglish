@@ -11,6 +11,7 @@ import {
   logSupabaseClientError,
 } from "@/lib/logging/serverActionLog";
 import { recordAuditEvent, type AuditDomain, type AuditJsonObject } from "@/lib/audit";
+import { currentEventWriteAudit } from "@/lib/events/server/eventWriteAuditContext";
 
 function inferAuditDomain(resourceType: string): AuditDomain {
   if (/payment|receipt|invoice|billing|scholarship|coupon|promotion|fee/i.test(resourceType)) {
@@ -32,6 +33,29 @@ export async function recordSystemAudit(input: {
   summary?: string;
 }): Promise<{ ok: boolean }> {
   try {
+    const mirror = currentEventWriteAudit();
+    if (mirror) {
+      const { error } = await mirror.client.from("system_config_audit").insert({
+        actor_id: null,
+        action: input.action,
+        resource_type: input.resourceType,
+        resource_id: input.resourceId ?? null,
+        payload: {
+          ...(input.payload ?? {}),
+          guest_slug: mirror.guestSlug,
+          guest_actor_id: mirror.guestActorId,
+        },
+      });
+      if (error) {
+        logSupabaseClientError("recordSystemAudit:guest", error, {
+          action: input.action,
+          resourceType: input.resourceType,
+          code: "share_store_failed",
+        });
+        return { ok: false };
+      }
+      return { ok: true };
+    }
     const { supabase, user } = await assertAdmin();
     const { error } = await supabase.from("system_config_audit").insert({
       actor_id: user.id,

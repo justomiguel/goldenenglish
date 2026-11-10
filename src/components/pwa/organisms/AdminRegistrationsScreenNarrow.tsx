@@ -19,6 +19,7 @@ import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import type { RegistrationSortKey, RegistrationSortDir } from "@/lib/dashboard/adminRegistrationsSort";
 import type { RegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
 import type { RegistrationInboxCounts } from "@/lib/register/countRegistrationInboxFilters";
+import type { RegistrationSectionPickerOption } from "@/lib/register/registrationSectionPicker";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -44,6 +45,7 @@ interface AdminRegistrationsScreenNarrowProps {
   userLabels: RegistrationAcceptUserLabels;
   surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">;
   currentCohortSections?: CurrentCohortSection[];
+  sectionOptionsByCohort?: Record<string, RegistrationSectionPickerOption[]>;
   currentCohortName?: string;
   createSectionHref?: string | null;
   usesCefrLevel?: boolean;
@@ -70,6 +72,7 @@ export function AdminRegistrationsScreenNarrow({
   userLabels,
   surface,
   currentCohortSections,
+  sectionOptionsByCohort,
   currentCohortName,
   createSectionHref,
   usesCefrLevel = false,
@@ -139,6 +142,7 @@ export function AdminRegistrationsScreenNarrow({
             onStartEnrollmentFee={u.onStartEnrollmentFee}
             onStartJoinCharge={u.onStartJoinCharge}
             currentCohortSections={currentCohortSections}
+            sectionOptionsByCohort={sectionOptionsByCohort}
             createSectionHref={createSectionHref}
             createSectionLabel={labels.createSectionInCohort.replaceAll(
               "{{cohort}}",

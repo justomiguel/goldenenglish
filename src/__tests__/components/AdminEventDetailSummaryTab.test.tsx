@@ -39,6 +39,10 @@ describe("AdminEventDetailSummaryTab", () => {
             event: { status: "draft", show_on_home: false },
             defaultLocale: "es",
             translations: [],
+            shareAccess: "local",
+            ownerName: "",
+            shareGrants: [],
+            shareSites: [],
           } as never
         }
       />,

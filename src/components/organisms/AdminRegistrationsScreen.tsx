@@ -13,6 +13,7 @@ import type { RegistrationStatusFilter } from "@/hooks/useAdminRegistrationsList
 import type { RegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
 import type { RegistrationInboxCounts } from "@/lib/register/countRegistrationInboxFilters";
 import type { CountryCode } from "libphonenumber-js";
+import type { RegistrationSectionPickerOption } from "@/lib/register/registrationSectionPicker";
 
 export interface AdminRegistrationsScreenProps {
   locale: string;
@@ -35,6 +36,7 @@ export interface AdminRegistrationsScreenProps {
   tableLabels: Dictionary["admin"]["table"];
   userLabels: RegistrationAcceptUserLabels;
   currentCohortSections?: CurrentCohortSection[];
+  sectionOptionsByCohort?: Record<string, RegistrationSectionPickerOption[]>;
   currentCohortName?: string;
   createSectionHref?: string | null;
   usesCefrLevel?: boolean;

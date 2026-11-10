@@ -125,7 +125,7 @@ describe("applyEnrollmentGatewayCapture", () => {
     );
   });
 
-  it("marks fee_captured and section_full without accepting when the seat vanished", async () => {
+  it("creates the student without a section when the requested seat is full", async () => {
     const admin = mockAdmin({ seatOpen: false });
     const result = await applyEnrollmentGatewayCapture({
       admin,
@@ -134,19 +134,12 @@ describe("applyEnrollmentGatewayCapture", () => {
       gatewayCurrency: "CLP",
       locale: "es",
     });
-    expect(result).toEqual({ ok: true, skipped: "section_full" });
-    expect(mocks.accept).not.toHaveBeenCalled();
-    expect(admin.updates).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ fee_captured: true }),
-        expect.objectContaining({ intake_state: "section_full" }),
-      ]),
-    );
-    expect(mocks.notifyPlacement).toHaveBeenCalledWith({
-      admin,
-      locale: "es",
-      registrationId: REG_ID,
-      kind: "section_full",
+    expect(result).toEqual({ ok: true, studentId: "stu-1" });
+    expect(admin.updates[0]).toMatchObject({
+      fee_captured: true,
+      enrollment_fee_paid_method: "gateway",
     });
+    expect(mocks.accept).toHaveBeenCalled();
+    expect(mocks.notifyPlacement).not.toHaveBeenCalled();
   });
 });

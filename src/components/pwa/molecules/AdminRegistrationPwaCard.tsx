@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { Check, MessageCircle, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
@@ -12,13 +11,16 @@ import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDispla
 import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
 import { AdminRegistrationActionsSheet } from "@/components/pwa/molecules/AdminRegistrationActionsSheet";
 import { registrationInboxPrimaryKind } from "@/lib/register/registrationInboxPrimaryKind";
+import {
+  AdminRegistrationMatriculaControls,
+  registrationAltaAllowed,
+} from "@/components/dashboard/AdminRegistrationMatriculaControls";
 import { registrationIntentLabel } from "@/lib/register/registrationIntentLabel";
 import { AdminRegistrationIntakeActions } from "@/components/dashboard/AdminRegistrationIntakeActions";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import { AdminRegistrationNagoExtras } from "@/components/dashboard/AdminRegistrationNagoExtras";
 import { AdminRegistrationMozarthitosGuide } from "@/components/dashboard/AdminRegistrationMozarthitosGuide";
 import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
-
 type RegLabels = Dictionary["admin"]["registrations"];
 
 export interface AdminRegistrationPwaCardProps {
@@ -36,6 +38,7 @@ export interface AdminRegistrationPwaCardProps {
   onRevertToNew: (row: AdminRegistrationRow) => void;
   onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
   onStartJoinCharge: (row: AdminRegistrationRow) => void;
+  cohortSections?: { id: string; label: string }[];
   currentCohortSections?: CurrentCohortSection[];
   createSectionHref?: string | null;
   createSectionLabel?: string;
@@ -58,13 +61,15 @@ export function AdminRegistrationPwaCard({
   onRevertToNew,
   onStartEnrollmentFee,
   onStartJoinCharge,
+  cohortSections = [],
   currentCohortSections,
   createSectionHref,
   createSectionLabel,
   onBusy,
   onIntakeDone,
 }: AdminRegistrationPwaCardProps) {
-  const canAccept = registrationInboxPrimaryKind(r) === "accept";
+  const canAccept =
+    registrationInboxPrimaryKind(r) === "accept" && registrationAltaAllowed(r);
   const [actionsOpen, setActionsOpen] = useState(false);
   const birthDisplay =
     formatCivilIsoDateForDisplay(locale, r.birth_date, {
@@ -173,6 +178,10 @@ export function AdminRegistrationPwaCard({
           tenantExtras={r.tenantExtras}
           labels={labels.mozarthitosGuide}
         />
+        <AdminRegistrationMatriculaControls
+          locale={locale} row={r} labels={labels} busy={busy}
+          sections={cohortSections} onStartEnrollmentFee={onStartEnrollmentFee}
+        />
         {onBusy && onIntakeDone ? (
           <AdminRegistrationIntakeActions
             locale={locale}
@@ -232,7 +241,6 @@ export function AdminRegistrationPwaCard({
           onDelete={onDelete}
           onMarkContacted={onMarkContacted}
           onRevertToNew={onRevertToNew}
-          onStartEnrollmentFee={onStartEnrollmentFee}
           onStartJoinCharge={onStartJoinCharge}
         />
       </div>

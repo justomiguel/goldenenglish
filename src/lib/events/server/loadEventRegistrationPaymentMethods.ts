@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { loadPayableEventGateways } from "@/lib/events/server/loadPayableEventGateways";
 import {
@@ -15,8 +16,9 @@ import {
 /** Payable online gateways + optional bank transfer for public event registration. */
 export async function loadEventRegistrationPaymentMethods(
   currency: string,
+  client?: SupabaseClient,
 ): Promise<EventRegistrationPaymentMethod[]> {
-  const admin = await createAdminClient();
+  const admin = client ?? (await createAdminClient());
   const enabledGateways = await loadPayableEventGateways(admin, currency);
 
   const { data } = await admin

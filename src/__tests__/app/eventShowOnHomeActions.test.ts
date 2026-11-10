@@ -52,7 +52,16 @@ describe("updateEventShowOnHomeAction", () => {
     mockRequireAdminEventActor.mockResolvedValue("admin-1");
     const eq = vi.fn().mockResolvedValue({ error: null });
     const update = vi.fn().mockReturnValue({ eq });
-    createAdminClient.mockReturnValue({ from: () => ({ update }) });
+    createAdminClient.mockReturnValue({
+      from: () => ({
+        update,
+        select: () => ({
+          eq: () => ({
+            maybeSingle: async () => ({ data: { id: EVENT_ID }, error: null }),
+          }),
+        }),
+      }),
+    });
 
     const result = await updateEventShowOnHomeAction({
       locale: "es",

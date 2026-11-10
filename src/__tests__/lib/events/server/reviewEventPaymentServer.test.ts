@@ -202,6 +202,7 @@ describe("reviewEventPaymentServer", () => {
     expect(sendEventAttendeeNotification).toHaveBeenCalledWith({
       attendeeId: "att-1",
       templateKey: "events.payment_rejected",
+      dataClient: expect.anything(),
     });
     expect(mockReleaseDiscount).toHaveBeenCalledWith(expect.anything(), "att-1");
     expect(deleted.filter((row) => row.table === "event_attendees")).toEqual([

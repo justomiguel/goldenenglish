@@ -63,7 +63,14 @@ describe("event registration flow actions", () => {
             }),
           };
         }
-        return { update };
+        return {
+          update,
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({ data: { id: EVENT_ID }, error: null }),
+            }),
+          }),
+        };
       },
     });
 

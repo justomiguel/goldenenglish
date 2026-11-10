@@ -34,7 +34,7 @@ export function PulsarSiteChromePwa({
     clients: nav.clients,
     contact: nav.contact,
   };
-  const showThumb = activeNav !== "contact";
+  const showThumb = activeNav !== "contact" && activeNav !== "home";
 
   return (
     <div className="flex min-h-dvh flex-col bg-[var(--color-background)] text-[var(--color-foreground)]">

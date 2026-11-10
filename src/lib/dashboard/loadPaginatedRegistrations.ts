@@ -18,6 +18,7 @@ import {
   markRegistrationRowsEnrollmentFee,
 } from "@/lib/register/markRegistrationRowsEnrollmentFee";
 import { attachTrialSeatsToRegistrationRows } from "@/lib/register/attachTrialSeatsToRegistrationRows";
+import { attachRegistrationPreferredCohorts } from "@/lib/dashboard/attachRegistrationPreferredCohorts";
 
 const REGISTRATION_COLUMNS = [
   "id", "first_name", "last_name", "dni", "email", "phone",
@@ -25,7 +26,8 @@ const REGISTRATION_COLUMNS = [
   "tutor_name", "tutor_dni", "tutor_email", "tutor_phone",
   "tutor_relationship", "preferred_section_id", "additional_section_ids",
   "contacted_at", "contacted_by", "source_section_link_id", "tenant_extras",
-  "intake_state", "fee_snapshot", "fee_captured", "enrollment_fee_receipt_path",
+  "intake_state", "fee_snapshot", "fee_captured", "enrollment_fee_paid_method",
+  "accepted_student_id", "enrollment_fee_receipt_path",
   "proposed_section_id",
   "intent", "trial_convert_token", "trial_convert_expires_at", "trial_refund_due_amount",
   "privacy_accepted_at", "privacy_policy_version",
@@ -89,6 +91,8 @@ type RegistrationSelectRow = {
   intake_state?: unknown;
   fee_snapshot?: unknown;
   fee_captured?: unknown;
+  enrollment_fee_paid_method?: unknown;
+  accepted_student_id?: unknown;
   enrollment_fee_receipt_path?: unknown;
   proposed_section_id?: string | null;
   intent?: string | null;
@@ -164,10 +168,7 @@ export async function loadPaginatedRegistrations(
     .order(sortCol, { ascending })
     .range(from, to);
 
-  const [dataResult, countResult] = await Promise.all([
-    dataQuery,
-    countQuery,
-  ]);
+  const [dataResult, countResult] = await Promise.all([dataQuery, countQuery]);
 
   if (dataResult.error) {
     return {
@@ -221,6 +222,10 @@ export async function loadPaginatedRegistrations(
     proposedSectionId:
       r.proposed_section_id != null ? String(r.proposed_section_id) : null,
     ...mapInboxLeadFields(r),
+    enrollmentFeePaidMethod:
+      typeof r.enrollment_fee_paid_method === "string" ? r.enrollment_fee_paid_method : null,
+    acceptedStudentId:
+      r.accepted_student_id != null ? String(r.accepted_student_id) : null,
   }));
   const requestedIds = rows.flatMap((r) => requestedRegistrationSectionIds(r));
   const [closedIds, chargingIds, withSeats] = await Promise.all([
@@ -229,11 +234,12 @@ export async function loadPaginatedRegistrations(
     attachTrialSeatsToRegistrationRows(supabase, rows),
   ]);
 
+  const marked = markRegistrationRowsEnrollmentFee(
+    markRegistrationRowsClosedSections(withSeats, closedIds),
+    chargingIds,
+  );
   return {
-    rows: markRegistrationRowsEnrollmentFee(
-      markRegistrationRowsClosedSections(withSeats, closedIds),
-      chargingIds,
-    ),
+    rows: await attachRegistrationPreferredCohorts(supabase, marked),
     totalCount: countResult.count ?? 0,
     page,
     pageSize,

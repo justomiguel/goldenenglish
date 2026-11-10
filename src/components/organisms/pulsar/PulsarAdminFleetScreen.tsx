@@ -9,6 +9,8 @@ import { PulsarAdminOperatorPassword } from "@/components/organisms/pulsar/Pulsa
 import { PulsarPanelFrame } from "@/components/organisms/pulsar/PulsarPanelFrame";
 import { PulsarAdminMailSettings } from "@/components/organisms/pulsar/PulsarAdminMailSettings";
 import { PulsarAdminOwnerReview } from "@/components/organisms/pulsar/PulsarAdminOwnerReview";
+import { PulsarAdminEventShareQueue } from "@/components/organisms/pulsar/PulsarAdminEventShareQueue";
+import type { EventShareQueueRow } from "@/lib/events/server/loadEventShareQueue";
 import { togglePulsarTenantEnabledAction } from "@/app/[locale]/admin/actions";
 import { PulsarAdminFleetTable } from "@/components/organisms/pulsar/PulsarAdminFleetTable";
 import { PulsarCloseTenantDialog } from "@/components/organisms/pulsar/PulsarCloseTenantDialog";
@@ -40,6 +42,7 @@ export interface PulsarAdminFleetScreenProps {
   displayName?: string;
   phone?: string;
   avatarUrl?: string | null;
+  shareRows?: EventShareQueueRow[];
 }
 
 export function PulsarAdminFleetScreen({
@@ -58,13 +61,18 @@ export function PulsarAdminFleetScreen({
   displayName = "",
   phone = "",
   avatarUrl = null,
+  shareRows = [],
 }: PulsarAdminFleetScreenProps) {
   const router = useRouter();
   const params = useSearchParams();
   const copy = dict.pulsar.admin;
   const rawTab = params.get("tab");
   const tab =
-    rawTab === "accounts" || rawTab === "mail" || rawTab === "analytics" || rawTab === "operator"
+    rawTab === "accounts" ||
+    rawTab === "mail" ||
+    rawTab === "analytics" ||
+    rawTab === "operator" ||
+    rawTab === "shares"
       ? rawTab
       : "sites";
   const sectionTitle =
@@ -76,7 +84,9 @@ export function PulsarAdminFleetScreen({
           ? copy.tabAnalytics
           : tab === "operator"
             ? copy.tabOperator
-            : copy.title;
+            : tab === "shares"
+              ? copy.sharesTitle
+              : copy.title;
   const [busySlug, setBusySlug] = useState<string | null>(null);
   const [deleteSlug, setDeleteSlug] = useState<string | null>(null);
   const numFmt = new Intl.NumberFormat(locale);
@@ -159,6 +169,9 @@ export function PulsarAdminFleetScreen({
           <div className="mt-6">
             <PulsarAdminOperatorPassword locale={locale} passwordSet={operatorPasswordSet} copy={copy.operator} />
           </div>
+        ) : null}
+        {tab === "shares" ? (
+          <PulsarAdminEventShareQueue locale={locale} rows={shareRows} copy={copy} />
         ) : null}
         {tab === "sites" ? (
         <>

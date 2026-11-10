@@ -10,6 +10,7 @@ import {
   type EventEmailTemplateKey,
 } from "@/lib/events/eventEmailCopy";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export interface ResolvedEventEmail {
@@ -24,10 +25,12 @@ export async function loadResolvedEventEmail(input: {
   locale: string;
   flowId?: string | null;
   vars?: Record<string, string>;
+  dataClient?: SupabaseClient;
+  templateClient?: SupabaseClient;
 }): Promise<ResolvedEventEmail | null> {
   const locale = parseEventEmailLocale(input.locale);
   const vars = input.vars ?? {};
-  const rows = await loadEventEmailRows(input.eventId, input.templateKey, locale);
+  const rows = await loadEventEmailRows(input.eventId, input.templateKey, locale, input.dataClient);
   const picked = pickEventEmailCopy(rows, {
     templateKey: input.templateKey,
     locale,
@@ -41,6 +44,7 @@ export async function loadResolvedEventEmail(input: {
     key: input.templateKey,
     locale,
     vars: escapeEventEmailVars(vars),
+    client: input.templateClient,
   });
   if (!institute) return null;
   return {
@@ -54,9 +58,10 @@ async function loadEventEmailRows(
   eventId: string,
   templateKey: EventEmailTemplateKey,
   locale: string,
+  dataClient?: SupabaseClient,
 ): Promise<EventEmailCopyRow[]> {
   try {
-    const admin = await createAdminClient();
+    const admin = dataClient ?? (await createAdminClient());
     const { data, error } = await admin
       .from("event_email_templates")
       .select("template_key, locale, flow_id, subject, body_html")

@@ -1,6 +1,6 @@
 // REGRESSION CHECK: CentroListo public pages render the home, product ledger,
 // school directory, and a calm conversation page.
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
@@ -14,6 +14,7 @@ vi.mock("@/app/[locale]/contact/actions", () => ({
 }));
 import es from "@/dictionaries/es.json";
 import type { Dictionary } from "@/types/i18n";
+import styles from "@/components/organisms/pulsar/centrolistoMotion.module.css";
 import { PulsarLandingHome } from "@/components/organisms/pulsar/PulsarLandingHome";
 import { PulsarProductoView } from "@/components/organisms/pulsar/PulsarProductoView";
 import { PulsarClientesView } from "@/components/organisms/pulsar/PulsarClientesView";
@@ -22,57 +23,40 @@ import { PulsarContactoView } from "@/components/organisms/pulsar/PulsarContacto
 const dict = es as unknown as Dictionary;
 
 describe("CentroListo multi-page growth & marketing views", () => {
-  it("renders the home without the portal purchase block", () => {
+  it("renders the house home in order", () => {
     render(<PulsarLandingHome locale="es" dict={dict} activeTenantCount={6} />);
+    const house = dict.pulsar.home.house;
 
-    expect(screen.getByRole("heading", { name: dict.pulsar.home.title })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: dict.pulsar.home.heroImageAlt })).toBeInTheDocument();
-    expect(screen.queryByTestId("centrolisto-generative-logo")).toBeNull();
-    expect(screen.getByText("6")).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: dict.pulsar.home.portals.title })).toBeNull();
-    expect(screen.queryByTestId("pulsar-portal-video")).toBeNull();
+    expect(screen.getByRole("heading", { level: 1, name: dict.pulsar.home.title })).toBeInTheDocument();
+    expect(screen.getByText(house.fact.replace("{count}", "6"))).toBeInTheDocument();
+    expect(screen.getAllByRole("img", { name: house.siteAlt }).length).toBeGreaterThan(0);
+    expect(screen.queryByText(dict.pulsar.home.eyebrow)).toBeNull();
+    expect(screen.queryByRole("heading", { name: dict.pulsar.solutions.sectionTitle })).toBeNull();
+    expect(screen.queryByRole("button", { name: dict.pulsar.clients.voicesPrev })).toBeNull();
+    expect(screen.queryByText(dict.pulsar.clients.voices[0].quote)).toBeNull();
+    expect(document.querySelector(`.${styles.heroStage}`)).toBeNull();
 
-    expect(screen.queryByRole("link", { name: dict.pulsar.nav.admin })).toBeNull();
-    expect(screen.queryByRole("link", { name: dict.pulsar.account.registerTitle })).toBeNull();
-    expect(screen.queryByText(dict.pulsar.home.craftsLine)).toBeNull();
-    expect(screen.queryByText(dict.pulsar.home.offerStrip)).toBeNull();
-    expect(screen.getByRole("heading", { name: dict.pulsar.solutions.sectionTitle })).toBeInTheDocument();
-    const columns = screen.getByRole("list", { name: dict.pulsar.solutions.sectionTitle });
-    expect(columns).toHaveClass("lg:grid-cols-3");
-    const homeColumns = within(columns).getAllByRole("listitem").filter((item) => item.parentElement === columns);
-    expect(homeColumns).toHaveLength(3);
-    expect(screen.getByRole("heading", { name: dict.pulsar.solutions.storyTitle })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: dict.pulsar.solutionSet.gestion.cta })).toHaveAttribute(
-      "href",
-      "/es/contacto?interes=gestion",
-    );
-    expect(screen.getByRole("link", { name: dict.pulsar.solutionSet.ecosistema.cta })).toHaveAttribute(
-      "href",
-      "/es/contacto?interes=ecosistema",
-    );
-    expect(screen.getByText(dict.pulsar.pricing.templateRule)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: dict.pulsar.pricing.customCta })).toHaveAttribute(
-      "href",
-      "/es/contacto?interes=medida",
-    );
-    expect(screen.getByText(dict.pulsar.clients.voices[0].quote)).toBeInTheDocument();
-    expect(screen.getByText(dict.pulsar.clients.voices[5].quote)).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: dict.pulsar.home.primaryCta })).toBeNull();
-    expect(screen.queryByRole("link", { name: dict.pulsar.home.demoCta })).toBeNull();
-    expect(screen.queryByRole("link", { name: dict.pulsar.home.bottomCta.primaryCta })).toBeNull();
-    expect(screen.getByRole("combobox", { name: dict.pulsar.market.label })).toHaveTextContent(dict.pulsar.market.cl);
+    const names = [
+      house.sundayLine,
+      house.tuesdayLine,
+      house.dayLine,
+      house.fridayLine,
+      house.closeTitle,
+    ];
+    const headings = names.map((name) => screen.getByRole("heading", { name }));
+    const order = headings.map((node) => node.compareDocumentPosition(headings[0]));
+    expect(order.every((flag, index) => index === 0 || flag & Node.DOCUMENT_POSITION_PRECEDING)).toBe(true);
+
     const signupLinks = screen.getAllByRole("link", { name: dict.pulsar.home.freeSiteCta });
-    expect(signupLinks.length).toBeGreaterThan(0);
+    expect(signupLinks).toHaveLength(2);
     for (const link of signupLinks) {
       expect(link).toHaveAttribute("href", "/es/cuenta/registro");
+      expect(link).toHaveAttribute("data-cl-event", "cl_create_free_page");
     }
-    expect(screen.getAllByRole("link", { name: dict.pulsar.segments.danza.navLabel }).length).toBeGreaterThan(0);
-    for (const link of screen.getAllByRole("link", { name: dict.pulsar.home.whatsappCta })) {
-      expect(link).toHaveAttribute("href", dict.pulsar.contact.whatsappHref);
-    }
+    expect(screen.getByRole("combobox", { name: dict.pulsar.market.label })).toHaveTextContent(dict.pulsar.market.cl);
   });
 
-  it("shows two live schools on the home when they have a public link", () => {
+  it("does not list a featured client on the home", () => {
     render(
       <PulsarLandingHome
         locale="es"
@@ -92,15 +76,8 @@ describe("CentroListo multi-page growth & marketing views", () => {
       />,
     );
 
-    expect(screen.getByText("Golden English")).toBeInTheDocument();
-    expect(
-      screen.getByText(dict.pulsar.home.schoolsNamed.replace("{name}", "Golden English")),
-    ).toBeInTheDocument();
-    const visit = screen.getByRole("link", {
-      name: dict.pulsar.clients.visitSiteNamed.replace("{name}", "Golden English"),
-    });
-    expect(visit.querySelector("source")).toBeNull();
-    expect(visit.querySelector('img[src*="golden.jpg"]')).toBeTruthy();
+    expect(screen.queryByText("Golden English")).toBeNull();
+    expect(screen.queryByText(dict.pulsar.home.schoolsNamed.replace("{name}", "Golden English"))).toBeNull();
   });
 
   it("renders the Producto view with all 12 platform modules and no competitor matrix", () => {

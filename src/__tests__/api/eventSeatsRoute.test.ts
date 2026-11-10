@@ -39,12 +39,16 @@ const { holdEventSeats, loadEventSeatHoldRows, loadEventSeatLocks } = vi.hoisted
 
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({}) }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: async () => ({}) }));
-vi.mock("@/lib/dashboard/events/loadEventForPublicLanding", () => ({
-  loadEventForPublicLanding: async () => ({
-    id: "ev-1",
-    seatMapConfig: config,
-    allowMultipleTickets: false,
-    maxTicketsPerRegistration: 1,
+vi.mock("@/lib/events/server/openPublishedEvent", () => ({
+  openPublishedEvent: async () => ({
+    event: {
+      id: "ev-1",
+      seatMapConfig: config,
+      allowMultipleTickets: false,
+      maxTicketsPerRegistration: 1,
+    },
+    client: {},
+    entryHostSlug: null,
   }),
 }));
 vi.mock("@/lib/events/server/eventSeatLocksServer", () => ({ loadEventSeatLocks }));

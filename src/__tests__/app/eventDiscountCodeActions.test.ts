@@ -13,7 +13,16 @@ vi.mock("@/app/[locale]/dashboard/admin/events/eventActionsShared", () => ({
 }));
 
 vi.mock("@/lib/supabase/admin", () => ({
-  createAdminClient: () => ({ rpc }),
+  createAdminClient: () => ({
+    rpc,
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          maybeSingle: async () => ({ data: { id: "event-1" }, error: null }),
+        }),
+      }),
+    }),
+  }),
 }));
 
 vi.mock("@/lib/analytics/server/recordSystemAudit", () => ({ recordSystemAudit }));

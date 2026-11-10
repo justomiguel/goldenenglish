@@ -594,18 +594,11 @@ describe("acceptRegistration", () => {
       pendingSectionIds: [],
     });
     expect(mockCreateUser).not.toHaveBeenCalled();
-    expect(mockEnrollRequested).toHaveBeenCalledWith(
-      expect.anything(),
-      "existing-stu",
-      [
-        "11111111-1111-4111-8111-111111111111",
-        "22222222-2222-4222-8222-222222222222",
-      ],
-    );
+    expect(mockEnrollRequested).not.toHaveBeenCalled();
     expect(updateEq).toHaveBeenCalled();
   });
 
-  it("commits section enrollments with the admin session, not the service-role client", async () => {
+  it("does not enroll a section during alta", async () => {
     const sessionClient = { kind: "admin-session" };
     mockAssertAdmin.mockResolvedValue({
       supabase: sessionClient,
@@ -646,14 +639,11 @@ describe("acceptRegistration", () => {
       studentId: "existing-stu",
       pendingSectionIds: [],
     });
-    expect(mockEnrollRequested).toHaveBeenCalledWith(
-      sessionClient,
-      "existing-stu",
-      ["11111111-1111-4111-8111-111111111111"],
-    );
+    expect(mockEnrollRequested).not.toHaveBeenCalled();
+    expect(sessionClient).toEqual({ kind: "admin-session" });
   });
 
-  it("keeps the lead enrolled when a requested section is at capacity", async () => {
+  it("keeps the lead open without enrolling a full section", async () => {
     mockResolveExisting.mockResolvedValue({
       kind: "student",
       studentId: "existing-stu",
@@ -682,8 +672,9 @@ describe("acceptRegistration", () => {
     expect(r).toEqual({
       ok: true,
       studentId: "existing-stu",
-      pendingSectionIds: [pendingId],
+      pendingSectionIds: [],
     });
+    expect(mockEnrollRequested).not.toHaveBeenCalled();
     expect(updateEq).toHaveBeenCalled();
     expect(mockCreateUser).not.toHaveBeenCalled();
   });

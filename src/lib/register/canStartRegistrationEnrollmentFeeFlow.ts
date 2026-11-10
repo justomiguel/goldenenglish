@@ -3,7 +3,6 @@ import { registrationIsActionable } from "@/lib/register/registrationIsActionabl
 import type { RegistrationIntakeState } from "@/lib/register/registrationIntake";
 
 const BLOCKED_INTAKE: ReadonlySet<RegistrationIntakeState> = new Set([
-  "awaiting_fee",
   "receipt_pending",
   "needs_section",
   "section_full",

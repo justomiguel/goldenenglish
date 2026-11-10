@@ -3,9 +3,9 @@
 import { z } from "zod";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
-import { createAdminClient } from "@/lib/supabase/admin";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { openEventWrite } from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
 import {
-  requireAdminEventActor,
   revalidateEventFormSurfaces,
   type EventMutationResult,
 } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
@@ -39,8 +39,7 @@ const orderSchema = flowSchema.extend({
   order: z.array(z.string().regex(/^field:[0-9a-f-]{36}$/i)).max(40),
 });
 
-async function activePackageExists(eventId: string): Promise<boolean> {
-  const admin = await createAdminClient();
+async function activePackageExists(admin: SupabaseClient, eventId: string): Promise<boolean> {
   const { data, error } = await admin
     .from("event_ticket_packages")
     .select("id")
@@ -55,17 +54,17 @@ async function activePackageExists(eventId: string): Promise<boolean> {
 }
 
 export async function updateEventPriceByFlowAction(raw: unknown): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
   const parsed = priceModeSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, priceByFlow } = parsed.data;
-  if (priceByFlow && (await activePackageExists(eventId))) {
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
+  if (priceByFlow && (await activePackageExists(admin, eventId))) {
     return { ok: false, message: "price_mode_conflict" };
   }
 
-  const admin = await createAdminClient();
   const { error } = await admin.from("events").update({ price_by_flow: priceByFlow }).eq("id", eventId);
   if (error) {
     logSupabaseClientError("eventRegistrationFlow.priceMode", error, { eventId });
@@ -85,13 +84,13 @@ export async function updateEventPriceByFlowAction(raw: unknown): Promise<EventM
 }
 
 export async function saveEventRegistrationFlowAction(raw: unknown): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
   const parsed = saveSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, flowId, name, price } = parsed.data;
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const event = await admin.from("events").select("price_by_flow").eq("id", eventId).maybeSingle();
   if (event.error || !event.data) return { ok: false, message: "save_failed" };
   const priceByFlow = Boolean(event.data.price_by_flow);
@@ -136,13 +135,13 @@ export async function saveEventRegistrationFlowAction(raw: unknown): Promise<Eve
 }
 
 export async function archiveEventRegistrationFlowAction(raw: unknown): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
   const parsed = flowSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, flowId } = parsed.data;
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const archivedAt = new Date().toISOString();
   const flow = await admin
     .from("event_registration_flows")
@@ -165,13 +164,13 @@ export async function archiveEventRegistrationFlowAction(raw: unknown): Promise<
 }
 
 export async function assignEventFormFieldFlowAction(raw: unknown): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
   const parsed = assignSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, fieldId, flowId } = parsed.data;
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const { error } = await admin
     .from("event_form_fields")
     .update({ flow_id: flowId })
@@ -188,13 +187,13 @@ export async function assignEventFormFieldFlowAction(raw: unknown): Promise<Even
 export async function updateEventRegistrationFlowFieldOrderAction(
   raw: unknown,
 ): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
   const parsed = orderSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, flowId, order } = parsed.data;
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const { error } = await admin
     .from("event_registration_flows")
     .update({ field_order: order })

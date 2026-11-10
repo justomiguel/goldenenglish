@@ -63,6 +63,7 @@ describe("event reminder cron", () => {
     expect(sendEventAttendeeNotification).toHaveBeenCalledWith({
       attendeeId: "att-1",
       templateKey: "events.reminder",
+      dataClient: expect.anything(),
     });
   });
 

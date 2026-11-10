@@ -12,6 +12,12 @@ import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatReg
 import { AdminRegistrationChargeActions } from "@/components/dashboard/AdminRegistrationChargeActions";
 import { formatRegistrationIntakeLabel } from "@/lib/register/formatRegistrationIntakeLabel";
 import { registrationInboxPrimaryKind } from "@/lib/register/registrationInboxPrimaryKind";
+import {
+  AdminRegistrationMatriculaControls,
+  registrationAltaAllowed,
+} from "@/components/dashboard/AdminRegistrationMatriculaControls";
+import { cohortSectionChoices } from "@/lib/register/registrationMatriculaAlta";
+import type { RegistrationSectionPickerOption } from "@/lib/register/registrationSectionPicker";
 import { registrationIntentLabel } from "@/lib/register/registrationIntentLabel";
 import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
 
@@ -34,6 +40,7 @@ export interface AdminRegistrationTableRowProps {
   onRevertToNew: (row: AdminRegistrationRow) => void;
   onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
   onStartJoinCharge: (row: AdminRegistrationRow) => void;
+  sectionOptionsByCohort?: Record<string, RegistrationSectionPickerOption[]>;
 }
 
 export function AdminRegistrationTableRow({
@@ -53,8 +60,10 @@ export function AdminRegistrationTableRow({
   onRevertToNew,
   onStartEnrollmentFee,
   onStartJoinCharge,
+  sectionOptionsByCohort,
 }: AdminRegistrationTableRowProps) {
-  const canAccept = registrationInboxPrimaryKind(r) === "accept";
+  const canAccept =
+    registrationInboxPrimaryKind(r) === "accept" && registrationAltaAllowed(r);
   const isPending = r.status === "new";
   const intakeLabel = formatRegistrationIntakeLabel({
     intakeState: r.intakeState,
@@ -160,12 +169,19 @@ export function AdminRegistrationTableRow({
       </td>
       <td className="min-w-0 px-3 py-2 align-top">
         <div className="flex flex-wrap items-center justify-end gap-2">
+          <AdminRegistrationMatriculaControls
+            locale={locale}
+            row={r}
+            labels={labels}
+            busy={busy}
+            sections={cohortSectionChoices(r.preferredSectionCohortId, sectionOptionsByCohort)}
+            onStartEnrollmentFee={onStartEnrollmentFee}
+          />
           <AdminRegistrationChargeActions
             row={r}
             labels={labels}
             busy={busy}
             buttonClassName="min-h-9 max-w-full whitespace-normal text-left"
-            onStartEnrollmentFee={onStartEnrollmentFee}
             onStartJoinCharge={onStartJoinCharge}
           />
           {canAccept ? (

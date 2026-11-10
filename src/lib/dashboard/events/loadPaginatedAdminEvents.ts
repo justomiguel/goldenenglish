@@ -31,6 +31,7 @@ export interface AdminEventRow {
   priceByFlow: boolean;
   flowPrices: EventFlowPrice[];
   createdByName: string;
+  ownerName?: string | null;
 }
 
 export interface PaginatedAdminEventsParams {

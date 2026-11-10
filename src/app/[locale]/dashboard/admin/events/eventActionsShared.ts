@@ -1,6 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { locales } from "@/lib/i18n/dictionaries";
+import { resolveEventDataClient } from "@/lib/events/server/resolveEventDataClient";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sanitizeEventDescriptionHtml } from "@/lib/events/sanitizeEventDescriptionHtml";
 import { logServerAuthzDenied } from "@/lib/logging/serverActionLog";
@@ -26,7 +27,8 @@ export function sanitizeEventDescriptionInput(raw?: string): string {
 export async function revalidateEventFormSurfaces(locale: string, eventId: string): Promise<void> {
   revalidatePath(adminEventsPath(locale), "page");
   revalidatePath(`${adminEventsPath(locale)}/${eventId}`, "page");
-  const admin = await createAdminClient();
+  const resolved = await resolveEventDataClient(eventId);
+  const admin = resolved.ok ? resolved.client : await createAdminClient();
   const { data: slugRow } = await admin.from("events").select("slug").eq("id", eventId).maybeSingle();
   if (!slugRow?.slug) return;
   const slug = String(slugRow.slug);

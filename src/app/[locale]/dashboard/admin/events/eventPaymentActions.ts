@@ -4,11 +4,25 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { approveEventPayment, rejectEventPayment, revertEventPaymentApproval } from "@/lib/events/server/reviewEventPaymentServer";
 import { deleteEventPayment } from "@/lib/events/server/deleteEventPaymentServer";
+import { openEventWrite } from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
 import {
   adminEventsPath,
   requireAdminEventActor,
   type EventMutationResult,
 } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
+
+async function paymentWrite(eventId?: string) {
+  if (eventId) return openEventWrite(eventId);
+  const actorId = await requireAdminEventActor();
+  if (!actorId) return { ok: false as const, code: "forbidden" as const };
+  return {
+    ok: true as const,
+    client: await createAdminClient(),
+    actorId,
+    access: "local" as const,
+    ownerSlug: "",
+  };
+}
 
 export async function approveEventPaymentAction(
   locale: string,
@@ -16,10 +30,15 @@ export async function approveEventPaymentAction(
   notes?: string,
   eventId?: string,
 ): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = await createAdminClient();
-  const result = await approveEventPayment({ adminClient: admin, actorId, paymentId, notes: notes ?? null });
+  const opened = await paymentWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const result = await approveEventPayment({
+    adminClient: opened.client,
+    actorId: opened.actorId,
+    reviewedBy: opened.access === "guest" ? null : opened.actorId,
+    paymentId,
+    notes: notes ?? null,
+  });
   revalidatePath(adminEventsPath(locale), "page");
   if (eventId) revalidatePath(`${adminEventsPath(locale)}/${eventId}`, "page");
   if (!result.ok) {
@@ -37,10 +56,15 @@ export async function rejectEventPaymentAction(
   notes: string,
   eventId?: string,
 ): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = await createAdminClient();
-  const result = await rejectEventPayment({ adminClient: admin, actorId, paymentId, notes });
+  const opened = await paymentWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const result = await rejectEventPayment({
+    adminClient: opened.client,
+    actorId: opened.actorId,
+    reviewedBy: opened.access === "guest" ? null : opened.actorId,
+    paymentId,
+    notes,
+  });
   revalidatePath(adminEventsPath(locale), "page");
   if (eventId) revalidatePath(`${adminEventsPath(locale)}/${eventId}`, "page");
   if (!result.ok) {
@@ -57,12 +81,11 @@ export async function deleteEventPaymentAction(
   paymentId: string,
   eventId?: string,
 ): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await paymentWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
   const result = await deleteEventPayment({
-    adminClient: admin,
-    actorId,
+    adminClient: opened.client,
+    actorId: opened.access === "guest" ? "" : opened.actorId,
     paymentId,
     eventId,
   });
@@ -89,12 +112,12 @@ export async function revertEventPaymentApprovalAction(
   notes?: string,
   eventId?: string,
 ): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await paymentWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
   const result = await revertEventPaymentApproval({
-    adminClient: admin,
-    actorId,
+    adminClient: opened.client,
+    actorId: opened.actorId,
+    reviewedBy: opened.access === "guest" ? null : opened.actorId,
     paymentId,
     notes: notes ?? null,
   });

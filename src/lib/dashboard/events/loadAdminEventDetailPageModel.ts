@@ -1,5 +1,10 @@
 import { notFound } from "next/navigation";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { resolveEventDataClient } from "@/lib/events/server/resolveEventDataClient";
+import {
+  eventShareGrantClient,
+  listGrantsForOwnerEvent,
+} from "@/lib/events/server/eventShareGrantStore";
+import { loadAllPulsarTenantsForAdmin } from "@/lib/pulsar/pulsarTenantStore";
 import { loadEventAttendeesPaginated, loadEventAttendeesCount } from "@/lib/dashboard/events/loadEventAttendeesPaginated";
 import { loadEventOccupyingCounts } from "@/lib/dashboard/events/loadEventOccupyingCounts";
 import { summarizeEventSale } from "@/lib/events/summarizeEventSale";
@@ -40,7 +45,9 @@ export async function loadAdminEventDetailPageModel(input: {
   q?: string;
   paymentStatus?: string;
 }) {
-  const admin = await createAdminClient();
+  const resolved = await resolveEventDataClient(input.eventId);
+  if (!resolved.ok) notFound();
+  const admin = resolved.client;
   const { data: event, error: eventError } = await admin
     .from("events")
     .select(
@@ -169,8 +176,30 @@ export async function loadAdminEventDetailPageModel(input: {
     }
   }
 
+  const showShare = resolved.access === "local" && (input.tab === "summary" || !input.tab);
+  const tenants = showShare || resolved.access === "guest" ? await loadAllPulsarTenantsForAdmin() : [];
+  const shareGrants = showShare
+    ? (await listGrantsForOwnerEvent(eventShareGrantClient(), resolved.ownerSlug, input.eventId)).map(
+        (grant) => ({
+          id: grant.id,
+          guestSlug: grant.guestSlug,
+          status: grant.status,
+        }),
+      )
+    : [];
+  const shareSites = showShare
+    ? tenants
+        .filter((tenant) => tenant.isEnabled && tenant.slug !== resolved.ownerSlug)
+        .map((tenant) => ({ slug: tenant.slug, displayName: tenant.displayName }))
+    : [];
+
   return {
     event,
+    shareAccess: resolved.access,
+    ownerName:
+      tenants.find((tenant) => tenant.slug === resolved.ownerSlug)?.displayName ?? resolved.ownerSlug,
+    shareGrants,
+    shareSites,
     defaultLocale,
     translations,
     attendees,

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { openEventWrite } from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
 import { slugifyEventTitle } from "@/lib/events/slugifyEventTitle";
 import type { EventLocale } from "@/lib/events/domain";
 import { sanitizeEventBankTransferInstructions } from "@/lib/events/sanitizeEventBankTransferInstructions";
@@ -139,9 +140,9 @@ export async function updateEventAction(input: {
   sectionId?: string | null;
   privateToSection?: boolean;
 }): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(input.eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const priceLocal = input.priceLocal ?? input.price ?? null;
   const priceNonLocal = input.priceNonLocal ?? priceLocal;
   const description = sanitizeEventDescriptionInput(input.description);

@@ -1,4 +1,5 @@
 import "server-only";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fillTemplate } from "@/lib/i18n/fillTemplate";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
@@ -38,10 +39,11 @@ function rowToOverride(r: RawOverrideRow): EmailTemplateOverrideRow {
 export async function fetchEmailTemplateOverride(input: {
   key: EmailTemplateKey;
   locale: Locale;
+  client?: SupabaseClient;
 }): Promise<EmailTemplateOverrideRow | null> {
-  let admin;
+  let admin = input.client;
   try {
-    admin = await createAdminClient();
+    if (!admin) admin = await createAdminClient();
   } catch (err) {
     logSupabaseClientError("fetchEmailTemplateOverride:admin", err as { message?: string }, {
       key: input.key,
@@ -71,11 +73,16 @@ export async function loadEmailTemplate(input: {
   key: EmailTemplateKey;
   locale: Locale;
   vars?: Record<string, string>;
+  client?: SupabaseClient;
 }): Promise<ResolvedEmailTemplate | null> {
   const def = getEmailTemplateDefinition(input.key);
   if (!def) return null;
 
-  const override = await fetchEmailTemplateOverride({ key: input.key, locale: input.locale });
+  const override = await fetchEmailTemplateOverride({
+    key: input.key,
+    locale: input.locale,
+    client: input.client,
+  });
   const base = override
     ? { subject: override.subject, bodyHtml: override.bodyHtml }
     : def.defaults[input.locale];

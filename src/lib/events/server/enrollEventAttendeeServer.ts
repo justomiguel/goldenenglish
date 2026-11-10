@@ -1,5 +1,6 @@
 import "server-only";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { resolveEventDataClient } from "@/lib/events/server/resolveEventDataClient";
+import { stampEventAttendeeEntryHost } from "@/lib/events/server/stampEventAttendeeEntryHost";
 import { resolveEventMinorTicketCharge } from "@/lib/events/resolveEventMinorTicketCharge";
 import {
   assertEventRegistrationStaging,
@@ -89,7 +90,9 @@ const ENROLL_MAIL_CODES = new Set(["confirmed", "payment_pending", "waitlist"]);
 export async function enrollEventAttendeeServer(
   input: EnrollEventAttendeeServerInput,
 ): Promise<EnrollEventAttendeeServerResult> {
-  const admin = await createAdminClient();
+  const resolved = await resolveEventDataClient(input.eventId);
+  if (!resolved.ok) return emptyEventEnrollment("event_not_found");
+  const admin = resolved.client;
   const discountCode = input.discountCode?.trim() ?? "";
   if (discountCode && input.familyDiscountClaimed === true) {
     return emptyEventEnrollment("discount_conflict");
@@ -155,6 +158,10 @@ export async function enrollEventAttendeeServer(
   }
 
   const result = await callEnrollEventAttendeeRpc(admin, input, discountCode);
+  await stampEventAttendeeEntryHost(admin, {
+    attendeeId: result.attendeeId,
+    access: resolved.access,
+  });
   if (!result.attendeeId || !ENROLL_MAIL_CODES.has(result.resultCode)) return result;
 
   if (assignedSeats.length > 0 && seatTokenHash) {
@@ -213,6 +220,7 @@ export async function enrollEventAttendeeServer(
   await sendEventAttendeeNotification({
     attendeeId: result.attendeeId,
     templateKey: "events.registered",
+    dataClient: admin,
   });
 
   if (result.resultCode !== "waitlist") {

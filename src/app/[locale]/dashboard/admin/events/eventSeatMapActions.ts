@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
+import { openEventWrite } from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
   countEventSeatMapCapacity,
@@ -10,7 +10,6 @@ import {
 } from "@/lib/events/seatMapModel";
 import {
   adminEventsPath,
-  requireAdminEventActor,
   type EventMutationResult,
 } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
 
@@ -20,13 +19,12 @@ export async function saveEventSeatMapConfigAction(input: {
   seatMapConfig: unknown;
   syncCapacity?: boolean;
 }): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-
   const sanitized = sanitizeEventSeatMapConfig(input.seatMapConfig);
   if (!sanitized) return { ok: false, message: "validation" };
 
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(input.eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const patch: Record<string, unknown> = {
     seat_map_config: sanitized,
     updated_at: new Date().toISOString(),

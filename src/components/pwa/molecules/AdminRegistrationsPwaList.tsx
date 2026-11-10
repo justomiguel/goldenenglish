@@ -13,6 +13,8 @@ import type {
 } from "@/lib/dashboard/adminRegistrationsSort";
 import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
+import type { RegistrationSectionPickerOption } from "@/lib/register/registrationSectionPicker";
+import { cohortSectionChoices } from "@/lib/register/registrationMatriculaAlta";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -39,6 +41,7 @@ export interface AdminRegistrationsPwaListProps {
   onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
   onStartJoinCharge: (row: AdminRegistrationRow) => void;
   currentCohortSections?: CurrentCohortSection[];
+  sectionOptionsByCohort?: Record<string, RegistrationSectionPickerOption[]>;
   createSectionHref?: string | null;
   createSectionLabel?: string;
   onBusy?: (id: string | null) => void;
@@ -74,6 +77,7 @@ export function AdminRegistrationsPwaList({
   onStartEnrollmentFee,
   onStartJoinCharge,
   currentCohortSections,
+  sectionOptionsByCohort,
   createSectionHref,
   createSectionLabel,
   onBusy,
@@ -118,6 +122,10 @@ export function AdminRegistrationsPwaList({
             onRevertToNew={onRevertToNew}
             onStartEnrollmentFee={onStartEnrollmentFee}
             onStartJoinCharge={onStartJoinCharge}
+            cohortSections={cohortSectionChoices(
+              r.preferredSectionCohortId,
+              sectionOptionsByCohort,
+            )}
             currentCohortSections={currentCohortSections}
             createSectionHref={createSectionHref}
             createSectionLabel={createSectionLabel}

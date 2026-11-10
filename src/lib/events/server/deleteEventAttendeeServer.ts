@@ -88,6 +88,7 @@ export async function deleteEventAttendee(input: {
       attendeeId: row.id,
       templateKey: "events.registration_removed",
       reason,
+      dataClient: input.adminClient,
     });
     if (!sent) {
       logServerWarn("deleteEventAttendee:notify_failed", { attendeeId: input.attendeeId });

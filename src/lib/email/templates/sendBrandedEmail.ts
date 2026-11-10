@@ -1,7 +1,7 @@
 import "server-only";
 import type { EmailProvider, SendEmailResult } from "@/lib/email/emailProvider";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
-import { getBrandForRequest } from "@/lib/brand/server";
+import { getBrandForRequest, type BrandPublic } from "@/lib/brand/server";
 import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { loadEmailTemplate } from "@/lib/email/templates/loadEmailTemplate";
 import { wrapEmailHtml } from "@/lib/email/templates/wrapEmailHtml";
@@ -30,6 +30,9 @@ export interface SendBrandedEmailInput {
   emailProvider?: EmailProvider;
   /** Opcional: omitir la lectura de `site_settings` (tests). */
   emailSendGate?: EmailSendGate;
+  /** Frame of the site where the person registered. */
+  brand?: BrandPublic;
+  origin?: string;
 }
 
 export type SendBrandedEmailResult =
@@ -112,8 +115,8 @@ export async function sendBrandedEmail(
     return { ok: false, error: "unknown_template_key" };
   }
 
-  const brand = await getBrandForRequest();
-  const origin = (await getRequestPublicSiteUrl())?.origin ?? "http://localhost:3000";
+  const brand = input.brand ?? (await getBrandForRequest());
+  const origin = input.origin ?? (await getRequestPublicSiteUrl())?.origin ?? "http://localhost:3000";
   const html = wrapEmailHtml({
     brand,
     origin,

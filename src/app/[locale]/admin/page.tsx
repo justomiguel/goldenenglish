@@ -14,6 +14,7 @@ import { loadCentrolistoGaMeasurementId } from "@/lib/pulsar/centrolistoGaSettin
 import { loadPlatformOperatorPasswordSet } from "@/lib/pulsar/platformOperatorPassword";
 import { listPulsarOwners } from "@/lib/pulsar/pulsarOwnerAccount";
 import { loadPlatformUserProfile } from "@/lib/pulsar/platformUserProfileStore";
+import { loadEventShareQueue } from "@/lib/events/server/loadEventShareQueue";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,7 @@ export default async function PulsarAdminPage({ params }: PageProps) {
     redirect(`/${locale}/admin/password`);
   }
 
-  const [dict, tenants, platformHosts, owners, mailSettings, gaMeasurementId, operatorPasswordSet, profile] = await Promise.all([
+  const [dict, tenants, platformHosts, owners, mailSettings, gaMeasurementId, operatorPasswordSet, profile, shareRows] = await Promise.all([
     getDictionary(locale as AppLocale),
     loadAllPulsarTenantsForAdmin(),
     loadPulsarPlatformHostsForAdmin(),
@@ -43,6 +44,7 @@ export default async function PulsarAdminPage({ params }: PageProps) {
     loadCentrolistoGaMeasurementId(),
     loadPlatformOperatorPasswordSet(),
     loadPlatformUserProfile(session.userId),
+    loadEventShareQueue(),
   ]);
   const [telemetryBySlug, mailBySlug] = await Promise.all([
     loadPulsarFleetTelemetry(tenants),
@@ -66,6 +68,7 @@ export default async function PulsarAdminPage({ params }: PageProps) {
       displayName={profile.displayName}
       phone={profile.phone}
       avatarUrl={profile.avatarUrl}
+      shareRows={shareRows}
     />
   );
 }

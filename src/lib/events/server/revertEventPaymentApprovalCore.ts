@@ -7,7 +7,7 @@ import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 export interface RevertEventPaymentApprovalInput {
   admin: SupabaseClient;
   paymentId: string;
-  reviewedBy: string;
+  reviewedBy: string | null;
   reviewNotes?: string | null;
 }
 

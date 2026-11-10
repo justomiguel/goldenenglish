@@ -1,4 +1,6 @@
 import "server-only";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { BrandPublic } from "@/lib/brand/server";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import { loadResolvedEventEmail } from "@/lib/events/server/loadResolvedEventEmail";
 import { logServerException } from "@/lib/logging/serverActionLog";
@@ -14,6 +16,10 @@ export async function notifyAttendeeViaResend(input: {
   eventId?: string;
   flowId?: string | null;
   vars?: Record<string, string>;
+  dataClient?: SupabaseClient;
+  templateClient?: SupabaseClient;
+  brand?: BrandPublic;
+  origin?: string;
 }): Promise<boolean> {
   try {
     const content = input.eventId
@@ -23,6 +29,8 @@ export async function notifyAttendeeViaResend(input: {
           locale: input.locale,
           flowId: input.flowId,
           vars: input.vars,
+          dataClient: input.dataClient,
+          templateClient: input.templateClient,
         })
       : null;
     if (input.eventId && !content) return false;
@@ -31,6 +39,8 @@ export async function notifyAttendeeViaResend(input: {
       templateKey: input.templateKey,
       locale: input.locale,
       ...(content ? { content } : input.vars ? { vars: input.vars } : {}),
+      ...(input.brand ? { brand: input.brand } : {}),
+      ...(input.origin ? { origin: input.origin } : {}),
     });
     return result.ok;
   } catch (error) {

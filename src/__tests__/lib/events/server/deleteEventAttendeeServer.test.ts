@@ -150,6 +150,7 @@ describe("deleteEventAttendee", () => {
       attendeeId: "att-mp",
       templateKey: "events.registration_removed",
       reason: "Quedó duplicada",
+      dataClient: expect.anything(),
     });
     expect(admin.deleteEq).toHaveBeenCalled();
     expect(recordSystemAudit).toHaveBeenCalledWith(

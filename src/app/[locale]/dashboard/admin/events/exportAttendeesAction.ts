@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { openEventWrite } from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { loadReceiptBrandForRequest } from "@/lib/billing/loadReceiptBrandForRequest";
@@ -106,7 +106,9 @@ export async function exportEventAttendeesAction(input: {
     const isAdmin = await resolveIsAdminSession(supabase, user.id);
     if (!isAdmin) return { ok: false, message: errs.forbidden };
 
-    const admin = await createAdminClient();
+    const opened = await openEventWrite(eventId);
+    if (!opened.ok) return { ok: false, message: errs.forbidden };
+    const admin = opened.client;
     const { data: event, error: eventError } = await admin
       .from("events")
       .select("id, title, description, event_date, location, slug")

@@ -4,9 +4,8 @@ import { z } from "zod";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { retainHiddenBirthDateToken } from "@/lib/events/registrationFieldOrder";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { openEventWrite } from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
 import {
-  requireAdminEventActor,
   revalidateEventFormSurfaces,
   type EventMutationResult,
 } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
@@ -31,14 +30,13 @@ const requirementsSchema = z.object({
 export async function updateEventRegistrationFieldOrderAction(
   raw: unknown,
 ): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-
   const parsed = orderSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, order } = parsed.data;
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const fieldIds = [
     ...new Set(order.filter((token) => token.startsWith("field:")).map((token) => token.slice(6))),
   ];
@@ -96,14 +94,13 @@ export async function updateEventRegistrationFieldOrderAction(
 export async function updateEventBaseFieldRequirementsAction(
   raw: unknown,
 ): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-
   const parsed = requirementsSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, requirePhone, requireBirthDate } = parsed.data;
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const { data: eventRow, error: readError } = await admin
     .from("events")
     .select("collect_birth_date")

@@ -23,8 +23,14 @@ vi.mock("@/lib/supabase/admin", () => ({
   }),
 }));
 
-vi.mock("@/lib/dashboard/events/loadEventForPublicLanding", () => ({
-  loadEventForPublicLanding: async () => event,
+vi.mock("@/lib/events/server/openPublishedEvent", () => ({
+  openPublishedEvent: async () => ({
+    event,
+    client: {
+      storage: { from: () => ({ createSignedUploadUrl }) },
+    },
+    entryHostSlug: null,
+  }),
 }));
 
 vi.mock("@/lib/logging/serverActionLog", () => ({

@@ -3,6 +3,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminEventsScreen } from "@/components/organisms/AdminEventsScreen";
 import { loadPaginatedAdminEvents, type EventSortKey } from "@/lib/dashboard/events/loadPaginatedAdminEvents";
+import { appendSharedAdminEvents } from "@/lib/dashboard/events/appendSharedAdminEvents";
 import { loadAdminEventsListAggregates } from "@/lib/dashboard/events/loadAdminEventsListAggregates";
 import { requireAdminPage } from "@/lib/dashboard/requireAdminPage";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
@@ -33,10 +34,11 @@ export default async function AdminEventsPage({ params, searchParams }: PageProp
   const dir = String(sp.dir ?? "asc") === "desc" ? "desc" : "asc";
   const admin = await createAdminClient();
 
-  const [result, counts] = await Promise.all([
+  const [localEvents, counts] = await Promise.all([
     loadPaginatedAdminEvents(admin, { page, q, sort, dir, locale }),
     loadAdminEventsListAggregates(admin, q),
   ]);
+  const result = await appendSharedAdminEvents({ local: localEvents, q });
 
   return (
     <div>
@@ -81,6 +83,7 @@ export default async function AdminEventsPage({ params, searchParams }: PageProp
           manage: dict.admin.events.list.manage,
           empty: dict.admin.events.list.empty,
           free: dict.admin.events.list.free,
+          sharedFrom: dict.admin.events.list.sharedFrom,
           paginationPrev: dict.admin.table.paginationPrev,
           paginationNext: dict.admin.table.paginationNext,
           paginationSummary: dict.admin.table.paginationSummary,

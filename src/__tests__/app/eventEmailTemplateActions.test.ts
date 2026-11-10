@@ -45,7 +45,9 @@ describe("saveEventEmailTemplateAction", () => {
       from: () => ({
         select: () => ({
           eq: () => ({
+            maybeSingle: async () => ({ data: { id: eventId }, error: null }),
             eq: () => ({
+              maybeSingle: async () => ({ data: null, error: null }),
               eq: () => ({
                 is: () => ({
                   maybeSingle: async () => ({ data: null, error: null }),
@@ -211,7 +213,8 @@ function adminClient(options: {
         },
         maybeSingle: async () => {
           reads += 1;
-          if (options.flow && reads === 1) return options.flow;
+          if (reads === 1) return { data: { id: "evt-1" }, error: null };
+          if (options.flow && reads === 2) return options.flow;
           return options.existing ?? { data: null, error: null };
         },
         insert: async (row: unknown) => {

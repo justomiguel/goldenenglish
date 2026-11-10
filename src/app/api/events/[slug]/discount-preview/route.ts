@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
-import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPublicLanding";
+import { openPublishedEvent } from "@/lib/events/server/openPublishedEvent";
 import { previewEventDiscountCode } from "@/lib/events/server/previewEventDiscountCode";
 import { resolveEventPriceForResidency } from "@/lib/events/resolveEventPriceTier";
 import { logServerException } from "@/lib/logging/serverActionLog";
@@ -30,9 +28,9 @@ export async function POST(
       return NextResponse.json({ ok: false, code: "invalid_code" }, { status: 400, headers: PRIVATE });
     }
 
-    const supabase = await createClient();
-    const event = await loadEventForPublicLanding(supabase, slug, parsed.data.locale ?? "es");
-    if (!event) {
+    const source = await openPublishedEvent(slug, parsed.data.locale ?? "es");
+    const event = source?.event ?? null;
+    if (!event || !source) {
       return NextResponse.json({ ok: false, code: "invalid_code" }, { status: 404, headers: PRIVATE });
     }
 
@@ -50,7 +48,7 @@ export async function POST(
           parsed.data.isLocalResident ?? true,
         ) ?? 0);
 
-    const result = await previewEventDiscountCode(await createAdminClient(), {
+    const result = await previewEventDiscountCode(source.client, {
       eventId: event.id,
       code: parsed.data.code,
       amount,

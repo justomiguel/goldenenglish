@@ -44,6 +44,16 @@ describe("PulsarSiteChromePwa", () => {
     expect(screen.queryByRole("option", { name: dict.pulsar.market.py })).toBeNull();
   });
 
+  it("hides the free-page bar on the home so it does not cover the hero button", () => {
+    render(
+      <PulsarSiteChromePwa locale="es" dict={dict} email={null} activeNav="home">
+        <p>page</p>
+      </PulsarSiteChromePwa>,
+    );
+    expect(screen.queryByRole("link", { name: dict.pulsar.nav.startFree })).toBeNull();
+    expect(screen.getByRole("navigation", { name: dict.pulsar.session.navAria })).toBeInTheDocument();
+  });
+
   it("shows sign-in and hides the thumb link on the conversation page", () => {
     render(
       <PulsarSiteChromePwa locale="es" dict={dict} email={null} activeNav="contact">

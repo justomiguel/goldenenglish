@@ -66,6 +66,18 @@ vi.mock("@/lib/logging/serverActionLog", () => ({
   logServerActionException: vi.fn(),
 }));
 
+vi.mock("@/lib/events/server/resolveEventDataClient", () => ({
+  resolveEventDataClient: async () => {
+    const { createAdminClient } = await import("@/lib/supabase/admin");
+    return {
+      ok: true as const,
+      client: await createAdminClient(),
+      ownerSlug: "local",
+      access: "local" as const,
+    };
+  },
+}));
+
 import { buildEventReceiptStagingPath } from "@/lib/events/eventRegistrationStagingPath";
 import { enrollEventAttendeeServer } from "@/lib/events/server/enrollEventAttendeeServer";
 

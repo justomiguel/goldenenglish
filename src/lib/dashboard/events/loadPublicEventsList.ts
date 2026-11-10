@@ -37,39 +37,18 @@ export interface PublicEventsListResult {
   pageSize: number;
 }
 
-export async function loadPublicEventsList(
+export const PUBLIC_EVENT_LIST_COLUMNS =
+  "id, slug, title, description, event_date, location, capacity, price, price_local, price_non_local, currency, default_locale, price_by_flow";
+
+export async function buildPublicEventListRows(
   supabase: SupabaseClient,
+  rawRows: readonly Record<string, unknown>[],
   locale: string,
-  page = 1,
-  pageSize = DEFAULT_TABLE_PAGE_SIZE,
-): Promise<PublicEventsListResult> {
-  const safePage = Math.max(1, page);
-  const from = (safePage - 1) * pageSize;
-  const to = from + pageSize - 1;
-
-  const [dataResult, countResult] = await Promise.all([
-    supabase
-      .from("events")
-      .select(
-        "id, slug, title, description, event_date, location, capacity, price, price_local, price_non_local, currency, default_locale, price_by_flow",
-      )
-      .eq("status", "published")
-      .is("archived_at", null)
-      .order("event_date", { ascending: true })
-      .range(from, to),
-    supabase
-      .from("events")
-      .select("id", { head: true, count: "exact" })
-      .eq("status", "published")
-      .is("archived_at", null),
-  ]);
-
-  const rawRows = dataResult.data ?? [];
+): Promise<PublicEventListRow[]> {
   const translationsByEvent = await loadEventTranslationsByIds(
     supabase,
     rawRows.map((row) => String(row.id)),
   );
-
   const pricedEvents = rawRows
     .filter((row) => Boolean(row.price_by_flow))
     .map((row) => {
@@ -80,7 +59,7 @@ export async function loadPublicEventsList(
     });
   const flowPricesByEvent = await loadRegistrationFlowPricesByEvent(supabase, pricedEvents, locale);
 
-  const rows: PublicEventListRow[] = rawRows.map((row) => {
+  return rawRows.map((row) => {
     const defaultLocale = isEventLocale(String(row.default_locale ?? "es"))
       ? (String(row.default_locale) as EventLocale)
       : "es";
@@ -101,7 +80,6 @@ export async function loadPublicEventsList(
     };
     const priceLocal = resolveEventLocalPrice(priceSource);
     const priceNonLocal = resolveEventNonLocalPrice(priceSource);
-
     return {
       id: String(row.id),
       slug: String(row.slug),
@@ -120,6 +98,34 @@ export async function loadPublicEventsList(
       flowPrices: flowPricesByEvent.get(String(row.id)) ?? [],
     };
   });
+}
+
+export async function loadPublicEventsList(
+  supabase: SupabaseClient,
+  locale: string,
+  page = 1,
+  pageSize = DEFAULT_TABLE_PAGE_SIZE,
+): Promise<PublicEventsListResult> {
+  const safePage = Math.max(1, page);
+  const from = (safePage - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const [dataResult, countResult] = await Promise.all([
+    supabase
+      .from("events")
+      .select(PUBLIC_EVENT_LIST_COLUMNS)
+      .eq("status", "published")
+      .is("archived_at", null)
+      .order("event_date", { ascending: true })
+      .range(from, to),
+    supabase
+      .from("events")
+      .select("id", { head: true, count: "exact" })
+      .eq("status", "published")
+      .is("archived_at", null),
+  ]);
+
+  const rows = await buildPublicEventListRows(supabase, dataResult.data ?? [], locale);
 
   return {
     rows,

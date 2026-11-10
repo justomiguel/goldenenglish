@@ -35,6 +35,7 @@ interface AdminEventsScreenProps {
     manage: string;
     empty: string;
     free: string;
+    sharedFrom: string;
     paginationPrev: string;
     paginationNext: string;
     paginationSummary: string;
@@ -103,6 +104,7 @@ export function AdminEventsScreen({
             row={row}
             manageLabel={labels.manage}
             freeLabel={labels.free}
+            sharedFromLabel={labels.sharedFrom}
           />
         ))}
         {rows.length === 0 ? (
@@ -176,7 +178,14 @@ export function AdminEventsScreen({
           <tbody>
             {rows.map((row) => (
               <tr key={row.id} className="border-b border-[var(--color-border)]">
-                <td className="px-3 py-2">{row.title}</td>
+                <td className="px-3 py-2">
+                  <span>{row.title}</span>
+                  {row.ownerName ? (
+                    <span className="mt-0.5 block text-xs text-[var(--color-muted-foreground)]">
+                      {labels.sharedFrom.replace("{site}", row.ownerName)}
+                    </span>
+                  ) : null}
+                </td>
                 <td className="px-3 py-2">{row.createdByName}</td>
                 <td className="px-3 py-2">{new Date(row.eventDate).toLocaleString()}</td>
                 <td className="px-3 py-2">
@@ -232,13 +241,7 @@ export function AdminEventsScreen({
         pageSize={pageSize}
         totalCount={totalCount}
         onPageChange={goToPage}
-        labels={{
-          prev: labels.paginationPrev,
-          next: labels.paginationNext,
-          summary: labels.paginationSummary,
-          tipPrev: labels.paginationTipPrev,
-          tipNext: labels.paginationTipNext,
-        }}
+        labels={{ prev: labels.paginationPrev, next: labels.paginationNext, summary: labels.paginationSummary, tipPrev: labels.paginationTipPrev, tipNext: labels.paginationTipNext }}
       />
     </section>
   );

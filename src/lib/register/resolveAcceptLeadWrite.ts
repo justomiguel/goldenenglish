@@ -4,33 +4,19 @@ export type AcceptLeadWrite = {
   accepted_student_id: string;
 };
 
+/** Alta creates the student and leaves the section for a later assign step. */
 export function resolveAcceptLeadWrite(input: {
   requestedCount: number;
   pendingCount: number;
   paidCapture: boolean;
   studentId: string;
 }): AcceptLeadWrite {
-  if (input.paidCapture && input.requestedCount === 0) {
-    return {
-      status: "new",
-      intake_state: "needs_section",
-      accepted_student_id: input.studentId,
-    };
-  }
-  if (
-    input.paidCapture &&
-    input.requestedCount > 0 &&
-    input.pendingCount === input.requestedCount
-  ) {
-    return {
-      status: "new",
-      intake_state: "section_full",
-      accepted_student_id: input.studentId,
-    };
-  }
+  void input.requestedCount;
+  void input.pendingCount;
+  void input.paidCapture;
   return {
-    status: "enrolled",
-    intake_state: "none",
+    status: "new",
+    intake_state: "needs_section",
     accepted_student_id: input.studentId,
   };
 }

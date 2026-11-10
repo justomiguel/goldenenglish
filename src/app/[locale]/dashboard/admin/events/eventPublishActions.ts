@@ -1,18 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { closeGrantsForEvent, eventShareGrantClient } from "@/lib/events/server/eventShareGrantStore";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { openEventWrite } from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
 import {
   adminEventsPath,
-  requireAdminEventActor,
   type EventMutationResult,
 } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
 
 export async function publishEventAction(locale: string, eventId: string): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const { error } = await admin
     .from("events")
     .update({ status: "published", published_at: new Date().toISOString() })
@@ -24,9 +24,9 @@ export async function publishEventAction(locale: string, eventId: string): Promi
 }
 
 export async function unpublishEventAction(locale: string, eventId: string): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const { error } = await admin.from("events").update({ status: "draft" }).eq("id", eventId);
   if (error) {
     logSupabaseClientError("unpublishEventAction:update", error, { eventId });
@@ -39,14 +39,18 @@ export async function unpublishEventAction(locale: string, eventId: string): Pro
 }
 
 export async function archiveEventAction(locale: string, eventId: string): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const { error } = await admin
     .from("events")
     .update({ archived_at: new Date().toISOString() })
     .eq("id", eventId);
   if (error) return { ok: false, message: error.message };
+  await closeGrantsForEvent(eventShareGrantClient(), {
+    ownerSlug: opened.ownerSlug,
+    ownerEventId: eventId,
+  });
   revalidatePath(adminEventsPath(locale), "page");
   revalidatePath(`/${locale}/events`, "page");
   return { ok: true };

@@ -45,6 +45,9 @@ export interface AdminRegistrationRow {
   snapshotCurrency?: string;
   feeSnapshot?: unknown;
   feeCaptured?: boolean;
+  enrollmentFeePaidMethod?: string | null;
+  acceptedStudentId?: string | null;
+  preferredSectionCohortId?: string | null;
   enrollmentFeeReceiptPath?: string | null;
   proposedSectionId?: string | null;
   /** Live: a requested section no longer has an open seat. */

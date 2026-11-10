@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
-import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPublicLanding";
+import { openPublishedEvent } from "@/lib/events/server/openPublishedEvent";
 import { resolveSessionEventAdminEditHref } from "@/lib/dashboard/events/resolveSessionEventAdminEditHref";
 import { incrementEventViewCount } from "@/lib/events/server/incrementEventViewCount";
 import {
@@ -39,8 +39,8 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
   const dict = await getDictionary(locale);
-  const supabase = await createClient();
-  const event = await loadEventForPublicLanding(supabase, slug, locale);
+  const source = await openPublishedEvent(slug, locale);
+  const event = source?.event ?? null;
   if (!event) {
     return { title: dict.events.public.metaTitle };
   }
@@ -73,22 +73,23 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
   const paymentBannerStatus = normalizeEventPaymentBannerStatus(payment);
   const dict = await getDictionary(locale);
   const supabase = await createClient();
-  const [event, surfaceVariant, brand, origin] = await Promise.all([
-    loadEventForPublicLanding(supabase, slug, locale),
+  const [source, surfaceVariant, brand, origin] = await Promise.all([
+    openPublishedEvent(slug, locale),
     loadPublicEventSurfaceVariant(),
     getBrandForRequest(),
     getRequestPublicSiteUrl(),
   ]);
-  if (!event) notFound();
+  const event = source?.event ?? null;
+  if (!event || !source) notFound();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   const viewerSessionId = await getContentViewViewerSessionId();
-  await incrementEventViewCount(supabase, {
+  await incrementEventViewCount(source.client, {
     eventId: event.id,
     entity: AnalyticsEntity.events,
-    userId: user?.id ?? null,
+    userId: source.entryHostSlug ? null : (user?.id ?? null),
     sessionKey: buildContentViewSessionKey(locale, event.slug, viewerSessionId),
   });
 

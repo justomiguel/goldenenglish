@@ -53,14 +53,14 @@ describe("canStartRegistrationEnrollmentFeeFlow", () => {
     );
   });
 
-  it("is false without a requested section, after capture, or once the pay flow started", () => {
+  it("stays available while the fee is unpaid, and is false without a section or after capture", () => {
     expect(
       canStartRegistrationEnrollmentFeeFlow(row({ preferred_section_id: null })),
     ).toBe(false);
     expect(canStartRegistrationEnrollmentFeeFlow(row({ feeCaptured: true }))).toBe(false);
     expect(
       canStartRegistrationEnrollmentFeeFlow(row({ intakeState: "awaiting_fee" })),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       canStartRegistrationEnrollmentFeeFlow(row({ intakeState: "section_full" })),
     ).toBe(false);

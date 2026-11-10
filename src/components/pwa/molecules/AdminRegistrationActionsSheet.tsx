@@ -19,7 +19,6 @@ export function AdminRegistrationActionsSheet({
   onDelete,
   onMarkContacted,
   onRevertToNew,
-  onStartEnrollmentFee,
   onStartJoinCharge,
 }: {
   open: boolean;
@@ -31,7 +30,6 @@ export function AdminRegistrationActionsSheet({
   onDelete: (row: AdminRegistrationRow) => void;
   onMarkContacted: (row: AdminRegistrationRow) => void;
   onRevertToNew: (row: AdminRegistrationRow) => void;
-  onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
   onStartJoinCharge: (row: AdminRegistrationRow) => void;
 }) {
   const isPending = row.status === "new";
@@ -76,7 +74,6 @@ export function AdminRegistrationActionsSheet({
           labels={labels}
           busy={busy}
           buttonClassName="min-h-11 w-full justify-start"
-          onStartEnrollmentFee={onStartEnrollmentFee}
           onStartJoinCharge={onStartJoinCharge}
         />
         <Button

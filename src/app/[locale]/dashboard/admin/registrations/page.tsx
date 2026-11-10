@@ -209,6 +209,7 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
             passwordHint: dict.admin.users.passwordHint,
           }}
           currentCohortSections={cohortSections}
+          sectionOptionsByCohort={sectionOptionsByCohort}
           currentCohortName={inscriptionsCohort?.name}
           createSectionHref={createSectionHref}
         />

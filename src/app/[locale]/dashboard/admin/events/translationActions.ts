@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { assertAdmin } from "@/lib/dashboard/assertAdmin";
+import { openEventWrite } from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
 import { EVENT_LOCALES } from "@/lib/events/domain";
 import {
   eventTranslationsToSave,
@@ -14,23 +14,12 @@ import { loadGoogleTranslateCredentials } from "@/lib/blog/integrations/google/l
 import { sanitizeEventDescriptionHtml } from "@/lib/events/sanitizeEventDescriptionHtml";
 import {
   logServerActionException,
-  logServerAuthzDenied,
   logServerWarn,
   logSupabaseClientError,
 } from "@/lib/logging/serverActionLog";
 
 function adminEventsPath(locale: string): string {
   return `/${locale}/dashboard/admin/events`;
-}
-
-async function requireAdminActor(): Promise<string | null> {
-  try {
-    const { user } = await assertAdmin();
-    return user.id;
-  } catch {
-    logServerAuthzDenied("adminEventTranslationAction");
-    return null;
-  }
 }
 
 export async function saveEventTranslationsAction(raw: unknown): Promise<{ ok: boolean; message?: string }> {
@@ -43,11 +32,10 @@ export async function saveEventTranslationsAction(raw: unknown): Promise<{ ok: b
     return { ok: false, message: "invalid_input" };
   }
 
-  const actorId = await requireAdminActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-
-  const admin = await createAdminClient();
   const { eventId, defaultLocale, translations, adminLocale } = parsed.data;
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const prepared = eventTranslationsToSave(
     translations.map((row) => ({
       locale: row.locale,
@@ -126,14 +114,11 @@ export async function translateEventFieldsAdminAction(
     return { ok: false, message: "same_locale" };
   }
 
-  const actorId = await requireAdminActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
+  const opened = await openEventWrite(parsed.data.eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
 
   try {
     const admin = await createAdminClient();
-    const { data: event } = await admin.from("events").select("id").eq("id", parsed.data.eventId).maybeSingle();
-    if (!event) return { ok: false, message: "event_not_found" };
-
     const credentials = await loadGoogleTranslateCredentials(admin);
     if (!credentials.apiKey) return { ok: false, message: "google_key_missing" };
 
@@ -147,7 +132,7 @@ export async function translateEventFieldsAdminAction(
     });
 
     await admin.from("user_events").insert({
-      user_id: actorId,
+      user_id: opened.actorId,
       event_type: "action",
       entity: "route:/dashboard/admin/events",
       metadata: {

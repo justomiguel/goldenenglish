@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { loadPublicEventsList } from "@/lib/dashboard/events/loadPublicEventsList";
+import { loadPublicEventsListWithShares } from "@/lib/events/server/loadPublicEventsListWithShares";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { PublicEventListCard } from "@/components/molecules/PublicEventListCard";
 import { loadPublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
@@ -32,7 +32,7 @@ export default async function PublicEventsPage({ params, searchParams }: PagePro
   const page = Math.max(1, Number.parseInt(String(sp.page ?? "1"), 10) || 1);
   const supabase = await createClient();
   const [result, surfaceVariant] = await Promise.all([
-    loadPublicEventsList(supabase, locale, page, 12),
+    loadPublicEventsListWithShares(locale, page, 12),
     loadPublicEventSurfaceVariant(),
   ]);
   const {

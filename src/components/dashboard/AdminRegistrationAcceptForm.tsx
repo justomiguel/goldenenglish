@@ -5,12 +5,10 @@ import {
   acceptRegistration,
   type AcceptRegistrationResult,
 } from "@/app/[locale]/dashboard/admin/registrations/actions";
-import { enrollAcceptedRegistrationSectionAction } from "@/app/[locale]/dashboard/admin/registrations/enrollAcceptedRegistrationSectionAction";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
-import { AdminRegistrationAcceptSectionPicker } from "@/components/dashboard/AdminRegistrationAcceptSectionPicker";
 import { AdminRegistrationAcceptExplainer } from "@/components/dashboard/AdminRegistrationAcceptExplainer";
 import { AdminRegistrationAcceptSummary } from "@/components/dashboard/AdminRegistrationAcceptSummary";
 import { AdminRegistrationJoinBillingFields } from "@/components/dashboard/AdminRegistrationJoinBillingFields";
@@ -59,8 +57,8 @@ export function AdminRegistrationAcceptForm({
   const [birth, setBirth] = useState("");
   const [joinDisposition, setJoinDisposition] = useState<JoinBillingDisposition | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [step, setStep] = useState<"accept" | "section">("accept");
-  const [acceptedStudentId, setAcceptedStudentId] = useState<string | null>(null);
+  void currentCohortName;
+  void createSectionHref;
 
   const effectiveBirth = useMemo(() => {
     const b = birth.trim() || (row.birth_date?.slice(0, 10) ?? "");
@@ -73,7 +71,6 @@ export function AdminRegistrationAcceptForm({
   }, [effectiveBirth, legalAgeMajority]);
 
   const hasSections = Boolean(currentCohortSections?.length);
-  const showEmptyCreate = !hasSections && Boolean(createSectionHref);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -90,50 +87,11 @@ export function AdminRegistrationAcceptForm({
     });
     onBusy(null);
     if (res.ok) {
-      const hadRequestedSections =
-        Boolean(row.preferred_section_id?.trim()) ||
-        (row.additionalSectionIds ?? []).length > 0;
-      const pendingSectionIds = res.pendingSectionIds ?? [];
-      const needsPicker =
-        (hasSections || showEmptyCreate) &&
-        (pendingSectionIds.length > 0 || !hadRequestedSections);
-      if (needsPicker) {
-        setAcceptedStudentId(res.studentId);
-        setStep("section");
-        if (pendingSectionIds.length > 0) {
-          setFormError(labels.acceptPendingSections);
-        }
-      } else {
-        onClose();
-        onSuccess();
-      }
-      return;
-    }
-    setFormError(res.message ?? labels.acceptError);
-  }
-
-  async function onPickSection(sectionId: string) {
-    if (!acceptedStudentId) return;
-    onBusy(row.id);
-    setFormError(null);
-    const res = await enrollAcceptedRegistrationSectionAction({
-      locale,
-      studentId: acceptedStudentId,
-      sectionId,
-      joinDisposition,
-    });
-    onBusy(null);
-    if (res.ok) {
       onClose();
       onSuccess();
       return;
     }
-    setFormError(labels.sectionEnrollError ?? res.code);
-  }
-
-  function onSkipSection() {
-    onClose();
-    onSuccess();
+    setFormError(res.message ?? labels.acceptError);
   }
 
   const showTutorBlock =
@@ -141,21 +99,6 @@ export function AdminRegistrationAcceptForm({
     (Boolean(row.tutor_dni?.trim()) ||
       Boolean(row.tutor_name?.trim()) ||
       Boolean(row.tutor_email?.trim()));
-
-  if (step === "section" && acceptedStudentId) {
-    return (
-      <AdminRegistrationAcceptSectionPicker
-        busy={busy}
-        formError={formError}
-        sections={currentCohortSections ?? []}
-        cohortName={currentCohortName}
-        labels={labels}
-        onPickSection={onPickSection}
-        onSkipSection={onSkipSection}
-        createSectionHref={createSectionHref}
-      />
-    );
-  }
 
   return (
     <>

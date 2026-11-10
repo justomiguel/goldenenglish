@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPublicLanding";
+import { openPublishedEvent } from "@/lib/events/server/openPublishedEvent";
 import {
   buildEventFormFieldStagingKey,
   buildEventFormFieldStagingPath,
@@ -40,8 +40,9 @@ export async function prepareEventRegistrationUpload(input: {
     return { ok: false, code: "invalid_body" };
   }
 
-  const admin = await createAdminClient();
-  const event = await loadEventForPublicLanding(admin, input.slug, input.locale || "es");
+  const source = await openPublishedEvent(input.slug, input.locale || "es");
+  const admin = source?.client ?? (await createAdminClient());
+  const event = source?.event ?? null;
   if (!event) return { ok: false, code: "event_not_found" };
 
   const segment = input.kind === "receipt" ? "receipt" : (input.fieldId ?? "").trim();

@@ -5,25 +5,10 @@ import { resolveAcceptLeadWrite } from "@/lib/register/resolveAcceptLeadWrite";
 const studentId = "stu-1";
 
 describe("resolveAcceptLeadWrite", () => {
-  it("keeps the historic admin path: always enrolled", () => {
+  it("keeps the lead open without a section after alta", () => {
     expect(
       resolveAcceptLeadWrite({
-        requestedCount: 0,
-        pendingCount: 0,
-        paidCapture: false,
-        studentId,
-      }),
-    ).toEqual({
-      status: "enrolled",
-      intake_state: "none",
-      accepted_student_id: studentId,
-    });
-  });
-
-  it("sets needs_section when they paid with no schedule", () => {
-    expect(
-      resolveAcceptLeadWrite({
-        requestedCount: 0,
+        requestedCount: 1,
         pendingCount: 0,
         paidCapture: true,
         studentId,
@@ -35,32 +20,17 @@ describe("resolveAcceptLeadWrite", () => {
     });
   });
 
-  it("sets section_full when every requested section failed after pay", () => {
+  it("keeps a zero-fee alta on the open list too", () => {
     expect(
       resolveAcceptLeadWrite({
-        requestedCount: 2,
-        pendingCount: 2,
-        paidCapture: true,
+        requestedCount: 0,
+        pendingCount: 0,
+        paidCapture: false,
         studentId,
       }),
     ).toEqual({
       status: "new",
-      intake_state: "section_full",
-      accepted_student_id: studentId,
-    });
-  });
-
-  it("enrols when at least one requested section committed after pay", () => {
-    expect(
-      resolveAcceptLeadWrite({
-        requestedCount: 2,
-        pendingCount: 1,
-        paidCapture: true,
-        studentId,
-      }),
-    ).toEqual({
-      status: "enrolled",
-      intake_state: "none",
+      intake_state: "needs_section",
       accepted_student_id: studentId,
     });
   });

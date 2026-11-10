@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { adminEventsPath, requireAdminEventActor } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
+import { adminEventsPath } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
+import { openEventWrite } from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { sanitizeEmailTemplateHtml } from "@/lib/email/sanitizeEmailTemplateHtml";
 import {
@@ -12,8 +13,8 @@ import {
   type EventEmailTemplateKey,
 } from "@/lib/events/eventEmailCopy";
 import { locales } from "@/lib/i18n/dictionaries";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 const saveSchema = z.object({
   eventId: z.string().uuid(),
@@ -26,14 +27,11 @@ const saveSchema = z.object({
 
 export type SaveEventEmailTemplateResult =
   | { ok: true }
-  | { ok: false; message: "forbidden" | "validation_failed" | "invalid_html" | "save_failed" };
+  | { ok: false; message: "forbidden" | "share_not_approved" | "validation_failed" | "invalid_html" | "save_failed" };
 
 export async function saveEventEmailTemplateAction(
   input: z.infer<typeof saveSchema>,
 ): Promise<SaveEventEmailTemplateResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-
   const parsed = saveSchema.safeParse(input);
   if (!parsed.success) return { ok: false, message: "validation_failed" };
   const { eventId, templateKey, locale, subject } = parsed.data;
@@ -46,7 +44,9 @@ export async function saveEventEmailTemplateAction(
   if (!bodyHtml) return { ok: false, message: "invalid_html" };
 
   try {
-    const admin = await createAdminClient();
+    const opened = await openEventWrite(eventId);
+    if (!opened.ok) return { ok: false, message: opened.code };
+    const admin = opened.client;
     if (flowId) {
       const flow = await admin
         .from("event_registration_flows")
@@ -64,7 +64,7 @@ export async function saveEventEmailTemplateAction(
       flowId,
       subject,
       bodyHtml,
-      actorId,
+      actorId: opened.actorId,
     });
     if (!saved) return { ok: false, message: "save_failed" };
 
@@ -85,7 +85,7 @@ export async function saveEventEmailTemplateAction(
 }
 
 async function upsertEventEmailCopy(
-  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  admin: SupabaseClient,
   row: {
     eventId: string;
     templateKey: EventEmailTemplateKey;

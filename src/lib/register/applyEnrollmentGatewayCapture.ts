@@ -3,9 +3,7 @@ import { todayIsoDate } from "@/lib/billing/paymentMethod";
 import { amountsMatchForCurrency } from "@/lib/billing/upsertApprovedMonthlyPaymentSupport";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
-import { notifyAdminsRegistrationPlacement } from "@/lib/email/notifyAdminsRegistrationPlacement";
 import { acceptRegistrationLead } from "@/lib/register/acceptRegistrationLead";
-import { requestedSectionsHaveOpenSeats } from "@/lib/register/requestedSectionsHaveOpenSeats";
 
 export type ApplyEnrollmentGatewayCaptureResult =
   | { ok: true; skipped?: string; studentId?: string }
@@ -52,41 +50,18 @@ export async function applyEnrollmentGatewayCapture(input: {
 
   const { error: captureErr } = await input.admin
     .from("registrations")
-    .update({ fee_captured: true })
+    .update({
+      fee_captured: true,
+      enrollment_fee_paid_method: "gateway",
+      enrollment_fee_paid_amount: expected,
+      enrollment_fee_paid_on: todayIsoDate(),
+    })
     .eq("id", input.registrationId);
   if (captureErr) {
     logSupabaseClientError("applyEnrollmentGatewayCapture:capture", captureErr, {
       registrationId: input.registrationId,
     });
     return { ok: false };
-  }
-
-  const sectionIds = [
-    row.preferred_section_id == null ? null : String(row.preferred_section_id),
-    ...(Array.isArray(row.additional_section_ids)
-      ? row.additional_section_ids.map((id) => String(id))
-      : []),
-  ].filter((id): id is string => Boolean(id));
-
-  const open = await requestedSectionsHaveOpenSeats(input.admin, sectionIds);
-  if (sectionIds.length > 0 && !open) {
-    const { error: fullErr } = await input.admin
-      .from("registrations")
-      .update({ intake_state: "section_full" })
-      .eq("id", input.registrationId);
-    if (fullErr) {
-      logSupabaseClientError("applyEnrollmentGatewayCapture:full", fullErr, {
-        registrationId: input.registrationId,
-      });
-      return { ok: false };
-    }
-    await notifyAdminsRegistrationPlacement({
-      admin: input.admin,
-      locale: input.locale,
-      registrationId: input.registrationId,
-      kind: "section_full",
-    });
-    return { ok: true, skipped: "section_full" };
   }
 
   const dict = await getDictionary(input.locale);

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { openEventWrite, openEventWriteByRow } from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { resolveEventPriceForResidency } from "@/lib/events/resolveEventPriceTier";
 import { createDashboardUser } from "@/app/[locale]/dashboard/admin/users/actions";
@@ -13,7 +13,6 @@ import {
 import { logServerAuthzDenied } from "@/lib/logging/serverActionLog";
 import {
   adminEventsPath,
-  requireAdminEventActor,
   type EventMutationResult,
 } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
 import { deleteEventAttendee } from "@/lib/events/server/deleteEventAttendeeServer";
@@ -26,9 +25,9 @@ export async function promoteEventAttendeeToUserAction(input: {
   role?: "student" | "teacher" | "parent" | "assistant" | "admin";
   password?: string;
 }): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await openEventWriteByRow("event_attendees", input.attendeeId);
+  if (!opened.ok) return { ok: false, message: opened.code === "forbidden" ? "forbidden" : "attendee_not_found" };
+  const admin = opened.client;
   const { data: attendee, error } = await admin
     .from("event_attendees")
     .select("id, first_name, last_name, dni_or_passport, email, phone")
@@ -57,9 +56,9 @@ export async function promoteEventAttendeeToUserAction(input: {
 }
 
 export async function promoteFromWaitlistAction(locale: string, attendeeId: string): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await openEventWriteByRow("event_attendees", attendeeId);
+  if (!opened.ok) return { ok: false, message: opened.code === "forbidden" ? "forbidden" : "attendee_not_found" };
+  const admin = opened.client;
 
   const { data: attendee } = await admin
     .from("event_attendees")
@@ -95,9 +94,9 @@ export async function promoteFromWaitlistAction(locale: string, attendeeId: stri
 }
 
 export async function cancelEventAttendeeAction(locale: string, attendeeId: string): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await openEventWriteByRow("event_attendees", attendeeId);
+  if (!opened.ok) return { ok: false, message: opened.code === "forbidden" ? "forbidden" : "attendee_not_found" };
+  const admin = opened.client;
   const { error } = await admin
     .from("event_attendees")
     .update({ status: "cancelled" })
@@ -115,12 +114,12 @@ export async function deleteEventAttendeeAction(
   eventId: string,
   options: { notify: boolean; reason: string },
 ): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const result = await deleteEventAttendee({
     adminClient: admin,
-    actorId,
+    actorId: opened.actorId,
     attendeeId,
     eventId,
     notify: options.notify,

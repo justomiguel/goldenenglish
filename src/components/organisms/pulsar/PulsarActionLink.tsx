@@ -10,7 +10,7 @@ export interface PulsarActionLinkProps {
 
 const TONE_CLASS = {
   primary:
-    "inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-5 py-3 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)]",
+    "inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-5 py-3 text-sm font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)] active:translate-y-px",
   quiet:
     "inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3 text-sm font-semibold text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]",
 } as const;

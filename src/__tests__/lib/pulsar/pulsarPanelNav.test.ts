@@ -19,6 +19,7 @@ describe("buildPulsarPanelNav", () => {
       "/es/admin?tab=mail",
       "/es/admin?tab=analytics",
       "/es/admin?tab=operator",
+      "/es/admin?tab=shares",
       "/es/admin/plantillas",
       "/es/admin/tenants/new",
       "/es/admin/perfil",

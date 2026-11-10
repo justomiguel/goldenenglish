@@ -110,7 +110,7 @@ describe("AdminRegistrationAcceptForm", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("asks for a section when the lead did not request one", async () => {
+  it("closes after accept and does not open a section picker", async () => {
     acceptRegistration.mockResolvedValue({ ok: true, studentId: "stu-1", pendingSectionIds: [] });
     const onSuccess = vi.fn();
     render(
@@ -137,15 +137,10 @@ describe("AdminRegistrationAcceptForm", () => {
     );
     fireEvent.click(screen.getByRole("radio", { name: dictEn.admin.registrations.joinBilling.current }));
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
-    await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: dictEn.admin.registrations.skipSectionEnrollment }),
-      ).toBeInTheDocument();
-    });
-    expect(onSuccess).not.toHaveBeenCalled();
+    await waitFor(() => expect(onSuccess).toHaveBeenCalled());
   });
 
-  it("shows the picker only for leftover sections after accept", async () => {
+  it("closes after accept even when a requested section stays unassigned", async () => {
     acceptRegistration.mockResolvedValue({
       ok: true,
       studentId: "stu-1",
@@ -178,17 +173,10 @@ describe("AdminRegistrationAcceptForm", () => {
     );
     fireEvent.click(screen.getByRole("radio", { name: dictEn.admin.registrations.joinBilling.current }));
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
-    await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent(
-        dictEn.admin.registrations.acceptPendingSections,
-      );
-    });
-    expect(
-      screen.getByRole("button", { name: dictEn.admin.registrations.skipSectionEnrollment }),
-    ).toBeInTheDocument();
+    await waitFor(() => expect(acceptRegistration).toHaveBeenCalled());
   });
 
-  it("offers to create a section when the inscriptions cohort has none", async () => {
+  it("closes after accept when the inscriptions cohort has no sections", async () => {
     acceptRegistration.mockResolvedValue({ ok: true, studentId: "stu-1", pendingSectionIds: [] });
     render(
       <AdminRegistrationAcceptForm
@@ -208,14 +196,7 @@ describe("AdminRegistrationAcceptForm", () => {
     );
     fireEvent.click(screen.getByRole("radio", { name: dictEn.admin.registrations.joinBilling.current }));
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
-    await waitFor(() => {
-      expect(screen.getByText(dictEn.admin.registrations.noSectionsInCohort)).toBeInTheDocument();
-      expect(
-        screen.getByRole("link", {
-          name: dictEn.admin.registrations.createSectionInCohort.replaceAll("{{cohort}}", "Web 2026"),
-        }),
-      ).toHaveAttribute("href", "/es/dashboard/admin/academic/cohort-web?tab=sections");
-    });
+    await waitFor(() => expect(acceptRegistration).toHaveBeenCalled());
   });
 
   it("shows generic error when accept fails without message", async () => {

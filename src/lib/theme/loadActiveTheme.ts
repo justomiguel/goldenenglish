@@ -225,7 +225,7 @@ async function loadThemeSnapshotForTenant(slug: string): Promise<ActiveThemeSnap
   }
 }
 
-function loadActiveThemeForTenantSlug(slug: string): Promise<ActiveThemeSnapshot | null> {
+export function loadActiveThemeForSlug(slug: string): Promise<ActiveThemeSnapshot | null> {
   return unstable_cache(
     () => loadThemeSnapshotForTenant(slug),
     ["site-theme-active-tenant-v2", slug],
@@ -243,5 +243,5 @@ export async function loadActiveTheme(): Promise<ActiveThemeSnapshot | null> {
   }
   const tenant = await resolveRequestTenant();
   if (!tenant) return null;
-  return loadActiveThemeForTenantSlug(tenant.slug);
+  return loadActiveThemeForSlug(tenant.slug);
 }

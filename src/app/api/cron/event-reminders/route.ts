@@ -29,6 +29,7 @@ export async function GET(request: Request) {
       const ok = await sendEventAttendeeNotification({
         attendeeId: String(attendee.id),
         templateKey: "events.reminder",
+        dataClient: admin,
       });
       if (ok) sent += 1;
     }

@@ -2,10 +2,9 @@
 
 import { z } from "zod";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { openEventWrite } from "@/app/[locale]/dashboard/admin/events/eventWriteClient";
 import {
-  requireAdminEventActor,
   revalidateEventFormSurfaces,
   type EventMutationResult,
 } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
@@ -19,14 +18,13 @@ const updateCollectBirthDateSchema = z.object({
 export async function updateEventCollectBirthDateAction(
   raw: unknown,
 ): Promise<EventMutationResult> {
-  const actorId = await requireAdminEventActor();
-  if (!actorId) return { ok: false, message: "forbidden" };
-
   const parsed = updateCollectBirthDateSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: "validation_failed" };
 
   const { locale, eventId, collectBirthDate } = parsed.data;
-  const admin = await createAdminClient();
+  const opened = await openEventWrite(eventId);
+  if (!opened.ok) return { ok: false, message: opened.code };
+  const admin = opened.client;
   const { error } = await admin
     .from("events")
     .update(

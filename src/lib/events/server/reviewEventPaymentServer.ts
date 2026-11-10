@@ -12,6 +12,7 @@ import { revertEventPaymentApprovalCore } from "@/lib/events/server/revertEventP
 export async function approveEventPayment(input: {
   adminClient: SupabaseClient;
   actorId: string;
+  reviewedBy?: string | null;
   paymentId: string;
   notes?: string | null;
 }): Promise<{ ok: boolean; code?: "gateway_managed" }> {
@@ -32,7 +33,7 @@ export async function approveEventPayment(input: {
   const approved = await markEventPaymentApprovedCore({
     admin: input.adminClient,
     paymentId: input.paymentId,
-    reviewedBy: input.actorId,
+    reviewedBy: input.reviewedBy === undefined ? input.actorId : input.reviewedBy,
     reviewNotes: input.notes ?? null,
   });
 
@@ -62,6 +63,7 @@ export async function approveEventPayment(input: {
 export async function rejectEventPayment(input: {
   adminClient: SupabaseClient;
   actorId: string;
+  reviewedBy?: string | null;
   paymentId: string;
   notes: string;
 }): Promise<{ ok: boolean; code?: "gateway_managed" }> {
@@ -84,7 +86,7 @@ export async function rejectEventPayment(input: {
     .update({
       status: "rejected",
       review_notes: input.notes,
-      reviewed_by: input.actorId,
+      reviewed_by: input.reviewedBy === undefined ? input.actorId : input.reviewedBy,
     })
     .eq("id", input.paymentId);
 
@@ -116,6 +118,7 @@ export async function rejectEventPayment(input: {
     await sendEventAttendeeNotification({
       attendeeId,
       templateKey: "events.payment_rejected",
+      dataClient: input.adminClient,
     });
     const removed = await removeRejectedPurchaseAttendees(input.adminClient, attendeeId);
     if (!removed) return { ok: false };
@@ -149,6 +152,7 @@ async function removeRejectedPurchaseAttendees(
 export async function revertEventPaymentApproval(input: {
   adminClient: SupabaseClient;
   actorId: string;
+  reviewedBy?: string | null;
   paymentId: string;
   notes?: string | null;
 }): Promise<{ ok: boolean; code?: "not_revertible" | "not_found" | "update_failed" }> {
@@ -161,7 +165,7 @@ export async function revertEventPaymentApproval(input: {
   const reverted = await revertEventPaymentApprovalCore({
     admin: input.adminClient,
     paymentId: input.paymentId,
-    reviewedBy: input.actorId,
+    reviewedBy: input.reviewedBy === undefined ? input.actorId : input.reviewedBy,
     reviewNotes: input.notes ?? null,
   });
 

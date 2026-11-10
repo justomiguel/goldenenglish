@@ -10,8 +10,12 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
-vi.mock("@/lib/dashboard/events/loadEventForPublicLanding", () => ({
-  loadEventForPublicLanding: (...args: unknown[]) => mockLoadEvent(...args),
+vi.mock("@/lib/events/server/openPublishedEvent", () => ({
+  openPublishedEvent: async () => ({
+    event: await mockLoadEvent(),
+    client: {},
+    entryHostSlug: null,
+  }),
 }));
 
 vi.mock("@/lib/events/server/enrollEventAttendeeServer", () => ({

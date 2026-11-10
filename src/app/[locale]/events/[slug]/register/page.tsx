@@ -2,9 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPublicLanding";
+import { openPublishedEvent } from "@/lib/events/server/openPublishedEvent";
 import { isEventSeatMapActive } from "@/lib/events/seatMapState";
 import { loadEventSeatLocks } from "@/lib/events/server/eventSeatLocksServer";
 import { loadEventRegistrationPaymentMethods } from "@/lib/events/server/loadEventRegistrationPaymentMethods";
@@ -26,17 +25,18 @@ export default async function EventRegisterPage({ params }: PageProps) {
   const { locale, slug } = await params;
   const dict = await getDictionary(locale);
   const supabase = await createClient();
-  const [event, surfaceVariant] = await Promise.all([
-    loadEventForPublicLanding(supabase, slug, locale),
+  const [source, surfaceVariant] = await Promise.all([
+    openPublishedEvent(slug, locale),
     loadPublicEventSurfaceVariant(),
   ]);
-  if (!event) notFound();
+  const event = source?.event ?? null;
+  if (!event || !source) notFound();
 
-  const paymentMethods = await loadEventRegistrationPaymentMethods(event.currency);
+  const paymentMethods = await loadEventRegistrationPaymentMethods(event.currency, source.client);
   const { instructions: globalBankTransferInstructions } =
-    await loadBankTransferInstructionsSetting(supabase);
+    await loadBankTransferInstructionsSetting(source.client);
   const seatLocks = isEventSeatMapActive(event.seatMapConfig)
-    ? await loadEventSeatLocks(await createAdminClient(), event.id)
+    ? await loadEventSeatLocks(source.client, event.id)
     : [];
   const eventForRegister = {
     ...event,
