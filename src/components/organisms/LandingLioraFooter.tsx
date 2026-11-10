@@ -47,7 +47,7 @@ export function LandingLioraFooter({
 
   return (
     <footer className={`${PUBLIC_MARKETING_CHROME_CLASS} bg-[var(--liora-footer)] px-[max(1.5rem,env(safe-area-inset-left))] py-16 pb-[max(2rem,env(safe-area-inset-bottom))] pe-[max(1.5rem,env(safe-area-inset-right))] text-white`}>
-      <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-4 md:gap-12">
+      <div className="relative z-10 mx-auto grid max-w-6xl gap-10 md:grid-cols-4 md:gap-12">
         <div className="flex flex-col items-start gap-5 md:col-span-2">
           {brand.logoPath ? (
             <div className="inline-flex rounded-2xl bg-[var(--liora-cream)] px-4 py-3">
@@ -59,13 +59,16 @@ export function LandingLioraFooter({
               />
             </div>
           ) : null}
+          <p className="liora-script text-3xl text-[var(--liora-blush)]">
+            {t("chrome.motto")}
+          </p>
           <p className="max-w-sm text-sm leading-relaxed text-white/80">
             {t("hero.tagline")}
           </p>
 
           {phone || email ? (
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.3em] text-[var(--liora-rose)]">
+              <p className="text-xs font-medium uppercase tracking-[0.3em] text-[var(--liora-blush)]">
                 {t("footer.contactoTitle")}
               </p>
               <ul className="mt-4 space-y-2.5 text-sm">
@@ -97,7 +100,7 @@ export function LandingLioraFooter({
         </div>
 
         <nav aria-label={t("footer.enlacesTitle")}>
-          <p className="text-xs font-medium uppercase tracking-[0.3em] text-[var(--liora-rose)]">
+          <p className="text-xs font-medium uppercase tracking-[0.3em] text-[var(--liora-blush)]">
             {t("footer.enlacesTitle")}
           </p>
           <ul className="mt-5 space-y-2.5 text-sm">
@@ -115,7 +118,7 @@ export function LandingLioraFooter({
         </nav>
 
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.3em] text-[var(--liora-rose)]">
+          <p className="text-xs font-medium uppercase tracking-[0.3em] text-[var(--liora-blush)]">
             {t("footer.sedesTitle")}
           </p>
           <ul className="mt-5 space-y-3 text-sm text-white/85">
@@ -131,7 +134,7 @@ export function LandingLioraFooter({
             ))}
           </ul>
 
-          <p className="mt-7 text-xs font-medium uppercase tracking-[0.3em] text-[var(--liora-rose)]">
+          <p className="mt-7 text-xs font-medium uppercase tracking-[0.3em] text-[var(--liora-blush)]">
             {t("footer.siguenos")}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -168,7 +171,7 @@ export function LandingLioraFooter({
           variant="compactDark"
         />
       </div>
-      <p className="mx-auto mt-6 max-w-6xl text-center text-xs text-white/55">
+      <p className="mx-auto mt-6 max-w-6xl text-center text-xs text-white/75">
         © {new Date().getFullYear()} {brand.legalName} — {t("footer.rightsLine")}
       </p>
     </footer>

@@ -34,7 +34,10 @@ describe("LandingLioraSections", () => {
     render(<LandingLioraSections {...defaultProps} publicCtaMode="both" />);
 
     expect(
-      screen.getByRole("heading", { level: 1, name: t("hero.title") }),
+      screen.getByRole("heading", {
+        level: 1,
+        name: `${t("hero.title")} ${t("hero.titleScript")}`,
+      }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: dict.landing.hero.ctaReserveSpot }),

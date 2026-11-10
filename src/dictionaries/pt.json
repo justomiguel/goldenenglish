@@ -4101,7 +4101,8 @@
         "openMenu": "Abrir menu",
         "closeMenu": "Fechar menu",
         "instagramAria": "Liora Studio no Instagram",
-        "whatsappAria": "Fale com a gente pelo WhatsApp"
+        "whatsappAria": "Fale com a gente pelo WhatsApp",
+        "motto": "Dança · Movimento · Paixão"
       },
       "nav": {
         "inicio": "Início",
@@ -4118,16 +4119,16 @@
         "shellLead": "Deixe seus dados e confirmamos unidade, horário e nível para a sua primeira aula."
       },
       "hero": {
-        "kicker": "Dança · Movimento · Paixão",
-        "title": "Balé para todas as idades",
+        "title": "Balé",
+        "titleScript": "para todas as idades",
         "subtitle": "Um espaço para aprender, crescer e aproveitar a dança em Santiago.",
         "tagline": "O Liora Studio é uma escola de balé com três unidades em Santiago, para quem está começando e para quem volta a dançar.",
         "ctaPrimary": "Aula experimental",
         "ctaSecondary": "Ver horários"
       },
       "sobreNosotros": {
-        "kicker": "Nosso estúdio",
-        "title": "Um espaço para aprender, crescer e aproveitar",
+        "title": "Um espaço para aprender",
+        "titleScript": "crescer e aproveitar",
         "bodyP1": "No Liora Studio ensinamos balé com técnica cuidadosa e um atendimento próximo. Cada aula é montada conforme a idade e o nível do grupo, para que ninguém se sinta deslocado no primeiro dia.",
         "bodyP2": "Trabalhamos postura, coordenação, musicalidade e expressão. O objetivo não é apenas dançar melhor: é que a dança se torne um lugar próprio ao qual dá vontade de voltar toda semana.",
         "pilar1": {
@@ -4144,7 +4145,7 @@
         }
       },
       "clases": {
-        "kicker": "Nossa proposta",
+        "titleScript": "no seu ritmo",
         "sectionTitle": "Aulas",
         "lead": "Quatro níveis organizados por idade e experiência. Não sabe por onde começar? Fale com a gente.",
         "ageLabel": "{ages} anos",
@@ -4170,7 +4171,7 @@
         }
       },
       "sedes": {
-        "kicker": "Onde estamos",
+        "titleScript": "perto do metrô",
         "sectionTitle": "Nossas unidades",
         "lead": "Três unidades em Santiago, todas a poucos passos do metrô.",
         "providencia": {
@@ -4190,14 +4191,14 @@
         }
       },
       "horarios": {
-        "kicker": "Planeje sua semana",
+        "titleScript": "planeje sua semana",
         "sectionTitle": "Horários",
         "lead": "Estes são os blocos vigentes por unidade. As vagas são confirmadas na matrícula.",
         "dayLabel": "Sábados",
         "note": "Procura outro dia ou horário? Fale com a gente e contamos as próximas aberturas."
       },
       "galeria": {
-        "kicker": "No estúdio",
+        "titleScript": "no estúdio",
         "sectionTitle": "Galeria",
         "verMas": "Ver fotos e vídeos",
         "carouselPrev": "Anterior",
@@ -4212,7 +4213,8 @@
         "autoplayPlay": "Reproduzir galeria"
       },
       "cta": {
-        "title": "Sua primeira aula espera por você",
+        "title": "Sua primeira aula",
+        "titleScript": "espera por você",
         "subtitle": "Conte a idade e a unidade que combina com você e marcamos uma aula experimental sem compromisso.",
         "button": "Fale com a gente"
       },

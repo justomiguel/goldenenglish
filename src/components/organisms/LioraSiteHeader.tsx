@@ -9,10 +9,14 @@ import { PublicHeaderAccountCta } from "@/components/molecules/PublicHeaderAccou
 import { SignOutButton } from "@/components/molecules/SignOutButton";
 import { PUBLIC_MARKETING_CHROME_CLASS } from "@/lib/theme/publicExperienceNav";
 import { BrandInstagramIcon } from "@/components/atoms/BrandSocialIcons";
+import { LioraLockup } from "@/components/molecules/LioraLockup";
+import { useScrolledPast } from "@/hooks/useScrolledPast";
 
 export interface LioraSiteHeaderProps {
   locale: string;
-  logoSrc: string;
+  /** Brand name from the brand layer; drawn as the horizontal lockup. */
+  brandName: string;
+  /** Accessible name of the home link. */
   logoAlt: string;
   dict: Dictionary;
   sessionEmail: string | null;
@@ -43,7 +47,7 @@ const stroke = 1.5;
 
 export function LioraSiteHeader({
   locale,
-  logoSrc,
+  brandName,
   logoAlt,
   dict,
   sessionEmail,
@@ -58,6 +62,8 @@ export function LioraSiteHeader({
   labels,
 }: LioraSiteHeaderProps) {
   const [open, setOpen] = useState(false);
+  const { sentinelRef, scrolledPast } = useScrolledPast();
+  const motto = marketingLandingCopy(dict, "liora", "chrome.motto").trim();
   const prefix = `/${locale}`;
   const ig =
     instagramUrl?.trim() ||
@@ -83,23 +89,17 @@ export function LioraSiteHeader({
   ];
 
   return (
+    <>
+    <span ref={sentinelRef} aria-hidden className="block h-0" />
     <header
       id="top"
-      className={`${PUBLIC_MARKETING_CHROME_CLASS} sticky top-0 z-50 border-b border-[var(--liora-line)] bg-[color-mix(in_srgb,var(--liora-cream)_94%,transparent)] backdrop-blur-md`}
+      data-scrolled={scrolledPast ? "true" : "false"}
+      className={`${PUBLIC_MARKETING_CHROME_CLASS} sticky top-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-500 ease-[var(--liora-ease)] ${scrolledPast ? "border-[var(--liora-line)] bg-[color-mix(in_srgb,var(--liora-cream)_94%,transparent)] shadow-[0_10px_30px_-24px_rgb(184_79_97/0.6)] backdrop-blur-md" : "border-transparent bg-[var(--liora-cream)]"}`}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-[max(1rem,env(safe-area-inset-left))] py-2 pe-[max(1rem,env(safe-area-inset-right))] sm:py-2.5 md:gap-3 lg:gap-4 lg:py-3">
+      <div className={`mx-auto flex max-w-6xl items-center justify-between gap-2 px-[max(1rem,env(safe-area-inset-left))] pe-[max(1rem,env(safe-area-inset-right))] transition-[padding] duration-500 md:gap-3 lg:gap-4 ${scrolledPast ? "py-1.5" : "py-3 lg:py-4"}`}>
         <Link href={prefix} className="min-w-0 shrink-0" aria-label={logoAlt}>
-          {/* eslint-disable-next-line @next/next/no-img-element -- local + Storage URLs */}
-          <img
-            src={logoSrc}
-            alt=""
-            width={220}
-            height={220}
-            decoding="async"
-            fetchPriority="high"
-            className="h-14 w-auto max-w-[160px] object-contain sm:h-16 md:h-[4.5rem] md:max-w-[200px]"
-          />
+          <LioraLockup brandName={brandName} motto={motto} compact={scrolledPast} />
         </Link>
         <nav
           className="hidden items-center lg:flex"
@@ -109,7 +109,7 @@ export function LioraSiteHeader({
             <Link
               key={href}
               href={href}
-              className="inline-flex min-h-[44px] items-center px-2.5 py-2 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--liora-ink)] transition-colors hover:text-[var(--liora-rose-deep)] xl:px-3"
+              className="inline-flex min-h-[44px] items-center px-2.5 py-2 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--liora-ink)] transition-colors hover:text-[var(--liora-rose-text)] xl:px-3"
             >
               {label}
             </Link>
@@ -224,5 +224,6 @@ export function LioraSiteHeader({
         </div>
       ) : null}
     </header>
+    </>
   );
 }

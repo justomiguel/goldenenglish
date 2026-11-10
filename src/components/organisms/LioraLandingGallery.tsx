@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, Images, Loader2, Pause, Play } from "lucide-react";
 import { useCallback, useEffect, useId, useState } from "react";
 import { Modal } from "@/components/atoms/Modal";
+import { LioraSectionHeading } from "@/components/molecules/LioraSectionHeading";
 import { LioraGalleryVideoSlide } from "@/components/organisms/LioraGalleryVideoSlide";
 import { useLioraGalleryStrip } from "@/hooks/useLioraGalleryStrip";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
@@ -79,17 +80,14 @@ export function LioraLandingGallery({ dict }: LioraLandingGalleryProps) {
   return (
     <section
       id="galeria"
-      className="liora-section-pad bg-[var(--color-background)] pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+      className="liora-section liora-band-cream"
+      data-liora-anchor="galeria"
+      data-liora-side="full"
     >
-      <div className="mx-auto max-w-6xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-primary)]">
-          {t("kicker")}
-        </p>
-        <h2 className="mt-3 font-serif text-3xl font-medium text-[var(--color-foreground)] md:text-4xl">
-          {t("sectionTitle")}
-        </h2>
+      <div className="relative z-10 mx-auto max-w-6xl">
+        <LioraSectionHeading title={t("sectionTitle")} script={t("titleScript")} />
         <div
-          className="mt-8"
+          className="mt-10"
           onMouseEnter={strip.onMouseEnter}
           onMouseLeave={strip.onMouseLeave}
           onFocus={strip.onFocus}
@@ -130,7 +128,7 @@ export function LioraLandingGallery({ dict }: LioraLandingGalleryProps) {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-muted)] text-[var(--color-foreground)]"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--liora-blush)] text-[var(--liora-rose-text)] transition-colors hover:bg-[var(--liora-line)]"
                 aria-label={t("carouselPrev")}
                 onClick={() => strip.step(-1)}
               >
@@ -138,7 +136,7 @@ export function LioraLandingGallery({ dict }: LioraLandingGalleryProps) {
               </button>
               <button
                 type="button"
-                className="inline-flex h-11 min-w-11 items-center justify-center rounded-full bg-[var(--color-muted)] px-3 text-[var(--color-foreground)]"
+                className="inline-flex h-11 min-w-11 items-center justify-center rounded-full bg-[var(--liora-blush)] px-3 text-[var(--liora-rose-text)] transition-colors hover:bg-[var(--liora-line)]"
                 aria-label={strip.paused ? t("autoplayPlay") : t("autoplayPause")}
                 aria-pressed={strip.paused}
                 onClick={() => strip.setPaused((value) => !value)}
@@ -151,7 +149,7 @@ export function LioraLandingGallery({ dict }: LioraLandingGalleryProps) {
               </button>
               <button
                 type="button"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-muted)] text-[var(--color-foreground)]"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--liora-blush)] text-[var(--liora-rose-text)] transition-colors hover:bg-[var(--liora-line)]"
                 aria-label={t("carouselNext")}
                 onClick={() => strip.step(1)}
               >
@@ -162,7 +160,7 @@ export function LioraLandingGallery({ dict }: LioraLandingGalleryProps) {
         </div>
         <button
           type="button"
-          className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-[var(--color-primary)]"
+          className="liora-btn-outline mt-8 inline-flex min-h-11 items-center gap-2 rounded-full px-6 text-xs font-medium uppercase tracking-[0.2em]"
           onClick={() => openAt(0)}
         >
           <Images className="h-4 w-4" aria-hidden />

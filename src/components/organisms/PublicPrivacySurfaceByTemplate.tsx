@@ -113,7 +113,7 @@ export function PublicPrivacySurfaceByTemplate({
   if (templateKind === "liora") {
     return (
       <LioraFontRoot className="relative min-h-screen pb-16">
-        <LioraRegisterHeader locale={locale} logoSrc={logoSrc} logoAlt={logoAlt} dict={dict} sessionEmail={sessionEmail} />
+        <LioraRegisterHeader locale={locale} brandName={brand.name} logoAlt={logoAlt} dict={dict} sessionEmail={sessionEmail} />
         <PrivacyMain
           locale={locale}
           dict={dict}

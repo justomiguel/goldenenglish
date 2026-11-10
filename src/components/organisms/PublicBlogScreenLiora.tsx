@@ -33,10 +33,10 @@ export function PublicBlogScreenLiora({
 
   return (
     <LioraFontRoot>
-      <main className="relative min-h-screen overflow-x-hidden bg-[var(--liora-cream)]">
+      <main className="relative min-h-screen overflow-x-clip bg-[var(--liora-cream)]">
         <LioraSiteHeader
           locale={locale}
-          logoSrc={brand.logoPath}
+          brandName={brand.name}
           logoAlt={brand.logoAlt}
           dict={dict}
           sessionEmail={sessionEmail}

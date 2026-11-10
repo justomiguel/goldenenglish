@@ -1,0 +1,68 @@
+/* Liora Studio — schedule, social, gallery.
+   Tokens live in `lioraLanding.css`. */
+/* Schedule rows */
+.liora-schedule-sede {
+  background: var(--liora-blush);
+  color: var(--liora-rose-text);
+}
+
+.liora-schedule-row:nth-child(odd) {
+  background: #ffffff;
+}
+
+.liora-schedule-row:nth-child(even) {
+  background: var(--liora-cream);
+}
+
+.liora-social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  border: 1px solid rgb(252 242 241 / 40%);
+  color: var(--liora-cream);
+  transition: background-color 0.2s ease;
+}
+
+.liora-social-icon:hover {
+  background: #5c4f50;
+}
+
+/* Gallery strip */
+.liora-gallery-viewport {
+  container-type: inline-size;
+  overflow: hidden;
+}
+
+.liora-gallery-track {
+  display: flex;
+  gap: 0.75rem;
+  transition: transform 700ms var(--liora-ease);
+  transform: translateX(calc(var(--liora-gallery-index) * -1 * (100cqw / 1.15 + 0.75rem)));
+}
+
+.liora-gallery-frame {
+  width: calc(100cqw / 1.15);
+  flex: none;
+  box-shadow: 0 18px 36px -28px rgb(184 79 97 / 70%);
+}
+
+@media (min-width: 640px) {
+  .liora-gallery-track {
+    transform: translateX(
+      calc(var(--liora-gallery-index) * -1 * ((100cqw - 1.5rem) / 3.2 + 0.75rem))
+    );
+  }
+
+  .liora-gallery-frame {
+    width: calc((100cqw - 1.5rem) / 3.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liora-gallery-track {
+    transition: none;
+  }
+}

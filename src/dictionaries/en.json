@@ -4101,7 +4101,8 @@
         "openMenu": "Open menu",
         "closeMenu": "Close menu",
         "instagramAria": "Liora Studio on Instagram",
-        "whatsappAria": "Message us on WhatsApp"
+        "whatsappAria": "Message us on WhatsApp",
+        "motto": "Dance · Movement · Passion"
       },
       "nav": {
         "inicio": "Home",
@@ -4118,16 +4119,16 @@
         "shellLead": "Leave us your details and we'll confirm location, time and level for your first class."
       },
       "hero": {
-        "kicker": "Dance · Movement · Passion",
-        "title": "Ballet for every age",
+        "title": "Ballet",
+        "titleScript": "for every age",
         "subtitle": "A place to learn, grow and enjoy dance in Santiago.",
         "tagline": "Liora Studio is a ballet school with three locations in Santiago, for absolute beginners and for those coming back to dance.",
         "ctaPrimary": "Trial class",
         "ctaSecondary": "See schedule"
       },
       "sobreNosotros": {
-        "kicker": "Our studio",
-        "title": "A place to learn, grow and enjoy",
+        "title": "A place to learn",
+        "titleScript": "grow and enjoy",
         "bodyP1": "At Liora Studio we teach ballet with careful technique and a warm, personal approach. Every class is built around the age and level of the group, so nobody feels out of place on day one.",
         "bodyP2": "We work on posture, coordination, musicality and expression. The goal isn't only better dancing: it's making the studio a place you want to come back to each week.",
         "pilar1": {
@@ -4144,7 +4145,7 @@
         }
       },
       "clases": {
-        "kicker": "What we offer",
+        "titleScript": "at your own pace",
         "sectionTitle": "Classes",
         "lead": "Four levels organised by age and experience. Not sure where to start? Write to us and we'll guide you.",
         "ageLabel": "Ages {ages}",
@@ -4170,7 +4171,7 @@
         }
       },
       "sedes": {
-        "kicker": "Where we are",
+        "titleScript": "by the metro",
         "sectionTitle": "Our locations",
         "lead": "Three locations across Santiago, all steps away from a metro station.",
         "providencia": {
@@ -4190,14 +4191,14 @@
         }
       },
       "horarios": {
-        "kicker": "Plan your week",
+        "titleScript": "plan your week",
         "sectionTitle": "Schedule",
         "lead": "Current blocks per location. Spots are confirmed at enrolment.",
         "dayLabel": "Saturdays",
         "note": "Looking for another day or time? Write to us and we'll share upcoming openings."
       },
       "galeria": {
-        "kicker": "In the studio",
+        "titleScript": "in the studio",
         "sectionTitle": "Gallery",
         "verMas": "See photos and videos",
         "carouselPrev": "Previous",
@@ -4212,7 +4213,8 @@
         "autoplayPlay": "Play gallery"
       },
       "cta": {
-        "title": "Your first class is waiting",
+        "title": "Your first class",
+        "titleScript": "is waiting",
         "subtitle": "Tell us the age, the location that suits you and we'll arrange a trial class with no commitment.",
         "button": "Write to us"
       },

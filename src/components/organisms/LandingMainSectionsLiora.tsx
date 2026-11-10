@@ -4,6 +4,7 @@ import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { LioraSiteHeader } from "@/components/organisms/LioraSiteHeader";
 import { LandingLioraSections } from "@/components/organisms/LandingLioraSections";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { LioraRibbonOverlay } from "@/components/organisms/LioraRibbonOverlay";
 import { LioraFontRoot } from "@/components/organisms/LioraFontRoot";
 import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
@@ -32,10 +33,10 @@ export function LandingMainSectionsLiora({
 }: LandingMainSectionsLioraProps) {
   return (
     <LioraFontRoot>
-      <main className="relative overflow-x-hidden">
+      <main className="relative overflow-x-clip">
         <LioraSiteHeader
           locale={locale}
-          logoSrc={brand.logoPath}
+          brandName={brand.name}
           logoAlt={brand.logoAlt}
           dict={dict}
           sessionEmail={sessionEmail}
@@ -69,6 +70,7 @@ export function LandingMainSectionsLiora({
           inscriptionsEnabled={inscriptionsEnabled}
           sessionEmail={sessionEmail}
         />
+        <LioraRibbonOverlay />
       </main>
     </LioraFontRoot>
   );

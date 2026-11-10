@@ -1,24 +1,28 @@
 /**
- * Liora Studio — paleta tomada del logo: crema cálido de fondo, marrón tinta del
- * wordmark y rosa viejo de la cinta. `--liora-rose-deep` es la variante que pasa
- * AA sobre blanco/crema; `--liora-rose` queda solo para trazos decorativos.
+ * Liora Studio — palette from the studio Instagram flyers: blush paper and a
+ * bright rose. `--liora-rose` is decoration only (ribbon, hearts, hairlines).
+ * Text and fills use the deeper rose tones, which pass WCAG AA on paper.
+ * `src/__tests__/styles/lioraPalette.test.ts` locks the ratios.
  */
 .liora-landing {
-  --liora-cream: #faf5ef;
-  --liora-cream-deep: #f3e9e0;
-  --liora-blush: #f7e8e2;
-  --liora-sand: #ece0d5;
-  --liora-rose: #c08c7d;
-  --liora-rose-deep: #96594b;
-  --liora-rose-hover: #7f4a3e;
-  --liora-ink: #3f3733;
+  --liora-cream: #fcf2f1;
+  --liora-cream-deep: #fff8f8;
+  --liora-blush: #f6dfe0;
+  --liora-sand: #f3e4e2;
+  --liora-rose: #e48a94;
+  --liora-rose-title: #c25a6a;
+  --liora-rose-deep: #b84f61;
+  --liora-rose-text: #9f4255;
+  --liora-rose-hover: var(--liora-rose-text);
+  --liora-ink: #4a3f40;
   --liora-ink-soft: #6b5f58;
-  --liora-line: #e0d0c5;
-  --liora-footer: #332c29;
+  --liora-line: #f0d9da;
+  --liora-footer: #4a3f40;
+  --liora-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --color-heading: var(--liora-ink);
   --color-primary: var(--liora-rose-deep);
-  --color-primary-foreground: var(--liora-cream);
-  --color-primary-dark: var(--liora-rose-hover);
+  --color-primary-foreground: #ffffff;
+  --color-primary-dark: var(--liora-rose-text);
   --color-foreground: var(--liora-ink);
   --color-muted-foreground: var(--liora-ink-soft);
   --color-surface: var(--liora-cream-deep);
@@ -34,12 +38,11 @@
   color: var(--liora-ink);
 }
 
-/* Hero: foto de estudio (LandingHeroPhoto) con velo para que el texto quede
-   legible. El color de fondo cubre el hueco mientras carga la imagen. */
+/* Hero: studio photo with a paper wash on the text side, like the flyers. */
 .liora-hero {
   position: relative;
-  min-height: 78vh;
-  background-color: var(--liora-cream-deep);
+  min-height: 82vh;
+  background-color: var(--liora-blush);
   overflow: hidden;
 }
 
@@ -48,28 +51,22 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background:
-    linear-gradient(
-      100deg,
-      rgb(63 55 51 / 0.78) 0%,
-      rgb(63 55 51 / 0.58) 42%,
-      rgb(63 55 51 / 0.28) 72%,
-      rgb(63 55 51 / 0.35) 100%
-    ),
-    radial-gradient(
-      ellipse 120% 90% at 30% 50%,
-      transparent 0%,
-      rgb(51 44 41 / 0.3) 100%
-    );
+  background: linear-gradient(
+    90deg,
+    rgb(252 242 241 / 0.97) 0%,
+    rgb(252 242 241 / 0.92) 40%,
+    rgb(252 242 241 / 0.35) 68%,
+    rgb(252 242 241 / 0) 100%
+  );
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .liora-hero-overlay {
     background: linear-gradient(
       180deg,
-      rgb(63 55 51 / 0.62) 0%,
-      rgb(63 55 51 / 0.55) 45%,
-      rgb(51 44 41 / 0.75) 100%
+      rgb(252 242 241 / 0.2) 0%,
+      rgb(252 242 241 / 0.88) 42%,
+      rgb(252 242 241 / 0.97) 100%
     );
   }
 }
@@ -79,33 +76,61 @@
   z-index: 3;
 }
 
-/* Filete decorativo con corazón, tomado del cierre del logo */
-.liora-flourish {
+/* Hairline with a small heart in the middle, from the flyers. */
+.liora-heart-rule {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
   color: var(--liora-rose);
 }
 
-.liora-flourish::before,
-.liora-flourish::after {
+.liora-heart-rule::before,
+.liora-heart-rule::after {
   content: "";
   display: block;
   height: 1px;
-  width: clamp(2.5rem, 12vw, 6rem);
-  background: currentColor;
-  opacity: 0.6;
+  width: clamp(2.5rem, 12vw, 6.5rem);
+  background: linear-gradient(90deg, transparent, currentColor);
+}
+
+.liora-heart-rule::after {
+  background: linear-gradient(90deg, currentColor, transparent);
+}
+
+.liora-heart-rule[data-align="start"] {
+  justify-content: flex-start;
+}
+
+.liora-heart-rule[data-align="center"] {
+  justify-content: center;
+}
+
+.liora-heart-rule[data-align="end"] {
+  justify-content: flex-start;
+}
+
+@media (min-width: 1024px) {
+  .liora-heart-rule[data-align="end"] {
+    justify-content: flex-end;
+  }
 }
 
 .liora-kicker {
   font-size: 0.7rem;
   font-weight: 500;
-  letter-spacing: 0.42em;
+  letter-spacing: 0.38em;
   text-transform: uppercase;
 }
 
-/* Bandas alternadas de sección */
+.liora-script {
+  font-family: var(--font-liora-script), cursive;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Section bands. A band has no z-index: the ribbon layer paints above the
+   band colour and below the `relative z-10` content wrapper. */
 .liora-band-cream {
   background-color: var(--liora-cream);
 }
@@ -114,94 +139,79 @@
   background-color: var(--liora-blush);
 }
 
+.liora-section {
+  scroll-margin-top: 5rem;
+  padding: 6rem max(1.5rem, env(safe-area-inset-right)) 6rem max(1.5rem, env(safe-area-inset-left));
+}
+
 .liora-card {
   background: var(--color-surface);
   border: 1px solid var(--liora-line);
-  border-radius: 1rem;
-  box-shadow: 0 18px 40px -32px rgb(63 55 51 / 55%);
+  border-radius: 1.25rem;
+  box-shadow: 0 22px 44px -36px rgb(184 79 97 / 55%);
 }
 
-/* Marco ovalado tipo retrato para las fotos de clases y galería */
-.liora-arch {
-  border-radius: 999px 999px 1.25rem 1.25rem;
-  overflow: hidden;
-  border: 1px solid var(--liora-line);
+/* Photos melt into the paper instead of sitting in a hard frame. */
+.liora-photo-fade {
+  -webkit-mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 60%, transparent 100%);
+  mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 60%, transparent 100%);
 }
 
-.liora-gallery-frame {
-  position: relative;
-  overflow: hidden;
-  border-radius: 1rem;
-  border: 1px solid var(--liora-line);
-  box-shadow: 0 14px 34px -26px rgb(63 55 51 / 60%);
-}
-
-/* Fila de horario: la franja de sede usa rosa suave como en el flyer */
-.liora-schedule-sede {
-  background: color-mix(in srgb, var(--liora-rose) 26%, #ffffff);
-  color: var(--liora-ink);
-}
-
-.liora-schedule-row:nth-child(odd) {
-  background: #ffffff;
-}
-
-.liora-schedule-row:nth-child(even) {
-  background: var(--liora-cream);
-}
-
-.liora-social-icon {
+.liora-pill {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 999px;
+  background: var(--liora-rose-deep);
   color: #ffffff;
-  transition: background-color 0.2s ease;
+  padding: 0.35rem 0.95rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.liora-social-icon:hover {
-  background: rgb(255 255 255 / 14%);
-}
-
-/* Shared public pages (privacy) — rose-deep passes AA on cream. */
-.liora-gallery-viewport {
-  container-type: inline-size;
-  overflow: hidden;
-}
-
-.liora-gallery-track {
-  display: flex;
-  gap: 0.75rem;
-  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
-  transform: translateX(calc(var(--liora-gallery-index) * -1 * (100cqw / 1.15 + 0.75rem)));
-}
-
-.liora-gallery-frame {
-  width: calc(100cqw / 1.15);
+.liora-badge {
+  display: inline-flex;
   flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background: var(--liora-rose-deep);
+  color: #ffffff;
 }
 
-@media (min-width: 640px) {
-  .liora-gallery-track {
-    transform: translateX(
-      calc(var(--liora-gallery-index) * -1 * ((100cqw - 1.5rem) / 3.2 + 0.75rem))
-    );
-  }
+.liora-btn-solid {
+  background: var(--liora-rose-deep);
+  color: #ffffff;
+  transition: background-color 300ms var(--liora-ease), transform 300ms var(--liora-ease);
+}
 
-  .liora-gallery-frame {
-    width: calc((100cqw - 1.5rem) / 3.2);
+.liora-btn-solid:hover,
+.liora-btn-solid:focus-visible {
+  background: var(--liora-rose-text);
+}
+
+.liora-btn-outline {
+  border: 1px solid var(--liora-rose-deep);
+  color: var(--liora-rose-text);
+  transition: background-color 300ms var(--liora-ease), transform 300ms var(--liora-ease);
+}
+
+.liora-btn-outline:hover,
+.liora-btn-outline:focus-visible {
+  background: var(--liora-blush);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .liora-btn-solid:hover,
+  .liora-btn-outline:hover {
+    transform: translateY(-1px);
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .liora-gallery-track {
-    transition: none;
-  }
-}
-
+/* Shared public pages (privacy, answers). */
 .liora-public-sheet {
   --color-heading: var(--liora-ink);
   --color-primary: var(--liora-rose-deep);

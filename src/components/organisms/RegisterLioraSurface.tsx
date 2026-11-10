@@ -45,7 +45,7 @@ export function RegisterLioraSurface({
     <LioraFontRoot className="relative min-h-screen pb-16">
       <LioraRegisterHeader
         locale={locale}
-        logoSrc={brand.logoPath.trim()}
+        brandName={brand.name}
         logoAlt={brand.logoAlt || brand.name}
         dict={dict}
         sessionEmail={sessionEmail}
@@ -53,13 +53,13 @@ export function RegisterLioraSurface({
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pt-10 md:gap-10 md:pt-14">
         <aside>
           <div className="liora-card p-6 md:p-8">
-            <p className="liora-kicker text-[var(--liora-rose-deep)]">
-              {t("hero.kicker")}
-            </p>
-            <h2 className="mt-4 font-[family-name:var(--font-liora-display)] text-3xl font-light leading-tight tracking-[0.08em] text-[var(--liora-ink)] md:text-4xl">
+            <h2 className="font-[family-name:var(--font-liora-display)] text-3xl md:text-4xl font-medium leading-tight text-[var(--liora-rose-title)]">
               {t("hero.title")}
+              <span className="liora-script mt-1 block text-[1.15em] text-[var(--liora-rose-deep)]">
+                {t("hero.titleScript")}
+              </span>
             </h2>
-            <p className="mt-3 text-lg font-light text-[var(--liora-rose-deep)]">
+            <p className="mt-3 text-lg text-[var(--liora-rose-text)]">
               {t("hero.subtitle")}
             </p>
             <p className="mt-4 max-w-3xl text-sm leading-relaxed text-[var(--liora-ink-soft)]">

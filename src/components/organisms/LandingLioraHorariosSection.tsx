@@ -1,4 +1,5 @@
-import { Clock, MapPin } from "lucide-react";
+import { CalendarDays, Clock, MapPin } from "lucide-react";
+import { LioraSectionHeading } from "@/components/molecules/LioraSectionHeading";
 import {
   LIORA_SATURDAY_SCHEDULE,
   type LioraSedeSchedule,
@@ -58,24 +59,21 @@ export function LandingLioraHorariosSection({
   return (
     <section
       id="horarios"
-      className="liora-band-cream scroll-mt-24 px-[max(1.5rem,env(safe-area-inset-left))] py-20 pe-[max(1.5rem,env(safe-area-inset-right))] md:py-24"
+      className="liora-section liora-band-blush"
+      data-liora-anchor="horarios"
+      data-liora-side="start"
     >
-      <div className="mx-auto max-w-5xl">
-        <div className="text-center">
-          <p className="liora-kicker text-[var(--liora-rose-deep)]">
-            {t("horarios.kicker")}
-          </p>
-          <h2 className="mt-4 font-[family-name:var(--font-liora-display)] text-4xl font-light tracking-[0.12em] text-[var(--liora-ink)] md:text-5xl">
-            {t("horarios.sectionTitle")}
-          </h2>
-          <div className="liora-flourish mt-5" aria-hidden />
-          <p className="mx-auto mt-6 max-w-2xl text-pretty leading-relaxed text-[var(--liora-ink-soft)]">
-            {t("horarios.lead")}
-          </p>
-          <p className="mt-6 inline-flex items-center rounded-full border border-[var(--liora-rose)] px-5 py-1.5 text-xs font-medium uppercase tracking-[0.3em] text-[var(--liora-rose-deep)]">
-            {t("horarios.dayLabel")}
-          </p>
-        </div>
+      <div className="relative z-10 mx-auto max-w-6xl">
+        <LioraSectionHeading
+          align="start"
+          title={t("horarios.sectionTitle")}
+          script={t("horarios.titleScript")}
+          lead={t("horarios.lead")}
+        />
+        <p className="liora-pill mt-6 gap-2">
+          <CalendarDays className="h-4 w-4 shrink-0" aria-hidden strokeWidth={1.5} />
+          {t("horarios.dayLabel")}
+        </p>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {LIORA_SATURDAY_SCHEDULE.map((schedule) => (

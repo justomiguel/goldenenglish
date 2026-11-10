@@ -4101,7 +4101,8 @@
         "openMenu": "Abrir menú",
         "closeMenu": "Cerrar menú",
         "instagramAria": "Liora Studio en Instagram",
-        "whatsappAria": "Escríbenos por WhatsApp"
+        "whatsappAria": "Escríbenos por WhatsApp",
+        "motto": "Danza · Movimiento · Pasión"
       },
       "nav": {
         "inicio": "Inicio",
@@ -4118,16 +4119,16 @@
         "shellLead": "Déjanos tus datos y te confirmamos sede, horario y nivel para tu primera clase."
       },
       "hero": {
-        "kicker": "Danza · Movimiento · Pasión",
-        "title": "Ballet para todas las edades",
+        "title": "Ballet",
+        "titleScript": "para todas las edades",
         "subtitle": "Un espacio para aprender, crecer y disfrutar la danza en Santiago.",
         "tagline": "Liora Studio es una escuela de ballet con tres sedes en Santiago, pensada para quienes empiezan y para quienes vuelven a bailar.",
         "ctaPrimary": "Clase de prueba",
         "ctaSecondary": "Ver horarios"
       },
       "sobreNosotros": {
-        "kicker": "Nuestro estudio",
-        "title": "Un espacio para aprender, crecer y disfrutar",
+        "title": "Un espacio para aprender",
+        "titleScript": "crecer y disfrutar",
         "bodyP1": "En Liora Studio enseñamos ballet con técnica cuidada y un trato cercano. Cada clase se arma según la edad y el nivel del grupo, para que nadie se sienta fuera de lugar el primer día.",
         "bodyP2": "Trabajamos postura, coordinación, musicalidad y expresión. El objetivo no es solo bailar mejor: es que la danza se vuelva un lugar propio al que dan ganas de volver cada semana.",
         "pilar1": {
@@ -4144,7 +4145,7 @@
         }
       },
       "clases": {
-        "kicker": "Nuestra propuesta",
+        "titleScript": "a tu ritmo",
         "sectionTitle": "Clases",
         "lead": "Cuatro niveles pensados por edad y experiencia. Si no sabes por dónde empezar, escríbenos y te orientamos.",
         "ageLabel": "{ages} años",
@@ -4170,7 +4171,7 @@
         }
       },
       "sedes": {
-        "kicker": "Dónde estamos",
+        "titleScript": "junto al metro",
         "sectionTitle": "Nuestras sedes",
         "lead": "Tres sedes en Santiago, todas a pasos del metro.",
         "providencia": {
@@ -4190,14 +4191,14 @@
         }
       },
       "horarios": {
-        "kicker": "Planifica tu semana",
+        "titleScript": "planifica tu semana",
         "sectionTitle": "Horarios",
         "lead": "Estos son los bloques vigentes por sede. Los cupos se confirman al inscribirse.",
         "dayLabel": "Sábados",
         "note": "¿Buscas otro día u horario? Escríbenos y te contamos las próximas aperturas."
       },
       "galeria": {
-        "kicker": "En el estudio",
+        "titleScript": "en el estudio",
         "sectionTitle": "Galería",
         "verMas": "Ver fotos y videos",
         "carouselPrev": "Anterior",
@@ -4212,7 +4213,8 @@
         "autoplayPlay": "Reproducir galería"
       },
       "cta": {
-        "title": "Tu primera clase te espera",
+        "title": "Tu primera clase",
+        "titleScript": "te espera",
         "subtitle": "Cuéntanos la edad, la sede que te acomoda y coordinamos una clase de prueba sin compromiso.",
         "button": "Escríbenos"
       },

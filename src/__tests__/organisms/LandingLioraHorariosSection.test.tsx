@@ -47,7 +47,9 @@ describe("LandingLioraHorariosSection", () => {
     render(<LandingLioraHorariosSection t={t} />);
 
     expect(
-      screen.getByRole("heading", { name: t("horarios.sectionTitle") }),
+      screen.getByRole("heading", {
+        name: `${t("horarios.sectionTitle")} ${t("horarios.titleScript")}`,
+      }),
     ).toBeInTheDocument();
     expect(screen.getByText(t("horarios.dayLabel"))).toBeInTheDocument();
   });

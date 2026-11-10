@@ -1,5 +1,7 @@
 import Image from "next/image";
+import { Sparkles } from "lucide-react";
 import { LIORA_CLASS_KEYS } from "@/lib/landing/lioraSchedule";
+import { LioraSectionHeading } from "@/components/molecules/LioraSectionHeading";
 
 interface LandingLioraClasesSectionProps {
   /** Reads `dict.landing.liora.<path>`. */
@@ -12,44 +14,43 @@ export function LandingLioraClasesSection({ t, img }: LandingLioraClasesSectionP
   return (
     <section
       id="clases"
-      className="liora-band-blush scroll-mt-24 px-[max(1.5rem,env(safe-area-inset-left))] py-20 pe-[max(1.5rem,env(safe-area-inset-right))] md:py-24"
+      className="liora-section liora-band-blush"
+      data-liora-anchor="clases"
+      data-liora-side="start"
     >
-      <div className="mx-auto max-w-6xl">
-        <div className="text-center">
-          <p className="liora-kicker text-[var(--liora-rose-deep)]">
-            {t("clases.kicker")}
-          </p>
-          <h2 className="mt-4 font-[family-name:var(--font-liora-display)] text-4xl font-light tracking-[0.12em] text-[var(--liora-ink)] md:text-5xl">
-            {t("clases.sectionTitle")}
-          </h2>
-          <div className="liora-flourish mt-5" aria-hidden />
-          <p className="mx-auto mt-6 max-w-2xl text-pretty leading-relaxed text-[var(--liora-ink-soft)]">
-            {t("clases.lead")}
-          </p>
-        </div>
+      <div className="relative z-10 mx-auto max-w-6xl">
+        <LioraSectionHeading
+          align="start"
+          title={t("clases.sectionTitle")}
+          script={t("clases.titleScript")}
+          lead={t("clases.lead")}
+        />
 
-        <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {LIORA_CLASS_KEYS.map((key, i) => (
-            <article key={key} className="flex flex-col">
-              <div className="liora-arch relative aspect-[3/4] w-full">
+            <article key={key} className="liora-card flex flex-col overflow-hidden">
+              <div className="relative aspect-[4/5] w-full">
                 <Image
                   src={img("oferta", `${i + 1}.jpg`)}
                   alt=""
                   width={360}
-                  height={480}
+                  height={450}
                   className="h-full w-full object-cover"
                   sizes="(max-width:640px) 90vw, (max-width:1024px) 45vw, 22vw"
                 />
+                <span className="liora-pill absolute bottom-3 start-3">
+                  {t(`clases.${key}.ages`)}
+                </span>
               </div>
-              <h3 className="mt-6 font-[family-name:var(--font-liora-display)] text-2xl font-light tracking-[0.08em] text-[var(--liora-ink)]">
-                {t(`clases.${key}.title`)}
-              </h3>
-              <p className="mt-1.5 text-xs font-medium uppercase tracking-[0.2em] text-[var(--liora-rose-deep)]">
-                {t(`clases.${key}.ages`)}
-              </p>
-              <p className="mt-3 text-sm leading-relaxed text-[var(--liora-ink-soft)]">
-                {t(`clases.${key}.body`)}
-              </p>
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="flex items-center gap-2 font-[family-name:var(--font-liora-display)] text-2xl font-medium text-[var(--liora-rose-title)]">
+                  <Sparkles className="h-4 w-4 shrink-0 text-[var(--liora-rose)]" aria-hidden strokeWidth={1.5} />
+                  {t(`clases.${key}.title`)}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-[var(--liora-ink-soft)]">
+                  {t(`clases.${key}.body`)}
+                </p>
+              </div>
             </article>
           ))}
         </div>
