@@ -4199,12 +4199,15 @@
       "galeria": {
         "kicker": "No estúdio",
         "sectionTitle": "Galeria",
-        "verMas": "Ver mais fotos",
-        "carouselPrev": "Foto anterior",
-        "carouselNext": "Próxima foto",
-        "carouselPosition": "Foto {current} de {total}",
-        "carouselLoading": "Carregando foto",
-        "previewOpenAria": "Ampliar foto {n}"
+        "verMas": "Ver fotos e vídeos",
+        "carouselPrev": "Anterior",
+        "carouselNext": "Seguinte",
+        "carouselPosition": "{current} de {total}",
+        "carouselLoading": "Carregando",
+        "previewOpenAria": "Ampliar foto {n}",
+        "previewPlayAria": "Reproduzir vídeo {n}",
+        "play": "Reproduzir",
+        "pause": "Pausar"
       },
       "cta": {
         "title": "Sua primeira aula espera por você",
@@ -4356,7 +4359,11 @@
         "kicker": "Galeria",
         "sectionTitle": "Assim é a sala",
         "verMas": "Ver foto",
-        "alt": "Alunas da Matiss Studio em aula."
+        "alt": "Alunas da Matiss Studio em aula.",
+        "close": "Fechar",
+        "prev": "Foto anterior",
+        "next": "Foto seguinte",
+        "position": "{current} de {total}"
       },
       "cta": {
         "title": "A próxima aula pode ser a primeira",

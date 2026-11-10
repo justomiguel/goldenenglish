@@ -28,4 +28,24 @@ describe("MatissSiteHeader", () => {
     expect(container.querySelector("header img")).toBeNull();
     expect(container.querySelector("header")?.className).toContain("sticky");
   });
+
+  it("uses a fixed header when the phone tree asks for it", () => {
+    const { container } = render(
+      <MatissSiteHeader
+        locale="es"
+        brandName="Matiss Studio"
+        logoAlt="Matiss Studio"
+        dict={es}
+        sessionEmail={null}
+        links={[]}
+        openMenu="Abrir menú"
+        closeMenu="Cerrar menú"
+        placement="fixed"
+      />,
+    );
+
+    const header = container.querySelector("header");
+    expect(header?.className).toContain("fixed");
+    expect(header?.className).not.toContain("sticky");
+  });
 });

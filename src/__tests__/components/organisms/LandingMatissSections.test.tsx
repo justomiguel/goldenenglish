@@ -44,6 +44,7 @@ describe("LandingMatissSections", () => {
     expect(screen.getByRole("link", { name: es.landing.matiss.hero.ctaPrimary })).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: es.landing.matiss.cta.button }).length).toBeGreaterThan(0);
     expect(screen.getByRole("radiogroup")).toBeInTheDocument();
+    expect(container.querySelector("#clases")?.contains(container.querySelector("#horarios"))).toBe(true);
     expect(screen.getByRole("link", { name: "+56 9 8747 6023" })).toHaveAttribute(
       "href",
       "tel:+56987476023",

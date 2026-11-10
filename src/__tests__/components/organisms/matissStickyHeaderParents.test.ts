@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const parents = [
-  "src/components/organisms/LandingMainSectionsMatiss.tsx",
+  "src/components/organisms/LandingMatissExperience.tsx",
   "src/components/organisms/PublicBlogScreenMatiss.tsx",
 ];
 

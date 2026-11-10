@@ -4199,12 +4199,15 @@
       "galeria": {
         "kicker": "In the studio",
         "sectionTitle": "Gallery",
-        "verMas": "See more photos",
-        "carouselPrev": "Previous photo",
-        "carouselNext": "Next photo",
-        "carouselPosition": "Photo {current} of {total}",
-        "carouselLoading": "Loading photo",
-        "previewOpenAria": "Enlarge photo {n}"
+        "verMas": "See photos and videos",
+        "carouselPrev": "Previous",
+        "carouselNext": "Next",
+        "carouselPosition": "{current} of {total}",
+        "carouselLoading": "Loading",
+        "previewOpenAria": "Enlarge photo {n}",
+        "previewPlayAria": "Play video {n}",
+        "play": "Play",
+        "pause": "Pause"
       },
       "cta": {
         "title": "Your first class is waiting",
@@ -4356,7 +4359,11 @@
         "kicker": "Gallery",
         "sectionTitle": "Inside the room",
         "verMas": "View photo",
-        "alt": "Matiss Studio students in class."
+        "alt": "Matiss Studio students in class.",
+        "close": "Close",
+        "prev": "Previous photo",
+        "next": "Next photo",
+        "position": "{current} of {total}"
       },
       "cta": {
         "title": "The next class can be her first",

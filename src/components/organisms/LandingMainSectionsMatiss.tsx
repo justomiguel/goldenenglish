@@ -4,8 +4,7 @@ import { resolveLandingImageSrcForTheme, type LandingMediaMap } from "@/lib/cms/
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import type { LandingImageSectionSlug } from "@/lib/landing/sectionLandingImages";
 import { MatissFontRoot } from "@/components/organisms/MatissFontRoot";
-import { MatissSiteHeader } from "@/components/organisms/MatissSiteHeader";
-import { LandingMatissSections } from "@/components/organisms/LandingMatissSections";
+import { LandingMatissExperience } from "@/components/organisms/LandingMatissExperience";
 import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 interface LandingMainSectionsMatissProps {
@@ -45,36 +44,27 @@ export function LandingMainSectionsMatiss({
 
   return (
     <MatissFontRoot>
-      <main className="relative overflow-x-clip">
-        <MatissSiteHeader
-          locale={locale}
-          brandName={brand.name}
-          logoAlt={brand.logoAlt}
-          dict={dict}
-          sessionEmail={sessionEmail}
-          links={links}
-          openMenu={t("chrome.openMenu")}
-          closeMenu={t("chrome.closeMenu")}
-        />
-        <LandingMatissSections
-          dict={dict}
-          brand={brand}
-          locale={locale}
-          links={links}
-          images={{
-            heroWeb: img("inicio", 2),
-            manifesto: img("historia", 1),
-            benefits: img("historia", 2),
-            programs: [1, 2, 3].map((n) => img("niveles", n)),
-            classes: [1, 2, 3, 4].map((n) => img("oferta", n)),
-            gala: img("modalidades", 2),
-            gallery: [1, 2, 3, 4, 5, 6, 7, 8].map((n) => img("certificaciones", n)),
-            contact: img("modalidades", 1),
-          }}
-          publicCtaMode={publicCtaMode}
-          inscriptionsEnabled={inscriptionsEnabled}
-        />
-      </main>
+      <LandingMatissExperience
+        dict={dict}
+        brand={brand}
+        locale={locale}
+        links={links}
+        sessionEmail={sessionEmail}
+        openMenu={t("chrome.openMenu")}
+        closeMenu={t("chrome.closeMenu")}
+        images={{
+          heroWeb: img("inicio", 2),
+          manifesto: img("historia", 1),
+          benefits: img("historia", 2),
+          programs: [1, 2, 3].map((n) => img("niveles", n)),
+          classes: [1, 2, 3, 4].map((n) => img("oferta", n)),
+          gala: img("modalidades", 2),
+          gallery: [1, 2, 3, 4, 5, 6, 7, 8].map((n) => img("certificaciones", n)),
+          contact: img("modalidades", 1),
+        }}
+        publicCtaMode={publicCtaMode}
+        inscriptionsEnabled={inscriptionsEnabled}
+      />
     </MatissFontRoot>
   );
 }

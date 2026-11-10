@@ -1,0 +1,82 @@
+.matiss-phone-scroll {
+  height: 100dvh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior-y: contain;
+}
+
+.matiss-phone-screen {
+  box-sizing: border-box;
+  height: 100dvh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-top: calc(4.25rem + env(safe-area-inset-top));
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .matiss-phone-scroll {
+    scroll-behavior: smooth;
+  }
+}
+
+.matiss-phone-screen section {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.matiss-phone-screen .matiss-display {
+  font-size: 1.65rem;
+  line-height: 1.05;
+}
+
+.matiss-phone-screen--hero .matiss-display {
+  font-size: 2.35rem;
+}
+
+.matiss-phone-screen .matiss-frame {
+  max-height: 16dvh;
+}
+
+.matiss-phone-screen--hero .matiss-frame,
+.matiss-phone-screen--manifesto .matiss-frame,
+.matiss-phone-screen--gala .matiss-frame {
+  max-height: 28dvh;
+}
+
+.matiss-phone-screen--classday .matiss-frame,
+.matiss-phone-screen--groups .matiss-frame {
+  max-height: 11dvh;
+}
+
+.matiss-phone-screen--classday ol,
+.matiss-phone-screen--groups ul,
+.matiss-phone-screen--benefits ol {
+  margin-top: 0.5rem;
+  gap: 0.5rem 0.75rem;
+}
+
+.matiss-phone-screen--benefits li p:last-child,
+.matiss-phone-screen--classday li p:last-child,
+.matiss-phone-screen--groups li p:last-child {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.matiss-phone-screen--contact img,
+.matiss-phone-screen--contact [data-matiss-seal] {
+  display: none;
+}
+
+.matiss-phone-screen--contact footer {
+  padding-top: 0.75rem;
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+}
+
+.matiss-phone-screen--gallery .matiss-frame {
+  max-height: 22dvh;
+}

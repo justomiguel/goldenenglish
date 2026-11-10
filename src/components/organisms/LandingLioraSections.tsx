@@ -60,7 +60,7 @@ export function LandingLioraSections({
             alt=""
             sizes="100vw"
             priority
-            className="object-cover object-[center_30%]"
+            className="object-cover object-center"
           />
         </div>
         <div className="liora-hero-overlay" aria-hidden />

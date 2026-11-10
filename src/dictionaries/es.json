@@ -4199,12 +4199,15 @@
       "galeria": {
         "kicker": "En el estudio",
         "sectionTitle": "Galería",
-        "verMas": "Ver más fotos",
-        "carouselPrev": "Foto anterior",
-        "carouselNext": "Foto siguiente",
-        "carouselPosition": "Foto {current} de {total}",
-        "carouselLoading": "Cargando foto",
-        "previewOpenAria": "Ampliar foto {n}"
+        "verMas": "Ver fotos y videos",
+        "carouselPrev": "Anterior",
+        "carouselNext": "Siguiente",
+        "carouselPosition": "{current} de {total}",
+        "carouselLoading": "Cargando",
+        "previewOpenAria": "Ampliar foto {n}",
+        "previewPlayAria": "Reproducir video {n}",
+        "play": "Reproducir",
+        "pause": "Pausar"
       },
       "cta": {
         "title": "Tu primera clase te espera",
@@ -4356,7 +4359,11 @@
         "kicker": "Galería",
         "sectionTitle": "Así se ve la sala",
         "verMas": "Ver foto",
-        "alt": "Alumnas de Matiss Studio en clase."
+        "alt": "Alumnas de Matiss Studio en clase.",
+        "close": "Cerrar",
+        "prev": "Foto anterior",
+        "next": "Foto siguiente",
+        "position": "{current} de {total}"
       },
       "cta": {
         "title": "La próxima clase puede ser la primera",

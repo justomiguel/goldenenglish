@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Fraunces, Nunito } from "next/font/google";
 import "@/styles/matissLanding.css";
+import "@/styles/matissPhoneSections.css";
 
 const matissDisplay = Fraunces({
   weight: ["400", "500", "600"],
