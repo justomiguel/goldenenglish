@@ -97,12 +97,12 @@ export function LioraSiteHeader({
       className={`${PUBLIC_MARKETING_CHROME_CLASS} sticky top-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-500 ease-[var(--liora-ease)] ${scrolledPast ? "border-[var(--liora-line)] bg-[color-mix(in_srgb,var(--liora-cream)_94%,transparent)] shadow-[0_10px_30px_-24px_rgb(184_79_97/0.6)] backdrop-blur-md" : "border-transparent bg-[var(--liora-cream)]"}`}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <div className={`mx-auto flex max-w-6xl items-center justify-between gap-2 px-[max(1rem,env(safe-area-inset-left))] pe-[max(1rem,env(safe-area-inset-right))] transition-[padding] duration-500 md:gap-3 lg:gap-4 ${scrolledPast ? "py-1.5" : "py-3 lg:py-4"}`}>
-        <Link href={prefix} className="min-w-0 shrink-0" aria-label={logoAlt}>
+      <div className={`mx-auto flex max-w-7xl items-center justify-between gap-2 px-[max(1rem,env(safe-area-inset-left))] pe-[max(1rem,env(safe-area-inset-right))] transition-[padding] duration-500 md:gap-3 lg:gap-4 ${scrolledPast ? "py-1.5" : "py-3 lg:py-4"}`}>
+        <Link href={prefix} className="min-w-0 shrink overflow-hidden xl:shrink-0 xl:overflow-visible" aria-label={logoAlt}>
           <LioraLockup brandName={brandName} motto={motto} compact={scrolledPast} />
         </Link>
         <nav
-          className="hidden items-center lg:flex"
+          className="hidden items-center xl:flex"
           aria-label={dict.nav.sectionsAria}
         >
           {links.map(({ href, label }) => (
@@ -121,7 +121,7 @@ export function LioraSiteHeader({
               href={ig}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden h-11 w-11 items-center justify-center rounded-full text-[var(--liora-rose-deep)] transition-colors hover:bg-[color-mix(in_srgb,var(--liora-rose)_18%,transparent)] md:inline-flex"
+              className="hidden h-11 w-11 items-center justify-center rounded-full text-[var(--liora-rose-deep)] transition-colors hover:bg-[color-mix(in_srgb,var(--liora-rose)_18%,transparent)] 2xl:inline-flex"
               aria-label={igAria}
             >
               <BrandInstagramIcon className="h-5 w-5" />
@@ -132,15 +132,16 @@ export function LioraSiteHeader({
               href={wa}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden h-11 w-11 items-center justify-center rounded-full text-[var(--liora-rose-deep)] transition-colors hover:bg-[color-mix(in_srgb,var(--liora-rose)_18%,transparent)] md:inline-flex"
+              className="hidden h-11 w-11 items-center justify-center rounded-full text-[var(--liora-rose-deep)] transition-colors hover:bg-[color-mix(in_srgb,var(--liora-rose)_18%,transparent)] 2xl:inline-flex"
               aria-label={waAria}
             >
               <MessageCircle className="h-5 w-5" aria-hidden strokeWidth={stroke} />
             </a>
           ) : null}
+          {/* Below md the tab bar owns the account entry. */}
           <nav
             aria-label={dict.nav.accountAria}
-            className="flex shrink-0 items-center gap-1.5 sm:gap-2"
+            className="hidden shrink-0 items-center gap-1.5 sm:gap-2 md:flex"
           >
             <PublicHeaderAccountCta
               locale={locale}
@@ -155,7 +156,7 @@ export function LioraSiteHeader({
           </nav>
           <button
             type="button"
-            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[var(--liora-rose-deep)]/35 bg-white text-[var(--liora-rose-deep)] lg:hidden"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[var(--liora-rose-deep)]/35 bg-white text-[var(--liora-rose-deep)] xl:hidden"
             aria-expanded={open}
             aria-controls="liora-mobile-nav"
             aria-label={open ? labels.closeMenu : labels.openMenu}
@@ -172,7 +173,7 @@ export function LioraSiteHeader({
       {open ? (
         <div
           id="liora-mobile-nav"
-          className="border-t border-[var(--liora-line)] bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden"
+          className="border-t border-[var(--liora-line)] bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] xl:hidden"
         >
           <nav aria-label={dict.nav.sectionsAria}>
             <ul className="flex flex-col gap-0.5">

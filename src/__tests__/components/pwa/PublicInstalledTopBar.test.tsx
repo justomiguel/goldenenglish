@@ -12,7 +12,7 @@ import { PublicExperienceFrame } from "@/components/pwa/molecules/PublicExperien
 
 const labels = dictEn.nav.publicPwaBar;
 
-function renderFrame() {
+function renderFrame(variant: "nago" | "liora" = "nago") {
   return render(
     <PublicExperienceFrame
       locale="es"
@@ -26,7 +26,7 @@ function renderFrame() {
       logoSrc="/images/nago/logo/logo.png"
       logoAlt="Capoeira Nagô"
       localeLabels={dictEn.common.locale}
-      variant="nago"
+      variant={variant}
     >
       <p>Page body</p>
     </PublicExperienceFrame>,
@@ -58,6 +58,14 @@ describe("PublicInstalledTopBar", () => {
   it("keeps the marketing page free of the thin bar in the mobile browser", () => {
     installed.current = false;
     renderFrame();
+
+    expect(screen.queryByRole("link", { name: "Capoeira Nagô" })).toBeNull();
+    expect(screen.getByText("Page body")).toBeInTheDocument();
+  });
+
+  it("leaves Liora with its own sticky header in the installed app", () => {
+    installed.current = true;
+    renderFrame("liora");
 
     expect(screen.queryByRole("link", { name: "Capoeira Nagô" })).toBeNull();
     expect(screen.getByText("Page body")).toBeInTheDocument();

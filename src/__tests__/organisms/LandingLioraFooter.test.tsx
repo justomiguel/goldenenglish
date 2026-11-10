@@ -77,4 +77,18 @@ describe("LandingLioraFooter", () => {
       screen.getByRole("link", { name: "hola@liorastudio.cl" }),
     ).toHaveAttribute("href", "mailto:hola@liorastudio.cl");
   });
+
+  it("keeps only the legal links on narrow screens, with 44 px rows", () => {
+    renderFooter();
+    const tokens = (el: Element | null) => (el?.getAttribute("class") ?? "").split(/\s+/);
+    const sectionLink = screen.getByRole("link", { name: t("nav.galeria") });
+    expect(tokens(sectionLink.closest("li"))).toEqual(expect.arrayContaining(["hidden", "md:list-item"]));
+    const login = screen.getByRole("link", { name: dict.nav.login });
+    expect(tokens(login.closest("li"))).toEqual(expect.arrayContaining(["hidden", "md:list-item"]));
+    for (const legal of [dict.privacy.footerLink, dict.publicAnswers.footerLink]) {
+      const link = screen.getByRole("link", { name: legal });
+      expect(tokens(link.closest("li"))).not.toContain("hidden");
+      expect(tokens(link)).toContain("min-h-11");
+    }
+  });
 });

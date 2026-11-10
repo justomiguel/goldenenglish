@@ -76,6 +76,15 @@
   z-index: 3;
 }
 
+/* Narrow: the hero fills the first screen between the sticky header and the
+   tab bar, so the primary button is complete above the bar. */
+@media (max-width: 767px) {
+  .liora-hero,
+  .liora-hero-content {
+    min-height: calc(100svh - 4.5rem - 4.5rem - max(0.5rem, env(safe-area-inset-bottom)));
+  }
+}
+
 /* Hairline with a small heart in the middle, from the flyers. */
 .liora-heart-rule {
   display: flex;
@@ -202,6 +211,27 @@
 .liora-btn-outline:hover,
 .liora-btn-outline:focus-visible {
   background: var(--liora-blush);
+}
+
+/* Secondary register path: a text link on narrow screens, a solid button from md. */
+.liora-btn-alt {
+  color: var(--liora-rose-text);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+@media (min-width: 768px) {
+  .liora-btn-alt {
+    background: var(--liora-rose-deep);
+    color: #ffffff;
+    text-decoration: none;
+    transition: background-color 300ms var(--liora-ease), transform 300ms var(--liora-ease);
+  }
+
+  .liora-btn-alt:hover,
+  .liora-btn-alt:focus-visible {
+    background: var(--liora-rose-text);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

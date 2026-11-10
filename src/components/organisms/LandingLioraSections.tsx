@@ -55,6 +55,9 @@ export function LandingLioraSections({
         inscriptionsEnabled={inscriptionsEnabled}
       />
 
+      {/* Narrow screens show the next event here instead of a modal. */}
+      <div id="home-event-inline-slot" />
+
       <LandingLioraSobre t={t} photoSrc={img("historia", "1.jpg")} />
 
       <LandingLioraClasesSection t={t} img={img} />

@@ -3,6 +3,12 @@ import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import dictEs from "@/dictionaries/es.json";
+
+// The desktop strip; the narrow swipe strip has its own test file.
+vi.mock("@/hooks/useAppSurface", () => ({
+  useAppSurface: () => "web-desktop",
+}));
+
 import { LioraLandingGallery } from "@/components/organisms/LioraLandingGallery";
 import type { Dictionary } from "@/types/i18n";
 

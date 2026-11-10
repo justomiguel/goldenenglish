@@ -1,16 +1,34 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import { LioraDancerPose } from "@/components/atoms/LioraDancerPose";
 import { useLioraRibbon } from "@/hooks/useLioraRibbon";
+
+const WIDE_QUERY = "(min-width: 768px)";
+
+function subscribeWide(onStoreChange: () => void) {
+  const media = window.matchMedia(WIDE_QUERY);
+  media.addEventListener("change", onStoreChange);
+  return () => media.removeEventListener("change", onStoreChange);
+}
+
+function wideSnapshot() {
+  return window.matchMedia(WIDE_QUERY).matches;
+}
 
 /**
  * Rose ribbon that draws itself down the landing while the page scrolls.
  * The logo dancer rides its tip and takes the pose of each section.
  * Mount it as a direct child of the element that holds the
  * `[data-liora-anchor]` sections. Pure decoration: hidden from readers.
+ * Below md the ribbon would cross the single text column, so it does not mount.
  */
 export function LioraRibbonOverlay() {
+  const wide = useSyncExternalStore(subscribeWide, wideSnapshot, () => false);
+  return wide ? <LioraRibbonLayer /> : null;
+}
+
+function LioraRibbonLayer() {
   const layerRef = useRef<HTMLDivElement>(null);
   const { geometry, pose, pathRef } = useLioraRibbon(layerRef);
 

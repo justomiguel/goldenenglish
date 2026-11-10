@@ -73,4 +73,30 @@ describe("LioraSiteHeader", () => {
     expect(header).toHaveAttribute("data-scrolled", "true");
     expect(container.querySelector("[data-lockup-motto]")).toHaveAttribute("aria-hidden", "true");
   });
+
+  it("lets the lockup shrink so the menu button stays on narrow screens", () => {
+    renderHeader();
+    const home = screen.getByRole("link", { name: "Liora Studio" });
+    expect(home.className).toContain("min-w-0");
+    expect(home.className.split(/\s+/)).not.toContain("shrink-0");
+    expect(screen.getByRole("button", { name: "Abrir menú" })).toBeInTheDocument();
+  });
+
+  it("leaves the account button to the tab bar below md", () => {
+    renderHeader();
+    const account = screen.getByRole("navigation", { name: es.nav.accountAria });
+    expect(account.className.split(/\s+/)).toEqual(expect.arrayContaining(["hidden", "md:flex"]));
+  });
+
+  it("hides the motto below md", () => {
+    const { container } = renderHeader();
+    expect(container.querySelector("[data-lockup-motto]")?.className).toContain("max-md:hidden");
+  });
+
+  it("keeps the full nav for wide screens so the account button fits", () => {
+    renderHeader();
+    const sections = screen.getAllByRole("navigation", { name: es.nav.sectionsAria })[0];
+    expect(sections.className.split(/\s+/)).toEqual(expect.arrayContaining(["hidden", "xl:flex"]));
+    expect(screen.getByRole("button", { name: "Abrir menú" }).className).toContain("xl:hidden");
+  });
 });

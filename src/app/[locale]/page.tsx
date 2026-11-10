@@ -32,6 +32,7 @@ import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
 import { loadLandingQuestionnaires } from "@/lib/questionnaires/loadLandingQuestionnaires";
 import { LandingQuestionnairesSection } from "@/components/organisms/LandingQuestionnairesSection";
 import { HomeEventPopup } from "@/components/organisms/HomeEventPopup";
+import { HomeEventPopupOrInline } from "@/components/organisms/HomeEventPopupOrInline";
 import { loadHomeEventPopup } from "@/lib/dashboard/events/loadHomeEventPopup";
 import { buildHomePageMetadata } from "@/lib/metadata/buildHomePageMetadata";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
@@ -190,9 +191,11 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   );
 
   const popup = dict.events.public.homePopup;
+  // Liora shows the event inline on narrow screens (one layer at a time).
+  const EventPopup = templateKind === "liora" ? HomeEventPopupOrInline : HomeEventPopup;
   return (
     <>
-      <HomeEventPopup
+      <EventPopup
         locale={locale}
         events={homePopupEvents}
         labels={{

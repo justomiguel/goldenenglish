@@ -1,12 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Images, Loader2, Pause, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Images, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useId, useState } from "react";
 import { Modal } from "@/components/atoms/Modal";
 import { LioraSectionHeading } from "@/components/molecules/LioraSectionHeading";
 import { LioraGalleryVideoSlide } from "@/components/organisms/LioraGalleryVideoSlide";
 import { useLioraGalleryStrip } from "@/hooks/useLioraGalleryStrip";
+import { useAppSurface } from "@/hooks/useAppSurface";
+import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
+import { LioraGalleryStripNarrow } from "@/components/organisms/LioraGalleryStripNarrow";
+import { LioraGalleryStripDesktop } from "@/components/organisms/LioraGalleryStripDesktop";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import {
   LIORA_GALLERY_ITEMS,
@@ -16,10 +20,6 @@ import type { Dictionary } from "@/types/i18n";
 
 export interface LioraLandingGalleryProps {
   dict: Dictionary;
-}
-
-function itemSrc(item: LioraGalleryItem): string {
-  return item.kind === "photo" ? item.src : item.poster;
 }
 
 function frameLabel(
@@ -40,7 +40,9 @@ export function LioraLandingGallery({ dict }: LioraLandingGalleryProps) {
   const total = items.length;
   const [open, setOpen] = useState(false);
   const [slideLoading, setSlideLoading] = useState(true);
-  const strip = useLioraGalleryStrip(total, open);
+  // The narrow strip scrolls on its own; the desktop timer only runs on desktop.
+  const narrow = useAppSurface() !== "web-desktop";
+  const strip = useLioraGalleryStrip(total, open || narrow);
   const markReady = useCallback(() => setSlideLoading(false), []);
 
   const openAt = (next: number) => {
@@ -77,6 +79,22 @@ export function LioraLandingGallery({ dict }: LioraLandingGalleryProps) {
     .replace("{current}", String(strip.index + 1))
     .replace("{total}", String(total));
 
+  const desktopStrip = (
+    <LioraGalleryStripDesktop
+      items={items}
+      strip={strip}
+      position={position}
+      frameLabel={(i) => frameLabel(items, i, t)}
+      labels={{
+        prev: t("carouselPrev"),
+        next: t("carouselNext"),
+        pause: t("autoplayPause"),
+        play: t("autoplayPlay"),
+      }}
+      onOpen={openAt}
+    />
+  );
+
   return (
     <section
       id="galeria"
@@ -86,77 +104,24 @@ export function LioraLandingGallery({ dict }: LioraLandingGalleryProps) {
     >
       <div className="relative z-10 mx-auto max-w-6xl">
         <LioraSectionHeading title={t("sectionTitle")} script={t("titleScript")} />
-        <div
-          className="mt-10"
-          onMouseEnter={strip.onMouseEnter}
-          onMouseLeave={strip.onMouseLeave}
-          onFocus={strip.onFocus}
-          onBlur={strip.onBlur}
-        >
-          <div className="liora-gallery-viewport">
-            <div
-              className="liora-gallery-track"
-              data-gallery-start={strip.index}
-              style={{ ["--liora-gallery-index" as string]: String(strip.index) }}
-            >
-              {items.map((item, itemIndex) => (
-                <button
-                  key={itemSrc(item)}
-                  type="button"
-                  className="liora-gallery-frame group relative aspect-[3/4] min-h-11 overflow-hidden rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
-                  aria-label={frameLabel(items, itemIndex, t)}
-                  onClick={() => openAt(itemIndex)}
-                >
-                  <Image
-                    src={itemSrc(item)}
-                    alt=""
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 88vw, 30vw"
-                  />
-                  {item.kind === "video" ? (
-                    <span className="absolute inset-0 flex items-center justify-center bg-black/25">
-                      <Play className="h-10 w-10 text-white" aria-hidden />
-                    </span>
-                  ) : null}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="mt-4 flex items-center justify-between gap-3">
-            <p className="text-sm text-[var(--color-muted-foreground)]">{position}</p>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--liora-blush)] text-[var(--liora-rose-text)] transition-colors hover:bg-[var(--liora-line)]"
-                aria-label={t("carouselPrev")}
-                onClick={() => strip.step(-1)}
-              >
-                <ChevronLeft className="h-5 w-5" aria-hidden />
-              </button>
-              <button
-                type="button"
-                className="inline-flex h-11 min-w-11 items-center justify-center rounded-full bg-[var(--liora-blush)] px-3 text-[var(--liora-rose-text)] transition-colors hover:bg-[var(--liora-line)]"
-                aria-label={strip.paused ? t("autoplayPlay") : t("autoplayPause")}
-                aria-pressed={strip.paused}
-                onClick={() => strip.setPaused((value) => !value)}
-              >
-                {strip.paused ? (
-                  <Play className="h-4 w-4" aria-hidden />
-                ) : (
-                  <Pause className="h-4 w-4" aria-hidden />
-                )}
-              </button>
-              <button
-                type="button"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--liora-blush)] text-[var(--liora-rose-text)] transition-colors hover:bg-[var(--liora-line)]"
-                aria-label={t("carouselNext")}
-                onClick={() => strip.step(1)}
-              >
-                <ChevronRight className="h-5 w-5" aria-hidden />
-              </button>
-            </div>
-          </div>
+        <div className="mt-10">
+          <SurfaceMountGate
+            skeleton={desktopStrip}
+            desktop={desktopStrip}
+            narrow={() => (
+              <LioraGalleryStripNarrow
+                items={items}
+                listLabel={t("sectionTitle")}
+                frameLabel={(i) => frameLabel(items, i, t)}
+                positionLabel={(current, all) =>
+                  t("carouselPosition").replace("{current}", String(current)).replace("{total}", String(all))
+                }
+                pauseLabel={t("autoplayPause")}
+                playLabel={t("autoplayPlay")}
+                onOpen={openAt}
+              />
+            )}
+          />
         </div>
         <button
           type="button"

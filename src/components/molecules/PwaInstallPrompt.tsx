@@ -3,6 +3,7 @@
 import { Download, Share, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { usePwaInstallPrompt } from "@/hooks/usePwaInstallPrompt";
+import { usePwaInstallDeferral } from "@/hooks/usePwaInstallDeferral";
 import type { Dictionary } from "@/types/i18n";
 
 export interface PwaInstallPromptProps {
@@ -11,8 +12,9 @@ export interface PwaInstallPromptProps {
 
 export function PwaInstallPrompt({ copy }: PwaInstallPromptProps) {
   const { visible, iosHint, busy, deferred, dismiss, install } = usePwaInstallPrompt();
+  const deferralReady = usePwaInstallDeferral();
 
-  if (!visible) return null;
+  if (!visible || !deferralReady) return null;
 
   return (
     <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm">

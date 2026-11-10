@@ -33,7 +33,7 @@ export function LandingLioraSedesSection({ t, img }: LandingLioraSedesSectionPro
           lead={t("sedes.lead")}
         />
 
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
+        <div className="mt-10 grid gap-4 md:mt-14 md:grid-cols-3 md:gap-6">
           {LIORA_SEDE_KEYS.map((sedeKey) => (
             <article key={sedeKey} className="liora-card overflow-hidden">
               <Image
@@ -41,10 +41,10 @@ export function LandingLioraSedesSection({ t, img }: LandingLioraSedesSectionPro
                 alt=""
                 width={480}
                 height={600}
-                className="h-64 w-full bg-[var(--liora-blush)] object-contain p-4"
+                className="hidden h-64 w-full bg-[var(--liora-blush)] object-contain p-4 md:block"
                 sizes="(max-width:768px) 90vw, 30vw"
               />
-              <div className="border-t border-[var(--liora-line)] p-6">
+              <div className="p-5 md:border-t md:border-[var(--liora-line)] md:p-6">
                 <h3 className="flex items-center gap-3 font-[family-name:var(--font-liora-display)] text-2xl font-medium text-[var(--liora-rose-title)]">
                   <span className="liora-badge">
                     <MapPin className="h-5 w-5" aria-hidden strokeWidth={1.5} />
@@ -55,7 +55,7 @@ export function LandingLioraSedesSection({ t, img }: LandingLioraSedesSectionPro
                   <TrainFront className="mt-0.5 h-4 w-4 shrink-0" aria-hidden strokeWidth={1.5} />
                   {t(`sedes.${sedeKey}.metro`)}
                 </p>
-                <p className="mt-3 text-sm leading-relaxed text-[var(--liora-ink-soft)]">
+                <p className="mt-3 text-[0.9375rem] leading-relaxed text-[var(--liora-ink-soft)] md:text-sm">
                   {t(`sedes.${sedeKey}.body`)}
                 </p>
               </div>

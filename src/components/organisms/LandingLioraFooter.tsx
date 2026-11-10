@@ -22,18 +22,20 @@ export function LandingLioraFooter({
   t,
   sessionEmail = null,
 }: LandingLioraFooterProps) {
+  // `wideOnly`: below md the menu and the tab bar already offer these links.
   const links = [
-    { href: `/${locale}#sobre`, label: t("nav.sobreNosotros") },
-    { href: `/${locale}#clases`, label: t("nav.clases") },
-    { href: `/${locale}#horarios`, label: t("nav.horarios") },
-    { href: `/${locale}#galeria`, label: t("nav.galeria") },
-    { href: `/${locale}/events`, label: t("nav.eventos") },
-    { href: `/${locale}#contacto`, label: t("nav.contacto") },
-    { href: `/${locale}/privacidad`, label: dict.privacy.footerLink },
-    { href: `/${locale}/preguntas`, label: dict.publicAnswers.footerLink },
+    { href: `/${locale}#sobre`, label: t("nav.sobreNosotros"), wideOnly: true },
+    { href: `/${locale}#clases`, label: t("nav.clases"), wideOnly: true },
+    { href: `/${locale}#horarios`, label: t("nav.horarios"), wideOnly: true },
+    { href: `/${locale}#galeria`, label: t("nav.galeria"), wideOnly: true },
+    { href: `/${locale}/events`, label: t("nav.eventos"), wideOnly: true },
+    { href: `/${locale}#contacto`, label: t("nav.contacto"), wideOnly: true },
+    { href: `/${locale}/privacidad`, label: dict.privacy.footerLink, wideOnly: false },
+    { href: `/${locale}/preguntas`, label: dict.publicAnswers.footerLink, wideOnly: false },
     {
       href: sessionEmail ? `/${locale}/dashboard` : `/${locale}/login`,
       label: sessionEmail ? dict.nav.myPortal : dict.nav.login,
+      wideOnly: true,
     },
   ];
   // Site setup (`social.*`, `contact.*`) manda; el diccionario queda como
@@ -71,12 +73,12 @@ export function LandingLioraFooter({
               <p className="text-xs font-medium uppercase tracking-[0.3em] text-[var(--liora-blush)]">
                 {t("footer.contactoTitle")}
               </p>
-              <ul className="mt-4 space-y-2.5 text-sm">
+              <ul className="mt-3 text-sm md:mt-4 md:space-y-2.5">
                 {phone ? (
                   <li>
                     <a
                       href={`tel:${phone.replace(/[^+\d]/g, "")}`}
-                      className="inline-flex items-center gap-2.5 text-white/85 transition hover:text-white"
+                      className="inline-flex min-h-11 items-center gap-2.5 text-white/85 transition hover:text-white md:min-h-0"
                     >
                       <Phone className="h-4 w-4 shrink-0" aria-hidden strokeWidth={1.5} />
                       {phone}
@@ -87,7 +89,7 @@ export function LandingLioraFooter({
                   <li>
                     <a
                       href={`mailto:${email}`}
-                      className="inline-flex items-center gap-2.5 break-all text-white/85 transition hover:text-white"
+                      className="inline-flex min-h-11 items-center gap-2.5 break-all text-white/85 transition hover:text-white md:min-h-0"
                     >
                       <Mail className="h-4 w-4 shrink-0" aria-hidden strokeWidth={1.5} />
                       {email}
@@ -103,12 +105,12 @@ export function LandingLioraFooter({
           <p className="text-xs font-medium uppercase tracking-[0.3em] text-[var(--liora-blush)]">
             {t("footer.enlacesTitle")}
           </p>
-          <ul className="mt-5 space-y-2.5 text-sm">
-            {links.map(({ href, label }) => (
-              <li key={href}>
+          <ul className="mt-3 text-sm md:mt-5 md:space-y-2.5">
+            {links.map(({ href, label, wideOnly }) => (
+              <li key={href} className={wideOnly ? "hidden md:list-item" : undefined}>
                 <Link
                   href={href}
-                  className="text-white/85 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white"
+                  className="inline-flex min-h-11 items-center text-white/85 underline md:inline md:min-h-0 decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white"
                 >
                   {label}
                 </Link>

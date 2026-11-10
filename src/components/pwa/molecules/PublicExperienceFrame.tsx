@@ -13,12 +13,15 @@ import {
 } from "@/lib/theme/publicExperienceNav";
 import type { LanguageSwitcherLabels } from "@/components/molecules/LanguageSwitcher";
 import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
+import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { PwaPullToRefresh } from "@/components/pwa/molecules/PwaPullToRefresh";
 import { PublicInstalledTopBar } from "@/components/pwa/molecules/PublicInstalledTopBar";
 import {
   PublicPwaTabBar,
   type PublicPwaTabBarProps,
 } from "@/components/pwa/molecules/PublicPwaTabBar";
+
+const OWN_HEADER_VARIANTS: ReadonlySet<PublicExperienceVariant> = new Set(["liora"]);
 
 export interface PublicExperienceFrameProps extends PublicPwaTabBarProps {
   children: ReactNode;
@@ -44,6 +47,8 @@ export function PublicExperienceFrame({
   const installed = useInstalledDisplay();
   const router = useRouter();
   const themeClass = publicExperienceThemeClass(variant);
+  // Liora renders its own sticky header with safe-area padding; a second bar would stack.
+  const showInstalledTopBar = installed && !OWN_HEADER_VARIANTS.has(variant);
 
   return (
     <div className={themeClass}>
@@ -59,7 +64,7 @@ export function PublicExperienceFrame({
               : "public-installed-scroll"
           }
         >
-          {installed ? (
+          {showInstalledTopBar ? (
             <PublicInstalledTopBar
               homeHref={`/${locale}`}
               logoSrc={logoSrc}
@@ -91,6 +96,15 @@ export interface PublicExperienceChromeProps {
   logoAlt: string;
 }
 
+/** The tab uses the theme's own section name when the landing has one. */
+function themedCoursesLabel(dict: Dictionary, templateKind: string): string {
+  if (templateKind === "liora") {
+    const label = marketingLandingCopy(dict, "liora", "nav.clases").trim();
+    if (label) return label;
+  }
+  return dict.nav.courses;
+}
+
 /** Theme dock for a public page. Desktop hides the bar with `md:hidden`. */
 export function PublicExperienceChrome({
   children,
@@ -112,7 +126,7 @@ export function PublicExperienceChrome({
       sessionEmail={sessionEmail}
       variant={variant}
       coursesHref={publicPwaCoursesHref(templateKind, locale)}
-      coursesLabel={coursesLabel ?? dict.nav.courses}
+      coursesLabel={coursesLabel ?? themedCoursesLabel(dict, templateKind)}
       labels={dict.nav.publicPwaBar}
       loginLabel={dict.nav.loginShort}
       portalLabel={dict.nav.myPortal}

@@ -16,14 +16,16 @@ function rectFor(el: Element): DOMRect {
 }
 
 let reduced = false;
+let narrow = false;
 
 beforeEach(() => {
   reduced = false;
+  narrow = false;
   vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
     return rectFor(this);
   });
   vi.stubGlobal("matchMedia", (query: string) => ({
-    matches: reduced && query.includes("reduce"),
+    matches: (reduced && query.includes("reduce")) || (!narrow && query.includes("min-width: 768px")),
     media: query,
     addEventListener() {},
     removeEventListener() {},
@@ -47,6 +49,12 @@ function renderLanding() {
 }
 
 describe("LioraRibbonOverlay", () => {
+  it("does not mount below md, so the ribbon never crosses phone text", () => {
+    narrow = true;
+    const { container } = renderLanding();
+    expect(container.querySelector(".liora-ribbon-layer")).toBeNull();
+  });
+
   it("is decoration hidden from assistive technology", () => {
     const { container } = renderLanding();
     const layer = container.querySelector(".liora-ribbon-layer");

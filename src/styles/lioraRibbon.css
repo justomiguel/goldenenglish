@@ -82,6 +82,13 @@
   }
 }
 
+/* Guard: the overlay does not mount below md; hide it if it ever does. */
+@media (max-width: 767px) {
+  .liora-ribbon-layer {
+    display: none;
+  }
+}
+
 @media (max-width: 1023px) {
   .liora-ribbon-dancer {
     width: 2.1rem;

@@ -55,7 +55,7 @@ export function LandingLioraSobre({ t, photoSrc }: LandingLioraSobreProps) {
                 <dt className="mt-3 font-[family-name:var(--font-liora-display)] text-lg text-[var(--liora-ink)]">
                   {t(`sobreNosotros.${key}.title`)}
                 </dt>
-                <dd className="mt-1.5 text-sm leading-relaxed text-[var(--liora-ink-soft)]">
+                <dd className="mt-1.5 text-[0.9375rem] leading-relaxed text-[var(--liora-ink-soft)] md:text-sm">
                   {t(`sobreNosotros.${key}.body`)}
                 </dd>
               </div>
