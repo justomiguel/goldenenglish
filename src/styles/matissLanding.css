@@ -2,6 +2,11 @@
  * Matiss Studio. Colors sampled from the client logo.
  * `--matiss-violet` and `--matiss-pink` are the exact logo colors and stay
  * decorative. Text and buttons use the darker shades, which pass WCAG AA.
+ *
+ * Motion is editorial: masked title lines, photos that unveil from the
+ * bottom edge, slow image settle, and scroll-linked drift. All motion sits
+ * behind `prefers-reduced-motion: no-preference`. Content stays visible
+ * without JavaScript, because only `.matiss-reveal--wait` hides it.
  */
 .matiss-landing {
   --matiss-paper: #fcf4f7;
@@ -15,6 +20,7 @@
   --matiss-ink-soft: #665a78;
   --matiss-line: #d8c0e4;
   --matiss-footer: #2c2040;
+  --matiss-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --color-heading: var(--matiss-ink);
   --color-primary: var(--matiss-violet-deep);
   --color-primary-foreground: #ffffff;
@@ -51,11 +57,114 @@
     var(--matiss-paper);
 }
 
+.matiss-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+.matiss-mask > span {
+  display: block;
+}
+
+.matiss-frame-img {
+  transition: transform 900ms var(--matiss-ease);
+}
+
+.matiss-faq-icon {
+  transition: transform 400ms var(--matiss-ease);
+}
+
+.matiss-faq[open] .matiss-faq-icon {
+  transform: rotate(45deg);
+}
+
+.matiss-btn {
+  transition: background-color 200ms ease, transform 300ms var(--matiss-ease), box-shadow 300ms var(--matiss-ease);
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .matiss-arc {
     stroke-dasharray: 320;
     stroke-dashoffset: 320;
-    animation: matiss-draw 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+    animation: matiss-draw 1.6s var(--matiss-ease) 0.5s forwards;
+  }
+
+  .matiss-mask > span {
+    animation: matiss-mask-up 1000ms var(--matiss-ease) both;
+  }
+
+  .matiss-mask:nth-child(2) > span { animation-delay: 110ms; }
+  .matiss-mask:nth-child(3) > span { animation-delay: 220ms; }
+
+  .matiss-fade-up {
+    animation: matiss-rise 900ms var(--matiss-ease) both;
+  }
+
+  .matiss-delay-1 { animation-delay: 120ms; }
+  .matiss-delay-2 { animation-delay: 260ms; }
+  .matiss-delay-3 { animation-delay: 380ms; }
+  .matiss-delay-4 { animation-delay: 500ms; }
+
+  .matiss-hero-photo {
+    animation: matiss-unveil 1300ms var(--matiss-ease) 150ms both;
+  }
+
+  .matiss-hero-photo .matiss-frame-img {
+    animation: matiss-settle 1800ms var(--matiss-ease) 150ms backwards;
+  }
+
+  .matiss-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -12px color-mix(in srgb, var(--matiss-violet-deep) 60%, transparent);
+  }
+
+  .matiss-frame--zoom:hover .matiss-frame-img {
+    transform: scale(1.05);
+  }
+
+  /* Waiting below the fold: frames are closed and staggered children are low. */
+  .matiss-reveal--wait .matiss-frame {
+    clip-path: inset(100% 0 0 0);
+  }
+
+  .matiss-reveal--wait .matiss-stagger > *,
+  .matiss-reveal--wait .matiss-line {
+    opacity: 0;
+  }
+
+  .matiss-reveal--in .matiss-frame {
+    animation: matiss-unveil 1200ms var(--matiss-ease) var(--matiss-delay, 0ms) both;
+  }
+
+  .matiss-reveal--in .matiss-frame .matiss-frame-img {
+    animation: matiss-settle 1600ms var(--matiss-ease) var(--matiss-delay, 0ms) backwards;
+  }
+
+  .matiss-reveal--in .matiss-stagger > * {
+    animation: matiss-rise 900ms var(--matiss-ease) calc(var(--matiss-delay, 0ms) + 120ms) both;
+  }
+
+  .matiss-reveal--in .matiss-line {
+    transform-origin: left center;
+    animation: matiss-line 1000ms var(--matiss-ease) 200ms both;
+  }
+
+  .matiss-stagger > :nth-child(1) { --matiss-delay: 0ms; }
+  .matiss-stagger > :nth-child(2) { --matiss-delay: 90ms; }
+  .matiss-stagger > :nth-child(3) { --matiss-delay: 180ms; }
+  .matiss-stagger > :nth-child(4) { --matiss-delay: 270ms; }
+  .matiss-stagger > :nth-child(5) { --matiss-delay: 360ms; }
+  .matiss-stagger > :nth-child(6) { --matiss-delay: 450ms; }
+  .matiss-stagger > :nth-child(7) { --matiss-delay: 540ms; }
+  .matiss-stagger > :nth-child(8) { --matiss-delay: 630ms; }
+
+  @supports (animation-timeline: view()) {
+    .matiss-frame--parallax .matiss-drift {
+      inset: -8% 0;
+      animation: matiss-drift linear both;
+      animation-timeline: view();
+    }
   }
 }
 
@@ -63,90 +172,29 @@
   to { stroke-dashoffset: 0; }
 }
 
-.matiss-star {
-  position: absolute;
-  z-index: 1;
-  width: 12px;
-  height: 12px;
-  background: var(--matiss-pink);
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-}
-
-.matiss-star-1 { top: 4%; right: 12%; }
-.matiss-star-2 { top: 22%; left: 0; width: 8px; height: 8px; }
-.matiss-star-3 { bottom: 10%; right: 4%; width: 9px; height: 9px; }
-
-@media (prefers-reduced-motion: no-preference) {
-  .matiss-rise {
-    animation: matiss-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .matiss-title-line:nth-child(1) { animation-delay: 80ms; }
-  .matiss-title-line:nth-child(2) { animation-delay: 160ms; }
-  .matiss-hero-lead { animation-delay: 240ms; }
-
-  .matiss-float {
-    animation: matiss-float 7s ease-in-out infinite;
-  }
-
-  .matiss-star {
-    animation: matiss-twinkle 4s ease-in-out infinite;
-  }
-
-  .matiss-star-2 { animation-delay: 1.3s; }
-  .matiss-star-3 { animation-delay: 2.6s; }
-
-  .matiss-reveal--wait {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  .matiss-reveal--in {
-    opacity: 1;
-    transform: none;
-    transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .matiss-reveal--in .matiss-stagger > * {
-    animation: matiss-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .matiss-reveal--in .matiss-stagger > :nth-child(2) { animation-delay: 70ms; }
-  .matiss-reveal--in .matiss-stagger > :nth-child(3) { animation-delay: 140ms; }
-  .matiss-reveal--in .matiss-stagger > :nth-child(4) { animation-delay: 210ms; }
-
-  .matiss-reveal--in .matiss-manifesto-photo {
-    animation: matiss-photo-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .matiss-reveal--in .matiss-line {
-    transform-origin: left center;
-    animation: matiss-line 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .matiss-age-photo {
-    animation: matiss-age-in 400ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
+@keyframes matiss-mask-up {
+  from { transform: translateY(105%); }
+  to { transform: none; }
 }
 
 @keyframes matiss-rise {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: none; }
 }
 
-@keyframes matiss-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+@keyframes matiss-unveil {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
 }
 
-@keyframes matiss-twinkle {
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 1; }
-}
-
-@keyframes matiss-photo-in {
-  from { transform: scale(1.04); }
+@keyframes matiss-settle {
+  from { transform: scale(1.12); }
   to { transform: scale(1); }
+}
+
+@keyframes matiss-drift {
+  from { transform: translateY(-6%); }
+  to { transform: translateY(6%); }
 }
 
 @keyframes matiss-line {
@@ -154,23 +202,21 @@
   to { transform: scaleX(1); }
 }
 
-@keyframes matiss-age-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .matiss-arc { stroke-dashoffset: 0; }
-  .matiss-rise,
-  .matiss-float,
-  .matiss-star,
-  .matiss-age-photo,
-  .matiss-manifesto-photo,
+  .matiss-mask > span,
+  .matiss-fade-up,
+  .matiss-hero-photo,
+  .matiss-frame,
+  .matiss-frame-img,
+  .matiss-drift,
   .matiss-line,
-  .matiss-reveal--wait,
-  .matiss-reveal--in {
+  .matiss-stagger > *,
+  .matiss-btn {
     animation: none;
+    clip-path: none;
     opacity: 1;
     transform: none;
+    transition: none;
   }
 }

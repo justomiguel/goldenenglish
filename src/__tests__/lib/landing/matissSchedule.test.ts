@@ -21,6 +21,11 @@ describe("matissGroupsForAge", () => {
     ]);
   });
 
+  it("runs La Florida Babys from 19:00 to 20:00, as the studio schedule says", () => {
+    const laFlorida = matissGroupsForAge(5).find((group) => group.id === "babys-la-florida");
+    expect(laFlorida).toMatchObject({ start: "19:00", end: "20:00", day: "saturday" });
+  });
+
   it("offers San Miguel Senior and La Florida Babys at age 7", () => {
     expect(matissGroupsForAge(7).map((group) => group.location)).toEqual([
       "sanMiguel",

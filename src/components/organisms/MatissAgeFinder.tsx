@@ -43,7 +43,7 @@ export function MatissAgeFinder({
 
   return (
     <div>
-      <h2 className="matiss-display text-4xl text-[var(--matiss-ink)] md:text-5xl">{title}</h2>
+      <h3 className="matiss-display text-3xl text-[var(--matiss-ink)] md:text-4xl">{title}</h3>
       <p className="mt-3 max-w-xl text-[var(--matiss-ink-soft)]">{lead}</p>
       <div role="radiogroup" aria-label={title} className="mt-6 flex gap-2 overflow-x-auto pb-2">
         {ages.map((value) => (
@@ -64,7 +64,7 @@ export function MatissAgeFinder({
         ))}
       </div>
       <div className="mt-6 grid items-start gap-4 md:grid-cols-[11rem_1fr]">
-        <Image key={photoSrc} src={photoSrc} alt={photoAlt} width={902} height={1024} className="matiss-age-photo h-40 w-full rounded-3xl object-cover object-top md:h-52" />
+        <Image key={photoSrc} src={photoSrc} alt={photoAlt} width={902} height={1024} className="matiss-fade-up h-40 w-full rounded-3xl object-cover object-top md:h-52" />
         {groups.length === 0 ? (
           <p className="text-sm text-[var(--matiss-ink-soft)]">{emptyLabel}</p>
         ) : (

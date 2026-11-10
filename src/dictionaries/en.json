@@ -4234,77 +4234,103 @@
       "nav": {
         "inicio": "Home",
         "sobreNosotros": "The studio",
-        "clases": "A class",
+        "clases": "Groups",
         "sedes": "Locations",
         "horarios": "Schedule",
         "galeria": "Gallery",
+        "preguntas": "FAQ",
         "contacto": "Contact"
       },
       "register": {
-        "shellTitle": "Book a trial class",
-        "shellLead": "Tell us your daughter's age and we write back to set the Saturday."
+        "shellTitle": "Book her free trial class",
+        "shellLead": "Tell us your daughter's age. We write back with her group, the location, and the Saturday of her first class."
       },
       "hero": {
         "kicker": "Acrobatic gymnastics for girls aged 3 to 13",
-        "title": "First she stretches. Then she dares.",
-        "subtitle": "Saturdays in San Miguel and La Florida. Small groups, and a teacher beside her on every try.",
-        "ctaPrimary": "Book a trial class",
-        "ctaSecondary": "Find her group"
+        "title": "Little gymnasts. Big dreams.",
+        "subtitle": "Saturday classes in San Miguel and La Florida, in groups by age. Strength, flexibility, and confidence, with a teacher beside her on every try.",
+        "ctaPrimary": "Book her free trial class",
+        "ctaSecondary": "See groups and times",
+        "facts": [
+          "First class free",
+          "Groups by age",
+          "Limited places"
+        ],
+        "photoAlt": "Matiss student in a silver top and red tutu, sitting and smiling."
       },
       "manifiesto": {
-        "title": "More than teaching, she stays beside them.",
-        "body": "A girl does not learn a bridge because someone explains it. She learns it when someone holds her back the first time, and lets go when she can do it alone.",
-        "alt": "Illustration of the teacher hugging three students, sitting with their backs to us."
+        "title": "More than teaching, we stay beside them.",
+        "body": "Every girl has something unique that makes her shine. At Matiss we stay beside her for each small step and celebrate each big win, at her own pace, compared with nobody.",
+        "alt": "The teacher hugs three students, sitting with their backs to us in the room."
       },
       "sobreNosotros": {
         "kicker": "The studio",
-        "title": "Valentina opens the room every Saturday",
-        "bodyP1": "They arrive with their hair tied back and a little nerve. Ten minutes later they are on the floor, laughing, trying the first bridge.",
-        "bodyP2": "Valentina Tapia Carrasco watches each girl. She corrects a hand, claps for an attempt, and asks for one more try. That is how discipline, fun, and confidence grow."
+        "title": "More than gymnastics, a place to grow",
+        "bodyP1": "Matiss is an acrobatic gymnastics studio for girls only. Discipline and fun go together, and each class leaves more than a new trick.",
+        "bodyP2": "Valentina Tapia Carrasco runs the studio. She knows each student by name, what is hard for her, and what makes her laugh.",
+        "items": [
+          {
+            "title": "Strength and flexibility",
+            "body": "Bridges, cartwheels, and balances that build the body without forcing it."
+          },
+          {
+            "title": "Coordination",
+            "body": "She learns her own body and moves with control and rhythm."
+          },
+          {
+            "title": "Confidence",
+            "body": "She gets past fears with support, one try at a time, until she does it alone."
+          },
+          {
+            "title": "Friendships",
+            "body": "She shares the room with girls her age and joins the Matiss family."
+          }
+        ],
+        "photoAlt": "Student in a light blue leotard doing a bridge in the studio."
       },
       "clases": {
         "kicker": "A class",
-        "sectionTitle": "One hour in the room",
+        "sectionTitle": "A Saturday in the room",
         "lead": "Between one hour and ninety minutes. Nobody stays watching from the side.",
         "steps": [
           {
-            "title": "Arrival and warm-up",
-            "body": "They greet each other, settle in, and wake the body up with short games."
+            "title": "Warm-up",
+            "body": "Short games to wake the body up and greet the other girls."
           },
           {
-            "title": "Guided acrobatics",
-            "body": "Cartwheels, bridges, and balances, with the teacher right beside them."
+            "title": "Stretching",
+            "body": "Guided flexibility, with the teacher correcting each girl."
           },
           {
-            "title": "Play",
-            "body": "Courses with a ball and stations to repeat what is new."
+            "title": "Acrobatics",
+            "body": "Cartwheels, bridges, and balances, always with help beside her."
           },
           {
             "title": "Applause to close",
-            "body": "Each girl hears what she achieved, and they say goodbye."
+            "body": "We go over what each girl achieved and say goodbye until Saturday."
           }
         ]
       },
       "edad": {
         "kicker": "Find her group",
-        "sectionTitle": "How old is she?",
+        "sectionTitle": "How old is your daughter?",
         "lead": "Choose her age. We show her group, the time, and the location.",
-        "photoAltSmall": "Illustration of a young student stretching in the room.",
-        "photoAltBig": "Illustration of an older student in a stretch.",
+        "photoAltSmall": "Young student sitting in a light blue leotard.",
+        "photoAltBig": "Older student doing a bridge.",
         "years": "years",
         "empty": "Matiss welcomes girls from 3 to 13."
       },
       "sedes": {
         "kicker": "Locations",
-        "sectionTitle": "Two neighborhoods, the same Saturday",
-        "lead": "The room address is confirmed when you book the trial class.",
+        "sectionTitle": "Two locations, the same Saturday",
+        "lead": "We send the exact room address when we confirm the trial class.",
         "sanMiguel": {
           "name": "San Miguel",
-          "body": "Two groups back to back: the youngest at noon and the older girls after."
+          "body": "Two groups back to back: Babys at noon and Senior after."
         },
         "laFlorida": {
           "name": "La Florida",
-          "body": "One group in the evening, for girls aged 4 to 7."
+          "body": "One Babys group in the evening, near Rojas Magallanes metro."
         },
         "maps": "Get directions"
       },
@@ -4319,13 +4345,15 @@
       },
       "galeria": {
         "kicker": "Gallery",
-        "sectionTitle": "An ordinary Saturday",
-        "verMas": "View photo"
+        "sectionTitle": "A Saturday at Matiss",
+        "verMas": "View photo",
+        "alt": "Matiss Studio students in class."
       },
       "cta": {
         "title": "Next Saturday can be the first one",
-        "subtitle": "Bring comfortable clothes and the will to try. We bring the mat and tell you which group she starts in.",
-        "button": "Book a trial class"
+        "subtitle": "Write to us with your daughter's age. We answer with her group and the day of her free trial class.",
+        "button": "Book her trial class",
+        "photoAlt": "The teacher with three students in pink shirts in the room."
       },
       "footer": {
         "enlacesTitle": "On this page",
@@ -4339,7 +4367,80 @@
         "directorName": "Valentina Tapia Carrasco",
         "directorHandle": "@velenn.tinaa"
       },
-      "footerCta": "Want to see a class? Write to us and we book the trial."
+      "footerCta": "Want to see the room? Write to us and we book her free trial class.",
+      "programas": {
+        "sectionTitle": "A group for every age",
+        "lead": "We group students by age so each one moves forward with challenges that fit her.",
+        "groups": {
+          "babys-san-miguel": {
+            "name": "Babys",
+            "body": "Her first step into gymnastics: play, rhythm, and the first rolls with lots of help.",
+            "alt": "Young student sitting in a light blue leotard, smiling."
+          },
+          "senior-san-miguel": {
+            "name": "Senior",
+            "body": "Technique, flexibility, and harder acrobatics, with clear goals for each level.",
+            "alt": "Older student doing a bridge with her feet at her head."
+          },
+          "babys-la-florida": {
+            "name": "Babys La Florida",
+            "body": "The same start for the youngest, steps from Rojas Magallanes metro.",
+            "alt": "Student in a lilac leotard doing a bridge."
+          }
+        }
+      },
+      "primeraClase": {
+        "title": "Her first class, in three steps",
+        "steps": [
+          {
+            "title": "Book",
+            "body": "Leave your details in the form or write to us on WhatsApp."
+          },
+          {
+            "title": "We confirm",
+            "body": "We tell you her group, the location, and her Saturday."
+          },
+          {
+            "title": "She comes and tries",
+            "body": "She arrives in comfortable clothes with her hair tied back. The first class is free."
+          }
+        ],
+        "button": "Book her trial class"
+      },
+      "gala": {
+        "title": "Every year ends with a gala",
+        "body": "The students go on stage to show what they learned, in front of their families. The end-of-year gala is at Teatro Cousiño, together with Liora Studio.",
+        "alt": "Matiss students sitting in the room making hearts with their hands."
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "items": [
+          {
+            "q": "From what age can she join?",
+            "a": "From 3 to 13. Babys is for the youngest and Senior for girls aged 7 and up."
+          },
+          {
+            "q": "Is the trial class free?",
+            "a": "Yes. The first class is free, so your daughter can meet the room and the teacher."
+          },
+          {
+            "q": "Does she need experience?",
+            "a": "No. Many students also started from zero. Each group moves at its own pace."
+          },
+          {
+            "q": "What should she bring?",
+            "a": "Comfortable clothes she can move in, her hair tied back, and a water bottle."
+          },
+          {
+            "q": "What day are the classes?",
+            "a": "Saturdays. San Miguel at noon and La Florida in the evening."
+          },
+          {
+            "q": "Are there places left?",
+            "a": "Groups are small and places are limited. Write to us to save hers."
+          }
+        ]
+      }
     }
   },
   "admin": {

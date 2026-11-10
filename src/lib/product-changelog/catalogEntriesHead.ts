@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "matiss-landing-real-photos",
+    date: "2026-11-10",
+    area: "site",
+    title: t(
+      "La landing de Matiss muestra fotos reales del estudio",
+      "The Matiss landing shows real studio photos",
+      "A landing da Matiss mostra fotos reais do estúdio",
+    ),
+    summary: t(
+      "Ahora presenta cada grupo por edad, la primera clase en tres pasos, preguntas frecuentes y el horario correcto de La Florida: sábado de 19:00 a 20:00.",
+      "It now presents each age group, the first class in three steps, frequent questions, and the correct La Florida time: Saturday from 19:00 to 20:00.",
+      "Agora apresenta cada grupo por idade, a primeira aula em três passos, perguntas frequentes e o horário correto de La Florida: sábado das 19:00 às 20:00.",
+    ),
+  },
+  {
     id: "matiss-landing-contact-form",
     date: "2026-11-10",
     area: "site",
@@ -225,21 +240,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "Una cuota pagada muestra el medio y la fecha. La matrícula de la fila usa el mismo dato.",
       "A paid month shows the method and the date. The row enrollment fee uses the same fact.",
       "Uma mensalidade paga mostra o meio e a data. A matrícula da linha usa o mesmo dado.",
-    ),
-  },
-  {
-    id: "centrolisto-solution-columns",
-    date: "2026-11-07",
-    area: "site",
-    title: t(
-      "Presencia, Gestión y Ecosistema quedan en tres columnas",
-      "Presence, Management, and Ecosystem sit in three columns",
-      "Presença, Gestão e Ecossistema ficam em três colunas",
-    ),
-    summary: t(
-      "En el home y en Precios las tres soluciones se comparan lado a lado. En el teléfono siguen en una columna.",
-      "On the home and on Prices the three solutions sit side by side. On a phone they stay in one column.",
-      "Na home e em Preços as três soluções ficam lado a lado. No telefone seguem em uma coluna.",
     ),
   },
 ];

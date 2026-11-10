@@ -1,71 +1,89 @@
 import type { LandingSectionSlug } from "@/types/theming";
 
+const m = (path: string) => `matiss.${path}`;
+const indexed = (base: string, count: number, fields: readonly string[]) =>
+  Array.from({ length: count }, (_, index) => fields.map((field) => m(`${base}.${index}.${field}`))).flat();
+
 /**
  * Editable copy for the `matiss` landing. Dict paths live under
  * `dict.landing.matiss.*`. Section slugs are reused:
- * historia = the studio, oferta = a class, niveles = schedule and age finder,
- * modalidades = the two locations, certificaciones = gallery and contact.
+ * historia = manifesto and benefits, oferta = a class and the first class,
+ * niveles = groups and age finder, modalidades = locations, gala, and contact,
+ * certificaciones = gallery, FAQ, and the closing call.
  */
 export const MATISS_LANDING_COPY_KEYS_BY_SECTION: Readonly<
   Record<LandingSectionSlug, ReadonlyArray<string>>
 > = {
   inicio: [
-    "matiss.hero.kicker",
-    "matiss.hero.title",
-    "matiss.hero.subtitle",
-    "matiss.hero.ctaPrimary",
-    "matiss.hero.ctaSecondary",
-    "matiss.register.shellTitle",
-    "matiss.register.shellLead",
+    m("hero.kicker"),
+    m("hero.title"),
+    m("hero.subtitle"),
+    m("hero.ctaPrimary"),
+    m("hero.ctaSecondary"),
+    m("hero.facts.0"),
+    m("hero.facts.1"),
+    m("hero.facts.2"),
+    m("hero.photoAlt"),
+    m("register.shellTitle"),
+    m("register.shellLead"),
   ],
   historia: [
-    "matiss.manifiesto.title",
-    "matiss.manifiesto.body",
-    "matiss.manifiesto.alt",
-    "matiss.sobreNosotros.title",
-    "matiss.sobreNosotros.bodyP1",
-    "matiss.sobreNosotros.bodyP2",
+    m("manifiesto.title"),
+    m("manifiesto.body"),
+    m("manifiesto.alt"),
+    m("sobreNosotros.title"),
+    m("sobreNosotros.bodyP1"),
+    m("sobreNosotros.bodyP2"),
+    ...indexed("sobreNosotros.items", 4, ["title", "body"]),
+    m("sobreNosotros.photoAlt"),
   ],
   oferta: [
-    "matiss.clases.sectionTitle",
-    "matiss.clases.lead",
-    "matiss.clases.steps.0.title",
-    "matiss.clases.steps.0.body",
-    "matiss.clases.steps.1.title",
-    "matiss.clases.steps.1.body",
-    "matiss.clases.steps.2.title",
-    "matiss.clases.steps.2.body",
-    "matiss.clases.steps.3.title",
-    "matiss.clases.steps.3.body",
+    m("clases.sectionTitle"),
+    m("clases.lead"),
+    ...indexed("clases.steps", 4, ["title", "body"]),
+    m("primeraClase.title"),
+    ...indexed("primeraClase.steps", 3, ["title", "body"]),
+    m("primeraClase.button"),
   ],
   modalidades: [
-    "matiss.sedes.sectionTitle",
-    "matiss.sedes.lead",
-    "matiss.sedes.sanMiguel.name",
-    "matiss.sedes.sanMiguel.body",
-    "matiss.sedes.laFlorida.name",
-    "matiss.sedes.laFlorida.body",
+    m("sedes.sectionTitle"),
+    m("sedes.lead"),
+    m("sedes.sanMiguel.name"),
+    m("sedes.sanMiguel.body"),
+    m("sedes.laFlorida.name"),
+    m("sedes.laFlorida.body"),
+    m("gala.title"),
+    m("gala.body"),
+    m("gala.alt"),
   ],
   niveles: [
-    "matiss.edad.sectionTitle",
-    "matiss.edad.lead",
-    "matiss.edad.photoAltSmall",
-    "matiss.edad.photoAltBig",
-    "matiss.horarios.sectionTitle",
+    m("programas.sectionTitle"),
+    m("programas.lead"),
+    ...["babys-san-miguel", "senior-san-miguel", "babys-la-florida"].flatMap((id) =>
+      ["name", "body", "alt"].map((field) => m(`programas.groups.${id}.${field}`)),
+    ),
+    m("edad.sectionTitle"),
+    m("edad.lead"),
+    m("edad.photoAltSmall"),
+    m("edad.photoAltBig"),
   ],
   certificaciones: [
-    "matiss.galeria.sectionTitle",
-    "matiss.cta.title",
-    "matiss.cta.subtitle",
-    "matiss.cta.button",
+    m("galeria.sectionTitle"),
+    m("galeria.alt"),
+    m("faq.title"),
+    ...indexed("faq.items", 6, ["q", "a"]),
+    m("cta.title"),
+    m("cta.subtitle"),
+    m("cta.button"),
+    m("cta.photoAlt"),
   ],
 };
 
 export const MATISS_MEDIA_SLOTS_BY_SECTION: Readonly<Record<LandingSectionSlug, number>> = {
   inicio: 2,
-  historia: 1,
+  historia: 2,
   oferta: 4,
-  modalidades: 1,
-  niveles: 2,
-  certificaciones: 3,
+  modalidades: 2,
+  niveles: 3,
+  certificaciones: 8,
 };

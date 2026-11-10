@@ -2,6 +2,7 @@ import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { resolveLandingImageSrcForTheme, type LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import type { LandingImageSectionSlug } from "@/lib/landing/sectionLandingImages";
 import { MatissFontRoot } from "@/components/organisms/MatissFontRoot";
 import { MatissSiteHeader } from "@/components/organisms/MatissSiteHeader";
 import { LandingMatissSections } from "@/components/organisms/LandingMatissSections";
@@ -29,13 +30,16 @@ export function LandingMainSectionsMatiss({
   inscriptionsEnabled,
 }: LandingMainSectionsMatissProps) {
   const t = (path: string) => marketingLandingCopy(dict, "matiss", path);
+  const img = (section: LandingImageSectionSlug, n: number) =>
+    resolveLandingImageSrcForTheme("matiss", section, `${n}.jpg`, mediaMap);
   const prefix = `/${locale}`;
   const links = [
     { href: `${prefix}#sobre`, label: t("nav.sobreNosotros") },
     { href: `${prefix}#clases`, label: t("nav.clases") },
     { href: `${prefix}#horarios`, label: t("nav.horarios") },
-    { href: `${prefix}#sedes`, label: t("nav.sedes") },
     { href: `${prefix}#galeria`, label: t("nav.galeria") },
+    { href: `${prefix}#sedes`, label: t("nav.sedes") },
+    { href: `${prefix}#preguntas`, label: t("nav.preguntas") },
     { href: `${prefix}#contacto`, label: t("nav.contacto") },
   ];
 
@@ -58,17 +62,14 @@ export function LandingMainSectionsMatiss({
           locale={locale}
           links={links}
           images={{
-            heroWeb: resolveLandingImageSrcForTheme("matiss", "inicio", "2.jpg", mediaMap),
-            manifesto: resolveLandingImageSrcForTheme("matiss", "modalidades", "1.jpg", mediaMap),
-            ageSmall: resolveLandingImageSrcForTheme("matiss", "niveles", "1.jpg", mediaMap),
-            ageBig: resolveLandingImageSrcForTheme("matiss", "niveles", "2.jpg", mediaMap),
-            about: resolveLandingImageSrcForTheme("matiss", "historia", "1.jpg", mediaMap),
-            classes: [1, 2, 3, 4].map((n) =>
-              resolveLandingImageSrcForTheme("matiss", "oferta", `${n}.jpg`, mediaMap),
-            ),
-            gallery: [1, 2, 3].map((n) =>
-              resolveLandingImageSrcForTheme("matiss", "certificaciones", `${n}.jpg`, mediaMap),
-            ),
+            heroWeb: img("inicio", 2),
+            manifesto: img("historia", 1),
+            benefits: img("historia", 2),
+            programs: [1, 2, 3].map((n) => img("niveles", n)),
+            classes: [1, 2, 3, 4].map((n) => img("oferta", n)),
+            gala: img("modalidades", 2),
+            gallery: [1, 2, 3, 4, 5, 6, 7, 8].map((n) => img("certificaciones", n)),
+            contact: img("modalidades", 1),
           }}
           publicCtaMode={publicCtaMode}
           inscriptionsEnabled={inscriptionsEnabled}

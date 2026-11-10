@@ -58,7 +58,7 @@ export function RegisterMatissSurface({
       <div className="mx-auto grid w-full max-w-5xl items-start gap-8 px-4 pt-10 md:grid-cols-[16rem_1fr]">
         <Image
           src={photoSrc}
-          alt={t("edad.photoAltSmall")}
+          alt={t("hero.photoAlt")}
           width={864}
           height={1152}
           priority

@@ -14,8 +14,8 @@ const props = {
     "senior-san-miguel": "Senior",
     "babys-la-florida": "Babys",
   },
-  photoSmall: "/images/matiss/personajes/pequena.jpg",
-  photoBig: "/images/matiss/personajes/grande.jpg",
+  photoSmall: "/images/matiss/fotos/sentada.jpg",
+  photoBig: "/images/matiss/fotos/grande.jpg",
   photoAltSmall: "Alumna pequeña",
   photoAltBig: "Alumna mayor",
 };
@@ -26,14 +26,14 @@ describe("MatissAgeFinder", () => {
 
     expect(screen.getByRole("img", { name: "Alumna pequeña" })).toHaveAttribute(
       "src",
-      "/images/matiss/personajes/pequena.jpg",
+      "/images/matiss/fotos/sentada.jpg",
     );
 
     fireEvent.click(screen.getByRole("radio", { name: "10" }));
 
     expect(screen.getByRole("img", { name: "Alumna mayor" })).toHaveAttribute(
       "src",
-      "/images/matiss/personajes/grande.jpg",
+      "/images/matiss/fotos/grande.jpg",
     );
   });
 });

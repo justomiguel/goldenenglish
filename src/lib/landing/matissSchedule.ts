@@ -37,8 +37,8 @@ export const MATISS_GROUPS: readonly MatissGroup[] = [
     day: "saturday",
     ageMin: 4,
     ageMax: 7,
-    start: "18:00",
-    end: "19:00",
+    start: "19:00",
+    end: "20:00",
   },
 ];
 

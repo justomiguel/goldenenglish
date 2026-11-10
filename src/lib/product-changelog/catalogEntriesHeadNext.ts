@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "centrolisto-solution-columns",
+    date: "2026-11-07",
+    area: "site",
+    title: t(
+      "Presencia, Gestión y Ecosistema quedan en tres columnas",
+      "Presence, Management, and Ecosystem sit in three columns",
+      "Presença, Gestão e Ecossistema ficam em três colunas",
+    ),
+    summary: t(
+      "En el home y en Precios las tres soluciones se comparan lado a lado. En el teléfono siguen en una columna.",
+      "On the home and on Prices the three solutions sit side by side. On a phone they stay in one column.",
+      "Na home e em Preços as três soluções ficam lado a lado. No telefone seguem em uma coluna.",
+    ),
+  },
+  {
     id: "centrolisto-country-combo-panel",
     date: "2026-11-07",
     area: "site",

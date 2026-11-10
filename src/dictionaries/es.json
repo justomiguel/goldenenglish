@@ -4234,77 +4234,103 @@
       "nav": {
         "inicio": "Inicio",
         "sobreNosotros": "El estudio",
-        "clases": "Una clase",
+        "clases": "Grupos",
         "sedes": "Sedes",
         "horarios": "Horarios",
         "galeria": "Galería",
+        "preguntas": "Preguntas",
         "contacto": "Contacto"
       },
       "register": {
-        "shellTitle": "Agenda una clase de prueba",
-        "shellLead": "Cuéntanos la edad de tu hija y te escribimos para coordinar el sábado."
+        "shellTitle": "Agenda su clase de prueba gratis",
+        "shellLead": "Cuéntanos la edad de tu hija. Te escribimos con el grupo, la sede y el sábado de su primera clase."
       },
       "hero": {
         "kicker": "Gimnasia acrobática para niñas de 3 a 13 años",
-        "title": "Primero se estira. Después, se atreve.",
-        "subtitle": "Sábados en San Miguel y La Florida. Grupos pequeños y una profesora al lado en cada intento.",
-        "ctaPrimary": "Agenda una clase de prueba",
-        "ctaSecondary": "Busca su grupo"
+        "title": "Pequeñas gimnastas. Grandes sueños.",
+        "subtitle": "Clases los sábados en San Miguel y La Florida, en grupos por edad. Fuerza, flexibilidad y confianza, con una profesora al lado en cada intento.",
+        "ctaPrimary": "Agenda su clase de prueba gratis",
+        "ctaSecondary": "Ver grupos y horarios",
+        "facts": [
+          "Primera clase gratis",
+          "Grupos por edad",
+          "Cupos limitados"
+        ],
+        "photoAlt": "Alumna de Matiss con body plateado y tutú rojo, sentada y sonriendo."
       },
       "manifiesto": {
         "title": "Más que enseñar, acompañar.",
-        "body": "Una niña no aprende un puente porque se lo expliquen. Lo aprende cuando alguien le sostiene la espalda la primera vez, y la suelta cuando ya puede sola.",
-        "alt": "Ilustración de la profesora abrazando a tres alumnas, sentadas de espaldas."
+        "body": "Cada niña tiene algo único que la hace brillar. En Matiss la acompañamos en cada pequeño avance y celebramos cada gran logro, a su ritmo y sin compararla con nadie.",
+        "alt": "La profesora abraza a tres alumnas, sentadas de espaldas en la sala."
       },
       "sobreNosotros": {
         "kicker": "El estudio",
-        "title": "Valentina abre la sala cada sábado",
-        "bodyP1": "Llegan con el pelo tomado y un poco de nervio. A los diez minutos ya están en el suelo, riéndose, intentando el primer puente.",
-        "bodyP2": "Valentina Tapia Carrasco las mira una por una. Corrige una mano, aplaude un intento, y pide una vez más. Así crecen la disciplina, la diversión y la confianza."
+        "title": "Más que gimnasia, un lugar para crecer",
+        "bodyP1": "Matiss es un estudio de gimnasia acrobática solo para niñas. La disciplina y la diversión van juntas, y cada clase deja algo más que un truco nuevo.",
+        "bodyP2": "Dirige Valentina Tapia Carrasco. Conoce a cada alumna por su nombre y sabe qué le cuesta y qué la hace reír.",
+        "items": [
+          {
+            "title": "Fuerza y flexibilidad",
+            "body": "Puentes, ruedas y equilibrios que fortalecen el cuerpo sin forzarlo."
+          },
+          {
+            "title": "Coordinación",
+            "body": "Aprende a conocer su cuerpo y a moverse con control y ritmo."
+          },
+          {
+            "title": "Confianza",
+            "body": "Supera miedos con apoyo, un intento a la vez, hasta que lo logra sola."
+          },
+          {
+            "title": "Amistades",
+            "body": "Comparte la sala con niñas de su edad y se suma a la familia Matiss."
+          }
+        ],
+        "photoAlt": "Alumna con body celeste haciendo un puente en el estudio."
       },
       "clases": {
         "kicker": "Una clase",
-        "sectionTitle": "Una hora en la sala",
+        "sectionTitle": "Así es un sábado en la sala",
         "lead": "Entre una hora y una hora y media. Nadie se queda mirando desde la orilla.",
         "steps": [
           {
-            "title": "Llegada y calentamiento",
-            "body": "Saludan, se acomodan y preparan el cuerpo con juegos cortos."
+            "title": "Calentamiento",
+            "body": "Juegos cortos para despertar el cuerpo y saludar a las compañeras."
           },
           {
-            "title": "Acrobacias guiadas",
-            "body": "Ruedas, puentes y equilibrios, con la profesora al lado."
+            "title": "Estiramientos",
+            "body": "Flexibilidad guiada, con la profesora corrigiendo una por una."
           },
           {
-            "title": "Juego",
-            "body": "Recorridos con pelota y estaciones para repetir lo nuevo."
+            "title": "Acrobacias",
+            "body": "Ruedas, puentes y equilibrios, siempre con ayuda al lado."
           },
           {
             "title": "Cierre con aplauso",
-            "body": "Se nombra lo que cada una logró y se despiden."
+            "body": "Repasamos lo que cada una logró y nos despedimos hasta el sábado."
           }
         ]
       },
       "edad": {
         "kicker": "Encuentra su grupo",
-        "sectionTitle": "¿Cuántos años tiene?",
+        "sectionTitle": "¿Cuántos años tiene tu hija?",
         "lead": "Elige su edad y te mostramos su grupo, la hora y la sede.",
-        "photoAltSmall": "Ilustración de una alumna pequeña estirando en la sala.",
-        "photoAltBig": "Ilustración de una alumna mayor en un estiramiento.",
+        "photoAltSmall": "Alumna pequeña sentada con body celeste.",
+        "photoAltBig": "Alumna mayor haciendo un puente.",
         "years": "años",
         "empty": "Matiss recibe niñas de 3 a 13 años."
       },
       "sedes": {
         "kicker": "Sedes",
-        "sectionTitle": "Dos comunas, el mismo sábado",
-        "lead": "La dirección de cada sala se confirma al agendar la clase de prueba.",
+        "sectionTitle": "Dos sedes, el mismo sábado",
+        "lead": "Te enviamos la dirección exacta de la sala al confirmar la clase de prueba.",
         "sanMiguel": {
           "name": "San Miguel",
-          "body": "Dos grupos seguidos: las más pequeñas al mediodía y las mayores después."
+          "body": "Dos grupos seguidos: Babys al mediodía y Senior después."
         },
         "laFlorida": {
           "name": "La Florida",
-          "body": "Un grupo por la tarde, para niñas de 4 a 7 años."
+          "body": "Un grupo Babys por la tarde, cerca del metro Rojas Magallanes."
         },
         "maps": "Cómo llegar"
       },
@@ -4319,13 +4345,15 @@
       },
       "galeria": {
         "kicker": "Galería",
-        "sectionTitle": "Un sábado cualquiera",
-        "verMas": "Ver foto"
+        "sectionTitle": "Un sábado en Matiss",
+        "verMas": "Ver foto",
+        "alt": "Alumnas de Matiss Studio en clase."
       },
       "cta": {
         "title": "El próximo sábado puede ser el primero",
-        "subtitle": "Trae ropa cómoda y ganas. Nosotras ponemos la colchoneta y te decimos en qué grupo empieza.",
-        "button": "Agenda una clase de prueba"
+        "subtitle": "Escríbenos con la edad de tu hija. Te respondemos con su grupo y el día de su clase de prueba gratis.",
+        "button": "Agenda su clase de prueba",
+        "photoAlt": "La profesora con tres alumnas de polera rosada en la sala."
       },
       "footer": {
         "enlacesTitle": "En esta página",
@@ -4339,7 +4367,80 @@
         "directorName": "Valentina Tapia Carrasco",
         "directorHandle": "@velenn.tinaa"
       },
-      "footerCta": "¿Quieres ver una clase? Escríbenos y agendamos la prueba."
+      "footerCta": "¿Quieres conocer la sala? Escríbenos y agendamos su clase de prueba gratis.",
+      "programas": {
+        "sectionTitle": "Un grupo para cada edad",
+        "lead": "Separamos a las alumnas por edad para que cada una avance con desafíos a su medida.",
+        "groups": {
+          "babys-san-miguel": {
+            "name": "Babys",
+            "body": "Su primer contacto con la gimnasia: juego, ritmo y los primeros giros con mucha ayuda.",
+            "alt": "Alumna pequeña sentada con body celeste, sonriendo."
+          },
+          "senior-san-miguel": {
+            "name": "Senior",
+            "body": "Técnica, flexibilidad y acrobacias más exigentes, con metas claras para cada nivel.",
+            "alt": "Alumna mayor haciendo un puente con los pies en la cabeza."
+          },
+          "babys-la-florida": {
+            "name": "Babys La Florida",
+            "body": "El mismo inicio para las más pequeñas, a pasos del metro Rojas Magallanes.",
+            "alt": "Alumna con body lila haciendo un puente."
+          }
+        }
+      },
+      "primeraClase": {
+        "title": "Su primera clase, en tres pasos",
+        "steps": [
+          {
+            "title": "Agenda",
+            "body": "Déjanos tus datos en el formulario o escríbenos por WhatsApp."
+          },
+          {
+            "title": "Te confirmamos",
+            "body": "Te decimos su grupo, la sede y el sábado que le corresponde."
+          },
+          {
+            "title": "Viene y prueba",
+            "body": "Llega con ropa cómoda y el pelo tomado. La primera clase es gratis."
+          }
+        ],
+        "button": "Agenda su clase de prueba"
+      },
+      "gala": {
+        "title": "Cada año cerramos con una gala",
+        "body": "Las alumnas suben al escenario a mostrar lo que aprendieron, frente a sus familias. La gala de fin de año es en el Teatro Cousiño, junto a Liora Studio.",
+        "alt": "Alumnas de Matiss sentadas en la sala haciendo corazones con las manos."
+      },
+      "faq": {
+        "title": "Preguntas frecuentes",
+        "items": [
+          {
+            "q": "¿Desde qué edad pueden entrar?",
+            "a": "Desde los 3 hasta los 13 años. Babys reúne a las más pequeñas y Senior a las mayores de 7."
+          },
+          {
+            "q": "¿La clase de prueba tiene costo?",
+            "a": "No. La primera clase es gratis, para que tu hija conozca la sala y a la profesora."
+          },
+          {
+            "q": "¿Necesita experiencia?",
+            "a": "No. Muchas alumnas también empezaron desde cero. Cada grupo avanza a su ritmo."
+          },
+          {
+            "q": "¿Qué debe llevar?",
+            "a": "Ropa cómoda que le permita moverse, el pelo tomado y una botella de agua."
+          },
+          {
+            "q": "¿Qué día son las clases?",
+            "a": "Los sábados. San Miguel a mediodía y La Florida por la tarde."
+          },
+          {
+            "q": "¿Hay cupos?",
+            "a": "Los grupos son pequeños y los cupos son limitados. Escríbenos para reservar el suyo."
+          }
+        ]
+      }
     }
   },
   "admin": {

@@ -19,7 +19,7 @@ const brand = {
 } as BrandPublic;
 
 describe("LandingMatissSections", () => {
-  it("shows the trial button, the age control, and the phone", () => {
+  it("shows the trial buttons, the groups, the FAQ, the contact form, and real photos", () => {
     const { container } = render(
       <LandingMatissSections
         dict={es}
@@ -27,35 +27,37 @@ describe("LandingMatissSections", () => {
         locale="es"
         links={[]}
         images={{
-          heroWeb: "/images/matiss/personajes/pequena.jpg",
-          manifesto: "/images/matiss/personajes/grupo.jpg",
-          ageSmall: "/images/matiss/personajes/pequena.jpg",
-          ageBig: "/images/matiss/personajes/grande.jpg",
-          about: "/images/matiss/personajes/grande.jpg",
-          classes: ["/images/matiss/ilustraciones/clase-1.jpg"],
-          gallery: [
-            "/images/matiss/personajes/pequena.jpg",
-            "/images/matiss/personajes/grande.jpg",
-            "/images/matiss/personajes/grupo.jpg",
-          ],
+          heroWeb: "/images/matiss/fotos/roja.jpg",
+          manifesto: "/images/matiss/fotos/acompanar.jpg",
+          benefits: "/images/matiss/fotos/pequena.jpg",
+          programs: ["/images/matiss/fotos/sentada.jpg", "/images/matiss/fotos/grande.jpg", "/images/matiss/fotos/lila.jpg"],
+          classes: ["/images/matiss/fotos/clase-brazos.jpg"],
+          gala: "/images/matiss/galeria/1.jpg",
+          gallery: ["/images/matiss/galeria/2.jpg", "/images/matiss/fotos/clase-profe.jpg"],
+          contact: "/images/matiss/galeria/3.jpg",
         }}
         publicCtaMode="trial"
         inscriptionsEnabled
       />,
     );
 
-    expect(screen.getAllByRole("link", { name: "Agenda una clase de prueba" }).length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: es.landing.matiss.hero.ctaPrimary })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: es.landing.matiss.cta.button }).length).toBeGreaterThan(0);
     expect(screen.getByRole("radiogroup")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "+56 9 8747 6023" })).toHaveAttribute(
       "href",
       "tel:+56987476023",
     );
-    expect(screen.getByRole("heading", { name: "Más que enseñar, acompañar." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: es.landing.matiss.manifiesto.title })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: es.landing.matiss.faq.title })).toBeInTheDocument();
+    expect(screen.getByText(es.landing.matiss.faq.items[0].q)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: es.landing.matiss.programas.groups["senior-san-miguel"].name })).toBeInTheDocument();
+    expect(screen.getAllByText(/19:00–20:00/).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: es.publicContact.submit })).toBeInTheDocument();
     expect(screen.getByLabelText(es.publicContact.fullName)).toBeInTheDocument();
-    expect(container.innerHTML).toContain("/images/matiss/personajes/pequena.jpg");
-    expect(container.innerHTML).toContain("/images/matiss/personajes/grande.jpg");
+    expect(container.innerHTML).toContain("/images/matiss/fotos/roja.jpg");
+    expect(container.innerHTML).toContain("/images/matiss/galeria/1.jpg");
     expect(container.innerHTML).not.toContain("galeria/4");
-    expect(container.innerHTML).not.toContain("hero-pwa");
+    expect(container.innerHTML).not.toContain("personajes");
   });
 });

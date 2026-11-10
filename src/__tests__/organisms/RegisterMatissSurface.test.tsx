@@ -33,7 +33,7 @@ describe("RegisterMatissSurface", () => {
     expect(screen.getByTestId("register-form-stub")).toBeInTheDocument();
     expect(screen.getByRole("img")).toHaveAttribute(
       "src",
-      expect.stringContaining("/images/matiss/personajes/pequena.jpg"),
+      expect.stringContaining("/images/matiss/fotos/roja.jpg"),
     );
   });
 });

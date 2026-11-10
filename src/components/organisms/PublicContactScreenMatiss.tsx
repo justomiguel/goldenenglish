@@ -43,7 +43,7 @@ export function PublicContactScreenMatiss({
       <div className="mx-auto grid w-full max-w-5xl items-start gap-8 px-4 pt-10 md:grid-cols-[16rem_1fr]">
         <Image
           src={photoSrc}
-          alt={t("manifiesto.alt")}
+          alt={t("cta.photoAlt")}
           width={1152}
           height={864}
           className="mx-auto aspect-[4/3] w-full max-w-xs rounded-[36px] object-cover"
