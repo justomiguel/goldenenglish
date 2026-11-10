@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { MATISS_AGE_RANGE, matissGroupsForAge } from "@/lib/landing/matissSchedule";
 
 export interface MatissAgeFinderProps {
@@ -11,6 +12,10 @@ export interface MatissAgeFinderProps {
   dayLabel: string;
   locationNames: Record<"sanMiguel" | "laFlorida", string>;
   groupNames: Record<string, string>;
+  photoSmall: string;
+  photoBig: string;
+  photoAltSmall: string;
+  photoAltBig: string;
 }
 
 export function MatissAgeFinder({
@@ -21,9 +26,16 @@ export function MatissAgeFinder({
   dayLabel,
   locationNames,
   groupNames,
+  photoSmall,
+  photoBig,
+  photoAltSmall,
+  photoAltBig,
 }: MatissAgeFinderProps) {
   const [age, setAge] = useState(5);
   const groups = matissGroupsForAge(age);
+  const young = age <= 7;
+  const photoSrc = young ? photoSmall : photoBig;
+  const photoAlt = young ? photoAltSmall : photoAltBig;
   const ages = Array.from(
     { length: MATISS_AGE_RANGE.max - MATISS_AGE_RANGE.min + 1 },
     (_, index) => MATISS_AGE_RANGE.min + index,
@@ -51,10 +63,12 @@ export function MatissAgeFinder({
           </button>
         ))}
       </div>
-      {groups.length === 0 ? (
-        <p className="mt-4 text-sm text-[var(--matiss-ink-soft)]">{emptyLabel}</p>
-      ) : (
-        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-6 grid items-start gap-4 md:grid-cols-[11rem_1fr]">
+        <Image key={photoSrc} src={photoSrc} alt={photoAlt} width={902} height={1024} className="matiss-age-photo h-40 w-full rounded-3xl object-cover object-top md:h-52" />
+        {groups.length === 0 ? (
+          <p className="text-sm text-[var(--matiss-ink-soft)]">{emptyLabel}</p>
+        ) : (
+          <ul className="grid gap-3 sm:grid-cols-2">
           {groups.map((group) => (
             <li key={group.id} className="rounded-2xl bg-white p-5">
               <p className="text-sm font-semibold text-[var(--matiss-rose-deep)]">{locationNames[group.location]}</p>
@@ -64,8 +78,9 @@ export function MatissAgeFinder({
               </p>
             </li>
           ))}
-        </ul>
-      )}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

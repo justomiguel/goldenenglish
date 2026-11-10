@@ -1,7 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { LogIn } from "lucide-react";
 import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
 import type { BrandPublic } from "@/lib/brand/server";
+import { resolveLandingImageSrcForTheme, type LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import type { Dictionary } from "@/types/i18n";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
@@ -20,6 +22,7 @@ export interface RegisterMatissSurfaceProps {
   enrollmentLink?: SectionEnrollmentLinkContext;
   extrasPack?: RegistrationExtrasPackId | null;
   intent?: RegisterIntent;
+  mediaMap?: LandingMediaMap;
   sessionEmail?: string | null;
   sectionMode?: RegisterSectionMode;
 }
@@ -33,10 +36,12 @@ export function RegisterMatissSurface({
   enrollmentLink,
   extrasPack = null,
   intent = "reserve",
+  mediaMap,
   sessionEmail = null,
   sectionMode = "first_open",
 }: RegisterMatissSurfaceProps) {
   const t = (path: string) => marketingLandingCopy(dict, "matiss", path);
+  const photoSrc = resolveLandingImageSrcForTheme("matiss", "inicio", "2.jpg", mediaMap);
 
   return (
     <MatissFontRoot className="relative min-h-screen pb-16">
@@ -50,12 +55,21 @@ export function RegisterMatissSurface({
         openMenu={t("chrome.openMenu")}
         closeMenu={t("chrome.closeMenu")}
       />
-      <div className="mx-auto w-full max-w-3xl px-4 pt-10">
-        <h1 className="matiss-display text-4xl text-[var(--matiss-ink)]">
+      <div className="mx-auto grid w-full max-w-5xl items-start gap-8 px-4 pt-10 md:grid-cols-[16rem_1fr]">
+        <Image
+          src={photoSrc}
+          alt={t("edad.photoAltSmall")}
+          width={864}
+          height={1152}
+          priority
+          className="mx-auto aspect-[3/4] w-full max-w-xs rounded-[36px] object-cover object-top"
+        />
+        <div>
+          <h1 className="matiss-display text-4xl text-[var(--matiss-ink)]">
           {intent === "trial" ? dict.register.trial.shellTitle : t("register.shellTitle")}
         </h1>
-        <p className="mt-4 text-[var(--matiss-ink-soft)]">{t("register.shellLead")}</p>
-        <div className="mt-8 rounded-3xl bg-white p-2">
+          <p className="mt-4 text-[var(--matiss-ink-soft)]">{t("register.shellLead")}</p>
+          <div className="mt-8 rounded-3xl bg-white p-2">
           <RegisterForm
             locale={locale}
             dict={dict.register}
@@ -66,13 +80,14 @@ export function RegisterMatissSurface({
             intent={intent}
             sectionMode={sectionMode}
           />
+          </div>
+          <p className="mt-8">
+            <Link href={`/${locale}/login`} className="inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-[var(--matiss-violet-deep)] underline">
+              <LogIn className="h-4 w-4" aria-hidden />
+              {dict.login.title}
+            </Link>
+          </p>
         </div>
-        <p className="mt-8">
-          <Link href={`/${locale}/login`} className="inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-[var(--matiss-violet-deep)] underline">
-            <LogIn className="h-4 w-4" aria-hidden />
-            {dict.login.title}
-          </Link>
-        </p>
       </div>
     </MatissFontRoot>
   );

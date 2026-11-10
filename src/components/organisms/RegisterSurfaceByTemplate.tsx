@@ -59,7 +59,7 @@ export function RegisterSurfaceByTemplate({
     return <RegisterLioraSurface {...withPack} />;
   }
   if (templateKind === "matiss") {
-    return <RegisterMatissSurface {...withPack} />;
+    return <RegisterMatissSurface {...withPack} mediaMap={mediaMap} />;
   }
   return <RegisterClassicSurface {...withPack} />;
 }

@@ -4245,22 +4245,27 @@
         "shellLead": "Tell us your daughter's age and we write back to set the Saturday."
       },
       "hero": {
-        "kicker": "Acrobatic gymnastics for girls",
-        "title": "She arrives shy. She leaves doing a cartwheel.",
-        "subtitle": "Ages 3 to 13, in San Miguel and La Florida.",
+        "kicker": "Acrobatic gymnastics for girls aged 3 to 13",
+        "title": "First she stretches. Then she dares.",
+        "subtitle": "Saturdays in San Miguel and La Florida. Small groups, and a teacher beside her on every try.",
         "ctaPrimary": "Book a trial class",
-        "ctaSecondary": "See the schedule"
+        "ctaSecondary": "Find her group"
+      },
+      "manifiesto": {
+        "title": "More than teaching, she stays beside them.",
+        "body": "A girl does not learn a bridge because someone explains it. She learns it when someone holds her back the first time, and lets go when she can do it alone.",
+        "alt": "Illustration of the teacher hugging three students, sitting with their backs to us."
       },
       "sobreNosotros": {
         "kicker": "The studio",
-        "title": "A Saturday they wait for all week",
-        "bodyP1": "At Matiss Studio girls learn floor acrobatics: cartwheels, bridges, balances, and the first jump. Every skill is shown, tried, and cheered.",
-        "bodyP2": "Valentina Tapia Carrasco leads the classes. Discipline means trying again, fun means wanting to come back, and confidence means showing it at home."
+        "title": "Valentina opens the room every Saturday",
+        "bodyP1": "They arrive with their hair tied back and a little nerve. Ten minutes later they are on the floor, laughing, trying the first bridge.",
+        "bodyP2": "Valentina Tapia Carrasco watches each girl. She corrects a hand, claps for an attempt, and asks for one more try. That is how discipline, fun, and confidence grow."
       },
       "clases": {
         "kicker": "A class",
-        "sectionTitle": "What a Saturday looks like",
-        "lead": "A class lasts between one hour and ninety minutes.",
+        "sectionTitle": "One hour in the room",
+        "lead": "Between one hour and ninety minutes. Nobody stays watching from the side.",
         "steps": [
           {
             "title": "Arrival and warm-up",
@@ -4282,8 +4287,10 @@
       },
       "edad": {
         "kicker": "Find her group",
-        "sectionTitle": "Choose her age",
-        "lead": "We show the group, the time, and the location.",
+        "sectionTitle": "How old is she?",
+        "lead": "Choose her age. We show her group, the time, and the location.",
+        "photoAltSmall": "Illustration of a young student stretching in the room.",
+        "photoAltBig": "Illustration of an older student in a stretch.",
         "years": "years",
         "empty": "Matiss welcomes girls from 3 to 13."
       },
@@ -4312,12 +4319,12 @@
       },
       "galeria": {
         "kicker": "Gallery",
-        "sectionTitle": "Inside the room",
+        "sectionTitle": "An ordinary Saturday",
         "verMas": "View photo"
       },
       "cta": {
         "title": "Next Saturday can be the first one",
-        "subtitle": "Send us your daughter's age and we suggest the group.",
+        "subtitle": "Bring comfortable clothes and the will to try. We bring the mat and tell you which group she starts in.",
         "button": "Book a trial class"
       },
       "footer": {

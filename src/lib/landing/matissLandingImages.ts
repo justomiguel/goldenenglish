@@ -4,12 +4,16 @@ const BASE = "/images/matiss";
 
 /** Bundled fallback for one CMS media slot. Positions follow the catalog. */
 const SLOT_PATH: Record<LandingSectionSlug, ReadonlyArray<string>> = {
-  inicio: [`${BASE}/ilustraciones/og.jpg`],
-  historia: [`${BASE}/galeria/3.jpg`],
+  inicio: [`${BASE}/ilustraciones/og.jpg`, `${BASE}/personajes/pequena.jpg`],
+  historia: [`${BASE}/personajes/grande.jpg`],
   oferta: [1, 2, 3, 4].map((n) => `${BASE}/ilustraciones/clase-${n}.jpg`),
-  modalidades: [],
-  niveles: [],
-  certificaciones: [1, 2, 3, 4].map((n) => `${BASE}/galeria/${n}.jpg`),
+  modalidades: [`${BASE}/personajes/grupo.jpg`],
+  niveles: [`${BASE}/personajes/pequena.jpg`, `${BASE}/personajes/grande.jpg`],
+  certificaciones: [
+    `${BASE}/personajes/pequena.jpg`,
+    `${BASE}/personajes/grande.jpg`,
+    `${BASE}/personajes/grupo.jpg`,
+  ],
 };
 
 export function matissSectionImageSrc(

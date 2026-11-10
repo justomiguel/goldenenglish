@@ -1,7 +1,12 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import es from "@/dictionaries/es.json";
 import type { BrandPublic } from "@/lib/brand/server";
+
+vi.mock("@/app/[locale]/contact/actions", () => ({
+  submitPublicContactForm: vi.fn().mockResolvedValue({ ok: true }),
+}));
+
 import { LandingMatissSections } from "@/components/organisms/LandingMatissSections";
 
 const brand = {
@@ -15,17 +20,24 @@ const brand = {
 
 describe("LandingMatissSections", () => {
   it("shows the trial button, the age control, and the phone", () => {
-    render(
+    const { container } = render(
       <LandingMatissSections
         dict={es}
         brand={brand}
         locale="es"
         links={[]}
         images={{
-          heroWeb: "/images/matiss/ilustraciones/og.jpg",
-          about: "/images/matiss/galeria/3.jpg",
+          heroWeb: "/images/matiss/personajes/pequena.jpg",
+          manifesto: "/images/matiss/personajes/grupo.jpg",
+          ageSmall: "/images/matiss/personajes/pequena.jpg",
+          ageBig: "/images/matiss/personajes/grande.jpg",
+          about: "/images/matiss/personajes/grande.jpg",
           classes: ["/images/matiss/ilustraciones/clase-1.jpg"],
-          gallery: ["/images/matiss/galeria/1.jpg"],
+          gallery: [
+            "/images/matiss/personajes/pequena.jpg",
+            "/images/matiss/personajes/grande.jpg",
+            "/images/matiss/personajes/grupo.jpg",
+          ],
         }}
         publicCtaMode="trial"
         inscriptionsEnabled
@@ -38,5 +50,12 @@ describe("LandingMatissSections", () => {
       "href",
       "tel:+56987476023",
     );
+    expect(screen.getByRole("heading", { name: "Más que enseñar, acompañar." })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: es.publicContact.submit })).toBeInTheDocument();
+    expect(screen.getByLabelText(es.publicContact.fullName)).toBeInTheDocument();
+    expect(container.innerHTML).toContain("/images/matiss/personajes/pequena.jpg");
+    expect(container.innerHTML).toContain("/images/matiss/personajes/grande.jpg");
+    expect(container.innerHTML).not.toContain("galeria/4");
+    expect(container.innerHTML).not.toContain("hero-pwa");
   });
 });

@@ -3,6 +3,36 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "matiss-landing-contact-form",
+    date: "2026-11-10",
+    area: "site",
+    title: t(
+      "Matiss recibe mensajes desde la landing",
+      "Matiss receives messages from the landing",
+      "A Matiss recebe mensagens pela landing",
+    ),
+    summary: t(
+      "La landing y la página de contacto usan el formulario de mensajes, y la inscripción muestra una ilustración.",
+      "The landing and the contact page use the message form, and registration shows an illustration.",
+      "A landing e a página de contato usam o formulário de mensagens, e a inscrição mostra uma ilustração.",
+    ),
+  },
+  {
+    id: "matiss-landing-photos",
+    date: "2026-11-10",
+    area: "site",
+    title: t(
+      "La landing de Matiss usa ilustraciones de alumnas",
+      "The Matiss landing uses student illustrations",
+      "A landing da Matiss usa ilustrações de alunas",
+    ),
+    summary: t(
+      "La portada, la galería y el buscador de edad muestran personajes ilustrados. Se pueden cambiar por fotos del estudio.",
+      "The hero, the gallery, and the age finder show illustrated characters. They can be swapped for studio photos.",
+      "A capa, a galeria e o buscador de idade mostram personagens ilustrados. Dá para trocá-los por fotos do estúdio.",
+    ),
+  },
+  {
     id: "matiss-studio-landing",
     date: "2026-11-09",
     area: "site",
@@ -210,36 +240,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "En el home y en Precios las tres soluciones se comparan lado a lado. En el teléfono siguen en una columna.",
       "On the home and on Prices the three solutions sit side by side. On a phone they stay in one column.",
       "Na home e em Preços as três soluções ficam lado a lado. No telefone seguem em uma coluna.",
-    ),
-  },
-  {
-    id: "centrolisto-country-combo-panel",
-    date: "2026-11-07",
-    area: "site",
-    title: t(
-      "El país queda junto al logo y la sesión abre el panel",
-      "The country sits by the logo and the session opens the panel",
-      "O país fica junto do logo e a sessão abre o painel",
-    ),
-    summary: t(
-      "El control muestra la bandera y el nombre. Con sesión, la acción principal dice Entrar al panel y salir es un ícono.",
-      "The control shows the flag and the name. With a session, the main action says Enter the panel and sign-out is an icon.",
-      "O controle mostra a bandeira e o nome. Com sessão, a ação principal diz Entrar no painel e sair é um ícone.",
-    ),
-  },
-  {
-    id: "centrolisto-home-single-cta",
-    date: "2026-11-07",
-    area: "site",
-    title: t(
-      "El home de CentroListo deja un solo botón",
-      "The CentroListo home keeps one button",
-      "A home do CentroListo fica com um botão",
-    ),
-    summary: t(
-      "Crear mi página gratis es la acción del home. El país se elige con banderas y el menú marca la página actual.",
-      "Create my free page is the home action. The country is chosen with flags, and the menu marks the current page.",
-      "Criar minha página grátis é a ação da home. O país se escolhe com bandeiras e o menu marca a página atual.",
     ),
   },
 ];

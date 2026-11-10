@@ -3,6 +3,36 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "centrolisto-country-combo-panel",
+    date: "2026-11-07",
+    area: "site",
+    title: t(
+      "El país queda junto al logo y la sesión abre el panel",
+      "The country sits by the logo and the session opens the panel",
+      "O país fica junto do logo e a sessão abre o painel",
+    ),
+    summary: t(
+      "El control muestra la bandera y el nombre. Con sesión, la acción principal dice Entrar al panel y salir es un ícono.",
+      "The control shows the flag and the name. With a session, the main action says Enter the panel and sign-out is an icon.",
+      "O controle mostra a bandeira e o nome. Com sessão, a ação principal diz Entrar no painel e sair é um ícone.",
+    ),
+  },
+  {
+    id: "centrolisto-home-single-cta",
+    date: "2026-11-07",
+    area: "site",
+    title: t(
+      "El home de CentroListo deja un solo botón",
+      "The CentroListo home keeps one button",
+      "A home do CentroListo fica com um botão",
+    ),
+    summary: t(
+      "Crear mi página gratis es la acción del home. El país se elige con banderas y el menú marca la página actual.",
+      "Create my free page is the home action. The country is chosen with flags, and the menu marks the current page.",
+      "Criar minha página grátis é a ação da home. O país se escolhe com bandeiras e o menu marca a página atual.",
+    ),
+  },
+  {
     id: "staff-cash-payments",
     date: "2026-11-06",
     area: "finance",

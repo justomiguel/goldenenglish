@@ -10,7 +10,20 @@ The client sent these files and confirmed consent to publish them.
 | `galeria/1.jpg` | Group making heart hands |
 | `galeria/2.jpg` | Backbend with the teacher |
 | `galeria/3.jpg` | Teacher with three girls in pink shirts |
-| `galeria/4.jpg` | Schedule story |
+| `galeria/4.jpg` | Schedule story. Kept in the repo. Not used on the landing. |
+| `fotos/acompanar.jpg` | Teacher hugging three students, seen from behind |
+| `fotos/pequena.jpg` | Young student in a light blue leotard, backbend |
+| `fotos/grande.jpg` | Older student in a black and green leotard, backbend |
+
+## AI character placeholders
+
+Illustrated stand-ins. Replace them with client photos when those are ready. They are not photographs of real students.
+
+| File | Use |
+|---|---|
+| `personajes/pequena.jpg` | Young student, hero and age finder |
+| `personajes/grande.jpg` | Older student, age finder and about |
+| `personajes/grupo.jpg` | Teacher with three students, manifesto and gallery |
 
 ## Generated illustrations
 

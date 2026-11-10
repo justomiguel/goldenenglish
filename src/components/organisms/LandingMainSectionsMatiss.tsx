@@ -58,12 +58,15 @@ export function LandingMainSectionsMatiss({
           locale={locale}
           links={links}
           images={{
-            heroWeb: resolveLandingImageSrcForTheme("matiss", "inicio", "1.jpg", mediaMap),
+            heroWeb: resolveLandingImageSrcForTheme("matiss", "inicio", "2.jpg", mediaMap),
+            manifesto: resolveLandingImageSrcForTheme("matiss", "modalidades", "1.jpg", mediaMap),
+            ageSmall: resolveLandingImageSrcForTheme("matiss", "niveles", "1.jpg", mediaMap),
+            ageBig: resolveLandingImageSrcForTheme("matiss", "niveles", "2.jpg", mediaMap),
             about: resolveLandingImageSrcForTheme("matiss", "historia", "1.jpg", mediaMap),
             classes: [1, 2, 3, 4].map((n) =>
               resolveLandingImageSrcForTheme("matiss", "oferta", `${n}.jpg`, mediaMap),
             ),
-            gallery: [1, 2, 3, 4].map((n) =>
+            gallery: [1, 2, 3].map((n) =>
               resolveLandingImageSrcForTheme("matiss", "certificaciones", `${n}.jpg`, mediaMap),
             ),
           }}

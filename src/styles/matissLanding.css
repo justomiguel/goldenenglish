@@ -63,6 +63,114 @@
   to { stroke-dashoffset: 0; }
 }
 
+.matiss-star {
+  position: absolute;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  background: var(--matiss-pink);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.matiss-star-1 { top: 4%; right: 12%; }
+.matiss-star-2 { top: 22%; left: 0; width: 8px; height: 8px; }
+.matiss-star-3 { bottom: 10%; right: 4%; width: 9px; height: 9px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .matiss-rise {
+    animation: matiss-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .matiss-title-line:nth-child(1) { animation-delay: 80ms; }
+  .matiss-title-line:nth-child(2) { animation-delay: 160ms; }
+  .matiss-hero-lead { animation-delay: 240ms; }
+
+  .matiss-float {
+    animation: matiss-float 7s ease-in-out infinite;
+  }
+
+  .matiss-star {
+    animation: matiss-twinkle 4s ease-in-out infinite;
+  }
+
+  .matiss-star-2 { animation-delay: 1.3s; }
+  .matiss-star-3 { animation-delay: 2.6s; }
+
+  .matiss-reveal--wait {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  .matiss-reveal--in {
+    opacity: 1;
+    transform: none;
+    transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .matiss-reveal--in .matiss-stagger > * {
+    animation: matiss-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .matiss-reveal--in .matiss-stagger > :nth-child(2) { animation-delay: 70ms; }
+  .matiss-reveal--in .matiss-stagger > :nth-child(3) { animation-delay: 140ms; }
+  .matiss-reveal--in .matiss-stagger > :nth-child(4) { animation-delay: 210ms; }
+
+  .matiss-reveal--in .matiss-manifesto-photo {
+    animation: matiss-photo-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .matiss-reveal--in .matiss-line {
+    transform-origin: left center;
+    animation: matiss-line 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .matiss-age-photo {
+    animation: matiss-age-in 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@keyframes matiss-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes matiss-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes matiss-twinkle {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+@keyframes matiss-photo-in {
+  from { transform: scale(1.04); }
+  to { transform: scale(1); }
+}
+
+@keyframes matiss-line {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes matiss-age-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .matiss-arc { stroke-dashoffset: 0; }
+  .matiss-rise,
+  .matiss-float,
+  .matiss-star,
+  .matiss-age-photo,
+  .matiss-manifesto-photo,
+  .matiss-line,
+  .matiss-reveal--wait,
+  .matiss-reveal--in {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }

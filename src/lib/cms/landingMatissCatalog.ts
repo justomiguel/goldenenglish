@@ -19,6 +19,9 @@ export const MATISS_LANDING_COPY_KEYS_BY_SECTION: Readonly<
     "matiss.register.shellLead",
   ],
   historia: [
+    "matiss.manifiesto.title",
+    "matiss.manifiesto.body",
+    "matiss.manifiesto.alt",
     "matiss.sobreNosotros.title",
     "matiss.sobreNosotros.bodyP1",
     "matiss.sobreNosotros.bodyP2",
@@ -46,6 +49,8 @@ export const MATISS_LANDING_COPY_KEYS_BY_SECTION: Readonly<
   niveles: [
     "matiss.edad.sectionTitle",
     "matiss.edad.lead",
+    "matiss.edad.photoAltSmall",
+    "matiss.edad.photoAltBig",
     "matiss.horarios.sectionTitle",
   ],
   certificaciones: [
@@ -57,10 +62,10 @@ export const MATISS_LANDING_COPY_KEYS_BY_SECTION: Readonly<
 };
 
 export const MATISS_MEDIA_SLOTS_BY_SECTION: Readonly<Record<LandingSectionSlug, number>> = {
-  inicio: 1,
+  inicio: 2,
   historia: 1,
   oferta: 4,
-  modalidades: 0,
-  niveles: 0,
-  certificaciones: 4,
+  modalidades: 1,
+  niveles: 2,
+  certificaciones: 3,
 };

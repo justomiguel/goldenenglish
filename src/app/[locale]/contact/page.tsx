@@ -75,7 +75,7 @@ export default async function PublicContactPage({ params }: PageProps) {
     ) : templateKind === "liora" ? (
       <PublicContactScreenLiora locale={locale} dict={dict} brand={brand} sessionEmail={sessionEmail} />
     ) : templateKind === "matiss" ? (
-      <PublicContactScreenMatiss locale={locale} dict={dict} brand={brand} sessionEmail={sessionEmail} />
+      <PublicContactScreenMatiss locale={locale} dict={dict} brand={brand} mediaMap={mediaMap} sessionEmail={sessionEmail} />
     ) : (
       <PublicContactScreenClassic locale={locale} dict={dict} brand={brand} sessionEmail={sessionEmail} />
     );

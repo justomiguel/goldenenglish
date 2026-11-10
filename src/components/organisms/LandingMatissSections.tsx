@@ -1,16 +1,22 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { MATISS_GROUPS } from "@/lib/landing/matissSchedule";
 import { MatissAgeFinder } from "@/components/organisms/MatissAgeFinder";
+import { MatissReveal } from "@/components/molecules/MatissReveal";
 import { LandingMatissFooter } from "@/components/organisms/LandingMatissFooter";
+import { LandingMatissHero } from "@/components/organisms/LandingMatissHero";
+import { LandingMatissManifesto } from "@/components/organisms/LandingMatissManifesto";
+import { LandingMatissContact } from "@/components/organisms/LandingMatissContact";
 import { landingRegisterCtasFromDict } from "@/lib/settings/landingRegisterCtasFromDict";
 import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 export interface LandingMatissImages {
   heroWeb: string;
+  manifesto: string;
+  ageSmall: string;
+  ageBig: string;
   about: string;
   classes: readonly string[];
   gallery: readonly string[];
@@ -43,32 +49,25 @@ export function LandingMatissSections({
 
   return (
     <>
-      <section className="matiss-hero" aria-labelledby="matiss-hero-title">
-        <div className="mx-auto grid max-w-6xl items-center gap-8 px-[max(1.5rem,env(safe-area-inset-left))] py-16 pe-[max(1.5rem,env(safe-area-inset-right))] md:grid-cols-2 md:py-24">
-          <div>
-            <p className="text-sm font-semibold text-[var(--matiss-rose-deep)]">{t("hero.kicker")}</p>
-            <h1 id="matiss-hero-title" className="matiss-display mt-3 text-5xl leading-[1.05] text-[var(--matiss-ink)] md:text-6xl">
-              {t("hero.title")}
-            </h1>
-            <p className="mt-5 max-w-md text-lg text-[var(--matiss-ink-soft)]">{t("hero.subtitle")}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              {primary ? (
-                <Link href={primary.href} className="inline-flex min-h-[48px] items-center rounded-full bg-[var(--matiss-violet-deep)] px-7 text-sm font-semibold text-white hover:bg-[var(--matiss-violet-hover)]">
-                  {t("hero.ctaPrimary")}
-                </Link>
-              ) : null}
-              <Link href={`/${locale}#horarios`} className="inline-flex min-h-[48px] items-center rounded-full border border-[var(--matiss-violet-deep)] px-7 text-sm font-semibold text-[var(--matiss-violet-deep)]">
-                {t("hero.ctaSecondary")}
-              </Link>
-            </div>
-          </div>
-          <div className="relative">
-            <Image src={images.heroWeb} alt="" width={1600} height={900} priority className="hidden w-full rounded-[40%_60%_55%_45%] object-cover md:block" />
-            <Image src="/images/matiss/ilustraciones/hero-pwa.jpg" alt="" width={900} height={1600} priority className="w-full rounded-[45%_45%_40%_60%] object-cover md:hidden" />
-          </div>
-        </div>
-      </section>
+      <LandingMatissHero
+        kicker={t("hero.kicker")}
+        title={t("hero.title")}
+        subtitle={t("hero.subtitle")}
+        primaryHref={primary?.href}
+        primaryLabel={t("hero.ctaPrimary")}
+        secondaryHref={`/${locale}#horarios`}
+        secondaryLabel={t("hero.ctaSecondary")}
+        photoSrc={images.heroWeb}
+      />
 
+      <LandingMatissManifesto
+        title={t("manifiesto.title")}
+        body={t("manifiesto.body")}
+        alt={t("manifiesto.alt")}
+        src={images.manifesto}
+      />
+
+      <MatissReveal preset="section">
       <section id="sobre" className="scroll-mt-24 px-[max(1.5rem,env(safe-area-inset-left))] py-20 pe-[max(1.5rem,env(safe-area-inset-right))]">
         <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2">
           <Image src={images.about} alt={t("galeria.sectionTitle")} width={1200} height={900} className="w-full rounded-[48px] object-cover" />
@@ -83,12 +82,14 @@ export function LandingMatissSections({
           </div>
         </div>
       </section>
+      </MatissReveal>
 
+      <MatissReveal preset="steps">
       <section id="clases" className="scroll-mt-24 bg-[var(--matiss-lavender)] px-[max(1.5rem,env(safe-area-inset-left))] py-20 pe-[max(1.5rem,env(safe-area-inset-right))]">
         <div className="mx-auto max-w-6xl">
           <h2 className="matiss-display text-4xl text-[var(--matiss-ink)] md:text-5xl">{t("clases.sectionTitle")}</h2>
           <p className="mt-3 text-[var(--matiss-ink-soft)]">{t("clases.lead")}</p>
-          <ol className="mt-10 grid gap-8 md:grid-cols-4">
+          <ol className="matiss-stagger mt-10 grid gap-8 md:grid-cols-4">
             {CLASS_STEPS.map((step, index) => (
               <li key={step}>
                 <Image src={images.classes[index] ?? images.classes[0]} alt="" width={600} height={600} className="h-40 w-full rounded-3xl object-cover" />
@@ -99,7 +100,9 @@ export function LandingMatissSections({
           </ol>
         </div>
       </section>
+      </MatissReveal>
 
+      <MatissReveal preset="section">
       <section id="horarios" className="scroll-mt-24 px-[max(1.5rem,env(safe-area-inset-left))] py-20 pe-[max(1.5rem,env(safe-area-inset-right))]">
         <div className="mx-auto max-w-6xl">
           <MatissAgeFinder
@@ -108,6 +111,10 @@ export function LandingMatissSections({
             yearsLabel={t("edad.years")}
             emptyLabel={t("edad.empty")}
             dayLabel={t("horarios.day")}
+            photoSmall={images.ageSmall}
+            photoBig={images.ageBig}
+            photoAltSmall={t("edad.photoAltSmall")}
+            photoAltBig={t("edad.photoAltBig")}
             locationNames={{ sanMiguel: t("sedes.sanMiguel.name"), laFlorida: t("sedes.laFlorida.name") }}
             groupNames={{
               "babys-san-miguel": "Babys",
@@ -138,6 +145,7 @@ export function LandingMatissSections({
           </table>
         </div>
       </section>
+      </MatissReveal>
 
       <section id="sedes" className="scroll-mt-24 bg-[var(--matiss-lavender)] px-[max(1.5rem,env(safe-area-inset-left))] py-20 pe-[max(1.5rem,env(safe-area-inset-right))]">
         <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-2">
@@ -159,33 +167,30 @@ export function LandingMatissSections({
         </div>
       </section>
 
+      <MatissReveal preset="steps">
       <section id="galeria" className="scroll-mt-24 px-[max(1.5rem,env(safe-area-inset-left))] py-20 pe-[max(1.5rem,env(safe-area-inset-right))]">
         <div className="mx-auto max-w-6xl">
           <h2 className="matiss-display text-4xl text-[var(--matiss-ink)]">{t("galeria.sectionTitle")}</h2>
-          <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="matiss-stagger mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
             {images.gallery.map((src) => (
               <Image key={src} src={src} alt={t("galeria.sectionTitle")} width={600} height={750} className="h-56 w-full rounded-3xl object-cover md:h-72" />
             ))}
           </div>
         </div>
       </section>
+      </MatissReveal>
 
-      <section id="contacto" className="scroll-mt-24 px-[max(1.5rem,env(safe-area-inset-left))] py-20 text-center pe-[max(1.5rem,env(safe-area-inset-right))]">
-        <h2 className="matiss-display text-4xl text-[var(--matiss-ink)] md:text-5xl">{t("cta.title")}</h2>
-        <p className="mx-auto mt-4 max-w-xl text-[var(--matiss-ink-soft)]">{t("cta.subtitle")}</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          {primary ? (
-            <Link href={primary.href} className="inline-flex min-h-[48px] items-center rounded-full bg-[var(--matiss-violet-deep)] px-7 text-sm font-semibold text-white hover:bg-[var(--matiss-violet-hover)]">
-              {t("cta.button")}
-            </Link>
-          ) : null}
-          {brand.socialWhatsapp ? (
-            <a href={brand.socialWhatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[48px] items-center rounded-full border border-[var(--matiss-rose-deep)] px-7 text-sm font-semibold text-[var(--matiss-rose-deep)]">
-              WhatsApp
-            </a>
-          ) : null}
-        </div>
-      </section>
+      <LandingMatissContact
+        locale={locale}
+        dict={dict}
+        title={t("cta.title")}
+        subtitle={t("cta.subtitle")}
+        photoSrc={images.about}
+        photoAlt={t("edad.photoAltBig")}
+        whatsappHref={brand.socialWhatsapp}
+        primaryHref={primary?.href}
+        primaryLabel={t("cta.button")}
+      />
 
       <LandingMatissFooter dict={dict} brand={brand} locale={locale} links={links} />
     </>

@@ -4245,22 +4245,27 @@
         "shellLead": "Conte a idade da sua filha e escrevemos para combinar o sábado."
       },
       "hero": {
-        "kicker": "Ginástica acrobática para meninas",
-        "title": "Chega com vergonha. Sai fazendo a estrelinha.",
-        "subtitle": "Dos 3 aos 13 anos, em San Miguel e La Florida.",
+        "kicker": "Ginástica acrobática para meninas de 3 a 13 anos",
+        "title": "Primeiro ela se alonga. Depois, ela se atreve.",
+        "subtitle": "Sábados em San Miguel e La Florida. Grupos pequenos e uma professora ao lado em cada tentativa.",
         "ctaPrimary": "Agende uma aula experimental",
-        "ctaSecondary": "Ver horários"
+        "ctaSecondary": "Encontre o grupo dela"
+      },
+      "manifiesto": {
+        "title": "Mais que ensinar, acompanhar.",
+        "body": "Uma menina não aprende a ponte porque alguém explica. Ela aprende quando alguém segura as costas dela na primeira vez e solta quando ela já consegue sozinha.",
+        "alt": "Ilustração da professora abraçando três alunas, sentadas de costas."
       },
       "sobreNosotros": {
         "kicker": "O estúdio",
-        "title": "Um sábado que se espera a semana toda",
-        "bodyP1": "Na Matiss Studio as meninas aprendem acrobacia de solo: estrelinhas, pontes, equilíbrios e o primeiro salto. Cada exercício é mostrado, tentado e comemorado.",
-        "bodyP2": "Valentina Tapia Carrasco conduz as aulas. A disciplina serve para tentar de novo, a diversão para querer voltar e a confiança para mostrar em casa."
+        "title": "Valentina abre a sala todo sábado",
+        "bodyP1": "Elas chegam com o cabelo preso e um pouco de nervoso. Em dez minutos já estão no chão, rindo, tentando a primeira ponte.",
+        "bodyP2": "Valentina Tapia Carrasco olha para cada uma. Corrige uma mão, aplaude uma tentativa e pede mais uma vez. Assim crescem a disciplina, a diversão e a confiança."
       },
       "clases": {
         "kicker": "Uma aula",
-        "sectionTitle": "Assim é um sábado",
-        "lead": "A aula dura entre uma hora e uma hora e meia.",
+        "sectionTitle": "Uma hora na sala",
+        "lead": "Entre uma hora e uma hora e meia. Ninguém fica só olhando de lado.",
         "steps": [
           {
             "title": "Chegada e aquecimento",
@@ -4282,8 +4287,10 @@
       },
       "edad": {
         "kicker": "Encontre o grupo dela",
-        "sectionTitle": "Escolha a idade",
-        "lead": "Mostramos o grupo, o horário e a unidade.",
+        "sectionTitle": "Quantos anos ela tem?",
+        "lead": "Escolha a idade e mostramos o grupo, o horário e a unidade.",
+        "photoAltSmall": "Ilustração de uma aluna pequena alongando na sala.",
+        "photoAltBig": "Ilustração de uma aluna maior em um alongamento.",
         "years": "anos",
         "empty": "A Matiss recebe meninas de 3 a 13 anos."
       },
@@ -4312,12 +4319,12 @@
       },
       "galeria": {
         "kicker": "Galeria",
-        "sectionTitle": "Dentro da sala",
+        "sectionTitle": "Um sábado qualquer",
         "verMas": "Ver foto"
       },
       "cta": {
         "title": "O próximo sábado pode ser o primeiro",
-        "subtitle": "Envie a idade da sua filha e sugerimos o grupo.",
+        "subtitle": "Traga roupa confortável e vontade. Nós levamos o colchonete e dizemos em qual grupo ela começa.",
         "button": "Agende uma aula experimental"
       },
       "footer": {
