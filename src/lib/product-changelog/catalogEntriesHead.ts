@@ -177,9 +177,9 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "Mozarthitos guia a família até a turma",
     ),
     summary: t(
-      "Encuentra tu clase pregunta la edad y la modalidad, y deja esa elección en la inscripción.",
-      "Find your class asks the age and the format, and keeps that choice on the registration.",
-      "Encontra a sua turma pergunta a idade e a modalidade, e guarda essa escolha na inscrição.",
+      "El inicio tiene un botón amarillo, Vive la experiencia. Abre la guía y la guía termina en la preinscripción.",
+      "The home has one yellow button, Live the experience. It opens the guide, and the guide ends on the pre-registration form.",
+      "O início tem um botão amarelo, Viva a experiência. Abre o guia e o guia termina na pré-inscrição.",
     ),
   },
   {

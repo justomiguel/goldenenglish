@@ -1,5 +1,6 @@
-import { render } from "@testing-library/react";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { beforeAll, describe, expect, it } from "vitest";
+import { LandingMozarthitosCursosSection } from "@/components/organisms/LandingMozarthitosCursosSection";
 import dictEs from "@/dictionaries/es.json";
 import type { Dictionary } from "@/types/i18n";
 
@@ -13,19 +14,15 @@ beforeAll(() => {
   }
 });
 
-vi.mock("next/image", () => ({
-  // eslint-disable-next-line @next/next/no-img-element
-  default: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />,
-}));
-
-import { LandingMozarthitosCursosSection } from "@/components/organisms/LandingMozarthitosCursosSection";
-
 const dict = dictEs as Dictionary;
 
 describe("LandingMozarthitosCursosSection", () => {
-  it("sends the online CTA to the guide with remote preselected", () => {
-    const { container } = render(<LandingMozarthitosCursosSection dict={dict} locale="es" imgOferta={(f) => `/img/${f}`} />);
-    const link = container.querySelector('a[href="/es/encuentra-tu-clase?modalidad=remote"]');
-    expect(link).toBeTruthy();
+  it("does not add a second call to action next to the course copy", () => {
+    render(
+      <LandingMozarthitosCursosSection dict={dict} locale="es" imgOferta={(file) => `/img/${file}`} />,
+    );
+
+    expect(screen.queryByRole("link", { name: "Modalidad Online" })).toBeNull();
+    expect(screen.queryByRole("link")).toBeNull();
   });
 });
