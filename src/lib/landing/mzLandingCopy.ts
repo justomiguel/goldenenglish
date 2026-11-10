@@ -1,6 +1,6 @@
 import type { Dictionary } from "@/types/i18n";
 
-export type MarketingLandingBrand = "mz" | "ez" | "nago" | "mm" | "liora";
+export type MarketingLandingBrand = "mz" | "ez" | "nago" | "mm" | "liora" | "matiss";
 
 /** Reads `dict.landing.<brand>.<dotted path>` as a string. */
 export function marketingLandingCopy(

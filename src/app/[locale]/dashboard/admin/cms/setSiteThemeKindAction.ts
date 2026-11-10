@@ -4,19 +4,26 @@ import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { setSiteThemeKindInputSchema } from "@/lib/cms/siteThemeBlocksInputSchemas";
 import { carryGenericLandingContent } from "@/lib/landing/carryGenericLandingContent";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { logSupabaseError } from "@/lib/logging/serverActionLog";
+import { logServerWarn, logSupabaseError } from "@/lib/logging/serverActionLog";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
+import { canTenantUseThemeKind } from "@/lib/theme/exclusiveThemeKinds";
 import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import type { SiteThemeContent } from "@/types/theming";
 import {
   fetchSiteThemeById,
   resolveAdminContext,
   revalidateSiteThemeSurfaces,
+  type SiteThemeActionErrorCode,
   type SiteThemeActionResult,
 } from "./siteThemeActionShared";
 
+export type SetSiteThemeKindResult =
+  | Extract<SiteThemeActionResult, { ok: true }>
+  | { ok: false; code: SiteThemeActionErrorCode | "kind_not_available" };
+
 export async function setSiteThemeKindAction(
   raw: unknown,
-): Promise<SiteThemeActionResult> {
+): Promise<SetSiteThemeKindResult> {
   const ctx = await resolveAdminContext();
   if (!ctx.ok) return { ok: false, code: ctx.code };
   const parsed = setSiteThemeKindInputSchema.safeParse(raw);
@@ -28,6 +35,17 @@ export async function setSiteThemeKindAction(
 
   const fromKind = typeof existing.template_kind === "string" ? existing.template_kind : null;
   const toKind = parsed.data.kind;
+  const tenant = await resolveRequestTenant();
+  const tenantSlug = tenant?.slug ?? null;
+  if (!canTenantUseThemeKind(toKind, tenantSlug)) {
+    await logServerWarn("cms.setSiteThemeKind", {
+      code: "kind_not_available",
+      themeId: parsed.data.id,
+      toKind,
+      tenantSlug,
+    });
+    return { ok: false, code: "kind_not_available" };
+  }
   const carried =
     isGenericInstituteKind(fromKind) && isGenericInstituteKind(toKind)
       ? carryGenericLandingContent(

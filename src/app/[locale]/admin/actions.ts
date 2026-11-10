@@ -7,6 +7,7 @@ import {
   logSupabaseError,
 } from "@/lib/logging/serverActionLog";
 import { probeSingleTenantConnection } from "@/lib/pulsar/loadPulsarFleetTelemetry";
+import { activateExclusiveThemeOnSave } from "@/lib/pulsar/activateExclusiveThemeOnSave";
 import { finishStaffTenantSave } from "@/lib/pulsar/finishStaffTenantSave";
 import { getPulsarStaffSession, type PulsarStaffSession } from "@/lib/pulsar/pulsarStaffAuth";
 import { mapPulsarTenantToDbPayload } from "@/lib/pulsar/pulsarTenantMapper";
@@ -84,6 +85,7 @@ export async function savePulsarTenantAction(args: {
     const record = validated.value;
     const prepared = await prepareInstituteDataPlane(record);
     if (!prepared.ok) return prepared;
+    await activateExclusiveThemeOnSave(record);
     if (isPulsarSupabaseConfigured()) {
       const admin = createPulsarAdminClient();
       const dbRow = mapPulsarTenantToDbPayload(record);

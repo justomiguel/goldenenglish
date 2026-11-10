@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PulsarTemplateCatalog } from "@/components/organisms/pulsar/PulsarTemplateCatalog";
 import es from "@/dictionaries/es.json";
 import { buildPulsarTemplateCatalogCards } from "@/lib/pulsar/pulsarTemplateCatalog";
+import { isExclusiveThemeKind } from "@/lib/theme/exclusiveThemeKinds";
 import { GENERIC_INSTITUTE_KINDS } from "@/lib/theme/genericInstituteTemplates";
 import type { Dictionary } from "@/types/i18n";
 
@@ -33,6 +34,7 @@ describe("PulsarTemplateCatalog", () => {
       expect(screen.getByRole("heading", { level: 2, name })).toBeInTheDocument();
       const link = screen.getByRole("link", { name: `Abrir ${name}` });
       expect(link).toHaveAttribute("href", expect.stringContaining(`/es/plantilla/${kind}`));
+      expect(isExclusiveThemeKind(kind)).toBe(false);
     }
   });
 });

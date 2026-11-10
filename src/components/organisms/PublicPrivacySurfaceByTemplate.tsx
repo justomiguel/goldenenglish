@@ -11,6 +11,9 @@ import { PublicContentLanguageFooter } from "@/components/molecules/PublicConten
 import { PublicPrivacyArticle } from "@/components/organisms/PublicPrivacyArticle";
 import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
 import { LioraFontRoot } from "@/components/organisms/LioraFontRoot";
+import { MatissFontRoot } from "@/components/organisms/MatissFontRoot";
+import { MatissSiteHeader } from "@/components/organisms/MatissSiteHeader";
+import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { MiMundoFontRoot } from "@/components/organisms/MiMundoFontRoot";
 import { MozarthitosFontRoot } from "@/components/organisms/MozarthitosFontRoot";
 import { EspacioZenitFontRoot } from "@/components/organisms/EspacioZenitFontRoot";
@@ -87,6 +90,24 @@ export function PublicPrivacySurfaceByTemplate({
         />
         {footer("dark", "compactDark")}
       </NagoFontRoot>
+    );
+  }
+  if (templateKind === "matiss") {
+    return (
+      <MatissFontRoot className="relative min-h-screen pb-16">
+        <MatissSiteHeader
+          locale={locale}
+          logoSrc={logoSrc}
+          logoAlt={logoAlt}
+          dict={dict}
+          sessionEmail={sessionEmail}
+          links={[{ href: `/${locale}`, label: marketingLandingCopy(dict, "matiss", "nav.inicio") }]}
+          openMenu={marketingLandingCopy(dict, "matiss", "chrome.openMenu")}
+          closeMenu={marketingLandingCopy(dict, "matiss", "chrome.closeMenu")}
+        />
+        <PrivacyMain locale={locale} dict={dict} brand={brand} sheetClass="mx-auto max-w-3xl" />
+        {footer("light")}
+      </MatissFontRoot>
     );
   }
   if (templateKind === "liora") {

@@ -7,6 +7,7 @@ export const MARKETING_FULL_BLEED_LANDING_KINDS = [
   "nago",
   "mimundo",
   "liora",
+  "matiss",
 ] as const satisfies ReadonlyArray<SiteThemeKind>;
 
 export function isMarketingFullBleedLandingKind(
@@ -25,6 +26,7 @@ export function marketingLandingSuppressesShellFooter(
     kind === "espaciozenit" ||
     kind === "nago" ||
     kind === "mimundo" ||
-    kind === "liora"
+    kind === "liora" ||
+    kind === "matiss"
   );
 }

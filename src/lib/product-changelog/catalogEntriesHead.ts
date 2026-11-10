@@ -3,6 +3,66 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "matiss-studio-landing",
+    date: "2026-11-09",
+    area: "site",
+    title: t(
+      "Matiss Studio tiene su propia landing",
+      "Matiss Studio has its own landing",
+      "Matiss Studio tem a própria landing",
+    ),
+    summary: t(
+      "Muestra las sedes, los horarios del sábado y la clase de prueba. La plantilla solo aparece al crear el slug matiss.",
+      "It shows the locations, the Saturday times, and the trial class. The template appears only when you create the matiss slug.",
+      "Mostra as unidades, os horários de sábado e a aula experimental. O modelo aparece só ao criar o slug matiss.",
+    ),
+  },
+  {
+    id: "institute-backup-restore",
+    date: "2026-11-09",
+    area: "admin",
+    title: t(
+      "Puedes guardar y restaurar un instituto",
+      "You can save and restore an institute",
+      "Você pode guardar e restaurar um instituto",
+    ),
+    summary: t(
+      "CentroListo descarga un archivo cifrado del instituto. Si el sitio se cierra, ese archivo lo crea de nuevo.",
+      "CentroListo downloads an encrypted file of the institute. If the site is closed, that file creates it again.",
+      "O CentroListo baixa um arquivo cifrado do instituto. Se o site fecha, esse arquivo cria o instituto de novo.",
+    ),
+  },
+  {
+    id: "exclusive-theme-picker",
+    date: "2026-11-09",
+    area: "cms",
+    title: t(
+      "Las plantillas exclusivas quedan en su instituto",
+      "Exclusive templates stay with their institute",
+      "Os modelos exclusivos ficam no instituto",
+    ),
+    summary: t(
+      "El selector de estilo ya no muestra la plantilla de otro instituto.",
+      "The style picker no longer shows another institute's template.",
+      "O seletor de estilo não mostra mais o modelo de outro instituto.",
+    ),
+  },
+  {
+    id: "mozarthitos-family-guide",
+    date: "2026-11-09",
+    area: "site",
+    title: t(
+      "Las familias encuentran su clase en Mozarthitos",
+      "Families find their class at Mozarthitos",
+      "As famílias encontram a aula no Mozarthitos",
+    ),
+    summary: t(
+      "Dos preguntas llevan a la clase presencial, a la clase en línea o al pack. La inscripción guarda esa elección.",
+      "Two questions lead to the in-person class, the live class, or the pack. The registration stores that choice.",
+      "Duas perguntas levam à aula presencial, à aula ao vivo ou ao pack. A inscrição guarda essa escolha.",
+    ),
+  },
+  {
     id: "registrations-config-tab",
     date: "2026-11-09",
     area: "registrations",
@@ -180,36 +240,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "Crear mi página gratis es la acción del home. El país se elige con banderas y el menú marca la página actual.",
       "Create my free page is the home action. The country is chosen with flags, and the menu marks the current page.",
       "Criar minha página grátis é a ação da home. O país se escolhe com bandeiras e o menu marca a página atual.",
-    ),
-  },
-  {
-    id: "staff-cash-payments",
-    date: "2026-11-06",
-    area: "finance",
-    title: t(
-      "El equipo registra pagos en efectivo",
-      "Staff can record cash payments",
-      "A equipe registra pagamentos em dinheiro",
-    ),
-    summary: t(
-      "Matrícula y mensualidad guardan el medio y la fecha. La familia ve cómo se pagó.",
-      "Enrollment fee and monthly fee store the method and the date. The family sees how it was paid.",
-      "A matrícula e a mensalidade guardam o meio e a data. A família vê como foi pago.",
-    ),
-  },
-  {
-    id: "register-section-assignment-mode",
-    date: "2026-11-06",
-    area: "registrations",
-    title: t(
-      "Inscripciones puede dejar la sección para el admin",
-      "Registrations can leave the section for staff",
-      "As inscrições podem deixar a seção para a equipe",
-    ),
-    summary: t(
-      "En Ajustes eliges si el alumno elige la sección, si va la primera con cupo, o si la inscripción llega sin sección.",
-      "In Settings, choose student choice, the first open section, or no section until accept.",
-      "Em Ajustes você escolhe se o aluno escolhe a seção, se vai a primeira com vaga, ou se a inscrição chega sem seção.",
     ),
   },
 ];

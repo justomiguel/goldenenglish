@@ -68,4 +68,12 @@ describe("LandingMozarthitosSections hero LCP", () => {
     expect(portrait).toBeTruthy();
     expect(portrait).not.toHaveAttribute("data-priority", "true");
   });
+
+  it("links the hero secondary CTA to the family guide", () => {
+    const { getByRole } = render(<LandingMozarthitosSections dict={dict} locale="es" />);
+    expect(getByRole("link", { name: dict.landing.mz.guide.entryCta })).toHaveAttribute(
+      "href",
+      "/es/encuentra-tu-clase",
+    );
+  });
 });

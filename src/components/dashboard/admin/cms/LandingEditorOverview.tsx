@@ -4,6 +4,7 @@ import type { LandingEditorOverviewItem } from "@/lib/cms/buildLandingEditorView
 import type { Dictionary } from "@/types/i18n";
 import type { SiteThemeRow } from "@/types/theming";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
+import { themeKindsForTenant } from "@/lib/theme/exclusiveThemeKinds";
 import { GENERIC_INSTITUTE_KINDS, isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import { LandingTemplateKindPicker } from "./LandingTemplateKindPicker";
 
@@ -16,6 +17,8 @@ export interface LandingEditorOverviewProps {
   sections: ReadonlyArray<LandingEditorOverviewItem>;
   backHref?: string;
   sectionBaseHref?: string;
+  /** Null when the deploy has no tenant registry. The route slug on CentroListo. */
+  tenantSlug?: string | null;
 }
 
 function formatSummary(template: string, count: number, total: number): string {
@@ -31,6 +34,7 @@ export function LandingEditorOverview({
   sections,
   backHref,
   sectionBaseHref,
+  tenantSlug = null,
 }: LandingEditorOverviewProps) {
   const back = backHref ?? `/${locale}/dashboard/admin/cms/templates`;
   const sectionBase =
@@ -56,7 +60,11 @@ export function LandingEditorOverview({
         themeId={theme.id}
         current={theme.templateKind}
         labels={labels.kindPicker}
-        kinds={isGenericInstituteKind(theme.templateKind) ? GENERIC_INSTITUTE_KINDS : undefined}
+        kinds={
+          isGenericInstituteKind(theme.templateKind)
+            ? GENERIC_INSTITUTE_KINDS
+            : themeKindsForTenant(tenantSlug, theme.templateKind)
+        }
       />
 
       {sectionBaseHref ? null : (

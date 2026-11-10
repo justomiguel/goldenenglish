@@ -15,6 +15,7 @@ import { PublicBlogScreenMozarthitos } from "@/components/organisms/PublicBlogSc
 import { PublicBlogScreenNago } from "@/components/organisms/PublicBlogScreenNago";
 import { PublicBlogScreenMiMundo } from "@/components/organisms/PublicBlogScreenMiMundo";
 import { PublicBlogScreenLiora } from "@/components/organisms/PublicBlogScreenLiora";
+import { PublicBlogScreenMatiss } from "@/components/organisms/PublicBlogScreenMatiss";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
 import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
 import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
@@ -85,6 +86,9 @@ export async function PublicBlogPageShell({ locale, children }: PublicBlogPageSh
     }
     if (templateKind === "liora") {
       return <PublicBlogScreenLiora {...shellProps} />;
+    }
+    if (templateKind === "matiss") {
+      return <PublicBlogScreenMatiss {...shellProps} />;
     }
     return <PublicBlogScreenClassic {...shellProps} />;
   })();

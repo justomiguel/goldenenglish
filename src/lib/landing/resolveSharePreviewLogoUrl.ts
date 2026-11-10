@@ -10,6 +10,7 @@ const CANDIDATES: Record<SharePreviewBundleKey, readonly string[]> = {
   nago: ["/images/nago/logo/logo.png", "/images/nago/inicio/1.png"],
   mimundo: ["/images/mimundo/logo/logo.png"],
   liora: ["/images/liora/logo/logo.png"],
+  matiss: ["/images/matiss/logo/logo.png"],
 };
 
 /**

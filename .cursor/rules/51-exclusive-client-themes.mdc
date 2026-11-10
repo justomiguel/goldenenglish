@@ -1,0 +1,35 @@
+---
+description: Exclusive landings belong to one client. Ask for the intake form before you add a bespoke SiteThemeKind.
+globs:
+  - src/types/theming.ts
+  - src/lib/theme/**
+  - src/lib/pulsar/pulsarTemplateCatalog.ts
+  - src/app/[locale]/dashboard/admin/cms/**
+alwaysApply: false
+---
+
+# Exclusive client themes
+
+## Rule
+
+A landing built for one client is an exclusive theme. Other institutes must not see it in the CMS picker, and CentroListo must not list it in the client catalog.
+
+The owner map is `EXCLUSIVE_THEME_OWNERS` in `src/lib/theme/exclusiveThemeKinds.ts`. Catalog kinds stay in `GENERIC_INSTITUTE_KINDS`. Shared shells are `classic`, `editorial`, and `minimal`.
+
+## When someone asks for a special landing
+
+1. Read `docs/runbooks/exclusive-landing-request.md`.
+2. Ask for the intake form in that runbook. Do not start the theme until the form has a slug, an owner tenant, and a yes on "exclusive".
+3. Follow the runbook order: spec, ADR, enum migration, owner row, landing, `/register` surface, dictionaries, tests.
+4. Do not add the new kind to `GENERIC_INSTITUTE_KINDS` or to `buildPulsarTemplateCatalogCards`.
+
+## Guard
+
+`setSiteThemeKindAction` rejects a foreign exclusive kind with `kind_not_available`. The CMS overview passes `tenantSlug` into `themeKindsForTenant`. A generic institute still sees only `GENERIC_INSTITUTE_KINDS`.
+
+## Checklist
+
+- [ ] Intake form filled, or the request is a catalog template plus a palette?
+- [ ] Owner row added, and the kind is absent from `GENERIC_INSTITUTE_KINDS`?
+- [ ] Picker and server action both use `canTenantUseThemeKind`?
+- [ ] `/register` surface ships in the same change (rule `28`)?

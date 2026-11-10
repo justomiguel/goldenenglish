@@ -4,6 +4,9 @@ import { render, screen } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
+vi.mock("@/components/organisms/MatissFontRoot", () => ({
+  MatissFontRoot: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+}));
 vi.mock("@/components/organisms/NagoFontRoot", () => ({
   NagoFontRoot: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));

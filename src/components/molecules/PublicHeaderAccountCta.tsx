@@ -18,6 +18,8 @@ const LOGIN_CLASS: Record<PublicHeaderAccountTone, string> = {
     "border border-[var(--mm-green)] bg-white text-[var(--mm-green)] hover:bg-[var(--mm-cream)]",
   liora:
     "border border-[var(--liora-rose-deep)] bg-white text-[var(--liora-rose-deep)] hover:bg-[var(--liora-cream)]",
+  matiss:
+    "border border-[var(--color-primary)] bg-white text-[var(--color-primary)] hover:bg-[var(--color-muted)]",
 };
 
 const PORTAL_CLASS: Record<PublicHeaderAccountTone, string> = {
@@ -28,6 +30,8 @@ const PORTAL_CLASS: Record<PublicHeaderAccountTone, string> = {
   nago: "bg-[var(--nago-gold)] text-[var(--nago-ink-on-light)] hover:bg-[var(--nago-gold-soft)]",
   mimundo: "bg-[var(--mm-green)] text-white hover:bg-[var(--mm-blue-dark)]",
   liora: "bg-[var(--liora-rose-deep)] text-white hover:bg-[var(--liora-ink)]",
+  matiss:
+    "bg-[var(--color-primary)] text-[var(--color-primary-foreground)] hover:bg-[var(--color-primary-dark)]",
 };
 
 export interface PublicHeaderAccountCtaProps {

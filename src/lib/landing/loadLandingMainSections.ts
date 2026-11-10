@@ -123,6 +123,9 @@ export async function loadLandingMainSections(
     case "liora":
       return (await import("@/components/organisms/LandingMainSectionsLiora"))
         .LandingMainSectionsLiora as LandingMainSectionComponent;
+    case "matiss":
+      return (await import("@/components/organisms/LandingMainSectionsMatiss"))
+        .LandingMainSectionsMatiss as LandingMainSectionComponent;
     default:
       return (await import("@/components/organisms/LandingMainSections"))
         .LandingMainSections as LandingMainSectionComponent;

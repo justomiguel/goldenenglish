@@ -24542,3 +24542,70 @@ COMMENT ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) IS
 
 REVOKE ALL ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) FROM anon;
 GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO authenticated;
+
+-- ========== 268_site_theme_kind_matiss.sql ==========
+
+-- Exclusive theme for Matiss Studio (tenant slug `matiss`).
+-- The enum value and the seed row live in separate files: Postgres rejects a
+-- new enum value used in the same transaction that adds it.
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_enum e
+    JOIN pg_type t ON t.oid = e.enumtypid
+    WHERE t.typname = 'site_theme_kind' AND e.enumlabel = 'matiss'
+  ) THEN
+    ALTER TYPE public.site_theme_kind ADD VALUE 'matiss';
+  END IF;
+END $$;
+
+-- ========== 269_site_theme_matiss_row.sql ==========
+
+-- Inactive `matiss` theme row. Runs after 268 commits so the enum label exists.
+-- Product SQL on purpose: shared-schema targets skip brand-data files.
+
+INSERT INTO public.site_themes (
+  slug, name, is_active, template_kind, properties, content, blocks, is_system_default
+)
+SELECT
+  'matiss',
+  'Matiss Studio',
+  FALSE,
+  'matiss'::public.site_theme_kind,
+  jsonb_build_object(
+    'app.name', 'Matiss Studio',
+    'app.legal.name', 'Matiss Studio',
+    'app.tagline', 'Gimnasia acrobática para niñas',
+    'app.tagline.en', 'Acrobatic gymnastics for girls',
+    'app.tagline.pt', 'Ginástica acrobática para meninas',
+    'app.legal.registry', 'Matiss Studio',
+    'app.logo.path', '/images/matiss/logo/logo.png',
+    'app.logo.alt', 'Matiss Studio',
+    'app.favicon.path', '/images/matiss/logo/logo.png',
+    'contact.phone', '+56 9 8747 6023',
+    'contact.email', 'valentinatapiacarrasco@gmail.com',
+    'contact.address', 'San Miguel y La Florida, Santiago',
+    'social.instagram', 'https://www.instagram.com/matiss.studio/',
+    'social.whatsapp', 'https://wa.me/56987476023',
+    'color.primary', '#6B4C9E',
+    'color.primary.foreground', '#FFFFFF',
+    'color.secondary', '#A6458E',
+    'color.secondary.foreground', '#FFFFFF',
+    'color.accent', '#F0BEE6',
+    'color.accent.foreground', '#3A2A52',
+    'color.background', '#FCF4F7',
+    'color.surface', '#FFFFFF',
+    'color.foreground', '#3A2A52',
+    'color.muted', '#F0E4F0',
+    'color.muted.foreground', '#665A78',
+    'color.border', '#D8C0E4',
+    'layout.border.radius', '20px'
+  ),
+  '{}'::jsonb,
+  '[]'::jsonb,
+  FALSE
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.site_themes t WHERE t.slug = 'matiss'
+);

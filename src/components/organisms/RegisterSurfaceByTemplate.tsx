@@ -5,6 +5,7 @@ import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollm
 import { RegisterClassicSurface } from "@/components/organisms/RegisterClassicSurface";
 import { RegisterEspacioZenitSurface } from "@/components/organisms/RegisterEspacioZenitSurface";
 import { RegisterLioraSurface } from "@/components/organisms/RegisterLioraSurface";
+import { RegisterMatissSurface } from "@/components/organisms/RegisterMatissSurface";
 import { RegisterMiMundoSurface } from "@/components/organisms/RegisterMiMundoSurface";
 import { RegisterMozarthitosSurface } from "@/components/organisms/RegisterMozarthitosSurface";
 import { RegisterNagoSurface } from "@/components/organisms/RegisterNagoSurface";
@@ -56,6 +57,9 @@ export function RegisterSurfaceByTemplate({
   }
   if (templateKind === "liora") {
     return <RegisterLioraSurface {...withPack} />;
+  }
+  if (templateKind === "matiss") {
+    return <RegisterMatissSurface {...withPack} />;
   }
   return <RegisterClassicSurface {...withPack} />;
 }

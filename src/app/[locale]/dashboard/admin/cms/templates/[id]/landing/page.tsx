@@ -10,6 +10,7 @@ import {
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadLandingEditorOverview } from "@/lib/cms/loadSiteThemeForLandingEditor";
 import { LandingEditorOverview } from "@/components/dashboard/admin/cms/LandingEditorOverview";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -32,7 +33,7 @@ export default async function AdminCmsLandingOverviewPage({ params }: PageProps)
     throw err;
   }
 
-  const dict = await getDictionary(locale);
+  const [dict, tenant] = await Promise.all([getDictionary(locale), resolveRequestTenant()]);
   const labels = dict.admin.cms.templates.landing;
   const viewModel = await loadLandingEditorOverview(supabase, id);
 
@@ -59,6 +60,7 @@ export default async function AdminCmsLandingOverviewPage({ params }: PageProps)
       labels={labels}
       theme={viewModel.theme}
       sections={viewModel.sections}
+      tenantSlug={tenant?.slug ?? null}
     />
   );
 }

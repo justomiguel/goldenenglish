@@ -28,6 +28,10 @@
     {
       "path": "/api/cron/event-seat-holds-cleanup",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/institute-backups-cleanup",
+      "schedule": "20 5 * * *"
     }
   ]
 }

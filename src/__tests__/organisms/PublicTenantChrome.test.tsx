@@ -2,6 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
 
+vi.mock("@/components/organisms/MatissFontRoot", () => ({
+  MatissFontRoot: ({ children }: { children: ReactNode }) => (
+    <div data-testid="matiss-font-root">{children}</div>
+  ),
+}));
 vi.mock("@/components/organisms/NagoFontRoot", () => ({
   NagoFontRoot: ({ children }: { children: ReactNode }) => (
     <div data-testid="nago-font-root">{children}</div>

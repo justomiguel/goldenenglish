@@ -3,12 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   mockAssertAdmin,
+  mockResolveRequestTenant,
   recordSystemAudit,
   revalidatePath,
   updateTag,
   randomUuid,
 } = vi.hoisted(() => ({
   mockAssertAdmin: vi.fn(),
+  mockResolveRequestTenant: vi.fn(),
   recordSystemAudit: vi.fn().mockResolvedValue({ ok: true }),
   revalidatePath: vi.fn(),
   updateTag: vi.fn(),
@@ -24,6 +26,9 @@ vi.mock("@/lib/analytics/server/recordSystemAudit", () => ({
 vi.mock("next/cache", () => ({ revalidatePath, updateTag }));
 vi.mock("next/headers", () => ({
   headers: async () => ({ get: () => null }),
+}));
+vi.mock("@/lib/tenant/tenantRequestContext", () => ({
+  resolveRequestTenant: () => mockResolveRequestTenant(),
 }));
 vi.mock("node:crypto", async () => {
   const actual = await vi.importActual<typeof import("node:crypto")>("node:crypto");
@@ -93,6 +98,7 @@ const baseRow: FakeRow = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockResolveRequestTenant.mockResolvedValue(null);
 });
 
 describe("addLandingBlockAction", () => {
@@ -331,6 +337,34 @@ describe("setSiteThemeKindAction", () => {
       inicio?: Record<string, { es?: string }>;
     };
     expect(content.inicio?.["genericLandings.jardin.title"]?.es).toBe("Título editado");
+  });
+
+  it("rejects an exclusive kind that belongs to another institute", async () => {
+    const supabase = makeSupabase(baseRow);
+    mockAssertAdmin.mockResolvedValue({ supabase, user: { id: "u" } });
+    mockResolveRequestTenant.mockResolvedValue({ slug: "nago" });
+    const result = await setSiteThemeKindAction({
+      locale: "es",
+      id: VALID_ID,
+      kind: "mozarthitos",
+    });
+    expect(result).toEqual({ ok: false, code: "kind_not_available" });
+    expect(supabase.updates).toEqual([]);
+  });
+
+  it("lets the owner switch to its exclusive kind", async () => {
+    const supabase = makeSupabase(baseRow);
+    mockAssertAdmin.mockResolvedValue({ supabase, user: { id: "u" } });
+    mockResolveRequestTenant.mockResolvedValue({ slug: "mozarthitos" });
+    const result = await setSiteThemeKindAction({
+      locale: "es",
+      id: VALID_ID,
+      kind: "mozarthitos",
+    });
+    expect(result).toEqual({ ok: true, id: VALID_ID });
+    expect(supabase.updates[0]).toEqual(
+      expect.objectContaining({ template_kind: "mozarthitos" }),
+    );
   });
 
   it("persists the new kind and emits audit/cache invalidation", async () => {

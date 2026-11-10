@@ -63,6 +63,7 @@ export const SITE_THEME_KINDS = [
   "nago",
   "mimundo",
   "liora",
+  "matiss",
   "deportes",
   "jardin",
   "colegio",

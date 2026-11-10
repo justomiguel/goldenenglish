@@ -6,6 +6,7 @@ import {
   genericStockPath,
   genericTemplateSelectOptions,
   isGenericInstituteKind,
+  staffTemplateSelectOptions,
 } from "@/lib/theme/genericInstituteTemplates";
 
 describe("genericInstituteTemplates", () => {
@@ -22,6 +23,12 @@ describe("genericInstituteTemplates", () => {
     expect(genericTemplateSelectOptions("nago")[0]).toBe("nago");
     expect(genericTemplateSelectOptions("")).toContain(DEFAULT_GENERIC_THEME_SLUG);
     expect(genericTemplateSelectOptions("generic-jardin")).not.toContain("nago");
+  });
+
+  it("offers an exclusive theme only to its owner tenant", () => {
+    expect(staffTemplateSelectOptions("", "matiss")).toContain("matiss");
+    expect(staffTemplateSelectOptions("", "demo")).not.toContain("matiss");
+    expect(staffTemplateSelectOptions("", "matiss")).toContain(DEFAULT_GENERIC_THEME_SLUG);
   });
 
   it("reads the kind from a generic theme slug", () => {

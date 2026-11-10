@@ -102,6 +102,9 @@
       },
       "liora": {
         "shareContext": "Ballet for every age in Santiago: Pre Ballet, children's, youth, and adult classes across three metro-adjacent locations."
+      },
+      "matiss": {
+        "shareContext": "Acrobatic gymnastics for girls aged 3 to 13 in San Miguel and La Florida. Saturday classes and a trial class."
       }
     },
     "homeFallback": "Classes, schedules, and how to join.",
@@ -4220,6 +4223,116 @@
         "whatsappUrl": "https://wa.me/56900000000"
       },
       "footerCta": "Ready to start dancing? Write to us and we'll arrange your trial class."
+    },
+    "matiss": {
+      "chrome": {
+        "openMenu": "Open menu",
+        "closeMenu": "Close menu",
+        "instagramAria": "Matiss Studio on Instagram",
+        "whatsappAria": "Matiss Studio on WhatsApp"
+      },
+      "nav": {
+        "inicio": "Home",
+        "sobreNosotros": "The studio",
+        "clases": "A class",
+        "sedes": "Locations",
+        "horarios": "Schedule",
+        "galeria": "Gallery",
+        "contacto": "Contact"
+      },
+      "register": {
+        "shellTitle": "Book a trial class",
+        "shellLead": "Tell us your daughter's age and we write back to set the Saturday."
+      },
+      "hero": {
+        "kicker": "Acrobatic gymnastics for girls",
+        "title": "She arrives shy. She leaves doing a cartwheel.",
+        "subtitle": "Ages 3 to 13, in San Miguel and La Florida.",
+        "ctaPrimary": "Book a trial class",
+        "ctaSecondary": "See the schedule"
+      },
+      "sobreNosotros": {
+        "kicker": "The studio",
+        "title": "A Saturday they wait for all week",
+        "bodyP1": "At Matiss Studio girls learn floor acrobatics: cartwheels, bridges, balances, and the first jump. Every skill is shown, tried, and cheered.",
+        "bodyP2": "Valentina Tapia Carrasco leads the classes. Discipline means trying again, fun means wanting to come back, and confidence means showing it at home."
+      },
+      "clases": {
+        "kicker": "A class",
+        "sectionTitle": "What a Saturday looks like",
+        "lead": "A class lasts between one hour and ninety minutes.",
+        "steps": [
+          {
+            "title": "Arrival and warm-up",
+            "body": "They greet each other, settle in, and wake the body up with short games."
+          },
+          {
+            "title": "Guided acrobatics",
+            "body": "Cartwheels, bridges, and balances, with the teacher right beside them."
+          },
+          {
+            "title": "Play",
+            "body": "Courses with a ball and stations to repeat what is new."
+          },
+          {
+            "title": "Applause to close",
+            "body": "Each girl hears what she achieved, and they say goodbye."
+          }
+        ]
+      },
+      "edad": {
+        "kicker": "Find her group",
+        "sectionTitle": "Choose her age",
+        "lead": "We show the group, the time, and the location.",
+        "years": "years",
+        "empty": "Matiss welcomes girls from 3 to 13."
+      },
+      "sedes": {
+        "kicker": "Locations",
+        "sectionTitle": "Two neighborhoods, the same Saturday",
+        "lead": "The room address is confirmed when you book the trial class.",
+        "sanMiguel": {
+          "name": "San Miguel",
+          "body": "Two groups back to back: the youngest at noon and the older girls after."
+        },
+        "laFlorida": {
+          "name": "La Florida",
+          "body": "One group in the evening, for girls aged 4 to 7."
+        },
+        "maps": "Get directions"
+      },
+      "horarios": {
+        "kicker": "Schedule",
+        "sectionTitle": "Saturdays",
+        "day": "Saturday",
+        "group": "Group",
+        "ages": "Ages",
+        "time": "Time",
+        "place": "Location"
+      },
+      "galeria": {
+        "kicker": "Gallery",
+        "sectionTitle": "Inside the room",
+        "verMas": "View photo"
+      },
+      "cta": {
+        "title": "Next Saturday can be the first one",
+        "subtitle": "Send us your daughter's age and we suggest the group.",
+        "button": "Book a trial class"
+      },
+      "footer": {
+        "enlacesTitle": "On this page",
+        "sedesTitle": "Locations",
+        "contactoTitle": "Contact",
+        "siguenos": "Instagram",
+        "rightsLine": "All rights reserved."
+      },
+      "contact": {
+        "directorLabel": "Director",
+        "directorName": "Valentina Tapia Carrasco",
+        "directorHandle": "@velenn.tinaa"
+      },
+      "footerCta": "Want to see a class? Write to us and we book the trial."
     }
   },
   "admin": {
@@ -5327,6 +5440,7 @@
               "nago": "Capoeira Nago",
               "mimundo": "Mi Mundo",
               "liora": "Liora Studio",
+              "matiss": "Matiss Studio",
               "deportes": "Sports",
               "jardin": "Kindergarten",
               "colegio": "School",
@@ -9059,7 +9173,38 @@
             "a": "Places are limited, with individual correction."
           }
         ]
-      }
+      },
+        "matiss": {
+          "metaTitle": "Questions about the gymnastics classes",
+          "metaDescription": "Ages 3 to 13, Saturday classes in San Miguel and La Florida, and a trial class.",
+          "items": [
+            {
+              "id": "ages",
+              "q": "What age can she start?",
+              "a": "From 3 to 13. The Babys group starts at 3 in San Miguel and at 4 in La Florida."
+            },
+            {
+              "id": "day",
+              "q": "Which day are the classes?",
+              "a": "Saturdays. San Miguel has two groups back to back, and La Florida has one in the evening."
+            },
+            {
+              "id": "sites",
+              "q": "Where are the locations?",
+              "a": "In San Miguel and La Florida, Santiago. The room address is confirmed when you book."
+            },
+            {
+              "id": "trial",
+              "q": "Can I book a trial class?",
+              "a": "Yes. Write on WhatsApp or Instagram and we set the Saturday."
+            },
+            {
+              "id": "bring",
+              "q": "What should she bring?",
+              "a": "Comfortable clothes and her hair tied back. The first day needs nothing else."
+            }
+          ]
+        }
     }
   },
   "privacy": {
@@ -17408,6 +17553,51 @@
           "schema_provision_failed": "The institute schema was not created. Check the server log and try again.",
           "invalid_mail_quota": "The mail cap must be a whole number from 0 to 100000.",
           "invalid_daily_domain": "Enter a Daily host without a scheme or path."
+        },
+        "backup": {
+          "exportCta": "Export backup",
+          "exportTitle": "Export a backup",
+          "exportLead": "The file includes this center's data and images. Keep the secret phrase. Nobody can open the file without it.",
+          "exportSubmit": "Create the file",
+          "restoreCta": "Restore a backup",
+          "restoreTitle": "Restore a backup",
+          "restoreLead": "Upload the .cbk file and type the secret phrase used to create it.",
+          "restoreSubmit": "Restore",
+          "passwordLabel": "Your current password",
+          "passphraseLabel": "File secret phrase",
+          "passphraseAgainLabel": "Repeat the secret phrase",
+          "fileLabel": "Backup file (.cbk)",
+          "uploadSending": "Sending the file",
+          "jobTitle": "Backup in progress",
+          "jobIntro": "This job can take several minutes.",
+          "jobRunning": "Working",
+          "jobExplain": "Keep this window open until the job finishes.",
+          "jobLog": "Steps",
+          "jobClose": "Close",
+          "emptyLog": "No steps yet.",
+          "downloadReady": "The file is ready and the download started.",
+          "imagesSkipped": "Some images were not copied. The rest of the backup was applied.",
+          "activity": {
+            "schema": "Reading the center schema",
+            "auth": "Reading the accounts",
+            "storage": "Copying the images",
+            "seal": "Encrypting the file",
+            "rows": "Writing the data",
+            "done": "Done"
+          },
+          "errors": {
+            "unauthorized": "You cannot run this backup. Sign in with a staff account. Code: unauthorized",
+            "password_change_required": "Change your password before you export. Code: password_change_required",
+            "passphrase_too_short": "The secret phrase needs at least 12 characters. Code: passphrase_too_short",
+            "passphrase_mismatch": "The two secret phrases do not match. Type them again. Code: passphrase_mismatch",
+            "step_up_failed": "The current password is wrong. Type it again. Code: step_up_failed",
+            "not_shared_schema": "This center does not use the shared schema, so it cannot be backed up from here. Code: not_shared_schema",
+            "storage_failed": "The file did not reach storage. Try again. Code: storage_failed",
+            "schema_load_failed": "The center schema could not be read or written. Code: schema_load_failed",
+            "wrong_passphrase": "The secret phrase does not open this file. Code: wrong_passphrase",
+            "file_corrupt": "The file is damaged or incomplete. Export a new one. Code: file_corrupt",
+            "format_unsupported": "This file uses a format this version cannot open. Code: format_unsupported"
+          }
         }
       }
     }

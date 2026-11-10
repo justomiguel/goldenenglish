@@ -14,7 +14,7 @@ import { PublicExperienceShell } from "@/components/organisms/PublicExperienceSh
 import { LandingGreenfieldSurfaceGate } from "@/components/organisms/LandingGreenfieldSurfaceGate";
 import { LandingGreenfieldPendingMain } from "@/components/organisms/LandingGreenfieldPendingMain";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
-import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
+import { MARKETING_FOOTER_BRAND } from "@/lib/landing/marketingFooterBrand";
 import {
   isMarketingFullBleedLandingKind,
   marketingLandingSuppressesShellFooter,
@@ -39,7 +39,6 @@ import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePrevie
 import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import { seoTextForLocale } from "@/lib/theme/seoTextForLocale";
 import { buildResolvedPublicShareMetadata } from "@/lib/site/buildResolvedPublicShareMetadata";
-import type { SiteThemeKind } from "@/types/theming";
 
 /** Session must reflect cookies each request (avoid stale static HTML). */
 export const dynamic = "force-dynamic";
@@ -47,16 +46,6 @@ interface HomePageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ pais?: string | string[] }>;
 }
-
-const MARKETING_FOOTER_BRAND: Partial<
-  Record<SiteThemeKind, MarketingLandingBrand>
-> = {
-  mozarthitos: "mz",
-  espaciozenit: "ez",
-  nago: "nago",
-  mimundo: "mm",
-  liora: "liora",
-};
 
 export async function generateMetadata({
   params,

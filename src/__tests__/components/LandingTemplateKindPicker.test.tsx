@@ -131,4 +131,44 @@ describe("LandingTemplateKindPicker", () => {
       labels.errors.persist_failed,
     );
   });
+
+  it("shows the exclusive-template sentence and its code", async () => {
+    setKindMock.mockResolvedValueOnce({ ok: false, code: "kind_not_available" });
+    render(
+      <LandingTemplateKindPicker
+        locale="en"
+        themeId="00000000-0000-4000-8000-000000000099"
+        current="classic"
+        labels={labels}
+      />,
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByRole("radio", { name: labels.options.editorial }));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: labels.saveCta }));
+    });
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent(`${labels.errors.persist_failed} (kind_not_available)`);
+    expect(alert.textContent).not.toBe(labels.errors.persist_failed);
+  });
+
+  it("shows an unknown code in the alert", async () => {
+    setKindMock.mockResolvedValueOnce({ ok: false, code: "mystery_code" });
+    render(
+      <LandingTemplateKindPicker
+        locale="en"
+        themeId="00000000-0000-4000-8000-000000000099"
+        current="classic"
+        labels={labels}
+      />,
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByRole("radio", { name: labels.options.editorial }));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: labels.saveCta }));
+    });
+    expect(screen.getByRole("alert")).toHaveTextContent("mystery_code");
+  });
 });

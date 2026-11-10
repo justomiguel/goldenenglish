@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Activity, Building2, Eye, Plus } from "lucide-react";
+import { Activity, ArchiveRestore, Building2, Eye, Plus } from "lucide-react";
 import { PulsarAdminAnalyticsSettings } from "@/components/organisms/pulsar/PulsarAdminAnalyticsSettings";
 import { PulsarPanelFrame } from "@/components/organisms/pulsar/PulsarPanelFrame";
 import { PulsarAdminMailSettings } from "@/components/organisms/pulsar/PulsarAdminMailSettings";
@@ -102,13 +102,22 @@ export function PulsarAdminFleetScreen({
       avatarUrl={avatarUrl}
       role="staff"
       extra={
-        <Link
-          href={`/${locale}/admin/tenants/new`}
-          className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-3.5 text-xs font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)]"
-        >
-          <Plus className="h-4 w-4" aria-hidden />
-          <span>{copy.newTenantCta}</span>
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/${locale}/admin/tenants/restore`}
+            className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 text-xs font-semibold text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]"
+          >
+            <ArchiveRestore className="h-4 w-4" aria-hidden />
+            <span>{copy.form.backup.restoreCta}</span>
+          </Link>
+          <Link
+            href={`/${locale}/admin/tenants/new`}
+            className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-3.5 text-xs font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-dark)]"
+          >
+            <Plus className="h-4 w-4" aria-hidden />
+            <span>{copy.newTenantCta}</span>
+          </Link>
+        </div>
       }
     >
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">

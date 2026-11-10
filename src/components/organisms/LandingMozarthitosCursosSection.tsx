@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Laptop } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
+import { buildGuidePageHref } from "@/lib/landing/mozarthitos/guideToken";
 import { MozarthitosReveal } from "@/components/molecules/MozarthitosReveal";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 
@@ -91,7 +92,7 @@ export function LandingMozarthitosCursosSection({
               <p>{marketingLandingCopy(dict, marketingBrand, "cursos.bodyP2")}</p>
             </div>
             <Link
-              href={`/${locale}#contacto`}
+              href={buildGuidePageHref(locale, { attendance: "remote" })}
               className="mz-btn-shrink inline-flex min-h-[48px] w-full max-w-md items-center justify-center gap-2 rounded-full bg-[var(--mz-blue-btn)] px-6 py-3.5 text-base font-bold text-white shadow-[0_10px_28px_rgb(0_165_255_/38%)] transition-colors hover:bg-[var(--mz-blue-btn-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mz-blue-btn)] focus-visible:ring-offset-2 sm:w-auto"
             >
               <Laptop className="h-4 w-4 shrink-0" aria-hidden />

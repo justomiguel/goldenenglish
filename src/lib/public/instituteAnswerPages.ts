@@ -8,6 +8,7 @@ export const INSTITUTE_ANSWER_KIND_KEYS = [
   "nago",
   "mimundo",
   "liora",
+  "matiss",
 ] as const;
 
 export type InstituteAnswerKindKey = (typeof INSTITUTE_ANSWER_KIND_KEYS)[number];
@@ -26,7 +27,8 @@ export function instituteAnswerKindKey(templateKind: string): InstituteAnswerKin
     templateKind === "espaciozenit" ||
     templateKind === "nago" ||
     templateKind === "mimundo" ||
-    templateKind === "liora"
+    templateKind === "liora" ||
+    templateKind === "matiss"
   ) {
     return templateKind;
   }

@@ -14,6 +14,7 @@ import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { PulsarAdminChrome } from "@/components/organisms/pulsar/PulsarAdminChrome";
 import { PulsarAdminTenantForm } from "@/components/organisms/pulsar/PulsarAdminTenantForm";
 import { PulsarAdminTenantSummary } from "@/components/organisms/pulsar/PulsarAdminTenantSummary";
+import { PulsarTenantBackupExport } from "@/components/organisms/pulsar/PulsarTenantBackupExport";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -88,6 +89,9 @@ export default async function PulsarAdminEditTenantPage({ params }: PageProps) {
         />
       }
     />
+    {tenant.dataMode === "shared_schema" ? (
+      <PulsarTenantBackupExport locale={locale} slug={slug} copy={dict.pulsar.admin.form.backup} />
+    ) : null}
     </PulsarAdminChrome>
   );
 }

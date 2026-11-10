@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
 import { LioraFontRoot } from "@/components/organisms/LioraFontRoot";
+import { MatissFontRoot } from "@/components/organisms/MatissFontRoot";
 import { MiMundoFontRoot } from "@/components/organisms/MiMundoFontRoot";
 import { MozarthitosFontRoot } from "@/components/organisms/MozarthitosFontRoot";
 import { EspacioZenitFontRoot } from "@/components/organisms/EspacioZenitFontRoot";
@@ -26,6 +27,9 @@ export function PublicTenantChrome({
   }
   if (templateKind === "liora") {
     return <LioraFontRoot className={className}>{children}</LioraFontRoot>;
+  }
+  if (templateKind === "matiss") {
+    return <MatissFontRoot className={className}>{children}</MatissFontRoot>;
   }
   if (templateKind === "mimundo") {
     return <MiMundoFontRoot className={className}>{children}</MiMundoFontRoot>;

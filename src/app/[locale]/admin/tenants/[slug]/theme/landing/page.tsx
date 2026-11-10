@@ -32,6 +32,7 @@ export default async function PulsarTenantThemeLandingPage({ params }: PageProps
       sections={viewModel.sections}
       backHref={base}
       sectionBaseHref={`${base}/landing`}
+      tenantSlug={slug}
     />
     </PulsarAdminChrome>
   );

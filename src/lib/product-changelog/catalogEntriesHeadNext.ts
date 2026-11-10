@@ -3,6 +3,36 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "staff-cash-payments",
+    date: "2026-11-06",
+    area: "finance",
+    title: t(
+      "El equipo registra pagos en efectivo",
+      "Staff can record cash payments",
+      "A equipe registra pagamentos em dinheiro",
+    ),
+    summary: t(
+      "Matrícula y mensualidad guardan el medio y la fecha. La familia ve cómo se pagó.",
+      "Enrollment fee and monthly fee store the method and the date. The family sees how it was paid.",
+      "A matrícula e a mensalidade guardam o meio e a data. A família vê como foi pago.",
+    ),
+  },
+  {
+    id: "register-section-assignment-mode",
+    date: "2026-11-06",
+    area: "registrations",
+    title: t(
+      "Inscripciones puede dejar la sección para el admin",
+      "Registrations can leave the section for staff",
+      "As inscrições podem deixar a seção para a equipe",
+    ),
+    summary: t(
+      "En Ajustes eliges si el alumno elige la sección, si va la primera con cupo, o si la inscripción llega sin sección.",
+      "In Settings, choose student choice, the first open section, or no section until accept.",
+      "Em Ajustes você escolhe se o aluno escolhe a seção, se vai a primeira com vaga, ou se a inscrição chega sem seção.",
+    ),
+  },
+  {
     id: "upload-bar-only-while-sending",
     date: "2026-11-05",
     area: "admin",

@@ -6,6 +6,7 @@ const state = vi.hoisted(() => ({
   queries: [] as { sql: string; params?: unknown[] }[],
   deleted: [] as string[],
   removed: [] as string[][],
+  buckets: [] as string[],
 }));
 
 vi.mock("@/lib/tenant/institutePublicImagePack", () => ({
@@ -50,16 +51,41 @@ vi.mock("@/lib/supabase/admin", () => ({
       },
     },
     storage: {
-      from: () => ({
-        list: async () => ({
-          data: [{ name: "logo.png" }, { name: "../tenant_other/secret.png" }],
-          error: null,
-        }),
-        remove: async (paths: string[]) => {
-          state.removed.push(paths);
-          return { error: null };
-        },
+      listBuckets: async () => ({
+        data: [{ id: "landing-media" }, { id: "receipts" }],
+        error: null,
       }),
+      from: (bucket: string) => {
+        state.buckets.push(bucket);
+        return {
+          list: async (prefix: string, opts?: { offset?: number }) => {
+            if ((opts?.offset ?? 0) > 0) return { data: [], error: null };
+            if (prefix === "tenant_club") {
+              return {
+                data: [
+                  { name: "institute-public", id: null },
+                  { name: "receipt.pdf", id: "file-receipt" },
+                ],
+                error: null,
+              };
+            }
+            if (prefix === "tenant_club/institute-public") {
+              return {
+                data: [
+                  { name: "logo.png", id: "file-logo" },
+                  { name: "../tenant_other/secret.png", id: "file-bad" },
+                ],
+                error: null,
+              };
+            }
+            return { data: [], error: null };
+          },
+          remove: async (paths: string[]) => {
+            state.removed.push(paths);
+            return { error: null };
+          },
+        };
+      },
     },
   }),
 }));
@@ -109,6 +135,7 @@ describe("closeInstituteDataPlane", () => {
     state.queries = [];
     state.deleted = [];
     state.removed = [];
+    state.buckets = [];
     process.env.VERCEL_TOKEN = previousToken;
     process.env.VERCEL_PROJECT_ID = previousProject;
     vi.unstubAllGlobals();
@@ -132,7 +159,11 @@ describe("closeInstituteDataPlane", () => {
     expect(hidden?.sql).toContain("public");
     expect(hidden?.sql).not.toContain("tenant_club");
     expect(state.deleted).toEqual(["mine"]);
-    expect(state.removed).toEqual([["tenant_club/institute-public/logo.png"]]);
+    expect(new Set(state.buckets)).toEqual(new Set(["landing-media", "receipts"]));
+    expect(state.removed).toEqual([
+      ["tenant_club/receipt.pdf", "tenant_club/institute-public/logo.png"],
+      ["tenant_club/receipt.pdf", "tenant_club/institute-public/logo.png"],
+    ]);
     const detached = fetchMock.mock.calls.map((call) => String(call[0]));
     expect(detached.some((url) => url.includes("club.centrolisto.cl"))).toBe(true);
     expect(detached.some((url) => url.endsWith("/centrolisto.cl") || url.includes("/centrolisto.cl?"))).toBe(false);

@@ -12,6 +12,7 @@ import { mozarthitosSectionImageSrc } from "@/lib/landing/mozarthitosLandingImag
 import { nagoSectionImageSrc } from "@/lib/landing/nagoLandingImages";
 import { mimundoSectionImageSrc } from "@/lib/landing/mimundoLandingImages";
 import { lioraSectionImageSrc } from "@/lib/landing/lioraLandingImages";
+import { matissSectionImageSrc } from "@/lib/landing/matissLandingImages";
 import {
   genericSectionStockPath,
   isGenericInstituteKind,
@@ -116,6 +117,9 @@ export function resolveLandingImageSrcForTheme(
   }
   if (kind === "liora") {
     return lioraSectionImageSrc(section, filename);
+  }
+  if (kind === "matiss") {
+    return matissSectionImageSrc(section, filename);
   }
   return sectionImageSrc(section, filename);
 }

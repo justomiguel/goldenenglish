@@ -1,3 +1,5 @@
+import { EXCLUSIVE_THEME_OWNERS } from "@/lib/theme/exclusiveThemeKinds";
+
 export const GENERIC_INSTITUTE_KINDS = [
   "deportes",
   "jardin",
@@ -147,4 +149,20 @@ export function genericTemplateSelectOptions(currentSlug: string): string[] {
   const slugs = GENERIC_INSTITUTE_KINDS.map((kind) => genericThemeSlug(kind));
   if (currentSlug && !slugs.includes(currentSlug)) return [currentSlug, ...slugs];
   return slugs;
+}
+
+/**
+ * Slugs the staff tenant form may offer. Generic slugs always. An exclusive
+ * kind only when the tenant slug owns it, so `matiss` never appears for
+ * another institute.
+ */
+export function staffTemplateSelectOptions(
+  currentSlug: string,
+  tenantSlug: string,
+): string[] {
+  const options = genericTemplateSelectOptions(currentSlug);
+  for (const [kind, owners] of Object.entries(EXCLUSIVE_THEME_OWNERS)) {
+    if (owners?.includes(tenantSlug) && !options.includes(kind)) options.push(kind);
+  }
+  return options;
 }

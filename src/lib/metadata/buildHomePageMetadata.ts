@@ -37,7 +37,7 @@ export function buildLocalePageAlternates(
   };
 }
 
-const CHILE_KINDS = new Set(["mozarthitos", "espaciozenit", "nago", "liora"]);
+const CHILE_KINDS = new Set(["mozarthitos", "espaciozenit", "nago", "liora", "matiss"]);
 
 /** First locale segment of a public path (`/es/preguntas` → `es`). */
 export function pageLocaleFromPublicPath(path: string): string {

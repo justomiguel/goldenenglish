@@ -26,6 +26,11 @@ vi.mock("@/components/organisms/RegisterLioraSurface", () => ({
     <div data-testid="liora">{p.enrollmentLink?.token ?? "no-link"}</div>
   ),
 }));
+vi.mock("@/components/organisms/RegisterMatissSurface", () => ({
+  RegisterMatissSurface: (p: { enrollmentLink?: { token: string } }) => (
+    <div data-testid="matiss">{p.enrollmentLink?.token ?? "no-link"}</div>
+  ),
+}));
 vi.mock("@/components/organisms/RegisterClassicSurface", () => ({
   RegisterClassicSurface: (p: { enrollmentLink?: { token: string } }) => (
     <div data-testid="classic">{p.enrollmentLink?.token ?? "no-link"}</div>

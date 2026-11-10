@@ -102,6 +102,9 @@
       },
       "liora": {
         "shareContext": "Ballet para todas las edades en Santiago: Pre Ballet, infantil, juvenil y adulto en tres sedes junto al metro."
+      },
+      "matiss": {
+        "shareContext": "Gimnasia acrobática para niñas de 3 a 13 años en San Miguel y La Florida. Clases los sábados y clase de prueba."
       }
     },
     "homeFallback": "Clases, horarios y cómo sumarte.",
@@ -4220,6 +4223,116 @@
         "whatsappUrl": "https://wa.me/56900000000"
       },
       "footerCta": "¿Quieres empezar a bailar? Escríbenos y coordinamos tu clase de prueba."
+    },
+    "matiss": {
+      "chrome": {
+        "openMenu": "Abrir menú",
+        "closeMenu": "Cerrar menú",
+        "instagramAria": "Instagram de Matiss Studio",
+        "whatsappAria": "WhatsApp de Matiss Studio"
+      },
+      "nav": {
+        "inicio": "Inicio",
+        "sobreNosotros": "El estudio",
+        "clases": "Una clase",
+        "sedes": "Sedes",
+        "horarios": "Horarios",
+        "galeria": "Galería",
+        "contacto": "Contacto"
+      },
+      "register": {
+        "shellTitle": "Agenda una clase de prueba",
+        "shellLead": "Cuéntanos la edad de tu hija y te escribimos para coordinar el sábado."
+      },
+      "hero": {
+        "kicker": "Gimnasia acrobática para niñas",
+        "title": "Llega con vergüenza. Sale haciendo la rueda.",
+        "subtitle": "De los 3 a los 13 años, en San Miguel y La Florida.",
+        "ctaPrimary": "Agenda una clase de prueba",
+        "ctaSecondary": "Ver horarios"
+      },
+      "sobreNosotros": {
+        "kicker": "El estudio",
+        "title": "Un sábado que se espera toda la semana",
+        "bodyP1": "En Matiss Studio las niñas aprenden acrobacia de suelo: ruedas, puentes, equilibrios y el primer salto. Cada ejercicio se muestra, se intenta y se celebra.",
+        "bodyP2": "Valentina Tapia Carrasco dirige las clases. La disciplina sirve para intentarlo otra vez, la diversión para querer volver y la confianza para mostrarlo en casa."
+      },
+      "clases": {
+        "kicker": "Una clase",
+        "sectionTitle": "Así se vive un sábado",
+        "lead": "La clase dura entre una hora y una hora y media.",
+        "steps": [
+          {
+            "title": "Llegada y calentamiento",
+            "body": "Saludan, se acomodan y preparan el cuerpo con juegos cortos."
+          },
+          {
+            "title": "Acrobacias guiadas",
+            "body": "Ruedas, puentes y equilibrios, con la profesora al lado."
+          },
+          {
+            "title": "Juego",
+            "body": "Recorridos con pelota y estaciones para repetir lo nuevo."
+          },
+          {
+            "title": "Cierre con aplauso",
+            "body": "Se nombra lo que cada una logró y se despiden."
+          }
+        ]
+      },
+      "edad": {
+        "kicker": "Encuentra su grupo",
+        "sectionTitle": "Elige su edad",
+        "lead": "Te mostramos el grupo, la hora y la sede.",
+        "years": "años",
+        "empty": "Matiss recibe niñas de 3 a 13 años."
+      },
+      "sedes": {
+        "kicker": "Sedes",
+        "sectionTitle": "Dos comunas, el mismo sábado",
+        "lead": "La dirección de cada sala se confirma al agendar la clase de prueba.",
+        "sanMiguel": {
+          "name": "San Miguel",
+          "body": "Dos grupos seguidos: las más pequeñas al mediodía y las mayores después."
+        },
+        "laFlorida": {
+          "name": "La Florida",
+          "body": "Un grupo por la tarde, para niñas de 4 a 7 años."
+        },
+        "maps": "Cómo llegar"
+      },
+      "horarios": {
+        "kicker": "Horarios",
+        "sectionTitle": "Sábados",
+        "day": "Sábado",
+        "group": "Grupo",
+        "ages": "Edades",
+        "time": "Hora",
+        "place": "Sede"
+      },
+      "galeria": {
+        "kicker": "Galería",
+        "sectionTitle": "Dentro de la sala",
+        "verMas": "Ver foto"
+      },
+      "cta": {
+        "title": "El próximo sábado puede ser el primero",
+        "subtitle": "Escríbenos la edad de tu hija y te proponemos el grupo.",
+        "button": "Agenda una clase de prueba"
+      },
+      "footer": {
+        "enlacesTitle": "En esta página",
+        "sedesTitle": "Sedes",
+        "contactoTitle": "Contacto",
+        "siguenos": "Instagram",
+        "rightsLine": "Todos los derechos reservados."
+      },
+      "contact": {
+        "directorLabel": "Directora",
+        "directorName": "Valentina Tapia Carrasco",
+        "directorHandle": "@velenn.tinaa"
+      },
+      "footerCta": "¿Quieres ver una clase? Escríbenos y agendamos la prueba."
     }
   },
   "admin": {
@@ -5327,6 +5440,7 @@
               "nago": "Capoeira Nago",
               "mimundo": "Mi Mundo",
               "liora": "Liora Studio",
+              "matiss": "Matiss Studio",
               "deportes": "Deportes",
               "jardin": "Jardín",
               "colegio": "Colegio",
@@ -9059,7 +9173,38 @@
             "a": "Los cupos son acotados, con corrección individual."
           }
         ]
-      }
+      },
+        "matiss": {
+          "metaTitle": "Preguntas sobre las clases de gimnasia",
+          "metaDescription": "Edades de 3 a 13 años, clases los sábados en San Miguel y La Florida, y clase de prueba.",
+          "items": [
+            {
+              "id": "ages",
+              "q": "¿Desde qué edad pueden empezar?",
+              "a": "Desde los 3 años y hasta los 13. El grupo Babys parte a los 3 en San Miguel y a los 4 en La Florida."
+            },
+            {
+              "id": "day",
+              "q": "¿Qué día son las clases?",
+              "a": "Los sábados. En San Miguel hay dos grupos seguidos y en La Florida uno por la tarde."
+            },
+            {
+              "id": "sites",
+              "q": "¿Dónde están las sedes?",
+              "a": "En San Miguel y en La Florida, en Santiago. La dirección de cada sala se confirma al agendar."
+            },
+            {
+              "id": "trial",
+              "q": "¿Puedo agendar una clase de prueba?",
+              "a": "Sí. Escribe por WhatsApp o Instagram y coordinamos el sábado."
+            },
+            {
+              "id": "bring",
+              "q": "¿Qué tiene que llevar?",
+              "a": "Ropa cómoda para moverse y el pelo tomado. El primer día no necesita nada más."
+            }
+          ]
+        }
     }
   },
   "privacy": {
@@ -17408,6 +17553,51 @@
           "schema_provision_failed": "No se creó el schema del instituto. Revisa el log del servidor e inténtalo de nuevo.",
           "invalid_mail_quota": "El tope de correos debe ser un número entero entre 0 y 100000.",
           "invalid_daily_domain": "Ingresa un host de Daily sin esquema ni ruta."
+        },
+        "backup": {
+          "exportCta": "Exportar respaldo",
+          "exportTitle": "Exportar un respaldo",
+          "exportLead": "El archivo incluye los datos y las imágenes de este centro. Guarda la frase secreta: sin ella nadie puede abrirlo.",
+          "exportSubmit": "Crear el archivo",
+          "restoreCta": "Restaurar un respaldo",
+          "restoreTitle": "Restaurar un respaldo",
+          "restoreLead": "Sube el archivo .cbk y escribe la frase secreta con la que se creó.",
+          "restoreSubmit": "Restaurar",
+          "passwordLabel": "Tu contraseña actual",
+          "passphraseLabel": "Frase secreta del archivo",
+          "passphraseAgainLabel": "Repite la frase secreta",
+          "fileLabel": "Archivo de respaldo (.cbk)",
+          "uploadSending": "Enviando el archivo",
+          "jobTitle": "Respaldo en curso",
+          "jobIntro": "Este trabajo puede tardar varios minutos.",
+          "jobRunning": "Trabajando",
+          "jobExplain": "No cierres esta ventana hasta que el trabajo termine.",
+          "jobLog": "Pasos",
+          "jobClose": "Cerrar",
+          "emptyLog": "Todavía no hay pasos.",
+          "downloadReady": "El archivo está listo y la descarga comenzó.",
+          "imagesSkipped": "Algunas imágenes no se copiaron. El resto del respaldo sí se aplicó.",
+          "activity": {
+            "schema": "Leyendo el esquema del centro",
+            "auth": "Leyendo las cuentas",
+            "storage": "Copiando las imágenes",
+            "seal": "Cifrando el archivo",
+            "rows": "Escribiendo los datos",
+            "done": "Listo"
+          },
+          "errors": {
+            "unauthorized": "No tienes permiso para este respaldo. Entra con una cuenta de staff. Código: unauthorized",
+            "password_change_required": "Cambia tu contraseña antes de exportar. Código: password_change_required",
+            "passphrase_too_short": "La frase secreta necesita al menos 12 caracteres. Código: passphrase_too_short",
+            "passphrase_mismatch": "Las dos frases secretas no coinciden. Escríbelas otra vez. Código: passphrase_mismatch",
+            "step_up_failed": "La contraseña actual no es correcta. Escríbela otra vez. Código: step_up_failed",
+            "not_shared_schema": "Este centro no usa el esquema compartido, así que no se puede respaldar desde aquí. Código: not_shared_schema",
+            "storage_failed": "El archivo no llegó al almacén. Inténtalo otra vez. Código: storage_failed",
+            "schema_load_failed": "El esquema del centro no se pudo leer ni escribir. Código: schema_load_failed",
+            "wrong_passphrase": "La frase secreta no abre este archivo. Código: wrong_passphrase",
+            "file_corrupt": "El archivo está dañado o incompleto. Exporta uno nuevo. Código: file_corrupt",
+            "format_unsupported": "Este archivo usa un formato que esta versión no abre. Código: format_unsupported"
+          }
         }
       }
     }

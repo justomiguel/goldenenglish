@@ -30,6 +30,9 @@ vi.mock("@/lib/pulsar/provisionSharedInstituteSchema", () => ({
 vi.mock("@/lib/pulsar/finishStaffTenantSave", () => ({
   finishStaffTenantSave: async (record: { slug: string }) => ({ ok: true, slug: record.slug }),
 }));
+vi.mock("@/lib/pulsar/activateExclusiveThemeOnSave", () => ({
+  activateExclusiveThemeOnSave: async () => undefined,
+}));
 
 import { savePulsarTenantAction } from "@/app/[locale]/admin/actions";
 

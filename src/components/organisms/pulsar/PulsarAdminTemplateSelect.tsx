@@ -1,7 +1,7 @@
 import type { Dictionary } from "@/types/i18n";
 import {
   genericKindFromThemeSlug,
-  genericTemplateSelectOptions,
+  staffTemplateSelectOptions,
 } from "@/lib/theme/genericInstituteTemplates";
 
 export interface PulsarAdminTemplateSelectProps {
@@ -9,6 +9,10 @@ export interface PulsarAdminTemplateSelectProps {
   lead: string;
   unsetLabel: string;
   value: string;
+  /** Tenant slug from the form. An exclusive template appears only for its owner. */
+  tenantSlug: string;
+  /** Readable name per exclusive kind, keyed by the kind. */
+  exclusiveNames?: Record<string, string>;
   names: Dictionary["landing"]["genericLandings"];
   onChange: (slug: string) => void;
 }
@@ -18,10 +22,12 @@ export function PulsarAdminTemplateSelect({
   lead,
   unsetLabel,
   value,
+  tenantSlug,
+  exclusiveNames,
   names,
   onChange,
 }: PulsarAdminTemplateSelectProps) {
-  const options = genericTemplateSelectOptions(value);
+  const options = staffTemplateSelectOptions(value, tenantSlug);
 
   return (
     <div className="sm:col-span-2">
@@ -38,7 +44,7 @@ export function PulsarAdminTemplateSelect({
         {value === "" ? <option value="">{unsetLabel}</option> : null}
         {options.map((slug) => {
           const kind = genericKindFromThemeSlug(slug);
-          const text = kind ? names[kind]?.name ?? slug : slug;
+          const text = kind ? names[kind]?.name ?? slug : exclusiveNames?.[slug] ?? slug;
           return (
             <option key={slug} value={slug}>
               {text}

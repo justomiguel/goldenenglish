@@ -150,7 +150,9 @@ export function PulsarAdminTenantFieldGroups({
             lead={formCopy.templateLead}
             unsetLabel={formCopy.templateUnset}
             value={values.brandThemeSlug}
+            tenantSlug={values.slug.trim()}
             names={dict.landing.genericLandings}
+            exclusiveNames={{ matiss: "Matiss Studio" }}
             onChange={(slug) => onChange("brandThemeSlug", slug)}
           />
           <label className="flex items-center gap-2 text-xs font-semibold">

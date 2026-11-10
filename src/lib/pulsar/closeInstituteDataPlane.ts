@@ -6,14 +6,13 @@ import { logServerActionException, logSupabaseError } from "@/lib/logging/server
 import { detachStaffHosts } from "@/lib/pulsar/attachVercelDomain";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
 import { hideSchema } from "@/lib/pulsar/provisionSharedInstituteSchema";
+import { collectTenantStoragePaths } from "@/lib/pulsar/backup/collectTenantStoragePaths";
 import {
   authUserBelongsToSchema,
   EXTERNAL_FK_SQL,
   EXTERNAL_VIEW_SQL,
   exclusiveTenantHosts,
   INSTITUTE_SCHEMA,
-  sharedTenantStoragePrefix,
-  storagePathsForTenant,
 } from "@/lib/pulsar/tenantDeleteScope";
 import { createAdminClientFromCredentials } from "@/lib/supabase/admin";
 import { removeInstitutePublicImageDir } from "@/lib/tenant/institutePublicImagePack";
@@ -66,34 +65,68 @@ async function deleteSharedAuthUsers(
   }
 }
 
+async function removeBucketPaths(
+  admin: ReturnType<typeof createAdminClientFromCredentials>,
+  bucket: string,
+  paths: readonly string[],
+  slug: string,
+): Promise<void> {
+  for (let index = 0; index < paths.length; index += 100) {
+    const slice = paths.slice(index, index + 100);
+    const removed = await admin.storage.from(bucket).remove([...slice]);
+    if (removed.error) {
+      logSupabaseError("closeInstitute:storageRemove", removed.error, { slug, bucket });
+    }
+  }
+}
+
+async function removeSharedSchemaObjects(
+  admin: ReturnType<typeof createAdminClientFromCredentials>,
+  tenant: PulsarTenantRecord,
+  schema: string,
+): Promise<void> {
+  const listed = await admin.storage.listBuckets();
+  if (listed.error) {
+    logSupabaseError("closeInstitute:storageBuckets", listed.error, { slug: tenant.slug });
+  }
+  const buckets = (listed.data ?? [])
+    .map((bucket) => bucket.id || bucket.name)
+    .filter((name): name is string => Boolean(name));
+  const targets = buckets.length > 0 ? buckets : [LANDING_MEDIA_BUCKET];
+  for (const bucket of targets) {
+    const paths = await collectTenantStoragePaths(async (prefix, offset) => {
+      const { data, error } = await admin.storage.from(bucket).list(prefix, { limit: 100, offset });
+      if (error) {
+        logSupabaseError("closeInstitute:storageList", error, { slug: tenant.slug, bucket });
+        return [];
+      }
+      return data ?? [];
+    }, schema);
+    await removeBucketPaths(admin, bucket, paths, tenant.slug);
+  }
+}
+
 async function removePublicImageObjects(tenant: PulsarTenantRecord): Promise<void> {
   const admin = createAdminClientFromCredentials(
     tenant.supabaseUrl,
     tenant.supabaseServiceRoleKey,
   );
-  const prefix =
-    tenant.dataMode === "shared_schema"
-      ? sharedTenantStoragePrefix(tenant.postgresSchema ?? "")
-      : "institute-public";
-  if (!prefix) return;
+  if (tenant.dataMode === "shared_schema") {
+    const schema = tenant.postgresSchema ?? "";
+    if (!INSTITUTE_SCHEMA.test(schema)) return;
+    await removeSharedSchemaObjects(admin, tenant, schema);
+    return;
+  }
+  const prefix = "institute-public";
   const { data, error } = await admin.storage.from(LANDING_MEDIA_BUCKET).list(prefix, { limit: 100 });
   if (error) {
     logSupabaseError("closeInstitute:storageList", error, { slug: tenant.slug });
     return;
   }
-  const paths =
-    tenant.dataMode === "shared_schema"
-      ? storagePathsForTenant(prefix, (data ?? []).map((file) => file.name))
-      : (data ?? []).flatMap((file) =>
-          file.name && !file.name.includes("/") && !file.name.includes("..")
-            ? [`${prefix}/${file.name}`]
-            : [],
-        );
-  if (paths.length === 0) return;
-  const removed = await admin.storage.from(LANDING_MEDIA_BUCKET).remove(paths);
-  if (removed.error) {
-    logSupabaseError("closeInstitute:storageRemove", removed.error, { slug: tenant.slug });
-  }
+  const paths = (data ?? []).flatMap((file) =>
+    file.name && !file.name.includes("/") && !file.name.includes("..") ? [`${prefix}/${file.name}`] : [],
+  );
+  await removeBucketPaths(admin, LANDING_MEDIA_BUCKET, paths, tenant.slug);
 }
 
 /**

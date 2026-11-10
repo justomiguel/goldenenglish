@@ -17,6 +17,7 @@ import { espaciozenitSectionImageSrc } from "@/lib/landing/espaciozenitLandingIm
 import { mozarthitosSectionImageSrc } from "@/lib/landing/mozarthitosLandingImages";
 import { nagoSectionImageSrc } from "@/lib/landing/nagoLandingImages";
 import { lioraSectionImageSrc } from "@/lib/landing/lioraLandingImages";
+import { matissSectionImageSrc } from "@/lib/landing/matissLandingImages";
 import { sectionImageSrc } from "@/lib/landing/sectionLandingImages";
 import {
   genericSectionStockPath,
@@ -146,7 +147,9 @@ export function buildLandingSectionEditorViewModel(
               ? nagoSectionImageSrc(section, `${position}.png`)
               : kind === "liora"
                 ? lioraSectionImageSrc(section, `${position}.jpg`)
-                : sectionImageSrc(section, `${position}.png`),
+                : kind === "matiss"
+                  ? matissSectionImageSrc(section, `${position}.jpg`)
+                  : sectionImageSrc(section, `${position}.png`),
     });
   }
 

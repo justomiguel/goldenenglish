@@ -7,7 +7,8 @@ export type PublicExperienceVariant =
   | "espaciozenit"
   | "nago"
   | "mimundo"
-  | "liora";
+  | "liora"
+  | "matiss";
 
 const COURSES_ANCHOR: Record<string, string> = {
   classic: "niveles",
@@ -18,6 +19,7 @@ const COURSES_ANCHOR: Record<string, string> = {
   nago: "clases",
   mimundo: "salas",
   liora: "clases",
+  matiss: "horarios",
   deportes: "dia",
   jardin: "dia",
   colegio: "dia",
@@ -31,6 +33,7 @@ const THEMED: ReadonlySet<string> = new Set([
   "nago",
   "mimundo",
   "liora",
+  "matiss",
 ]);
 
 export function publicPwaCoursesHref(kind: string, locale: string): string {
@@ -49,6 +52,7 @@ export function publicExperienceThemeClass(variant: PublicExperienceVariant): st
   if (variant === "nago") return "nago-landing";
   if (variant === "mimundo") return "mimundo-landing";
   if (variant === "liora") return "liora-landing";
+  if (variant === "matiss") return "matiss-landing";
   return "";
 }
 
