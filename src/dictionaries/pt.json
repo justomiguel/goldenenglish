@@ -4207,7 +4207,9 @@
         "previewOpenAria": "Ampliar foto {n}",
         "previewPlayAria": "Reproduzir vídeo {n}",
         "play": "Reproduzir",
-        "pause": "Pausar"
+        "pause": "Pausar",
+        "autoplayPause": "Pausar galeria",
+        "autoplayPlay": "Reproduzir galeria"
       },
       "cta": {
         "title": "Sua primeira aula espera por você",

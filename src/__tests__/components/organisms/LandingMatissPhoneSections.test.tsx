@@ -57,6 +57,13 @@ describe("LandingMatissPhoneSections", () => {
     expect(screen.getByText(es.landing.matiss.faq.items[0].a)).toBeTruthy();
     await user.click(screen.getByRole("button", { name: es.landing.matiss.faq.items[1].q }));
     expect(screen.queryByText(es.landing.matiss.faq.items[0].a)).toBeNull();
-    expect(screen.getByText(es.landing.matiss.faq.items[1].a)).toBeTruthy();
+    const question = screen.getByRole("button", { name: es.landing.matiss.faq.items[1].q });
+    const answer = screen.getByText(es.landing.matiss.faq.items[1].a);
+    const next = screen.getByRole("button", { name: es.landing.matiss.faq.items[2].q });
+    expect(question.closest("li")).toBe(answer.closest("li"));
+    expect(question.closest("li")?.nextElementSibling).toBe(next.closest("li"));
+    for (const item of es.landing.matiss.faq.items) {
+      expect(screen.getByRole("button", { name: item.q }).querySelector("svg")).toBeTruthy();
+    }
   });
 });

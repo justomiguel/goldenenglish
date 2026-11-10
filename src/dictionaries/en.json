@@ -4207,7 +4207,9 @@
         "previewOpenAria": "Enlarge photo {n}",
         "previewPlayAria": "Play video {n}",
         "play": "Play",
-        "pause": "Pause"
+        "pause": "Pause",
+        "autoplayPause": "Pause gallery",
+        "autoplayPlay": "Play gallery"
       },
       "cta": {
         "title": "Your first class is waiting",

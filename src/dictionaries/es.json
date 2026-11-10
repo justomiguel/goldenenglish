@@ -4207,7 +4207,9 @@
         "previewOpenAria": "Ampliar foto {n}",
         "previewPlayAria": "Reproducir video {n}",
         "play": "Reproducir",
-        "pause": "Pausar"
+        "pause": "Pausar",
+        "autoplayPause": "Pausar galería",
+        "autoplayPlay": "Reproducir galería"
       },
       "cta": {
         "title": "Tu primera clase te espera",

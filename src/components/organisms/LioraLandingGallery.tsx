@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Images, Loader2, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Images, Loader2, Pause, Play } from "lucide-react";
 import { useCallback, useEffect, useId, useState } from "react";
 import { Modal } from "@/components/atoms/Modal";
 import { LioraGalleryVideoSlide } from "@/components/organisms/LioraGalleryVideoSlide";
+import { useLioraGalleryStrip } from "@/hooks/useLioraGalleryStrip";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import {
   LIORA_GALLERY_ITEMS,
@@ -20,57 +21,60 @@ function itemSrc(item: LioraGalleryItem): string {
   return item.kind === "photo" ? item.src : item.poster;
 }
 
+function frameLabel(
+  items: readonly LioraGalleryItem[],
+  itemIndex: number,
+  label: (path: string) => string,
+): string {
+  const item = items[itemIndex];
+  const seen = items.slice(0, itemIndex + 1).filter((entry) => entry.kind === item?.kind).length;
+  const key = item?.kind === "video" ? "previewPlayAria" : "previewOpenAria";
+  return label(key).replace("{n}", String(seen));
+}
+
 export function LioraLandingGallery({ dict }: LioraLandingGalleryProps) {
   const titleId = useId();
   const t = (path: string) => marketingLandingCopy(dict, "liora", `galeria.${path}`);
   const items = LIORA_GALLERY_ITEMS;
   const total = items.length;
-  const videoIndex = items.findIndex((item) => item.kind === "video");
-  const preview = [
-    { item: items[0], openAt: 0, label: t("previewOpenAria").replace("{n}", "1") },
-    { item: items[1], openAt: 1, label: t("previewOpenAria").replace("{n}", "2") },
-    {
-      item: items[videoIndex],
-      openAt: videoIndex,
-      label: t("previewPlayAria").replace("{n}", "1"),
-    },
-  ];
   const [open, setOpen] = useState(false);
-  const [index, setIndex] = useState(0);
   const [slideLoading, setSlideLoading] = useState(true);
+  const strip = useLioraGalleryStrip(total, open);
   const markReady = useCallback(() => setSlideLoading(false), []);
 
   const openAt = (next: number) => {
-    setIndex(next);
+    strip.goTo(next);
     setSlideLoading(true);
     setOpen(true);
   };
 
-  const step = useCallback(
-    (delta: number) => {
-      setSlideLoading(true);
-      setIndex((current) => (current + delta + total) % total);
-    },
-    [total],
-  );
+  const move = (delta: number) => {
+    setSlideLoading(true);
+    strip.step(delta);
+  };
 
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "ArrowLeft") {
         event.preventDefault();
-        step(-1);
+        setSlideLoading(true);
+        strip.step(-1);
       }
       if (event.key === "ArrowRight") {
         event.preventDefault();
-        step(1);
+        setSlideLoading(true);
+        strip.step(1);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, step]);
+  }, [open, strip.step]);
 
-  const current = items[index];
+  const current = items[strip.index];
+  const position = t("carouselPosition")
+    .replace("{current}", String(strip.index + 1))
+    .replace("{total}", String(total));
 
   return (
     <section
@@ -84,31 +88,77 @@ export function LioraLandingGallery({ dict }: LioraLandingGalleryProps) {
         <h2 className="mt-3 font-serif text-3xl font-medium text-[var(--color-foreground)] md:text-4xl">
           {t("sectionTitle")}
         </h2>
-        <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {preview.map((frame) =>
-            frame.item ? (
+        <div
+          className="mt-8"
+          onMouseEnter={strip.onMouseEnter}
+          onMouseLeave={strip.onMouseLeave}
+          onFocus={strip.onFocus}
+          onBlur={strip.onBlur}
+        >
+          <div className="liora-gallery-viewport">
+            <div
+              className="liora-gallery-track"
+              data-gallery-start={strip.index}
+              style={{ ["--liora-gallery-index" as string]: String(strip.index) }}
+            >
+              {items.map((item, itemIndex) => (
+                <button
+                  key={itemSrc(item)}
+                  type="button"
+                  className="liora-gallery-frame group relative aspect-[3/4] min-h-11 overflow-hidden rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
+                  aria-label={frameLabel(items, itemIndex, t)}
+                  onClick={() => openAt(itemIndex)}
+                >
+                  <Image
+                    src={itemSrc(item)}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 88vw, 30vw"
+                  />
+                  {item.kind === "video" ? (
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/25">
+                      <Play className="h-10 w-10 text-white" aria-hidden />
+                    </span>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <p className="text-sm text-[var(--color-muted-foreground)]">{position}</p>
+            <div className="flex items-center gap-2">
               <button
-                key={frame.openAt}
                 type="button"
-                className="group relative aspect-[3/4] min-h-11 overflow-hidden rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
-                aria-label={frame.label}
-                onClick={() => openAt(frame.openAt)}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-muted)] text-[var(--color-foreground)]"
+                aria-label={t("carouselPrev")}
+                onClick={() => strip.step(-1)}
               >
-                <Image
-                  src={itemSrc(frame.item)}
-                  alt=""
-                  fill
-                  className="object-cover transition duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                />
-                {frame.item.kind === "video" ? (
-                  <span className="absolute inset-0 flex items-center justify-center bg-black/25">
-                    <Play className="h-10 w-10 text-white" aria-hidden />
-                  </span>
-                ) : null}
+                <ChevronLeft className="h-5 w-5" aria-hidden />
               </button>
-            ) : null,
-          )}
+              <button
+                type="button"
+                className="inline-flex h-11 min-w-11 items-center justify-center rounded-full bg-[var(--color-muted)] px-3 text-[var(--color-foreground)]"
+                aria-label={strip.paused ? t("autoplayPlay") : t("autoplayPause")}
+                aria-pressed={strip.paused}
+                onClick={() => strip.setPaused((value) => !value)}
+              >
+                {strip.paused ? (
+                  <Play className="h-4 w-4" aria-hidden />
+                ) : (
+                  <Pause className="h-4 w-4" aria-hidden />
+                )}
+              </button>
+              <button
+                type="button"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-muted)] text-[var(--color-foreground)]"
+                aria-label={t("carouselNext")}
+                onClick={() => strip.step(1)}
+              >
+                <ChevronRight className="h-5 w-5" aria-hidden />
+              </button>
+            </div>
+          </div>
         </div>
         <button
           type="button"
@@ -166,7 +216,7 @@ export function LioraLandingGallery({ dict }: LioraLandingGalleryProps) {
             type="button"
             className="absolute start-2 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white"
             aria-label={t("carouselPrev")}
-            onClick={() => step(-1)}
+            onClick={() => move(-1)}
           >
             <ChevronLeft className="h-5 w-5" aria-hidden />
           </button>
@@ -174,16 +224,12 @@ export function LioraLandingGallery({ dict }: LioraLandingGalleryProps) {
             type="button"
             className="absolute end-2 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white"
             aria-label={t("carouselNext")}
-            onClick={() => step(1)}
+            onClick={() => move(1)}
           >
             <ChevronRight className="h-5 w-5" aria-hidden />
           </button>
         </div>
-        <p className="mt-3 text-center text-sm text-white/80">
-          {t("carouselPosition")
-            .replace("{current}", String(index + 1))
-            .replace("{total}", String(total))}
-        </p>
+        <p className="mt-3 text-center text-sm text-white/80">{position}</p>
       </Modal>
     </section>
   );
