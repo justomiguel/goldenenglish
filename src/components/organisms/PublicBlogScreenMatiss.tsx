@@ -30,10 +30,10 @@ export function PublicBlogScreenMatiss({
 
   return (
     <MatissFontRoot>
-      <main className="relative min-h-screen overflow-x-hidden">
+      <main className="relative min-h-screen overflow-x-clip">
         <MatissSiteHeader
           locale={locale}
-          logoSrc={brand.logoPath}
+          brandName={brand.name}
           logoAlt={brand.logoAlt}
           dict={dict}
           sessionEmail={sessionEmail}

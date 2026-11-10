@@ -1,4 +1,4 @@
-import { MATISS_GROUPS } from "@/lib/landing/matissSchedule";
+import { MATISS_GROUPS, type MatissWeekday } from "@/lib/landing/matissSchedule";
 import { MatissPhoto } from "@/components/molecules/MatissPhoto";
 import { MatissReveal } from "@/components/molecules/MatissReveal";
 
@@ -11,7 +11,7 @@ export interface MatissProgramCopy {
 export interface LandingMatissProgramsProps {
   title: string;
   lead: string;
-  dayLabel: string;
+  dayLabels: Record<MatissWeekday, string>;
   yearsLabel: string;
   locationNames: Record<"sanMiguel" | "laFlorida", string>;
   programs: Record<string, MatissProgramCopy>;
@@ -22,7 +22,7 @@ export interface LandingMatissProgramsProps {
 export function LandingMatissPrograms({
   title,
   lead,
-  dayLabel,
+  dayLabels,
   yearsLabel,
   locationNames,
   programs,
@@ -51,7 +51,7 @@ export function LandingMatissPrograms({
                     <p className="text-sm font-semibold text-[var(--matiss-rose-deep)]">{locationNames[group.location]}</p>
                     <h3 className="matiss-display mt-1 text-3xl text-[var(--matiss-ink)]">{copy?.name}</h3>
                     <p className="mt-2 text-sm font-semibold text-[var(--matiss-ink)]">
-                      {group.ageMin}–{group.ageMax} {yearsLabel} · {dayLabel} {group.start}–{group.end}
+                      {group.ageMin}–{group.ageMax} {yearsLabel} · {dayLabels[group.day]} {group.start}–{group.end}
                     </p>
                     <p className="mt-3 leading-relaxed text-[var(--matiss-ink-soft)]">{copy?.body}</p>
                   </div>

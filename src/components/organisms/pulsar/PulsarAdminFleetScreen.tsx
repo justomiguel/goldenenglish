@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Activity, ArchiveRestore, Building2, Eye, Plus } from "lucide-react";
 import { PulsarAdminAnalyticsSettings } from "@/components/organisms/pulsar/PulsarAdminAnalyticsSettings";
+import { PulsarAdminOperatorPassword } from "@/components/organisms/pulsar/PulsarAdminOperatorPassword";
 import { PulsarPanelFrame } from "@/components/organisms/pulsar/PulsarPanelFrame";
 import { PulsarAdminMailSettings } from "@/components/organisms/pulsar/PulsarAdminMailSettings";
 import { PulsarAdminOwnerReview } from "@/components/organisms/pulsar/PulsarAdminOwnerReview";
@@ -35,6 +36,7 @@ export interface PulsarAdminFleetScreenProps {
     last: { ok: boolean; code: string; detail: string; at: string } | null;
   };
   gaMeasurementId?: string;
+  operatorPasswordSet?: boolean;
   displayName?: string;
   phone?: string;
   avatarUrl?: string | null;
@@ -52,6 +54,7 @@ export function PulsarAdminFleetScreen({
   owners = [],
   mailSettings = { fromEmail: "", notifyEmail: "", hasApiKey: false, last: null },
   gaMeasurementId = "",
+  operatorPasswordSet = false,
   displayName = "",
   phone = "",
   avatarUrl = null,
@@ -60,9 +63,20 @@ export function PulsarAdminFleetScreen({
   const params = useSearchParams();
   const copy = dict.pulsar.admin;
   const rawTab = params.get("tab");
-  const tab = rawTab === "accounts" || rawTab === "mail" || rawTab === "analytics" ? rawTab : "sites";
+  const tab =
+    rawTab === "accounts" || rawTab === "mail" || rawTab === "analytics" || rawTab === "operator"
+      ? rawTab
+      : "sites";
   const sectionTitle =
-    tab === "accounts" ? copy.tabAccounts : tab === "mail" ? copy.tabMail : tab === "analytics" ? copy.tabAnalytics : copy.title;
+    tab === "accounts"
+      ? copy.tabAccounts
+      : tab === "mail"
+        ? copy.tabMail
+        : tab === "analytics"
+          ? copy.tabAnalytics
+          : tab === "operator"
+            ? copy.tabOperator
+            : copy.title;
   const [busySlug, setBusySlug] = useState<string | null>(null);
   const [deleteSlug, setDeleteSlug] = useState<string | null>(null);
   const numFmt = new Intl.NumberFormat(locale);
@@ -139,6 +153,11 @@ export function PulsarAdminFleetScreen({
         {tab === "analytics" ? (
           <div className="mt-6">
             <PulsarAdminAnalyticsSettings locale={locale} measurementId={gaMeasurementId} copy={copy.analytics} />
+          </div>
+        ) : null}
+        {tab === "operator" ? (
+          <div className="mt-6">
+            <PulsarAdminOperatorPassword locale={locale} passwordSet={operatorPasswordSet} copy={copy.operator} />
           </div>
         ) : null}
         {tab === "sites" ? (

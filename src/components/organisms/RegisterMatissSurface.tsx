@@ -47,7 +47,7 @@ export function RegisterMatissSurface({
     <MatissFontRoot className="relative min-h-screen pb-16">
       <MatissSiteHeader
         locale={locale}
-        logoSrc={brand.logoPath}
+        brandName={brand.name}
         logoAlt={brand.logoAlt}
         dict={dict}
         sessionEmail={sessionEmail}

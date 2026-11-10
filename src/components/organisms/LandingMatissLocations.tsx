@@ -5,6 +5,8 @@ export interface MatissLocationCopy {
   key: "sanMiguel" | "laFlorida";
   name: string;
   body: string;
+  /** Street address. The maps link searches this, not the commune name alone. */
+  address: string;
 }
 
 export interface LandingMatissLocationsProps {
@@ -26,7 +28,7 @@ export function LandingMatissLocations({ title, lead, mapsLabel, locations }: La
                 <h3 className="matiss-display text-3xl text-[var(--matiss-ink)]">{location.name}</h3>
                 <p className="mt-3 leading-relaxed text-[var(--matiss-ink-soft)]">{location.body}</p>
                 <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${location.name}, Santiago`)}`}
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.address)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-3 inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-[var(--matiss-violet-deep)] underline underline-offset-4"

@@ -104,7 +104,7 @@
         "shareContext": "Ballet para todas las edades en Santiago: Pre Ballet, infantil, juvenil y adulto en tres sedes junto al metro."
       },
       "matiss": {
-        "shareContext": "Gimnasia acrobática para niñas de 3 a 13 años en San Miguel y La Florida. Clases los sábados y clase de prueba."
+        "shareContext": "Gimnasia acrobática para niñas de 3 a 13 años. Sábados en San Miguel y domingos en La Florida. Clase de prueba."
       }
     },
     "homeFallback": "Clases, horarios y cómo sumarte.",
@@ -4231,6 +4231,9 @@
         "instagramAria": "Instagram de Matiss Studio",
         "whatsappAria": "WhatsApp de Matiss Studio"
       },
+      "seal": {
+        "ring": "Gimnasia acrobática · San Miguel · La Florida ·"
+      },
       "nav": {
         "inicio": "Inicio",
         "sobreNosotros": "El estudio",
@@ -4243,12 +4246,12 @@
       },
       "register": {
         "shellTitle": "Agenda su clase de prueba gratis",
-        "shellLead": "Cuéntanos la edad de tu hija. Te escribimos con el grupo, la sede y el sábado de su primera clase."
+        "shellLead": "Cuéntanos la edad de tu hija. Te escribimos con el grupo, la sede y el día de su primera clase."
       },
       "hero": {
         "kicker": "Gimnasia acrobática para niñas de 3 a 13 años",
         "title": "Pequeñas gimnastas. Grandes sueños.",
-        "subtitle": "Clases los sábados en San Miguel y La Florida, en grupos por edad. Fuerza, flexibilidad y confianza, con una profesora al lado en cada intento.",
+        "subtitle": "Clases los sábados en San Miguel y los domingos en La Florida, en grupos por edad. Fuerza, flexibilidad y confianza, con una profesora al lado en cada intento.",
         "ctaPrimary": "Agenda su clase de prueba gratis",
         "ctaSecondary": "Ver grupos y horarios",
         "facts": [
@@ -4290,7 +4293,7 @@
       },
       "clases": {
         "kicker": "Una clase",
-        "sectionTitle": "Así es un sábado en la sala",
+        "sectionTitle": "Así es una clase en la sala",
         "lead": "Entre una hora y una hora y media. Nadie se queda mirando desde la orilla.",
         "steps": [
           {
@@ -4307,7 +4310,7 @@
           },
           {
             "title": "Cierre con aplauso",
-            "body": "Repasamos lo que cada una logró y nos despedimos hasta el sábado."
+            "body": "Repasamos lo que cada una logró y nos despedimos hasta la próxima clase."
           }
         ]
       },
@@ -4322,22 +4325,28 @@
       },
       "sedes": {
         "kicker": "Sedes",
-        "sectionTitle": "Dos sedes, el mismo sábado",
-        "lead": "Te enviamos la dirección exacta de la sala al confirmar la clase de prueba.",
+        "sectionTitle": "Dos sedes",
+        "lead": "San Miguel abre los sábados. La Florida abre los domingos.",
         "sanMiguel": {
           "name": "San Miguel",
-          "body": "Dos grupos seguidos: Babys al mediodía y Senior después."
+          "address": "Gran Avenida 3840, oficina 315, San Miguel, Santiago",
+          "body": "Gran Avenida 3840, oficina 315. Sábados: Babys de 12:30 a 13:30 y Senior de 13:30 a 15:00."
         },
         "laFlorida": {
           "name": "La Florida",
-          "body": "Un grupo Babys por la tarde, cerca del metro Rojas Magallanes."
+          "address": "Vicuña Mackenna 8820, 2.º piso, 8150215 La Florida, Santiago",
+          "body": "Vicuña Mackenna 8820, 2.º piso. Domingos de 15:00 a 16:00, para niñas de 6 a 9 años."
         },
         "maps": "Cómo llegar"
       },
       "horarios": {
         "kicker": "Horarios",
-        "sectionTitle": "Sábados",
+        "sectionTitle": "Horarios",
         "day": "Sábado",
+        "days": {
+          "saturday": "Sábado",
+          "sunday": "Domingo"
+        },
         "group": "Grupo",
         "ages": "Edades",
         "time": "Hora",
@@ -4345,12 +4354,12 @@
       },
       "galeria": {
         "kicker": "Galería",
-        "sectionTitle": "Un sábado en Matiss",
+        "sectionTitle": "Así se ve la sala",
         "verMas": "Ver foto",
         "alt": "Alumnas de Matiss Studio en clase."
       },
       "cta": {
-        "title": "El próximo sábado puede ser el primero",
+        "title": "La próxima clase puede ser la primera",
         "subtitle": "Escríbenos con la edad de tu hija. Te respondemos con su grupo y el día de su clase de prueba gratis.",
         "button": "Agenda su clase de prueba",
         "photoAlt": "La profesora con tres alumnas de polera rosada en la sala."
@@ -4384,7 +4393,7 @@
           },
           "babys-la-florida": {
             "name": "Babys La Florida",
-            "body": "El mismo inicio para las más pequeñas, a pasos del metro Rojas Magallanes.",
+            "body": "Para niñas de 6 a 9 años. Fuerza, flexibilidad y acrobacia, los domingos en Vicuña Mackenna.",
             "alt": "Alumna con body lila haciendo un puente."
           }
         }
@@ -4398,7 +4407,7 @@
           },
           {
             "title": "Te confirmamos",
-            "body": "Te decimos su grupo, la sede y el sábado que le corresponde."
+            "body": "Te decimos su grupo, la sede y el día que le corresponde."
           },
           {
             "title": "Viene y prueba",
@@ -4417,7 +4426,7 @@
         "items": [
           {
             "q": "¿Desde qué edad pueden entrar?",
-            "a": "Desde los 3 hasta los 13 años. Babys reúne a las más pequeñas y Senior a las mayores de 7."
+            "a": "Desde los 3 hasta los 13 años. En San Miguel, Babys es de 3 a 6 y Senior de 7 a 13. En La Florida el grupo es de 6 a 9."
           },
           {
             "q": "¿La clase de prueba tiene costo?",
@@ -4433,7 +4442,7 @@
           },
           {
             "q": "¿Qué día son las clases?",
-            "a": "Los sábados. San Miguel a mediodía y La Florida por la tarde."
+            "a": "San Miguel los sábados, al mediodía. La Florida los domingos, de 15:00 a 16:00, para niñas de 6 a 9 años."
           },
           {
             "q": "¿Hay cupos?",
@@ -9284,27 +9293,27 @@
       },
         "matiss": {
           "metaTitle": "Preguntas sobre las clases de gimnasia",
-          "metaDescription": "Edades de 3 a 13 años, clases los sábados en San Miguel y La Florida, y clase de prueba.",
+          "metaDescription": "Edades de 3 a 13 años. Sábados en San Miguel, domingos en La Florida, y clase de prueba.",
           "items": [
             {
               "id": "ages",
               "q": "¿Desde qué edad pueden empezar?",
-              "a": "Desde los 3 años y hasta los 13. El grupo Babys parte a los 3 en San Miguel y a los 4 en La Florida."
+              "a": "Desde los 3 hasta los 13 años. En La Florida el grupo es de 6 a 9 años."
             },
             {
               "id": "day",
               "q": "¿Qué día son las clases?",
-              "a": "Los sábados. En San Miguel hay dos grupos seguidos y en La Florida uno por la tarde."
+              "a": "San Miguel los sábados: Babys de 12:30 a 13:30 y Senior de 13:30 a 15:00. La Florida los domingos, de 15:00 a 16:00."
             },
             {
               "id": "sites",
               "q": "¿Dónde están las sedes?",
-              "a": "En San Miguel y en La Florida, en Santiago. La dirección de cada sala se confirma al agendar."
+              "a": "San Miguel: Gran Avenida 3840, oficina 315. La Florida: Vicuña Mackenna 8820, 2.º piso."
             },
             {
               "id": "trial",
               "q": "¿Puedo agendar una clase de prueba?",
-              "a": "Sí. Escribe por WhatsApp o Instagram y coordinamos el sábado."
+              "a": "Sí. Escribe por WhatsApp o Instagram y coordinamos el día."
             },
             {
               "id": "bring",
@@ -12799,6 +12808,7 @@
       "metaTitle": "Novedades del sistema",
       "title": "Novedades del sistema",
       "lead": "Historial de lo que se fue agregando al producto. No reemplaza la auditoría: aquí no figura quién editó un alumno o un pago.",
+      "unavailable": "Las novedades no cargaron. Recarga la página. Si siguen sin aparecer, envía este código: changelog_unavailable",
       "listAria": "Historial de novedades del producto",
       "areas": {
         "academic": "Académico",
@@ -17440,10 +17450,28 @@
         "invalid": "El ID debe empezar con G- y usar solo letras y números.",
         "saveFailed": "No se pudo guardar."
       },
+      "operator": {
+        "title": "Admin operador",
+        "lead": "Esta contraseña inicia sesión de justomiguelvargas@gmail.com en CentroListo y en cada instituto compartido.",
+        "ownDatabase": "Un instituto con base propia toma esta contraseña la próxima vez que lo guardas.",
+        "statusSet": "Hay una contraseña guardada. Escribe una nueva para reemplazarla.",
+        "statusMissing": "No hay contraseña guardada. Un instituto nuevo no crea este admin hasta que guardes una.",
+        "passwordLabel": "Nueva contraseña",
+        "save": "Guardar contraseña",
+        "saved": "Guardada. El acceso a CentroListo ya la usa. El próximo instituto también.",
+        "empty": "Escribe una contraseña. Código: operator_password_empty",
+        "short": "Usa al menos 8 caracteres. Código: operator_password_short",
+        "long": "Usa como máximo 200 caracteres. Código: operator_password_long",
+        "saveFailed": "No se guardó la contraseña. Inténtalo de nuevo. Código: operator_password_save_failed",
+        "loginFailed": "La contraseña quedó guardada para institutos nuevos. El acceso actual no se actualizó. Revisa el log del servidor e inténtalo de nuevo. Código: operator_password_login_failed",
+        "unauthorized": "Tu sesión de staff venció. Ingresa de nuevo. Código: unauthorized",
+        "notConfigured": "La base de CentroListo no está configurada. Código: not_configured"
+      },
       "tabSites": "Sitios",
       "tabAccounts": "Cuentas",
       "tabMail": "Correo",
       "tabAnalytics": "Analítica",
+      "tabOperator": "Operador",
       "templatesNav": "Plantillas",
       "templatesTitle": "Plantillas",
       "templatesLead": "Revisa las plantillas de sitio que puedes dar a un cliente.",
@@ -17659,6 +17687,7 @@
           "db_write_failed": "No se pudo guardar el tenant en la base de datos de CentroListo.",
           "pulsar_shared_db_unconfigured": "Configura PULSAR_SUPABASE_URL, la anon key, la service role key y PULSAR_DATABASE_URL antes de guardar un instituto compartido.",
           "schema_provision_failed": "No se creó el schema del instituto. Revisa el log del servidor e inténtalo de nuevo.",
+          "operator_admin_failed": "No se creó la cuenta de administrador del operador. Guarda la contraseña del operador en CentroListo e inténtalo de nuevo. Código: operator_admin_failed",
           "invalid_mail_quota": "El tope de correos debe ser un número entero entre 0 y 100000.",
           "invalid_daily_domain": "Ingresa un host de Daily sin esquema ni ruta."
         },

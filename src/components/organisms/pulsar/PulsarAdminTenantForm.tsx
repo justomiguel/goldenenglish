@@ -19,6 +19,7 @@ import { PulsarTenantProvisionDialog } from "@/components/organisms/pulsar/Pulsa
 import { toPulsarTenantFormValues } from "@/components/organisms/pulsar/pulsarTenantFormDefaults";
 import { usePulsarTenantProvisionJob } from "@/hooks/usePulsarTenantProvisionJob";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
+import { pulsarTenantFormErrorText } from "@/lib/pulsar/pulsarTenantFormError";
 import type { Dictionary } from "@/types/i18n";
 
 export interface PulsarAdminTenantFormProps {
@@ -111,9 +112,10 @@ export function PulsarAdminTenantForm({
     }
   };
 
-  const errorText = errorCode
-    ? (formCopy.errors as Record<string, string>)[errorCode] ?? formCopy.errors.db_write_failed
-    : null;
+  const errorText = pulsarTenantFormErrorText(
+    errorCode,
+    formCopy.errors as Record<string, string>,
+  );
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)]">

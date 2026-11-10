@@ -2,10 +2,12 @@
  * Matiss Studio weekly groups. Pure data: the age control and the schedule
  * section both read this module. Times are local wall-clock, "HH:MM".
  */
+export type MatissWeekday = "saturday" | "sunday";
+
 export interface MatissGroup {
   id: "babys-san-miguel" | "senior-san-miguel" | "babys-la-florida";
   location: "sanMiguel" | "laFlorida";
-  day: "saturday";
+  day: MatissWeekday;
   ageMin: number;
   ageMax: number;
   start: string;
@@ -34,11 +36,11 @@ export const MATISS_GROUPS: readonly MatissGroup[] = [
   {
     id: "babys-la-florida",
     location: "laFlorida",
-    day: "saturday",
-    ageMin: 4,
-    ageMax: 7,
-    start: "19:00",
-    end: "20:00",
+    day: "sunday",
+    ageMin: 6,
+    ageMax: 9,
+    start: "15:00",
+    end: "16:00",
   },
 ];
 

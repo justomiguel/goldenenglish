@@ -1,0 +1,42 @@
+---
+description: Every generated institute gets the platform operator as admin.
+alwaysApply: true
+---
+
+# Platform operator admin
+
+## Rule
+
+Every institute that this repo generates gets one operator admin.
+
+- Email: `justomiguelvargas@gmail.com` (`PLATFORM_OPERATOR_ADMIN_EMAIL` in `src/lib/pulsar/platformOperatorAdmin.ts`)
+- Password: `platform_settings.operator_admin_password` on the Pulsar database
+- Profile role: `admin`
+
+Staff change the password in the CentroListo panel, tab Operator. The page shows whether a password exists. It does not send the saved password to the browser. Do not write the password in source, tests, specs, rules, seeds, or the changelog.
+
+## When it runs
+
+1. Shared schema: `provisionSharedInstituteSchema` reads the column and calls `ensurePlatformOperatorAdmin` after the migrations. This covers staff save, a free site, and a backup import.
+2. Own Supabase project: `savePulsarTenantAction` calls `ensurePlatformOperatorAdminOnDatabase` when `databaseUrl` is set. The schema is `public`. That save uses the password stored at that moment.
+3. Panel save: `savePlatformOperatorPasswordAction` writes the column and updates the CentroListo login for that email.
+4. Manual SQL: `supabase/seed_dev_admin.sql` reads `ge.operator_admin_password` from the session. Set it from the stored value before the script. Do not paste the value into the file.
+
+A second provision sets the password again and keeps `profiles.role = admin`. Do not log the password.
+
+If the column is empty, the seed fails with `operator_admin_failed`. A shared-schema provision throws `operator_admin_missing_password` and does not finish the institute.
+
+## When you add a tenant
+
+Do not finish tenant creation until this admin exists in that institute schema. Do not invent a different operator email. Do not put the password in git.
+
+## Failure
+
+A project-mode failure returns `operator_admin_failed`. The sentence lives in `en.json`, `es.json`, and `pt.json`. The log scope is `ensurePlatformOperatorAdmin`. The log records `missing_operator_password` when the column is empty. It never records the password.
+
+## Checklist
+
+- [ ] New shared schema calls `ensurePlatformOperatorAdmin`?
+- [ ] Project-mode save with a database URL calls `ensurePlatformOperatorAdminOnDatabase`?
+- [ ] The profile role in that schema is `admin`?
+- [ ] The password stays in `platform_settings` and stays out of git and out of the browser?

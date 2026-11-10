@@ -29,10 +29,4 @@ export type ProductChangelogEntry = {
   summary: LocalizedChangelogText;
 };
 
-export const changelogT = (es: string, en: string, pt: string): LocalizedChangelogText => ({
-  es,
-  en,
-  pt,
-});
-
 export type { Locale };

@@ -34,6 +34,7 @@ export function buildPulsarPanelNav(input: {
           panelItem("accounts", `${admin}?tab=accounts`, dict.pulsar.admin.tabAccounts),
           panelItem("mail", `${admin}?tab=mail`, dict.pulsar.admin.tabMail),
           panelItem("analytics", `${admin}?tab=analytics`, dict.pulsar.admin.tabAnalytics),
+          panelItem("operator", `${admin}?tab=operator`, dict.pulsar.admin.tabOperator),
           panelItem("templates", `${admin}/plantillas`, dict.pulsar.admin.templatesNav),
           panelItem("new", `${admin}/tenants/new`, dict.pulsar.admin.newTenantCta),
           panelItem("profile", `/${locale}/admin/perfil`, dict.pulsar.panelNav.account),

@@ -7,6 +7,7 @@ import {
   ADMIN_SESSION_UNAUTHORIZED,
 } from "@/lib/dashboard/adminSessionErrors";
 import { AdminProductChangelogScreen } from "@/components/organisms/AdminProductChangelogScreen";
+import { loadProductChangelogEntries } from "@/lib/product-changelog/loadProductChangelog";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -33,11 +34,14 @@ export default async function AdminChangelogPage({ params }: PageProps) {
   }
 
   const dict = await getDictionary(locale);
+  const loaded = await loadProductChangelogEntries();
 
   return (
     <AdminProductChangelogScreen
       locale={locale}
       pageDict={dict.dashboard.adminChangelogPage}
+      entries={loaded.entries}
+      unavailableMessage={loaded.ok ? null : dict.dashboard.adminChangelogPage.unavailable}
     />
   );
 }

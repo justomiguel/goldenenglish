@@ -104,7 +104,7 @@
         "shareContext": "Ballet for every age in Santiago: Pre Ballet, children's, youth, and adult classes across three metro-adjacent locations."
       },
       "matiss": {
-        "shareContext": "Acrobatic gymnastics for girls aged 3 to 13 in San Miguel and La Florida. Saturday classes and a trial class."
+        "shareContext": "Acrobatic gymnastics for girls aged 3 to 13. Saturdays in San Miguel and Sundays in La Florida. Trial class."
       }
     },
     "homeFallback": "Classes, schedules, and how to join.",
@@ -4231,6 +4231,9 @@
         "instagramAria": "Matiss Studio on Instagram",
         "whatsappAria": "Matiss Studio on WhatsApp"
       },
+      "seal": {
+        "ring": "Acrobatic gymnastics · San Miguel · La Florida ·"
+      },
       "nav": {
         "inicio": "Home",
         "sobreNosotros": "The studio",
@@ -4243,12 +4246,12 @@
       },
       "register": {
         "shellTitle": "Book her free trial class",
-        "shellLead": "Tell us your daughter's age. We write back with her group, the location, and the Saturday of her first class."
+        "shellLead": "Tell us your daughter's age. We write back with her group, the location, and the day of her first class."
       },
       "hero": {
         "kicker": "Acrobatic gymnastics for girls aged 3 to 13",
         "title": "Little gymnasts. Big dreams.",
-        "subtitle": "Saturday classes in San Miguel and La Florida, in groups by age. Strength, flexibility, and confidence, with a teacher beside her on every try.",
+        "subtitle": "Saturday classes in San Miguel and Sunday classes in La Florida, in groups by age. Strength, flexibility, and confidence, with a teacher beside her on every try.",
         "ctaPrimary": "Book her free trial class",
         "ctaSecondary": "See groups and times",
         "facts": [
@@ -4290,7 +4293,7 @@
       },
       "clases": {
         "kicker": "A class",
-        "sectionTitle": "A Saturday in the room",
+        "sectionTitle": "What a class looks like",
         "lead": "Between one hour and ninety minutes. Nobody stays watching from the side.",
         "steps": [
           {
@@ -4307,7 +4310,7 @@
           },
           {
             "title": "Applause to close",
-            "body": "We go over what each girl achieved and say goodbye until Saturday."
+            "body": "We go over what each girl achieved and say goodbye until the next class."
           }
         ]
       },
@@ -4322,22 +4325,28 @@
       },
       "sedes": {
         "kicker": "Locations",
-        "sectionTitle": "Two locations, the same Saturday",
-        "lead": "We send the exact room address when we confirm the trial class.",
+        "sectionTitle": "Two locations",
+        "lead": "San Miguel is open on Saturdays. La Florida is open on Sundays.",
         "sanMiguel": {
           "name": "San Miguel",
-          "body": "Two groups back to back: Babys at noon and Senior after."
+          "address": "Gran Avenida 3840, oficina 315, San Miguel, Santiago",
+          "body": "Gran Avenida 3840, oficina 315. Saturdays: Babys from 12:30 to 13:30 and Senior from 13:30 to 15:00."
         },
         "laFlorida": {
           "name": "La Florida",
-          "body": "One Babys group in the evening, near Rojas Magallanes metro."
+          "address": "Vicuña Mackenna 8820, 2nd floor, 8150215 La Florida, Santiago",
+          "body": "Vicuña Mackenna 8820, 2nd floor. Sundays from 15:00 to 16:00, for girls aged 6 to 9."
         },
         "maps": "Get directions"
       },
       "horarios": {
         "kicker": "Schedule",
-        "sectionTitle": "Saturdays",
+        "sectionTitle": "Schedule",
         "day": "Saturday",
+        "days": {
+          "saturday": "Saturday",
+          "sunday": "Sunday"
+        },
         "group": "Group",
         "ages": "Ages",
         "time": "Time",
@@ -4345,12 +4354,12 @@
       },
       "galeria": {
         "kicker": "Gallery",
-        "sectionTitle": "A Saturday at Matiss",
+        "sectionTitle": "Inside the room",
         "verMas": "View photo",
         "alt": "Matiss Studio students in class."
       },
       "cta": {
-        "title": "Next Saturday can be the first one",
+        "title": "The next class can be her first",
         "subtitle": "Write to us with your daughter's age. We answer with her group and the day of her free trial class.",
         "button": "Book her trial class",
         "photoAlt": "The teacher with three students in pink shirts in the room."
@@ -4384,7 +4393,7 @@
           },
           "babys-la-florida": {
             "name": "Babys La Florida",
-            "body": "The same start for the youngest, steps from Rojas Magallanes metro.",
+            "body": "For girls aged 6 to 9. Strength, flexibility, and acrobatics, on Sundays at Vicuña Mackenna.",
             "alt": "Student in a lilac leotard doing a bridge."
           }
         }
@@ -4398,7 +4407,7 @@
           },
           {
             "title": "We confirm",
-            "body": "We tell you her group, the location, and her Saturday."
+            "body": "We tell you her group, the location, and her day."
           },
           {
             "title": "She comes and tries",
@@ -4417,7 +4426,7 @@
         "items": [
           {
             "q": "From what age can she join?",
-            "a": "From 3 to 13. Babys is for the youngest and Senior for girls aged 7 and up."
+            "a": "From 3 to 13. In San Miguel, Babys is ages 3 to 6 and Senior is ages 7 to 13. In La Florida the group is ages 6 to 9."
           },
           {
             "q": "Is the trial class free?",
@@ -4433,7 +4442,7 @@
           },
           {
             "q": "What day are the classes?",
-            "a": "Saturdays. San Miguel at noon and La Florida in the evening."
+            "a": "San Miguel on Saturdays, at noon. La Florida on Sundays, from 15:00 to 16:00, for girls aged 6 to 9."
           },
           {
             "q": "Are there places left?",
@@ -9284,27 +9293,27 @@
       },
         "matiss": {
           "metaTitle": "Questions about the gymnastics classes",
-          "metaDescription": "Ages 3 to 13, Saturday classes in San Miguel and La Florida, and a trial class.",
+          "metaDescription": "Ages 3 to 13. Saturdays in San Miguel, Sundays in La Florida, and a trial class.",
           "items": [
             {
               "id": "ages",
               "q": "What age can she start?",
-              "a": "From 3 to 13. The Babys group starts at 3 in San Miguel and at 4 in La Florida."
+              "a": "From 3 to 13. In La Florida the group is ages 6 to 9."
             },
             {
               "id": "day",
               "q": "Which day are the classes?",
-              "a": "Saturdays. San Miguel has two groups back to back, and La Florida has one in the evening."
+              "a": "San Miguel on Saturdays: Babys from 12:30 to 13:30 and Senior from 13:30 to 15:00. La Florida on Sundays, from 15:00 to 16:00."
             },
             {
               "id": "sites",
               "q": "Where are the locations?",
-              "a": "In San Miguel and La Florida, Santiago. The room address is confirmed when you book."
+              "a": "San Miguel: Gran Avenida 3840, oficina 315. La Florida: Vicuña Mackenna 8820, 2nd floor."
             },
             {
               "id": "trial",
               "q": "Can I book a trial class?",
-              "a": "Yes. Write on WhatsApp or Instagram and we set the Saturday."
+              "a": "Yes. Write on WhatsApp or Instagram and we set the day."
             },
             {
               "id": "bring",
@@ -12799,6 +12808,7 @@
       "metaTitle": "What's new",
       "title": "What's new",
       "lead": "History of features added to the product. This is not the audit log: it does not show who edited a student or a payment.",
+      "unavailable": "The notes did not load. Reload the page. If they stay missing, send this code: changelog_unavailable",
       "listAria": "Product changelog",
       "areas": {
         "academic": "Academic",
@@ -17440,10 +17450,28 @@
         "invalid": "The id must start with G- and use only letters and digits.",
         "saveFailed": "The settings could not be saved."
       },
+      "operator": {
+        "title": "Operator admin",
+        "lead": "This password signs in justomiguelvargas@gmail.com on CentroListo and on each shared institute.",
+        "ownDatabase": "An institute with its own database takes this password the next time you save it.",
+        "statusSet": "A password is saved. Type a new one to replace it.",
+        "statusMissing": "No password is saved. A new institute cannot create this admin until you save one.",
+        "passwordLabel": "New password",
+        "save": "Save password",
+        "saved": "Saved. CentroListo login uses it now. The next institute uses it too.",
+        "empty": "Type a password. Code: operator_password_empty",
+        "short": "Use at least 8 characters. Code: operator_password_short",
+        "long": "Use at most 200 characters. Code: operator_password_long",
+        "saveFailed": "The password was not saved. Try again. Code: operator_password_save_failed",
+        "loginFailed": "The password is saved for new institutes. The current login was not updated. Check the server log and try again. Code: operator_password_login_failed",
+        "unauthorized": "Your staff session expired. Sign in again. Code: unauthorized",
+        "notConfigured": "The CentroListo database is not configured. Code: not_configured"
+      },
       "tabSites": "Sites",
       "tabAccounts": "Accounts",
       "tabMail": "Mail",
       "tabAnalytics": "Analytics",
+      "tabOperator": "Operator",
       "templatesNav": "Templates",
       "templatesTitle": "Templates",
       "templatesLead": "Review the site templates you can give to a client.",
@@ -17659,6 +17687,7 @@
           "db_write_failed": "Could not save the tenant in the CentroListo database.",
           "pulsar_shared_db_unconfigured": "Set PULSAR_SUPABASE_URL, the anon key, the service role key, and PULSAR_DATABASE_URL before you save a shared institute.",
           "schema_provision_failed": "The institute schema was not created. Check the server log and try again.",
+          "operator_admin_failed": "The operator admin account was not created. Save the operator password in CentroListo and try again. Code: operator_admin_failed",
           "invalid_mail_quota": "The mail cap must be a whole number from 0 to 100000.",
           "invalid_daily_domain": "Enter a Daily host without a scheme or path."
         },

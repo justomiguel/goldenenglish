@@ -7,7 +7,7 @@ const props = {
   lead: "Elige su edad",
   yearsLabel: "años",
   emptyLabel: "Sin grupo",
-  dayLabel: "Sábado",
+  dayLabels: { saturday: "Sábado", sunday: "Domingo" },
   locationNames: { sanMiguel: "San Miguel", laFlorida: "La Florida" },
   groupNames: {
     "babys-san-miguel": "Babys",

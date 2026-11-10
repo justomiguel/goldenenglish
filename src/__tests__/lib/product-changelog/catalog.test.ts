@@ -1,44 +1,66 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-  listProductChangelogEntries,
-  PRODUCT_CHANGELOG_AREAS,
-  resolveProductChangelogCopy,
-} from "@/lib/product-changelog/catalog";
+import { PRODUCT_CHANGELOG_AREAS, resolveProductChangelogCopy } from "@/lib/product-changelog/catalog";
+import type { ProductChangelogEntry } from "@/lib/product-changelog/catalogTypes";
 
 const LOCALES = ["es", "en", "pt"] as const;
+const REQUIRED_IDS = [
+  "matiss-locations-sunday",
+  "matiss-header-seal",
+  "nago-nunoa-dark-landing",
+  "directory-quota-enrollment-status",
+  "directory-monthly-status-column-filter",
+  "join-payment-disposition",
+  "trial-classes",
+  "enrollment-fee-checkout",
+  "parent-pwa-portal",
+];
+
+const SEED = readFileSync(
+  resolve("supabase/pulsar-migrations/020_platform_changelog.sql"),
+  "utf8",
+);
+
+function seedRows(): { id: string; date: string; area: string }[] {
+  return [...SEED.matchAll(/\$gecl\$([a-z0-9-]+)\$gecl\$, \$gecl\$(\d{4}-\d{2}-\d{2})\$gecl\$::date, \$gecl\$([a-z]+)\$gecl\$/g)].map(
+    (match) => ({ id: match[1], date: match[2], area: match[3] }),
+  );
+}
+
+const fixture: ProductChangelogEntry = {
+  id: "section-share-photo",
+  date: "2026-08-29",
+  area: "academic",
+  title: { es: "Foto de la sección", en: "Section photo", pt: "Foto da turma" },
+  summary: {
+    es: "Cada sección puede tener una foto para el link de inscripción.",
+    en: "Each section can have a photo on its enrollment link.",
+    pt: "Cada turma pode ter uma foto no link de inscrição.",
+  },
+};
 
 describe("product changelog catalog", () => {
-  it("lists unique entries newest first with a date and area", () => {
-    const entries = listProductChangelogEntries();
-    expect(entries.length).toBeGreaterThanOrEqual(20);
-    const ids = entries.map((e) => e.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    for (const entry of entries) {
-      expect(entry.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(PRODUCT_CHANGELOG_AREAS).toContain(entry.area);
-    }
-    const dates = entries.map((e) => e.date);
-    expect(dates).toEqual([...dates].sort((a, b) => (a < b ? 1 : a > b ? -1 : 0)));
-  });
-
   it("resolves title and summary in every locale", () => {
-    for (const entry of listProductChangelogEntries()) {
-      for (const locale of LOCALES) {
-        const copy = resolveProductChangelogCopy(entry, locale);
-        expect(copy.title.trim().length).toBeGreaterThan(3);
-        expect(copy.summary.trim().length).toBeGreaterThan(12);
-      }
+    for (const locale of LOCALES) {
+      const copy = resolveProductChangelogCopy(fixture, locale);
+      expect(copy.title).toBe(fixture.title[locale]);
+      expect(copy.summary).toBe(fixture.summary[locale]);
     }
+    expect(resolveProductChangelogCopy(fixture, "fr").title).toBe(fixture.title.es);
   });
 
-  it("includes recent product features extracted from commits", () => {
-    const ids = new Set(listProductChangelogEntries().map((e) => e.id));
-    expect(ids.has("nago-nunoa-dark-landing")).toBe(true);
-    expect(ids.has("directory-quota-enrollment-status")).toBe(true);
-    expect(ids.has("directory-monthly-status-column-filter")).toBe(true);
-    expect(ids.has("join-payment-disposition")).toBe(true);
-    expect(ids.has("trial-classes")).toBe(true);
-    expect(ids.has("enrollment-fee-checkout")).toBe(true);
-    expect(ids.has("parent-pwa-portal")).toBe(true);
+  it("seeds unique notes with a date and a known area", () => {
+    const rows = seedRows();
+    expect(rows.length).toBeGreaterThanOrEqual(20);
+    const ids = rows.map((row) => row.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const row of rows) {
+      expect(row.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(PRODUCT_CHANGELOG_AREAS).toContain(row.area);
+    }
+    for (const id of REQUIRED_IDS) {
+      expect(ids).toContain(id);
+    }
   });
 });

@@ -1,14 +1,16 @@
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import {
-  listProductChangelogEntries,
   resolveProductChangelogCopy,
   type ProductChangelogArea,
+  type ProductChangelogEntry,
 } from "@/lib/product-changelog/catalog";
 import type { Dictionary } from "@/types/i18n";
 
 export interface AdminProductChangelogScreenProps {
   locale: string;
   pageDict: Dictionary["dashboard"]["adminChangelogPage"];
+  entries: ProductChangelogEntry[];
+  unavailableMessage: string | null;
 }
 
 function formatChangelogDate(isoDate: string, locale: string): string {
@@ -28,9 +30,12 @@ function areaLabel(
   return areas[area];
 }
 
-export function AdminProductChangelogScreen({ locale, pageDict }: AdminProductChangelogScreenProps) {
-  const entries = listProductChangelogEntries();
-
+export function AdminProductChangelogScreen({
+  locale,
+  pageDict,
+  entries,
+  unavailableMessage,
+}: AdminProductChangelogScreenProps) {
   return (
     <div className="mx-auto w-full max-w-3xl">
       <div className="mb-6">
@@ -40,6 +45,11 @@ export function AdminProductChangelogScreen({ locale, pageDict }: AdminProductCh
           iconId="changelog"
         />
       </div>
+      {unavailableMessage ? (
+        <p className="mb-4 text-sm text-[var(--color-foreground)]" role="alert">
+          {unavailableMessage}
+        </p>
+      ) : null}
       <ol className="flex flex-col gap-3" aria-label={pageDict.listAria}>
         {entries.map((entry) => {
           const copy = resolveProductChangelogCopy(entry, locale);

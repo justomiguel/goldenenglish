@@ -55,7 +55,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`32-manual-qa-user-owned.mdc`** | QA manual en browser / tenant: lo hace el usuario; el agente no ofrece walkthroughs salvo pedido explícito; Vitest y automatización sí. |
 | **`34-precommit-e2e.mdc`** | Precommit fail-closed: `test:unit:precommit` + `test:e2e:precommit` + `.env.local.e2e`. Un archivo que ya pasó no se vuelve a correr si el archivo y el árbol no cambiaron. `SKIP_E2E=1` solo con aprobación explícita del usuario. |
 | **`37-commit-finished-work-ask-when-mixed.mdc`** | Al terminar una tarea, commitear. Nunca stash ni apartar WIP ajeno sin preguntar. Push solo si lo piden. |
-| **`39-commit-product-changelog.mdc`** | Antes de cada commit con cambio visible, agregar la entrada en `src/lib/product-changelog/catalog.ts` (Novedades del sistema). |
+| **`39-commit-product-changelog.mdc`** | Antes de cada commit con cambio visible, agregar la fila en `public.platform_changelog_entries` (Novedades del sistema). |
 | **`38-trunk-based-development.mdc`** | Trunk-based: solo `main`. Sin feature branches, worktrees ni stashes de aislamiento. |
 | **`42-persistent-page-tabs.mdc`** | Tabs de página persisten en URL (`?tab=` o clave propia) + `sessionStorage` vía `usePersistentPageTab`. |
 | **`43-pwa-surface-spec-check.mdc`** | Al escribir una spec (Gate 0) para una pantalla o UI compartida, revisar siempre el árbol nativo PWA y diseñar Web y PWA por separado sin romper la implementación PWA. |
@@ -65,6 +65,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`48-file-upload-progress.mdc`** | Toda subida de archivos, en institutos y en CentroListo, muestra `InlineUploadProgressBar` siempre. La barra informa la lectura y el envío. La foto de cuenta acepta 15 MB. |
 | **`49-ask-when-unsure.mdc`** | Si el pedido tiene más de una lectura real, pregunta antes de editar. No elijas pantalla, rol ni un borrado por tu cuenta. |
 | **`50-discriminated-user-errors.mdc`** | Ningún error visible puede ser genérico. Cada causa tiene su código estable, una frase que dice por qué y qué hacer, y el mismo código en el log. La persona puede citar ese código en un reclamo. |
+| **`52-platform-operator-admin.mdc`** | Todo instituto generado lleva el admin operador `justomiguelvargas@gmail.com` con la contraseña del procedimiento y `profiles.role = admin`. |
 | **`51-exclusive-client-themes.mdc`** | Una landing hecha para un cliente es un tema exclusivo. Pedí la ficha de `docs/runbooks/exclusive-landing-request.md` antes de crear el `SiteThemeKind`. No lo metas en el catálogo de CentroListo. |
 
 **Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`**, **`24-dashboard-list-filter-aggregates-rpc.mdc`** — agregados para filtros de listados en dashboard para **cualquier rol**, **`28-tenant-register-surface.mdc`** — `/register` con superficie dedicada por `SiteThemeKind`).

@@ -5,7 +5,8 @@ import { loadAdminCohortCollectionsOverview } from "@/lib/billing/loadAdminCohor
 import type { AdminHomeLayout, AdminHomeWidgetId } from "@/lib/dashboard/adminHomeLayout";
 import { loadAdminPeoplePageStats } from "@/lib/dashboard/loadAdminPeoplePageStats";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
-import { listProductChangelogEntries, resolveProductChangelogCopy } from "@/lib/product-changelog/catalog";
+import { resolveProductChangelogCopy } from "@/lib/product-changelog/catalog";
+import { loadProductChangelogEntries } from "@/lib/product-changelog/loadProductChangelog";
 import {
   EMPTY_ADMIN_HOME_OPS,
   type AdminHomeOpsSnapshot,
@@ -167,13 +168,12 @@ async function loadAdminHomeExtraWidgetsInner(input: {
     }
   }
 
-  const changelog = showChangelog
-    ? listProductChangelogEntries()
-        .slice(0, 3)
-        .map((entry) => ({
-          id: entry.id,
-          ...resolveProductChangelogCopy(entry, input.locale),
-        }))
+  const loadedChangelog = showChangelog ? await loadProductChangelogEntries() : null;
+  const changelog = loadedChangelog?.ok
+    ? loadedChangelog.entries.slice(0, 3).map((entry) => ({
+        id: entry.id,
+        ...resolveProductChangelogCopy(entry, input.locale),
+      }))
     : [];
 
   return {

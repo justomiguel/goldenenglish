@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { MATISS_AGE_RANGE, matissGroupsForAge } from "@/lib/landing/matissSchedule";
+import { MATISS_AGE_RANGE, matissGroupsForAge, type MatissWeekday } from "@/lib/landing/matissSchedule";
 
 export interface MatissAgeFinderProps {
   title: string;
   lead: string;
   yearsLabel: string;
   emptyLabel: string;
-  dayLabel: string;
+  dayLabels: Record<MatissWeekday, string>;
   locationNames: Record<"sanMiguel" | "laFlorida", string>;
   groupNames: Record<string, string>;
   photoSmall: string;
@@ -23,7 +23,7 @@ export function MatissAgeFinder({
   lead,
   yearsLabel,
   emptyLabel,
-  dayLabel,
+  dayLabels,
   locationNames,
   groupNames,
   photoSmall,
@@ -74,7 +74,7 @@ export function MatissAgeFinder({
               <p className="text-sm font-semibold text-[var(--matiss-rose-deep)]">{locationNames[group.location]}</p>
               <p className="matiss-display mt-1 text-2xl text-[var(--matiss-ink)]">{groupNames[group.id]}</p>
               <p className="mt-2 text-sm text-[var(--matiss-ink-soft)]">
-                {dayLabel} · {group.start}–{group.end} · {group.ageMin}–{group.ageMax} {yearsLabel}
+                {dayLabels[group.day]} · {group.start}–{group.end} · {group.ageMin}–{group.ageMax} {yearsLabel}
               </p>
             </li>
           ))}

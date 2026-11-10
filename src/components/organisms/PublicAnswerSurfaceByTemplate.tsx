@@ -102,7 +102,7 @@ export function PublicAnswerSurfaceByTemplate({
       <MatissFontRoot className="relative min-h-screen pb-16">
         <MatissSiteHeader
           locale={locale}
-          logoSrc={logoSrc}
+          brandName={brand.name}
           logoAlt={logoAlt}
           dict={dict}
           sessionEmail={sessionEmail}

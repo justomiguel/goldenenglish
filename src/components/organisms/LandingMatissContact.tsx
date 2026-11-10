@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle, Sparkles } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import { MatissSeal } from "@/components/molecules/MatissSeal";
 import { PublicContactForm } from "@/components/molecules/PublicContactForm";
 
 export interface LandingMatissContactProps {
@@ -14,6 +15,8 @@ export interface LandingMatissContactProps {
   whatsappHref?: string;
   primaryHref?: string;
   primaryLabel: string;
+  sealRing: string;
+  logoSrc: string;
 }
 
 export function LandingMatissContact({
@@ -26,6 +29,8 @@ export function LandingMatissContact({
   whatsappHref,
   primaryHref,
   primaryLabel,
+  sealRing,
+  logoSrc,
 }: LandingMatissContactProps) {
   return (
     <section id="contacto" className="scroll-mt-24 bg-[var(--matiss-lavender)] px-[max(1.5rem,env(safe-area-inset-left))] py-20 pe-[max(1.5rem,env(safe-area-inset-right))]">
@@ -38,7 +43,10 @@ export function LandingMatissContact({
           className="aspect-[4/5] w-full rounded-[40px] object-cover object-top md:sticky md:top-24"
         />
         <div>
-          <h2 className="matiss-display text-4xl text-[var(--matiss-ink)] md:text-5xl">{title}</h2>
+          <div className="flex items-start justify-between gap-6">
+            <h2 className="matiss-display text-4xl text-[var(--matiss-ink)] md:text-5xl">{title}</h2>
+            <MatissSeal ring={sealRing} logoSrc={logoSrc} size="sm" reverse className="hidden shrink-0 sm:block" />
+          </div>
           <p className="mt-4 max-w-xl text-[var(--matiss-ink-soft)]">{subtitle}</p>
           <div className="mt-6 rounded-3xl bg-white p-6">
             <PublicContactForm locale={locale} labels={dict.publicContact} embedded />

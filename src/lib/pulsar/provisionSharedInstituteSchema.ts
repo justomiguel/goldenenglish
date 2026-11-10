@@ -3,6 +3,8 @@ import path from "node:path";
 import pg, { type Client } from "pg";
 import { logServerActionException, logServerWarn } from "@/lib/logging/serverActionLog";
 import { createProvisionProgressWriter } from "@/lib/pulsar/instituteSchemaProvisionProgress";
+import { ensurePlatformOperatorAdmin } from "@/lib/pulsar/platformOperatorAdmin";
+import { loadPlatformOperatorAdminPassword } from "@/lib/pulsar/platformOperatorPassword";
 import { isBrandDataMigration } from "@/lib/tenant/planInstituteMigrationApplies";
 import {
   rewriteInstituteMigrationSql,
@@ -229,6 +231,7 @@ export async function provisionSharedInstituteSchema(args: {
       logServerWarn("provisionSharedInstituteSchema:expose", { schema, reason: "pgrst_schemas" });
       logServerActionException("provisionSharedInstituteSchema:expose", err);
     }
+      await ensurePlatformOperatorAdmin(client, schema, await loadPlatformOperatorAdminPassword());
       return { ok: true };
     } catch (err) {
       await progress.fail(failingFile);

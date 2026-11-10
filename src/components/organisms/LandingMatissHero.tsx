@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CalendarDays, Sparkles } from "lucide-react";
 import { MatissPhoto } from "@/components/molecules/MatissPhoto";
+import { MatissSeal } from "@/components/molecules/MatissSeal";
 
 export interface LandingMatissHeroProps {
   kicker: string;
@@ -13,6 +14,9 @@ export interface LandingMatissHeroProps {
   secondaryLabel: string;
   photoSrc: string;
   photoAlt: string;
+  sealRing: string;
+  logoSrc: string;
+  logoAlt: string;
 }
 
 function titleLines(title: string): string[] {
@@ -31,6 +35,9 @@ export function LandingMatissHero({
   secondaryLabel,
   photoSrc,
   photoAlt,
+  sealRing,
+  logoSrc,
+  logoAlt,
 }: LandingMatissHeroProps) {
   return (
     <section className="matiss-hero" aria-labelledby="matiss-hero-title">
@@ -79,6 +86,13 @@ export function LandingMatissHero({
             priority
             frameClassName="matiss-hero-photo aspect-[4/5] w-full rounded-t-[999px] rounded-b-[40px] bg-[var(--matiss-lavender)]"
             imageClassName="object-[50%_30%]"
+          />
+          <MatissSeal
+            ring={sealRing}
+            logoSrc={logoSrc}
+            logoAlt={logoAlt}
+            size="lg"
+            className="matiss-fade-up matiss-delay-3 absolute -bottom-10 -left-3 z-20 md:-bottom-12 md:-left-14"
           />
         </div>
       </div>

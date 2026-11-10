@@ -11,6 +11,8 @@ import { activateExclusiveThemeOnSave } from "@/lib/pulsar/activateExclusiveThem
 import { finishStaffTenantSave } from "@/lib/pulsar/finishStaffTenantSave";
 import { getPulsarStaffSession, type PulsarStaffSession } from "@/lib/pulsar/pulsarStaffAuth";
 import { mapPulsarTenantToDbPayload } from "@/lib/pulsar/pulsarTenantMapper";
+import { ensurePlatformOperatorAdminOnDatabase } from "@/lib/pulsar/platformOperatorAdmin";
+import { loadPlatformOperatorAdminPassword } from "@/lib/pulsar/platformOperatorPassword";
 import { prepareInstituteDataPlane } from "@/lib/pulsar/provisionSharedInstituteSchema";
 import {
   validatePulsarPlatformHostsInput,
@@ -85,6 +87,15 @@ export async function savePulsarTenantAction(args: {
     const record = validated.value;
     const prepared = await prepareInstituteDataPlane(record);
     if (!prepared.ok) return prepared;
+    if (record.dataMode !== "shared_schema" && record.databaseUrl) {
+      const operatorPassword = await loadPlatformOperatorAdminPassword();
+      const seeded = await ensurePlatformOperatorAdminOnDatabase(
+        record.databaseUrl,
+        "public",
+        operatorPassword,
+      );
+      if (!seeded.ok) return seeded;
+    }
     await activateExclusiveThemeOnSave(record);
     if (isPulsarSupabaseConfigured()) {
       const admin = createPulsarAdminClient();

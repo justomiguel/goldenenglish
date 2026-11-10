@@ -1,43 +1,41 @@
 ---
-description: Before every product commit, add a What's-new entry in the admin changelog catalog.
+description: Before every product commit, add a What's-new row in the CentroListo changelog table.
 alwaysApply: true
 ---
 
 # Commit gate — write the product changelog first
 
-Admin **Instituto → Novedades del sistema** is fed by `src/lib/product-changelog/catalog.ts`. Staff only see what we write there.
+Admin **Instituto → Novedades del sistema** reads `public.platform_changelog_entries` on the CentroListo database. Staff only see rows in that table.
 
 ## Before `git commit`
 
 1. Ask: will a parent, student, teacher, or admin **notice** this after deploy?
-2. If **yes**, add a new object at the **top** of `PRODUCT_CHANGELOG_ENTRIES` **before** creating the commit. Include that file in the **same** commit.
-3. If **no**, skip the entry (see below). Do not invent filler.
+2. If **yes**, add an `insert` for that note in a new file under `supabase/pulsar-migrations/` **before** creating the commit. Include that file in the **same** commit.
+3. If **no**, skip the row (see below). Do not invent filler.
 
-Do **not** run `git commit` for product-visible work while the catalog still lacks this change.
+Do **not** run `git commit` for product-visible work while the table seed still lacks this change.
 
-## Entry shape
+Do **not** add the note in TypeScript. The old `catalogEntries*.ts` files are gone.
+
+## Row shape
 
 - `id`: kebab-case, unique, stable (`trial-classes`, not `update-2`).
-- `date`: commit day `YYYY-MM-DD`.
-- `area`: one of `PRODUCT_CHANGELOG_AREAS`.
-- `title` / `summary`: `t(es, en, pt)` — staff-facing, one sentence each, no commit hashes or file lists.
+- `published_on`: commit day `YYYY-MM-DD`.
+- `area`: one of `academic`, `finance`, `registrations`, `parent`, `portal`, `events`, `cms`, `admin`, `communications`, `site`.
+- `title_es`, `title_en`, `title_pt` and `summary_es`, `summary_en`, `summary_pt`: staff-facing, one sentence each. No commit hashes or file lists.
+- `position`: `0` for the newest note. Do not reuse an existing `id`.
 
-```ts
-// ✅ GOOD — prepended, three locales, what staff can now do
-{
-  id: "section-share-photo",
-  date: "2026-08-29",
-  area: "academic",
-  title: t("Foto para compartir la sección", "Section share photo", "Foto para partilhar a turma"),
-  summary: t(
-    "Cada sección puede tener una foto para el link de inscripción.",
-    "Each section can have a photo on its enrollment link.",
-    "Cada turma pode ter uma foto no link de inscrição.",
-  ),
-}
-
-// ❌ BAD — committing a feature with no catalog row
-git commit -m "feat: section share photo"
+```sql
+insert into public.platform_changelog_entries (
+  id, published_on, area, title_es, title_en, title_pt, summary_es, summary_en, summary_pt, position
+) values (
+  'section-share-photo', '2026-08-29', 'academic',
+  'Foto para compartir la sección', 'Section share photo', 'Foto para partilhar a turma',
+  'Cada sección puede tener una foto para el link de inscripción.',
+  'Each section can have a photo on its enrollment link.',
+  'Cada turma pode ter uma foto no link de inscrição.',
+  0
+) on conflict (id) do nothing;
 ```
 
 ## Skip (no entry)

@@ -14,16 +14,21 @@ describe("matissGroupsForAge", () => {
     expect(groups[0]).toMatchObject({ start: "12:30", end: "13:30", day: "saturday" });
   });
 
-  it("offers both Babys groups at age 5", () => {
-    expect(matissGroupsForAge(5).map((group) => group.id)).toEqual([
-      "babys-san-miguel",
-      "babys-la-florida",
-    ]);
+  it("offers only San Miguel Babys at age 5", () => {
+    expect(matissGroupsForAge(5).map((group) => group.id)).toEqual(["babys-san-miguel"]);
   });
 
-  it("runs La Florida Babys from 19:00 to 20:00, as the studio schedule says", () => {
-    const laFlorida = matissGroupsForAge(5).find((group) => group.id === "babys-la-florida");
-    expect(laFlorida).toMatchObject({ start: "19:00", end: "20:00", day: "saturday" });
+  it("runs La Florida on Sunday from 15:00 to 16:00, for ages 6 to 9", () => {
+    const laFlorida = matissGroupsForAge(6).find((group) => group.id === "babys-la-florida");
+    expect(laFlorida).toMatchObject({
+      start: "15:00",
+      end: "16:00",
+      day: "sunday",
+      ageMin: 6,
+      ageMax: 9,
+    });
+    expect(matissGroupsForAge(9).map((group) => group.id)).toContain("babys-la-florida");
+    expect(matissGroupsForAge(10).map((group) => group.id)).not.toContain("babys-la-florida");
   });
 
   it("offers San Miguel Senior and La Florida Babys at age 7", () => {

@@ -28,6 +28,9 @@ vi.mock("@/lib/dashboard/loadAdminHomeOpsSnapshot", () => ({
   loadAdminHomeOpsSnapshot: (...args: unknown[]) => loadAdminHomeOpsSnapshot(...args),
 }));
 vi.mock("server-only", () => ({}));
+vi.mock("@/lib/product-changelog/loadProductChangelog", () => ({
+  loadProductChangelogEntries: vi.fn(async () => ({ ok: true as const, entries: [] })),
+}));
 
 function supabaseStub() {
   const limit = vi.fn().mockResolvedValue({

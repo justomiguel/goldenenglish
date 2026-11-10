@@ -1,7 +1,9 @@
 -- =============================================================================
 -- Golden English — admin de desarrollo (ejecutar en Supabase → SQL Editor)
 -- =============================================================================
--- Crea: justomiguelvargas@gmail.com / tetas123*-
+-- Crea: justomiguelvargas@gmail.com
+-- La contraseña no va en este archivo. En la misma sesión, antes del DO:
+--   SELECT set_config('ge.operator_admin_password', '<valor de platform_settings.operator_admin_password>', false);
 -- Perfil public.profiles con rol admin (el trigger inicial crea el perfil;
 -- luego se actualiza el rol).
 --
@@ -41,7 +43,7 @@ DO $$
 DECLARE
   v_user_id uuid;
   v_email text := 'justomiguelvargas@gmail.com';
-  v_password text := 'tetas123*-';
+  v_password text := nullif(current_setting('ge.operator_admin_password', true), '');
   v_instance uuid := '00000000-0000-0000-0000-000000000000'::uuid;
   v_meta jsonb := jsonb_build_object(
     'first_name', 'Admin',
@@ -49,6 +51,10 @@ DECLARE
     'dni_or_passport', 'ADMIN-0001'
   );
 BEGIN
+  IF v_password IS NULL THEN
+    RAISE EXCEPTION 'missing_operator_password';
+  END IF;
+
   SELECT id INTO v_user_id FROM auth.users WHERE lower(email) = lower(v_email) LIMIT 1;
 
   IF v_user_id IS NOT NULL THEN

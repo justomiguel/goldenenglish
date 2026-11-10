@@ -166,6 +166,23 @@
       animation-timeline: view();
     }
   }
+
+  /* The seal ring turns only while the page scrolls: three turns over the whole page. */
+  @supports (animation-timeline: scroll()) {
+    .matiss-seal-ring {
+      animation: matiss-spin linear both;
+      animation-timeline: scroll(root block);
+    }
+
+    .matiss-seal-ring--reverse {
+      animation-direction: reverse;
+    }
+  }
+}
+
+@keyframes matiss-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(1080deg); }
 }
 
 @keyframes matiss-draw {
@@ -211,6 +228,7 @@
   .matiss-frame-img,
   .matiss-drift,
   .matiss-line,
+  .matiss-seal-ring,
   .matiss-stagger > *,
   .matiss-btn {
     animation: none;

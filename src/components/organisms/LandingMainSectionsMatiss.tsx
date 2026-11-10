@@ -45,10 +45,10 @@ export function LandingMainSectionsMatiss({
 
   return (
     <MatissFontRoot>
-      <main className="relative overflow-x-hidden">
+      <main className="relative overflow-x-clip">
         <MatissSiteHeader
           locale={locale}
-          logoSrc={brand.logoPath}
+          brandName={brand.name}
           logoAlt={brand.logoAlt}
           dict={dict}
           sessionEmail={sessionEmail}

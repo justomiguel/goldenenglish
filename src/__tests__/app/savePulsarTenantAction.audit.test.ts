@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { sessionMock, insertMock, upsertMock } = vi.hoisted(() => ({
+const { sessionMock, insertMock, upsertMock, ensureMock } = vi.hoisted(() => ({
   sessionMock: vi.fn(),
   insertMock: vi.fn(),
   upsertMock: vi.fn(),
+  ensureMock: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
@@ -33,6 +34,12 @@ vi.mock("@/lib/pulsar/finishStaffTenantSave", () => ({
 vi.mock("@/lib/pulsar/activateExclusiveThemeOnSave", () => ({
   activateExclusiveThemeOnSave: async () => undefined,
 }));
+vi.mock("@/lib/pulsar/platformOperatorAdmin", () => ({
+  ensurePlatformOperatorAdminOnDatabase: (...args: unknown[]) => ensureMock(...args),
+}));
+vi.mock("@/lib/pulsar/platformOperatorPassword", () => ({
+  loadPlatformOperatorAdminPassword: async () => "stored-operator-password",
+}));
 
 import { savePulsarTenantAction } from "@/app/[locale]/admin/actions";
 
@@ -49,6 +56,7 @@ describe("savePulsarTenantAction audit", () => {
     });
     upsertMock.mockResolvedValue({ error: null });
     insertMock.mockResolvedValue({ error: null });
+    ensureMock.mockResolvedValue({ ok: true });
   });
 
   it("records dailyApiKey in changed_fields without the secret value", async () => {
@@ -70,5 +78,28 @@ describe("savePulsarTenantAction audit", () => {
     const insertArg = insertMock.mock.calls[0]?.[0];
     expect(insertArg.changed_fields).toContain("dailyApiKey");
     expect(JSON.stringify(insertArg)).not.toContain("daily-secret");
+    expect(ensureMock).not.toHaveBeenCalled();
+  });
+
+  it("seeds the operator admin on a project database", async () => {
+    const result = await savePulsarTenantAction({
+      locale: "es",
+      payload: {
+        slug: "demo",
+        displayName: "Demo",
+        hosts: ["demo.cl"],
+        supabaseUrl: "https://demo.supabase.co",
+        supabaseAnonKey: "anon",
+        supabaseServiceRoleKey: "srv",
+        databaseUrl: "postgres://institute.example/postgres",
+      },
+    });
+
+    expect(result).toEqual({ ok: true, slug: "demo" });
+    expect(ensureMock).toHaveBeenCalledWith(
+      "postgres://institute.example/postgres",
+      "public",
+      "stored-operator-password",
+    );
   });
 });

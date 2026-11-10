@@ -67,6 +67,7 @@ export function LandingMatissSections({
     ]),
   );
   const groupNames = Object.fromEntries(Object.entries(programs).map(([id, copy]) => [id, copy.name]));
+  const seal = { sealRing: t("seal.ring"), logoSrc: brand.logoPath };
 
   return (
     <>
@@ -81,6 +82,8 @@ export function LandingMatissSections({
         secondaryLabel={t("hero.ctaSecondary")}
         photoSrc={images.heroWeb}
         photoAlt={t("hero.photoAlt")}
+        {...seal}
+        logoAlt={brand.logoAlt || brand.name}
       />
 
       <LandingMatissManifesto
@@ -98,12 +101,13 @@ export function LandingMatissSections({
         items={list("sobreNosotros.items", 4, ["title", "body"] as const)}
         photoSrc={images.benefits}
         photoAlt={t("sobreNosotros.photoAlt")}
+        {...seal}
       />
 
       <LandingMatissPrograms
         title={t("programas.sectionTitle")}
         lead={t("programas.lead")}
-        dayLabel={t("horarios.day")}
+        dayLabels={{ saturday: t("horarios.days.saturday"), sunday: t("horarios.days.sunday") }}
         yearsLabel={t("edad.years")}
         locationNames={locationNames}
         programs={programs}
@@ -115,7 +119,7 @@ export function LandingMatissSections({
             lead={t("edad.lead")}
             yearsLabel={t("edad.years")}
             emptyLabel={t("edad.empty")}
-            dayLabel={t("horarios.day")}
+            dayLabels={{ saturday: t("horarios.days.saturday"), sunday: t("horarios.days.sunday") }}
             photoSmall={images.programs[0] ?? images.heroWeb}
             photoBig={images.programs[1] ?? images.heroWeb}
             photoAltSmall={t("edad.photoAltSmall")}
@@ -140,7 +144,7 @@ export function LandingMatissSections({
         buttonLabel={t("primeraClase.button")}
       />
 
-      <LandingMatissGala title={t("gala.title")} body={t("gala.body")} photoSrc={images.gala} photoAlt={t("gala.alt")} />
+      <LandingMatissGala title={t("gala.title")} body={t("gala.body")} photoSrc={images.gala} photoAlt={t("gala.alt")} {...seal} />
 
       <LandingMatissGallery title={t("galeria.sectionTitle")} alt={t("galeria.alt")} photos={images.gallery} />
 
@@ -152,6 +156,7 @@ export function LandingMatissSections({
           key,
           name: t(`sedes.${key}.name`),
           body: t(`sedes.${key}.body`),
+          address: t(`sedes.${key}.address`),
         }))}
       />
 
@@ -167,6 +172,7 @@ export function LandingMatissSections({
         whatsappHref={brand.socialWhatsapp}
         primaryHref={primary?.href}
         primaryLabel={t("cta.button")}
+        {...seal}
       />
 
       <LandingMatissFooter dict={dict} brand={brand} locale={locale} links={links} />
