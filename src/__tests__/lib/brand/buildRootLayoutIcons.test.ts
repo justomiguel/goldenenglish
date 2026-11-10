@@ -24,6 +24,7 @@ describe("buildRootLayoutIcons", () => {
     expect(list?.every((i) => /^https:\/\/cdn\.example\//i.test(i.url))).toBe(
       true,
     );
+    expect(icons?.apple).toBe("/pwa/icon/180");
     expect(JSON.stringify(icons)).not.toContain("favicon-16x16");
   });
 
@@ -37,6 +38,7 @@ describe("buildRootLayoutIcons", () => {
     expect(list).toHaveLength(1);
     expect(list[0]?.url).toBe("/file.svg");
     expect(list[0]?.type).toBe("image/svg+xml");
+    expect(icons?.apple).toBe("/pwa/icon/180");
     expect(JSON.stringify(icons)).not.toContain("favicon-16x16");
   });
 

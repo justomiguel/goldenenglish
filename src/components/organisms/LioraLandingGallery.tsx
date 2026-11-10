@@ -18,6 +18,9 @@ import {
 } from "@/lib/landing/lioraGalleryImages";
 import type { Dictionary } from "@/types/i18n";
 
+const LIGHTBOX_SIZES =
+  "(min-width: 1024px) 64rem, (min-width: 768px) 56rem, (min-width: 640px) 48rem, 96vw";
+
 export interface LioraLandingGalleryProps {
   dict: Dictionary;
 }
@@ -141,14 +144,14 @@ export function LioraLandingGallery({ dict }: LioraLandingGalleryProps) {
         dialogClassName="max-w-[min(96vw,56rem)] bg-black p-3 text-white sm:max-w-3xl sm:p-4 md:max-w-4xl lg:max-w-5xl"
       >
         <div className="relative mt-2 aspect-[4/3] w-full overflow-hidden rounded-xl bg-black">
-          {current?.kind === "photo" ? (
+          {open && current?.kind === "photo" ? (
             <Image
               key={current.src}
               src={current.src}
               alt=""
               fill
               className="object-contain"
-              sizes="100vw"
+              sizes={LIGHTBOX_SIZES}
               onLoad={markReady}
               onError={markReady}
             />

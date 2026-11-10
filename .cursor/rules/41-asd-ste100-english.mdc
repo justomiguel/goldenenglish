@@ -1,17 +1,17 @@
 ---
 alwaysApply: true
-description: Principal English style — ASD-STE100-inspired Simplified Technical English for agent replies and English the agent writes.
+description: Principal English style for persisted English. A user voice rule controls the chat reply.
 ---
 
 # Principal rule — ASD-STE100-inspired English
 
-This rule has priority for English prose. When another chat-style instruction asks for long or decorative English, follow this rule.
+This rule has priority for English prose that you persist. A user voice rule controls the chat reply. Caveman is one example. When no voice rule is active, use this style for replies too. When another chat-style instruction asks for long or decorative English, and no voice rule is active, follow this rule.
 
 Use this style for:
 
-- Every reply to the user.
 - English in rules, specs, plans, ADRs, runbooks, and code comments that you write.
 - New English strings in `src/dictionaries/en.json` that you add or edit.
+- A chat reply, only when no user voice rule is active.
 
 ## Write this way
 

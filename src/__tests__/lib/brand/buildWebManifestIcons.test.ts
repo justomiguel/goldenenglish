@@ -21,15 +21,27 @@ describe("buildWebManifestIcons", () => {
     expect(icons.some((i) => i.src.endsWith("/images/logo.png"))).toBe(true);
   });
 
-  it("emits remote favicon and logo only when absolute", () => {
+  it("uses the install route when a remote mark has no sized bundle", () => {
     const icons = buildWebManifestIcons({
       ...mockBrandPublic,
       faviconPath: "https://storage.example/f.ico",
       logoPath: "https://storage.example/logo.png",
     });
-    expect(icons).toHaveLength(2);
-    expect(icons[0]?.src).toContain("storage.example");
-    expect(icons[1]?.src).toContain("logo.png");
+    expect(icons.some((icon) => icon.src === "/pwa/icon/192" && icon.sizes === "192x192")).toBe(true);
+    expect(icons.some((icon) => icon.src === "/pwa/icon/512" && icon.sizes === "512x512")).toBe(true);
+    expect(icons.some((icon) => icon.src.includes("storage.example"))).toBe(false);
+  });
+
+  it("points a lone PNG mark at exact 192 and 512 install icons", () => {
+    const icons = buildWebManifestIcons({
+      ...mockBrandPublic,
+      faviconPath: "/images/matiss/logo/logo.png",
+      logoPath: "/images/matiss/logo/logo.png",
+    });
+    expect(icons.some((icon) => icon.src === "/pwa/icon/192" && icon.sizes === "192x192")).toBe(true);
+    expect(icons.some((icon) => icon.src === "/pwa/icon/512" && icon.sizes === "512x512")).toBe(true);
+    expect(icons.some((icon) => icon.sizes === "48x48")).toBe(false);
+    expect(icons.some((icon) => icon.purpose === "maskable")).toBe(false);
   });
 
   it("does not invent android-chrome paths for root-relative SVG favicon", () => {
@@ -38,9 +50,10 @@ describe("buildWebManifestIcons", () => {
       faviconPath: "/file.svg",
       logoPath: "/file.svg",
     });
-    expect(icons).toHaveLength(1);
-    expect(icons[0]?.src).toBe("/file.svg");
+    expect(icons.some((icon) => icon.src === "/pwa/icon/192" && icon.sizes === "192x192")).toBe(true);
+    expect(icons.some((icon) => icon.src === "/pwa/icon/512" && icon.sizes === "512x512")).toBe(true);
     expect(icons.some((i) => i.src.includes("android-chrome"))).toBe(false);
+    expect(icons.some((i) => i.src === "/file.svg")).toBe(false);
   });
 
   it("emits manifest icons for storage favicon bundle prefix", () => {

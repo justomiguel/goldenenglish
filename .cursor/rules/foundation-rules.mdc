@@ -15,7 +15,7 @@ alwaysApply: true
 
 ## Manual QA
 
-- **Manual** browser walkthroughs, tenant smoke, and visual verification are **user-owned** — see **`32-manual-qa-user-owned.mdc`**. The agent runs Vitest and other automation; it does not proactively open the app in a browser to QA unless asked.
+- The agent checks the flow it just changed. Tenant smoke, tours, and Lighthouse stay **user-owned** — see **`32-manual-qa-user-owned.mdc`**. The agent also runs Vitest and other automation.
 
 ## Data and SQL schema
 

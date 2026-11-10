@@ -13,6 +13,22 @@ alwaysApply: true
 
 The Design System is the single source of truth for every visual decision. **Branding and institutional identity** are the same: everything that would change if the institute rebrands (name, legal name, tagline, logos, favicon, contact blocks, social links, palette, fonts) MUST be driven from the brand layer (`SYSTEM_PROPERTIES_DEFAULTS` in TS + per-tenant overrides in `public.site_themes`), not duplicated in code.
 
+## Design skills do not choose the brand
+
+These skills do not choose the font, the palette, the icon, the photo, or the motion:
+
+- `frontend-design`
+- `design-taste-frontend`
+- `impeccable`
+- `awwwards-motion-design`
+- `ui-ux-pro-max`
+- `brand`
+- `design`
+- `design-system`
+- `ui-styling`
+
+The brand layer and this rule make those choices. `44-no-ai-slop-design.mdc` sets the layout bans and the motion bans.
+
 ## Branding & system defaults (non-negotiable)
 
 1. **Single source of truth.** Two layers, in this order:

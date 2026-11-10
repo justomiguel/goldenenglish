@@ -35,7 +35,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 
 | Regla siempre activa (`alwaysApply: true`) | Tema |
 |----|-----|
-| **`41-asd-ste100-english.mdc`** | Inglés principal del agente (estilo ASD-STE100): frases cortas, una idea por frase, términos técnicos intactos. |
+| **`41-asd-ste100-english.mdc`** | Inglés de reglas, specs, comentarios y `en.json`. El chat sigue la voz activa del usuario. Sin esa voz, el chat usa este estilo. |
 | **`08-analytics-observability.mdc`** | Métricas: `user_events`, ingestión cliente/API, `recordSystemAudit`, sin features “silenciosas”; fiabilidad tipo SRE (SLI/SLO, alertas accionables) donde aplique. |
 | **`09-i18n-copy.mdc`** | Copy visible: `src/dictionaries/en.json` + `es.json`, sin literales en UI; `Intl` para fechas/números; skill **`i18n-localization`**. |
 | **`40-neutral-spanish-copy.mdc`** | Español visible en tuteo neutro latinoamericano para todos los tenants (*tienes*, *haz clic*, *inscríbete*). Prohibido el voseo (*tenés*, *hacé*, *inscribite*, *sumate*) y el español de España (*vosotros*). |
@@ -52,7 +52,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`21-migrations-production-no-data-destruction.mdc`** | Migraciones **sin** borrado destructivo de datos (`TRUNCATE`, `DROP TABLE`/columna con pérdida, `DELETE` masivo); producción y entornos reales se tratan como críticos; excepciones solo con proceso humano documentado. |
 | **`25-server-error-logging.mdc`** | Todo error servidor: **`[ge:server]`** (`serverActionLog.ts`) — `scope` estable, códigos/IDs, suficiente para Vercel/ops; prohibido swallow silencioso; sin PII/secrets. |
 | **`27-post-mutation-ui-refresh.mdc`** | Tras mutaciones visibles: **`revalidatePath`** (server) + **`router.refresh()`** (client/hooks); edit flows incluidos; hooks con refresh integrado. |
-| **`32-manual-qa-user-owned.mdc`** | QA manual en browser / tenant: lo hace el usuario; el agente no ofrece walkthroughs salvo pedido explícito; Vitest y automatización sí. |
+| **`32-manual-qa-user-owned.mdc`** | El agente comprueba el flujo que acaba de cambiar. Smoke de instituto, tours y Lighthouse los hace el usuario. Vitest y automatización sí. |
 | **`34-precommit-e2e.mdc`** | Precommit fail-closed: `test:unit:precommit` + `test:e2e:precommit` + `.env.local.e2e`. Un archivo que ya pasó no se vuelve a correr si el archivo y el árbol no cambiaron. `SKIP_E2E=1` solo con aprobación explícita del usuario. |
 | **`37-commit-finished-work-ask-when-mixed.mdc`** | Al terminar una tarea, commitear. Nunca stash ni apartar WIP ajeno sin preguntar. Push solo si lo piden. |
 | **`39-commit-product-changelog.mdc`** | Antes de cada commit con cambio visible, agregar la fila en `public.platform_changelog_entries` (Novedades del sistema). |
@@ -88,7 +88,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 
 ## When in doubt
 
-English that you write follows **`.cursor/rules/41-asd-ste100-english.mdc`**. That rule is the principal English style.
+Persisted English follows **`.cursor/rules/41-asd-ste100-english.mdc`**. A user voice rule controls the chat reply. With no voice rule, the chat uses `41` too.
 
 1. Spec-Driven Development: **`.cursor/rules/29-spec-driven-development.mdc`** + Gate 0 **`20-agent-preflight.mdc`** (spec escrito y aprobado antes de editar; **`PREFLIGHT`** / **`SPEC`** fuerzan el modo).
 2. Read the relevant **`.cursor/rules/*.mdc`** file.

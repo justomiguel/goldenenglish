@@ -50,6 +50,19 @@ describe("app/manifest", () => {
     expect(m.icons?.some((i) => i.src.includes("android-chrome"))).toBe(true);
   });
 
+  it("lists exact install sizes when the mark is one PNG", async () => {
+    vi.mocked(getBrandForRequest).mockResolvedValueOnce({
+      ...mockBrandPublic,
+      name: "Matiss Studio",
+      faviconPath: "/images/matiss/logo/logo.png",
+      logoPath: "/images/matiss/logo/logo.png",
+    });
+    const m = await manifest();
+    expect(m.icons?.some((icon) => icon.src === "/pwa/icon/192" && icon.sizes === "192x192")).toBe(true);
+    expect(m.icons?.some((icon) => icon.src === "/pwa/icon/512" && icon.sizes === "512x512")).toBe(true);
+    expect(m.icons?.some((icon) => icon.purpose === "maskable")).toBe(false);
+  });
+
   it("omits family shortcuts on the Centro Listo host", async () => {
     vi.mocked(getBrandForRequest).mockResolvedValueOnce({
       ...mockBrandPublic,

@@ -65,6 +65,13 @@ describe("LioraLandingGallery", () => {
 
     await user.click(screen.getByRole("button", { name: "Ampliar foto 1" }));
     expect(document.querySelector("video")).toBeNull();
+    const sizes = [...document.querySelectorAll('img[src="/images/liora/galeria/1.jpg"]')].map((img) =>
+      img.getAttribute("sizes"),
+    );
+    expect(sizes).toContain(
+      "(min-width: 1024px) 64rem, (min-width: 768px) 56rem, (min-width: 640px) 48rem, 96vw",
+    );
+    expect(sizes).not.toContain("100vw");
 
     await user.click(screen.getByRole("button", { name: "Reproducir video 1" }));
     expect(document.querySelector("video")).toHaveAttribute(

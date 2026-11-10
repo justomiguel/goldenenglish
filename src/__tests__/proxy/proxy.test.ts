@@ -103,6 +103,19 @@ describe("proxy", () => {
     expect(res.status).not.toBe(307);
   });
 
+  it("does not prefix /pwa/icon/192 with locale", async () => {
+    const req = new NextRequest(new URL("http://localhost/pwa/icon/192"));
+    const res = await proxy(req, stubEvent());
+    expect(updateSession).not.toHaveBeenCalled();
+    expect(res.status).not.toBe(307);
+  });
+
+  it("rewrites a locale-prefixed install icon back to the root route", async () => {
+    const req = new NextRequest(new URL("http://localhost/es/pwa/icon/512"));
+    const res = await proxy(req, stubEvent());
+    expect(res.headers.get("x-middleware-rewrite")).toContain("/pwa/icon/512");
+  });
+
   it("does not prefix sw.js with locale (PWA service worker)", async () => {
     const req = new NextRequest(new URL("http://localhost/sw.js"));
     const res = await proxy(req, stubEvent());

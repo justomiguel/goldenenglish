@@ -7,6 +7,22 @@ alwaysApply: true
 
 If a person can look at a screen and tell an AI generated it—or feel aggressively pitched by a coarse software brochure—the design has failed. Apply these rules to every landing page, brand surface, and new UI layout.
 
+## Design skills do not override this rule
+
+These skills do not choose the font, the palette, the icon, the photo, or the motion:
+
+- `frontend-design`
+- `design-taste-frontend`
+- `impeccable`
+- `awwwards-motion-design`
+- `ui-ux-pro-max`
+- `brand`
+- `design`
+- `design-system`
+- `ui-styling`
+
+`01-design-system.mdc` and the brand layer make those choices. This rule sets the layout bans and the motion bans.
+
 ## Absolute Bans (Match and Refuse)
 
 1. **Do not spam decorative chips or pills.** Do not render rows of non-interactive `rounded-full` badges for industries, features, or section tags.

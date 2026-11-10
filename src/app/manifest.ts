@@ -37,9 +37,13 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
 
   const dict = await getDictionary(lang);
   const installIcon = bundledPublicInstallIcon(snapshot?.theme.templateKind);
-  const icons = installIcon
+  const builtIcons = installIcon
     ? bundledPublicInstallManifestIcons(installIcon)
-    : appendMaskableManifestIcons(buildWebManifestIcons(brand));
+    : buildWebManifestIcons(brand);
+  const icons =
+    installIcon || builtIcons.some((icon) => String(icon.src).startsWith("/pwa/icon/"))
+      ? builtIcons
+      : appendMaskableManifestIcons(builtIcons);
   const shortcutIcon =
     icons.find((icon) => icon.sizes === "192x192") ?? icons[0];
 

@@ -16,7 +16,7 @@ import { defaultLocale, locales } from "@/lib/i18n/dictionaries";
 const localeAlternation = locales.join("|");
 
 const localeAwareStaticPathPattern =
-  "(?:(?:_next\\/.*)|(?:favicon\\.ico$)|(?:favicon_io\\/.*)|(?:images\\/.*)|(?:videos\\/.*)|(?:geo\\/.*)|(?:sw\\.js$)|(?:robots\\.txt$)|(?:sitemap\\.xml$)|(?:manifest\\.webmanifest$)|(?:.*\\.(?:svg|png|jpg|jpeg|gif|webp|webm|mp4|ico|css|js|map|geojson|webmanifest|txt|xml|woff2?|ttf|otf)$))";
+  "(?:(?:_next\\/.*)|(?:favicon\\.ico$)|(?:favicon_io\\/.*)|(?:images\\/.*)|(?:videos\\/.*)|(?:geo\\/.*)|(?:sw\\.js$)|(?:pwa\\/icon\\/(?:180|192|512)$)|(?:robots\\.txt$)|(?:sitemap\\.xml$)|(?:manifest\\.webmanifest$)|(?:.*\\.(?:svg|png|jpg|jpeg|gif|webp|webm|mp4|ico|css|js|map|geojson|webmanifest|txt|xml|woff2?|ttf|otf)$))";
 
 const rootStaticAssetPattern = new RegExp(
   `^\\/(?!(?:${localeAlternation})\\/)${localeAwareStaticPathPattern}`,
