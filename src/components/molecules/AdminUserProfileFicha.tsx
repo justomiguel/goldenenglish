@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
+import { useAdminStudentCohortSelection } from "@/hooks/useAdminStudentCohortSelection";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
@@ -65,6 +66,8 @@ export function AdminUserProfileFicha({
     allowed: PROFILE_TABS,
     fallback: "summary",
   });
+  const { options: cohortOptions, selectedCohortId, setSelectedCohortId } =
+    useAdminStudentCohortSelection(detail.cohortEnrollments);
 
   const onFeedback = useCallback((text: string, ok: boolean) => {
     setToast({ text, ok });
@@ -94,10 +97,22 @@ export function AdminUserProfileFicha({
     [labels],
   );
   const roleLabel = roleOptions.find((option) => option.value === detail.role)?.label ?? detail.role;
+  const pendingSectionIds = new Set(
+    (billing?.sectionBenefits ?? [])
+      .filter((benefit) => !selectedCohortId || benefit.cohortId === selectedCohortId)
+      .map((benefit) => benefit.sectionId),
+  );
   const pendingPayments =
-    billing?.payments.filter((payment) => payment.status === "pending").length ?? 0;
-  const paymentsDisabled =
-    detail.role === "student" && !detail.currentCohortAssignment?.current;
+    billing?.payments.filter(
+      (payment) =>
+        payment.status === "pending" &&
+        (selectedCohortId
+          ? payment.section_id != null && pendingSectionIds.has(payment.section_id)
+          : true),
+    ).length ?? 0;
+  const hasAnyEnrollment =
+    (detail.cohortEnrollments?.length ?? 0) > 0 || Boolean(detail.currentCohortAssignment?.current);
+  const paymentsDisabled = detail.role === "student" && !hasAnyEnrollment;
   const tabs = buildAdminUserProfileTabs({
     labels,
     detail,
@@ -123,11 +138,24 @@ export function AdminUserProfileFicha({
           roleOptions={roleOptions}
           onFeedback={onFeedback}
           academicFields={academicFields}
+          selectedCohortId={selectedCohortId}
+          onCohortChange={setSelectedCohortId}
         />
       );
     }
     if (visibleActiveTab === "payments" && billing) {
-      return <AdminUserPaymentsPanel locale={locale} detail={detail} billing={billing} billingLabels={billingLabels} studentName={displayName} />;
+      return (
+        <AdminUserPaymentsPanel
+          locale={locale}
+          detail={detail}
+          billing={billing}
+          billingLabels={billingLabels}
+          studentName={displayName}
+          cohortOptions={cohortOptions}
+          selectedCohortId={selectedCohortId}
+          onCohortChange={setSelectedCohortId}
+        />
+      );
     }
     if (visibleActiveTab === "family") {
       return <AdminUserFamilyPanel locale={locale} detail={detail} labels={labels} billingLabels={billingLabels} editable={editable} onFeedback={onFeedback} />;

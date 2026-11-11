@@ -46,8 +46,10 @@ export async function chooseRegisterSectionByName(page: Page, name: string | Reg
   }
   const extra = page.locator("#rg-section-extra");
   const primary = page.locator("#rg-section");
+  await expect(primary).toBeVisible({ timeout: 15_000 });
   const target = (await extra.isVisible().catch(() => false)) ? extra : primary;
   const option = target.locator("option").filter({ hasText: name }).first();
+  await expect(option).toBeAttached({ timeout: 15_000 });
   const value = await option.getAttribute("value");
   if (!value) {
     throw new Error(`section option not found: ${name}`);

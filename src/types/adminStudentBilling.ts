@@ -72,6 +72,10 @@ export type AdminStudentBillingSectionBenefit = {
   cohortName: string;
   /** Annual deals that replace % scholarship for covered months. */
   annualSettlements: AdminBillingAnnualSettlement[];
+  /** Cohort that owns the section. Absent on older fixtures. */
+  cohortId?: string;
+  /** Enrollment status for this section. Absent on older fixtures. */
+  enrollmentStatus?: string | null;
 };
 
 export type AdminStudentBillingTabData = {

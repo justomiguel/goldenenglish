@@ -110,6 +110,38 @@ describe("AdminUserProfileFicha", () => {
     );
   });
 
+  it("enables payments when the student only has a past cohort", () => {
+    render(
+      <AdminUserProfileFicha
+        locale="en"
+        labels={dictEn.admin.users}
+        billingLabels={dictEn.admin.billing}
+        detail={{
+          ...makeStudentDetail(false),
+          cohortEnrollments: [
+            {
+              enrollmentId: "enr-past",
+              cohortId: "cohort-past",
+              cohortName: "2024",
+              isCurrent: false,
+              sectionId: "sec-past",
+              sectionName: "Past section",
+              status: "completed",
+              createdAt: "2024-03-01T00:00:00Z",
+              teacher: { id: "teacher-1", name: "Ruiz Ana" },
+              assistants: [],
+            },
+          ],
+        }}
+        billing={billing}
+      />,
+    );
+
+    expect(
+      screen.getByRole("tab", { name: dictEn.admin.users.detailTabPayments }),
+    ).toBeEnabled();
+  });
+
   it("enables payments tab after section assignment exists", () => {
     render(
       <AdminUserProfileFicha

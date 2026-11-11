@@ -15,6 +15,12 @@ import {
   sumDiscountedMonthlyDue,
 } from "@/lib/billing/sumDiscountedMonthlyDue";
 import { enrollmentFeeMatrixVisualFromAdminBillingBenefit } from "@/lib/billing/enrollmentFeeMatrixVisual";
+import {
+  filterPaymentsForCohort,
+  preferActiveSectionBenefits,
+  type StudentFichaCohortOption,
+} from "@/lib/dashboard/studentFichaCohort";
+import { AdminStudentCohortSelect } from "@/components/molecules/AdminStudentCohortSelect";
 import type {
   AdminBillingPaymentRow,
   AdminBillingScholarship,
@@ -36,6 +42,9 @@ interface AdminStudentBillingClientProps {
   enrollmentExemptReason: string | null;
   lastEnrollmentPaidAt: string | null;
   defaultYear: number;
+  cohortOptions?: StudentFichaCohortOption[];
+  selectedCohortId?: string | null;
+  onCohortChange?: (cohortId: string) => void;
 }
 
 export function AdminStudentBillingClient({
@@ -50,6 +59,9 @@ export function AdminStudentBillingClient({
   enrollmentExemptReason,
   lastEnrollmentPaidAt,
   defaultYear,
+  cohortOptions = [],
+  selectedCohortId = null,
+  onCohortChange,
 }: AdminStudentBillingClientProps) {
   const [billingYear, setBillingYear] = useState(defaultYear);
   const [billingYearRaw, setBillingYearRaw] = useState(String(defaultYear));
@@ -61,16 +73,30 @@ export function AdminStudentBillingClient({
     return { year: d.getFullYear(), month: d.getMonth() + 1 };
   });
 
+  const visibleBenefits = useMemo(() => {
+    if (!selectedCohortId) return sectionBenefits;
+    return preferActiveSectionBenefits(
+      sectionBenefits.filter((benefit) => benefit.cohortId === selectedCohortId),
+    );
+  }, [sectionBenefits, selectedCohortId]);
+  const cohortPayments = useMemo(() => {
+    if (!selectedCohortId) return payments;
+    return filterPaymentsForCohort(
+      payments,
+      new Set(visibleBenefits.map((benefit) => benefit.sectionId)),
+    );
+  }, [payments, selectedCohortId, visibleBenefits]);
+
+  const effectiveSectionId = visibleBenefits.some((benefit) => benefit.sectionId === selectedSectionId)
+    ? selectedSectionId
+    : (visibleBenefits[0]?.sectionId ?? "");
+
   const selectedBenefit =
-    sectionBenefits.find((s) => s.sectionId === selectedSectionId) ??
-    sectionBenefits[0] ??
-    null;
+    visibleBenefits.find((s) => s.sectionId === effectiveSectionId) ?? null;
 
   const visiblePayments = selectedBenefit
-    ? payments.filter(
-        (p) => p.section_id === selectedBenefit.sectionId || p.section_id === null,
-      )
-    : payments;
+    ? cohortPayments.filter((p) => p.section_id === selectedBenefit.sectionId || (!selectedCohortId && p.section_id === null))
+    : cohortPayments;
   const selectedScholarships = selectedBenefit ? selectedBenefit.scholarships : scholarships;
   const { monthStates, collectionCells } = useMemo(() => {
     if (!selectedBenefit) {
@@ -78,19 +104,19 @@ export function AdminStudentBillingClient({
     }
     return computeAdminStudentBillingMonthMatrix({
       benefit: selectedBenefit,
-      payments,
+      payments: selectedCohortId ? visiblePayments : payments,
       scholarships: selectedScholarships,
       billingYear,
       calendarTodayYear: todayYm.year,
       calendarTodayMonth: todayYm.month,
     });
-  }, [billingYear, payments, selectedBenefit, selectedScholarships, todayYm.month, todayYm.year]);
+  }, [billingYear, payments, selectedBenefit, selectedCohortId, selectedScholarships, todayYm.month, todayYm.year, visiblePayments]);
   const personMonthlyDue = useMemo(
     () =>
       sumDiscountedMonthlyDue(
-        monthlyDueLinesFromSectionBenefits(sectionBenefits, todayYm.year, todayYm.month),
+        monthlyDueLinesFromSectionBenefits(visibleBenefits, todayYm.year, todayYm.month),
       ),
-    [sectionBenefits, todayYm.month, todayYm.year],
+    [visibleBenefits, todayYm.month, todayYm.year],
   );
 
   const paidMonths = monthStates.filter((s) => s.status === "paid").length;
@@ -121,7 +147,20 @@ export function AdminStudentBillingClient({
       </header>
 
       <section className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 md:p-4">
-        {sectionBenefits.length > 0 ? (
+        {onCohortChange && selectedCohortId ? (
+          <AdminStudentCohortSelect
+            id="billing-cohort-select"
+            label={labels.cohortSelect}
+            currentMark={labels.cohortCurrentMark}
+            options={cohortOptions}
+            value={selectedCohortId}
+            onChange={onCohortChange}
+          />
+        ) : null}
+        {selectedCohortId && visibleBenefits.length === 0 ? (
+          <p className="text-sm text-[var(--color-muted-foreground)]">{labels.cohortEmpty}</p>
+        ) : null}
+        {visibleBenefits.length > 0 ? (
           <AdminStudentPersonMonthlyDue
             locale={locale}
             totals={personMonthlyDue}
@@ -132,8 +171,8 @@ export function AdminStudentBillingClient({
         <AdminStudentBillingPeriodControls
           locale={locale}
           labels={labels}
-          sectionBenefits={sectionBenefits}
-          selectedSectionId={selectedSectionId}
+          sectionBenefits={visibleBenefits}
+          selectedSectionId={effectiveSectionId}
           onSelectSection={setSelectedSectionId}
           selectedBenefit={selectedBenefit}
           effectiveMonthlyAmount={discountedAverageMonthlyFeeFromCells(collectionCells)}

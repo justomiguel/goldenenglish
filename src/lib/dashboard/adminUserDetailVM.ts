@@ -1,5 +1,6 @@
 import type { AdminStudentAcademicNote } from "@/lib/dashboard/adminStudentAcademicNotes";
 import type { AdminStudentCurrentCohortAssignment } from "@/lib/dashboard/loadAdminStudentCurrentCohortAssignment";
+import type { StudentFichaCohortEnrollment } from "@/lib/dashboard/studentFichaCohort";
 import type { AdminStudentHistoryData } from "@/lib/dashboard/loadAdminStudentHistory";
 import type { StudentExamResult } from "@/types/studentExams";
 
@@ -59,6 +60,10 @@ export type AdminUserDetailVM = {
   /** Sections with at least one active enrollment among `tutorLinkedStudents` (for family-wide scholarships). */
   tutorFamilyScholarshipSections: AdminUserTutorFamilySectionOptionVM[];
   currentCohortAssignment: AdminStudentCurrentCohortAssignment | null;
+  /** Every enrollment, any status. Students only. */
+  cohortEnrollments?: StudentFichaCohortEnrollment[];
+  /** `cohort_list_failed` when the cohort list did not load. */
+  cohortListCode?: string | null;
   /** Latest published grades and teacher comments. Students only. */
   academicNotes?: AdminStudentAcademicNote[];
   /** Cohort exams for the student, including ones with no published score. */

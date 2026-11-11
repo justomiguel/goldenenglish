@@ -14,11 +14,13 @@ export type AcademicSectionNested = {
   schedule_slots?: unknown;
   academic_cohorts?:
     | {
+        id?: string | null;
         name?: string | null;
         default_enrollment_fee_amount?: number | string | null;
         default_monthly_fee?: number | string | null;
       }
     | {
+        id?: string | null;
         name?: string | null;
         default_enrollment_fee_amount?: number | string | null;
         default_monthly_fee?: number | string | null;
@@ -30,6 +32,7 @@ export type EnrollmentBenefitRow = {
   id: string;
   section_id: string;
   created_at: string | null;
+  status?: string | null;
   enrollment_fee_exempt: boolean | null;
   enrollment_exempt_reason: string | null;
   last_enrollment_paid_at: string | null;
@@ -115,6 +118,7 @@ export function sectionEnrollmentMeta(row: EnrollmentBenefitRow): {
 export function sectionScheduleSlotsAndCohort(row: EnrollmentBenefitRow): {
   scheduleSlots: SectionScheduleSlot[];
   cohortName: string;
+  cohortId: string;
 } {
   const sec = Array.isArray(row.academic_sections)
     ? row.academic_sections[0]
@@ -124,8 +128,10 @@ export function sectionScheduleSlotsAndCohort(row: EnrollmentBenefitRow): {
     sec && typeof sec === "object" ? (sec as AcademicSectionNested).academic_cohorts : null;
   const cohort = Array.isArray(cohortRaw) ? cohortRaw[0] : cohortRaw;
   const cohortName = cohort && typeof cohort === "object" && "name" in cohort ? String(cohort.name ?? "") : "";
+  const cohortId = cohort && typeof cohort === "object" && "id" in cohort ? String(cohort.id ?? "") : "";
   return {
     scheduleSlots: parseSectionScheduleSlots(rawSlots ?? []),
     cohortName,
+    cohortId,
   };
 }

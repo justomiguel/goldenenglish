@@ -38,12 +38,13 @@ describe("loadAdminStudentBillingTabDataMappers", () => {
         starts_on: "2026-01-15",
         ends_on: "2026-12-20",
         schedule_slots: [],
-        academic_cohorts: { name: "C1" },
+        academic_cohorts: { id: "cohort-1", name: "C1" },
       },
     };
     expect(sectionNameFromEnrollment(row)).toBe("S1");
     expect(sectionEnrollmentMeta(row).sectionEnrollmentFeeAmount).toBe(100);
     expect(sectionScheduleSlotsAndCohort(row).cohortName).toBe("C1");
+    expect(sectionScheduleSlotsAndCohort(row).cohortId).toBe("cohort-1");
   });
 
   it("inherits a cohort enrollment default when the section amount is null", () => {

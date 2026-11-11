@@ -188,6 +188,10 @@ BEGIN
   VALUES ('register_show_all_sections', 'true'::jsonb, now())
   ON CONFLICT (key) DO UPDATE SET value = 'true'::jsonb, updated_at = now();
 
+  INSERT INTO public.site_settings (key, value, updated_at)
+  VALUES ('register_section_mode', '"student_choice"'::jsonb, now())
+  ON CONFLICT (key) DO UPDATE SET value = '"student_choice"'::jsonb, updated_at = now();
+
   -- both: /register stays a reserve form; /register?intent=trial stays a trial form.
   INSERT INTO public.site_settings (key, value, updated_at)
   VALUES ('public_cta_mode', '"both"'::jsonb, now())

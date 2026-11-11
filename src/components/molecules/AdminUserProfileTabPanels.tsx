@@ -5,21 +5,18 @@ import type { Dictionary, Locale } from "@/types/i18n";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { AdminStudentBillingClient } from "@/components/dashboard/AdminStudentBillingClient";
-import { AdminStudentAcademicExams } from "@/components/molecules/AdminStudentAcademicExams";
-import { AdminStudentAcademicNotes } from "@/components/molecules/AdminStudentAcademicNotes";
-import { AdminStudentCurrentCohortAssignmentCard } from "@/components/molecules/AdminStudentCurrentCohortAssignmentCard";
 import { AdminUserDetailPasswordSection } from "@/components/molecules/AdminUserDetailPasswordSection";
 import { AdminUserDetailDniResetSection } from "@/components/molecules/AdminUserDetailDniResetSection";
 import { AdminUserDetailTutorCard } from "@/components/molecules/AdminUserDetailTutorCard";
 import { AdminUserDetailTutorFamilyCard } from "@/components/molecules/AdminUserDetailTutorFamilyCard";
 import { AdminUserInlineEditableField } from "@/components/molecules/AdminUserInlineEditableField";
 import { AdminUserHomeAddressField } from "@/components/molecules/AdminUserHomeAddressField";
-import { AdminAcademicProfileFields } from "@/components/molecules/AdminAcademicProfileFields";
-import type { AcademicProfileCardField } from "@/lib/academic-profile/academicProfileCard";
+import type { StudentFichaCohortOption } from "@/lib/dashboard/studentFichaCohort";
+
+export { AdminUserAcademicPanel } from "@/components/molecules/AdminUserAcademicPanel";
 
 type UserLabels = Dictionary["admin"]["users"];
 type BillingLabels = Dictionary["admin"]["billing"];
-type RoleOption = { value: string; label: string };
 
 function CardShell({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -68,81 +65,24 @@ export function AdminUserSummaryPanel({
   );
 }
 
-export function AdminUserAcademicPanel({
-  locale,
-  detail,
-  labels,
-  editable,
-  roleLabel,
-  roleOptions,
-  onFeedback,
-  academicFields = [],
-}: {
-  locale: Locale;
-  detail: AdminUserDetailVM;
-  labels: UserLabels;
-  editable: boolean;
-  roleLabel: string;
-  roleOptions: RoleOption[];
-  onFeedback: (text: string, ok: boolean) => void;
-  academicFields?: AcademicProfileCardField[];
-}) {
-  const currentCohortAssignment = detail.role === "student" ? detail.currentCohortAssignment : null;
-
-  return (
-    <div className="space-y-5">
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)]">
-        <CardShell title={labels.detailCardAcademic}>
-          <AdminUserInlineEditableField locale={locale} userId={detail.userId} field="role" label={labels.detailFieldRole} displayValue={roleLabel} editInitial={detail.role} editable={editable} inputKind="select" selectOptions={roleOptions} labels={labels} onFeedback={onFeedback} />
-          {detail.role === "student" ? (
-            <AdminAcademicProfileFields
-              locale={locale}
-              studentId={detail.userId}
-              editable={editable}
-              fields={academicFields}
-              labels={labels.academicFields}
-            />
-          ) : null}
-        </CardShell>
-        {currentCohortAssignment ? (
-          <AdminStudentCurrentCohortAssignmentCard
-            locale={locale}
-            studentId={detail.userId}
-            labels={labels}
-            assignment={currentCohortAssignment}
-          />
-        ) : null}
-      </div>
-      {detail.role === "student" ? (
-        <>
-          <AdminStudentAcademicExams
-            locale={locale}
-            exams={detail.academicExams ?? []}
-            labels={labels}
-          />
-          <AdminStudentAcademicNotes
-            locale={locale}
-            notes={detail.academicNotes ?? []}
-            labels={labels}
-          />
-        </>
-      ) : null}
-    </div>
-  );
-}
-
 export function AdminUserPaymentsPanel({
   locale,
   detail,
   billing,
   billingLabels,
   studentName,
+  cohortOptions = [],
+  selectedCohortId = null,
+  onCohortChange,
 }: {
   locale: Locale;
   detail: AdminUserDetailVM;
   billing: AdminStudentBillingTabData;
   billingLabels: BillingLabels;
   studentName: string;
+  cohortOptions?: StudentFichaCohortOption[];
+  selectedCohortId?: string | null;
+  onCohortChange?: (cohortId: string) => void;
 }) {
   return (
     <AdminStudentBillingClient
@@ -157,6 +97,9 @@ export function AdminUserPaymentsPanel({
       enrollmentExemptReason={billing.enrollmentExemptReason}
       lastEnrollmentPaidAt={billing.lastEnrollmentPaidAt}
       defaultYear={new Date().getFullYear()}
+      cohortOptions={cohortOptions}
+      selectedCohortId={selectedCohortId}
+      onCohortChange={onCohortChange}
     />
   );
 }

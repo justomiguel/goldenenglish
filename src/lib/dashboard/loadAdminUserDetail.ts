@@ -19,6 +19,8 @@ import {
   loadAdminStudentCurrentCohortAssignment,
   type AdminStudentCurrentCohortAssignment,
 } from "@/lib/dashboard/loadAdminStudentCurrentCohortAssignment";
+import { loadAdminStudentCohortEnrollments } from "@/lib/dashboard/loadAdminStudentCohortEnrollments";
+import type { StudentFichaCohortEnrollment } from "@/lib/dashboard/studentFichaCohort";
 import {
   loadAdminStudentHistory,
   type AdminStudentHistoryData,
@@ -151,10 +153,13 @@ export async function loadAdminUserDetail(
   let tutorLinkedStudents: AdminUserTutorFamilyStudentVM[] = [];
   let tutorFamilyScholarshipSections: AdminUserTutorFamilySectionOptionVM[] = [];
   let currentCohortAssignment: AdminStudentCurrentCohortAssignment | null = null;
+  let cohortEnrollments: StudentFichaCohortEnrollment[] = [];
+  let cohortListCode: string | null = null;
   let academicNotes: AdminStudentAcademicNote[] = [];
   let academicExams: StudentExamResult[] = [];
   let studentHistory: AdminStudentHistoryData | null = null;
   if (role === "student" && includeStudentAcademicContext) {
+    const cohortResultPromise = loadAdminStudentCohortEnrollments(admin, userId);
     [tutorLinks, currentCohortAssignment, academicNotes, academicExams, studentHistory] = await Promise.all([
       loadTutorLinksForStudent(admin, userId, emptyDisplay),
       loadAdminStudentCurrentCohortAssignment(admin, userId),
@@ -162,6 +167,9 @@ export async function loadAdminUserDetail(
       loadStudentExamResults(admin, { studentId: userId }),
       loadAdminStudentHistory(admin, userId, locale, emptyDisplay),
     ]);
+    const cohortResult = await cohortResultPromise;
+    cohortEnrollments = cohortResult.enrollments;
+    cohortListCode = cohortResult.code;
   } else if (role === "student") {
     tutorLinks = await loadTutorLinksForStudent(admin, userId, emptyDisplay);
   } else if (role === "parent") {
@@ -196,6 +204,8 @@ export async function loadAdminUserDetail(
     tutorLinkedStudents,
     tutorFamilyScholarshipSections,
     currentCohortAssignment,
+    cohortEnrollments,
+    cohortListCode,
     academicNotes,
     academicExams,
     studentHistory,

@@ -50,10 +50,9 @@ export async function loadAdminStudentBillingTabData(
     supabase
       .from("section_enrollments")
       .select(
-        "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(name, enrollment_fee_amount, starts_on, ends_on, schedule_slots, academic_cohorts(name, default_enrollment_fee_amount, default_monthly_fee))",
+        "id, status, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(name, enrollment_fee_amount, starts_on, ends_on, schedule_slots, academic_cohorts(id, name, default_enrollment_fee_amount, default_monthly_fee))",
       )
-      .eq("student_id", studentId)
-      .eq("status", "active"),
+      .eq("student_id", studentId),
   ]);
 
   const rows = await Promise.all(
@@ -209,6 +208,8 @@ export async function loadAdminStudentBillingTabData(
       feePlans: plans,
       sectionBillingMode: billingMode,
       scheduleSlots: slotsAndCohort.scheduleSlots,
+      cohortId: slotsAndCohort.cohortId,
+      enrollmentStatus: row.status ?? null,
       cohortName: slotsAndCohort.cohortName,
       annualSettlements: settlementsByEnrollment.get(row.id) ?? [],
     };

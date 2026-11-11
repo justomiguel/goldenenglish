@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { ComponentProps } from "react";
+import { useState, type ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { AdminStudentBillingClient } from "@/components/dashboard/AdminStudentBillingClient";
 import { dictEn } from "@/test/dictEn";
@@ -242,6 +242,51 @@ describe("AdminStudentBillingClient", () => {
     expect(within(historyPanel).getByText("50% discount")).toBeInTheDocument();
     expect(within(historyPanel).getByText("04/2026")).toBeInTheDocument();
     expect(within(historyPanel).getByText("05/2026")).toBeInTheDocument();
+  });
+
+  it("lists only the selected cohort in the section selector", async () => {
+    const user = userEvent.setup();
+    const benefits = [
+      { ...billing.sectionBenefits[0]!, cohortId: "cohort-now", enrollmentStatus: "active" as const },
+      { ...billing.sectionBenefits[1]!, cohortId: "cohort-past", enrollmentStatus: "completed" as const },
+    ];
+    const options = [
+      { id: "cohort-now", name: "2026", isCurrent: true, latestEnrollmentAt: "2026-01-10T00:00:00Z" },
+      { id: "cohort-past", name: "2024", isCurrent: false, latestEnrollmentAt: "2024-01-10T00:00:00Z" },
+    ];
+
+    function CohortBilling() {
+      const [cohortId, setCohortId] = useState("cohort-now");
+      return (
+        <AdminStudentBillingClient
+          locale="en"
+          studentId="00000000-0000-4000-8000-000000000099"
+          studentName="Ana Student"
+          payments={[]}
+          scholarships={[]}
+          sectionBenefits={benefits}
+          labels={dictEn.admin.billing}
+          enrollmentFeeExempt={false}
+          enrollmentExemptReason={null}
+          lastEnrollmentPaidAt={null}
+          defaultYear={2026}
+          cohortOptions={options}
+          selectedCohortId={cohortId}
+          onCohortChange={setCohortId}
+        />
+      );
+    }
+
+    render(<CohortBilling />);
+
+    const sectionSelect = screen.getByLabelText(dictEn.admin.billing.sectionBenefitSelect);
+    expect(within(sectionSelect).getByRole("option", { name: "Section A" })).toBeInTheDocument();
+    expect(within(sectionSelect).queryByRole("option", { name: "Section B" })).not.toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText(dictEn.admin.billing.cohortSelect), "cohort-past");
+
+    expect(within(sectionSelect).getByRole("option", { name: "Section B" })).toBeInTheDocument();
+    expect(within(sectionSelect).queryByRole("option", { name: "Section A" })).not.toBeInTheDocument();
   });
 
   it("shows the empty state when there are no payments yet for the section", async () => {
