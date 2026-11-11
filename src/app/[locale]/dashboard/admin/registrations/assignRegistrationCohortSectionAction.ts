@@ -10,12 +10,14 @@ import {
   requireRegistrationIntakeAdmin,
   revalidateRegistrationInbox,
 } from "@/lib/register/registrationIntakeActionSupport";
+import { parseJoinDispositionInput, type JoinBillingDisposition } from "@/lib/billing/joinBillingDispositionSchema";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function assignRegistrationCohortSectionAction(input: {
   locale: string;
   registrationId: string;
   sectionId: string;
+  joinDisposition?: JoinBillingDisposition;
 }): Promise<{ ok: true } | { ok: false; code: string }> {
   const auth = await requireRegistrationIntakeAdmin();
   if (!auth.ok) return auth;
@@ -57,11 +59,15 @@ export async function assignRegistrationCohortSectionAction(input: {
     return { ok: false, code: "section_cohort_mismatch" };
   }
 
+  const disposition = input.joinDisposition
+    ? parseJoinDispositionInput(input.joinDisposition)
+    : { kind: "behind" as const };
+  if (!disposition) return { ok: false, code: "validation" };
   const enrolled = await enrollStudentInSectionAction({
     locale: input.locale,
     studentId,
     sectionId: input.sectionId,
-    joinDisposition: { kind: "behind" },
+    joinDisposition: disposition,
   });
   if (!enrolled.ok && enrolled.code !== "ALREADY_ACTIVE") return enrolled;
 

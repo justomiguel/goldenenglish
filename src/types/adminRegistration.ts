@@ -49,6 +49,7 @@ export interface AdminRegistrationRow {
   acceptedStudentId?: string | null;
   preferredSectionCohortId?: string | null;
   enrollmentFeeReceiptPath?: string | null;
+  enrollmentFeeMailSentAt?: string | null;
   proposedSectionId?: string | null;
   /** Live: a requested section no longer has an open seat. */
   requestedSectionFull?: boolean;

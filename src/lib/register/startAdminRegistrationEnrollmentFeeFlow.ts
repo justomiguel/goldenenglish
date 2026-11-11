@@ -65,6 +65,7 @@ export async function startAdminRegistrationEnrollmentFeeFlow(input: {
       fee_snapshot: quoted.fee_snapshot,
       intake_state: quoted.intake_state,
       fee_captured: false,
+      enrollment_fee_mail_sent_at: new Date().toISOString(),
     })
     .eq("id", lead.id);
   if (upErr) {

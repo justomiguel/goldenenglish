@@ -25,11 +25,20 @@ vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => ({ from: (...args: unknown[]) => mockFrom(...args) }),
 }));
 
+const mockAccept = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/register/acceptRegistrationLead", () => ({
+  acceptRegistrationLead: (...args: unknown[]) => mockAccept(...args),
+}));
+
 const REG_ID = "123e4567-e89b-12d3-a456-426614174000";
 const ACTOR_ID = "11111111-1111-1111-1111-111111111111";
 
 /** Chainable stub for `.update(patch).eq("id", ...).in("status", [...])`. */
-function mockRegistrationsTable(currentStatus: string | null, updateError: unknown = null) {
+function mockRegistrationsTable(
+  currentStatus: string | null,
+  updateError: unknown = null,
+  feeTotal = 10,
+) {
   const inFilter = vi.fn().mockResolvedValue({ error: updateError });
   const eq = vi.fn().mockReturnValue({ in: inFilter });
   const update = vi.fn().mockReturnValue({ eq });
@@ -39,7 +48,16 @@ function mockRegistrationsTable(currentStatus: string | null, updateError: unkno
         eq: () => ({
           maybeSingle: () =>
             Promise.resolve({
-              data: currentStatus === null ? null : { id: REG_ID, status: currentStatus },
+              data:
+                currentStatus === null
+                  ? null
+                  : {
+                      id: REG_ID,
+                      status: currentStatus,
+                      fee_snapshot: { total: feeTotal },
+                      preferred_section_id: null,
+                      additional_section_ids: [],
+                    },
               error: null,
             }),
         }),
@@ -54,6 +72,7 @@ function mockRegistrationsTable(currentStatus: string | null, updateError: unkno
 beforeEach(() => {
   vi.clearAllMocks();
   mockAssertAdmin.mockResolvedValue({ user: { id: ACTOR_ID } });
+  mockAccept.mockResolvedValue({ ok: true, studentId: "stu", pendingSectionIds: [] });
 });
 
 describe("markRegistrationContacted", () => {
@@ -116,6 +135,29 @@ describe("markRegistrationContacted", () => {
     await markRegistrationContacted("es", REG_ID);
 
     expect(m.inFilter).toHaveBeenCalledWith("status", ["new", "contacted"]);
+    expect(mockAccept).not.toHaveBeenCalled();
+  });
+
+  it("creates the student before marking a zero-fee lead contacted", async () => {
+    const m = mockRegistrationsTable("new", null, 0);
+    mockFrom.mockReturnValue(m.table);
+
+    const r = await markRegistrationContacted("es", REG_ID);
+
+    expect(r.ok).toBe(true);
+    expect(mockAccept).toHaveBeenCalled();
+    expect(m.update).toHaveBeenCalled();
+  });
+
+  it("does not mark contacted when the zero-fee alta fails", async () => {
+    const m = mockRegistrationsTable("new", null, 0);
+    mockFrom.mockReturnValue(m.table);
+    mockAccept.mockResolvedValue({ ok: false, message: "birth" });
+
+    const r = await markRegistrationContacted("es", REG_ID);
+
+    expect(r).toEqual({ ok: false, message: "birth" });
+    expect(m.update).not.toHaveBeenCalled();
   });
 
   it("reports a save failure instead of pretending it worked", async () => {

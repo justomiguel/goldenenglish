@@ -1,7 +1,10 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Pencil, Trash2, UserPlus } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { Modal } from "@/components/atoms/Modal";
+import { AdminRegistrationFunnelPanel } from "@/components/dashboard/AdminRegistrationFunnelPanel";
 import { RegistrationContactCell } from "@/components/dashboard/RegistrationContactCell";
 import { AdminUserNameLink } from "@/components/molecules/AdminUserNameLink";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
@@ -9,13 +12,7 @@ import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import { RegistrationExistingStudentBadge } from "@/components/dashboard/RegistrationExistingStudentBadge";
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
-import { AdminRegistrationChargeActions } from "@/components/dashboard/AdminRegistrationChargeActions";
 import { formatRegistrationIntakeLabel } from "@/lib/register/formatRegistrationIntakeLabel";
-import { registrationInboxPrimaryKind } from "@/lib/register/registrationInboxPrimaryKind";
-import {
-  AdminRegistrationMatriculaControls,
-  registrationAltaAllowed,
-} from "@/components/dashboard/AdminRegistrationMatriculaControls";
 import { cohortSectionChoices } from "@/lib/register/registrationMatriculaAlta";
 import type { RegistrationSectionPickerOption } from "@/lib/register/registrationSectionPicker";
 import { registrationIntentLabel } from "@/lib/register/registrationIntentLabel";
@@ -53,18 +50,19 @@ export function AdminRegistrationTableRow({
   instituteName,
   expanded,
   onToggleExpanded,
-  onAccept,
+  onAccept: _onAccept,
   onEdit,
   onDelete,
   onMarkContacted,
-  onRevertToNew,
+  onRevertToNew: _onRevertToNew,
   onStartEnrollmentFee,
-  onStartJoinCharge,
+  onStartJoinCharge: _onStartJoinCharge,
   sectionOptionsByCohort,
 }: AdminRegistrationTableRowProps) {
-  const canAccept =
-    registrationInboxPrimaryKind(r) === "accept" && registrationAltaAllowed(r);
-  const isPending = r.status === "new";
+  void _onAccept;
+  void _onRevertToNew;
+  void _onStartJoinCharge;
+  const [actionsOpen, setActionsOpen] = useState(false);
   const intakeLabel = formatRegistrationIntakeLabel({
     intakeState: r.intakeState,
     requestedSectionFull: r.requestedSectionFull,
@@ -154,85 +152,30 @@ export function AdminRegistrationTableRow({
             {intakeLabel}
           </span>
         ) : null}
-        <button
-          type="button"
-          className="mt-1 text-xs underline decoration-dotted underline-offset-2 hover:no-underline disabled:opacity-50"
-          title={isPending ? labels.markContactedTip : labels.revertToNewTip}
-          disabled={busy}
-          onClick={() => (isPending ? onMarkContacted(r) : onRevertToNew(r))}
-        >
-          {isPending ? labels.markContacted : labels.revertToNew}
-        </button>
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top text-[var(--color-muted-foreground)]">
         {r.created_at ? new Date(r.created_at).toLocaleString(locale) : labels.emptyValue}
       </td>
       <td className="min-w-0 px-3 py-2 align-top">
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <AdminRegistrationMatriculaControls
+        <Button type="button" variant="secondary" size="sm" className="min-h-11" onClick={() => setActionsOpen(true)}>
+          <SlidersHorizontal className="h-4 w-4" aria-hidden />
+          {labels.funnel.actions}
+        </Button>
+        <Modal open={actionsOpen} onOpenChange={setActionsOpen} titleId={`reg-actions-${r.id}`} title={labels.funnel.actions}>
+          <AdminRegistrationFunnelPanel
             locale={locale}
             row={r}
             labels={labels}
             busy={busy}
             sections={cohortSectionChoices(r.preferredSectionCohortId, sectionOptionsByCohort)}
+            contact={contact}
             onStartEnrollmentFee={onStartEnrollmentFee}
+            onMarkContacted={onMarkContacted}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onClose={() => setActionsOpen(false)}
           />
-          <AdminRegistrationChargeActions
-            row={r}
-            labels={labels}
-            busy={busy}
-            buttonClassName="min-h-9 max-w-full whitespace-normal text-left"
-            onStartJoinCharge={onStartJoinCharge}
-          />
-          {canAccept ? (
-            <>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                aria-label={labels.accept}
-                title={labels.tipAccept}
-                className="h-11 w-11 shrink-0 p-0 md:h-9 md:w-9"
-                disabled={busy}
-                onClick={() => onAccept(r)}
-              >
-                <UserPlus
-                  className="h-4 w-4 shrink-0 text-[var(--color-secondary-foreground)]"
-                  strokeWidth={2}
-                  aria-hidden
-                />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                aria-label={labels.editTitle}
-                title={labels.tipEditRow}
-                className="h-11 w-11 shrink-0 border border-[var(--color-border)] bg-[var(--color-surface)] p-0 text-[var(--color-foreground)] hover:bg-[var(--color-muted)] md:h-9 md:w-9"
-                disabled={busy}
-                onClick={() => onEdit(r)}
-              >
-                <Pencil className="h-4 w-4 shrink-0 text-[var(--color-foreground)]" strokeWidth={2} aria-hidden />
-              </Button>
-            </>
-          ) : null}
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            aria-label={labels.delete}
-            title={labels.tipDeleteRow}
-            className="h-11 w-11 shrink-0 border border-[var(--color-error)] bg-[var(--color-surface)] p-0 text-[var(--color-error)] hover:bg-[color-mix(in_srgb,var(--color-error)_10%,var(--color-surface))] hover:text-[var(--color-error)] focus-visible:ring-2 focus-visible:ring-[var(--color-error)] md:h-9 md:w-9"
-            disabled={busy}
-            onClick={() => onDelete(r)}
-          >
-            <Trash2
-              className="h-4 w-4 shrink-0 text-[var(--color-error)]"
-              strokeWidth={2}
-              aria-hidden
-            />
-          </Button>
-        </div>
+        </Modal>
       </td>
     </tr>
   );

@@ -6,44 +6,41 @@ import {
 } from "@/lib/register/countRegistrationInboxFilters";
 
 describe("countRegistrationInboxFilters", () => {
-  it("counts trial leads separately", () => {
+  it("counts a fee lead and a zero-fee lead in different stages", () => {
     const counts = countRegistrationInboxFilters([
-      { status: "new", intake_state: "none", fee_snapshot: { total: 0 }, intent: "trial" },
-      { status: "new", intake_state: "none", fee_snapshot: { total: 0 }, intent: "reserve" },
+      { status: "new", fee_snapshot: { total: 80 } },
+      { status: "contacted", fee_snapshot: { total: 80 } },
+      {
+        status: "contacted",
+        fee_snapshot: { total: 80 },
+        enrollment_fee_mail_sent_at: "2026-11-10T00:00:00.000Z",
+      },
+      { status: "new", fee_snapshot: { total: 80 }, fee_captured: true, accepted_student_id: "stu" },
+      { status: "contacted", fee_snapshot: { total: 0 } },
     ]);
-    expect(counts.trial).toBe(1);
-    expect(counts.urgent).toBe(2);
+    expect(counts).toEqual({
+      registered: 1,
+      contacted: 1,
+      awaiting_payment: 1,
+      paid_without_section: 1,
+      awaiting_section: 1,
+    });
   });
 
-  it("counts each intake bucket and maps receipt fields", () => {
-    const counts = countRegistrationInboxFilters([
-      { status: "new", intake_state: "awaiting_fee", fee_snapshot: { total: 10 } },
-      { status: "new", intake_state: "receipt_pending" },
-      { status: "new", intake_state: "needs_section" },
-      { status: "new", intake_state: "section_full" },
-      { status: "contacted", intake_state: "none" },
-    ]);
-    expect(counts).toMatchObject({
-      awaiting_fee: 1,
-      receipt_pending: 1,
-      needs_section: 1,
-      section_full: 1,
-      contacted: 1,
-    });
-    expect(mapInboxLeadFields({ fee_captured: true, enrollment_fee_receipt_path: " /r.pdf " })).toEqual(
+  it("maps the mail stamp and a blank receipt path", () => {
+    expect(
+      mapInboxLeadFields({
+        fee_captured: true,
+        enrollment_fee_receipt_path: " /r.pdf ",
+        enrollment_fee_mail_sent_at: "2026-11-10T00:00:00.000Z",
+      }),
+    ).toEqual(
       expect.objectContaining({
         feeCaptured: true,
         enrollmentFeeReceiptPath: " /r.pdf ",
+        enrollmentFeeMailSentAt: "2026-11-10T00:00:00.000Z",
       }),
     );
     expect(mapInboxLeadFields({ enrollment_fee_receipt_path: "   " }).enrollmentFeeReceiptPath).toBeNull();
-  });
-
-  it("counts offer_pending without marking it urgent", () => {
-    const counts = countRegistrationInboxFilters([
-      { status: "new", intake_state: "offer_pending" },
-    ]);
-    expect(counts.offer_pending).toBe(1);
-    expect(counts.urgent).toBe(0);
   });
 });

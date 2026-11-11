@@ -119,13 +119,13 @@ describe("loadPaginatedRegistrations", () => {
     expect(statusFilters).toHaveLength(2);
   });
 
-  it("defaults to the urgent inbox without a status equality", async () => {
+  it("defaults to Inscriptos", async () => {
     const { supabase, calls } = makeSupabase();
 
     await loadPaginatedRegistrations(supabase, {});
 
-    expect(calls.eq.filter((c) => c[0] === "status")).toHaveLength(0);
-    expect(String(calls.or[0]?.[0] ?? "")).toContain("receipt_pending");
+    expect(calls.eq.filter((c) => c[0] === "status" && c[1] === "new").length).toBeGreaterThan(0);
+    expect(calls.or.some((c) => String(c[0]).includes("enrollment_fee_mail_sent_at.is.null"))).toBe(true);
   });
 
   it("selects intake columns for the inbox actions", async () => {

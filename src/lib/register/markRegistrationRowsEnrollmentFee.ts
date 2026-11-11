@@ -43,6 +43,50 @@ export function markRegistrationRowsEnrollmentFee<
   }));
 }
 
+function chargingSectionId(row: unknown): string | null {
+  const typed = row as {
+    id?: unknown;
+    enrollment_fee_amount?: unknown;
+    academic_cohorts?: CohortRel;
+  };
+  const id = String(typed.id ?? "").trim();
+  if (!id) return null;
+  const amount = resolveEffectiveEnrollmentFeeAmount(
+    parseOptionalFeeAmount(typed.enrollment_fee_amount),
+    parseOptionalFeeAmount(unwrapCohort(typed.academic_cohorts)?.default_enrollment_fee_amount),
+  );
+  return amount > 0 ? id : null;
+}
+
+const SECTION_PAGE = 1000;
+
+type RangeQuery = {
+  select: (cols: string) => {
+    range: (
+      from: number,
+      to: number,
+    ) => PromiseLike<{ data: unknown[] | null; error: { message?: string } | null }>;
+  };
+};
+
+export async function loadAllChargingSectionIds(supabase: FeeClient): Promise<string[]> {
+  const charging = new Set<string>();
+  let from = 0;
+  for (;;) {
+    const { data, error } = await (supabase.from("academic_sections") as RangeQuery)
+      .select("id, enrollment_fee_amount, academic_cohorts(default_enrollment_fee_amount)")
+      .range(from, from + SECTION_PAGE - 1);
+    if (error || !data || data.length === 0) break;
+    for (const row of data) {
+      const id = chargingSectionId(row);
+      if (id) charging.add(id);
+    }
+    if (data.length < SECTION_PAGE) break;
+    from += SECTION_PAGE;
+  }
+  return [...charging];
+}
+
 export async function collectSectionsChargingEnrollmentFee(
   supabase: FeeClient,
   sectionIds: string[],
@@ -55,18 +99,8 @@ export async function collectSectionsChargingEnrollmentFee(
     .in("id", ids);
   if (error || !data) return charging;
   for (const row of data) {
-    const typed = row as {
-      id?: unknown;
-      enrollment_fee_amount?: unknown;
-      academic_cohorts?: CohortRel;
-    };
-    const id = String(typed.id ?? "").trim();
-    if (!id) continue;
-    const amount = resolveEffectiveEnrollmentFeeAmount(
-      parseOptionalFeeAmount(typed.enrollment_fee_amount),
-      parseOptionalFeeAmount(unwrapCohort(typed.academic_cohorts)?.default_enrollment_fee_amount),
-    );
-    if (amount > 0) charging.add(id);
+    const id = chargingSectionId(row);
+    if (id) charging.add(id);
   }
   return charging;
 }

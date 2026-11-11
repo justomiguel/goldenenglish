@@ -1,9 +1,8 @@
 "use client";
 
-import { CheckCircle2, Pencil, RotateCcw, Trash2 } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
 import { Modal } from "@/components/atoms/Modal";
-import { AdminRegistrationChargeActions } from "@/components/dashboard/AdminRegistrationChargeActions";
+import { AdminRegistrationFunnelPanel } from "@/components/dashboard/AdminRegistrationFunnelPanel";
+import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 
@@ -12,84 +11,51 @@ type RegLabels = Dictionary["admin"]["registrations"];
 export function AdminRegistrationActionsSheet({
   open,
   onOpenChange,
+  locale,
   row,
   busy,
   labels,
+  contact,
+  sections,
   onEdit,
   onDelete,
   onMarkContacted,
-  onRevertToNew,
-  onStartJoinCharge,
+  onStartEnrollmentFee,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  locale: string;
   row: AdminRegistrationRow;
   busy: boolean;
   labels: RegLabels;
+  contact: RegistrationContactView;
+  sections: { id: string; label: string }[];
   onEdit: (row: AdminRegistrationRow) => void;
   onDelete: (row: AdminRegistrationRow) => void;
   onMarkContacted: (row: AdminRegistrationRow) => void;
-  onRevertToNew: (row: AdminRegistrationRow) => void;
-  onStartJoinCharge: (row: AdminRegistrationRow) => void;
+  onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
 }) {
-  const isPending = row.status === "new";
   return (
     <Modal
       open={open}
       onOpenChange={onOpenChange}
       titleId={`admin-registration-actions-${row.id}`}
-      title={labels.mobileSortSheetTitle}
+      title={labels.funnel.actions}
       stackBelowTour
     >
-      <div className="flex flex-col gap-2">
-        <Button
-          type="button"
-          variant="secondary"
-          className="min-h-11 justify-start"
-          disabled={busy}
-          onClick={() => {
-            onOpenChange(false);
-            onEdit(row);
-          }}
-        >
-          <Pencil className="h-4 w-4" aria-hidden />
-          {labels.editTitle}
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          className="min-h-11 justify-start"
-          disabled={busy}
-          onClick={() => {
-            onOpenChange(false);
-            if (isPending) onMarkContacted(row);
-            else onRevertToNew(row);
-          }}
-        >
-          {isPending ? <CheckCircle2 className="h-4 w-4" aria-hidden /> : <RotateCcw className="h-4 w-4" aria-hidden />}
-          {isPending ? labels.markContacted : labels.revertToNew}
-        </Button>
-        <AdminRegistrationChargeActions
-          row={row}
-          labels={labels}
-          busy={busy}
-          buttonClassName="min-h-11 w-full justify-start"
-          onStartJoinCharge={onStartJoinCharge}
-        />
-        <Button
-          type="button"
-          variant="secondary"
-          className="min-h-11 justify-start border-[var(--color-error)] text-[var(--color-error)]"
-          disabled={busy}
-          onClick={() => {
-            onOpenChange(false);
-            onDelete(row);
-          }}
-        >
-          <Trash2 className="h-4 w-4" aria-hidden />
-          {labels.delete}
-        </Button>
-      </div>
+      <AdminRegistrationFunnelPanel
+        locale={locale}
+        row={row}
+        labels={labels}
+        busy={busy}
+        sections={sections}
+        contact={contact}
+        onStartEnrollmentFee={onStartEnrollmentFee}
+        onMarkContacted={onMarkContacted}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onClose={() => onOpenChange(false)}
+      />
     </Modal>
   );
 }

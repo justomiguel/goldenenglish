@@ -7571,6 +7571,17 @@
       "startJoinChargeTip": "Email the family the link to pay matrícula and the current month and join.",
       "startJoinChargeSuccess": "We sent the join-pay link to the family",
       "startJoinChargeError": "Could not start the join charge",
+      "funnel": {
+        "registered": "Registered ({{count}})",
+        "contacted": "Registered, contacted ({{count}})",
+        "awaitingPayment": "Contacted, waiting for payment ({{count}})",
+        "paidWithoutSection": "Matrícula paid, no section ({{count}})",
+        "awaitingSection": "Contacted, waiting for a section ({{count}})",
+        "actions": "Actions",
+        "contactTitle": "Contact",
+        "sendMail": "Send a mail",
+        "close": "Close"
+      },
       "matricula": {
         "sendMail": "Send matrícula email",
         "markInPerson": "Mark paid in person",
@@ -7627,7 +7638,7 @@
       "acceptError": "Could not create user",
       "joinBilling": {
         "legend": "Tuition when they join",
-        "current": "Current (enrollment fee if any + join-month tuition paid)",
+        "current": "Up to date (the join month is paid)",
         "behind": "Not current (join month stays owed)",
         "scholarship": "Joining with a scholarship",
         "percent": "Scholarship percent",

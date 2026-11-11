@@ -16,16 +16,13 @@ describe("RegistrationListToolbar", () => {
         onQueryChange={() => {}}
         totalCount={4}
         filteredCount={4}
-        inboxFilter="urgent"
+        inboxFilter="registered"
         inboxCounts={{
-          urgent: 2,
-          awaiting_fee: 1,
-          receipt_pending: 0,
-          needs_section: 0,
-          section_full: 0,
-          offer_pending: 0,
+          registered: 2,
           contacted: 1,
-          trial: 0,
+          awaiting_payment: 0,
+          paid_without_section: 0,
+          awaiting_section: 0,
         }}
         onInboxFilterChange={() => {}}
         locale="en"
@@ -42,7 +39,7 @@ describe("RegistrationListToolbar", () => {
     expect(exportBtn.className).toContain("--color-primary");
     expect(exportBtn.className).not.toContain("--color-secondary");
 
-    const actions = screen.getByRole("button", { name: /Actions/ });
+    const actions = screen.getByRole("button", { name: "Registered (2)" });
     expect(actions).toHaveAttribute("aria-pressed", "true");
     expect(actions.className).toContain("--color-primary");
     expect(actions.className).not.toContain("--color-secondary");

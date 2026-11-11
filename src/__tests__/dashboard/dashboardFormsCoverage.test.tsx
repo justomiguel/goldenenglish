@@ -296,12 +296,13 @@ describe("dashboard coverage", () => {
       />,
     );
     expect(screen.getByText(R.contacted)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: R.delete }));
+    fireEvent.click(screen.getByRole("button", { name: R.funnel.actions }));
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: R.delete }));
     fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: R.confirmDelete }));
     await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent(/db/));
   });
 
-  it("AdminRegistrationsList deletes and accepts a lead", async () => {
+  it("AdminRegistrationsList deletes a lead from the actions panel", async () => {
     const R = dictEn.admin.registrations;
     const rowNew = {
       id: "123e4567-e89b-12d3-a456-426614174000",
@@ -328,23 +329,14 @@ describe("dashboard coverage", () => {
         {...REG_CONTACT_PROPS}
       />,
     );
-    fireEvent.click(screen.getAllByRole("button", { name: R.delete })[0]);
+    fireEvent.click(screen.getAllByRole("button", { name: R.funnel.actions })[0]!);
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: R.delete }));
     const delDlg = screen.getByRole("dialog");
     fireEvent.click(within(delDlg).getByRole("button", { name: R.confirmDelete }));
     await waitFor(() => expect(deleteRegistration).toHaveBeenCalledWith("es", rowNew.id));
-    fireEvent.click(screen.getByRole("button", { name: R.accept }));
-    const accDlg = await screen.findByRole("dialog");
-    fireEvent.click(within(accDlg).getByRole("radio", { name: R.joinBilling.current }));
-    fireEvent.click(within(accDlg).getByRole("button", { name: R.accept }));
-    await waitFor(() =>
-      expect(acceptRegistration).toHaveBeenCalledWith(
-        "es",
-        expect.objectContaining({ registration_id: rowNew.id }),
-      ),
-    );
   });
 
-  it("AdminRegistrationAcceptModal surfaces already_processed and generic errors", async () => {
+  it("AdminRegistration actions panel offers delete", async () => {
     const R = dictEn.admin.registrations;
     const rowNew = {
       id: "423e4567-e89b-12d3-a456-426614174003",
@@ -359,26 +351,6 @@ describe("dashboard coverage", () => {
       created_at: "2026-01-01T00:00:00.000Z",
       ...REG_TUTOR_EMPTY,
     };
-    acceptRegistration.mockResolvedValueOnce({ ok: false, message: R.alreadyProcessed });
-    const { unmount } = render(
-      <AdminRegistrationsList
-        locale="es"
-        legalAgeMajority={18}
-        rows={[rowNew]}
-        labels={R}
-        tableLabels={dictEn.admin.table}
-        userLabels={registrationAcceptUserLabels}
-        {...REG_CONTACT_PROPS}
-      />,
-    );
-    fireEvent.click(screen.getByRole("button", { name: R.accept }));
-    const dlg = await screen.findByRole("dialog");
-    fireEvent.click(within(dlg).getByRole("radio", { name: R.joinBilling.current }));
-    fireEvent.click(within(dlg).getByRole("button", { name: R.accept }));
-    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(R.alreadyProcessed));
-    unmount();
-
-    acceptRegistration.mockResolvedValueOnce({ ok: false, message: "nope" });
     render(
       <AdminRegistrationsList
         locale="es"
@@ -390,11 +362,8 @@ describe("dashboard coverage", () => {
         {...REG_CONTACT_PROPS}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: R.accept }));
-    const dlg2 = await screen.findByRole("dialog");
-    fireEvent.click(within(dlg2).getByRole("radio", { name: R.joinBilling.current }));
-    fireEvent.click(within(dlg2).getByRole("button", { name: R.accept }));
-    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(/nope/));
+    fireEvent.click(screen.getByRole("button", { name: R.funnel.actions }));
+    expect(within(screen.getByRole("dialog")).getByRole("button", { name: R.delete })).toBeInTheDocument();
   });
 
   it("PaymentReviewRow hides img for pdf and handles missing preview", () => {

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Check, MessageCircle, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { RegistrationContactCell } from "@/components/dashboard/RegistrationContactCell";
 import type { Dictionary } from "@/types/i18n";
@@ -10,13 +10,7 @@ import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatReg
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
 import { AdminRegistrationActionsSheet } from "@/components/pwa/molecules/AdminRegistrationActionsSheet";
-import { registrationInboxPrimaryKind } from "@/lib/register/registrationInboxPrimaryKind";
-import {
-  AdminRegistrationMatriculaControls,
-  registrationAltaAllowed,
-} from "@/components/dashboard/AdminRegistrationMatriculaControls";
 import { registrationIntentLabel } from "@/lib/register/registrationIntentLabel";
-import { AdminRegistrationIntakeActions } from "@/components/dashboard/AdminRegistrationIntakeActions";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import { AdminRegistrationNagoExtras } from "@/components/dashboard/AdminRegistrationNagoExtras";
 import { AdminRegistrationMozarthitosGuide } from "@/components/dashboard/AdminRegistrationMozarthitosGuide";
@@ -54,22 +48,12 @@ export function AdminRegistrationPwaCard({
   statusLabel,
   contact,
   instituteName,
-  onAccept,
   onEdit,
   onDelete,
   onMarkContacted,
-  onRevertToNew,
   onStartEnrollmentFee,
-  onStartJoinCharge,
   cohortSections = [],
-  currentCohortSections,
-  createSectionHref,
-  createSectionLabel,
-  onBusy,
-  onIntakeDone,
 }: AdminRegistrationPwaCardProps) {
-  const canAccept =
-    registrationInboxPrimaryKind(r) === "accept" && registrationAltaAllowed(r);
   const [actionsOpen, setActionsOpen] = useState(false);
   const birthDisplay =
     formatCivilIsoDateForDisplay(locale, r.birth_date, {
@@ -77,7 +61,6 @@ export function AdminRegistrationPwaCard({
       month: "short",
       day: "numeric",
     }) ?? labels.emptyValue;
-  const whatsAppDigits = contact.tutor?.whatsAppDigits ?? contact.student?.whatsAppDigits ?? null;
   const phoneLine = contact.tutor?.phoneDisplay || contact.student?.phoneDisplay || "";
   const displayName = formatProfileNameSurnameFirst(r.first_name, r.last_name);
   const receivedDisplay = r.created_at
@@ -178,41 +161,7 @@ export function AdminRegistrationPwaCard({
           tenantExtras={r.tenantExtras}
           labels={labels.mozarthitosGuide}
         />
-        <AdminRegistrationMatriculaControls
-          locale={locale} row={r} labels={labels} busy={busy}
-          sections={cohortSections} onStartEnrollmentFee={onStartEnrollmentFee}
-        />
-        {onBusy && onIntakeDone ? (
-          <AdminRegistrationIntakeActions
-            locale={locale}
-            row={r}
-            labels={labels.intake}
-            joinBilling={labels.joinBilling}
-            sections={currentCohortSections ?? []}
-            createSectionHref={createSectionHref}
-            createSectionLabel={createSectionLabel}
-            emptySectionLabel={labels.noSectionsInCohort}
-            busy={busy}
-            onBusy={onBusy}
-            onDone={onIntakeDone}
-          />
-        ) : null}
         <div className="flex items-center gap-2">
-          {whatsAppDigits ? (
-            <a
-              href={`https://wa.me/${whatsAppDigits}`}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-semibold text-[var(--color-foreground)]"
-            >
-              <MessageCircle className="h-4 w-4" aria-hidden />
-              {labels.whatsappCta}
-            </a>
-          ) : null}
-          {canAccept ? (
-            <Button type="button" className="min-h-11 flex-1" disabled={busy} onClick={() => onAccept(r)}>
-              <Check className="h-4 w-4" aria-hidden />
-              {labels.accept}
-            </Button>
-          ) : null}
           <Button
             type="button"
             variant="secondary"
@@ -234,14 +183,16 @@ export function AdminRegistrationPwaCard({
         <AdminRegistrationActionsSheet
           open={actionsOpen}
           onOpenChange={setActionsOpen}
+          locale={locale}
           row={r}
           busy={busy}
           labels={labels}
+          contact={contact}
+          sections={cohortSections}
           onEdit={onEdit}
           onDelete={onDelete}
           onMarkContacted={onMarkContacted}
-          onRevertToNew={onRevertToNew}
-          onStartJoinCharge={onStartJoinCharge}
+          onStartEnrollmentFee={onStartEnrollmentFee}
         />
       </div>
     </li>

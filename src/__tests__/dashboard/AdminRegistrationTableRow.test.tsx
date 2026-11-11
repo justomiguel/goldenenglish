@@ -70,44 +70,28 @@ function renderRow(r: AdminRegistrationRow, onStart = vi.fn(), onJoin = vi.fn())
 }
 
 describe("AdminRegistrationTableRow", () => {
-  it("shows the start-fee-flow button only when the requested section still has a seat", () => {
+  it("keeps the row to one actions button", () => {
     renderRow(row());
-    expect(screen.getByRole("button", { name: labels.matricula.sendMail })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: labels.funnel.actions })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: labels.matricula.sendMail })).not.toBeInTheDocument();
+    expect(screen.queryByText(labels.joinBilling.legend)).not.toBeInTheDocument();
   });
 
-  it("shows a type column for pre-enrollment and the matrícula start action", () => {
+  it("shows a type column for pre-enrollment", () => {
     renderRow(row());
     expect(screen.getByText(labels.intentReserve)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: labels.matricula.sendMail })).toBeInTheDocument();
   });
 
-  it("shows trial type and the join-pay action instead of the matrícula-only button", () => {
-    renderRow(
-      row({
-        intent: "trial",
-        chargesEnrollmentFee: true,
-        snapshotTotal: 80,
-      }),
-    );
+  it("shows trial type without the join-pay button on the row", () => {
+    renderRow(row({ intent: "trial", chargesEnrollmentFee: true, snapshotTotal: 80 }));
     expect(screen.getByText(labels.intentTrial)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: labels.startJoinCharge })).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: labels.matricula.sendMail }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: labels.startJoinCharge })).not.toBeInTheDocument();
   });
 
-  it("hides the start-fee-flow button when the lead has no matrícula to collect", () => {
-    renderRow(row({ chargesEnrollmentFee: false, snapshotTotal: 0 }));
-    expect(
-      screen.queryByRole("button", { name: labels.matricula.sendMail }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("marks a full-section lead in red and hides the start-fee-flow button", () => {
+  it("marks a full-section lead in red", () => {
     const { container } = renderRow(row({ requestedSectionFull: true }));
-    expect(container.querySelector("tr")).toHaveClass("bg-[color-mix(in_srgb,var(--color-error)_12%,transparent)]");
-    expect(
-      screen.queryByRole("button", { name: labels.matricula.sendMail }),
-    ).not.toBeInTheDocument();
+    expect(container.querySelector("tr")).toHaveClass(
+      "bg-[color-mix(in_srgb,var(--color-error)_12%,transparent)]",
+    );
   });
 });

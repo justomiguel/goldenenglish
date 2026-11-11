@@ -103,7 +103,7 @@ export function useAdminRegistrationsList({
   const setInboxFilter = useCallback(
     (next: RegistrationInboxFilter) =>
       pushParams({
-        inbox: next === "urgent" ? undefined : next,
+        inbox: next === "registered" ? undefined : next,
         status: undefined,
         page: undefined,
       }),

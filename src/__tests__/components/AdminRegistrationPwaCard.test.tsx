@@ -48,9 +48,8 @@ describe("AdminRegistrationPwaCard", () => {
     installDialog();
   });
 
-  it("offers WhatsApp and accept on the card", async () => {
+  it("keeps WhatsApp inside actions", async () => {
     const user = userEvent.setup();
-    const onAccept = vi.fn();
     render(
       <AdminRegistrationPwaCard
         locale="es"
@@ -64,7 +63,7 @@ describe("AdminRegistrationPwaCard", () => {
           tutor: null,
         }}
         instituteName="Test Institute"
-        onAccept={onAccept}
+        onAccept={() => {}}
         onEdit={() => {}}
         onDelete={() => {}}
         onMarkContacted={() => {}}
@@ -75,12 +74,14 @@ describe("AdminRegistrationPwaCard", () => {
     );
 
     expect(screen.getByText("Pérez Ana")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: labels.whatsappCta })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: labels.moreActionsAria.replace("{{name}}", "Pérez Ana") }));
     expect(screen.getByRole("link", { name: labels.whatsappCta })).toHaveAttribute(
       "href",
       "https://wa.me/56911112222",
     );
-    await user.click(screen.getByRole("button", { name: labels.accept }));
-    expect(onAccept).toHaveBeenCalledWith(row);
+    expect(screen.getByRole("button", { name: labels.markContacted })).toBeInTheDocument();
+    expect(screen.queryByText(labels.joinBilling.legend)).not.toBeInTheDocument();
   });
 
   it("moves edit into the more-actions sheet", async () => {

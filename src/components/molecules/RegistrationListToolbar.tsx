@@ -110,24 +110,21 @@ export function RegistrationListToolbar({
         <div className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap" role="group" aria-label={labels.status}>
           {(
             [
-              { value: "urgent" as const, label: labels.intake.filterUrgent, count: inboxCounts.urgent },
-              { value: "awaiting_fee" as const, label: labels.intake.filterAwaiting, count: inboxCounts.awaiting_fee },
-              { value: "receipt_pending" as const, label: labels.intake.filterReceipt, count: inboxCounts.receipt_pending },
-              { value: "needs_section" as const, label: labels.intake.filterNeedsSection, count: inboxCounts.needs_section },
-              { value: "section_full" as const, label: labels.intake.filterSectionFull, count: inboxCounts.section_full },
-              { value: "offer_pending" as const, label: labels.intake.filterOfferPending, count: inboxCounts.offer_pending },
-              { value: "contacted" as const, label: labels.intake.filterContacted, count: inboxCounts.contacted },
-              { value: "trial" as const, label: labels.intake.filterTrial, count: inboxCounts.trial },
+              { value: "registered" as const, label: labels.funnel.registered, count: inboxCounts.registered },
+              { value: "contacted" as const, label: labels.funnel.contacted, count: inboxCounts.contacted },
+              { value: "awaiting_payment" as const, label: labels.funnel.awaitingPayment, count: inboxCounts.awaiting_payment },
+              { value: "paid_without_section" as const, label: labels.funnel.paidWithoutSection, count: inboxCounts.paid_without_section },
+              { value: "awaiting_section" as const, label: labels.funnel.awaitingSection, count: inboxCounts.awaiting_section },
             ] satisfies { value: RegistrationInboxFilter; label: string; count: number }[]
           ).map((chip) => {
-            const active = (inboxFilter ?? "urgent") === chip.value;
+            const active = (inboxFilter ?? "registered") === chip.value;
             return (
               <button
                 key={chip.value}
                 type="button"
                 aria-pressed={active}
                 onClick={() => onInboxFilterChange(chip.value)}
-                className={`inline-flex min-h-10 shrink-0 items-center rounded-full border px-3.5 text-xs font-medium md:text-sm ${
+                className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-3.5 text-xs font-medium md:text-sm ${
                   active
                     ? "border-[var(--color-primary)]/25 bg-[color-mix(in_srgb,var(--color-primary)_8%,white)] font-semibold text-[var(--color-primary)]"
                     : "border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"

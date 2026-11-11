@@ -7,10 +7,14 @@ import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { auditIdentityAction } from "@/lib/audit";
+import { acceptRegistrationLead } from "@/lib/register/acceptRegistrationLead";
+import { collectSectionsChargingEnrollmentFee } from "@/lib/register/markRegistrationRowsEnrollmentFee";
 import {
   REGISTRATION_PENDING_STATUSES,
   registrationIsActionable,
 } from "@/lib/register/registrationIsActionable";
+import { snapshotTotalFromUnknown } from "@/lib/register/registrationIntake";
+import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistrationSectionIds";
 
 const idZ = z.string().uuid();
 
@@ -87,8 +91,57 @@ async function applyRegistrationStatus(
   return { ok: true };
 }
 
+async function promoteZeroFeeContact(
+  locale: string,
+  registrationId: string,
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const dict = await getDictionary(locale);
+  let actorId = "";
+  try {
+    actorId = (await assertAdmin()).user.id;
+  } catch {
+    logServerAuthzDenied("markRegistrationContacted");
+    return { ok: false, message: dict.actionErrors.registrationDraft.forbidden };
+  }
+  const admin = await createAdminClient();
+  const { data } = await admin
+    .from("registrations")
+    .select("status,fee_snapshot,preferred_section_id,additional_section_ids")
+    .eq("id", registrationId)
+    .maybeSingle();
+  if (!data || !registrationIsActionable(String(data.status ?? ""))) return { ok: true };
+  const sectionIds = requestedRegistrationSectionIds({
+    preferred_section_id: data.preferred_section_id ? String(data.preferred_section_id) : null,
+    additionalSectionIds: Array.isArray(data.additional_section_ids)
+      ? data.additional_section_ids.map(String)
+      : [],
+  });
+  let charges = snapshotTotalFromUnknown(data.fee_snapshot) > 0;
+  if (!charges && sectionIds.length > 0) {
+    const charging = await collectSectionsChargingEnrollmentFee(admin, sectionIds);
+    charges = sectionIds.some((id) => charging.has(id));
+  }
+  if (charges) return { ok: true };
+  const accepted = await acceptRegistrationLead({
+    admin,
+    enrollClient: admin,
+    locale,
+    dict,
+    registrationId,
+    joinDisposition: { kind: "behind" },
+    actorId,
+  });
+  return accepted.ok ? { ok: true } : { ok: false, message: accepted.message };
+}
+
 /** Records that the institute already reached this family. */
 export async function markRegistrationContacted(locale: string, registrationId: string) {
+  if (!idZ.safeParse(registrationId).success) {
+    const dict = await getDictionary(locale);
+    return { ok: false, message: dict.actionErrors.registrationDraft.invalidData };
+  }
+  const promoted = await promoteZeroFeeContact(locale, registrationId);
+  if (!promoted.ok) return promoted;
   return applyRegistrationStatus(
     locale,
     registrationId,

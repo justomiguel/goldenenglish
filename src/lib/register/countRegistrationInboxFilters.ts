@@ -1,33 +1,20 @@
+import { registrationFunnelStage, type RegistrationFunnelStage } from "@/lib/register/registrationFunnelStage";
 import {
-  isRegistrationAwaitingFee,
-  isRegistrationStaffUrgent,
   parseRegistrationIntakeState,
   snapshotCurrencyFromUnknown,
   snapshotTotalFromUnknown,
   type RegistrationIntakeState,
 } from "@/lib/register/registrationIntake";
 
-export type RegistrationInboxCounts = {
-  urgent: number;
-  awaiting_fee: number;
-  receipt_pending: number;
-  needs_section: number;
-  section_full: number;
-  offer_pending: number;
-  contacted: number;
-  trial: number;
-};
+export type RegistrationInboxCounts = Record<RegistrationFunnelStage, number>;
 
 export function emptyRegistrationInboxCounts(): RegistrationInboxCounts {
   return {
-    urgent: 0,
-    awaiting_fee: 0,
-    receipt_pending: 0,
-    needs_section: 0,
-    section_full: 0,
-    offer_pending: 0,
+    registered: 0,
     contacted: 0,
-    trial: 0,
+    awaiting_payment: 0,
+    paid_without_section: 0,
+    awaiting_section: 0,
   };
 }
 
@@ -36,22 +23,26 @@ export function countRegistrationInboxFilters(
     status: string;
     intake_state?: unknown;
     fee_snapshot?: unknown;
-    intent?: unknown;
+    fee_captured?: unknown;
+    enrollment_fee_mail_sent_at?: unknown;
+    accepted_student_id?: unknown;
+    chargesEnrollmentFee?: boolean;
   }>,
 ): RegistrationInboxCounts {
   const counts = emptyRegistrationInboxCounts();
   for (const row of rows) {
-    const intakeState = parseRegistrationIntakeState(row.intake_state);
-    const snapshotTotal = snapshotTotalFromUnknown(row.fee_snapshot);
-    const input = { status: row.status, intakeState, snapshotTotal };
-    if (isRegistrationStaffUrgent(input)) counts.urgent += 1;
-    if (isRegistrationAwaitingFee(input)) counts.awaiting_fee += 1;
-    if (intakeState === "receipt_pending") counts.receipt_pending += 1;
-    if (intakeState === "needs_section") counts.needs_section += 1;
-    if (intakeState === "section_full") counts.section_full += 1;
-    if (intakeState === "offer_pending") counts.offer_pending += 1;
-    if (row.status === "contacted") counts.contacted += 1;
-    if (row.intent === "trial") counts.trial += 1;
+    const stage = registrationFunnelStage({
+      status: row.status,
+      intakeState: parseRegistrationIntakeState(row.intake_state),
+      snapshotTotal: snapshotTotalFromUnknown(row.fee_snapshot),
+      chargesEnrollmentFee: row.chargesEnrollmentFee,
+      feeCaptured: row.fee_captured === true,
+      enrollmentFeeMailSentAt:
+        typeof row.enrollment_fee_mail_sent_at === "string" ? row.enrollment_fee_mail_sent_at : null,
+      acceptedStudentId:
+        row.accepted_student_id != null ? String(row.accepted_student_id) : null,
+    });
+    if (stage) counts[stage] += 1;
   }
   return counts;
 }
@@ -61,6 +52,7 @@ export function mapInboxLeadFields(row: {
   fee_snapshot?: unknown;
   fee_captured?: unknown;
   enrollment_fee_receipt_path?: unknown;
+  enrollment_fee_mail_sent_at?: unknown;
 }): {
   intakeState: RegistrationIntakeState;
   snapshotTotal: number;
@@ -68,6 +60,7 @@ export function mapInboxLeadFields(row: {
   feeSnapshot: unknown;
   feeCaptured: boolean;
   enrollmentFeeReceiptPath: string | null;
+  enrollmentFeeMailSentAt: string | null;
 } {
   return {
     intakeState: parseRegistrationIntakeState(row.intake_state),
@@ -78,6 +71,10 @@ export function mapInboxLeadFields(row: {
     enrollmentFeeReceiptPath:
       typeof row.enrollment_fee_receipt_path === "string" && row.enrollment_fee_receipt_path.trim()
         ? row.enrollment_fee_receipt_path
+        : null,
+    enrollmentFeeMailSentAt:
+      typeof row.enrollment_fee_mail_sent_at === "string" && row.enrollment_fee_mail_sent_at.trim()
+        ? row.enrollment_fee_mail_sent_at
         : null,
   };
 }

@@ -7564,6 +7564,17 @@
       "startJoinChargeTip": "Envia à família o link para pagar a matrícula e o mês atual e ingressar.",
       "startJoinChargeSuccess": "Enviamos o link de cobrança à família",
       "startJoinChargeError": "Não foi possível iniciar a cobrança",
+      "funnel": {
+        "registered": "Inscritos ({{count}})",
+        "contacted": "Inscritos contactados ({{count}})",
+        "awaitingPayment": "Contactados à espera de pagamento ({{count}})",
+        "paidWithoutSection": "Matrícula paga, sem turma ({{count}})",
+        "awaitingSection": "Contactados à espera de turma ({{count}})",
+        "actions": "Ações",
+        "contactTitle": "Contactar",
+        "sendMail": "Enviar e-mail",
+        "close": "Fechar"
+      },
       "matricula": {
         "sendMail": "Enviar e-mail da matrícula",
         "markInPerson": "Marcar pago presencial",
@@ -7620,7 +7631,7 @@
       "acceptError": "Não foi possível criar o usuário",
       "joinBilling": {
         "legend": "Mensalidade ao entrar",
-        "current": "Em dia (matrícula se houver + mês de entrada pagos)",
+        "current": "Em dia (o mês de ingresso fica pago)",
         "behind": "Em atraso (o mês de entrada fica em dívida)",
         "scholarship": "Entra com bolsa",
         "percent": "Percentual da bolsa",

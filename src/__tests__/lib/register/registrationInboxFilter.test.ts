@@ -1,47 +1,62 @@
 /** @vitest-environment node */
 import { describe, expect, it } from "vitest";
 import {
+  applyRegistrationFunnelFilter,
   parseRegistrationInboxFilter,
-  registrationInboxOrFilter,
 } from "@/lib/register/registrationInboxFilter";
 
+function capture() {
+  const calls: string[] = [];
+  const query = {
+    eq(column: string, value: string) {
+      calls.push(`eq ${column} ${value}`);
+      return query;
+    },
+    neq(column: string, value: string) {
+      calls.push(`neq ${column} ${value}`);
+      return query;
+    },
+    or(filters: string) {
+      calls.push(`or ${filters}`);
+      return query;
+    },
+  };
+  return { query, calls };
+}
+
 describe("parseRegistrationInboxFilter", () => {
-  it("defaults to urgent", () => {
-    expect(parseRegistrationInboxFilter(undefined)).toBe("urgent");
-    expect(parseRegistrationInboxFilter("nope")).toBe("urgent");
+  it("defaults to the first funnel stage", () => {
+    expect(parseRegistrationInboxFilter(undefined)).toBe("registered");
+    expect(parseRegistrationInboxFilter("nope")).toBe("registered");
+    expect(parseRegistrationInboxFilter("urgent")).toBe("registered");
   });
 
   it("keeps contacted from the legacy status query", () => {
-    expect(parseRegistrationInboxFilter("contacted", "contacted")).toBe("contacted");
+    expect(parseRegistrationInboxFilter(undefined, "contacted")).toBe("contacted");
   });
 });
 
-describe("registrationInboxOrFilter", () => {
-  it("builds the urgent set without waiting-payment none+total", () => {
-    const or = registrationInboxOrFilter("urgent");
-    expect(or).toContain("receipt_pending");
-    expect(or).toContain("needs_section");
-    expect(or).toContain("section_full");
-    expect(or).toContain("intake_state.eq.none");
+describe("applyRegistrationFunnelFilter", () => {
+  it("keeps a new lead in Inscriptos until the matrícula mail is sent", () => {
+    const { query, calls } = capture();
+    applyRegistrationFunnelFilter(query, "registered", []);
+    expect(calls.join("\n")).toContain("eq status new");
+    expect(calls.join("\n")).toContain("enrollment_fee_mail_sent_at.is.null");
+    expect(calls.join("\n")).not.toContain("offer_pending");
   });
 
-  it("includes corrupt none+total in awaiting_fee", () => {
-    expect(registrationInboxOrFilter("awaiting_fee")).toContain("fee_snapshot->>total.gt.0");
+  it("puts a contacted fee lead in Inscriptos contactados before the mail", () => {
+    const { query, calls } = capture();
+    applyRegistrationFunnelFilter(query, "contacted", ["sec-1"]);
+    expect(calls.join("\n")).toContain("eq status contacted");
+    expect(calls.join("\n")).toContain("preferred_section_id.in.(sec-1)");
   });
 
-  it("filters trial leads by intent", () => {
-    expect(parseRegistrationInboxFilter("trial")).toBe("trial");
-    expect(registrationInboxOrFilter("trial")).toBe("intent.eq.trial");
-  });
-
-  it("filters offer_pending by intake_state", () => {
-    expect(parseRegistrationInboxFilter("offer_pending")).toBe("offer_pending");
-    expect(registrationInboxOrFilter("offer_pending")).toBe(
-      "intake_state.eq.offer_pending",
-    );
-  });
-
-  it("keeps offer_pending out of the urgent or-filter", () => {
-    expect(registrationInboxOrFilter("urgent")).not.toContain("offer_pending");
+  it("keeps a zero-fee lead out of the payment stage", () => {
+    const { query, calls } = capture();
+    applyRegistrationFunnelFilter(query, "awaiting_section", []);
+    const text = calls.join("\n");
+    expect(text).toContain("status.eq.contacted");
+    expect(text).not.toContain("fee_snapshot->>total.gt.0");
   });
 });

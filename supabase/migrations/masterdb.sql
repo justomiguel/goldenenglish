@@ -24637,3 +24637,9 @@ COMMENT ON COLUMN public.registrations.enrollment_fee_paid_method IS
   'How the matrícula was paid before a section exists: cash, transfer, card, gateway, or other.';
 COMMENT ON COLUMN public.registrations.enrollment_fee_paid_on IS
   'Calendar date the institute received the matrícula.';
+
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS enrollment_fee_mail_sent_at timestamptz;
+
+COMMENT ON COLUMN public.registrations.enrollment_fee_mail_sent_at IS
+  'When staff sent the matrícula payment mail. Null until that send.';

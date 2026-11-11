@@ -4,8 +4,8 @@ import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
 import type { RegistrationSortKey } from "@/lib/dashboard/adminRegistrationsSort";
 import { mapInboxLeadFields } from "@/lib/register/countRegistrationInboxFilters";
 import {
+  applyRegistrationFunnelFilter,
   parseRegistrationInboxFilter,
-  registrationInboxOrFilter,
   type RegistrationInboxFilter,
 } from "@/lib/register/registrationInboxFilter";
 import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistrationSectionIds";
@@ -15,6 +15,7 @@ import {
 } from "@/lib/register/markRegistrationRowsClosedSections";
 import {
   collectSectionsChargingEnrollmentFee,
+  loadAllChargingSectionIds,
   markRegistrationRowsEnrollmentFee,
 } from "@/lib/register/markRegistrationRowsEnrollmentFee";
 import { attachTrialSeatsToRegistrationRows } from "@/lib/register/attachTrialSeatsToRegistrationRows";
@@ -27,7 +28,7 @@ const REGISTRATION_COLUMNS = [
   "tutor_relationship", "preferred_section_id", "additional_section_ids",
   "contacted_at", "contacted_by", "source_section_link_id", "tenant_extras",
   "intake_state", "fee_snapshot", "fee_captured", "enrollment_fee_paid_method",
-  "accepted_student_id", "enrollment_fee_receipt_path",
+  "accepted_student_id", "enrollment_fee_receipt_path", "enrollment_fee_mail_sent_at",
   "proposed_section_id",
   "intent", "trial_convert_token", "trial_convert_expires_at", "trial_refund_due_amount",
   "privacy_accepted_at", "privacy_policy_version",
@@ -58,7 +59,7 @@ export interface PaginatedRegistrationsParams {
   q?: string;
   sort?: RegistrationSortKey;
   dir?: "asc" | "desc";
-  /** Follow-up status filter; omitted means the default urgent inbox. */
+  /** Follow-up status filter; omitted means the Inscriptos stage. */
   status?: "new" | "contacted";
   inbox?: RegistrationInboxFilter;
   /** Match preferred or additional requested sections. */
@@ -94,6 +95,7 @@ type RegistrationSelectRow = {
   enrollment_fee_paid_method?: unknown;
   accepted_student_id?: unknown;
   enrollment_fee_receipt_path?: unknown;
+  enrollment_fee_mail_sent_at?: unknown;
   proposed_section_id?: string | null;
   intent?: string | null;
   trial_convert_token?: string | null;
@@ -144,17 +146,10 @@ export async function loadPaginatedRegistrations(
     countQuery = countQuery.or(filter);
   }
 
+  const chargingSectionIds = await loadAllChargingSectionIds(supabase);
   const inbox = params.inbox ?? parseRegistrationInboxFilter(undefined, params.status);
-  if (inbox === "contacted") {
-    dataQuery = dataQuery.eq("status", "contacted");
-    countQuery = countQuery.eq("status", "contacted");
-  } else {
-    const orFilter = registrationInboxOrFilter(inbox);
-    if (orFilter) {
-      dataQuery = dataQuery.or(orFilter);
-      countQuery = countQuery.or(orFilter);
-    }
-  }
+  dataQuery = applyRegistrationFunnelFilter(dataQuery, inbox, chargingSectionIds);
+  countQuery = applyRegistrationFunnelFilter(countQuery, inbox, chargingSectionIds);
 
   const sectionId = params.sectionId?.trim() ?? "";
   if (sectionId) {
