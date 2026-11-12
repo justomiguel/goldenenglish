@@ -15,7 +15,7 @@ function Field({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function AdminRegistrationMozarthitosGuide({
+export function AdminRegistrationFamilyGuide({
   tenantExtras,
   labels,
 }: {

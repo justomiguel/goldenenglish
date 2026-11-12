@@ -24,9 +24,9 @@ export function publicRegistrationInputFromFormData(
     tutor_phone: String(fd.get("tutor_phone") ?? ""),
     tutor_relationship: String(fd.get("tutor_relationship") ?? ""),
     tenant_extras:
-      extrasPack === "nago"
+      extrasPack === "martial_arts_uniform"
         ? readNagoExtrasFromFormData(fd)
-        : extrasPack === "mozarthitos"
+        : extrasPack === "family_guide"
           ? readMozarthitosExtrasFromFormData(fd)
           : undefined,
     intent,

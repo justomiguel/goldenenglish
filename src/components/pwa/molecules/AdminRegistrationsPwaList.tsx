@@ -15,6 +15,7 @@ import type { RegistrationContactView } from "@/lib/register/resolveRegistration
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import type { RegistrationSectionPickerOption } from "@/lib/register/registrationSectionPicker";
 import { cohortSectionChoices } from "@/lib/register/registrationMatriculaAlta";
+import type { RegistrationPageSelection } from "@/hooks/useRegistrationPageSelection";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -42,6 +43,7 @@ export interface AdminRegistrationsPwaListProps {
   onStartJoinCharge: (row: AdminRegistrationRow) => void;
   currentCohortSections?: CurrentCohortSection[];
   sectionOptionsByCohort?: Record<string, RegistrationSectionPickerOption[]>;
+  selectedCohortId?: string | null;
   createSectionHref?: string | null;
   createSectionLabel?: string;
   onBusy?: (id: string | null) => void;
@@ -53,6 +55,7 @@ export interface AdminRegistrationsPwaListProps {
     totalCount: number;
     onPageChange: (page: number) => void;
   };
+  selection?: RegistrationPageSelection;
 }
 
 export function AdminRegistrationsPwaList({
@@ -78,12 +81,14 @@ export function AdminRegistrationsPwaList({
   onStartJoinCharge,
   currentCohortSections,
   sectionOptionsByCohort,
+  selectedCohortId,
   createSectionHref,
   createSectionLabel,
   onBusy,
   onIntakeDone,
   emptyMessage,
   pagination,
+  selection,
 }: AdminRegistrationsPwaListProps) {
   if (listEmpty) {
     return (
@@ -123,14 +128,17 @@ export function AdminRegistrationsPwaList({
             onStartEnrollmentFee={onStartEnrollmentFee}
             onStartJoinCharge={onStartJoinCharge}
             cohortSections={cohortSectionChoices(
-              r.preferredSectionCohortId,
+              r.status === "enrolled" ? selectedCohortId : r.preferredSectionCohortId,
               sectionOptionsByCohort,
             )}
+            selectedCohortId={selectedCohortId}
             currentCohortSections={currentCohortSections}
             createSectionHref={createSectionHref}
             createSectionLabel={createSectionLabel}
             onBusy={onBusy}
             onIntakeDone={onIntakeDone}
+            rowSelected={selection?.selectedIds.includes(r.id)}
+            onToggleSelected={selection ? (id) => selection.toggle(id) : undefined}
           />
         ))}
       </ul>

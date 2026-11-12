@@ -1,6 +1,6 @@
 import { type ButtonHTMLAttributes } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive" | "destructiveStrong";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive" | "destructiveStrong" | "success" | "stepCommit";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -37,6 +37,10 @@ const variantClasses: Record<ButtonVariant, string> = {
    */
   destructiveStrong:
     "bg-[var(--color-error)] text-white hover:bg-[color-mix(in_srgb,var(--color-error)_85%,black)] focus-visible:ring-[var(--color-error)]",
+  success:
+    "bg-[color-mix(in_srgb,var(--color-success)_55%,black)] text-white hover:bg-[color-mix(in_srgb,var(--color-success)_40%,black)] hover:scale-[1.03] active:scale-[0.98] motion-reduce:hover:scale-100 motion-reduce:active:scale-100 focus-visible:ring-[var(--color-success)]",
+  stepCommit:
+    "bg-[var(--color-background)] text-[color-mix(in_srgb,var(--color-success)_55%,black)] hover:bg-[var(--color-muted)] focus-visible:ring-[var(--color-success)]",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

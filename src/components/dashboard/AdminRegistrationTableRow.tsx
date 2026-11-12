@@ -6,6 +6,7 @@ import { Button } from "@/components/atoms/Button";
 import { Modal } from "@/components/atoms/Modal";
 import { AdminRegistrationFunnelPanel } from "@/components/dashboard/AdminRegistrationFunnelPanel";
 import { RegistrationContactCell } from "@/components/dashboard/RegistrationContactCell";
+import { RegistrationPageCheckbox } from "@/components/molecules/RegistrationPageCheckbox";
 import { AdminUserNameLink } from "@/components/molecules/AdminUserNameLink";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import type { Dictionary } from "@/types/i18n";
@@ -38,6 +39,9 @@ export interface AdminRegistrationTableRowProps {
   onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
   onStartJoinCharge: (row: AdminRegistrationRow) => void;
   sectionOptionsByCohort?: Record<string, RegistrationSectionPickerOption[]>;
+  selectedCohortId?: string | null;
+  rowSelected?: boolean;
+  onToggleSelected?: (id: string) => void;
 }
 
 export function AdminRegistrationTableRow({
@@ -58,6 +62,9 @@ export function AdminRegistrationTableRow({
   onStartEnrollmentFee,
   onStartJoinCharge: _onStartJoinCharge,
   sectionOptionsByCohort,
+  selectedCohortId,
+  rowSelected = false,
+  onToggleSelected,
 }: AdminRegistrationTableRowProps) {
   void _onAccept;
   void _onRevertToNew;
@@ -82,7 +89,18 @@ export function AdminRegistrationTableRow({
       }
       aria-label={r.requestedSectionFull ? labels.requestedSectionFullAria : undefined}
     >
-      <td className="px-2 py-2 align-top">
+      <td className="px-1 py-2 align-top">
+        <div className="flex items-center">
+        {onToggleSelected ? (
+          <RegistrationPageCheckbox
+            checked={rowSelected}
+            label={labels.funnel.selectRow.replaceAll(
+              "{{name}}",
+              formatProfileNameSurnameFirst(r.first_name, r.last_name),
+            )}
+            onToggle={() => onToggleSelected(r.id)}
+          />
+        ) : null}
         <Button
           type="button"
           variant="ghost"
@@ -99,6 +117,7 @@ export function AdminRegistrationTableRow({
             <ChevronRight className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
           )}
         </Button>
+        </div>
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top font-medium">
         {r.existingStudentId ? (
@@ -138,7 +157,9 @@ export function AdminRegistrationTableRow({
         />
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top">
-        {formatRegistrationLevelInterestDisplay(labels, r.level_interest)}
+        {r.status === "enrolled"
+          ? (r.activeSectionNames ?? []).join(", ") || labels.emptyValue
+          : formatRegistrationLevelInterestDisplay(labels, r.level_interest)}
         {r.sourceSectionLinkId ? (
           <span className="ml-2 inline-flex items-center rounded-full bg-[var(--color-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-muted-foreground)]">
             {labels.viaSectionLink}
@@ -167,7 +188,11 @@ export function AdminRegistrationTableRow({
             row={r}
             labels={labels}
             busy={busy}
-            sections={cohortSectionChoices(r.preferredSectionCohortId, sectionOptionsByCohort)}
+            sections={cohortSectionChoices(
+              r.status === "enrolled" ? selectedCohortId : r.preferredSectionCohortId,
+              sectionOptionsByCohort,
+            )}
+            selectedCohortId={selectedCohortId ?? undefined}
             contact={contact}
             onStartEnrollmentFee={onStartEnrollmentFee}
             onMarkContacted={onMarkContacted}

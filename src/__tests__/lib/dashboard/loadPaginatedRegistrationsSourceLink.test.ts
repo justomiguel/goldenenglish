@@ -6,10 +6,10 @@ import { resolve } from "node:path";
 // The loader is a thin PostgREST query; asserting on its column list is the cheapest
 // way to keep the badge from silently losing its data source.
 describe("loadPaginatedRegistrations column list", () => {
-  const source = readFileSync(
-    resolve(process.cwd(), "src/lib/dashboard/loadPaginatedRegistrations.ts"),
-    "utf-8",
-  );
+  const source = [
+    readFileSync(resolve(process.cwd(), "src/lib/dashboard/loadPaginatedRegistrations.ts"), "utf-8"),
+    readFileSync(resolve(process.cwd(), "src/lib/dashboard/mapRegistrationSelectRows.ts"), "utf-8"),
+  ].join("\n");
 
   it("selects the section link attribution column", () => {
     expect(source).toContain("source_section_link_id");

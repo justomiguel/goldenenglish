@@ -11,7 +11,7 @@ import {
   REGISTRATION_INBOX_FILTERS,
   type RegistrationInboxFilter,
 } from "@/lib/register/registrationInboxFilter";
-import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
+import { resolveActiveRegistrationExtrasPack } from "@/lib/register/packs/resolveActiveRegistrationExtrasPack";
 import { buildRegistrationsExportTable } from "@/lib/register/buildRegistrationsExportTable";
 import { logServerAuthzDenied, logServerException } from "@/lib/logging/serverActionLog";
 import type { Locale } from "@/types/i18n";
@@ -24,6 +24,8 @@ const inputZ = z.object({
   q: z.string().max(200).optional(),
   status: z.enum(["new", "contacted"]).optional(),
   inbox: z.enum(REGISTRATION_INBOX_FILTERS).optional(),
+  cohortId: z.string().min(1).max(80).optional(),
+  openCohortId: z.string().min(1).max(80).optional(),
 });
 
 export type ExportRegistrationsResult =
@@ -35,6 +37,8 @@ export async function exportRegistrationsAction(input: {
   q?: string;
   status?: "new" | "contacted";
   inbox?: RegistrationInboxFilter;
+  cohortId?: string;
+  openCohortId?: string;
 }): Promise<ExportRegistrationsResult> {
   const parsed = inputZ.safeParse(input);
   if (!parsed.success) return { ok: false, message: "validation" };
@@ -57,18 +61,15 @@ export async function exportRegistrationsAction(input: {
       q: parsed.data.q,
       status: parsed.data.status,
       inbox: parsed.data.inbox,
+      ...(parsed.data.cohortId && parsed.data.openCohortId
+        ? { cohortId: parsed.data.cohortId, openCohortId: parsed.data.openCohortId }
+        : {}),
     });
 
-    let activeTemplateKind = "classic";
-    try {
-      const snapshot = await loadActiveTheme();
-      activeTemplateKind = snapshot?.theme.templateKind ?? "classic";
-    } catch {
-      activeTemplateKind = "classic";
-    }
+    const extrasPack = await resolveActiveRegistrationExtrasPack();
     const table = buildRegistrationsExportTable(result.rows, labels, {
       locale: parsed.data.locale,
-      activeTemplateKind,
+      extrasPack,
     });
 
     const workbook = new ExcelJS.Workbook();

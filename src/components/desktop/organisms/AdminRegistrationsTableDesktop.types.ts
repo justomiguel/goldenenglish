@@ -8,6 +8,7 @@ import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { CountryCode } from "libphonenumber-js";
 import type { RegistrationSectionPickerOption } from "@/lib/register/registrationSectionPicker";
+import type { RegistrationPageSelection } from "@/hooks/useRegistrationPageSelection";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -43,4 +44,8 @@ export interface AdminRegistrationsTableDesktopProps {
   currentCohortName?: string;
   createSectionHref?: string | null;
   usesCefrLevel?: boolean;
+  selection?: RegistrationPageSelection;
+  cohorts?: readonly { id: string; name: string }[];
+  selectedCohortId?: string | null;
+  openCohortId?: string | null;
 }

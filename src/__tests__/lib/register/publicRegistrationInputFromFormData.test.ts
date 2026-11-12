@@ -62,7 +62,7 @@ describe("publicRegistrationInputFromFormData", () => {
   it("stamps nago extras when the pack is nago", () => {
     const raw = publicRegistrationInputFromFormData(
       fd({ first_name: "Ada", nago_nationality: "CL" }),
-      "nago",
+      "martial_arts_uniform",
       "reserve",
     );
     expect(raw.tenant_extras).toMatchObject({ pack: "nago", nationality: "CL" });
@@ -71,7 +71,7 @@ describe("publicRegistrationInputFromFormData", () => {
   it("reads the Mozarthitos guide when the pack is mozarthitos", () => {
     const raw = publicRegistrationInputFromFormData(
       fd({ first_name: "Ada", mz_guide: "little_musicians.live_online.3y_4y" }),
-      "mozarthitos",
+      "family_guide",
       "trial",
     );
     expect(raw.tenant_extras).toEqual({

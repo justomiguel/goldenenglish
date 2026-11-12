@@ -20,6 +20,7 @@ import type { RegistrationSortKey, RegistrationSortDir } from "@/lib/dashboard/a
 import type { RegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
 import type { RegistrationInboxCounts } from "@/lib/register/countRegistrationInboxFilters";
 import type { RegistrationSectionPickerOption } from "@/lib/register/registrationSectionPicker";
+import type { RegistrationPageSelection } from "@/hooks/useRegistrationPageSelection";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -49,6 +50,10 @@ interface AdminRegistrationsScreenNarrowProps {
   currentCohortName?: string;
   createSectionHref?: string | null;
   usesCefrLevel?: boolean;
+  selection?: RegistrationPageSelection;
+  cohorts?: readonly { id: string; name: string }[];
+  selectedCohortId?: string | null;
+  openCohortId?: string | null;
 }
 
 export function AdminRegistrationsScreenNarrow({
@@ -76,6 +81,10 @@ export function AdminRegistrationsScreenNarrow({
   currentCohortName,
   createSectionHref,
   usesCefrLevel = false,
+  selection,
+  cohorts,
+  selectedCohortId,
+  openCohortId,
 }: AdminRegistrationsScreenNarrowProps) {
   void surface;
   const u = useAdminRegistrationsList({
@@ -118,6 +127,10 @@ export function AdminRegistrationsScreenNarrow({
                 inboxCounts={inboxCounts}
                 onInboxFilterChange={u.setInboxFilter}
                 locale={locale}
+                selection={selection}
+                cohorts={cohorts}
+                selectedCohortId={selectedCohortId}
+                openCohortId={openCohortId}
               />
             }
             labels={labels}
@@ -143,6 +156,7 @@ export function AdminRegistrationsScreenNarrow({
             onStartJoinCharge={u.onStartJoinCharge}
             currentCohortSections={currentCohortSections}
             sectionOptionsByCohort={sectionOptionsByCohort}
+            selectedCohortId={selectedCohortId}
             createSectionHref={createSectionHref}
             createSectionLabel={labels.createSectionInCohort.replaceAll(
               "{{cohort}}",
@@ -153,6 +167,7 @@ export function AdminRegistrationsScreenNarrow({
               u.setToast(labels.acceptSuccess);
               u.refreshList();
             }}
+            selection={selection}
             emptyMessage={u.emptyMessage}
             pagination={{
               page: u.page,

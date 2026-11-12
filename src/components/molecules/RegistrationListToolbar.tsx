@@ -11,6 +11,10 @@ import { logClientException } from "@/lib/logging/clientLog";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { RegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
 import type { RegistrationInboxCounts } from "@/lib/register/countRegistrationInboxFilters";
+import { RegistrationFunnelArrows } from "@/components/molecules/RegistrationFunnelArrows";
+import { RegistrationFunnelBatchBar } from "@/components/molecules/RegistrationFunnelBatchBar";
+import { RegistrationCohortSelect } from "@/components/molecules/RegistrationCohortSelect";
+import type { RegistrationPageSelection } from "@/hooks/useRegistrationPageSelection";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -33,6 +37,10 @@ export interface RegistrationListToolbarProps {
   inboxCounts?: RegistrationInboxCounts;
   onInboxFilterChange?: (next: RegistrationInboxFilter) => void;
   locale?: string;
+  selection?: RegistrationPageSelection;
+  cohorts?: readonly { id: string; name: string }[];
+  selectedCohortId?: string | null;
+  openCohortId?: string | null;
 }
 
 export function RegistrationListToolbar({
@@ -48,6 +56,10 @@ export function RegistrationListToolbar({
   inboxCounts,
   onInboxFilterChange,
   locale,
+  selection,
+  cohorts,
+  selectedCohortId,
+  openCohortId,
 }: RegistrationListToolbarProps) {
   const { localValue, setLocalValue, flushNow } = useDebouncedSearch({
     value: query,
@@ -72,6 +84,9 @@ export function RegistrationListToolbar({
         q: query,
         status: statusFilter,
         inbox: inboxFilter,
+        ...(selectedCohortId && openCohortId
+          ? { cohortId: selectedCohortId, openCohortId }
+          : {}),
       });
       if (!res.ok) {
         setExportError(res.message);
@@ -106,34 +121,34 @@ export function RegistrationListToolbar({
           className="min-h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] py-2 pl-10 pr-3 text-sm outline-none ring-[var(--color-primary)] placeholder:text-[var(--color-muted-foreground)] focus-visible:ring-2"
         />
       </form>
+      {cohorts && cohorts.length > 0 && selectedCohortId ? (
+        <RegistrationCohortSelect
+          label={labels.funnel.cohortLabel}
+          cohorts={cohorts}
+          value={selectedCohortId}
+        />
+      ) : null}
       {inboxCounts && onInboxFilterChange ? (
-        <div className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap" role="group" aria-label={labels.status}>
-          {(
-            [
-              { value: "registered" as const, label: labels.funnel.registered, count: inboxCounts.registered },
-              { value: "contacted" as const, label: labels.funnel.contacted, count: inboxCounts.contacted },
-              { value: "awaiting_payment" as const, label: labels.funnel.awaitingPayment, count: inboxCounts.awaiting_payment },
-              { value: "paid_without_section" as const, label: labels.funnel.paidWithoutSection, count: inboxCounts.paid_without_section },
-              { value: "awaiting_section" as const, label: labels.funnel.awaitingSection, count: inboxCounts.awaiting_section },
-            ] satisfies { value: RegistrationInboxFilter; label: string; count: number }[]
-          ).map((chip) => {
-            const active = (inboxFilter ?? "registered") === chip.value;
-            return (
-              <button
-                key={chip.value}
-                type="button"
-                aria-pressed={active}
-                onClick={() => onInboxFilterChange(chip.value)}
-                className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-3.5 text-xs font-medium md:text-sm ${
-                  active
-                    ? "border-[var(--color-primary)]/25 bg-[color-mix(in_srgb,var(--color-primary)_8%,white)] font-semibold text-[var(--color-primary)]"
-                    : "border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
-                }`}
-              >
-                {tpl(chip.label, chip.count)}
-              </button>
-            );
-          })}
+        <div className="space-y-3">
+          <RegistrationFunnelArrows
+            labels={labels.funnel}
+            groupLabel={labels.status}
+            inboxFilter={inboxFilter}
+            inboxCounts={inboxCounts}
+            onInboxFilterChange={onInboxFilterChange}
+          />
+          {selection && locale && inboxFilter !== "enrolled_in_section" ? (
+            <RegistrationFunnelBatchBar
+              locale={locale}
+              stage={inboxFilter ?? "registered"}
+              labels={labels.funnel}
+              selectedIds={selection.selectedIds}
+              allMarked={selection.allMarked}
+              pageHasRows={selection.pageIds.length > 0}
+              onTogglePage={selection.togglePage}
+              onClear={selection.clear}
+            />
+          ) : null}
         </div>
       ) : statusCounts && onStatusFilterChange ? (
         <div className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap" role="group" aria-label={labels.status}>

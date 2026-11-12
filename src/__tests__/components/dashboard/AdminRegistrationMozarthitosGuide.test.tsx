@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import es from "@/dictionaries/es.json";
-import { AdminRegistrationMozarthitosGuide } from "@/components/dashboard/AdminRegistrationMozarthitosGuide";
+import { AdminRegistrationFamilyGuide } from "@/components/dashboard/AdminRegistrationFamilyGuide";
 import { formatMozarthitosGuideSummary } from "@/lib/register/packs/mozarthitos/formatMozarthitosGuideSummary";
 
 const labels = es.admin.registrations.mozarthitosGuide;
@@ -12,9 +12,9 @@ const extras = {
   guide: { stage: "baby_mago", modality: "pack", ageBand: "6m_2y" },
 };
 
-describe("AdminRegistrationMozarthitosGuide", () => {
+describe("AdminRegistrationFamilyGuide", () => {
   it("renders stage, modality and age band", () => {
-    render(<AdminRegistrationMozarthitosGuide tenantExtras={extras} labels={labels} />);
+    render(<AdminRegistrationFamilyGuide tenantExtras={extras} labels={labels} />);
     expect(screen.getByText(labels.title)).toBeTruthy();
     expect(screen.getByText("Baby Mago")).toBeTruthy();
     expect(screen.getByText("Pack pregrabado")).toBeTruthy();
@@ -23,7 +23,7 @@ describe("AdminRegistrationMozarthitosGuide", () => {
 
   it("renders nothing for rows without a guide tag", () => {
     const { container } = render(
-      <AdminRegistrationMozarthitosGuide tenantExtras={{}} labels={labels} />,
+      <AdminRegistrationFamilyGuide tenantExtras={{}} labels={labels} />,
     );
     expect(container.innerHTML).toBe("");
   });

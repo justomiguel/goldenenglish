@@ -1,11 +1,10 @@
 "use client";
 import { Fragment } from "react";
-import { AdminRegistrationAcceptModal } from "@/components/dashboard/AdminRegistrationAcceptModal";
-import { AdminRegistrationDeleteModal } from "@/components/dashboard/AdminRegistrationDeleteModal";
-import { AdminRegistrationEditModal } from "@/components/dashboard/AdminRegistrationEditModal";
 import { AdminRegistrationExpandedDetails } from "@/components/dashboard/AdminRegistrationExpandedDetails";
 import { AdminRegistrationTableRow } from "@/components/dashboard/AdminRegistrationTableRow";
+import { AdminRegistrationsTableModals } from "@/components/desktop/organisms/AdminRegistrationsTableModals";
 import { RegistrationListToolbar } from "@/components/molecules/RegistrationListToolbar";
+import { RegistrationSelectionHeader } from "@/components/molecules/RegistrationPageCheckbox";
 import { UniversalListView } from "@/components/organisms/UniversalListView";
 import { useAdminRegistrationsList } from "@/hooks/useAdminRegistrationsList";
 import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistrationSectionIds";
@@ -36,6 +35,10 @@ export function AdminRegistrationsTableDesktop({
   currentCohortName,
   createSectionHref,
   usesCefrLevel = false,
+  selection,
+  cohorts,
+  selectedCohortId,
+  openCohortId,
 }: AdminRegistrationsTableDesktopProps) {
   const u = useAdminRegistrationsList({
     locale,
@@ -81,9 +84,15 @@ export function AdminRegistrationsTableDesktop({
             inboxCounts={inboxCounts}
             onInboxFilterChange={u.setInboxFilter}
             locale={locale}
+            selection={selection}
+            cohorts={cohorts}
+            selectedCohortId={selectedCohortId}
+            openCohortId={openCohortId}
           />
         }
-        leadingHeader={<th scope="col" className="w-10 px-2 py-2" aria-hidden />}
+        leadingHeader={
+          <RegistrationSelectionHeader selection={selection} label={labels.funnel.selectPage} />
+        }
         columns={[
           { id: "name", label: labels.name, thClassName: hdr },
           { id: "intent", label: labels.intentColumn, thClassName: hdr, sortable: false },
@@ -135,15 +144,15 @@ export function AdminRegistrationsTableDesktop({
         tableOverflow="hidden"
         colgroup={
           <colgroup>
-            <col style={{ width: "3%" }} />
-            <col style={{ width: "13%" }} />
+            <col style={{ width: "9%" }} />
+            <col style={{ width: "10%" }} />
             <col style={{ width: "10%" }} />
             <col style={{ width: "8%" }} />
             <col style={{ width: "12%" }} />
             <col style={{ width: "12%" }} />
             <col style={{ width: "7%" }} />
             <col style={{ width: "9%" }} />
-            <col style={{ width: "11%" }} />
+            <col style={{ width: "8%" }} />
             <col style={{ width: "15%" }} />
           </colgroup>
         }
@@ -173,6 +182,9 @@ export function AdminRegistrationsTableDesktop({
                 onStartEnrollmentFee={u.onStartEnrollmentFee}
                 onStartJoinCharge={u.onStartJoinCharge}
                 sectionOptionsByCohort={sectionOptionsByCohort}
+                selectedCohortId={selectedCohortId}
+                rowSelected={selection?.selectedIds.includes(r.id)}
+                onToggleSelected={selection ? (id) => selection.toggle(id) : undefined}
               />
               {u.expandedId === r.id ? (
                 <AdminRegistrationExpandedDetails
@@ -203,45 +215,16 @@ export function AdminRegistrationsTableDesktop({
           );
         })}
       </UniversalListView>
-
-      <AdminRegistrationDeleteModal
-        row={u.deleteRow}
-        busy={u.busyId !== null}
-        onClose={() => u.setDeleteRow(null)}
-        onConfirm={u.onConfirmDelete}
-        labels={labels}
-      />
       </div>
-
-      <AdminRegistrationAcceptModal
+      <AdminRegistrationsTableModals
         locale={locale}
-        row={u.acceptRow}
-        legalAgeMajority={legalAgeMajority}
-        busy={u.busyId !== null}
-        onBusy={u.setBusyId}
-        onClose={() => u.setAcceptRow(null)}
-        onSuccess={() => {
-          u.setToast(labels.acceptSuccess);
-          u.refreshList();
-        }}
         labels={labels}
         userLabels={userLabels}
+        legalAgeMajority={legalAgeMajority}
+        list={u}
         currentCohortSections={currentCohortSections}
         currentCohortName={currentCohortName}
         createSectionHref={createSectionHref}
-      />
-
-      <AdminRegistrationEditModal
-        locale={locale}
-        row={u.editRow}
-        busy={u.busyId !== null}
-        onBusy={u.setBusyId}
-        onClose={() => u.setEditRow(null)}
-        onSuccess={() => {
-          u.setToast(labels.editSuccess);
-          u.refreshList();
-        }}
-        labels={labels}
         usesCefrLevel={usesCefrLevel}
       />
     </div>

@@ -54,5 +54,24 @@ describe("registrationFunnelStage", () => {
         enrollmentFeeMailSentAt: "2026-11-10T00:00:00.000Z",
       }),
     ).toBe("awaiting_section");
+    expect(
+      registrationFunnelStage({
+        status: "new",
+        snapshotTotal: 0,
+        acceptedStudentId: "stu-1",
+      }),
+    ).toBe("registered");
+  });
+
+  it("keeps an unpaid approved student out of the paid stage", () => {
+    expect(
+      registrationFunnelStage({
+        status: "new",
+        snapshotTotal: 80,
+        feeCaptured: false,
+        acceptedStudentId: "stu-1",
+        intakeState: "needs_section",
+      }),
+    ).toBe("registered");
   });
 });

@@ -8,19 +8,19 @@ import {
 } from "@/lib/landing/mozarthitos/familyGuideCatalog";
 import type { MzGuideLabels } from "@/lib/landing/mozarthitos/buildFamilyGuideView";
 import type { MozarthitosFamilyGuideState } from "@/hooks/useMozarthitosFamilyGuide";
-import { MozarthitosGuideStageDesktop } from "@/components/desktop/molecules/MozarthitosGuideStageDesktop";
+import { FamilyGuideStageDesktop } from "@/components/desktop/molecules/FamilyGuideStageDesktop";
 import {
   MZ_GUIDE_CHOICE_CLASS,
   MZ_GUIDE_PRIMARY_CTA_CLASS,
   MZ_GUIDE_TEXT_BUTTON_CLASS,
-} from "@/components/molecules/mozarthitosGuideStyles";
+} from "@/components/molecules/familyGuideStyles";
 
-export interface MozarthitosFamilyGuideDesktopProps {
+export interface FamilyGuideDesktopProps {
   guide: MozarthitosFamilyGuideState;
   labels: MzGuideLabels;
 }
 
-export function MozarthitosFamilyGuideDesktop({ guide, labels }: MozarthitosFamilyGuideDesktopProps) {
+export function FamilyGuideDesktop({ guide, labels }: FamilyGuideDesktopProps) {
   const { data, handlers } = guide;
   const stepLabel = labels.stepLabel
     .replace("{current}", String(data.stepNumber))
@@ -80,12 +80,12 @@ export function MozarthitosFamilyGuideDesktop({ guide, labels }: MozarthitosFami
       ) : (
         <div className="mt-3 space-y-12">
           <div>
-            <MozarthitosGuideStageDesktop stage={view.primary} labels={labels} />
+            <FamilyGuideStageDesktop stage={view.primary} labels={labels} />
           </div>
           {view.secondary ? (
             <div className="border-t border-[color-mix(in_srgb,var(--mz-yellow)_45%,transparent)] pt-10">
               <p className="mb-4 text-sm font-semibold text-[var(--mz-pink-deep)]">{labels.alsoTitle}</p>
-              <MozarthitosGuideStageDesktop stage={view.secondary} labels={labels} />
+              <FamilyGuideStageDesktop stage={view.secondary} labels={labels} />
             </div>
           ) : null}
           {view.choir ? (

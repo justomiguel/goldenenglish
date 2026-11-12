@@ -17,6 +17,7 @@ export function AdminRegistrationActionsSheet({
   labels,
   contact,
   sections,
+  selectedCohortId,
   onEdit,
   onDelete,
   onMarkContacted,
@@ -30,6 +31,7 @@ export function AdminRegistrationActionsSheet({
   labels: RegLabels;
   contact: RegistrationContactView;
   sections: { id: string; label: string }[];
+  selectedCohortId?: string;
   onEdit: (row: AdminRegistrationRow) => void;
   onDelete: (row: AdminRegistrationRow) => void;
   onMarkContacted: (row: AdminRegistrationRow) => void;
@@ -49,6 +51,7 @@ export function AdminRegistrationActionsSheet({
         labels={labels}
         busy={busy}
         sections={sections}
+        selectedCohortId={selectedCohortId}
         contact={contact}
         onStartEnrollmentFee={onStartEnrollmentFee}
         onMarkContacted={onMarkContacted}

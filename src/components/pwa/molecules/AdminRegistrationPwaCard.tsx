@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { RegistrationPageCheckbox } from "@/components/molecules/RegistrationPageCheckbox";
 import { RegistrationContactCell } from "@/components/dashboard/RegistrationContactCell";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
@@ -12,8 +13,8 @@ import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate"
 import { AdminRegistrationActionsSheet } from "@/components/pwa/molecules/AdminRegistrationActionsSheet";
 import { registrationIntentLabel } from "@/lib/register/registrationIntentLabel";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
-import { AdminRegistrationNagoExtras } from "@/components/dashboard/AdminRegistrationNagoExtras";
-import { AdminRegistrationMozarthitosGuide } from "@/components/dashboard/AdminRegistrationMozarthitosGuide";
+import { AdminRegistrationUniformExtras } from "@/components/dashboard/AdminRegistrationUniformExtras";
+import { AdminRegistrationFamilyGuide } from "@/components/dashboard/AdminRegistrationFamilyGuide";
 import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -33,11 +34,14 @@ export interface AdminRegistrationPwaCardProps {
   onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
   onStartJoinCharge: (row: AdminRegistrationRow) => void;
   cohortSections?: { id: string; label: string }[];
+  selectedCohortId?: string | null;
   currentCohortSections?: CurrentCohortSection[];
   createSectionHref?: string | null;
   createSectionLabel?: string;
   onBusy?: (id: string | null) => void;
   onIntakeDone?: () => void;
+  rowSelected?: boolean;
+  onToggleSelected?: (id: string) => void;
 }
 
 export function AdminRegistrationPwaCard({
@@ -53,6 +57,9 @@ export function AdminRegistrationPwaCard({
   onMarkContacted,
   onStartEnrollmentFee,
   cohortSections = [],
+  selectedCohortId,
+  rowSelected = false,
+  onToggleSelected,
 }: AdminRegistrationPwaCardProps) {
   const [actionsOpen, setActionsOpen] = useState(false);
   const birthDisplay =
@@ -76,6 +83,13 @@ export function AdminRegistrationPwaCard({
       }
       aria-label={r.requestedSectionFull ? labels.requestedSectionFullAria : undefined}
     >
+      {onToggleSelected ? (
+        <RegistrationPageCheckbox
+          checked={rowSelected}
+          label={labels.funnel.selectRow.replaceAll("{{name}}", displayName)}
+          onToggle={() => onToggleSelected(r.id)}
+        />
+      ) : null}
       <div className="space-y-2">
         <p className="break-words font-medium text-[var(--color-foreground)]">
           {displayName}
@@ -126,7 +140,9 @@ export function AdminRegistrationPwaCard({
             </span>
             <span>
               <span className="text-[var(--color-foreground)]">{labels.level}: </span>
-              {formatRegistrationLevelInterestDisplay(labels, r.level_interest)}
+              {r.status === "enrolled"
+                ? (r.activeSectionNames ?? []).join(", ") || labels.emptyValue
+                : formatRegistrationLevelInterestDisplay(labels, r.level_interest)}
             </span>
           </div>
           <div className="flex flex-wrap gap-x-3">
@@ -152,12 +168,12 @@ export function AdminRegistrationPwaCard({
             </span>
           </div>
         </dl>
-        <AdminRegistrationNagoExtras
+        <AdminRegistrationUniformExtras
           tenantExtras={r.tenantExtras}
           locale={locale}
           labels={labels}
         />
-        <AdminRegistrationMozarthitosGuide
+        <AdminRegistrationFamilyGuide
           tenantExtras={r.tenantExtras}
           labels={labels.mozarthitosGuide}
         />
@@ -189,6 +205,7 @@ export function AdminRegistrationPwaCard({
           labels={labels}
           contact={contact}
           sections={cohortSections}
+          selectedCohortId={selectedCohortId ?? undefined}
           onEdit={onEdit}
           onDelete={onDelete}
           onMarkContacted={onMarkContacted}

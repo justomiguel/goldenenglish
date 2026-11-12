@@ -8,7 +8,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/es/encuentra-tu-clase",
 }));
 
-import { MozarthitosFamilyGuideDesktop } from "@/components/desktop/organisms/MozarthitosFamilyGuideDesktop";
+import { FamilyGuideDesktop } from "@/components/desktop/organisms/FamilyGuideDesktop";
 import { useMozarthitosFamilyGuide } from "@/hooks/useMozarthitosFamilyGuide";
 
 const labels = es.landing.mz.guide;
@@ -20,10 +20,10 @@ function Harness() {
     place: "Sede Las Condes · República Árabe de Egipto 670",
     initial: { ageBand: null, attendance: null },
   });
-  return <MozarthitosFamilyGuideDesktop guide={guide} labels={labels} />;
+  return <FamilyGuideDesktop guide={guide} labels={labels} />;
 }
 
-describe("MozarthitosFamilyGuideDesktop", () => {
+describe("FamilyGuideDesktop", () => {
   it("asks both questions and shows the in-person trial CTA with the sede", () => {
     render(<Harness />);
     expect(screen.getByRole("heading", { name: labels.ageQuestion })).toBeTruthy();

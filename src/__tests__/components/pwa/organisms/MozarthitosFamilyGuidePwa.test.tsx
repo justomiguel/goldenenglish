@@ -8,7 +8,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/es/encuentra-tu-clase",
 }));
 
-import { MozarthitosFamilyGuidePwa } from "@/components/pwa/organisms/MozarthitosFamilyGuidePwa";
+import { FamilyGuidePwa } from "@/components/pwa/organisms/FamilyGuidePwa";
 import {
   useMozarthitosFamilyGuide,
   type MzFamilyGuideAnswers,
@@ -18,10 +18,10 @@ const labels = es.landing.mz.guide;
 
 function Harness({ initial }: { initial: MzFamilyGuideAnswers }) {
   const guide = useMozarthitosFamilyGuide({ locale: "es", labels, place: "Sede", initial });
-  return <MozarthitosFamilyGuidePwa guide={guide} labels={labels} />;
+  return <FamilyGuidePwa guide={guide} labels={labels} />;
 }
 
-describe("MozarthitosFamilyGuidePwa", () => {
+describe("FamilyGuidePwa", () => {
   it("shows one question per screen as tall rows", () => {
     render(<Harness initial={{ ageBand: null, attendance: null }} />);
     const row = screen.getByRole("button", { name: labels.age["6m_2y"] });

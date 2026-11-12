@@ -8,8 +8,8 @@ import {
 function capture() {
   const calls: string[] = [];
   const query = {
-    eq(column: string, value: string) {
-      calls.push(`eq ${column} ${value}`);
+    eq(column: string, value: string | boolean) {
+      calls.push(`eq ${column} ${String(value)}`);
       return query;
     },
     neq(column: string, value: string) {
@@ -42,6 +42,7 @@ describe("applyRegistrationFunnelFilter", () => {
     applyRegistrationFunnelFilter(query, "registered", []);
     expect(calls.join("\n")).toContain("eq status new");
     expect(calls.join("\n")).toContain("enrollment_fee_mail_sent_at.is.null");
+    expect(calls.join("\n")).not.toContain("accepted_student_id");
     expect(calls.join("\n")).not.toContain("offer_pending");
   });
 
@@ -56,7 +57,24 @@ describe("applyRegistrationFunnelFilter", () => {
     const { query, calls } = capture();
     applyRegistrationFunnelFilter(query, "awaiting_section", []);
     const text = calls.join("\n");
-    expect(text).toContain("status.eq.contacted");
+    expect(text).toContain("eq status contacted");
+    expect(text).not.toContain("accepted_student_id");
     expect(text).not.toContain("fee_snapshot->>total.gt.0");
+  });
+
+  it("keeps the paid stage on a captured fee only", () => {
+    const { query, calls } = capture();
+    applyRegistrationFunnelFilter(query, "paid_without_section", ["sec-1"]);
+    expect(calls.join("\n")).toContain("eq fee_captured true");
+    expect(calls.join("\n")).not.toContain("needs_section");
+  });
+
+  it("reads enrolled leads for the last arrow without the waiting-section filter", () => {
+    const { query, calls } = capture();
+    applyRegistrationFunnelFilter(query, "enrolled_in_section", ["sec-1"]);
+    const text = calls.join("\n");
+    expect(text).toContain("eq status enrolled");
+    expect(text).not.toContain("fee_snapshot");
+    expect(text).not.toContain("or ");
   });
 });

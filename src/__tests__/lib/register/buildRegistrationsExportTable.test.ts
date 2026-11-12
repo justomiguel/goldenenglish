@@ -29,10 +29,10 @@ const minor: AdminRegistrationRow = {
   sourceSectionLinkId: null,
 };
 
-function build(rows: AdminRegistrationRow[], kind = "classic") {
+function build(rows: AdminRegistrationRow[], extrasPack: "martial_arts_uniform" | "family_guide" | null = null) {
   return buildRegistrationsExportTable(rows, labels, {
     locale: "en",
-    activeTemplateKind: kind,
+    extrasPack,
   });
 }
 
@@ -73,8 +73,8 @@ describe("buildRegistrationsExportTable", () => {
   });
 
   it("keeps the classic header set when the theme is not Nagô", () => {
-    const classic = build([minor], "classic");
-    const nago = build([minor], "nago");
+    const classic = build([minor], null);
+    const nago = build([minor], "martial_arts_uniform");
     expect(nago.headers.length).toBeGreaterThan(classic.headers.length);
     expect(classic.headers).not.toContain(labels.nagoNationality);
     expect(nago.headers).toContain(labels.nagoNationality);
@@ -90,12 +90,12 @@ describe("buildRegistrationsExportTable", () => {
       },
     };
     const g = labels.mozarthitosGuide;
-    const mz = build([tagged, minor], "mozarthitos");
+    const mz = build([tagged, minor], "family_guide");
     expect(mz.headers.at(-1)).toBe(g.exportColumn);
     expect(mz.rows[0]?.at(-1)).toBe(
       `${g.stages.little_musicians} · ${g.modalities.in_person} · ${g.ages["3y_4y"]}`,
     );
     expect(mz.rows[1]?.at(-1)).toBe(labels.emptyValue);
-    expect(build([tagged], "classic").headers).not.toContain(g.exportColumn);
+    expect(build([tagged], null).headers).not.toContain(g.exportColumn);
   });
 });

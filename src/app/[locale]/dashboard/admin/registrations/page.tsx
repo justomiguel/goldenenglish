@@ -25,11 +25,12 @@ import {
   loadRegistrationSectionPickerOptionsByCohort,
 } from "@/lib/register/loadRegistrationSectionPickerOptions";
 import { loadRegistrationCohortConfig } from "@/lib/settings/inscriptionsServer";
-import { extrasPackForTemplateKind } from "@/lib/register/packs/extrasPackForTemplateKind";
+import { resolveActiveRegistrationExtrasPack } from "@/lib/register/packs/resolveActiveRegistrationExtrasPack";
 import { registrationUsesCefrLevel } from "@/lib/register/packs/registrationUsesCefrLevel";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { loadRegistrationInboxCounts } from "@/lib/dashboard/loadRegistrationInboxCounts";
 import { parseRegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
+import { resolveRegistrationCohortId } from "@/lib/register/registrationCohortMembership";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveExistingStudentIdsForLeads } from "@/lib/register/resolveExistingStudentIdsForLeads";
 import { getBrandForRequest } from "@/lib/brand/server";
@@ -98,29 +99,44 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
     );
   }
   const paginationParams = parseSearchParams(rawSp);
-
   const supabase = await createClient();
+  const cohortConfig = await loadRegistrationCohortConfig();
+  const openCohortId = cohortConfig.activeCohort?.id ?? null;
+  const selectedCohortId = resolveRegistrationCohortId(
+    typeof rawSp.cohort === "string" ? rawSp.cohort : undefined,
+    cohortConfig.cohorts,
+    openCohortId,
+  );
+  if (selectedCohortId && openCohortId) {
+    paginationParams.cohortId = selectedCohortId;
+    paginationParams.openCohortId = openCohortId;
+  }
+
   const listQuery = paginationParams.q ?? "";
   const listCountsPromise = loadRegistrationStatusCounts(supabase, listQuery);
   const headerCountsPromise =
     listQuery.trim() === "" ? listCountsPromise : loadRegistrationStatusCounts(supabase, "");
 
-  const [result, legalAgeMajority, cohort, cohortConfig, statusCounts, headerCounts, enrolledCount, inboxCounts, brand, sectionOptions, profile] =
+  const [result, legalAgeMajority, cohort, statusCounts, headerCounts, enrolledCount, inboxCounts, brand, sectionOptions, profile] =
     await Promise.all([
       loadPaginatedRegistrations(supabase, paginationParams),
       Promise.resolve(getLegalAgeMajorityFromSystem()),
       loadCurrentCohort(supabase),
-      loadRegistrationCohortConfig(),
       listCountsPromise,
       headerCountsPromise,
       loadRegistrationEnrolledCount(supabase),
-      loadRegistrationInboxCounts(supabase),
+      loadRegistrationInboxCounts(
+        supabase,
+        selectedCohortId && openCohortId
+          ? { selectedCohortId, openCohortId }
+          : undefined,
+      ),
       getBrandForRequest(),
       loadRegistrationSectionPickerOptions(),
-      loadActiveTheme().then((snapshot) => {
+      loadActiveTheme().then(async (snapshot) => {
         const kind = snapshot?.theme.templateKind ?? "classic";
         return {
-          extrasPack: extrasPackForTemplateKind(kind),
+          extrasPack: await resolveActiveRegistrationExtrasPack(),
           usesCefrLevel: registrationUsesCefrLevel(kind),
         };
       }),
@@ -212,6 +228,9 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
           sectionOptionsByCohort={sectionOptionsByCohort}
           currentCohortName={inscriptionsCohort?.name}
           createSectionHref={createSectionHref}
+          cohorts={cohortConfig.cohorts}
+          selectedCohortId={selectedCohortId}
+          openCohortId={openCohortId}
         />
       </div>
       </AdminRegistrationsTabs>

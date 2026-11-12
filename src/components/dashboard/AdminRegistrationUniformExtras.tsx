@@ -14,7 +14,7 @@ function Field({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function AdminRegistrationNagoExtras({
+export function AdminRegistrationUniformExtras({
   tenantExtras,
   locale,
   labels,

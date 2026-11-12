@@ -7,7 +7,13 @@ import {
 import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistrationSectionIds";
 import { loadAllChargingSectionIds } from "@/lib/register/markRegistrationRowsEnrollmentFee";
 import { snapshotTotalFromUnknown } from "@/lib/register/registrationIntake";
+import { registrationBelongsToCohort } from "@/lib/register/registrationCohortMembership";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import {
+  activeSectionCohortIds,
+  loadActiveSectionFacts,
+  loadSectionCohortById,
+} from "@/lib/dashboard/registrationCohortFacts";
 
 export type { RegistrationInboxCounts };
 
@@ -29,27 +35,31 @@ type CountRow = {
   accepted_student_id?: unknown;
 };
 
-export async function loadRegistrationInboxCounts(
-  supabase: SupabaseClient,
-): Promise<RegistrationInboxCounts> {
-  const charging = new Set(await loadAllChargingSectionIds(supabase));
+export type RegistrationCohortScope = {
+  selectedCohortId: string;
+  openCohortId: string;
+};
+
+async function readRows(supabase: SupabaseClient, excludeEnrolled: boolean): Promise<CountRow[] | null> {
   const rows: CountRow[] = [];
   let from = 0;
   for (;;) {
-    const { data, error } = await supabase
-      .from("registrations")
-      .select(COLUMNS)
-      .neq("status", "enrolled")
-      .range(from, from + PAGE - 1);
+    let query = supabase.from("registrations").select(COLUMNS);
+    if (excludeEnrolled) query = query.neq("status", "enrolled");
+    const { data, error } = await query.range(from, from + PAGE - 1);
     if (error) {
       logSupabaseClientError("loadRegistrationInboxCounts", error);
-      return emptyRegistrationInboxCounts();
+      return null;
     }
     const page = (data ?? []) as unknown as CountRow[];
     rows.push(...page);
     if (page.length < PAGE) break;
     from += PAGE;
   }
+  return rows;
+}
+
+function countRows(rows: CountRow[], charging: ReadonlySet<string>): RegistrationInboxCounts {
   return countRegistrationInboxFilters(
     rows.map((row) => ({
       ...row,
@@ -61,4 +71,36 @@ export async function loadRegistrationInboxCounts(
         }).some((id) => charging.has(id)),
     })),
   );
+}
+
+export async function loadRegistrationInboxCounts(
+  supabase: SupabaseClient,
+  scope?: RegistrationCohortScope,
+): Promise<RegistrationInboxCounts> {
+  const charging = new Set(await loadAllChargingSectionIds(supabase));
+  const rows = await readRows(supabase, !scope);
+  if (!rows) return emptyRegistrationInboxCounts();
+  if (!scope) return countRows(rows, charging);
+
+  const [sectionCohorts, facts] = await Promise.all([
+    loadSectionCohortById(supabase),
+    loadActiveSectionFacts(
+      supabase,
+      rows.flatMap((row) =>
+        typeof row.accepted_student_id === "string" ? [row.accepted_student_id] : [],
+      ),
+    ),
+  ]);
+  const kept = rows.filter((row) => {
+    const studentId = typeof row.accepted_student_id === "string" ? row.accepted_student_id : null;
+    const preferredId = row.preferred_section_id ?? null;
+    return registrationBelongsToCohort({
+      selectedCohortId: scope.selectedCohortId,
+      openCohortId: scope.openCohortId,
+      status: String(row.status ?? ""),
+      preferredSectionCohortId: preferredId ? (sectionCohorts.get(preferredId) ?? null) : null,
+      activeSectionCohortIds: activeSectionCohortIds(facts, studentId),
+    });
+  });
+  return countRows(kept, charging);
 }

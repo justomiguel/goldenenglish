@@ -6,6 +6,7 @@ export const REGISTRATION_FUNNEL_STAGES = [
   "awaiting_payment",
   "paid_without_section",
   "awaiting_section",
+  "enrolled_in_section",
 ] as const;
 
 export type RegistrationFunnelStage = (typeof REGISTRATION_FUNNEL_STAGES)[number];
@@ -33,12 +34,9 @@ export function registrationFunnelStage(row: RegistrationFunnelRow): Registratio
   const paid = row.feeCaptured === true;
   const mailSent =
     Boolean(row.enrollmentFeeMailSentAt) || row.intakeState === "receipt_pending";
-  const approved = Boolean(row.acceptedStudentId);
 
-  if (hasFee && (paid || (approved && row.intakeState === "needs_section"))) {
-    return "paid_without_section";
-  }
-  if (!hasFee && (row.status === "contacted" || approved)) return "awaiting_section";
+  if (hasFee && paid) return "paid_without_section";
+  if (!hasFee && row.status === "contacted") return "awaiting_section";
   if (hasFee && mailSent && !paid) return "awaiting_payment";
   if (row.status === "contacted" && hasFee) return "contacted";
   return "registered";

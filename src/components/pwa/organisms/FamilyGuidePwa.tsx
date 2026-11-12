@@ -8,14 +8,14 @@ import {
 } from "@/lib/landing/mozarthitos/familyGuideCatalog";
 import type { MzGuideLabels } from "@/lib/landing/mozarthitos/buildFamilyGuideView";
 import type { MozarthitosFamilyGuideState } from "@/hooks/useMozarthitosFamilyGuide";
-import { MozarthitosGuideStagePwa } from "@/components/pwa/molecules/MozarthitosGuideStagePwa";
+import { FamilyGuideStagePwa } from "@/components/pwa/molecules/FamilyGuideStagePwa";
 import {
   MZ_GUIDE_CHOICE_CLASS,
   MZ_GUIDE_PRIMARY_CTA_CLASS,
   MZ_GUIDE_TEXT_BUTTON_CLASS,
-} from "@/components/molecules/mozarthitosGuideStyles";
+} from "@/components/molecules/familyGuideStyles";
 
-export interface MozarthitosFamilyGuidePwaProps {
+export interface FamilyGuidePwaProps {
   guide: MozarthitosFamilyGuideState;
   labels: MzGuideLabels;
 }
@@ -24,7 +24,7 @@ export interface MozarthitosFamilyGuidePwaProps {
 const STICKY_CTA_CLASS =
   "sticky bottom-[calc(4.5rem+max(0.5rem,env(safe-area-inset-bottom,0px)))] z-10 -mx-4 mt-8 bg-[color-mix(in_srgb,var(--mz-white)_92%,transparent)] px-4 py-3 backdrop-blur";
 
-export function MozarthitosFamilyGuidePwa({ guide, labels }: MozarthitosFamilyGuidePwaProps) {
+export function FamilyGuidePwa({ guide, labels }: FamilyGuidePwaProps) {
   const { data, handlers } = guide;
   const stepLabel = labels.stepLabel
     .replace("{current}", String(data.stepNumber))
@@ -95,11 +95,11 @@ export function MozarthitosFamilyGuidePwa({ guide, labels }: MozarthitosFamilyGu
         </div>
       ) : (
         <div className="mt-2 space-y-8">
-          <MozarthitosGuideStagePwa stage={view.primary} labels={labels} />
+          <FamilyGuideStagePwa stage={view.primary} labels={labels} />
           {view.secondary ? (
             <div>
               <p className="mb-3 text-sm font-semibold text-[var(--mz-pink-deep)]">{labels.alsoTitle}</p>
-              <MozarthitosGuideStagePwa stage={view.secondary} labels={labels} />
+              <FamilyGuideStagePwa stage={view.secondary} labels={labels} />
             </div>
           ) : null}
           {view.choir ? (

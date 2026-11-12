@@ -15,6 +15,7 @@ export function emptyRegistrationInboxCounts(): RegistrationInboxCounts {
     awaiting_payment: 0,
     paid_without_section: 0,
     awaiting_section: 0,
+    enrolled_in_section: 0,
   };
 }
 
@@ -31,6 +32,10 @@ export function countRegistrationInboxFilters(
 ): RegistrationInboxCounts {
   const counts = emptyRegistrationInboxCounts();
   for (const row of rows) {
+    if (row.status === "enrolled") {
+      counts.enrolled_in_section += 1;
+      continue;
+    }
     const stage = registrationFunnelStage({
       status: row.status,
       intakeState: parseRegistrationIntakeState(row.intake_state),

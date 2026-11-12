@@ -8,6 +8,9 @@ vi.mock("@/lib/dashboard/assertAdmin", () => ({ assertAdmin }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => ({}) }));
 vi.mock("@/lib/dashboard/loadPaginatedRegistrations", () => ({ loadPaginatedRegistrations }));
 vi.mock("@/lib/analytics/server/recordSystemAudit", () => ({ recordSystemAudit }));
+vi.mock("@/lib/register/packs/resolveActiveRegistrationExtrasPack", () => ({
+  resolveActiveRegistrationExtrasPack: vi.fn(async () => null),
+}));
 
 const { exportRegistrationsAction } = await import(
   "@/app/[locale]/dashboard/admin/registrations/exportRegistrationsAction"

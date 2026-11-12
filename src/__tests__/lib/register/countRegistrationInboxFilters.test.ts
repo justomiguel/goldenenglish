@@ -24,7 +24,16 @@ describe("countRegistrationInboxFilters", () => {
       awaiting_payment: 1,
       paid_without_section: 1,
       awaiting_section: 1,
+      enrolled_in_section: 0,
     });
+  });
+
+  it("counts an enrolled lead on the last arrow", () => {
+    const counts = countRegistrationInboxFilters([
+      { status: "enrolled", fee_snapshot: { total: 80 }, fee_captured: true },
+    ]);
+    expect(counts.enrolled_in_section).toBe(1);
+    expect(counts.paid_without_section).toBe(0);
   });
 
   it("maps the mail stamp and a blank receipt path", () => {

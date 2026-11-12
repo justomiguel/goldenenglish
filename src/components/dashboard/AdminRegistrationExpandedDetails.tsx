@@ -3,8 +3,8 @@
 import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
-import { AdminRegistrationNagoExtras } from "@/components/dashboard/AdminRegistrationNagoExtras";
-import { AdminRegistrationMozarthitosGuide } from "@/components/dashboard/AdminRegistrationMozarthitosGuide";
+import { AdminRegistrationUniformExtras } from "@/components/dashboard/AdminRegistrationUniformExtras";
+import { AdminRegistrationFamilyGuide } from "@/components/dashboard/AdminRegistrationFamilyGuide";
 import { AdminRegistrationIntakeActions } from "@/components/dashboard/AdminRegistrationIntakeActions";
 import { AdminRegistrationTrialSeats } from "@/components/dashboard/AdminRegistrationTrialSeats";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
@@ -107,12 +107,12 @@ export function AdminRegistrationExpandedDetails({
             ) : null}
           </div>
         ) : null}
-        <AdminRegistrationNagoExtras
+        <AdminRegistrationUniformExtras
           tenantExtras={row.tenantExtras}
           locale={locale}
           labels={labels}
         />
-        <AdminRegistrationMozarthitosGuide
+        <AdminRegistrationFamilyGuide
           tenantExtras={row.tenantExtras}
           labels={labels.mozarthitosGuide}
         />

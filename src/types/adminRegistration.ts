@@ -51,6 +51,10 @@ export interface AdminRegistrationRow {
   enrollmentFeeReceiptPath?: string | null;
   enrollmentFeeMailSentAt?: string | null;
   proposedSectionId?: string | null;
+  /** Active section cohorts for an enrolled student. */
+  activeSectionCohortIds?: string[];
+  /** Active section names inside the selected cohort. */
+  activeSectionNames?: string[];
   /** Live: a requested section no longer has an open seat. */
   requestedSectionFull?: boolean;
   /** Live or snapshot: requested sections charge a matrícula. */

@@ -4,6 +4,7 @@ import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { AdminRegistrationsSkeleton } from "@/components/molecules/AdminRegistrationsSkeleton";
 import { AdminRegistrationsTableDesktop } from "@/components/desktop/organisms/AdminRegistrationsTableDesktop";
 import { AdminRegistrationsScreenNarrow } from "@/components/pwa/organisms/AdminRegistrationsScreenNarrow";
+import { useRegistrationPageSelection } from "@/hooks/useRegistrationPageSelection";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { RegistrationAcceptUserLabels } from "@/components/dashboard/AdminRegistrationAcceptForm";
@@ -40,15 +41,24 @@ export interface AdminRegistrationsScreenProps {
   currentCohortName?: string;
   createSectionHref?: string | null;
   usesCefrLevel?: boolean;
+  cohorts?: readonly { id: string; name: string }[];
+  selectedCohortId?: string | null;
+  openCohortId?: string | null;
 }
 
 export function AdminRegistrationsScreen(props: AdminRegistrationsScreenProps) {
+  const selection = useRegistrationPageSelection(
+    `${props.inboxFilter ?? "registered"}:${props.page}`,
+    props.rows.map((row) => row.id),
+  );
+  const pageSelection = props.inboxFilter === "enrolled_in_section" ? undefined : selection;
+  const view = { ...props, selection: pageSelection };
   return (
     <SurfaceMountGate
       skeleton={<AdminRegistrationsSkeleton />}
-      desktop={<AdminRegistrationsTableDesktop {...props} />}
+      desktop={<AdminRegistrationsTableDesktop {...view} />}
       narrow={(surface) => (
-        <AdminRegistrationsScreenNarrow {...props} surface={surface} />
+        <AdminRegistrationsScreenNarrow {...view} surface={surface} />
       )}
     />
   );

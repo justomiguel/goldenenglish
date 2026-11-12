@@ -5,7 +5,7 @@ export const REGISTRATION_INBOX_FILTERS = REGISTRATION_FUNNEL_STAGES;
 export type RegistrationInboxFilter = RegistrationFunnelStage;
 
 type FunnelQuery = {
-  eq: (column: string, value: string) => FunnelQuery;
+  eq: (column: string, value: string | boolean) => FunnelQuery;
   neq: (column: string, value: string) => FunnelQuery;
   or: (filters: string) => FunnelQuery;
 };
@@ -47,7 +47,6 @@ export function applyRegistrationFunnelFilter<T>(
     next = unpaid(
       builder
         .eq("status", "new")
-        .or("accepted_student_id.is.null")
         .or("enrollment_fee_mail_sent_at.is.null")
         .neq("intake_state", "receipt_pending"),
     );
@@ -64,10 +63,12 @@ export function applyRegistrationFunnelFilter<T>(
       builder.or(fees).or("enrollment_fee_mail_sent_at.not.is.null,intake_state.eq.receipt_pending"),
     );
   } else if (stage === "paid_without_section") {
-    next = builder.or(`fee_captured.eq.true,and(intake_state.eq.needs_section,or(${fees}))`);
+    next = builder.eq("fee_captured", true);
+  } else if (stage === "enrolled_in_section") {
+    next = builder.eq("status", "enrolled");
   } else {
     const noSnapshot = "fee_snapshot->>total.is.null,fee_snapshot->>total.eq.0";
-    next = builder.or("status.eq.contacted,accepted_student_id.not.is.null").or(noSnapshot);
+    next = builder.eq("status", "contacted").or(noSnapshot);
     if (chargingSectionIds.length > 0) {
       const list = chargingSectionIds.join(",");
       next = next.or(`preferred_section_id.is.null,preferred_section_id.not.in.(${list})`);

@@ -81,10 +81,12 @@ describe("AdminRegistrationCreateButton", () => {
 
   it("keeps the institute extras pack on the same form", async () => {
     const user = userEvent.setup();
-    render(<AdminRegistrationCreateButton {...baseProps} extrasPack="nago" />);
+    render(<AdminRegistrationCreateButton {...baseProps} extrasPack="martial_arts_uniform" />);
 
     await user.click(screen.getByRole("button", { name: en.admin.registrations.createCta }));
 
-    expect(document.querySelector("[data-extras-pack]")?.getAttribute("data-extras-pack")).toBe("nago");
+    expect(document.querySelector("[data-extras-pack]")?.getAttribute("data-extras-pack")).toBe(
+      "martial_arts_uniform",
+    );
   });
 });

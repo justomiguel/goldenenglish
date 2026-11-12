@@ -1,5 +1,7 @@
 import { InscriptionsSettingsForm } from "@/components/dashboard/InscriptionsSettingsForm";
 import { PublicCtaModeSettingsForm } from "@/components/dashboard/PublicCtaModeSettingsForm";
+import { RegisterExtrasPackSettingsForm } from "@/components/dashboard/RegisterExtrasPackSettingsForm";
+import { resolveActiveRegistrationExtrasPack } from "@/lib/register/packs/resolveActiveRegistrationExtrasPack";
 import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
 import {
   getInscriptionsEnabled,
@@ -17,11 +19,12 @@ export async function AdminRegistrationsConfigPanel({
   locale,
   labels,
 }: AdminRegistrationsConfigPanelProps) {
-  const [enabled, sectionMode, cohortConfig, publicCtaMode] = await Promise.all([
+  const [enabled, sectionMode, cohortConfig, publicCtaMode, extrasPack] = await Promise.all([
     getInscriptionsEnabled(),
     getRegisterSectionMode(),
     loadRegistrationCohortConfig(),
     getPublicCtaMode(),
+    resolveActiveRegistrationExtrasPack(),
   ]);
 
   return (
@@ -33,6 +36,7 @@ export async function AdminRegistrationsConfigPanel({
         labels={labels}
         cohortConfig={cohortConfig}
       />
+      <RegisterExtrasPackSettingsForm locale={locale} initialPack={extrasPack} labels={labels} />
       <PublicCtaModeSettingsForm locale={locale} initialMode={publicCtaMode} labels={labels} />
     </div>
   );

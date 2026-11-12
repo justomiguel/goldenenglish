@@ -3,7 +3,7 @@ import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDispla
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
-import { extrasPackForTemplateKind } from "@/lib/register/packs/extrasPackForTemplateKind";
+import type { RegisterExtrasPack } from "@/lib/register/packs/registerExtrasPack";
 import { parseNagoTenantExtras } from "@/lib/register/packs/nago/parseNagoTenantExtras";
 import { formatMozarthitosGuideSummary } from "@/lib/register/packs/mozarthitos/formatMozarthitosGuideSummary";
 
@@ -30,7 +30,7 @@ function statusText(labels: RegLabels, status: string): string {
 export function buildRegistrationsExportTable(
   rows: AdminRegistrationRow[],
   labels: RegLabels,
-  opts: { locale: string; activeTemplateKind?: string },
+  opts: { locale: string; extrasPack?: RegisterExtrasPack | null },
 ): RegistrationsExportTable {
   const empty = labels.emptyValue;
   const text = (value: string | null | undefined) => {
@@ -38,9 +38,9 @@ export function buildRegistrationsExportTable(
     return trimmed || empty;
   };
 
-  const pack = extrasPackForTemplateKind(opts.activeTemplateKind ?? "classic");
-  const includeNago = pack === "nago";
-  const includeGuide = pack === "mozarthitos";
+  const pack = opts.extrasPack ?? null;
+  const includeNago = pack === "martial_arts_uniform";
+  const includeGuide = pack === "family_guide";
   const nagoHeaders = includeNago
     ? [
         labels.nagoNationality,
