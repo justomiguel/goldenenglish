@@ -16,6 +16,7 @@ vi.mock("@/lib/billing/resolveSectionPlanMonthlyAmount", () => ({
 }));
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logSupabaseClientError: vi.fn(),
+  logServerError: vi.fn(),
 }));
 
 import { recordOnePaymentWithoutReceipt } from "@/lib/billing/recordPaymentWithoutReceiptCore";
@@ -23,7 +24,7 @@ import { recordOnePaymentWithoutReceipt } from "@/lib/billing/recordPaymentWitho
 const STUDENT = "00000000-0000-4000-8000-000000000001";
 const SECTION = "00000000-0000-4000-8000-000000000002";
 
-function supabase(payment: Record<string, unknown> | null) {
+function supabase(payment: Record<string, unknown> | null, updateRows: { id: string }[] | null = null) {
   const writes: Array<{ table: string; op: string; values: unknown }> = [];
   function query(table: string) {
     const q = {
@@ -44,7 +45,12 @@ function supabase(payment: Record<string, unknown> | null) {
         table === "profiles"
           ? { data: { role: "student" }, error: null }
           : { data: { id: "pay-1" }, error: null },
-      then: (resolve: (value: { error: null }) => void) => resolve({ error: null }),
+      then: (resolve: (value: { data?: { id: string }[]; error: null }) => void) =>
+        resolve(
+          table === "payments" && updateRows != null
+            ? { data: updateRows, error: null }
+            : { error: null },
+        ),
     };
     return q;
   }
@@ -78,5 +84,25 @@ describe("recordOnePaymentWithoutReceipt", () => {
       op: "insert",
       values: { payment_method: "cash", paid_on: "2026-03-12", status: "approved" },
     });
+  });
+
+  it("fails when the cash update matches no row", async () => {
+    const db = supabase(
+      { id: "pay-1", status: "pending", amount: 10000, admin_notes: null },
+      [],
+    );
+    const result = await recordOnePaymentWithoutReceipt(db.client as never, {
+      studentId: STUDENT,
+      sectionId: SECTION,
+      year: 2026,
+      month: 3,
+      adminNote: null,
+      paymentMethod: "cash",
+      paidOn: "2026-03-12",
+      actorId: "admin-1",
+      correlationId: null,
+    });
+    expect(result).toEqual({ success: false, code: "save_failed", month: 3 });
+    expect(mocks.audit).not.toHaveBeenCalled();
   });
 });

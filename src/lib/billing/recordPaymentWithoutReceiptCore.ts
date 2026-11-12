@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { auditFinanceAction } from "@/lib/audit";
 import type { PaymentMethod } from "@/lib/billing/paymentMethod";
 import { todayIsoDate } from "@/lib/billing/paymentMethod";
-import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { logServerError, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
   isStudentActivelyEnrolledInSection,
   resolveSectionPlanMonthlyAmount,
@@ -109,7 +109,7 @@ export async function recordOnePaymentWithoutReceipt(
   let paymentId: string;
   if (payRow) {
     paymentId = payRow.id as string;
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from("payments")
       .update({
         status: "approved",
@@ -119,12 +119,21 @@ export async function recordOnePaymentWithoutReceipt(
         paid_on: paidOn,
       })
       .eq("id", paymentId)
-      .in("status", ["pending", "rejected"] as const);
-    if (error) {
-      logSupabaseClientError("recordOnePaymentWithoutReceipt:update", error, {
-        studentId: p.studentId,
-        month: m,
-      });
+      .in("status", ["pending", "rejected"] as const)
+      .select("id");
+    if (error || !updated?.length) {
+      if (error) {
+        logSupabaseClientError("recordOnePaymentWithoutReceipt:update", error, {
+          studentId: p.studentId,
+          month: m,
+        });
+      } else {
+        await logServerError("recordOnePaymentWithoutReceipt:update", {
+          code: "save_failed",
+          studentId: p.studentId,
+          month: m,
+        });
+      }
       return { success: false, code: "save_failed", month: m };
     }
   } else {

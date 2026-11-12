@@ -148,17 +148,16 @@ export function SectionCollectionsMatrixWorkspace({
       });
       setCellActionBusy(false);
       setCellActionModalAction(null);
-      if (result.ok) {
-        setCellActionNotice(dict.cellActions.resultOk.replace("{count}", String(result.successCount)));
+      if (result.successCount > 0) {
         cellSelection.clearSelection();
         router.refresh();
-      } else {
-        setCellActionNotice(
-          dict.cellActions.resultPartial
-            .replace("{ok}", String(result.successCount))
-            .replace("{failed}", String(result.failedCount)),
-        );
       }
+      setCellActionNotice(
+        (result.ok ? dict.cellActions.resultOk : dict.cellActions.resultPartial)
+          .replace("{count}", String(result.successCount))
+          .replace("{ok}", String(result.successCount))
+          .replace("{failed}", String(result.failedCount)),
+      );
     },
     [view.sectionId, view.year, cellSelection, locale, billingLabels, dict.cellActions, router],
   );

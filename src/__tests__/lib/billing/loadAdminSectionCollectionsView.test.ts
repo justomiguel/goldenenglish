@@ -21,6 +21,7 @@ function buildSupabaseMock(responses: Record<string, TableResponse>) {
         is: vi.fn(() => chain),
         order: vi.fn(() => chain),
         limit: vi.fn(() => chain),
+        range: vi.fn(() => Promise.resolve(response)),
         maybeSingle: vi.fn().mockResolvedValue(response),
         single: vi.fn().mockResolvedValue(response),
         then: (resolve: (v: TableResponse) => void) => resolve(response),
@@ -255,5 +256,111 @@ describe("loadAdminSectionCollectionsView", () => {
       exempt: false,
       exemptReason: null,
     });
+  });
+
+  it("includes an approved cash payment that sits past the first 1000 rows", async () => {
+    const pageOne = Array.from({ length: 1000 }, (_, index) => ({
+      id: `old-${index}`,
+      student_id: "stu-2",
+      section_id: "sec-1",
+      month: (index % 12) + 1,
+      year: 2026,
+      amount: "10",
+      status: "approved",
+      receipt_url: null,
+      payment_method: "cash",
+      paid_on: "2026-01-15",
+    }));
+    const cashRow = {
+      id: "pay-cash",
+      student_id: "stu-1",
+      section_id: "sec-1",
+      month: 11,
+      year: 2026,
+      amount: "100",
+      status: "approved",
+      receipt_url: null,
+      payment_method: "cash",
+      paid_on: "2026-11-12",
+    };
+    const pages = [pageOne, [cashRow]];
+    let pageIndex = 0;
+    const supa = {
+      from: vi.fn((table: string) => {
+        const payload =
+          table === "academic_sections"
+            ? { data: SECTION, error: null }
+            : table === "section_enrollments"
+              ? {
+                  data: [
+                    {
+                      id: "enr-1",
+                      student_id: "stu-1",
+                      created_at: "2026-01-01T00:00:00Z",
+                      enrollment_fee_exempt: false,
+                      enrollment_exempt_reason: null,
+                    },
+                  ],
+                  error: null,
+                }
+              : table === "section_fee_plans"
+                ? {
+                    data: [
+                      {
+                        id: "plan-1",
+                        section_id: "sec-1",
+                        effective_from_year: 2026,
+                        effective_from_month: 1,
+                        monthly_fee: 100,
+                        currency: "USD",
+                        archived_at: null,
+                      },
+                    ],
+                    error: null,
+                  }
+                : table === "profiles"
+                  ? {
+                      data: [
+                        {
+                          id: "stu-1",
+                          first_name: "Ana",
+                          last_name: "Pérez",
+                          dni_or_passport: "DOC1",
+                          enrollment_fee_exempt: false,
+                          enrollment_exempt_reason: null,
+                        },
+                      ],
+                      error: null,
+                    }
+                  : { data: [], error: null };
+        const chain = {
+          select: vi.fn(() => chain),
+          eq: vi.fn(() => chain),
+          in: vi.fn(() => chain),
+          is: vi.fn(() => chain),
+          order: vi.fn(() => chain),
+          limit: vi.fn(() => chain),
+          range: vi.fn(() => {
+            const page = pages[pageIndex] ?? [];
+            pageIndex += 1;
+            return Promise.resolve({ data: page, error: null });
+          }),
+          maybeSingle: vi.fn().mockResolvedValue(payload),
+          single: vi.fn().mockResolvedValue(payload),
+          then: (resolve: (value: { data: unknown; error: null }) => void) => resolve(payload),
+        };
+        return chain;
+      }),
+    };
+
+    const view = await loadAdminSectionCollectionsView(supa as never, "sec-1", {
+      todayYear: 2026,
+      todayMonth: 11,
+    });
+    const cell = view?.students
+      .find((student) => student.studentId === "stu-1")
+      ?.row.cells.find((item) => item.month === 11);
+    expect(cell?.status).toBe("approved");
+    expect(cell?.paymentMethod).toBe("cash");
   });
 });

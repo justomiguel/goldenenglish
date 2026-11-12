@@ -6,6 +6,7 @@ import {
 } from "@/lib/billing/buildSectionCollectionsView";
 import type { StudentMonthlyPaymentRecord } from "@/lib/billing/buildStudentMonthlyPaymentsRow";
 import type { SectionCollectionsView } from "@/types/sectionCollections";
+import { loadSectionYearPayments } from "@/lib/billing/loadSectionYearPayments";
 import { chunkedIn } from "@/lib/supabase/chunkedIn";
 import {
   loadActiveEnrollments,
@@ -13,7 +14,6 @@ import {
   loadSectionMeta,
   mapScholarship,
   studentDisplayName,
-  type PaymentRow,
   type ProfileRow,
   type ScholarshipDbRow,
   type SectionMeta,
@@ -83,7 +83,7 @@ export async function loadAdminSectionCollectionsView(
     });
   }
 
-  const [profiles, paymentsRes, scholarshipsRes, promotions] = await Promise.all([
+  const [profiles, paymentRows, scholarshipsRes, promotions] = await Promise.all([
     chunkedIn<ProfileRow>(
       supabase,
       "profiles",
@@ -91,12 +91,7 @@ export async function loadAdminSectionCollectionsView(
       studentIds,
       "id, first_name, last_name, dni_or_passport, enrollment_fee_exempt, enrollment_exempt_reason",
     ),
-    supabase
-      .from("payments")
-      .select("id, student_id, section_id, month, year, amount, status, receipt_url, payment_method, paid_on")
-      .eq("section_id", sectionId)
-      .eq("year", opts.todayYear)
-      .in("student_id", studentIds),
+    loadSectionYearPayments(supabase, sectionId, opts.todayYear),
     supabase
       .from("section_enrollment_scholarships")
       .select(
@@ -113,7 +108,7 @@ export async function loadAdminSectionCollectionsView(
   ]);
 
   const paymentsByStudent = new Map<string, StudentMonthlyPaymentRecord[]>();
-  for (const raw of (paymentsRes.data ?? []) as PaymentRow[]) {
+  for (const raw of paymentRows) {
     const list = paymentsByStudent.get(raw.student_id) ?? [];
     list.push({
       id: raw.id,
