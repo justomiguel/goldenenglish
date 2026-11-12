@@ -1,0 +1,42 @@
+---
+description: Shared code does not name a tenant. The hardcode guard fails when a new slug hit appears.
+alwaysApply: true
+---
+
+# No institute hardcode
+
+## Rule
+
+Shared code does not name a tenant. Tenant identity is data. The data lives in the theme document, the brand layer, and `site_settings`.
+
+Client-only code lives in `src/variants/owned/<slug>/`. The variant declares `owner`. A file in that folder may name its own slug. It must not name another slug.
+
+Behavior that changes per tenant uses a domain setting. Use a domain name such as `register.extras_pack = family_guide`. Do not branch on a slug.
+
+Copy for one client lives in that tenant's document. Do not add a tenant namespace to the shared dictionaries.
+
+SQL brand data starts with `-- ge:brand-data <slug>`. `isBrandDataMigration` reads that line. A slug in the file name does not mark the file.
+
+## Guard
+
+`npm run check:institute-hardcode` scans `src/**/*.{ts,tsx,css,json}`.
+
+| Code | What it finds |
+|---|---|
+| `slug_comparison` | A slug compared with `===`, `!==`, or `case` |
+| `slug_table` | A slug used as an object key or array item |
+| `slug_file_name` | A slug in a file name |
+| `slug_css` | A slug in a CSS class or variable |
+| `slug_dictionary` | A slug key in a dictionary file |
+
+Allowed paths: `src/variants/owned/<slug>/**` for that slug, `src/__tests__/**`, `e2e/**`, `docs/**`, `supabase/**`, `scripts/**`, `public/**`.
+
+The baseline is `scripts/institute-hardcode-baseline.json`. Do not raise a count. Do not add a path to the allow list without a spec. `--update-baseline` only lowers counts.
+
+```ts
+// Bad. A new tenant needs a new branch.
+if (kind === "nago") return <NagoLanding />;
+
+// Good. The document picks the variant. The code does not name the tenant.
+return <SectionView variantId={section.variantId} />;
+```

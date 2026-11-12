@@ -65,6 +65,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`48-file-upload-progress.mdc`** | Toda subida de archivos, en institutos y en CentroListo, muestra `InlineUploadProgressBar` siempre. La barra informa la lectura y el envío. La foto de cuenta acepta 15 MB. |
 | **`49-ask-when-unsure.mdc`** | Si el pedido tiene más de una lectura real, pregunta antes de editar. No elijas pantalla, rol ni un borrado por tu cuenta. |
 | **`50-discriminated-user-errors.mdc`** | Ningún error visible puede ser genérico. Cada causa tiene su código estable, una frase que dice por qué y qué hacer, y el mismo código en el log. La persona puede citar ese código en un reclamo. |
+| **`53-no-institute-hardcode.mdc`** | El código compartido no nombra un instituto. El guard `check:institute-hardcode` falla si aparece un slug nuevo. |
 | **`52-platform-operator-admin.mdc`** | Todo instituto generado lleva el admin operador `justomiguelvargas@gmail.com` con la contraseña del procedimiento y `profiles.role = admin`. |
 | **`51-exclusive-client-themes.mdc`** | Una landing hecha para un cliente es un tema exclusivo. Pedí la ficha de `docs/runbooks/exclusive-landing-request.md` antes de crear el `SiteThemeKind`. No lo metas en el catálogo de CentroListo. |
 

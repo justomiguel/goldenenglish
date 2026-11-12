@@ -1,0 +1,1502 @@
+[
+  {
+    "path": "src/app/[locale]/contact/page.tsx",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/app/[locale]/contact/page.tsx",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/app/[locale]/contact/page.tsx",
+    "code": "slug_comparison",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/app/[locale]/contact/page.tsx",
+    "code": "slug_comparison",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/app/[locale]/contact/page.tsx",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/app/[locale]/encuentra-tu-clase/page.tsx",
+    "code": "slug_comparison",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/app/[locale]/page.tsx",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/components/dashboard/admin/cms/SiteThemeTemplatePreviewMock.tsx",
+    "code": "slug_table",
+    "slug": "espaciozenit",
+    "count": 4
+  },
+  {
+    "path": "src/components/dashboard/admin/cms/SiteThemeTemplatePreviewMock.tsx",
+    "code": "slug_table",
+    "slug": "liora",
+    "count": 4
+  },
+  {
+    "path": "src/components/dashboard/admin/cms/SiteThemeTemplatePreviewMock.tsx",
+    "code": "slug_table",
+    "slug": "matiss",
+    "count": 4
+  },
+  {
+    "path": "src/components/dashboard/admin/cms/SiteThemeTemplatePreviewMock.tsx",
+    "code": "slug_table",
+    "slug": "mimundo",
+    "count": 4
+  },
+  {
+    "path": "src/components/dashboard/admin/cms/SiteThemeTemplatePreviewMock.tsx",
+    "code": "slug_table",
+    "slug": "mozarthitos",
+    "count": 4
+  },
+  {
+    "path": "src/components/dashboard/admin/cms/SiteThemeTemplatePreviewMock.tsx",
+    "code": "slug_table",
+    "slug": "nago",
+    "count": 4
+  },
+  {
+    "path": "src/components/molecules/LioraLockup.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 4
+  },
+  {
+    "path": "src/components/molecules/LioraRegisterHeader.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 2
+  },
+  {
+    "path": "src/components/molecules/LioraSectionHeading.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 3
+  },
+  {
+    "path": "src/components/molecules/NagoRegisterHeader.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/components/molecules/PublicHeaderAccountCta.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 2
+  },
+  {
+    "path": "src/components/molecules/PublicHeaderAccountCta.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/components/molecules/PublicHeaderAccountCta.tsx",
+    "code": "slug_table",
+    "slug": "espaciozenit",
+    "count": 2
+  },
+  {
+    "path": "src/components/molecules/PublicHeaderAccountCta.tsx",
+    "code": "slug_table",
+    "slug": "liora",
+    "count": 2
+  },
+  {
+    "path": "src/components/molecules/PublicHeaderAccountCta.tsx",
+    "code": "slug_table",
+    "slug": "matiss",
+    "count": 2
+  },
+  {
+    "path": "src/components/molecules/PublicHeaderAccountCta.tsx",
+    "code": "slug_table",
+    "slug": "mimundo",
+    "count": 2
+  },
+  {
+    "path": "src/components/molecules/PublicHeaderAccountCta.tsx",
+    "code": "slug_table",
+    "slug": "mozarthitos",
+    "count": 2
+  },
+  {
+    "path": "src/components/molecules/PublicHeaderAccountCta.tsx",
+    "code": "slug_table",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/components/organisms/LandingLioraClasesSection.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 3
+  },
+  {
+    "path": "src/components/organisms/LandingLioraFooter.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 7
+  },
+  {
+    "path": "src/components/organisms/LandingLioraHero.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 2
+  },
+  {
+    "path": "src/components/organisms/LandingLioraHorariosSection.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 7
+  },
+  {
+    "path": "src/components/organisms/LandingLioraSedesSection.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 5
+  },
+  {
+    "path": "src/components/organisms/LandingLioraSobre.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 4
+  },
+  {
+    "path": "src/components/organisms/LandingNagoAccion.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/LandingNagoExperience.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 5
+  },
+  {
+    "path": "src/components/organisms/LandingNagoFooter.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 17
+  },
+  {
+    "path": "src/components/organisms/LandingNagoHorarios.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 9
+  },
+  {
+    "path": "src/components/organisms/LandingNagoMestre.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 7
+  },
+  {
+    "path": "src/components/organisms/LandingNagoPillars.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/components/organisms/LandingNagoPrograms.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 7
+  },
+  {
+    "path": "src/components/organisms/LandingNagoSections.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/LandingNagoTestimonials.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 5
+  },
+  {
+    "path": "src/components/organisms/LioraFontRoot.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 2
+  },
+  {
+    "path": "src/components/organisms/LioraGalleryStripDesktop.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 4
+  },
+  {
+    "path": "src/components/organisms/LioraGalleryStripNarrow.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/LioraLandingContactPanel.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 2
+  },
+  {
+    "path": "src/components/organisms/LioraSiteHeader.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 11
+  },
+  {
+    "path": "src/components/organisms/MiMundoFontRoot.tsx",
+    "code": "slug_css",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/NagoFontRoot.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/components/organisms/NagoGalleryEventGroups.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/NagoGalleryVideoBand.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/NagoGalleryVideoPlayer.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 3
+  },
+  {
+    "path": "src/components/organisms/NagoLandingContactPanel.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/components/organisms/NagoLandingGallery.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/NagoLandingLeadForm.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 13
+  },
+  {
+    "path": "src/components/organisms/NagoScrollRoot.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/NagoSiteHeader.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 3
+  },
+  {
+    "path": "src/components/organisms/NagoSiteHeaderMobileNav.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 3
+  },
+  {
+    "path": "src/components/organisms/PublicAnswerSurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicAnswerSurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicAnswerSurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicAnswerSurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicAnswerSurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicAnswerSurfaceByTemplate.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/components/organisms/PublicBlogPageShell.tsx",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicBlogPageShell.tsx",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 2
+  },
+  {
+    "path": "src/components/organisms/PublicBlogPageShell.tsx",
+    "code": "slug_comparison",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicBlogPageShell.tsx",
+    "code": "slug_comparison",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicBlogPageShell.tsx",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/components/organisms/PublicBlogScreenLiora.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicBlogScreenNago.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicContactScreenLiora.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 9
+  },
+  {
+    "path": "src/components/organisms/PublicContactScreenNago.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 8
+  },
+  {
+    "path": "src/components/organisms/PublicPrivacySurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicPrivacySurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicPrivacySurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicPrivacySurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicPrivacySurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicPrivacySurfaceByTemplate.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/components/organisms/PublicTenantChrome.tsx",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicTenantChrome.tsx",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicTenantChrome.tsx",
+    "code": "slug_comparison",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicTenantChrome.tsx",
+    "code": "slug_comparison",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/PublicTenantChrome.tsx",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/pulsar/PulsarAdminTenantFieldGroups.tsx",
+    "code": "slug_table",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/RegisterLioraSurface.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 10
+  },
+  {
+    "path": "src/components/organisms/RegisterNagoSurface.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 10
+  },
+  {
+    "path": "src/components/organisms/RegisterSurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/RegisterSurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/RegisterSurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/RegisterSurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/RegisterSurfaceByTemplate.tsx",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/components/organisms/useNagoSiteHeaderChrome.ts",
+    "code": "slug_table",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/components/pwa/molecules/PublicExperienceFrame.tsx",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/components/pwa/molecules/PublicExperienceFrame.tsx",
+    "code": "slug_table",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/components/pwa/molecules/PublicPwaTabBar.tsx",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 2
+  },
+  {
+    "path": "src/components/pwa/molecules/PublicPwaTabBar.tsx",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/components/pwa/molecules/PublicPwaTabBar.tsx",
+    "code": "slug_table",
+    "slug": "espaciozenit",
+    "count": 2
+  },
+  {
+    "path": "src/components/pwa/molecules/PublicPwaTabBar.tsx",
+    "code": "slug_table",
+    "slug": "liora",
+    "count": 2
+  },
+  {
+    "path": "src/components/pwa/molecules/PublicPwaTabBar.tsx",
+    "code": "slug_table",
+    "slug": "matiss",
+    "count": 2
+  },
+  {
+    "path": "src/components/pwa/molecules/PublicPwaTabBar.tsx",
+    "code": "slug_table",
+    "slug": "mimundo",
+    "count": 2
+  },
+  {
+    "path": "src/components/pwa/molecules/PublicPwaTabBar.tsx",
+    "code": "slug_table",
+    "slug": "mozarthitos",
+    "count": 2
+  },
+  {
+    "path": "src/components/pwa/molecules/PublicPwaTabBar.tsx",
+    "code": "slug_table",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/dictionaries/en.json",
+    "code": "slug_dictionary",
+    "slug": "espaciozenit",
+    "count": 3
+  },
+  {
+    "path": "src/dictionaries/en.json",
+    "code": "slug_dictionary",
+    "slug": "golden",
+    "count": 1
+  },
+  {
+    "path": "src/dictionaries/en.json",
+    "code": "slug_dictionary",
+    "slug": "liora",
+    "count": 4
+  },
+  {
+    "path": "src/dictionaries/en.json",
+    "code": "slug_dictionary",
+    "slug": "matiss",
+    "count": 4
+  },
+  {
+    "path": "src/dictionaries/en.json",
+    "code": "slug_dictionary",
+    "slug": "mimundo",
+    "count": 3
+  },
+  {
+    "path": "src/dictionaries/en.json",
+    "code": "slug_dictionary",
+    "slug": "mozarthitos",
+    "count": 3
+  },
+  {
+    "path": "src/dictionaries/en.json",
+    "code": "slug_dictionary",
+    "slug": "nago",
+    "count": 5
+  },
+  {
+    "path": "src/dictionaries/es.json",
+    "code": "slug_dictionary",
+    "slug": "espaciozenit",
+    "count": 3
+  },
+  {
+    "path": "src/dictionaries/es.json",
+    "code": "slug_dictionary",
+    "slug": "golden",
+    "count": 1
+  },
+  {
+    "path": "src/dictionaries/es.json",
+    "code": "slug_dictionary",
+    "slug": "liora",
+    "count": 4
+  },
+  {
+    "path": "src/dictionaries/es.json",
+    "code": "slug_dictionary",
+    "slug": "matiss",
+    "count": 4
+  },
+  {
+    "path": "src/dictionaries/es.json",
+    "code": "slug_dictionary",
+    "slug": "mimundo",
+    "count": 3
+  },
+  {
+    "path": "src/dictionaries/es.json",
+    "code": "slug_dictionary",
+    "slug": "mozarthitos",
+    "count": 3
+  },
+  {
+    "path": "src/dictionaries/es.json",
+    "code": "slug_dictionary",
+    "slug": "nago",
+    "count": 5
+  },
+  {
+    "path": "src/dictionaries/pt.json",
+    "code": "slug_dictionary",
+    "slug": "espaciozenit",
+    "count": 3
+  },
+  {
+    "path": "src/dictionaries/pt.json",
+    "code": "slug_dictionary",
+    "slug": "golden",
+    "count": 1
+  },
+  {
+    "path": "src/dictionaries/pt.json",
+    "code": "slug_dictionary",
+    "slug": "liora",
+    "count": 4
+  },
+  {
+    "path": "src/dictionaries/pt.json",
+    "code": "slug_dictionary",
+    "slug": "matiss",
+    "count": 4
+  },
+  {
+    "path": "src/dictionaries/pt.json",
+    "code": "slug_dictionary",
+    "slug": "mimundo",
+    "count": 3
+  },
+  {
+    "path": "src/dictionaries/pt.json",
+    "code": "slug_dictionary",
+    "slug": "mozarthitos",
+    "count": 3
+  },
+  {
+    "path": "src/dictionaries/pt.json",
+    "code": "slug_dictionary",
+    "slug": "nago",
+    "count": 5
+  },
+  {
+    "path": "src/hooks/useLioraRibbon.ts",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 4
+  },
+  {
+    "path": "src/lib/brand/bundledPublicInstallIcon.ts",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/cms/buildLandingEditorViewModel.ts",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/lib/cms/buildLandingEditorViewModel.ts",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/cms/buildLandingEditorViewModel.ts",
+    "code": "slug_comparison",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/lib/cms/buildLandingEditorViewModel.ts",
+    "code": "slug_comparison",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/lib/cms/buildLandingEditorViewModel.ts",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/cms/landingThemeEditorCatalog.ts",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 2
+  },
+  {
+    "path": "src/lib/cms/landingThemeEditorCatalog.ts",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 2
+  },
+  {
+    "path": "src/lib/cms/landingThemeEditorCatalog.ts",
+    "code": "slug_comparison",
+    "slug": "matiss",
+    "count": 2
+  },
+  {
+    "path": "src/lib/cms/landingThemeEditorCatalog.ts",
+    "code": "slug_comparison",
+    "slug": "mimundo",
+    "count": 2
+  },
+  {
+    "path": "src/lib/cms/landingThemeEditorCatalog.ts",
+    "code": "slug_comparison",
+    "slug": "mozarthitos",
+    "count": 2
+  },
+  {
+    "path": "src/lib/cms/landingThemeEditorCatalog.ts",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/lib/cms/resolveLandingMedia.ts",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/lib/cms/resolveLandingMedia.ts",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/cms/resolveLandingMedia.ts",
+    "code": "slug_comparison",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/lib/cms/resolveLandingMedia.ts",
+    "code": "slug_comparison",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/lib/cms/resolveLandingMedia.ts",
+    "code": "slug_comparison",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/lib/cms/resolveLandingMedia.ts",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/events/publicEventDetailSurfaceClasses.ts",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 2
+  },
+  {
+    "path": "src/lib/events/publicEventDetailSurfaceClasses.ts",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/lib/events/publicEventDetailSurfaceClasses.ts",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 9
+  },
+  {
+    "path": "src/lib/events/publicEventListSurfaceClasses.ts",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 6
+  },
+  {
+    "path": "src/lib/events/publicEventListSurfaceClasses.ts",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 6
+  },
+  {
+    "path": "src/lib/events/publicEventListSurfaceClasses.ts",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 15
+  },
+  {
+    "path": "src/lib/events/publicEventRegisterSurfaceClasses.ts",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 16
+  },
+  {
+    "path": "src/lib/events/publicEventRegisterSurfaceClasses.ts",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 16
+  },
+  {
+    "path": "src/lib/events/publicEventRegisterSurfaceClasses.ts",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 15
+  },
+  {
+    "path": "src/lib/events/publicEventSurfaceVariant.ts",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 2
+  },
+  {
+    "path": "src/lib/events/publicEventSurfaceVariant.ts",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/lib/landing/espaciozenitLandingImages.ts",
+    "code": "slug_file_name",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/lioraGalleryImages.ts",
+    "code": "slug_file_name",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/lioraLandingImages.ts",
+    "code": "slug_file_name",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/lioraRibbonPath.ts",
+    "code": "slug_file_name",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/lioraSchedule.ts",
+    "code": "slug_file_name",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/loadLandingMainSections.ts",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/loadLandingMainSections.ts",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/loadLandingMainSections.ts",
+    "code": "slug_comparison",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/loadLandingMainSections.ts",
+    "code": "slug_comparison",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/loadLandingMainSections.ts",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/marketingFooterBrand.ts",
+    "code": "slug_table",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/marketingFooterBrand.ts",
+    "code": "slug_table",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/marketingFooterBrand.ts",
+    "code": "slug_table",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/marketingFooterBrand.ts",
+    "code": "slug_table",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/marketingFooterBrand.ts",
+    "code": "slug_table",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/marketingFooterBrand.ts",
+    "code": "slug_table",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/matissGalleryCarousel.ts",
+    "code": "slug_file_name",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/matissLandingImages.ts",
+    "code": "slug_file_name",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/matissSchedule.ts",
+    "code": "slug_file_name",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/mimundoButterflyTrailPaths.ts",
+    "code": "slug_file_name",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/mimundoGalleryImages.ts",
+    "code": "slug_file_name",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/mimundoLandingImages.ts",
+    "code": "slug_file_name",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/mozarthitosLandingImages.ts",
+    "code": "slug_file_name",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/nagoGalleryCapoeiraVideos.ts",
+    "code": "slug_file_name",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/nagoGalleryCatalog.ts",
+    "code": "slug_file_name",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/nagoGalleryImages.ts",
+    "code": "slug_file_name",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/nagoLandingImages.ts",
+    "code": "slug_file_name",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/nagoLandingRegisterCtas.ts",
+    "code": "slug_file_name",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/nagoLogo.ts",
+    "code": "slug_file_name",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/nagoNavActiveHref.ts",
+    "code": "slug_file_name",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/nagoScrollAtmosphere.ts",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/lib/landing/nagoScrollAtmosphere.ts",
+    "code": "slug_file_name",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/nagoSiteHeaderLabels.ts",
+    "code": "slug_file_name",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/nagoSiteHeaderLabels.ts",
+    "code": "slug_table",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/nagoSplitWords.ts",
+    "code": "slug_file_name",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/nagoTemplateImages.ts",
+    "code": "slug_file_name",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/resolveSharePreviewLogoUrl.ts",
+    "code": "slug_table",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/resolveSharePreviewLogoUrl.ts",
+    "code": "slug_table",
+    "slug": "golden",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/resolveSharePreviewLogoUrl.ts",
+    "code": "slug_table",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/resolveSharePreviewLogoUrl.ts",
+    "code": "slug_table",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/resolveSharePreviewLogoUrl.ts",
+    "code": "slug_table",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/resolveSharePreviewLogoUrl.ts",
+    "code": "slug_table",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/resolveSharePreviewLogoUrl.ts",
+    "code": "slug_table",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/sharePreviewBundleKey.ts",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/sharePreviewBundleKey.ts",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/sharePreviewBundleKey.ts",
+    "code": "slug_comparison",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/sharePreviewBundleKey.ts",
+    "code": "slug_comparison",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/sharePreviewBundleKey.ts",
+    "code": "slug_comparison",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/lib/landing/sharePreviewBundleKey.ts",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/metadata/buildHomePageMetadata.ts",
+    "code": "slug_table",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/lib/metadata/buildHomePageMetadata.ts",
+    "code": "slug_table",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/metadata/buildHomePageMetadata.ts",
+    "code": "slug_table",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/lib/metadata/buildHomePageMetadata.ts",
+    "code": "slug_table",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/lib/metadata/buildHomePageMetadata.ts",
+    "code": "slug_table",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/pulsar/centrolistoClientPreviews.ts",
+    "code": "slug_table",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/lib/pulsar/centrolistoClientPreviews.ts",
+    "code": "slug_table",
+    "slug": "golden",
+    "count": 1
+  },
+  {
+    "path": "src/lib/pulsar/centrolistoClientPreviews.ts",
+    "code": "slug_table",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/pulsar/centrolistoClientPreviews.ts",
+    "code": "slug_table",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/lib/pulsar/centrolistoClientPreviews.ts",
+    "code": "slug_table",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/lib/pulsar/centrolistoClientPreviews.ts",
+    "code": "slug_table",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/register/packs/nago/nagoProtocolSections.ts",
+    "code": "slug_file_name",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/exclusiveThemeKinds.ts",
+    "code": "slug_table",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/exclusiveThemeKinds.ts",
+    "code": "slug_table",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/exclusiveThemeKinds.ts",
+    "code": "slug_table",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/exclusiveThemeKinds.ts",
+    "code": "slug_table",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/exclusiveThemeKinds.ts",
+    "code": "slug_table",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/exclusiveThemeKinds.ts",
+    "code": "slug_table",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/marketingLandingKinds.ts",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/marketingLandingKinds.ts",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/marketingLandingKinds.ts",
+    "code": "slug_comparison",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/marketingLandingKinds.ts",
+    "code": "slug_comparison",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/marketingLandingKinds.ts",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/publicExperienceNav.ts",
+    "code": "slug_comparison",
+    "slug": "espaciozenit",
+    "count": 2
+  },
+  {
+    "path": "src/lib/theme/publicExperienceNav.ts",
+    "code": "slug_comparison",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/publicExperienceNav.ts",
+    "code": "slug_comparison",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/publicExperienceNav.ts",
+    "code": "slug_comparison",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/publicExperienceNav.ts",
+    "code": "slug_comparison",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/publicExperienceNav.ts",
+    "code": "slug_comparison",
+    "slug": "nago",
+    "count": 2
+  },
+  {
+    "path": "src/lib/theme/publicExperienceNav.ts",
+    "code": "slug_table",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/publicExperienceNav.ts",
+    "code": "slug_table",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/publicExperienceNav.ts",
+    "code": "slug_table",
+    "slug": "matiss",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/publicExperienceNav.ts",
+    "code": "slug_table",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/publicExperienceNav.ts",
+    "code": "slug_table",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/lib/theme/publicExperienceNav.ts",
+    "code": "slug_table",
+    "slug": "nago",
+    "count": 1
+  },
+  {
+    "path": "src/styles/espaciozenitLanding.css",
+    "code": "slug_file_name",
+    "slug": "espaciozenit",
+    "count": 1
+  },
+  {
+    "path": "src/styles/lioraLanding.css",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 91
+  },
+  {
+    "path": "src/styles/lioraLanding.css",
+    "code": "slug_file_name",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/styles/lioraLandingBlocks.css",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 18
+  },
+  {
+    "path": "src/styles/lioraLandingBlocks.css",
+    "code": "slug_file_name",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/styles/lioraRibbon.css",
+    "code": "slug_css",
+    "slug": "liora",
+    "count": 27
+  },
+  {
+    "path": "src/styles/lioraRibbon.css",
+    "code": "slug_file_name",
+    "slug": "liora",
+    "count": 1
+  },
+  {
+    "path": "src/styles/mimundoLanding.css",
+    "code": "slug_css",
+    "slug": "mimundo",
+    "count": 20
+  },
+  {
+    "path": "src/styles/mimundoLanding.css",
+    "code": "slug_file_name",
+    "slug": "mimundo",
+    "count": 1
+  },
+  {
+    "path": "src/styles/mozarthitosLanding.css",
+    "code": "slug_file_name",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/styles/mozarthitosLanding.effects.css",
+    "code": "slug_file_name",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/styles/mozarthitosLanding.motion.css",
+    "code": "slug_file_name",
+    "slug": "mozarthitos",
+    "count": 1
+  },
+  {
+    "path": "src/styles/nagoLanding.css",
+    "code": "slug_css",
+    "slug": "nago",
+    "count": 336
+  },
+  {
+    "path": "src/styles/nagoLanding.css",
+    "code": "slug_file_name",
+    "slug": "nago",
+    "count": 1
+  }
+]
