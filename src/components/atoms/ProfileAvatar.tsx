@@ -10,6 +10,16 @@ export interface ProfileAvatarProps {
   className?: string;
 }
 
+function isDisplayImageSrc(url: string): boolean {
+  return (
+    url.startsWith("https://") ||
+    url.startsWith("http://") ||
+    url.startsWith("/") ||
+    url.startsWith("blob:") ||
+    url.startsWith("data:")
+  );
+}
+
 function DefaultProfileAvatarIcon() {
   return (
     <svg
@@ -40,7 +50,7 @@ function DefaultProfileAvatarIcon() {
 export function ProfileAvatar({ url, displayName, size, className = "" }: ProfileAvatarProps) {
   const dim = size === "xl" ? 152 : size === "lg" ? 128 : size === "md" ? 56 : 40;
 
-  if (url) {
+  if (url && isDisplayImageSrc(url)) {
     const bypassOptimizer = url.startsWith("blob:") || url.startsWith("data:");
     return (
       <span

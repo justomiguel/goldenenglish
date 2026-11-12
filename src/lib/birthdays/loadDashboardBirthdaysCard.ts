@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { fetchPortalBirthdaysForViewer } from "@/lib/birthdays/fetchPortalBirthdaysForViewer";
 import { instituteTwoWeekBirthdayRange } from "@/lib/birthdays/instituteTwoWeekBirthdayRange";
+import { resolveAvatarDisplayUrl } from "@/lib/dashboard/resolveAvatarUrl";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
   mapBirthdayRowsToDashboardCard,
@@ -48,11 +49,14 @@ async function loadBirthdayCardDetails(
     details.set(id, { avatarUrl: null, sectionLabel: null });
   }
 
-  for (const row of (profilesResult.data ?? []) as Array<{ id: string; avatar_url: string | null }>) {
-    const current = details.get(row.id) ?? { avatarUrl: null, sectionLabel: null };
-    current.avatarUrl = row.avatar_url;
-    details.set(row.id, current);
-  }
+  const profileRows = (profilesResult.data ?? []) as Array<{ id: string; avatar_url: string | null }>;
+  await Promise.all(
+    profileRows.map(async (row) => {
+      const current = details.get(row.id) ?? { avatarUrl: null, sectionLabel: null };
+      current.avatarUrl = await resolveAvatarDisplayUrl(supabase, row.avatar_url);
+      details.set(row.id, current);
+    }),
+  );
 
   const sectionsByStudent = new Map<string, string[]>();
   for (const row of (enrollmentsResult.data ?? []) as Array<{
