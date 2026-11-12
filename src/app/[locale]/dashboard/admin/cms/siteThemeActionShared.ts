@@ -34,7 +34,8 @@ export type SiteThemeActionErrorCode =
   | "mime_invalid"
   | "payload_invalid"
   | "favicon_zip_invalid"
-  | "media_too_large";
+  | "media_too_large"
+  | "theme_document_active";
 
 export const PG_UNIQUE_VIOLATION = "23505";
 

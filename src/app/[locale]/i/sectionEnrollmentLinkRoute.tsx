@@ -17,11 +17,12 @@ import { buildSectionEnrollmentLinkPath } from "@/lib/register/sectionEnrollment
 import { buildSectionEnrollmentLinkPageMetadata } from "@/lib/register/buildSectionEnrollmentLinkPageMetadata";
 import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
 import { loadShareImageChain } from "@/lib/site/buildResolvedPublicShareMetadata";
+import { loadRequestSessionEmail } from "@/lib/auth/loadRequestSessionEmail";
 import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
 import { RegisterSurfaceByTemplate } from "@/components/organisms/RegisterSurfaceByTemplate";
 import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
 import { SectionEnrollmentLinkUnavailable } from "@/components/register/SectionEnrollmentLinkUnavailable";
-import { loadRequestSessionEmail } from "@/lib/auth/loadRequestSessionEmail";
+import { resolveActiveRegistrationExtrasPack } from "@/lib/register/packs/resolveActiveRegistrationExtrasPack";
 
 export async function sectionEnrollmentLinkGenerateMetadata(
   locale: string,
@@ -73,6 +74,7 @@ export async function SectionEnrollmentLinkRoute({
     sectionOptions,
     { url: supabaseUrl },
     sessionEmail,
+    extrasPack,
   ] = await Promise.all([
     getDictionary(locale),
     resolvePublicBrand(loc),
@@ -82,6 +84,7 @@ export async function SectionEnrollmentLinkRoute({
     loadRegistrationSectionOptions(),
     readRequestSupabasePublicEnv(),
     loadRequestSessionEmail(),
+    resolveActiveRegistrationExtrasPack(),
   ]);
 
   const dict = applyLandingContentOverrides(baseDict, snapshot?.theme.content, loc);
@@ -127,6 +130,7 @@ export async function SectionEnrollmentLinkRoute({
         sectionOptions={sectionOptions}
         enrollmentLink={resolvedLink}
         sessionEmail={sessionEmail}
+        extrasPack={extrasPack}
       />
     </PublicExperienceShell>
   );

@@ -1,4 +1,6 @@
 import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
+import { Paintbrush } from "lucide-react";
 import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
 import { connectedPartners } from "@/lib/pulsar/connectedPartners";
 import { loadEnabledPaymentProviders } from "@/lib/pulsar/loadEnabledPaymentProviders";
@@ -63,6 +65,13 @@ export default async function PulsarAdminEditTenantPage({ params }: PageProps) {
 
   return (
     <PulsarAdminChrome locale={locale} dict={dict} email={session.email}>
+    <Link
+      href={`/${locale}/admin/tenants/${slug}/theme/design`}
+      className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--color-primary)] underline-offset-4 hover:text-[var(--color-primary-dark)] hover:underline"
+    >
+      <Paintbrush className="h-4 w-4" aria-hidden />
+      {dict.admin.designEditor.shell.open}
+    </Link>
     <PulsarAdminTenantForm
       locale={locale}
       dict={dict}

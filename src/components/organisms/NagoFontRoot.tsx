@@ -1,24 +1,10 @@
 import type { ReactNode } from "react";
-import { Oswald, Outfit } from "next/font/google";
+import { CATALOG_FONTS } from "@/components/atoms/fonts/catalogFonts";
 import "@/styles/nagoLanding.css";
 import { NagoSoundRoot } from "@/components/organisms/NagoSoundRoot";
 
-const nagoDisplay = Oswald({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-nago-display",
-  display: "swap",
-  adjustFontFallback: true,
-  preload: true,
-});
-
-const nagoBody = Outfit({
-  weight: ["300", "400", "500", "600", "700"],
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-nago-body",
-  display: "swap",
-  preload: false,
-});
+const display = CATALOG_FONTS.oswald;
+const body = CATALOG_FONTS.outfit;
 
 export interface NagoFontRootProps {
   className?: string;
@@ -28,11 +14,12 @@ export interface NagoFontRootProps {
 }
 
 export function NagoFontRoot({ className = "", sound = true, children }: NagoFontRootProps) {
-  const vars = `${nagoDisplay.variable} ${nagoBody.variable}`;
+  const vars = `${display.variable} ${body.variable}`;
   return (
     <div
       className={`nago-landing ${vars} bg-[var(--nago-bg)] font-[family-name:var(--font-nago-body)] text-[var(--nago-ink)] antialiased ${className}`.trim()}
     >
+      <style>{".nago-landing{--font-nago-display:var(--font-catalog-oswald);--font-nago-body:var(--font-catalog-outfit)}"}</style>
       <div className="nago-grain" aria-hidden />
       {sound ? <NagoSoundRoot>{children}</NagoSoundRoot> : children}
     </div>

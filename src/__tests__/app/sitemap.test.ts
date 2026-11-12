@@ -11,6 +11,10 @@ vi.mock("@/lib/theme/loadActiveTheme", () => ({
   loadActiveTheme: () => mockLoadActiveTheme(),
 }));
 
+vi.mock("@/components/atoms/fonts/catalogFonts", () => ({
+  CATALOG_FONTS: {},
+}));
+
 vi.mock("@/lib/site/publicUrl", () => ({
   getPublicSiteUrl: () => mockGetPublicSiteUrl(),
 }));
@@ -78,6 +82,8 @@ describe("app/sitemap", () => {
     expect(entries.some((e) => e.url.includes("/privacidad"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/preguntas"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/blog"))).toBe(true);
+    expect(entries.some((e) => e.url.includes("/plantilla/variante"))).toBe(false);
+    expect(entries.some((e) => e.url.includes("/plantilla/borrador"))).toBe(false);
     expect(entries.some((e) => e.url.includes("/events"))).toBe(true);
   });
 

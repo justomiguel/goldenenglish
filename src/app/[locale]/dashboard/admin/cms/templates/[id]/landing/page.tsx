@@ -10,6 +10,7 @@ import {
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadLandingEditorOverview } from "@/lib/cms/loadSiteThemeForLandingEditor";
 import { LandingEditorOverview } from "@/components/dashboard/admin/cms/LandingEditorOverview";
+import { ThemeDocumentActiveNoticeGate } from "@/components/dashboard/admin/cms/ThemeDocumentActiveNoticeGate";
 import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 export const metadata: Metadata = {
@@ -55,12 +56,21 @@ export default async function AdminCmsLandingOverviewPage({ params }: PageProps)
   }
 
   return (
-    <LandingEditorOverview
-      locale={locale}
-      labels={labels}
-      theme={viewModel.theme}
-      sections={viewModel.sections}
-      tenantSlug={tenant?.slug ?? null}
-    />
+    <>
+      <ThemeDocumentActiveNoticeGate
+        client={supabase}
+        siteThemeId={id}
+        href={`/${locale}/dashboard/admin/cms/design`}
+        body={dict.admin.cms.themeDocumentActive}
+        linkLabel={dict.admin.cms.themeDocumentActiveLink}
+      />
+      <LandingEditorOverview
+        locale={locale}
+        labels={labels}
+        theme={viewModel.theme}
+        sections={viewModel.sections}
+        tenantSlug={tenant?.slug ?? null}
+      />
+    </>
   );
 }

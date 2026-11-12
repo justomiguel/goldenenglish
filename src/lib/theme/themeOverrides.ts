@@ -1,3 +1,5 @@
+import { buildDesignTokenCss } from "@/lib/design-tokens/buildDesignTokenCss";
+import { parseDesignTokens } from "@/lib/design-tokens/parseDesignTokens";
 import type { ThemeProperties } from "@/lib/theme/themeParser";
 import {
   THEME_OVERRIDE_KEY_PREFIXES,
@@ -73,7 +75,7 @@ export function cssVariablesBlock(properties: ThemeProperties): string {
 
 /** Pure: full `<style>` body ready to inline in the document head. */
 export function cssRootBlock(properties: ThemeProperties): string {
-  const body = cssVariablesBlock(properties);
+  const body = buildDesignTokenCss(parseDesignTokens(properties), properties);
   if (!body) return ":root {}";
   return `:root {\n${body}\n}`;
 }

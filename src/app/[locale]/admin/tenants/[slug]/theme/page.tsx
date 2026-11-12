@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, Images } from "lucide-react";
 import { SiteThemeEditorShell } from "@/components/dashboard/admin/cms/SiteThemeEditorShell";
+import { ThemeDocumentActiveNoticeGate } from "@/components/dashboard/admin/cms/ThemeDocumentActiveNoticeGate";
 import { PulsarAdminChrome } from "@/components/organisms/pulsar/PulsarAdminChrome";
 import { GenericSiteBasicsForm } from "@/components/organisms/pulsar/GenericSiteBasicsForm";
 import { GenericSiteColors } from "@/components/organisms/pulsar/GenericSiteColors";
@@ -60,6 +61,13 @@ export default async function PulsarTenantThemePage({ params }: PageProps) {
 
   return shell(
     <div className="space-y-6">
+      <ThemeDocumentActiveNoticeGate
+        client={loaded.supabase}
+        siteThemeId={loaded.themeId}
+        href={`/${locale}/admin/tenants/${slug}/theme/design`}
+        body={loaded.dict.admin.cms.themeDocumentActive}
+        linkLabel={loaded.dict.admin.cms.themeDocumentActiveLink}
+      />
       <Link
         href={`/${locale}/admin/tenants/${slug}/theme/landing`}
         className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--color-primary)]"

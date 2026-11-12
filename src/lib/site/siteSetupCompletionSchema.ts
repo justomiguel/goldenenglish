@@ -3,12 +3,18 @@ import {
   isAcceptedLandingMediaMime,
   LANDING_MEDIA_MAX_BYTES,
 } from "@/lib/cms/siteThemeLandingInputSchemas";
+import { FONT_CATALOG } from "@/lib/design-tokens/fontCatalog";
 import { zodOptionalEmptyField, zodOptionalEmptyUrl } from "@/lib/validation/zodOptionalEmptyField";
 
 /** Accepts `""` from clients; absolute URLs after `coerceInitialSiteSetupSocialFields`. */
 const optionalSocialUrlStored = zodOptionalEmptyUrl(500);
 
 const optionalShortString = zodOptionalEmptyField(z.string().trim().max(120));
+
+const catalogFontIds = new Set(FONT_CATALOG.map((font) => font.id));
+const optionalFontId = zodOptionalEmptyField(
+  z.string().trim().refine((id) => catalogFontIds.has(id)),
+);
 
 const optionalCssToken = zodOptionalEmptyField(z.string().trim().max(60));
 
@@ -45,9 +51,8 @@ const siteSetupSharedSchema = z.object({
   visualAccent: optionalCssToken,
   visualBackground: optionalCssToken,
   visualSurface: optionalCssToken,
-  fontPrimary: optionalShortString,
-  fontSecondary: optionalShortString,
-  fontMono: optionalShortString,
+  fontHeading: optionalFontId,
+  fontBody: optionalFontId,
   layoutMaxWidth: optionalCssToken,
   layoutBorderRadius: optionalCssToken,
   // Operational settings (persisted in `site_settings` in Phase 4).

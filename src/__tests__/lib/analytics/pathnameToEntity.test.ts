@@ -54,6 +54,7 @@ describe("pathnameToEntity", () => {
   });
 
   it("defaults to route-prefixed entity", () => {
+    expect(pathnameToEntity("/en/dashboard/admin/cms/design")).toBe("admin:theme-document");
     expect(pathnameToEntity("/en/other")).toBe(`${AnalyticsEntity.pageViewPrefix}/en/other`);
   });
 });

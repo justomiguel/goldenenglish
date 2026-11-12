@@ -15,6 +15,8 @@ import {
 import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import { publishInstitutePublicImages } from "@/lib/tenant/publishInstitutePublicImages";
 import { buildSiteSetupOverrideMap } from "@/lib/site/buildSiteSetupOverrideMap";
+import { rejectInvalidSiteSetupTokens } from "@/lib/site/rejectInvalidSiteSetupTokens";
+import type { DesignTokenIssueCode } from "@/lib/design-tokens/validateDesignTokens";
 import {
   buildSiteSetupOperationalRows,
   persistSiteSetupOperationalSettings,
@@ -47,7 +49,9 @@ export type CompleteInitialSiteSetupResult =
         | "persist_failed"
         | "payload_invalid"
         | "mime_invalid"
-        | "favicon_zip_invalid";
+        | "favicon_zip_invalid"
+        | DesignTokenIssueCode;
+      token?: string;
     };
 
 export async function completeInitialSiteSetupAction(
@@ -142,6 +146,14 @@ export async function completeInitialSiteSetupAction(
   const mergedRaw = { ...existingFlat, ...wizardFlat };
   if (sharePath) mergedRaw["app.share.image"] = sharePath;
   if (clearFaviconBundlePrefix) delete mergedRaw["app.favicon.bundle.prefix"];
+
+  const tokenReject = await rejectInvalidSiteSetupTokens({
+    properties: mergedRaw,
+    tenantSlug: tenant?.slug ?? null,
+    rollback: () =>
+      rollbackSiteSetupWizardAssets(admin.supabase, logoPath, favUploadedPaths),
+  });
+  if (tokenReject) return tokenReject;
 
   const cleaned = cleanThemeOverridesForPersistence(loadProperties(), mergedRaw);
 

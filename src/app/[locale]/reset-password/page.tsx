@@ -10,7 +10,6 @@ import { ResetPasswordScreenGate } from "@/components/organisms/ResetPasswordScr
 import { PublicTenantChrome } from "@/components/organisms/PublicTenantChrome";
 import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
-import { brandForPublicChrome } from "@/lib/landing/nagoLogo";
 
 interface ResetPasswordPageProps {
   params: Promise<{ locale: string }>;
@@ -45,11 +44,10 @@ export default async function ResetPasswordPage({
   const snapshot = await loadActiveTheme();
 
   const templateKind = snapshot?.theme.templateKind ?? "classic";
-  const publicBrand = brandForPublicChrome(templateKind, brand);
   return (
     <PublicExperienceShell locale={locale} dict={dict} templateKind={templateKind}>
       <PublicTenantChrome templateKind={templateKind}>
-        <ResetPasswordScreenGate brand={publicBrand} dict={dict} locale={locale} />
+        <ResetPasswordScreenGate brand={brand} dict={dict} locale={locale} />
       </PublicTenantChrome>
     </PublicExperienceShell>
   );

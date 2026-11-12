@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, FilePlus2 } from "lucide-react";
 import type { PulsarTemplateCatalogCard } from "@/lib/pulsar/pulsarTemplateCatalog";
 
 export function PulsarTemplateCatalog({
@@ -40,6 +40,15 @@ export function PulsarTemplateCatalog({
                 <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
                 {card.openLabel}
               </Link>
+              {card.applyHref && card.applyLabel ? (
+                <Link
+                  href={card.applyHref}
+                  className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--color-foreground)]"
+                >
+                  <FilePlus2 className="h-4 w-4 shrink-0" aria-hidden />
+                  {card.applyLabel}
+                </Link>
+              ) : null}
             </div>
           </li>
         ))}

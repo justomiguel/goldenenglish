@@ -15,6 +15,8 @@ import {
 import { logServerException, logSupabaseError } from "@/lib/logging/serverActionLog";
 import { isSiteThemeKind, parseLandingBlocks } from "@/lib/cms/landingBlocksCatalog";
 import { parseSkinContent } from "@/lib/landing/skin/skinContentSchema";
+import { getAlsTenant } from "@/lib/tenant/alsTenantAccessor";
+import { attachPublishedDocument } from "@/lib/theme-document/loadPublishedThemeDocument";
 import { getSiteBrandThemeSlug } from "@/lib/theme/siteBrandThemeSlug";
 import {
   type ActiveThemeSnapshot,
@@ -172,7 +174,7 @@ async function loadActiveThemeUncached(): Promise<ActiveThemeSnapshot | null> {
     try {
       const admin = await createAdminClient();
       const bySlug = await loadThemeBySlugWithClient(admin, brandSlug);
-      if (bySlug) return bySlug;
+      if (bySlug) return attachPublishedDocument(bySlug, getAlsTenant()?.slug ?? null);
     } catch (err) {
       await logServerException("loadActiveTheme:admin_client", err);
     }
@@ -186,7 +188,7 @@ async function loadActiveThemeUncached(): Promise<ActiveThemeSnapshot | null> {
     return null;
   }
   if (!client) return null;
-  return loadActiveThemeRowAnon(client);
+  return attachPublishedDocument(await loadActiveThemeRowAnon(client), getAlsTenant()?.slug ?? null);
 }
 
 const loadActiveThemeCached = unstable_cache(
@@ -212,13 +214,13 @@ async function loadThemeSnapshotForTenant(slug: string): Promise<ActiveThemeSnap
         tenant,
       );
       const bySlug = await loadThemeBySlugWithClient(admin, brandSlug);
-      if (bySlug) return bySlug;
+      if (bySlug) return attachPublishedDocument(bySlug, slug);
     }
     const anon = bindInstituteDataPlane(
       createAnonClientFromCredentials(tenant.supabaseUrl, tenant.supabaseAnonKey),
       tenant,
     );
-    return loadActiveThemeRowAnon(anon);
+    return attachPublishedDocument(await loadActiveThemeRowAnon(anon), slug);
   } catch (err) {
     await logServerException("loadActiveTheme:tenant", err);
     return null;

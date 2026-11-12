@@ -1,3 +1,4 @@
+-- ge:brand-data mozarthitos
 -- Runs after 093 commits so 'mozarthitos' enum label is usable.
 
 INSERT INTO public.site_themes (

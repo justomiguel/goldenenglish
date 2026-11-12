@@ -13,6 +13,8 @@ alwaysApply: true
 
 The Design System is the single source of truth for every visual decision. **Branding and institutional identity** are the same: everything that would change if the institute rebrands (name, legal name, tagline, logos, favicon, contact blocks, social links, palette, fonts) MUST be driven from the brand layer (`SYSTEM_PROPERTIES_DEFAULTS` in TS + per-tenant overrides in `public.site_themes`), not duplicated in code.
 
+Published tokens come from the theme document. `SYSTEM_PROPERTIES_DEFAULTS` is the default token set. A variant reads `--ds-*`.
+
 ## Design skills do not choose the brand
 
 These skills do not choose the font, the palette, the icon, the photo, or the motion:

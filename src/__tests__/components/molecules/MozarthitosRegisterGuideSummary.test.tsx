@@ -2,12 +2,12 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import es from "@/dictionaries/es.json";
-import { MozarthitosRegisterGuideSummary } from "@/components/molecules/MozarthitosRegisterGuideSummary";
+import { FamilyGuideRegisterSummary } from "@/components/molecules/FamilyGuideRegisterSummary";
 
-describe("MozarthitosRegisterGuideSummary", () => {
+describe("FamilyGuideRegisterSummary", () => {
   it("shows the chosen stage and modality with a link back to the guide", () => {
     render(
-      <MozarthitosRegisterGuideSummary
+      <FamilyGuideRegisterSummary
         locale="es"
         guide={{ stage: "baby_mago", modality: "pack", ageBand: "6m_2y" }}
         labels={es.landing.mz.guide}

@@ -367,5 +367,65 @@ export default defineConfig({
       testMatch: /portal-smoke-hubs\.spec\.ts/,
       use: { ...devices["Desktop Chrome"] },
     },
+    {
+      name: "chromium-client-visual",
+      timeout: 240_000,
+      testMatch: /clients\/matiss\.visual\.spec\.ts/,
+      snapshotPathTemplate: "{testDir}/__screenshots__/clients/matiss/{arg}{ext}",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: process.env.CLIENT_VISUAL_BASE_URL?.trim() || "http://127.0.0.1:9",
+      },
+    },
+    {
+      name: "chromium-client-visual-liora",
+      timeout: 240_000,
+      testMatch: /clients\/liora\.visual\.spec\.ts/,
+      snapshotPathTemplate: "{testDir}/__screenshots__/clients/liora/{arg}{ext}",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: process.env.CLIENT_VISUAL_BASE_URL?.trim() || "http://127.0.0.1:9",
+      },
+    },
+    {
+      name: "chromium-client-visual-mozarthitos",
+      timeout: 240_000,
+      testMatch: /clients\/mozarthitos\.visual\.spec\.ts/,
+      snapshotPathTemplate: "{testDir}/__screenshots__/clients/mozarthitos/{arg}{ext}",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: process.env.CLIENT_VISUAL_BASE_URL?.trim() || "http://127.0.0.1:9",
+      },
+    },
+    {
+      name: "chromium-client-visual-mimundo",
+      timeout: 240_000,
+      testMatch: /clients\/mimundo\.visual\.spec\.ts/,
+      snapshotPathTemplate: "{testDir}/__screenshots__/clients/mimundo/{arg}{ext}",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: process.env.CLIENT_VISUAL_BASE_URL?.trim() || "http://127.0.0.1:9",
+      },
+    },
+    {
+      name: "chromium-client-visual-espaciozenit",
+      timeout: 240_000,
+      testMatch: /clients\/espaciozenit\.visual\.spec\.ts/,
+      snapshotPathTemplate: "{testDir}/__screenshots__/clients/espaciozenit/{arg}{ext}",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: process.env.CLIENT_VISUAL_BASE_URL?.trim() || "http://127.0.0.1:9",
+      },
+    },
+    {
+      name: "chromium-client-visual-nago",
+      timeout: 240_000,
+      testMatch: /clients\/nago\.visual\.spec\.ts/,
+      snapshotPathTemplate: "{testDir}/__screenshots__/clients/nago/{arg}{ext}",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: process.env.CLIENT_VISUAL_BASE_URL?.trim() || "http://127.0.0.1:9",
+      },
+    },
   ],
 });

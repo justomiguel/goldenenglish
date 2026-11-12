@@ -11,7 +11,7 @@ interface LandingMainSectionsEspacioZenitProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
-  sessionEmail: string | null;
+  sessionEmail?: string | null;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
   merchEnabled?: boolean;
@@ -41,7 +41,7 @@ export function LandingMainSectionsEspacioZenit({
           logoAlt={brand.logoAlt}
           brandDisplayName={brand.name}
           dict={dict}
-          sessionEmail={sessionEmail}
+          sessionEmail={sessionEmail ?? null}
           showBlogLink={blogEnabled}
           blogLabel={blogEnabled ? dict.blog.list.title : undefined}
           showShopLink={merchEnabled}
@@ -52,7 +52,7 @@ export function LandingMainSectionsEspacioZenit({
         <LandingEspacioZenitSections
           dict={dict}
           locale={locale}
-          sessionEmail={sessionEmail}
+          sessionEmail={sessionEmail ?? null}
           mediaMap={mediaMap}
           logoSrc={logoSrc}
           logoAlt={brand.logoAlt}

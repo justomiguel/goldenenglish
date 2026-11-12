@@ -146,7 +146,9 @@ function collectFiles(dir: string, root: string, out: string[]): void {
 export function listE2eSpecFiles(e2eDir: string): string[] {
   const found: string[] = [];
   collectFiles(e2eDir, path.dirname(e2eDir), found);
-  return found.filter((file) => file.endsWith(".spec.ts")).sort();
+  return found
+    .filter((file) => file.endsWith(".spec.ts") && !file.includes("/clients/"))
+    .sort();
 }
 
 export function readE2eCache(file: string): E2ePrecommitCache | null {

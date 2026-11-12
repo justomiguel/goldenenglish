@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
+vi.mock("@/components/atoms/fonts/catalogFonts", () => ({
+  CATALOG_FONTS: new Proxy({}, { get: () => ({ variable: "font-catalog" }) }),
+}));
+
 vi.mock("@/components/organisms/RegisterEspacioZenitSurface", () => ({
   RegisterEspacioZenitSurface: (p: { enrollmentLink?: { token: string } }) => (
     <div data-testid="espaciozenit">{p.enrollmentLink?.token ?? "no-link"}</div>
@@ -26,7 +30,7 @@ vi.mock("@/components/organisms/RegisterLioraSurface", () => ({
     <div data-testid="liora">{p.enrollmentLink?.token ?? "no-link"}</div>
   ),
 }));
-vi.mock("@/components/organisms/RegisterMatissSurface", () => ({
+vi.mock("@/variants/owned/matiss/register/v1/Web", () => ({
   RegisterMatissSurface: (p: { enrollmentLink?: { token: string } }) => (
     <div data-testid="matiss">{p.enrollmentLink?.token ?? "no-link"}</div>
   ),
@@ -59,6 +63,7 @@ describe("RegisterSurfaceByTemplate", () => {
     "nago",
     "mimundo",
     "liora",
+    "matiss",
     "classic",
   ]) {
     it(`renders the ${kind} surface`, async () => {
@@ -79,6 +84,7 @@ describe("RegisterSurfaceByTemplate", () => {
       "nago",
       "mimundo",
       "liora",
+      "matiss",
       "classic",
     ]) {
       const { unmount } = await renderDispatch({

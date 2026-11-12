@@ -129,10 +129,15 @@ describe("cssVariablesBlock / cssRootBlock", () => {
     expect(block).toBe("  --color-secondary: #A31A22;");
   });
 
-  it("wraps the body in a :root block, even when empty", () => {
-    expect(cssRootBlock({})).toBe(":root {}");
-    expect(cssRootBlock({ "color.primary": "#000" })).toBe(
-      ":root {\n  --color-primary: #000;\n}",
-    );
+  it("wraps aliases and ds tokens in a :root block", () => {
+    const empty = cssRootBlock({});
+    expect(empty.startsWith(":root {\n")).toBe(true);
+    expect(empty).toContain("  --ds-color-primary: #103A5C;");
+    expect(empty).not.toContain("--color-primary:");
+
+    const one = cssRootBlock({ "color.primary": "#000" });
+    expect(one).toContain("  --color-primary: #000;");
+    expect(one).toContain("  --ds-color-primary: #000;");
+    expect(one.endsWith("\n}")).toBe(true);
   });
 });

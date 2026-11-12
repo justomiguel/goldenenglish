@@ -130,6 +130,7 @@ export const SCREEN_TOUR_DEFS_ACADEMIC_CMS = {
     { key: "intro", anchor: null },
     { key: "titleBlock", anchor: ADMIN_TOUR_ANCHORS.cmsTitle },
     { key: "templatesCard", anchor: ADMIN_TOUR_ANCHORS.cmsTemplatesCard },
+    { key: "designCard", anchor: ADMIN_TOUR_ANCHORS.cmsDesignCard },
     { key: "blogCard", anchor: ADMIN_TOUR_ANCHORS.cmsBlogCard, optional: true },
     { key: "closing", anchor: null },
   ],

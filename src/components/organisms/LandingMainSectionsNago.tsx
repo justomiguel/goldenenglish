@@ -14,7 +14,7 @@ interface LandingMainSectionsNagoProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
-  sessionEmail: string | null;
+  sessionEmail?: string | null;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
   merchEnabled?: boolean;
@@ -48,7 +48,7 @@ export function LandingMainSectionsNago({
         logoSrc={logoSrc}
         logoAlt={brand.logoAlt}
         dict={dict}
-        sessionEmail={sessionEmail}
+        sessionEmail={sessionEmail ?? null}
         overlayHero
         showBlogLink={blogEnabled}
         blogLabel={blogEnabled ? dict.blog.list.title : undefined}

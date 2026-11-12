@@ -1,14 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { resolveNagoNavActiveHref } from "@/lib/landing/nagoNavActiveHref";
 
-export function useNagoSiteHeaderChrome(locale: string, overlayHero = false) {
+export function useNagoSiteHeaderChrome(locale: string) {
   const [intersectingIds, setIntersectingIds] = useState<string[]>([]);
-  const [measuredPx, setMeasuredPx] = useState(88);
-  const barRef = useRef<HTMLDivElement>(null);
-  const spacerPx = overlayHero ? 0 : measuredPx;
   const pathname = usePathname() ?? `/${locale}`;
   const navReady = useSyncExternalStore(
     () => () => {},
@@ -23,17 +20,6 @@ export function useNagoSiteHeaderChrome(locale: string, overlayHero = false) {
     () => window.scrollY > 24,
     () => false,
   );
-
-  useEffect(() => {
-    if (overlayHero) return;
-    const el = barRef.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(() => {
-      setMeasuredPx(el.offsetHeight);
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [overlayHero]);
 
   useEffect(() => {
     const ids = ["top", "clases", "horarios", "nago", "galeria", "contacto"];
@@ -61,5 +47,5 @@ export function useNagoSiteHeaderChrome(locale: string, overlayHero = false) {
     ? resolveNagoNavActiveHref({ locale, pathname, intersectingIds })
     : "";
 
-  return { barRef, spacerPx, scrolled, activeHref };
+  return { scrolled, activeHref };
 }

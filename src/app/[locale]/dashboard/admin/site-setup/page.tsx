@@ -6,6 +6,7 @@ import { loadSiteSetupCurrentValues } from "@/lib/site/loadSiteSetupCurrentValue
 import { resolveFirstRunWizardThemeId } from "@/lib/site/resolveFirstRunWizardThemeId";
 import { SiteSetupWizard } from "@/components/dashboard/admin/site-setup/SiteSetupWizard";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -36,12 +37,16 @@ export default async function AdminSiteSetupPage({ params }: PageProps) {
   const themeId = await resolveFirstRunWizardThemeId();
   if (!themeId) notFound();
 
-  const initial = await loadSiteSetupCurrentValues();
+  const [initial, tenant] = await Promise.all([
+    loadSiteSetupCurrentValues(),
+    resolveRequestTenant(),
+  ]);
 
   return (
     <SiteSetupWizard
       locale={locale}
       themeId={themeId}
+      tenantSlug={tenant?.slug ?? null}
       mode="edit"
       initialValues={initial}
       labels={dict.dashboard.siteSetup}

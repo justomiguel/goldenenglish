@@ -46,9 +46,12 @@ export function latestMigrationName(names: readonly string[]): string | null {
   return best;
 }
 
-export function productMigrationHead(fileNames: readonly string[]): string {
+export function productMigrationHead(
+  fileNames: readonly string[],
+  firstLines: Readonly<Record<string, string>> = {},
+): string {
   const product = fileNames.filter(
-    (name) => MIGRATION_FILE.test(name) && !isBrandDataMigration(name),
+    (name) => MIGRATION_FILE.test(name) && !isBrandDataMigration(name, firstLines[name] ?? ""),
   );
   return latestMigrationName(product) ?? "";
 }
@@ -61,8 +64,9 @@ export function migrationReviewState(applied: string | null, head: string): Flee
 export function chooseAppliedMigration(
   ledgerVersions: readonly string[],
   markerVersion: string | null,
+  firstLines: Readonly<Record<string, string>> = {},
 ): string | null {
-  const names = ledgerVersions.filter((name) => !isBrandDataMigration(name));
+  const names = ledgerVersions.filter((name) => !isBrandDataMigration(name, firstLines[name] ?? ""));
   if (markerVersion) names.push(markerVersion);
   return latestMigrationName(names);
 }
@@ -134,6 +138,7 @@ export function buildFleetSiteReview(input: {
   migrationHead: string;
   ledgerVersions: readonly string[];
   markerVersion: string | null;
+  firstLines?: Readonly<Record<string, string>>;
   vercelNames: readonly string[] | null;
   vercelConfigured: boolean;
   ownerEmail: string | null;
@@ -142,7 +147,7 @@ export function buildFleetSiteReview(input: {
   const dataMode = input.dataMode === "shared_schema" ? "shared_schema" : "project";
   const schemaName =
     dataMode === "shared_schema" ? input.postgresSchema?.trim() || "public" : "public";
-  const applied = chooseAppliedMigration(input.ledgerVersions, input.markerVersion);
+  const applied = chooseAppliedMigration(input.ledgerVersions, input.markerVersion, input.firstLines);
   const preview = new Set(previewHostsForTenantSlug(input.slug, input.platformHosts));
   const custom = customHostBesidePreview(input.hosts, [...preview]);
   const hosts = input.hosts.map((host) => normalizeHost(host)).filter((host) => host.length > 0);

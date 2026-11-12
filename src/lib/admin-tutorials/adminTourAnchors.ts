@@ -147,6 +147,7 @@ export const ADMIN_TOUR_ANCHORS = {
   cmsTitle: "admin-cms-title",
   cmsTemplatesCard: "admin-cms-templates-card",
   cmsBlogCard: "admin-cms-blog-card",
+  cmsDesignCard: "admin-cms-design-card",
   siteSetupStepIndicator: "admin-site-setup-step-indicator",
   siteSetupPanel: "admin-site-setup-panel",
   siteSetupNav: "admin-site-setup-nav",

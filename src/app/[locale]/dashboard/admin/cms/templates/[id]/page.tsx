@@ -10,6 +10,7 @@ import {
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadSiteThemeForEditor } from "@/lib/cms/loadSiteThemeForEditor";
 import { SiteThemeEditorShell } from "@/components/dashboard/admin/cms/SiteThemeEditorShell";
+import { ThemeDocumentActiveNoticeGate } from "@/components/dashboard/admin/cms/ThemeDocumentActiveNoticeGate";
 import { GenericSiteBasicsForm } from "@/components/organisms/pulsar/GenericSiteBasicsForm";
 import { GenericSiteColors } from "@/components/organisms/pulsar/GenericSiteColors";
 import { GenericSiteContactForm } from "@/components/organisms/pulsar/GenericSiteContactForm";
@@ -70,6 +71,13 @@ export default async function AdminCmsTemplateEditorPage({ params }: PageProps) 
 
   return (
     <div className="space-y-6">
+      <ThemeDocumentActiveNoticeGate
+        client={supabase}
+        siteThemeId={viewModel.theme.id}
+        href={`/${locale}/dashboard/admin/cms/design`}
+        body={dict.admin.cms.themeDocumentActive}
+        linkLabel={dict.admin.cms.themeDocumentActiveLink}
+      />
       <SiteThemeEditorShell
         locale={locale}
         labels={editorLabels}

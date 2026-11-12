@@ -122,10 +122,10 @@ export function RegisterFormAfterDni({
         sectionMode={sectionMode}
         intent={intent}
         hidden={step === "extras"}
-        submitType={extrasPack === "nago" && step === "details" ? "button" : "submit"}
+        submitType={extrasPack === "martial_arts_uniform" && step === "details" ? "button" : "submit"}
         onContinue={onContinueToExtras}
       />
-      {step === "extras" && extrasPack === "nago" ? (
+      {step === "extras" && extrasPack === "martial_arts_uniform" ? (
         <div className="space-y-3">
           <Button type="button" variant="secondary" disabled={busy} onClick={onBackToDetails}>
             <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />

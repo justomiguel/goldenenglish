@@ -1,18 +1,16 @@
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
-import { LioraSiteHeader } from "@/components/organisms/LioraSiteHeader";
-import { LandingLioraSections } from "@/components/organisms/LandingLioraSections";
-import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
-import { LioraRibbonOverlay } from "@/components/organisms/LioraRibbonOverlay";
+import { VariantSurfaceEntry } from "@/components/organisms/VariantSurfaceEntry";
 import { LioraFontRoot } from "@/components/organisms/LioraFontRoot";
+import { buildLioraHomeProps } from "@/variants/owned/liora/home/v1/hostProps";
 import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 interface LandingMainSectionsLioraProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
-  sessionEmail: string | null;
+  sessionEmail?: string | null;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
   merchEnabled?: boolean;
@@ -20,58 +18,10 @@ interface LandingMainSectionsLioraProps {
   inscriptionsEnabled?: boolean;
 }
 
-export function LandingMainSectionsLiora({
-  dict,
-  brand,
-  locale,
-  sessionEmail,
-  mediaMap,
-  blogEnabled = false,
-  merchEnabled = false,
-  publicCtaMode,
-  inscriptionsEnabled,
-}: LandingMainSectionsLioraProps) {
+export function LandingMainSectionsLiora(props: LandingMainSectionsLioraProps) {
   return (
     <LioraFontRoot>
-      <main className="relative overflow-x-clip">
-        <LioraSiteHeader
-          locale={locale}
-          brandName={brand.name}
-          logoAlt={brand.logoAlt}
-          dict={dict}
-          sessionEmail={sessionEmail}
-          showBlogLink={blogEnabled}
-          blogLabel={blogEnabled ? dict.blog.list.title : undefined}
-          showShopLink={merchEnabled}
-          shopLabel={merchEnabled ? dict.shop.catalog.title : undefined}
-          showEventsLink
-          eventsLabel={marketingLandingCopy(dict, "liora", "nav.eventos")}
-          instagramUrl={brand.socialInstagram}
-          whatsappUrl={brand.socialWhatsapp}
-          labels={{
-            inicio: marketingLandingCopy(dict, "liora", "nav.inicio"),
-            sobreNosotros: marketingLandingCopy(dict, "liora", "nav.sobreNosotros"),
-            clases: marketingLandingCopy(dict, "liora", "nav.clases"),
-            sedes: marketingLandingCopy(dict, "liora", "nav.sedes"),
-            horarios: marketingLandingCopy(dict, "liora", "nav.horarios"),
-            galeria: marketingLandingCopy(dict, "liora", "nav.galeria"),
-            eventos: marketingLandingCopy(dict, "liora", "nav.eventos"),
-            contacto: marketingLandingCopy(dict, "liora", "nav.contacto"),
-            openMenu: marketingLandingCopy(dict, "liora", "chrome.openMenu"),
-            closeMenu: marketingLandingCopy(dict, "liora", "chrome.closeMenu"),
-          }}
-        />
-        <LandingLioraSections
-          dict={dict}
-          brand={brand}
-          locale={locale}
-          mediaMap={mediaMap}
-          publicCtaMode={publicCtaMode}
-          inscriptionsEnabled={inscriptionsEnabled}
-          sessionEmail={sessionEmail}
-        />
-        <LioraRibbonOverlay />
-      </main>
+      <VariantSurfaceEntry variantKey="page.liora-home@1" props={buildLioraHomeProps(props)} />
     </LioraFontRoot>
   );
 }

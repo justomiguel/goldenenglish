@@ -2,22 +2,9 @@ import type { ReactNode } from "react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { RegisterSiteHeader } from "@/components/molecules/RegisterSiteHeader";
-import { NagoRegisterHeader } from "@/components/molecules/NagoRegisterHeader";
-import { LioraRegisterHeader } from "@/components/molecules/LioraRegisterHeader";
-import { MiMundoRegisterHeader } from "@/components/molecules/MiMundoRegisterHeader";
-import { MozarthitosRegisterHeader } from "@/components/molecules/MozarthitosRegisterHeader";
-import { EspacioZenitRegisterHeader } from "@/components/molecules/EspacioZenitRegisterHeader";
 import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
 import { PublicPrivacyArticle } from "@/components/organisms/PublicPrivacyArticle";
-import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
-import { LioraFontRoot } from "@/components/organisms/LioraFontRoot";
-import { MatissFontRoot } from "@/components/organisms/MatissFontRoot";
-import { MatissSiteHeader } from "@/components/organisms/MatissSiteHeader";
-import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
-import { MiMundoFontRoot } from "@/components/organisms/MiMundoFontRoot";
-import { MozarthitosFontRoot } from "@/components/organisms/MozarthitosFontRoot";
-import { EspacioZenitFontRoot } from "@/components/organisms/EspacioZenitFontRoot";
-import { resolveNagoLogo } from "@/lib/landing/nagoLogo";
+import { renderOwnedSurface } from "@/variants/ownedSurfaces";
 
 interface PublicPrivacySurfaceByTemplateProps {
   templateKind: string;
@@ -58,7 +45,6 @@ export function PublicPrivacySurfaceByTemplate({
   brand,
   sessionEmail = null,
 }: PublicPrivacySurfaceByTemplateProps) {
-  const logoSrc = brand.logoPath.trim();
   const logoAlt = brand.logoAlt || brand.name;
   const footer = (
     tone: "light" | "dark",
@@ -72,113 +58,20 @@ export function PublicPrivacySurfaceByTemplate({
     />
   );
 
-  if (templateKind === "nago") {
-    return (
-      <NagoFontRoot className="relative min-h-screen pb-16">
-        <NagoRegisterHeader locale={locale} logoSrc={resolveNagoLogo(brand)} logoAlt={logoAlt} dict={dict} sessionEmail={sessionEmail} />
-        <PrivacyMain
-          locale={locale}
-          dict={dict}
-          brand={brand}
-          sheetClass="nago-public-sheet mx-auto max-w-3xl rounded-2xl border border-[var(--nago-gold)]/20 bg-[var(--nago-bg-2)] p-6 md:p-8"
-          wash={
-            <div
-              className="pointer-events-none absolute inset-x-0 top-[76px] -z-10 h-[min(46vh,420px)] bg-[radial-gradient(ellipse_90%_70%_at_50%_0%,color-mix(in_srgb,var(--nago-gold)_16%,transparent)_0%,transparent_58%)]"
-              aria-hidden
-            />
-          }
-        />
-        {footer("dark", "compactDark")}
-      </NagoFontRoot>
-    );
-  }
-  if (templateKind === "matiss") {
-    return (
-      <MatissFontRoot className="relative min-h-screen pb-16">
-        <MatissSiteHeader
-          locale={locale}
-          brandName={brand.name}
-          logoAlt={logoAlt}
-          dict={dict}
-          sessionEmail={sessionEmail}
-          links={[{ href: `/${locale}`, label: marketingLandingCopy(dict, "matiss", "nav.inicio") }]}
-          openMenu={marketingLandingCopy(dict, "matiss", "chrome.openMenu")}
-          closeMenu={marketingLandingCopy(dict, "matiss", "chrome.closeMenu")}
-        />
+  const sheet = renderOwnedSurface("publicSheet", templateKind, {
+    locale,
+    dict,
+    brand,
+    sessionEmail,
+    logoAlt,
+    children: (
+      <>
         <PrivacyMain locale={locale} dict={dict} brand={brand} sheetClass="mx-auto max-w-3xl" />
         {footer("light")}
-      </MatissFontRoot>
-    );
-  }
-  if (templateKind === "liora") {
-    return (
-      <LioraFontRoot className="relative min-h-screen pb-16">
-        <LioraRegisterHeader locale={locale} brandName={brand.name} logoAlt={logoAlt} dict={dict} sessionEmail={sessionEmail} />
-        <PrivacyMain
-          locale={locale}
-          dict={dict}
-          brand={brand}
-          sheetClass="liora-public-sheet mx-auto max-w-3xl"
-        />
-        {footer("light")}
-      </LioraFontRoot>
-    );
-  }
-  if (templateKind === "mimundo") {
-    return (
-      <MiMundoFontRoot className="relative min-h-screen pb-16">
-        <MiMundoRegisterHeader locale={locale} logoSrc={logoSrc} logoAlt={logoAlt} dict={dict} sessionEmail={sessionEmail} />
-        <PrivacyMain
-          locale={locale}
-          dict={dict}
-          brand={brand}
-          sheetClass="mimundo-public-sheet mx-auto max-w-3xl"
-        />
-        {footer("light")}
-      </MiMundoFontRoot>
-    );
-  }
-  if (templateKind === "mozarthitos") {
-    return (
-      <MozarthitosFontRoot className="relative min-h-screen pb-16">
-        <MozarthitosRegisterHeader locale={locale} logoSrc={logoSrc} logoAlt={logoAlt} dict={dict} sessionEmail={sessionEmail} />
-        <PrivacyMain
-          locale={locale}
-          dict={dict}
-          brand={brand}
-          sheetClass="mz-public-sheet mx-auto max-w-3xl"
-        />
-        {footer("light")}
-      </MozarthitosFontRoot>
-    );
-  }
-  if (templateKind === "espaciozenit") {
-    return (
-      <EspacioZenitFontRoot className="relative min-h-screen overflow-x-hidden bg-black pb-16 text-white">
-        <EspacioZenitRegisterHeader
-          locale={locale}
-          logoSrc={logoSrc}
-          logoAlt={logoAlt}
-          brandDisplayName={brand.name}
-          dict={dict}
-          sessionEmail={sessionEmail}
-        />
-        <PrivacyMain
-          locale={locale}
-          dict={dict}
-          brand={brand}
-          sheetClass="ez-public-sheet mx-auto max-w-3xl rounded-[22px] border border-[rgb(0_174_239_/35%)] bg-[#070b12]/80 p-6 md:p-8"
-          wash={
-            <div
-              className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[min(48vh,480px)] bg-[radial-gradient(ellipse_90%_80%_at_50%_-10%,rgb(0_174_239_/14%)_0%,transparent_62%)]"
-              aria-hidden
-            />
-          }
-        />
-        {footer("dark", "compactDark")}
-      </EspacioZenitFontRoot>
-    );
-  }
+      </>
+    ),
+  });
+  if (sheet) return sheet;
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[var(--color-muted)]">

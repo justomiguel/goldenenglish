@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveFirstRunWizardThemeId } from "@/lib/site/resolveFirstRunWizardThemeId";
 import { BootstrapAdminForm } from "@/components/dashboard/admin/site-setup/BootstrapAdminForm";
 import { SiteSetupWizard } from "@/components/dashboard/admin/site-setup/SiteSetupWizard";
+import { resolveRequestTenant } from "@/lib/tenant/tenantRequestContext";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -63,13 +64,17 @@ export default async function FirstRunSetupPage({ params }: PageProps) {
     redirect(`/${locale}/dashboard/admin`);
   }
 
-  const themeIdResolved = await resolveFirstRunWizardThemeId();
+  const [themeIdResolved, tenant] = await Promise.all([
+    resolveFirstRunWizardThemeId(),
+    resolveRequestTenant(),
+  ]);
   if (!themeIdResolved) notFound();
 
   return (
     <SiteSetupWizard
       locale={locale}
       themeId={themeIdResolved}
+      tenantSlug={tenant?.slug ?? null}
       labels={dict.dashboard.siteSetup}
       platformCredit={dict.greenfieldPublic.platformCredit}
       platformCreditAria={dict.greenfieldPublic.platformCreditAria}

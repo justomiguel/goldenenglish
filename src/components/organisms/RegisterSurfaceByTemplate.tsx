@@ -3,13 +3,8 @@ import type { Dictionary } from "@/types/i18n";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import { RegisterClassicSurface } from "@/components/organisms/RegisterClassicSurface";
-import { RegisterEspacioZenitSurface } from "@/components/organisms/RegisterEspacioZenitSurface";
-import { RegisterLioraSurface } from "@/components/organisms/RegisterLioraSurface";
-import { RegisterMatissSurface } from "@/components/organisms/RegisterMatissSurface";
-import { RegisterMiMundoSurface } from "@/components/organisms/RegisterMiMundoSurface";
-import { RegisterMozarthitosSurface } from "@/components/organisms/RegisterMozarthitosSurface";
-import { RegisterNagoSurface } from "@/components/organisms/RegisterNagoSurface";
-import { extrasPackForTemplateKind } from "@/lib/register/packs/extrasPackForTemplateKind";
+import { renderOwnedSurface } from "@/variants/ownedSurfaces";
+import type { RegisterExtrasPack } from "@/lib/register/packs/registerExtrasPack";
 import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import type { MzGuideChoice } from "@/lib/landing/mozarthitos/familyGuideCatalog";
@@ -28,6 +23,7 @@ interface RegisterSurfaceByTemplateProps {
   sectionMode?: RegisterSectionMode;
   /** Mozarthitos family guide choice from `?guide=`; other templates ignore it. */
   guide?: MzGuideChoice | null;
+  extrasPack?: RegisterExtrasPack | null;
 }
 
 /**
@@ -39,27 +35,11 @@ export function RegisterSurfaceByTemplate({
   templateKind,
   mediaMap,
   guide = null,
+  extrasPack = null,
   ...shellProps
 }: RegisterSurfaceByTemplateProps) {
-  const extrasPack = extrasPackForTemplateKind(templateKind);
   const withPack = { ...shellProps, extrasPack };
-  if (templateKind === "espaciozenit") {
-    return <RegisterEspacioZenitSurface {...withPack} mediaMap={mediaMap} />;
-  }
-  if (templateKind === "mozarthitos") {
-    return <RegisterMozarthitosSurface {...withPack} mediaMap={mediaMap} guide={guide} />;
-  }
-  if (templateKind === "nago") {
-    return <RegisterNagoSurface {...withPack} />;
-  }
-  if (templateKind === "mimundo") {
-    return <RegisterMiMundoSurface {...withPack} />;
-  }
-  if (templateKind === "liora") {
-    return <RegisterLioraSurface {...withPack} />;
-  }
-  if (templateKind === "matiss") {
-    return <RegisterMatissSurface {...withPack} mediaMap={mediaMap} />;
-  }
+  const owned = renderOwnedSurface("register", templateKind, { ...withPack, mediaMap, guide });
+  if (owned) return owned;
   return <RegisterClassicSurface {...withPack} />;
 }

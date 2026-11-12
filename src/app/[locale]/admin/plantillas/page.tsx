@@ -41,6 +41,7 @@ export default async function PulsarAdminTemplateCatalogPage({
     locale,
     names: dict.pulsar.solutionSet.presencia.templateKinds,
     openLabel: dict.pulsar.admin.templatesOpen,
+    applyLabel: dict.pulsar.admin.templatesApply,
   });
   return (
     <PulsarAdminChrome locale={locale} dict={dict} email={session.email}>

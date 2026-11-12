@@ -10,7 +10,7 @@ interface LandingMainSectionsMimundoProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
-  sessionEmail: string | null;
+  sessionEmail?: string | null;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
   merchEnabled?: boolean;
@@ -35,7 +35,7 @@ export function LandingMainSectionsMimundo({
           logoSrc={brand.logoPath}
           logoAlt={brand.logoAlt}
           dict={dict}
-          sessionEmail={sessionEmail}
+          sessionEmail={sessionEmail ?? null}
           socialFacebook={brand.socialFacebook}
           socialInstagram={brand.socialInstagram}
           labels={{

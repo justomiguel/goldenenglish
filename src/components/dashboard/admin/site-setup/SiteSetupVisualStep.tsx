@@ -4,6 +4,11 @@ import { Palette } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import {
+  designTokenIssueMessage,
+  type DesignTokenIssueCopy,
+} from "@/lib/design-tokens/designTokenIssueMessage";
+import { FONT_CATALOG, isFontAllowedForTenant } from "@/lib/design-tokens/fontCatalog";
 import type { SiteSetupOperationalValues } from "@/lib/site/loadSiteSetupCurrentValues";
 
 type L = Dictionary["dashboard"]["siteSetup"]["visual"];
@@ -11,6 +16,9 @@ type L = Dictionary["dashboard"]["siteSetup"]["visual"];
 interface SiteSetupVisualStepProps {
   labels: L;
   operational: SiteSetupOperationalValues;
+  tenantSlug: string | null;
+  issue?: { code: string; token: string } | null;
+  issueCopy?: DesignTokenIssueCopy;
   update: <K extends keyof SiteSetupOperationalValues>(
     key: K,
     value: SiteSetupOperationalValues[K],
@@ -50,11 +58,18 @@ function ColorRow({ id, label, value, onChange }: ColorRowProps) {
   );
 }
 
+const selectClass =
+  "mt-1 h-11 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm text-[var(--color-foreground)]";
+
 export function SiteSetupVisualStep({
   labels,
   operational,
+  tenantSlug,
+  issue = null,
+  issueCopy,
   update,
 }: SiteSetupVisualStepProps) {
+  const fonts = FONT_CATALOG.filter((font) => isFontAllowedForTenant(font.id, tenantSlug));
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -103,33 +118,42 @@ export function SiteSetupVisualStep({
         />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      {issue && issueCopy ? (
+        <p role="alert" className="text-sm text-[var(--color-foreground)]">
+          {designTokenIssueMessage(issue.code, issueCopy, { token: issue.token })}
+        </p>
+      ) : null}
+
+      <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <Label htmlFor="visual-font-primary">{labels.fontPrimary}</Label>
-          <Input
-            id="visual-font-primary"
-            className="mt-1"
-            value={operational.fontPrimary}
-            onChange={(e) => update("fontPrimary", e.target.value)}
-          />
+          <Label htmlFor="visual-font-heading">{labels.fontHeading}</Label>
+          <select
+            id="visual-font-heading"
+            className={selectClass}
+            value={operational.fontHeading}
+            onChange={(e) => update("fontHeading", e.target.value)}
+          >
+            {fonts.map((font) => (
+              <option key={font.id} value={font.id}>
+                {font.family}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
-          <Label htmlFor="visual-font-secondary">{labels.fontSecondary}</Label>
-          <Input
-            id="visual-font-secondary"
-            className="mt-1"
-            value={operational.fontSecondary}
-            onChange={(e) => update("fontSecondary", e.target.value)}
-          />
-        </div>
-        <div>
-          <Label htmlFor="visual-font-mono">{labels.fontMono}</Label>
-          <Input
-            id="visual-font-mono"
-            className="mt-1"
-            value={operational.fontMono}
-            onChange={(e) => update("fontMono", e.target.value)}
-          />
+          <Label htmlFor="visual-font-body">{labels.fontBody}</Label>
+          <select
+            id="visual-font-body"
+            className={selectClass}
+            value={operational.fontBody}
+            onChange={(e) => update("fontBody", e.target.value)}
+          >
+            {fonts.map((font) => (
+              <option key={font.id} value={font.id}>
+                {font.family}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

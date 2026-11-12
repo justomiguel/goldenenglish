@@ -53,9 +53,8 @@ export function buildSiteSetupOverrideMap(
   if (data.visualAccent) out["color.accent"] = data.visualAccent;
   if (data.visualBackground) out["color.background"] = data.visualBackground;
   if (data.visualSurface) out["color.surface"] = data.visualSurface;
-  if (data.fontPrimary) out["font.primary"] = data.fontPrimary;
-  if (data.fontSecondary) out["font.secondary"] = data.fontSecondary;
-  if (data.fontMono) out["font.mono"] = data.fontMono;
+  if (data.fontHeading) out["font.heading"] = data.fontHeading;
+  if (data.fontBody) out["font.body"] = data.fontBody;
   if (data.layoutMaxWidth) out["layout.max.width"] = data.layoutMaxWidth;
   if (data.layoutBorderRadius) {
     out["layout.border.radius"] = data.layoutBorderRadius;

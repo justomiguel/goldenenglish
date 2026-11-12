@@ -27,7 +27,7 @@ export async function resolveAndStampTenantExtras(input: {
     return isEmptyExtras(input.raw) ? { ok: true, extras: {} } : { ok: false };
   }
 
-  if (pack === "mozarthitos") {
+  if (pack === "family_guide") {
     if (isEmptyExtras(input.raw)) return { ok: true, extras: {} };
     const guide = parseMozarthitosTenantExtras(input.raw);
     if (guide) return { ok: true, extras: guide };

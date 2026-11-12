@@ -1,3 +1,4 @@
+-- ge:brand-data nago
 -- Runs after 107 commits so 'nago' enum label is usable.
 
 INSERT INTO public.site_themes (

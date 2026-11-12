@@ -7,18 +7,11 @@ import {
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
-import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
-import { createRequestLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import { PublicBlogScreenClassic } from "@/components/organisms/PublicBlogScreenClassic";
-import { PublicBlogScreenEspacioZenit } from "@/components/organisms/PublicBlogScreenEspacioZenit";
-import { PublicBlogScreenMozarthitos } from "@/components/organisms/PublicBlogScreenMozarthitos";
-import { PublicBlogScreenNago } from "@/components/organisms/PublicBlogScreenNago";
-import { PublicBlogScreenMiMundo } from "@/components/organisms/PublicBlogScreenMiMundo";
-import { PublicBlogScreenLiora } from "@/components/organisms/PublicBlogScreenLiora";
-import { PublicBlogScreenMatiss } from "@/components/organisms/PublicBlogScreenMatiss";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
 import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
 import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
+import { renderOwnedSurface } from "@/variants/ownedSurfaces";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 
 interface PublicBlogPageShellProps {
@@ -47,17 +40,12 @@ export async function PublicBlogPageShell({ locale, children }: PublicBlogPageSh
     : applyLandingContentOverrides(baseDict, snapshot?.theme.content, loc);
 
   const templateKind = snapshot?.theme.templateKind ?? "classic";
-  const mediaMap = snapshot
-    ? buildLandingMediaMap(snapshot.media, await createRequestLandingMediaPublicUrlBuilder())
-    : undefined;
 
   const blogLabel = dict.blog.list.title;
   const eventsLabel =
     templateKind === "nago"
       ? marketingLandingCopy(dict, "nago", "nav.eventos")
-      : templateKind === "liora"
-        ? marketingLandingCopy(dict, "liora", "nav.eventos")
-        : dict.events.public.title;
+      : dict.events.public.title;
   const shellProps = {
     locale,
     dict,
@@ -70,28 +58,8 @@ export async function PublicBlogPageShell({ locale, children }: PublicBlogPageSh
     children,
   };
 
-  const screen = (() => {
-
-    if (templateKind === "espaciozenit") {
-      return <PublicBlogScreenEspacioZenit {...shellProps} mediaMap={mediaMap} />;
-    }
-    if (templateKind === "mozarthitos") {
-      return <PublicBlogScreenMozarthitos {...shellProps} mediaMap={mediaMap} />;
-    }
-    if (templateKind === "nago") {
-      return <PublicBlogScreenNago {...shellProps} />;
-    }
-    if (templateKind === "mimundo") {
-      return <PublicBlogScreenMiMundo {...shellProps} mediaMap={mediaMap} />;
-    }
-    if (templateKind === "liora") {
-      return <PublicBlogScreenLiora {...shellProps} />;
-    }
-    if (templateKind === "matiss") {
-      return <PublicBlogScreenMatiss {...shellProps} />;
-    }
-    return <PublicBlogScreenClassic {...shellProps} />;
-  })();
+  const ownedBlog = renderOwnedSurface("blog", templateKind, shellProps);
+  const screen = ownedBlog ?? <PublicBlogScreenClassic {...shellProps} />;
 
   return (
     <PublicExperienceShell

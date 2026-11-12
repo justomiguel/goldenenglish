@@ -48,12 +48,10 @@ describe("fleetSiteReview", () => {
 
   it("picks the newest product file and skips brand seeds", () => {
     expect(
-      productMigrationHead([
-        "108_site_theme_nago_seed.sql",
-        "232_generic_institute_theme_kinds.sql",
-        "233_generic_institute_theme_seeds.sql",
-        "notes.txt",
-      ]),
+      productMigrationHead(
+        ["300_site_theme_nago_seed.sql", "233_generic_institute_theme_seeds.sql", "notes.txt"],
+        { "300_site_theme_nago_seed.sql": "-- ge:brand-data nago" },
+      ),
     ).toBe("233_generic_institute_theme_seeds.sql");
   });
 

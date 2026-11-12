@@ -96,6 +96,7 @@ export function pathnameToEntity(pathname: string): string {
   }
   if (pathname.includes("/dashboard/admin/calendar/special")) return AnalyticsEntity.portalCalendar;
   if (pathname.includes("/dashboard/admin/calendar")) return AnalyticsEntity.portalCalendar;
+  if (pathname.includes("/dashboard/admin/cms/design")) return "admin:theme-document";
   if (pathname.includes("/blog")) return AnalyticsEntity.blog;
   if (pathname.includes("/events")) return AnalyticsEntity.events;
   return `${AnalyticsEntity.pageViewPrefix}${pathname}`;

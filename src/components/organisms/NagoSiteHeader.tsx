@@ -50,10 +50,7 @@ export function NagoSiteHeader({
   registerCtas,
 }: NagoSiteHeaderProps) {
   const [open, setOpen] = useState(false);
-  const { barRef, spacerPx, scrolled, activeHref } = useNagoSiteHeaderChrome(
-    locale,
-    overlayHero,
-  );
+  const { scrolled, activeHref } = useNagoSiteHeaderChrome(locale);
   const prefix = `/${locale}`;
   const ctas =
     registerCtas ??
@@ -83,7 +80,6 @@ export function NagoSiteHeader({
         className={`${PUBLIC_MARKETING_CHROME_CLASS} nago-site-header fixed inset-x-0 top-0${scrolled ? " is-scrolled" : ""}${overlayHero ? " is-overlay" : ""}`}
       >
         <div
-          ref={barRef}
           style={{ paddingTop: "env(safe-area-inset-top)" }}
           className="mx-auto flex h-[var(--nago-header-h)] max-w-7xl items-center justify-between gap-2 px-[max(1rem,env(safe-area-inset-left))] pe-[max(1rem,env(safe-area-inset-right))] lg:gap-3"
         >
@@ -176,7 +172,10 @@ export function NagoSiteHeader({
         />
       </header>
       {overlayHero ? null : (
-        <div className="nago-site-header-spacer" style={{ height: spacerPx }} aria-hidden />
+        <div
+          className="nago-site-header-spacer"
+          aria-hidden
+        />
       )}
     </>
   );

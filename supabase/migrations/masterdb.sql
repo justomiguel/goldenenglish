@@ -356,8 +356,6 @@ CREATE TABLE IF NOT EXISTS public.payments (
   status public.payment_status NOT NULL DEFAULT 'pending',
   receipt_url TEXT,
   admin_notes TEXT,
-  payment_method TEXT,
-  paid_on DATE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT payments_student_period_uidx UNIQUE (student_id, month, year)
@@ -5403,13 +5401,6 @@ COMMENT ON COLUMN public.site_themes.template_kind IS
 COMMENT ON COLUMN public.site_themes.blocks IS
   'Array de subsecciones dinámicas (cards/callouts/quotes) asociadas a las secciones canónicas. Validado por server actions (sanitizeLandingBlocksForPersistence). Cap suave de 24 bloques por template.';
 
--- CentroListo skins: one editable content model for generic templates (266_site_themes_skin_content.sql).
-ALTER TABLE public.site_themes
-  ADD COLUMN IF NOT EXISTS skin_content JSONB NOT NULL DEFAULT '{}'::jsonb;
-
-COMMENT ON COLUMN public.site_themes.skin_content IS
-  'Owner values for CentroListo skins: { "v": 1, "sections": { <sectionId>: { "fields": {...}, "lists": {...} } } }. Empty object means skin defaults.';
-
 -- 3) Backfill defensivo (no debería hacer falta por DEFAULT, pero idempotente) -
 UPDATE public.site_themes
 SET template_kind = 'classic'
@@ -10413,6 +10404,7 @@ WHERE slug = 'default' AND is_system_default = TRUE;
 
 -- ========== 094_site_theme_mozarthitos_seed.sql ==========
 
+-- ge:brand-data mozarthitos
 -- Runs after 093 commits so 'mozarthitos' enum label is usable.
 
 INSERT INTO public.site_themes (
@@ -10569,6 +10561,7 @@ END $$;
 
 -- ========== 100_site_theme_espaciozenit_seed.sql ==========
 
+-- ge:brand-data espaciozenit
 -- Runs after 099 commits so 'espaciozenit' enum label is usable.
 
 INSERT INTO public.site_themes (
@@ -11198,6 +11191,7 @@ END $$;
 
 -- ========== 108_site_theme_nago_seed.sql ==========
 
+-- ge:brand-data nago
 -- Runs after 107 commits so 'nago' enum label is usable.
 
 INSERT INTO public.site_themes (
@@ -12316,6 +12310,7 @@ END $$;
 
 -- ========== 134_site_theme_mimundo_seed.sql ==========
 
+-- ge:brand-data mimundo
 -- Runs after 133 commits so 'mimundo' enum label is usable.
 -- Jardín Materno Infantil Mi Mundo — dedicated Supabase project, so is_active = TRUE.
 -- site_themes_only_one_active: deactivate others before setting mimundo active.
@@ -12557,7 +12552,6 @@ CREATE TABLE IF NOT EXISTS public.event_attendees (
   birth_date DATE,
   status public.event_attendee_status NOT NULL DEFAULT 'confirmed',
   source TEXT NOT NULL DEFAULT 'public' CHECK (source IN ('public', 'logged_in', 'admin_manual')),
-  entry_host_slug TEXT,
   tutor_first_name TEXT,
   tutor_last_name TEXT,
   tutor_dni_or_passport TEXT,
@@ -14959,6 +14953,7 @@ COMMIT;
 
 -- ========== 160_mimundo_tagline_imaginacion.sql ==========
 
+-- ge:brand-data mimundo
 -- Mi Mundo — hero tagline / app.tagline refresh (Resistencia tenant copy).
 
 UPDATE public.site_themes
@@ -15277,6 +15272,7 @@ END $$;
 
 -- ========== 173_site_theme_liora_seed.sql ==========
 
+-- ge:brand-data liora
 -- Runs after 172 commits so the 'liora' enum label is usable.
 -- Paleta tomada del logo: crema #FAF5EF, tinta marrón #3F3733, rosa viejo #C08C7D.
 -- `color.primary` usa la variante oscura del rosa (#96594B) porque es la única que
@@ -24017,6 +24013,7 @@ ALTER TABLE public.events
 ALTER TABLE public.events
   ADD CONSTRAINT events_minor_max_age_check
   CHECK (minor_max_age IS NULL OR (minor_max_age >= 1 AND minor_max_age <= 99));
+
 -- ========== 264_event_seat_holds.sql ==========
 
 -- A short hold while a buyer is choosing seats.
@@ -24300,6 +24297,19 @@ COMMENT ON POLICY site_settings_select_public ON public.site_settings IS
 
 COMMIT;
 
+-- ========== 266_site_themes_skin_content.sql ==========
+
+-- CentroListo skins: one editable content model for generic templates.
+-- Additive. No data rewrite. See docs/adr/2026-11-centrolisto-template-skins.md.
+
+ALTER TABLE public.site_themes
+  ADD COLUMN IF NOT EXISTS skin_content JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+COMMENT ON COLUMN public.site_themes.skin_content IS
+  'Owner values for CentroListo skins: { "v": 1, "sections": { <sectionId>: { "fields": {...}, "lists": {...} } } }. Empty object means skin defaults.';
+
+-- ========== 267_payment_method_cash.sql ==========
+
 -- Staff payment method and paid date for cash, transfer, and gateway captures.
 -- Additive. Existing rows stay NULL.
 
@@ -24548,7 +24558,8 @@ GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO aut
 
 -- Exclusive theme for Matiss Studio (tenant slug `matiss`).
 -- The enum value and the seed row live in separate files: Postgres rejects a
--- new enum value used in the same transaction that adds it.
+-- new enum value used in the same transaction that adds it. The seed is
+-- 269_site_theme_matiss_row.sql and stays product SQL so shared schemas get it.
 
 DO $$
 BEGIN
@@ -24565,7 +24576,11 @@ END $$;
 -- ========== 269_site_theme_matiss_row.sql ==========
 
 -- Inactive `matiss` theme row. Runs after 268 commits so the enum label exists.
--- Product SQL on purpose: shared-schema targets skip brand-data files.
+-- Product SQL on purpose: shared-schema targets skip brand-data files, and this
+-- row must exist inside `tenant_matiss`. The owner map in
+-- `EXCLUSIVE_THEME_OWNERS` decides who may select it.
+-- Palette sampled from the client logo. Text colors are darker shades of the
+-- same hues so they pass WCAG AA on the blush background.
 
 INSERT INTO public.site_themes (
   slug, name, is_active, template_kind, properties, content, blocks, is_system_default
@@ -24611,7 +24626,19 @@ WHERE NOT EXISTS (
   SELECT 1 FROM public.site_themes t WHERE t.slug = 'matiss'
 );
 
--- 271_registration_fee_paid_on_lead.sql
+-- ========== 270_event_attendee_entry_host.sql ==========
+
+-- Site where the person registered a shared event.
+-- Null means the owner host. The mail brand reads this column.
+
+ALTER TABLE public.event_attendees
+  ADD COLUMN IF NOT EXISTS entry_host_slug text;
+
+COMMENT ON COLUMN public.event_attendees.entry_host_slug IS
+  'Guest institute slug when the person registered on a shared event. Null means the owner host.';
+
+-- ========== 271_registration_fee_paid_on_lead.sql ==========
+
 -- Pay method for a pre-inscription before a section exists.
 -- Additive. Existing rows stay NULL.
 
@@ -24638,8 +24665,280 @@ COMMENT ON COLUMN public.registrations.enrollment_fee_paid_method IS
 COMMENT ON COLUMN public.registrations.enrollment_fee_paid_on IS
   'Calendar date the institute received the matrícula.';
 
-ALTER TABLE public.registrations
-  ADD COLUMN IF NOT EXISTS enrollment_fee_mail_sent_at timestamptz;
+-- ========== 272_registration_fee_mail_sent.sql ==========
 
-COMMENT ON COLUMN public.registrations.enrollment_fee_mail_sent_at IS
+-- Staff matrícula mail stamp. Public insert does not set this column.
+
+alter table public.registrations
+  add column if not exists enrollment_fee_mail_sent_at timestamptz;
+
+comment on column public.registrations.enrollment_fee_mail_sent_at is
   'When staff sent the matrícula payment mail. Null until that send.';
+
+-- ========== 273_design_tokens_font_ids.sql ==========
+
+-- Map stored font family names to catalog ids.
+-- Sets font.heading from font.secondary and font.body from font.primary
+-- only when the new key is absent and the family is in the open catalog.
+-- A second run changes 0 rows.
+
+with families(name, id) as (
+  values
+    ('dm sans', 'dm-sans'),
+    ('fraunces', 'fraunces'),
+    ('oswald', 'oswald'),
+    ('outfit', 'outfit'),
+    ('cormorant garamond', 'cormorant-garamond'),
+    ('jost', 'jost'),
+    ('nunito', 'nunito'),
+    ('caveat', 'caveat'),
+    ('baloo 2', 'baloo-2'),
+    ('bebas neue', 'bebas-neue'),
+    ('pacifico', 'pacifico'),
+    ('plus jakarta sans', 'plus-jakarta-sans'),
+    ('jetbrains mono', 'jetbrains-mono'),
+    ('playfair display', 'playfair-display'),
+    ('allura', 'allura')
+)
+update public.site_themes as theme
+set properties = theme.properties || jsonb_strip_nulls(jsonb_build_object(
+  'font.heading',
+  case
+    when coalesce(theme.properties->>'font.heading', '') <> '' then null
+    else (
+      select families.id
+      from families
+      where families.name = lower(theme.properties->>'font.secondary')
+    )
+  end,
+  'font.body',
+  case
+    when coalesce(theme.properties->>'font.body', '') <> '' then null
+    else (
+      select families.id
+      from families
+      where families.name = lower(theme.properties->>'font.primary')
+    )
+  end
+))
+where (
+  coalesce(theme.properties->>'font.heading', '') = ''
+  and exists (
+    select 1
+    from families
+    where families.name = lower(theme.properties->>'font.secondary')
+  )
+) or (
+  coalesce(theme.properties->>'font.body', '') = ''
+  and exists (
+    select 1
+    from families
+    where families.name = lower(theme.properties->>'font.primary')
+  )
+);
+
+-- ========== 274_theme_documents.sql ==========
+
+-- Published and draft theme documents. Additive. Existing themes stay on legacy columns.
+
+CREATE TABLE IF NOT EXISTS public.theme_documents (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  site_theme_id uuid NOT NULL REFERENCES public.site_themes (id) ON DELETE CASCADE,
+  status text NOT NULL,
+  version int NOT NULL DEFAULT 0,
+  document jsonb NOT NULL,
+  document_hash text NOT NULL,
+  based_on_id uuid REFERENCES public.theme_documents (id) ON DELETE SET NULL,
+  created_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  published_by uuid,
+  published_at timestamptz,
+  CONSTRAINT theme_documents_status_check CHECK (status IN ('draft', 'published', 'superseded'))
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS theme_documents_one_draft
+  ON public.theme_documents (site_theme_id)
+  WHERE status = 'draft';
+
+CREATE UNIQUE INDEX IF NOT EXISTS theme_documents_one_published
+  ON public.theme_documents (site_theme_id)
+  WHERE status = 'published';
+
+CREATE OR REPLACE FUNCTION public.theme_documents_block_snapshot_edit()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+BEGIN
+  IF old.status IN ('published', 'superseded')
+     AND new.document IS DISTINCT FROM old.document THEN
+    RAISE EXCEPTION 'snapshot_immutable' USING ERRCODE = 'P0001';
+  END IF;
+  RETURN new;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS theme_documents_block_snapshot_edit ON public.theme_documents;
+CREATE TRIGGER theme_documents_block_snapshot_edit
+  BEFORE UPDATE ON public.theme_documents
+  FOR EACH ROW
+  EXECUTE FUNCTION public.theme_documents_block_snapshot_edit();
+
+ALTER TABLE public.site_themes
+  ADD COLUMN IF NOT EXISTS published_document_id uuid REFERENCES public.theme_documents (id);
+
+ALTER TABLE public.theme_documents ENABLE ROW LEVEL SECURITY;
+
+REVOKE ALL ON TABLE public.theme_documents FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON TABLE public.theme_documents TO anon, authenticated;
+GRANT INSERT, UPDATE, DELETE ON TABLE public.theme_documents TO authenticated;
+
+DROP POLICY IF EXISTS theme_documents_admin_select ON public.theme_documents;
+CREATE POLICY theme_documents_admin_select ON public.theme_documents
+  FOR SELECT TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS theme_documents_admin_insert ON public.theme_documents;
+CREATE POLICY theme_documents_admin_insert ON public.theme_documents
+  FOR INSERT TO authenticated
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS theme_documents_admin_update ON public.theme_documents;
+CREATE POLICY theme_documents_admin_update ON public.theme_documents
+  FOR UPDATE TO authenticated
+  USING (public.is_admin(auth.uid()) AND status = 'draft')
+  WITH CHECK (public.is_admin(auth.uid()) AND status = 'draft');
+
+DROP POLICY IF EXISTS theme_documents_admin_delete ON public.theme_documents;
+CREATE POLICY theme_documents_admin_delete ON public.theme_documents
+  FOR DELETE TO authenticated
+  USING (public.is_admin(auth.uid()) AND status = 'draft');
+
+CREATE OR REPLACE FUNCTION public.get_published_theme_document(p_site_theme_id uuid)
+RETURNS jsonb
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT document
+  FROM public.theme_documents
+  WHERE site_theme_id = p_site_theme_id
+    AND status = 'published'
+  LIMIT 1;
+$$;
+
+REVOKE ALL ON FUNCTION public.get_published_theme_document(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_published_theme_document(uuid) TO anon, authenticated;
+
+CREATE OR REPLACE FUNCTION public.publish_theme_document(
+  p_site_theme_id uuid,
+  p_expected_hash text
+) RETURNS TABLE (id uuid, version int)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+#variable_conflict use_column
+DECLARE
+  v_draft public.theme_documents%ROWTYPE;
+  v_next int;
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+
+  SELECT * INTO v_draft
+  FROM public.theme_documents
+  WHERE site_theme_id = p_site_theme_id
+    AND status = 'draft'
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'draft_missing' USING ERRCODE = 'P0001';
+  END IF;
+
+  IF v_draft.document_hash IS DISTINCT FROM p_expected_hash THEN
+    RAISE EXCEPTION 'document_stale' USING ERRCODE = 'P0001';
+  END IF;
+
+  SELECT coalesce(max(d.version), 0) + 1 INTO v_next
+  FROM public.theme_documents d
+  WHERE d.site_theme_id = p_site_theme_id;
+
+  UPDATE public.theme_documents
+  SET status = 'superseded'
+  WHERE site_theme_id = p_site_theme_id
+    AND status = 'published';
+
+  UPDATE public.theme_documents
+  SET status = 'published',
+      version = v_next,
+      published_by = auth.uid(),
+      published_at = now()
+  WHERE theme_documents.id = v_draft.id;
+
+  UPDATE public.site_themes
+  SET published_document_id = v_draft.id
+  WHERE site_themes.id = p_site_theme_id;
+
+  RETURN QUERY SELECT v_draft.id, v_next;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.publish_theme_document(uuid, text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.publish_theme_document(uuid, text) TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.rollback_theme_document(
+  p_site_theme_id uuid,
+  p_snapshot_id uuid
+) RETURNS TABLE (id uuid, version int)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+#variable_conflict use_column
+DECLARE
+  v_source public.theme_documents%ROWTYPE;
+  v_next int;
+  v_id uuid;
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+
+  SELECT * INTO v_source
+  FROM public.theme_documents
+  WHERE theme_documents.id = p_snapshot_id
+    AND site_theme_id = p_site_theme_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'snapshot_not_found' USING ERRCODE = 'P0001';
+  END IF;
+
+  SELECT coalesce(max(d.version), 0) + 1 INTO v_next
+  FROM public.theme_documents d
+  WHERE d.site_theme_id = p_site_theme_id;
+
+  UPDATE public.theme_documents
+  SET status = 'superseded'
+  WHERE site_theme_id = p_site_theme_id
+    AND status = 'published';
+
+  INSERT INTO public.theme_documents (
+    site_theme_id, status, version, document, document_hash, based_on_id, created_by, published_by, published_at
+  ) VALUES (
+    p_site_theme_id, 'published', v_next, v_source.document, v_source.document_hash, v_source.id, auth.uid(), auth.uid(), now()
+  )
+  RETURNING theme_documents.id INTO v_id;
+
+  UPDATE public.site_themes
+  SET published_document_id = v_id
+  WHERE site_themes.id = p_site_theme_id;
+
+  RETURN QUERY SELECT v_id, v_next;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.rollback_theme_document(uuid, uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.rollback_theme_document(uuid, uuid) TO authenticated;

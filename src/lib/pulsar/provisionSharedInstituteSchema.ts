@@ -190,7 +190,7 @@ export async function provisionSharedInstituteSchema(args: {
     const files = readdirSync(dir)
       .filter((name) => /^\d+.*\.sql$/i.test(name))
       .sort();
-    const productFiles = files.filter((name) => !isBrandDataMigration(name));
+    const productFiles = files.filter((name) => !isBrandDataMigration(name, readFileSync(path.join(dir, name), "utf8").split(/\r?\n/, 1)[0] ?? ""));
     const progress = createProvisionProgressWriter(client, schema, productFiles.length, args.ownerId ?? null);
     await progress.ensure();
     let failingFile: string | null = null;

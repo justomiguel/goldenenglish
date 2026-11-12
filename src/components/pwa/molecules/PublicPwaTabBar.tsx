@@ -45,7 +45,7 @@ const BAR: Record<PublicExperienceVariant, string> = {
   nago: "border-[var(--nago-gold)]/35 bg-[var(--nago-bg)] text-[var(--nago-ink-muted)]",
   mimundo: "border-[var(--mm-green)]/30 bg-[var(--mm-cream)] text-[var(--mm-green-dark)]",
   liora: "border-[var(--liora-rose-deep)]/25 bg-[var(--liora-cream)] text-[var(--liora-ink-soft)]",
-  matiss: "border-[var(--matiss-line)] bg-[var(--matiss-paper)] text-[var(--matiss-ink-soft)]",
+  matiss: "border-[var(--owned-line)] bg-[var(--ds-color-background)] text-[var(--ds-color-muted-foreground)]",
 };
 
 const ACTIVE: Record<PublicExperienceVariant, string> = {
@@ -55,7 +55,7 @@ const ACTIVE: Record<PublicExperienceVariant, string> = {
   nago: "text-[var(--nago-gold)]",
   mimundo: "text-[var(--mm-green-dark)]",
   liora: "text-[var(--liora-rose-deep)]",
-  matiss: "text-[var(--matiss-violet-deep)]",
+  matiss: "text-[var(--ds-color-primary)]",
 };
 
 interface Tab {

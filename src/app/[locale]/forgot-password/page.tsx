@@ -10,7 +10,6 @@ import { ForgotPasswordScreenGate } from "@/components/organisms/ForgotPasswordS
 import { PublicTenantChrome } from "@/components/organisms/PublicTenantChrome";
 import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
-import { brandForPublicChrome } from "@/lib/landing/nagoLogo";
 
 interface ForgotPasswordPageProps {
   params: Promise<{ locale: string }>;
@@ -45,11 +44,10 @@ export default async function ForgotPasswordPage({
   const snapshot = await loadActiveTheme();
 
   const templateKind = snapshot?.theme.templateKind ?? "classic";
-  const publicBrand = brandForPublicChrome(templateKind, brand);
   return (
     <PublicExperienceShell locale={locale} dict={dict} templateKind={templateKind}>
       <PublicTenantChrome templateKind={templateKind}>
-        <ForgotPasswordScreenGate brand={publicBrand} dict={dict} locale={locale} />
+        <ForgotPasswordScreenGate brand={brand} dict={dict} locale={locale} />
       </PublicTenantChrome>
     </PublicExperienceShell>
   );

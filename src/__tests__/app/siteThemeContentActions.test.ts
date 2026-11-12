@@ -42,14 +42,27 @@ vi.mock("@/lib/i18n/dictionaries", () => ({
 
 const VALID_ID = "00000000-0000-4000-8000-000000000111";
 
-function makeSupabaseWithRow(row: Record<string, unknown> | null) {
+function makeSupabaseWithRow(row: Record<string, unknown> | null, published = false) {
   const fetchMaybeSingle = vi.fn().mockResolvedValue({ data: row });
   const fetchEq = vi.fn().mockReturnValue({ maybeSingle: fetchMaybeSingle });
   const fetchSelect = vi.fn().mockReturnValue({ eq: fetchEq });
 
   const updateEq = vi.fn().mockResolvedValue({ error: null });
   const update = vi.fn().mockReturnValue({ eq: updateEq });
-  const from = vi.fn().mockReturnValue({ select: fetchSelect, update });
+  const from = vi.fn((table: string) => {
+    if (table === "theme_documents") {
+      return {
+        select: () => ({
+          eq: () => ({
+            eq: () => ({
+              limit: () => Promise.resolve({ data: published ? [{ id: "published-doc" }] : [], error: null }),
+            }),
+          }),
+        }),
+      };
+    }
+    return { select: fetchSelect, update };
+  });
   return { from, update, updateEq };
 }
 
@@ -109,6 +122,18 @@ describe("updateSiteThemeContentAction", () => {
       copy: { "story.title": { en: "x" } },
     });
     expect(result).toEqual({ ok: false, code: "not_found" });
+  });
+
+  it("rejects the old editor when a published design exists", async () => {
+    const { from } = makeSupabaseWithRow({ id: VALID_ID }, true);
+    mockAssertAdmin.mockResolvedValue({ supabase: { from }, user: { id: "u" } });
+    const result = await updateSiteThemeContentAction({
+      locale: "en",
+      id: VALID_ID,
+      section: "historia",
+      copy: { "story.title": { en: "x" } },
+    });
+    expect(result).toEqual({ ok: false, code: "theme_document_active" });
   });
 
   it("merges cleaned section content into existing JSONB and audits", async () => {

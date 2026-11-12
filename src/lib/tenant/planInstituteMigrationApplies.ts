@@ -5,8 +5,7 @@ import {
   // @ts-expect-error TS5097 — Next typecheck does not allow a .ts import specifier.
 } from "./rewriteInstituteMigrationSql.ts";
 
-const BRAND_DATA_FILE =
-  /_(?:nago|golden|liora|mimundo|mozarthitos|espaciozenit)_(?:seed|tagline|brand)(?:_|\.|$)|site_theme_(?:nago|golden|liora|mimundo|mozarthitos|espaciozenit)_seed\.sql$/i;
+const BRAND_DATA_MARKER = /^-- ge:brand-data [a-z0-9-]+$/;
 
 export type InstituteMigrationTarget = {
   slug: string;
@@ -26,9 +25,9 @@ export type PlannedInstituteMigration =
   | { slug: string; action: "skip"; reason: "brand_data" }
   | { slug: string; action: "error"; message: string };
 
-export function isBrandDataMigration(fileName: string): boolean {
-  const base = fileName.split(/[/\\]/).pop() ?? fileName;
-  return BRAND_DATA_FILE.test(base);
+/** Brand data is the first line `-- ge:brand-data <slug>`. The file name is not used. */
+export function isBrandDataMigration(_fileName: string, firstLine = ""): boolean {
+  return BRAND_DATA_MARKER.test(firstLine.trim());
 }
 
 function readString(row: Record<string, unknown>, ...keys: string[]): string {
@@ -64,7 +63,8 @@ export function planInstituteMigrationApplies(input: {
   sql: string;
   targets: readonly InstituteMigrationTarget[];
 }): PlannedInstituteMigration[] {
-  const brandData = isBrandDataMigration(input.fileName);
+  const firstLine = input.sql.split(/\r?\n/, 1)[0] ?? "";
+  const brandData = isBrandDataMigration(input.fileName, firstLine);
   const unqualified = listUnqualifiedProductCreates(input.sql);
 
   return input.targets.map((target) => {

@@ -3,7 +3,6 @@ import type { Dictionary } from "@/types/i18n";
 import { loadRequestSessionEmail } from "@/lib/auth/loadRequestSessionEmail";
 import { resolvePublicBrand } from "@/lib/brand/resolvePublicBrand";
 import { type AppLocale } from "@/lib/i18n/dictionaries";
-import { resolveNagoLogo } from "@/lib/landing/nagoLogo";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
@@ -33,7 +32,7 @@ export async function PublicExperienceShell({
     sessionEmail !== undefined ? Promise.resolve(sessionEmail) : loadRequestSessionEmail(),
     resolvePublicBrand(locale as AppLocale),
   ]);
-  const logoSrc = templateKind === "nago" ? resolveNagoLogo(brand) : brand.logoPath;
+  const logoSrc = brand.logoPath;
 
   return (
     <PublicExperienceChrome

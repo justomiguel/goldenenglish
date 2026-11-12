@@ -139,6 +139,21 @@ A full plan goes to `docs/superpowers/plans/2026-11-10-design-tokens-v1.md` afte
 - Removing bespoke CSS variables and `*FontRoot.tsx` files (phase 4).
 - The slug guard (phase 5).
 
+## Fleet report (first run)
+
+Command: `npm run report:design-tokens` on 2026-11-11. Exit code 0.
+
+The script prints a line only when the active theme has an issue. These four lines were the full report:
+
+```text
+liora contrast_below_aa color.secondary color.secondary.foreground 4.38
+liora contrast_below_aa color.muted color.muted.foreground 2.02
+mimundo contrast_below_aa color.secondary color.secondary.foreground 4.38
+matiss contrast_below_aa color.border color.background 1.54
+```
+
+espaciozenit, golden, mozarthitos, and nago printed no line. Migration `273_design_tokens_font_ids.sql` applied on espaciozenit, golden, liora, mimundo, mozarthitos, nago (`public`) and matiss (`tenant_matiss`).
+
 ## Manual QA (user)
 
 - Open Golden, Nago, Liora, Mi Mundo, Mozarthitos, Espacio Zenit, and Matiss home and `/register` on desktop and phone. Fonts and colors look the same as before.

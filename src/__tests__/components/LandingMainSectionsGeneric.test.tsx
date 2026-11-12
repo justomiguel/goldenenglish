@@ -11,25 +11,25 @@ const nav = es.landing.genericNav;
 const menu = es.landing.templateNav;
 const labels = es.landing.genericSectionLabels;
 
-function renderLanding(
+async function renderLanding(
   props: Partial<ComponentProps<typeof LandingMainSectionsGeneric>> = {},
 ) {
   return render(
-    <LandingMainSectionsGeneric
-      copy={copy}
-      locale="es"
-      kind="deportes"
-      nav={nav}
-      menu={menu}
-      sectionLabels={labels}
-      {...props}
-    />,
+    await LandingMainSectionsGeneric({
+      copy,
+      locale: "es",
+      kind: "deportes",
+      nav,
+      menu,
+      sectionLabels: labels,
+      ...props,
+    }),
   );
 }
 
 describe("LandingMainSectionsGeneric", () => {
-  it("renders the template story and the stock hero", () => {
-    renderLanding();
+  it("renders the template story and the stock hero", async () => {
+    await renderLanding();
     expect(screen.getByRole("heading", { level: 1, name: copy.title })).toBeInTheDocument();
     expect(screen.getByText(copy.rhythmA.replace(/^\d{1,2}:\d{2}\.\s+/, ""))).toBeInTheDocument();
     expect(screen.getByRole("img", { name: copy.imageAlt })).toHaveAttribute(
@@ -53,16 +53,16 @@ describe("LandingMainSectionsGeneric", () => {
     expect(document.querySelector("[data-hero-layout]")).toHaveAttribute("data-hero-layout", "bleed");
   });
 
-  it("shows the image the admin saved for Inicio", () => {
-    renderLanding({ heroSrc: "/images/academia-sur/og.png" });
+  it("shows the image the admin saved for Inicio", async () => {
+    await renderLanding({ heroSrc: "/images/academia-sur/og.png" });
     expect(screen.getByRole("img", { name: copy.imageAlt })).toHaveAttribute(
       "src",
       "/images/academia-sur/og.png",
     );
   });
 
-  it("omits a section the admin hid", () => {
-    renderLanding({ hiddenSections: new Set(["historia", "niveles"]) });
+  it("omits a section the admin hid", async () => {
+    await renderLanding({ hiddenSections: new Set(["historia", "niveles"]) });
     expect(screen.queryByRole("link", { name: menu.historia })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: menu.niveles })).not.toBeInTheDocument();
     expect(document.getElementById("historia")).toBeNull();
@@ -71,8 +71,8 @@ describe("LandingMainSectionsGeneric", () => {
     expect(screen.getByRole("img", { name: copy.sections.oferta })).toBeInTheDocument();
   });
 
-  it("shows the map and the contact form when the site has an address", () => {
-    renderLanding({
+  it("shows the map and the contact form when the site has an address", async () => {
+    await renderLanding({
       contact: {
         email: "ana@example.com",
         phone: "",

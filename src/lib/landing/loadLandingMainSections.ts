@@ -10,6 +10,7 @@ import type {
 } from "@/types/theming";
 import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 import { LandingMainSectionsGeneric } from "@/components/organisms/LandingMainSectionsGeneric";
+import { OWNED_LANDING_ENTRIES } from "@/variants/ownedLandings";
 import { genericSectionNames } from "@/lib/landing/genericSectionNames";
 import {
   genericSectionStockPath,
@@ -101,6 +102,8 @@ export async function loadLandingMainSections(
     return (await import("@/components/organisms/musica-dos/MusicaDosLanding")).MusicaDosLanding;
   }
   if (isGenericInstituteKind(kind)) return bindGenericLanding(kind);
+  const owned = OWNED_LANDING_ENTRIES.find((entry) => entry.owner === kind);
+  if (owned) return owned.load();
   switch (kind) {
     case "editorial":
       return (await import("@/components/organisms/LandingMainSectionsEditorial"))
@@ -108,24 +111,6 @@ export async function loadLandingMainSections(
     case "minimal":
       return (await import("@/components/organisms/LandingMainSectionsMinimal"))
         .LandingMainSectionsMinimal as LandingMainSectionComponent;
-    case "mozarthitos":
-      return (await import("@/components/organisms/LandingMainSectionsMozarthitos"))
-        .LandingMainSectionsMozarthitos as LandingMainSectionComponent;
-    case "espaciozenit":
-      return (await import("@/components/organisms/LandingMainSectionsEspacioZenit"))
-        .LandingMainSectionsEspacioZenit as LandingMainSectionComponent;
-    case "nago":
-      return (await import("@/components/organisms/LandingMainSectionsNago"))
-        .LandingMainSectionsNago as LandingMainSectionComponent;
-    case "mimundo":
-      return (await import("@/components/organisms/LandingMainSectionsMimundo"))
-        .LandingMainSectionsMimundo as LandingMainSectionComponent;
-    case "liora":
-      return (await import("@/components/organisms/LandingMainSectionsLiora"))
-        .LandingMainSectionsLiora as LandingMainSectionComponent;
-    case "matiss":
-      return (await import("@/components/organisms/LandingMainSectionsMatiss"))
-        .LandingMainSectionsMatiss as LandingMainSectionComponent;
     default:
       return (await import("@/components/organisms/LandingMainSections"))
         .LandingMainSections as LandingMainSectionComponent;

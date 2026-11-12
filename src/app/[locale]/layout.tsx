@@ -15,7 +15,7 @@ import { PwaInstallPromptHost } from "@/components/molecules/PwaInstallPromptHos
 import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
 import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import { openGraphLocaleForInstitute } from "@/lib/metadata/buildHomePageMetadata";
-import { lioraPlacesFromSedes } from "@/lib/public/instituteAnswerPages";
+import { placesForOrganization } from "@/lib/public/instituteAnswerPages";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
 import { centrolistoLayoutIcons } from "@/lib/pulsar/centrolistoFavicon";
@@ -149,9 +149,11 @@ export default async function LocaleLayout({
     await resolvePublicBrandWithSetup(loc);
   const siteOrigin = (await getRequestPublicSiteUrl())?.origin ?? null;
   const activeTheme = needsInitialSiteSetup ? null : await loadActiveTheme();
-  const templateKind = activeTheme?.theme.templateKind ?? "classic";
-  const places =
-    templateKind === "liora" ? lioraPlacesFromSedes(dict.landing.liora.sedes) : [];
+  const places = placesForOrganization({
+    name: brand.name,
+    contactAddress: brand.contactAddress,
+    answerSections: activeTheme?.publishedDocument?.document.pages.answers?.sections ?? null,
+  });
 
   return (
     <div className="min-h-screen">
@@ -160,7 +162,6 @@ export default async function LocaleLayout({
           locale={locale}
           brand={brand}
           siteOrigin={siteOrigin}
-          templateKind={templateKind}
           places={places}
         />
       )}

@@ -36,8 +36,8 @@ vi.mock("@/components/organisms/PublicExperienceShell", () => ({
 vi.mock("@/components/organisms/PublicBlogScreenMozarthitos", () => ({
   PublicBlogScreenMozarthitos: ({ children }: { children: unknown }) => children,
 }));
-vi.mock("@/components/organisms/MozarthitosFamilyGuideEntry", () => ({
-  MozarthitosFamilyGuideEntry: () => null,
+vi.mock("@/components/organisms/FamilyGuideEntry", () => ({
+  FamilyGuideEntry: () => null,
 }));
 
 import Page, { generateMetadata } from "@/app/[locale]/encuentra-tu-clase/page";

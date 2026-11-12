@@ -1,0 +1,240 @@
+/**
+ * Matiss Studio. Colors sampled from the client logo.
+ * `--owned-violet` and `--owned-pink` are the exact logo colors and stay
+ * decorative. Text and buttons use the darker shades, which pass WCAG AA.
+ *
+ * Motion is editorial: masked title lines, photos that unveil from the
+ * bottom edge, slow image settle, and scroll-linked drift. All motion sits
+ * behind `prefers-reduced-motion: no-preference`. Content stays visible
+ * without JavaScript, because only `.matiss-reveal--wait` hides it.
+ */
+.matiss-landing {
+  --ds-color-background: #fcf4f7;
+  --ds-color-muted: #f0e4f0;
+  --owned-pink: #f0bee6;
+  --owned-violet: #9a78c6;
+  --ds-color-primary: #6b4c9e;
+  --owned-violet-hover: #5a3e88;
+  --owned-rose: #a6458e;
+  --ds-color-foreground: #3a2a52;
+  --ds-color-muted-foreground: #665a78;
+  --owned-line: #d8c0e4;
+  --owned-footer: #2c2040;
+  --owned-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --color-heading: var(--ds-color-foreground);
+  --color-primary: var(--ds-color-primary);
+  --color-primary-foreground: #ffffff;
+  --color-primary-dark: var(--owned-violet-hover);
+  --color-foreground: var(--ds-color-foreground);
+  --color-muted-foreground: var(--ds-color-muted-foreground);
+  --color-surface: #ffffff;
+  --color-background: var(--ds-color-background);
+  --color-border: var(--owned-line);
+  --color-muted: var(--ds-color-muted);
+}
+
+.matiss-landing ::selection {
+  background: color-mix(in srgb, var(--owned-pink) 70%, transparent);
+  color: var(--ds-color-foreground);
+}
+
+.matiss-display {
+  font-family: var(--ds-font-heading), Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.matiss-wave {
+  display: block;
+  width: 100%;
+  height: 48px;
+  color: var(--ds-color-muted);
+}
+
+.matiss-hero {
+  background:
+    radial-gradient(ellipse 60% 80% at 80% 40%, var(--ds-color-muted), transparent 70%),
+    var(--ds-color-background);
+}
+
+.matiss-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+.matiss-mask > span {
+  display: block;
+}
+
+.matiss-frame-img {
+  transition: transform 900ms var(--owned-ease);
+}
+
+.matiss-faq-icon {
+  transition: transform 400ms var(--owned-ease);
+}
+
+.matiss-faq[open] .matiss-faq-icon {
+  transform: rotate(45deg);
+}
+
+.matiss-btn {
+  transition: background-color 200ms ease, transform 300ms var(--owned-ease), box-shadow 300ms var(--owned-ease);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .matiss-arc {
+    stroke-dasharray: 320;
+    stroke-dashoffset: 320;
+    animation: matiss-draw 1.6s var(--owned-ease) 0.5s forwards;
+  }
+
+  .matiss-mask > span {
+    animation: matiss-mask-up 1000ms var(--owned-ease) both;
+  }
+
+  .matiss-mask:nth-child(2) > span { animation-delay: 110ms; }
+  .matiss-mask:nth-child(3) > span { animation-delay: 220ms; }
+
+  .matiss-fade-up {
+    animation: matiss-rise 900ms var(--owned-ease) both;
+  }
+
+  .matiss-delay-1 { animation-delay: 120ms; }
+  .matiss-delay-2 { animation-delay: 260ms; }
+  .matiss-delay-3 { animation-delay: 380ms; }
+  .matiss-delay-4 { animation-delay: 500ms; }
+
+  .matiss-hero-photo {
+    animation: matiss-unveil 1300ms var(--owned-ease) 150ms both;
+  }
+
+  .matiss-hero-photo .matiss-frame-img {
+    animation: matiss-settle 1800ms var(--owned-ease) 150ms backwards;
+  }
+
+  .matiss-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -12px color-mix(in srgb, var(--ds-color-primary) 60%, transparent);
+  }
+
+  .matiss-frame--zoom:hover .matiss-frame-img {
+    transform: scale(1.05);
+  }
+
+  /* Waiting below the fold: frames are closed and staggered children are low. */
+  .matiss-reveal--wait .matiss-frame {
+    clip-path: inset(100% 0 0 0);
+  }
+
+  .matiss-reveal--wait .matiss-stagger > *,
+  .matiss-reveal--wait .matiss-line {
+    opacity: 0;
+  }
+
+  .matiss-reveal--in .matiss-frame {
+    animation: matiss-unveil 1200ms var(--owned-ease) var(--owned-delay, 0ms) both;
+  }
+
+  .matiss-reveal--in .matiss-frame .matiss-frame-img {
+    animation: matiss-settle 1600ms var(--owned-ease) var(--owned-delay, 0ms) backwards;
+  }
+
+  .matiss-reveal--in .matiss-stagger > * {
+    animation: matiss-rise 900ms var(--owned-ease) calc(var(--owned-delay, 0ms) + 120ms) both;
+  }
+
+  .matiss-reveal--in .matiss-line {
+    transform-origin: left center;
+    animation: matiss-line 1000ms var(--owned-ease) 200ms both;
+  }
+
+  .matiss-stagger > :nth-child(1) { --owned-delay: 0ms; }
+  .matiss-stagger > :nth-child(2) { --owned-delay: 90ms; }
+  .matiss-stagger > :nth-child(3) { --owned-delay: 180ms; }
+  .matiss-stagger > :nth-child(4) { --owned-delay: 270ms; }
+  .matiss-stagger > :nth-child(5) { --owned-delay: 360ms; }
+  .matiss-stagger > :nth-child(6) { --owned-delay: 450ms; }
+  .matiss-stagger > :nth-child(7) { --owned-delay: 540ms; }
+  .matiss-stagger > :nth-child(8) { --owned-delay: 630ms; }
+
+  @supports (animation-timeline: view()) {
+    .matiss-frame--parallax .matiss-drift {
+      inset: -8% 0;
+      animation: matiss-drift linear both;
+      animation-timeline: view();
+    }
+  }
+
+  /* The seal ring turns only while the page scrolls: three turns over the whole page. */
+  @supports (animation-timeline: scroll()) {
+    .matiss-seal-ring {
+      animation: matiss-spin linear both;
+      animation-timeline: scroll(root block);
+    }
+
+    .matiss-seal-ring--reverse {
+      animation-direction: reverse;
+    }
+  }
+}
+
+@keyframes matiss-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(1080deg); }
+}
+
+@keyframes matiss-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes matiss-mask-up {
+  from { transform: translateY(105%); }
+  to { transform: none; }
+}
+
+@keyframes matiss-rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes matiss-unveil {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes matiss-settle {
+  from { transform: scale(1.12); }
+  to { transform: scale(1); }
+}
+
+@keyframes matiss-drift {
+  from { transform: translateY(-6%); }
+  to { transform: translateY(6%); }
+}
+
+@keyframes matiss-line {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .matiss-arc { stroke-dashoffset: 0; }
+  .matiss-mask > span,
+  .matiss-fade-up,
+  .matiss-hero-photo,
+  .matiss-frame,
+  .matiss-frame-img,
+  .matiss-drift,
+  .matiss-line,
+  .matiss-seal-ring,
+  .matiss-stagger > *,
+  .matiss-btn {
+    animation: none;
+    clip-path: none;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

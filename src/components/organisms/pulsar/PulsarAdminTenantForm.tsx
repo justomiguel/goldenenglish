@@ -28,6 +28,7 @@ export interface PulsarAdminTenantFormProps {
   initialTenant?: PulsarTenantRecord | null;
   pulsarHosts?: readonly string[];
   masthead?: React.ReactNode;
+  starterKind?: string | null;
 }
 
 export function PulsarAdminTenantForm({
@@ -36,6 +37,7 @@ export function PulsarAdminTenantForm({
   initialTenant = null,
   pulsarHosts = [],
   masthead = null,
+  starterKind = null,
 }: PulsarAdminTenantFormProps) {
   const router = useRouter();
   const isEditing = Boolean(initialTenant);
@@ -108,7 +110,10 @@ export function PulsarAdminTenantForm({
     setSavedNotice(true);
     router.refresh();
     if (!isEditing) {
-      router.push(`/${locale}/admin/tenants/${res.slug}`);
+      const nextPath = starterKind
+        ? `/${locale}/admin/tenants/${res.slug}/theme/design?starter=${starterKind}`
+        : `/${locale}/admin/tenants/${res.slug}`;
+      router.push(nextPath);
     }
   };
 

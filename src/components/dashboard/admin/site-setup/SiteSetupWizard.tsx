@@ -2,7 +2,7 @@
 
 import "./vargasWizardDesignTokens.css";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import type { Dictionary } from "@/types/i18n";
 import { SiteSetupWizardErrorAlert } from "@/components/dashboard/admin/site-setup/SiteSetupWizardErrorAlert";
@@ -14,7 +14,7 @@ import {
 import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { useSiteSetupWizardState } from "@/hooks/useSiteSetupWizardState";
 import { isValidBillingCurrency } from "@/lib/billing/billingCurrencyConstants";
-import { revealFailureCode } from "@/lib/errors/revealFailureCode";
+import { siteSetupErrorText, siteSetupTokenIssue } from "@/lib/site/siteSetupWizardError";
 import type { SiteSetupCurrentValues } from "@/lib/site/loadSiteSetupCurrentValues";
 import { ADMIN_TOUR_ANCHORS, ADMIN_TUTORIAL_ACTIVATE_SITE_SETUP_LEGAL_BILLING_STEP_EVENT } from "@/lib/admin-tutorials/selectors";
 
@@ -30,6 +30,7 @@ interface SiteSetupWizardProps {
   platformCreditAria: string;
   /** When omitted we behave as greenfield ("create"). */
   mode?: SiteSetupWizardMode;
+  tenantSlug?: string | null;
   /** Preloaded values for re-edition. Required when `mode === "edit"`. */
   initialValues?: SiteSetupCurrentValues;
 }
@@ -43,6 +44,7 @@ export function SiteSetupWizard({
   platformCredit,
   platformCreditAria,
   mode = "create",
+  tenantSlug = null,
   initialValues,
 }: SiteSetupWizardProps) {
   const router = useRouter();
@@ -55,6 +57,7 @@ export function SiteSetupWizard({
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
+  const [issueToken, setIssueToken] = useState("");
   const [submitProgress, setSubmitProgress] =
     useState<SiteSetupWizardSubmitProgress | null>(null);
 
@@ -64,13 +67,8 @@ export function SiteSetupWizard({
       .replace("{{total}}", String(STEPS));
   }, [labels.stepLabel, step]);
 
-  const resolveError = useCallback(
-    (code: string) => {
-      const map = labels.errors as Record<string, string>;
-      return revealFailureCode(map[code] ?? labels.errors.generic, code);
-    },
-    [labels.errors],
-  );
+  const resolveError = (code: string) =>
+    siteSetupErrorText(code, labels.errors, labels.designTokenIssue, issueToken);
 
   useEffect(() => {
     const onLegalBilling = () => setStep(5);
@@ -164,6 +162,7 @@ export function SiteSetupWizard({
       });
       if (!result.ok) {
         setErrorKey(result.code);
+        setIssueToken(result.token ?? "");
         return;
       }
       router.replace(`/${locale}/dashboard/admin`);
@@ -228,6 +227,8 @@ export function SiteSetupWizard({
           state={state}
           hasExistingLogo={hasExistingLogo}
           hasExistingFavicon={hasExistingFavicon}
+          tenantSlug={tenantSlug}
+          tokenIssue={siteSetupTokenIssue(errorKey, issueToken)}
           onBack={goBack}
           onNext={goNext}
           onFinish={finish}

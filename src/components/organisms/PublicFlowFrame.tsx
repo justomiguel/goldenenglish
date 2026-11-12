@@ -6,7 +6,6 @@ import { loadRequestSessionEmail } from "@/lib/auth/loadRequestSessionEmail";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
 import { type AppLocale } from "@/lib/i18n/dictionaries";
-import { resolveNagoLogo } from "@/lib/landing/nagoLogo";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { publicExperienceVariant } from "@/lib/theme/publicExperienceNav";
 
@@ -29,7 +28,7 @@ export async function PublicFlowFrame({ locale, children }: PublicFlowFrameProps
 
   const templateKind = snapshot?.theme.templateKind ?? "classic";
   const dict = applyLandingContentOverrides(baseDict, snapshot?.theme.content, loc);
-  const logoSrc = templateKind === "nago" ? resolveNagoLogo(brand) : brand.logoPath;
+  const logoSrc = brand.logoPath;
   const tone = publicExperienceVariant(templateKind);
 
   return (

@@ -15,7 +15,7 @@ import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
 import type { MzGuideChoice } from "@/lib/landing/mozarthitos/familyGuideCatalog";
 import { formatGuideToken, MZ_GUIDE_FORM_FIELD } from "@/lib/landing/mozarthitos/guideToken";
-import { MozarthitosRegisterGuideSummary } from "@/components/molecules/MozarthitosRegisterGuideSummary";
+import { FamilyGuideRegisterSummary } from "@/components/molecules/FamilyGuideRegisterSummary";
 
 export interface RegisterMozarthitosSurfaceProps {
   locale: string;
@@ -130,7 +130,7 @@ export function RegisterMozarthitosSurface({
               {mz.register.shellLead}
             </p>
             {guide ? (
-              <MozarthitosRegisterGuideSummary locale={locale} guide={guide} labels={mz.guide} />
+              <FamilyGuideRegisterSummary locale={locale} guide={guide} labels={mz.guide} />
             ) : null}
           </header>
           <div className="mz-public-sheet w-full rounded-[28px] p-1">

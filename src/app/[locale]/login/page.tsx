@@ -16,7 +16,6 @@ import { PublicTenantChrome } from "@/components/organisms/PublicTenantChrome";
 import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
-import { brandForPublicChrome } from "@/lib/landing/nagoLogo";
 
 interface LoginPageProps {
   params: Promise<{ locale: string }>;
@@ -86,13 +85,12 @@ export default async function LoginPage({
     getInscriptionsEnabled(),
   ]);
   const templateKind = snapshot?.theme.templateKind ?? "classic";
-  const publicBrand = brandForPublicChrome(templateKind, brand);
 
   return (
     <PublicExperienceShell locale={locale} dict={dict} templateKind={templateKind} sessionEmail={null}>
       <PublicTenantChrome templateKind={templateKind}>
         <LoginScreenGate
-          brand={publicBrand}
+          brand={brand}
           dict={dict}
           locale={locale}
           nextPath={nextPath}
@@ -100,7 +98,7 @@ export default async function LoginPage({
           inscriptionsEnabled={inscriptionsEnabled}
           desktop={
             <LoginScreenDesktop
-              brand={publicBrand}
+              brand={brand}
               dict={dict}
               locale={locale}
               nextPath={nextPath}

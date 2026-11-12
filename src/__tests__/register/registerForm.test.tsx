@@ -551,7 +551,7 @@ describe("RegisterForm", () => {
         dict={dictEn.register}
         legalAgeMajority={18}
         sectionOptions={SECTION_OPTIONS}
-        extrasPack="nago"
+        extrasPack="martial_arts_uniform"
       />,
     );
     await continueFromDniStep("12345678");
@@ -589,7 +589,7 @@ describe("RegisterForm", () => {
         dict={dictEn.register}
         legalAgeMajority={18}
         sectionOptions={SECTION_OPTIONS}
-        extrasPack="nago"
+        extrasPack="martial_arts_uniform"
       />,
     );
     await continueFromDniStep("12345678");

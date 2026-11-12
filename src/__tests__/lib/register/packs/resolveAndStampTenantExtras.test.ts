@@ -21,7 +21,7 @@ describe("resolveAndStampTenantExtras", () => {
   });
 
   it("accepts a Mozarthitos lead without a guide", async () => {
-    mockResolvePack.mockResolvedValue("mozarthitos");
+    mockResolvePack.mockResolvedValue("family_guide");
     const r = await resolveAndStampTenantExtras({
       raw: undefined,
       isMinor: true,
@@ -31,7 +31,7 @@ describe("resolveAndStampTenantExtras", () => {
   });
 
   it("stores a valid Mozarthitos guide", async () => {
-    mockResolvePack.mockResolvedValue("mozarthitos");
+    mockResolvePack.mockResolvedValue("family_guide");
     const raw = {
       pack: "mozarthitos",
       schemaVersion: 1,
@@ -46,7 +46,7 @@ describe("resolveAndStampTenantExtras", () => {
   });
 
   it("drops an invalid Mozarthitos guide, keeps the lead, and warns", async () => {
-    mockResolvePack.mockResolvedValue("mozarthitos");
+    mockResolvePack.mockResolvedValue("family_guide");
     const r = await resolveAndStampTenantExtras({
       raw: { pack: "mozarthitos", schemaVersion: 1, guide: { stage: "dragon" } },
       isMinor: true,
@@ -89,7 +89,7 @@ describe("resolveAndStampTenantExtras", () => {
   });
 
   it("stamps acceptedAt on a valid Nagô payload", async () => {
-    mockResolvePack.mockResolvedValue("nago");
+    mockResolvePack.mockResolvedValue("martial_arts_uniform");
     const nowIso = "2026-08-26T15:00:00.000Z";
     const r = await resolveAndStampTenantExtras({
       raw: validNagoExtras(),
@@ -105,7 +105,7 @@ describe("resolveAndStampTenantExtras", () => {
   });
 
   it("fails when Nagô extras are missing", async () => {
-    mockResolvePack.mockResolvedValue("nago");
+    mockResolvePack.mockResolvedValue("martial_arts_uniform");
     const r = await resolveAndStampTenantExtras({
       raw: undefined,
       isMinor: false,
@@ -115,7 +115,7 @@ describe("resolveAndStampTenantExtras", () => {
   });
 
   it("fails when the protocol version is stale", async () => {
-    mockResolvePack.mockResolvedValue("nago");
+    mockResolvePack.mockResolvedValue("martial_arts_uniform");
     const r = await resolveAndStampTenantExtras({
       raw: validNagoExtras({
         protocol: {

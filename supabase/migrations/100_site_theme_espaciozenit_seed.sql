@@ -1,3 +1,4 @@
+-- ge:brand-data espaciozenit
 -- Runs after 099 commits so 'espaciozenit' enum label is usable.
 
 INSERT INTO public.site_themes (

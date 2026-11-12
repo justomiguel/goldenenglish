@@ -89,7 +89,6 @@ describe("JsonLdOrganization", () => {
       <JsonLdOrganization
         locale="es"
         brand={brandBase}
-        templateKind="liora"
         places={[
           { name: "Providencia", description: "A pasos del Metro Parque Bustamante" },
           { name: "Maipú", description: "A pasos del Metro Plaza Maipú" },

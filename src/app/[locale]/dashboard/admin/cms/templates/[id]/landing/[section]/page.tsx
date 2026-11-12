@@ -10,6 +10,7 @@ import {
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadLandingEditorSection } from "@/lib/cms/loadSiteThemeForLandingEditor";
 import { LandingSectionEditorShell } from "@/components/dashboard/admin/cms/LandingSectionEditorShell";
+import { ThemeDocumentActiveNoticeGate } from "@/components/dashboard/admin/cms/ThemeDocumentActiveNoticeGate";
 import { LANDING_SECTION_SLUGS, type LandingSectionSlug } from "@/types/theming";
 
 export const metadata: Metadata = {
@@ -63,12 +64,21 @@ export default async function AdminCmsLandingSectionPage({ params }: PageProps) 
   }
 
   return (
-    <LandingSectionEditorShell
-      locale={locale}
-      labels={labels}
-      fileUploadProgress={dict.common.fileUpload}
-      theme={viewModel.theme}
-      section={viewModel.section}
-    />
+    <>
+      <ThemeDocumentActiveNoticeGate
+        client={supabase}
+        siteThemeId={id}
+        href={`/${locale}/dashboard/admin/cms/design`}
+        body={dict.admin.cms.themeDocumentActive}
+        linkLabel={dict.admin.cms.themeDocumentActiveLink}
+      />
+      <LandingSectionEditorShell
+        locale={locale}
+        labels={labels}
+        fileUploadProgress={dict.common.fileUpload}
+        theme={viewModel.theme}
+        section={viewModel.section}
+      />
+    </>
   );
 }

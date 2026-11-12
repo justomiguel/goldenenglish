@@ -4,6 +4,10 @@ Este runbook es para una landing hecha para **un cliente**. Esa plantilla no ent
 
 Si el pedido se resuelve con una plantilla del catálogo (`deportes`, `jardin`, `colegio`, `musica`, `idiomas`, y las variantes `*2`) más paleta y textos, no abras un tema exclusivo. Sigue `docs/runbooks/add-new-tenant.md`.
 
+## Owned variants
+
+Bespoke work is a set of owned variants in `src/variants/owned/<slug>/`, plus fixtures for those variants. Do not add a `SiteThemeKind` for the client. The intake form still records the owner slug, the sections, and the copy.
+
 ## Cuándo es exclusiva
 
 - El cliente pide una página con estructura propia (secciones, motion, registro con su marca).

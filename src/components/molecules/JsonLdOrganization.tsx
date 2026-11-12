@@ -13,7 +13,6 @@ interface JsonLdOrganizationProps {
   brand: BrandPublic;
   /** Request origin. When omitted, the env public URL is used. */
   siteOrigin?: string | null;
-  templateKind?: string;
   places?: readonly InstitutePlace[];
 }
 
@@ -32,7 +31,6 @@ export function JsonLdOrganization({
   locale,
   brand,
   siteOrigin,
-  templateKind = "",
   places = [],
 }: JsonLdOrganizationProps) {
   const base = baseUrlFromOrigin(siteOrigin);
@@ -65,7 +63,7 @@ export function JsonLdOrganization({
   if (isPublishablePublicContact("address", brand.contactAddress)) {
     payload.address = buildInstituteAddress(brand.contactAddress);
   }
-  const departments = buildInstituteDepartments(templateKind, places);
+  const departments = buildInstituteDepartments(places);
   if (departments.length) payload.department = departments;
 
   return (

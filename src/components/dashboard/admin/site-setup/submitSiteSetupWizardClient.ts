@@ -23,9 +23,8 @@ function flattenOperational(
   set("visualAccent", op.visualAccent);
   set("visualBackground", op.visualBackground);
   set("visualSurface", op.visualSurface);
-  set("fontPrimary", op.fontPrimary);
-  set("fontSecondary", op.fontSecondary);
-  set("fontMono", op.fontMono);
+  set("fontHeading", op.fontHeading);
+  set("fontBody", op.fontBody);
   set("layoutMaxWidth", op.layoutMaxWidth);
   set("layoutBorderRadius", op.layoutBorderRadius);
   set("academicsSectionMaxStudents", op.academicsSectionMaxStudents);
@@ -91,7 +90,7 @@ export async function submitSiteSetupWizardClient(args: {
   socialWhatsapp?: string;
   operational?: SiteSetupOperationalValues;
   onProgress: (p: SiteSetupWizardSubmitProgress) => void;
-}): Promise<{ ok: true } | { ok: false; code: string }> {
+}): Promise<{ ok: true } | { ok: false; code: string; token?: string }> {
   const {
     onProgress,
     logoFile,
@@ -172,6 +171,6 @@ export async function submitSiteSetupWizardClient(args: {
         faviconKind: "none",
       });
 
-  if (!res.ok) return { ok: false, code: res.code };
+  if (!res.ok) return { ok: false, code: res.code, token: res.token };
   return { ok: true };
 }

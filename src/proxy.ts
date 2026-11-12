@@ -12,6 +12,7 @@ import {
   tenantHostBlockStatus,
 } from "@/lib/tenant/tenantRegistry";
 import { defaultLocale, locales } from "@/lib/i18n/dictionaries";
+import { applyDraftPreviewCache } from "@/lib/theme-document/draftPreviewCache";
 
 const localeAlternation = locales.join("|");
 
@@ -109,6 +110,7 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   if (localeBlogPreviewPathPattern.test(pathname)) {
     response.headers.set("Cache-Control", "private, no-store");
   }
+  applyDraftPreviewCache(pathname, response);
   scheduleTrafficPageHitFromMiddleware(request, userId, event);
   return response;
 }

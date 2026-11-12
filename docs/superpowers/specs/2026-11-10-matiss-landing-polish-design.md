@@ -98,7 +98,7 @@ Shared props: `LandingMatissImages` gains `heroPhoto`, `manifesto`, `ageSmall`, 
 ## Tests
 
 - `matissLandingImages.test.ts`: the gallery slot does not contain `galeria/4.jpg`. `inicio` 1 stays `og.jpg`.
-- `LandingMatissSections.test.tsx`: the manifesto heading exists. No image uses `galeria/4.jpg`. The hero image is `fotos/pequena.jpg`.
+- `src/variants/owned/matiss/home/v1/Sections.test.tsx`: the manifesto heading exists. No image uses `galeria/4.jpg`. The hero image is `fotos/pequena.jpg`.
 - `MatissAgeFinder.test.tsx`: age 5 shows the small photo; age 10 shows the big photo.
 - `MatissReveal.test.tsx`: under reduced motion the content is in view at once.
 - The existing Spanish copy lock (`neutralSpanishCopy.test.ts`) stays green.

@@ -1,5 +1,7 @@
 // REGRESSION CHECK: project targets keep the git SQL; shared schemas get a rewrite
 // and skip brand-data files. Unqualified creates fail only on shared schemas.
+import { readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   instituteTargetFromRecord,
@@ -9,13 +11,24 @@ import {
 
 const productSql = "CREATE TABLE public.courses (id uuid primary key);";
 
+const OLD_BRAND_FILE =
+  /_(?:nago|golden|liora|mimundo|mozarthitos|espaciozenit)_(?:seed|tagline|brand)(?:_|\.|$)|site_theme_(?:nago|golden|liora|mimundo|mozarthitos|espaciozenit)_seed\.sql$/i;
+
 describe("isBrandDataMigration", () => {
-  it("matches brand seeds and taglines, not enum or template seeds", () => {
-    expect(isBrandDataMigration("supabase/migrations/108_site_theme_nago_seed.sql")).toBe(true);
-    expect(isBrandDataMigration("160_mimundo_tagline_imaginacion.sql")).toBe(true);
-    expect(isBrandDataMigration("093_site_theme_kind_mozarthitos.sql")).toBe(false);
-    expect(isBrandDataMigration("050_site_themes_seed_editorial.sql")).toBe(false);
-    expect(isBrandDataMigration("089_student_badges_usage_seed.sql")).toBe(false);
+  it("reads the first-line marker and ignores a slug in the file name", () => {
+    expect(isBrandDataMigration("269_site_theme_matiss_row.sql", "-- ge:brand-data matiss")).toBe(true);
+    expect(isBrandDataMigration("108_site_theme_nago_seed.sql", "-- product seed")).toBe(false);
+    expect(isBrandDataMigration("093_site_theme_kind_mozarthitos.sql", "")).toBe(false);
+  });
+
+  it("finds the marker on every file the old slug regex used to match", () => {
+    const dir = path.join(process.cwd(), "supabase/migrations");
+    const names = readdirSync(dir).filter((name) => OLD_BRAND_FILE.test(name));
+    expect(names.length).toBeGreaterThan(0);
+    for (const name of names) {
+      const first = readFileSync(path.join(dir, name), "utf8").split(/\r?\n/, 1)[0] ?? "";
+      expect(first, name).toMatch(/^-- ge:brand-data [a-z0-9-]+$/);
+    }
   });
 });
 
@@ -82,7 +95,7 @@ describe("planInstituteMigrationApplies", () => {
   it("runs brand data on an external project and skips it on a shared schema", () => {
     const planned = planInstituteMigrationApplies({
       fileName: "108_site_theme_nago_seed.sql",
-      sql: productSql,
+      sql: `-- ge:brand-data nago\n${productSql}`,
       targets: [project, shared],
     });
     expect(planned[0]).toMatchObject({ action: "execute" });

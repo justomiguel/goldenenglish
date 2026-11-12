@@ -20,6 +20,8 @@ export interface SiteSetupWizardStepPanelsProps {
   state: SiteSetupWizardState;
   hasExistingLogo?: boolean;
   hasExistingFavicon?: boolean;
+  tenantSlug?: string | null;
+  tokenIssue?: { code: string; token: string } | null;
   onBack: () => void;
   onNext: () => void;
   onFinish: () => void;
@@ -33,6 +35,8 @@ export function SiteSetupWizardStepPanels({
   state,
   hasExistingLogo = false,
   hasExistingFavicon = false,
+  tenantSlug = null,
+  tokenIssue = null,
   onBack,
   onNext,
   onFinish,
@@ -83,6 +87,9 @@ export function SiteSetupWizardStepPanels({
         <SiteSetupVisualStep
           labels={labels.visual}
           operational={state.operational}
+          tenantSlug={tenantSlug}
+          issue={tokenIssue}
+          issueCopy={labels.designTokenIssue}
           update={state.updateOperational}
         />
       ) : null}

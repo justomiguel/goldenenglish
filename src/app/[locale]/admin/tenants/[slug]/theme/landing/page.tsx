@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { LandingEditorOverview } from "@/components/dashboard/admin/cms/LandingEditorOverview";
+import { ThemeDocumentActiveNoticeGate } from "@/components/dashboard/admin/cms/ThemeDocumentActiveNoticeGate";
 import { PulsarAdminChrome } from "@/components/organisms/pulsar/PulsarAdminChrome";
 import { loadLandingEditorOverview } from "@/lib/cms/loadSiteThemeForLandingEditor";
 import { loadPulsarThemeEditor } from "@/lib/pulsar/loadPulsarThemeEditor";
@@ -25,6 +26,13 @@ export default async function PulsarTenantThemeLandingPage({ params }: PageProps
 
   return (
     <PulsarAdminChrome locale={locale} dict={loaded.dict} email={loaded.email}>
+      <ThemeDocumentActiveNoticeGate
+        client={loaded.supabase}
+        siteThemeId={loaded.themeId}
+        href={`/${locale}/admin/tenants/${slug}/theme/design`}
+        body={loaded.dict.admin.cms.themeDocumentActive}
+        linkLabel={loaded.dict.admin.cms.themeDocumentActiveLink}
+      />
     <LandingEditorOverview
       locale={locale}
       labels={loaded.dict.admin.cms.templates.landing}

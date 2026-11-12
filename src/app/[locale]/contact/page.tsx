@@ -12,14 +12,9 @@ import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { createRequestLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { PublicContactScreenClassic } from "@/components/organisms/PublicContactScreenClassic";
-import { PublicContactScreenEspacioZenit } from "@/components/organisms/PublicContactScreenEspacioZenit";
-import { PublicContactScreenMozarthitos } from "@/components/organisms/PublicContactScreenMozarthitos";
-import { PublicContactScreenNago } from "@/components/organisms/PublicContactScreenNago";
-import { PublicContactScreenLiora } from "@/components/organisms/PublicContactScreenLiora";
-import { PublicContactScreenMatiss } from "@/components/organisms/PublicContactScreenMatiss";
-import { PublicContactScreenMiMundo } from "@/components/organisms/PublicContactScreenMiMundo";
 import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
 import { loadRequestSessionEmail } from "@/lib/auth/loadRequestSessionEmail";
+import { renderOwnedSurface } from "@/variants/ownedSurfaces";
 
 export const dynamic = "force-dynamic";
 
@@ -63,22 +58,16 @@ export default async function PublicContactPage({ params }: PageProps) {
       )
     : undefined;
 
-  const screen =
-    templateKind === "espaciozenit" ? (
-      <PublicContactScreenEspacioZenit locale={locale} dict={dict} brand={brand} mediaMap={mediaMap} sessionEmail={sessionEmail} />
-    ) : templateKind === "mozarthitos" ? (
-      <PublicContactScreenMozarthitos locale={locale} dict={dict} brand={brand} mediaMap={mediaMap} sessionEmail={sessionEmail} />
-    ) : templateKind === "nago" ? (
-      <PublicContactScreenNago locale={locale} dict={dict} brand={brand} sessionEmail={sessionEmail} />
-    ) : templateKind === "mimundo" ? (
-      <PublicContactScreenMiMundo locale={locale} dict={dict} brand={brand} sessionEmail={sessionEmail} />
-    ) : templateKind === "liora" ? (
-      <PublicContactScreenLiora locale={locale} dict={dict} brand={brand} sessionEmail={sessionEmail} />
-    ) : templateKind === "matiss" ? (
-      <PublicContactScreenMatiss locale={locale} dict={dict} brand={brand} mediaMap={mediaMap} sessionEmail={sessionEmail} />
-    ) : (
-      <PublicContactScreenClassic locale={locale} dict={dict} brand={brand} sessionEmail={sessionEmail} />
-    );
+  const ownedContact = renderOwnedSurface("contact", templateKind, {
+    locale,
+    dict,
+    brand,
+    mediaMap,
+    sessionEmail,
+  });
+  const screen = ownedContact ?? (
+    <PublicContactScreenClassic locale={locale} dict={dict} brand={brand} sessionEmail={sessionEmail} />
+  );
 
   return (
     <PublicExperienceShell locale={locale} dict={dict} templateKind={templateKind} sessionEmail={sessionEmail}>

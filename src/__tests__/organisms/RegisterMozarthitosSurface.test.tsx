@@ -53,7 +53,7 @@ describe("RegisterMozarthitosSurface", () => {
         brand={mockBrandPublic}
         legalAgeMajority={18}
         sectionOptions={[{ id: "a", label: "A" }]}
-        extrasPack="mozarthitos"
+        extrasPack="family_guide"
         guide={{ stage: "little_musicians", modality: "live_online", ageBand: "3y_4y" }}
       />,
     );

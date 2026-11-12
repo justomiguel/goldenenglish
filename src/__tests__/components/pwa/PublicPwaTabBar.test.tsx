@@ -63,6 +63,20 @@ describe("PublicPwaTabBar", () => {
     );
   });
 
+  it("paints the Matiss bar with the owned tokens", () => {
+    mockPathname.mockReturnValue("/es");
+    renderBar({ variant: "matiss" });
+
+    const nav = screen.getByRole("navigation", { name: "Sitio público" });
+    expect(nav.className).toContain("bg-[var(--ds-color-background)]");
+    expect(nav.className).toContain("border-[var(--owned-line)]");
+    expect(nav.className).toContain("text-[var(--ds-color-muted-foreground)]");
+    expect(nav.className).not.toContain("--matiss-");
+    expect(screen.getByRole("link", { name: "Inicio" }).className).toContain(
+      "text-[var(--ds-color-primary)]",
+    );
+  });
+
   it("marks Cursos current on the Mozarthitos family guide", () => {
     mockPathname.mockReturnValue("/es/encuentra-tu-clase");
     renderBar({ coursesHref: "/es/encuentra-tu-clase", variant: "mozarthitos" });

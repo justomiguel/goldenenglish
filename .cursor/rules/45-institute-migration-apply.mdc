@@ -32,7 +32,7 @@ Targets come from Pulsar `platform_tenants` when `PULSAR_DATABASE_URL` is set. O
 | `project` (default) | The git file, unchanged, on that institute `database_url`. Success is stored in `institute_migration_ledger.applied` with `schema_name` `public`. |
 | `shared_schema` | An in-memory rewrite: `public.` and `search_path = public` become `postgres_schema` (`tenant_<slug>`). `auth.` and `storage.` stay. Success is stored in `institute_migration_ledger.applied` on that database with `schema_name` `postgres_schema`. |
 
-Brand-data files still run on `project` targets. They are skipped on `shared_schema`. A brand-data file name contains a brand slug (`nago`, `golden`, `liora`, `mimundo`, `mozarthitos`, `espaciozenit`) plus `seed`, `tagline`, or `brand`. Enum and kind migrations are product SQL. They are not brand data.
+Brand-data files still run on `project` targets. They are skipped on `shared_schema`. A brand-data file starts with `-- ge:brand-data <slug>`. Enum and kind migrations are product SQL. They are not brand data.
 
 A shared-schema target rejects the file when a `table`, `function`, `view`, `type`, or `sequence` is created without a `public.` qualifier. Policies, indexes, and triggers may stay unqualified when their `ON` target is qualified.
 

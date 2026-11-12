@@ -1,17 +1,16 @@
 import type { BrandPublic } from "@/lib/brand/server";
-import type { Dictionary } from "@/types/i18n";
-import { resolveLandingImageSrcForTheme, type LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
-import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
-import type { LandingImageSectionSlug } from "@/lib/landing/sectionLandingImages";
-import { MatissFontRoot } from "@/components/organisms/MatissFontRoot";
-import { LandingMatissExperience } from "@/components/organisms/LandingMatissExperience";
+import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
+import type { Dictionary } from "@/types/i18n";
+import { VariantSurfaceEntry } from "@/components/organisms/VariantSurfaceEntry";
+import { MatissFontRoot } from "@/variants/owned/matiss/font/v1/Web";
+import { buildMatissHomeProps } from "@/variants/owned/matiss/home/v1/hostProps";
 
 interface LandingMainSectionsMatissProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
-  sessionEmail: string | null;
+  sessionEmail?: string | null;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
   merchEnabled?: boolean;
@@ -19,51 +18,12 @@ interface LandingMainSectionsMatissProps {
   inscriptionsEnabled?: boolean;
 }
 
-export function LandingMainSectionsMatiss({
-  dict,
-  brand,
-  locale,
-  sessionEmail,
-  mediaMap,
-  publicCtaMode,
-  inscriptionsEnabled,
-}: LandingMainSectionsMatissProps) {
-  const t = (path: string) => marketingLandingCopy(dict, "matiss", path);
-  const img = (section: LandingImageSectionSlug, n: number) =>
-    resolveLandingImageSrcForTheme("matiss", section, `${n}.jpg`, mediaMap);
-  const prefix = `/${locale}`;
-  const links = [
-    { href: `${prefix}#sobre`, label: t("nav.sobreNosotros") },
-    { href: `${prefix}#clases`, label: t("nav.clases") },
-    { href: `${prefix}#horarios`, label: t("nav.horarios") },
-    { href: `${prefix}#galeria`, label: t("nav.galeria") },
-    { href: `${prefix}#sedes`, label: t("nav.sedes") },
-    { href: `${prefix}#preguntas`, label: t("nav.preguntas") },
-    { href: `${prefix}#contacto`, label: t("nav.contacto") },
-  ];
-
+export function LandingMainSectionsMatiss(props: LandingMainSectionsMatissProps) {
   return (
     <MatissFontRoot>
-      <LandingMatissExperience
-        dict={dict}
-        brand={brand}
-        locale={locale}
-        links={links}
-        sessionEmail={sessionEmail}
-        openMenu={t("chrome.openMenu")}
-        closeMenu={t("chrome.closeMenu")}
-        images={{
-          heroWeb: img("inicio", 2),
-          manifesto: img("historia", 1),
-          benefits: img("historia", 2),
-          programs: [1, 2, 3].map((n) => img("niveles", n)),
-          classes: [1, 2, 3, 4].map((n) => img("oferta", n)),
-          gala: img("modalidades", 2),
-          gallery: [1, 2, 3, 4, 5, 6, 7, 8].map((n) => img("certificaciones", n)),
-          contact: img("modalidades", 1),
-        }}
-        publicCtaMode={publicCtaMode}
-        inscriptionsEnabled={inscriptionsEnabled}
+      <VariantSurfaceEntry
+        variantKey="page.matiss-home@1"
+        props={buildMatissHomeProps({ ...props, sessionEmail: props.sessionEmail ?? null })}
       />
     </MatissFontRoot>
   );

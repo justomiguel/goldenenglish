@@ -19,6 +19,10 @@ Si alguien pide “agregá el tenant X”, **no asumir** defaults. Pedir (o comp
 
 **Regla para agents:** si el mensaje solo dice “agregar tenant” sin slug, sin decisión de plantilla (§6) y sin datos Vercel (§2) cuando hace falta deploy, **pedir explícitamente** esa información en una sola respuesta con esta tabla (o checklist) antes de editar código.
 
+## Theme document, no new code
+
+A new tenant starts from a theme document and a starter token set. Do not add a file, a dictionary namespace, or a branch named after the slug. Client-only code, when the intake requires it, goes in `src/variants/owned/<slug>/` (rule `53`).
+
 ## Plantilla de solicitud (copiar y completar)
 
 ```

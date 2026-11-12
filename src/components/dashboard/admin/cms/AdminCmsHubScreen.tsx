@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Newspaper, Palette } from "lucide-react";
+import { Newspaper, Paintbrush, Palette } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
@@ -40,6 +40,28 @@ export function AdminCmsHubScreen({ locale, dict, blogEnabled }: AdminCmsHubScre
               >
                 <Palette className="h-4 w-4 shrink-0" aria-hidden />
                 {dict.templatesHubCta}
+              </Link>
+            </div>
+          </div>
+        </article>
+
+        <article
+          className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]"
+          data-tour={ADMIN_TOUR_ANCHORS.cmsDesignCard}
+        >
+          <div className="flex items-start gap-3">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
+              <Paintbrush className="h-5 w-5" aria-hidden />
+            </span>
+            <div className="min-w-0 space-y-2">
+              <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{dict.designHubTitle}</h2>
+              <p className="text-sm text-[var(--color-muted-foreground)]">{dict.designHubDescription}</p>
+              <Link
+                href={`${base}/design`}
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:bg-[var(--color-primary-dark)]"
+              >
+                <Paintbrush className="h-4 w-4 shrink-0" aria-hidden />
+                {dict.designHubCta}
               </Link>
             </div>
           </div>

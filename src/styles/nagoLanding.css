@@ -32,7 +32,7 @@
     0.987 29.0%, 1.025 33.5%, 1.042 38.0%, 1.04 43.5%,
     1.027 50.0%, 1.013 57.5%, 1.005 67.0%, 1.001 79.0%, 1
   );
-  --nago-header-h: 4rem;
+  --nago-header-h: 4rem; & .nago-site-header-spacer { height: calc(var(--nago-header-h) + env(safe-area-inset-top, 0px)); }
   --nago-z-content: 0;
   --nago-z-scroll: 60;
   --nago-z-grain: 70;

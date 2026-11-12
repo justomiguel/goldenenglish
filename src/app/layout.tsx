@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
-import { DM_Sans, Fraunces } from "next/font/google";
+import { CATALOG_FONTS } from "@/components/atoms/fonts/catalogFonts";
 import { buildRootLayoutIcons } from "@/lib/brand/buildRootLayoutIcons";
 import {
   NAGO_INSTALL_CHROME,
@@ -12,6 +12,8 @@ import { defaultLocale, locales, type AppLocale } from "@/lib/i18n/dictionaries"
 import { GE_REQUEST_LOCALE_HEADER } from "@/lib/i18n/requestLocaleHeader";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
+import { parseDesignTokens } from "@/lib/design-tokens/parseDesignTokens";
+import { resolveTenantFonts } from "@/lib/design-tokens/resolveTenantFonts";
 import { cssRootBlock } from "@/lib/theme/themeOverrides";
 import { getProperty } from "@/lib/theme/themeParser";
 import { centrolistoLayoutIcons } from "@/lib/pulsar/centrolistoFavicon";
@@ -24,22 +26,6 @@ import { isMultiTenantEnabled, tenantPublicEnv } from "@/lib/tenant/tenantRegist
 import { PwaServiceWorkerRegister } from "@/components/molecules/PwaServiceWorkerRegister";
 import { TenantPublicEnvBootstrap } from "@/components/molecules/TenantPublicEnvBootstrap";
 import "./globals.css";
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-  adjustFontFallback: true,
-  preload: false,
-});
-
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-  adjustFontFallback: true,
-  preload: false,
-});
 
 export async function generateViewport(): Promise<Viewport> {
   if (await isPulsarPlatformRequest()) {
@@ -123,6 +109,10 @@ export default async function RootLayout({
    *  in admin propagates without redeploying. Other static rules
    *  (animations, body, fonts) live in `globals.css`. */
   const themeRootCss = cssRootBlock(properties);
+  const tenantFonts = resolveTenantFonts(parseDesignTokens(properties));
+  const fontClassName = [tenantFonts.body, tenantFonts.heading]
+    .map((id) => (id in CATALOG_FONTS ? CATALOG_FONTS[id as keyof typeof CATALOG_FONTS] : CATALOG_FONTS["dm-sans"]).variable)
+    .join(" ");
 
   const headerStore = await headers();
   const headerLocale = headerStore.get(GE_REQUEST_LOCALE_HEADER);
@@ -147,7 +137,7 @@ export default async function RootLayout({
       suppressHydrationWarning
       lang={htmlLang}
       data-scroll-behavior="smooth"
-      className={`${dmSans.variable} ${fraunces.variable}`}
+      className={fontClassName}
     >
       <head>
         {/**

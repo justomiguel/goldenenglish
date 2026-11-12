@@ -1,6 +1,6 @@
 import "server-only";
 
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import pg from "pg";
 import { listVercelProjectDomainNames } from "@/lib/pulsar/attachVercelDomain";
@@ -39,6 +39,20 @@ function productFiles(): string[] {
   } catch {
     return [];
   }
+}
+
+function migrationFirstLines(names: readonly string[]): Record<string, string> {
+  const lines: Record<string, string> = {};
+  for (const name of names) {
+    try {
+      const text = readFileSync(path.join(MIGRATIONS_DIR, name), "utf8");
+      const end = text.indexOf("\n");
+      lines[name] = (end === -1 ? text : text.slice(0, end)).trim();
+    } catch {
+      lines[name] = "";
+    }
+  }
+  return lines;
 }
 
 async function ledgerVersions(databaseUrl: string, schemaName: string): Promise<string[]> {
@@ -105,7 +119,8 @@ export async function loadPulsarFleetReview(
   platformHosts: readonly string[],
 ): Promise<Record<string, FleetSiteReview>> {
   const files = productFiles();
-  const head = productMigrationHead(files);
+  const firstLines = migrationFirstLines(files);
+  const head = productMigrationHead(files, firstLines);
   const token = process.env.VERCEL_TOKEN?.trim() ?? "";
   const projectId = process.env.VERCEL_PROJECT_ID?.trim() ?? "";
   const vercelConfigured = Boolean(token && projectId);
@@ -143,6 +158,7 @@ export async function loadPulsarFleetReview(
           migrationHead: head,
           ledgerVersions: versions,
           markerVersion: markerVersionForGenericTheme(files, themePresent),
+          firstLines,
           vercelNames,
           vercelConfigured,
           ownerEmail,

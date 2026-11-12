@@ -1,3 +1,4 @@
+-- ge:brand-data mimundo
 -- Mi Mundo — hero tagline / app.tagline refresh (Resistencia tenant copy).
 
 UPDATE public.site_themes

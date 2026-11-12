@@ -44,7 +44,9 @@ describe("NagoSiteHeader", () => {
     expect(header).toHaveClass("fixed", "top-0", "nago-site-header");
     expect(header).not.toHaveClass("sticky");
     expect(header?.className).not.toMatch(/\bz-\[/);
-    expect(container.querySelector(".nago-site-header-spacer")).toBeTruthy();
+    const spacer = container.querySelector(".nago-site-header-spacer");
+expect(spacer?.className).toBe("nago-site-header-spacer");
+    expect(spacer).not.toHaveAttribute("style");
   });
 
   it("renders the logo without a cream plate", () => {

@@ -1,68 +1,17 @@
 import type { ReactNode } from "react";
-import localFont from "next/font/local";
-import {
-  Bebas_Neue,
-  Cormorant_Garamond,
-  Pacifico,
-  Plus_Jakarta_Sans,
-} from "next/font/google";
+import { CATALOG_FONTS } from "@/components/atoms/fonts/catalogFonts";
 import "@/styles/mozarthitosLanding.css";
 import "@/styles/espaciozenitLanding.css";
 
-const ezHeroBrush = localFont({
-  src: "../../../public/fonts/FAST BLAZE.otf",
-  variable: "--font-ez-fast-blaze",
-  display: "swap",
-  preload: true,
-});
-
-const ezDisciplineHiphop = localFont({
-  src: "../../../public/fonts/Rusted Vibe.otf",
-  variable: "--font-ez-rusted-vibe",
-  display: "swap",
-  preload: false,
-});
-
-const ezDisciplineBallet = localFont({
-  src: "../../../public/fonts/Ballet.otf",
-  variable: "--font-ez-ballet-display",
-  display: "swap",
-  preload: false,
-});
-
-const ezBrush = Pacifico({
-  weight: "400",
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-ez-brush",
-  display: "swap",
-  adjustFontFallback: true,
-  preload: false,
-});
-
-const ezSerif = Cormorant_Garamond({
-  weight: ["500", "600", "700"],
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-ez-serif",
-  display: "swap",
-  adjustFontFallback: true,
-  preload: false,
-});
-
-const ezDisplay = Bebas_Neue({
-  weight: "400",
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-ez-display",
-  display: "swap",
-  preload: false,
-});
-
-const ezBody = Plus_Jakarta_Sans({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-ez-body",
-  display: "swap",
-  preload: false,
-});
+const faces = [
+  CATALOG_FONTS["espaciozenit-fast-blaze"],
+  CATALOG_FONTS["espaciozenit-rusted-vibe"],
+  CATALOG_FONTS["espaciozenit-ballet"],
+  CATALOG_FONTS.pacifico,
+  CATALOG_FONTS["cormorant-garamond"],
+  CATALOG_FONTS["bebas-neue"],
+  CATALOG_FONTS["plus-jakarta-sans"],
+];
 
 export interface EspacioZenitFontRootProps {
   /** Clases aplicadas junto al bloque ez/mz (ej. layout de página vs main landing). */
@@ -70,22 +19,13 @@ export interface EspacioZenitFontRootProps {
   children: ReactNode;
 }
 
-export function EspacioZenitFontRoot({
-  className = "",
-  children,
-}: EspacioZenitFontRootProps) {
-  const fontVars = [
-    ezHeroBrush.variable,
-    ezDisciplineHiphop.variable,
-    ezDisciplineBallet.variable,
-    ezBrush.variable,
-    ezSerif.variable,
-    ezDisplay.variable,
-    ezBody.variable,
-  ].join(" ");
-
+export function EspacioZenitFontRoot({ className = "", children }: EspacioZenitFontRootProps) {
+  const fontVars = faces.map((face) => face.variable).join(" ");
   return (
     <div className={`ez-landing mz-landing ${fontVars} ${className}`.trim()}>
+      <style>
+        {".ez-landing{--font-ez-fast-blaze:var(--font-catalog-espaciozenit-fast-blaze);--font-ez-rusted-vibe:var(--font-catalog-espaciozenit-rusted-vibe);--font-ez-ballet-display:var(--font-catalog-espaciozenit-ballet);--font-ez-brush:var(--font-catalog-pacifico);--font-ez-serif:var(--font-catalog-cormorant-garamond);--font-ez-display:var(--font-catalog-bebas-neue);--font-ez-body:var(--font-catalog-plus-jakarta-sans)}"}
+      </style>
       {children}
     </div>
   );

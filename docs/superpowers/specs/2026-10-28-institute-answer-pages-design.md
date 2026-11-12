@@ -116,7 +116,7 @@ English and Portuguese are translations of these answers. Keep the same facts.
 2. ¿Qué edades reciben? Desde los 45 días hasta los 5 años.
 3. ¿Cuál es la propuesta? Inspirada en Reggio Emilia y Pikler. Arte, naturaleza, música, iniciación a la lectura y movimiento libre.
 4. ¿Dónde queda? Av. Avalos 555, Resistencia, Chaco. Teléfono y correo salen de la marca.
-5. ¿Hay colonia de vacaciones? Sí, en vacaciones escolares, para infancias de 3 a 12 años. Jornada completa o media jornada. Fechas y aranceles se publican cada temporada.
+5. ¿Hay colonia de vacaciones? Sí, en vacaciones escolares, para infancias desde los 45 días hasta los 5 años. Jornada completa o media jornada. Fechas y aranceles se publican cada temporada.
 6. ¿Cómo reservo un cupo? Con el botón de reserva del sitio o por el contacto del jardín.
 
 ### Liora Studio

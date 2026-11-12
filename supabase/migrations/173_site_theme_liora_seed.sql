@@ -1,3 +1,4 @@
+-- ge:brand-data liora
 -- Runs after 172 commits so the 'liora' enum label is usable.
 -- Paleta tomada del logo: crema #FAF5EF, tinta marrón #3F3733, rosa viejo #C08C7D.
 -- `color.primary` usa la variante oscura del rosa (#96594B) porque es la única que

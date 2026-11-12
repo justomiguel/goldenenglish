@@ -1,7 +1,8 @@
 "use server";
 
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
-import { logSupabaseError } from "@/lib/logging/serverActionLog";
+import { logServerWarn, logSupabaseError } from "@/lib/logging/serverActionLog";
+import { hasPublishedThemeDocument } from "@/lib/theme-document/hasPublishedThemeDocument";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { cleanLandingContentForPersistence } from "@/lib/cms/cleanLandingContentForPersistence";
 import { isSiteThemeKind } from "@/lib/cms/landingBlocksCatalog";
@@ -35,6 +36,11 @@ export async function updateSiteThemeContentAction(
 
   const parsed = updateSiteThemeContentInputSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, code: "invalid_input" };
+
+  if (await hasPublishedThemeDocument(ctx.admin.supabase, parsed.data.id)) {
+    await logServerWarn("cms.legacyEditor", { code: "theme_document_active", siteThemeId: parsed.data.id });
+    return { ok: false, code: "theme_document_active" };
+  }
 
   const { admin } = ctx;
   const existing = await fetchSiteThemeById(admin.supabase, parsed.data.id);

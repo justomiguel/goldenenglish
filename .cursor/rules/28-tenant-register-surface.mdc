@@ -14,6 +14,8 @@ alwaysApply: false
 
 # Tenant onboarding — dedicated register surface
 
+A new tenant gets the `/register` look from design tokens and `pages.register` sections. A `Register<Tenant>Surface` file is an owned variant under `src/variants/owned/<slug>/`. Do not add a new shared file named after a tenant. Existing surfaces stay until the variant migration moves them.
+
 ## Objective
 
 The **`/[locale]/register`** route is a **Tier A** student/parent flow (**`05-pwa-mobile-native.mdc`**) and the **entry point** of the marketing funnel. Whenever the repo gains a new tenant template (new `SiteThemeKind` enum value + `site_themes` seed), the registration page **must ship the matching themed surface in the same change**. Falling back to the generic (classic / Golden English-flavored) layout is **not** acceptable for production tenants — it breaks the brand promise built by the landing.

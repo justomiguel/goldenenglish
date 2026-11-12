@@ -1,3 +1,4 @@
+import { parseDesignTokens } from "@/lib/design-tokens/parseDesignTokens";
 import { getProperty } from "@/lib/theme/themeParser";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
 import { loadAcademicsSectionDefaults } from "@/lib/academics/loadAcademicsSectionDefaults";
@@ -18,9 +19,8 @@ export interface SiteSetupOperationalValues {
   visualAccent: string;
   visualBackground: string;
   visualSurface: string;
-  fontPrimary: string;
-  fontSecondary: string;
-  fontMono: string;
+  fontHeading: string;
+  fontBody: string;
   layoutMaxWidth: string;
   layoutBorderRadius: string;
   academicsSectionMaxStudents: string;
@@ -95,6 +95,7 @@ export async function loadSiteSetupCurrentValues(): Promise<SiteSetupCurrentValu
   const rawLogo = getProperty(properties, "app.logo.path");
   const rawFav = getProperty(properties, "app.favicon.path");
   const g = (k: string) => getProperty(properties, k);
+  const tokens = parseDesignTokens(properties);
 
   return {
     appName: g("app.name"),
@@ -118,9 +119,8 @@ export async function loadSiteSetupCurrentValues(): Promise<SiteSetupCurrentValu
       visualAccent: g("color.accent"),
       visualBackground: g("color.background"),
       visualSurface: g("color.surface"),
-      fontPrimary: g("font.primary"),
-      fontSecondary: g("font.secondary"),
-      fontMono: g("font.mono"),
+      fontHeading: tokens.font.heading,
+      fontBody: tokens.font.body,
       layoutMaxWidth: g("layout.max.width"),
       layoutBorderRadius: g("layout.border.radius"),
       academicsSectionMaxStudents: g("academics.section.max_students"),

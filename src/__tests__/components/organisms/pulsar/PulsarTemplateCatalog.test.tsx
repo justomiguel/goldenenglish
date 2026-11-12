@@ -16,6 +16,7 @@ describe("PulsarTemplateCatalog", () => {
     locale: "es",
     names: dict.pulsar.solutionSet.presencia.templateKinds,
     openLabel: dict.pulsar.admin.templatesOpen,
+    applyLabel: dict.pulsar.admin.templatesApply,
   });
 
   it("shows every client template with a live preview link", () => {
@@ -34,6 +35,10 @@ describe("PulsarTemplateCatalog", () => {
       expect(screen.getByRole("heading", { level: 2, name })).toBeInTheDocument();
       const link = screen.getByRole("link", { name: `Abrir ${name}` });
       expect(link).toHaveAttribute("href", expect.stringContaining(`/es/plantilla/${kind}`));
+      expect(screen.getByRole("link", { name: `Aplica ${name} como borrador` })).toHaveAttribute(
+        "href",
+        `/es/admin/tenants/new?starter=${kind}`,
+      );
       expect(isExclusiveThemeKind(kind)).toBe(false);
     }
   });

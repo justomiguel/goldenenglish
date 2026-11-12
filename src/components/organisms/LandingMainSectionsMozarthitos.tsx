@@ -6,18 +6,15 @@ import { MozarthitosSiteHeader } from "@/components/organisms/MozarthitosSiteHea
 import { LandingMozarthitosSections } from "@/components/organisms/LandingMozarthitosSections";
 import { MozarthitosFontRoot } from "@/components/organisms/MozarthitosFontRoot";
 import { mzLandingCopy } from "@/lib/landing/mzLandingCopy";
-import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 interface LandingMainSectionsMozarthitosProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
-  sessionEmail: string | null;
+  sessionEmail?: string | null;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
   merchEnabled?: boolean;
-  publicCtaMode?: PublicCtaMode;
-  inscriptionsEnabled?: boolean;
 }
 
 export function LandingMainSectionsMozarthitos({
@@ -29,12 +26,7 @@ export function LandingMainSectionsMozarthitos({
   blogEnabled = false,
   merchEnabled = false,
 }: LandingMainSectionsMozarthitosProps) {
-  const logoSrc = resolveLandingImageSrcForTheme(
-    "mozarthitos",
-    "inicio",
-    "1.png",
-    mediaMap,
-  );
+  const logoSrc = resolveLandingImageSrcForTheme("mozarthitos", "inicio", "1.png", mediaMap);
 
   return (
     <MozarthitosFontRoot>
@@ -46,7 +38,7 @@ export function LandingMainSectionsMozarthitos({
           logoWidth={1024}
           logoHeight={303}
           dict={dict}
-          sessionEmail={sessionEmail}
+          sessionEmail={sessionEmail ?? null}
           showBlogLink={blogEnabled}
           blogLabel={blogEnabled ? dict.blog.list.title : undefined}
           showShopLink={merchEnabled}
@@ -63,11 +55,7 @@ export function LandingMainSectionsMozarthitos({
             closeMenu: mzLandingCopy(dict, "chrome.closeMenu"),
           }}
         />
-        <LandingMozarthitosSections
-          dict={dict}
-          locale={locale}
-          mediaMap={mediaMap}
-        />
+        <LandingMozarthitosSections dict={dict} locale={locale} mediaMap={mediaMap} />
       </main>
     </MozarthitosFontRoot>
   );

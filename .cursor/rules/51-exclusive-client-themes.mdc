@@ -14,6 +14,8 @@ alwaysApply: false
 
 A landing built for one client is an exclusive theme. Other institutes must not see it in the CMS picker, and CentroListo must not list it in the client catalog.
 
+An exclusive landing is a set of owned variants in `src/variants/owned/<slug>/`. Do not add a new `SiteThemeKind` for a client. Existing exclusive kinds stay until the variant migration moves them.
+
 The owner map is `EXCLUSIVE_THEME_OWNERS` in `src/lib/theme/exclusiveThemeKinds.ts`. Catalog kinds stay in `GENERIC_INSTITUTE_KINDS`. Shared shells are `classic`, `editorial`, and `minimal`.
 
 ## When someone asks for a special landing

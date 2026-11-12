@@ -68,12 +68,12 @@ export function applyDraftOp(doc: ThemeDocumentV1, op: DraftOp): ThemeDocumentV1
 export function lockPathForOp(op: DraftOp): string;
 ```
 
-- [ ] Red: `editorDraftOps.test.ts`.
+- [x] Red: `editorDraftOps.test.ts`.
   - Each op returns a new object and leaves the input unchanged.
   - `moveSection` keeps the other order.
   - `setField` on a page section edits `pages.<id>`.
   - `lockPathForOp` returns the same paths that `findLockedFieldEdits` reports for that change. Assert it by running both on each op.
-- [ ] Green.
+- [x] Green.
 
 ### Task 2: Hook
 
@@ -96,32 +96,32 @@ export function useThemeDocumentEditor(input: {
 };
 ```
 
-- [ ] Red: `useThemeDocumentEditor.test.ts`. Mock `next/navigation` `useRouter` with `vi.hoisted`.
+- [x] Red: `useThemeDocumentEditor.test.ts`. Mock `next/navigation` `useRouter` with `vi.hoisted`.
   - `apply` sets `dirty`.
   - `save` success clears `dirty`, stores the new hash, and calls `refresh`.
   - `save` with `document_stale` sets `error.code`, keeps `dirty`, and does not call `refresh`.
   - `publish` with validation issues fills `issues`.
   - `isLocked` is true for an admin on a missing `editableBy` key and false for staff.
   - `apply` on a locked path for an admin is a no-op and sets `error.code = "field_locked"`.
-- [ ] Green.
+- [x] Green.
 
 ### Task 3: Identity tab
 
-- [ ] Red: `IdentityTab.test.tsx`.
+- [x] Red: `IdentityTab.test.tsx`.
   - Each color pair row shows the ratio from `contrastRatio` and an AA pass or fail text. The state is not shown by color alone (rule 26).
   - Font selects list `FONT_CATALOG` filtered by `isFontAllowedForTenant`.
   - A locked field renders read-only with `LockedFieldNotice`.
   - Staff see a lock toggle per field. Admins do not.
-- [ ] Green. The color input is a native `input type="color"` plus a hex text field. Both write through `apply`.
+- [x] Green. The color input is a native `input type="color"` plus a hex text field. Both write through `apply`.
 
 ### Task 4: Pages and Section tabs
 
-- [ ] Red: `PagesTab.test.tsx`.
+- [x] Red: `PagesTab.test.tsx`.
   - The page list has home plus `THEME_PAGE_IDS`.
   - Reorder buttons (`ArrowUp`, `ArrowDown`, with `aria-label` from the dictionary) emit `moveSection`.
   - The variant picker lists `variantsForTenant(slug, slot)` only.
   - An admin with `sections.order` locked sees no reorder controls.
-- [ ] Red: `SectionTab.test.tsx`. One test per `VariantEditorField.kind`.
+- [x] Red: `SectionTab.test.tsx`. One test per `VariantEditorField.kind`.
   - `text` has a counter and a cap.
   - `longText` is a textarea.
   - `select` shows its options.
@@ -129,7 +129,7 @@ export function useThemeDocumentEditor(input: {
   - `list` can add and remove items.
   - `image` mounts `InlineUploadProgressBar` only while a file is read or sent.
   - Localized fields show `es`, `en`, and `pt` inputs.
-- [ ] Green. `EditorFieldControl` switches on `kind`. Labels come from `labelKey`.
+- [x] Green. `EditorFieldControl` switches on `kind`. Labels come from `labelKey`.
 
 ### Task 5: Preview route
 
@@ -140,40 +140,40 @@ export async function signPreviewToken(payload: { tenantSlug: string; draftId: s
 export async function verifyPreviewToken(token: string, key: CryptoKey, now: number): Promise<{ ok: true; tenantSlug: string; draftId: string } | { ok: false; code: "preview_token_invalid" }>;
 ```
 
-- [ ] Red: `previewToken.test.ts`. A valid token verifies. A token with a tampered payload, a wrong key, or an expired time fails with `preview_token_invalid`.
-- [ ] Red: `plantillaBorradorPage.test.tsx`.
+- [x] Red: `previewToken.test.ts`. A valid token verifies. A token with a tampered payload, a wrong key, or an expired time fails with `preview_token_invalid`.
+- [x] Red: `plantillaBorradorPage.test.tsx`.
   - A bad token calls `notFound()`.
   - A token for tenant `a` on host `b` calls `notFound()`.
   - The response headers include `Cache-Control: private, no-store`.
   - Metadata has `robots: { index: false, follow: false }`.
   - `?surface=pwa-mobile` passes the override to the surface provider.
-- [ ] Green. Signing key: a secret env var `THEME_PREVIEW_SIGNING_KEY`. This is a secret, so an env var is correct (rule 46). Add it to `.env.example` with no value and to `docs/runbooks/`. Set `Cache-Control` through `headers()` in route config or middleware for this path. Pick the pattern the calendar feed route uses.
-- [ ] Add the sitemap assertion.
+- [x] Green. Signing key: a secret env var `THEME_PREVIEW_SIGNING_KEY`. This is a secret, so an env var is correct (rule 46). Add it to `.env.example` with no value and to `docs/runbooks/`. Set `Cache-Control` through `headers()` in route config or middleware for this path. Pick the pattern the calendar feed route uses.
+- [x] Add the sitemap assertion.
 
 ### Task 6: Publish, versions, rollback, upgrade
 
-- [ ] Red: `PublishIssuesPanel.test.tsx`. Each issue shows its sentence and `Code: <code>`. A click calls `onOpenField(path)`. An unknown code shows the raw code.
-- [ ] Red: `VersionsTab.test.tsx`.
+- [x] Red: `PublishIssuesPanel.test.tsx`. Each issue shows its sentence and `Code: <code>`. A click calls `onOpenField(path)`. An unknown code shows the raw code.
+- [x] Red: `VersionsTab.test.tsx`.
   - The rows list version, date, author, and hash prefix.
   - Rollback opens `ConfirmActionModal` and then calls `handlers.rollback`.
   - An admin sees rollback only when `editableBy["publish.rollback"] === "admin"`.
   - Upgrade rows appear for sections where `latestMajor(id) > major`, for staff only.
-- [ ] Red: `UpgradeRow.test.tsx`.
+- [x] Red: `UpgradeRow.test.tsx`.
   - "Preview upgrade" runs `migrateProps` and validates with the new `propsSchema`.
   - A failure shows `upgrade_props_invalid`.
   - "Apply to draft" emits `setVariant` plus `setField` ops.
   - The row shows the fleet count from a prop.
-- [ ] Green. Fleet count: a server loader reads `platform_tenant_variant_pins` counts by `variant_id, major`. Bounded by the variant count, so no paging is needed. Note that in a comment (rule 13).
+- [x] Green. Fleet count: `loadVariantFleetCounts` reads `platform_tenant_variant_pins` in pages of 1000 and groups by `variant_id, major`. Pin rows grow with each institute (rule 13).
 
 ### Task 7: Mounts, starters, old editors, copy
 
-- [ ] Admin mount at `dashboard/admin/cms/design/page.tsx`. It loads the draft, the published document, or the legacy fallback, and the versions. Add a nav item to the CMS section. Add `pathnameToEntity` mapping if the CMS nav uses it (rule 08).
-- [ ] Staff mount as a Design tab in the CentroListo tenant screen with `actorRole: "staff"`.
-- [ ] Red: `starterDocuments.test.ts`. One starter per generic kind. Each passes `validateThemeDocument(doc, null)`. Each equals `legacyThemeToDocument` for that kind with default content.
-- [ ] Tenant creation: a starter select. Applying it creates a draft through the service. It does not publish. `/admin/plantillas` lists starters with an "Apply as draft" button (icon `FilePlus2`).
-- [ ] Old editors: their save actions call `hasPublishedThemeDocument(siteThemeId)`. If true, they return `{ ok: false, code: "theme_document_active" }` and log `logServerWarn` with scope `cms.legacyEditor`. The screens show a notice with a link to the Design tab. Add tests to the existing action tests for that code.
-- [ ] Dictionaries: every label, `aria-label`, and code sentence in `en`, `es`, `pt`. Run `neutralSpanishCopy.test.ts`.
-- [ ] Tours: update the CMS tour steps and their L1/L2 contract tests (rule 33).
+- [x] Admin mount at `dashboard/admin/cms/design/page.tsx`. It loads the draft, the published document, or the legacy fallback, and the versions. Add a nav item to the CMS section. Add `pathnameToEntity` mapping if the CMS nav uses it (rule 08).
+- [x] Staff mount at `admin/tenants/[slug]/theme/design` with `actorRole: "staff"`. The tenant page links to it. The fleet operator tab stays unchanged.
+- [x] Red: `starterDocuments.test.ts`. One starter per generic kind. Each passes `validateThemeDocument(doc, null)`. Each equals `legacyThemeToDocument` for that kind with default content.
+- [x] Tenant creation: `/admin/plantillas` links each starter to `admin/tenants/new?starter=`. A new tenant with that query opens Design and `applyThemeStarterAction` saves a draft. It does not publish.
+- [x] Old editors: their save actions call `hasPublishedThemeDocument(siteThemeId)`. If true, they return `{ ok: false, code: "theme_document_active" }` and log `logServerWarn` with scope `cms.legacyEditor`. The screens show a notice with a link to the Design tab. Add tests to the existing action tests for that code.
+- [x] Dictionaries: every label, `aria-label`, and code sentence in `en`, `es`, `pt`. Run `neutralSpanishCopy.test.ts`.
+- [x] Tours: update the CMS tour steps and their L1/L2 contract tests (rule 33).
 
 ### Task 8: Gate and commit
 

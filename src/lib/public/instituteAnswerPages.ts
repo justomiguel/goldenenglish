@@ -100,6 +100,48 @@ export function buildInstituteAddress(streetAddress: string): Record<string, unk
   };
 }
 
+function readPlace(value: unknown): InstitutePlace | null {
+  if (!value || typeof value !== "object") return null;
+  const row = value as { name?: unknown; description?: unknown };
+  if (typeof row.name !== "string") return null;
+  const name = row.name.trim();
+  if (!name) return null;
+  const description = typeof row.description === "string" ? row.description.trim() : "";
+  return { name, description };
+}
+
+function placesFromAnswerSections(
+  sections: readonly { props: unknown }[] | null | undefined,
+): InstitutePlace[] {
+  if (!sections) return [];
+  const found: InstitutePlace[] = [];
+  for (const section of sections) {
+    const props = section.props;
+    if (!props || typeof props !== "object") continue;
+    const list = (props as { places?: unknown }).places;
+    if (!Array.isArray(list)) continue;
+    for (const item of list) {
+      const place = readPlace(item);
+      if (place) found.push(place);
+    }
+  }
+  return found;
+}
+
+/** Places for JSON-LD. Answer-page props win. Otherwise one place from the contact address. */
+export function placesForOrganization(input: {
+  name: string;
+  contactAddress: string;
+  answerSections?: readonly { props: unknown }[] | null;
+}): InstitutePlace[] {
+  const fromAnswers = placesFromAnswerSections(input.answerSections);
+  if (fromAnswers.length > 0) return fromAnswers;
+  if (!isPublishablePublicContact("address", input.contactAddress)) return [];
+  const description = input.contactAddress.trim();
+  const name = input.name.trim() || description;
+  return [{ name, description }];
+}
+
 export function lioraPlacesFromSedes(sedes: {
   providencia: { name: string; metro: string };
   maipu: { name: string; metro: string };
@@ -112,12 +154,10 @@ export function lioraPlacesFromSedes(sedes: {
   ].filter((place) => place.name.trim().length > 0);
 }
 
-/** Liora lists three metro sites. Other institutes keep one address. */
+/** One Place node per site. The address on the organization stays separate. */
 export function buildInstituteDepartments(
-  templateKind: string,
   places: readonly InstitutePlace[],
 ): Record<string, unknown>[] {
-  if (templateKind !== "liora") return [];
   return places
     .map((place) => ({
       name: place.name.trim(),

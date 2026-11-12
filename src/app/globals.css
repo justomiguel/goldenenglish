@@ -8,8 +8,9 @@
  * without redeploying. See `SYSTEM_PROPERTIES_DEFAULTS` (defaults) +
  * `public.site_themes.properties` (overrides) + `src/lib/theme/themeOverrides.ts`.
  *
- * Only font variables stay here: they reference `--font-sans` / `--font-display`
- * provided by `next/font` on the `<html>` element and are not theme-switchable.
+ * `--font-sans` and `--font-display` are set in the theme style from the
+ * catalog ids `font.body` and `font.heading`. The catalog class on `<html>`
+ * defines `--font-catalog-*`.
  */
 :root {
   --font-body: var(--font-sans), ui-sans-serif, system-ui, sans-serif;

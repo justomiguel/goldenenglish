@@ -1,10 +1,5 @@
 import type { ReactNode } from "react";
-import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
-import { LioraFontRoot } from "@/components/organisms/LioraFontRoot";
-import { MatissFontRoot } from "@/components/organisms/MatissFontRoot";
-import { MiMundoFontRoot } from "@/components/organisms/MiMundoFontRoot";
-import { MozarthitosFontRoot } from "@/components/organisms/MozarthitosFontRoot";
-import { EspacioZenitFontRoot } from "@/components/organisms/EspacioZenitFontRoot";
+import { renderOwnedSurface } from "@/variants/ownedSurfaces";
 
 interface PublicTenantChromeProps {
   templateKind: string;
@@ -18,31 +13,7 @@ export function PublicTenantChrome({
   className = "min-h-screen",
   children,
 }: PublicTenantChromeProps) {
-  if (templateKind === "nago") {
-    return (
-      <NagoFontRoot className={className} sound={false}>
-        {children}
-      </NagoFontRoot>
-    );
-  }
-  if (templateKind === "liora") {
-    return <LioraFontRoot className={className}>{children}</LioraFontRoot>;
-  }
-  if (templateKind === "matiss") {
-    return <MatissFontRoot className={className}>{children}</MatissFontRoot>;
-  }
-  if (templateKind === "mimundo") {
-    return <MiMundoFontRoot className={className}>{children}</MiMundoFontRoot>;
-  }
-  if (templateKind === "mozarthitos") {
-    return <MozarthitosFontRoot className={className}>{children}</MozarthitosFontRoot>;
-  }
-  if (templateKind === "espaciozenit") {
-    return (
-      <EspacioZenitFontRoot className={`${className} bg-black text-white`.trim()}>
-        {children}
-      </EspacioZenitFontRoot>
-    );
-  }
+  const owned = renderOwnedSurface("chrome", templateKind, { className, children });
+  if (owned) return owned;
   return children;
 }

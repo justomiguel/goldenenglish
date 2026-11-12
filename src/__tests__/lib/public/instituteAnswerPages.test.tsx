@@ -113,6 +113,18 @@ describe("institute answer pages", () => {
     expect(joinedAnswers("nago")).not.toMatch(/sin contacto|non-contact|sem contato/i);
     expect(joinedAnswers("mozarthitos")).not.toMatch(/hasta los 8|uma vez por semana|una vez por semana/i);
     expect(joinedAnswers("mimundo")).not.toMatch(/french 535|442-0905|lauriobregon/i);
+    expect(joinedAnswers("mimundo")).not.toMatch(/3 a 12|3 to 12|aged 3 to 12/);
+    const colony = {
+      en: en.publicAnswers.kinds.mimundo.items.find((item) => item.id === "colony")?.a ?? "",
+      es: es.publicAnswers.kinds.mimundo.items.find((item) => item.id === "colony")?.a ?? "",
+      pt: pt.publicAnswers.kinds.mimundo.items.find((item) => item.id === "colony")?.a ?? "",
+    };
+    expect(colony.en).toMatch(/45 days/);
+    expect(colony.en).toMatch(/5 years/);
+    expect(colony.es).toMatch(/45 días/);
+    expect(colony.es).toMatch(/5 años/);
+    expect(colony.pt).toMatch(/45 dias/);
+    expect(colony.pt).toMatch(/5 anos/);
   });
 
   it("answers People Also Ask questions without inventing fees or uniforms", () => {
@@ -148,14 +160,14 @@ describe("institute answer pages", () => {
     expect(screen.getByRole("heading", { level: 2, name: items[0]?.q })).toBeInTheDocument();
   });
 
-  it("builds Liora department places from metro copy and skips other kinds", () => {
+  it("builds department places from metro copy", () => {
     const places = lioraPlacesFromSedes(es.landing.liora.sedes);
     expect(places.map((place) => place.name)).toEqual([
       "Providencia",
       "Maipú",
       "San Miguel",
     ]);
-    const departments = buildInstituteDepartments("liora", places);
+    const departments = buildInstituteDepartments(places);
     expect(departments).toHaveLength(3);
     expect(departments[0]).toMatchObject({
       "@type": "Place",
@@ -163,6 +175,6 @@ describe("institute answer pages", () => {
       description: "A pasos del Metro Parque Bustamante",
     });
     expect(JSON.stringify(departments)).not.toMatch(/streetAddress|Seminario|130/);
-    expect(buildInstituteDepartments("classic", places)).toEqual([]);
+    expect(buildInstituteDepartments([])).toEqual([]);
   });
 });

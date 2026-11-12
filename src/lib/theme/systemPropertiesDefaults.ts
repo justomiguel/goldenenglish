@@ -98,6 +98,17 @@ const FONTS = {
   "font.primary": "DM Sans",
   "font.secondary": "Fraunces",
   "font.mono": "JetBrains Mono",
+  "font.heading": "fraunces",
+  "font.body": "dm-sans",
+} as const;
+
+const DESIGN_LEVELS = {
+  "type.scale": "standard",
+  "type.heading.weight": "600",
+  "radius.control": "0.75rem",
+  "radius.card": "0.75rem",
+  "space.density": "standard",
+  "motion.level": "subtle",
 } as const;
 
 /* ---------- Layout ---------- */
@@ -157,6 +168,7 @@ export const SYSTEM_PROPERTIES_DEFAULTS: Readonly<Record<string, string>> = {
   ...SHADOWS,
   ...COLOR_CALENDAR_SPECIAL,
   ...FONTS,
+  ...DESIGN_LEVELS,
   ...LAYOUT,
   ...CONTACT,
   ...SOCIAL,

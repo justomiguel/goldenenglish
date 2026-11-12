@@ -1,3 +1,4 @@
+-- ge:brand-data mimundo
 -- Runs after 133 commits so 'mimundo' enum label is usable.
 -- Jardín Materno Infantil Mi Mundo — dedicated Supabase project, so is_active = TRUE.
 -- site_themes_only_one_active: deactivate others before setting mimundo active.

@@ -1,5 +1,9 @@
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  listE2eSpecFiles,
   mergeE2eCache,
   outcomesFromPlaywrightReport,
   outcomesFromVitestReport,
@@ -12,6 +16,18 @@ const hashes = {
   "e2e/b.spec.ts": "bbb",
   "e2e/c.spec.ts": "ccc",
 };
+
+describe("listE2eSpecFiles", () => {
+  it("leaves client visual specs out of the commit gate", () => {
+    const root = mkdtempSync(path.join(tmpdir(), "e2e-list-"));
+    const e2e = path.join(root, "e2e");
+    mkdirSync(path.join(e2e, "clients"), { recursive: true });
+    writeFileSync(path.join(e2e, "gate.spec.ts"), "test\n");
+    writeFileSync(path.join(e2e, "clients", "matiss.visual.spec.ts"), "test\n");
+    expect(listE2eSpecFiles(e2e)).toEqual(["e2e/gate.spec.ts"]);
+    rmSync(root, { recursive: true, force: true });
+  });
+});
 
 describe("selectE2eSpecFiles", () => {
   it("runs every spec when the product tree changed", () => {

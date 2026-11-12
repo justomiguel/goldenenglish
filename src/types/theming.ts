@@ -1,4 +1,5 @@
 import type { SkinContentV1 } from "@/lib/landing/skin/skinModel";
+import type { ThemeDocumentV1 } from "@/lib/theme-document/themeDocumentV1";
 import type { ThemeProperties } from "@/lib/theme/themeParser";
 
 /** Cache tag invalidated when admin activates/edits the live theme. */
@@ -28,6 +29,10 @@ export const THEME_OVERRIDE_KEY_PREFIXES = [
   "layout.",
   "shadow.",
   "font.",
+  "type.",
+  "radius.",
+  "space.",
+  "motion.",
   "app.",
   "contact.",
   "social.",
@@ -169,6 +174,7 @@ export interface SiteThemeMediaRow {
 export interface ActiveThemeSnapshot {
   theme: SiteThemeRow;
   media: ReadonlyArray<SiteThemeMediaRow>;
+  publishedDocument?: { document: ThemeDocumentV1; source: "published" | "legacy" };
 }
 
 /** Merged result handed to the layout / brand layer. */

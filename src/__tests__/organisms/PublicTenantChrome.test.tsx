@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
 
-vi.mock("@/components/organisms/MatissFontRoot", () => ({
+vi.mock("@/variants/owned/matiss/font/v1/Web", () => ({
   MatissFontRoot: ({ children }: { children: ReactNode }) => (
     <div data-testid="matiss-font-root">{children}</div>
   ),

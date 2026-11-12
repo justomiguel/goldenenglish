@@ -7,6 +7,7 @@ import {
 import { resolvePublicBrand } from "@/lib/brand/resolvePublicBrand";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { getInscriptionsEnabled, getRegisterSectionMode } from "@/lib/settings/inscriptionsServer";
+import { resolveActiveRegistrationExtrasPack } from "@/lib/register/packs/resolveActiveRegistrationExtrasPack";
 import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
 import { resolveRegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import { RegisterSurfaceByTemplate } from "@/components/organisms/RegisterSurfaceByTemplate";
@@ -63,7 +64,7 @@ export default async function RegisterPage({ params, searchParams }: PageProps) 
     redirect(`/${locale}/register${qs ? `?${qs}` : ""}`);
   }
 
-  const [baseDict, brand, snapshot, legalAgeMajority, sessionEmail, sectionMode] =
+  const [baseDict, brand, snapshot, legalAgeMajority, sessionEmail, sectionMode, extrasPack] =
     await Promise.all([
       getDictionary(locale),
       resolvePublicBrand(loc),
@@ -71,6 +72,7 @@ export default async function RegisterPage({ params, searchParams }: PageProps) 
       getLegalAgeMajorityFromSystem(),
       loadRequestSessionEmail(),
       getRegisterSectionMode(),
+      resolveActiveRegistrationExtrasPack(),
     ]);
 
   const templateKind = snapshot?.theme.templateKind ?? "classic";
@@ -122,6 +124,7 @@ export default async function RegisterPage({ params, searchParams }: PageProps) 
     intent: resolved.kind === "ok" ? resolved.intent : resolved.to,
     sessionEmail,
     sectionMode,
+    extrasPack,
   };
 
   return (

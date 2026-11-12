@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
 
-vi.mock("next/font/google", () => ({
-  Oswald: () => ({ variable: "--font-nago-display" }),
-  Outfit: () => ({ variable: "--font-nago-body" }),
+vi.mock("@/components/atoms/fonts/catalogFonts", () => ({
+  CATALOG_FONTS: {
+    oswald: { className: "cls-oswald", variable: "--font-catalog-oswald" },
+    outfit: { className: "cls-outfit", variable: "--font-catalog-outfit" },
+  },
 }));
 
 import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";

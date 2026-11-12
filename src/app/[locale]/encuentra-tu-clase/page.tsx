@@ -12,7 +12,31 @@ import { buildResolvedPublicShareMetadata } from "@/lib/site/buildResolvedPublic
 import { MZ_GUIDE_PATH, readGuideAnswers } from "@/lib/landing/mozarthitos/guideToken";
 import { PublicExperienceShell } from "@/components/organisms/PublicExperienceShell";
 import { PublicBlogScreenMozarthitos } from "@/components/organisms/PublicBlogScreenMozarthitos";
-import { MozarthitosFamilyGuideEntry } from "@/components/organisms/MozarthitosFamilyGuideEntry";
+import { FamilyGuideEntry } from "@/components/organisms/FamilyGuideEntry";
+import { withFindClassPage } from "@/lib/site/documentIndexedPaths";
+import { legacyThemeToDocument } from "@/lib/theme-document/legacyThemeToDocument";
+import type { ThemeDocumentV1 } from "@/lib/theme-document/themeDocumentV1";
+import type { SiteThemeKind } from "@/types/theming";
+
+interface IndexedSnapshot {
+  theme?: { templateKind: SiteThemeKind } | null;
+  publishedDocument?: { document: ThemeDocumentV1 } | null;
+}
+
+/** Published document, or the legacy document. The class finder stays on until its page is stored. */
+export function indexedThemeDocument(snapshot: IndexedSnapshot | null): ThemeDocumentV1 | null {
+  const published = snapshot?.publishedDocument?.document;
+  if (published?.pages.findClass) return published;
+  const kind = snapshot?.theme?.templateKind;
+  const base =
+    published ??
+    (kind
+      ? legacyThemeToDocument({ properties: {}, skin_content: null, template_kind: kind })
+      : null);
+  if (!base) return null;
+  if (kind === "mozarthitos") return withFindClassPage(base);
+  return base;
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -26,10 +50,10 @@ function guidePath(locale: string): string {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const snapshot = await loadActiveTheme();
-  if (snapshot?.theme.templateKind !== "mozarthitos") return {};
+  const theme = snapshot?.theme;
+  if (!theme || !indexedThemeDocument(snapshot)?.pages.findClass) return {};
   const [baseDict, brand] = await Promise.all([getDictionary(locale), getBrandForRequest()]);
-  const guide = applyLandingContentOverrides(baseDict, snapshot.theme.content, locale).landing.mz
-    .guide;
+  const guide = applyLandingContentOverrides(baseDict, theme.content, locale).landing.mz.guide;
   const path = guidePath(locale);
   const meta = await buildResolvedPublicShareMetadata({
     what: guide.metaTitle,
@@ -60,9 +84,10 @@ export default async function MozarthitosFamilyGuidePage({ params, searchParams 
     loadMerchEnabled(),
     loadRequestSessionEmail(),
   ]);
-  if (snapshot?.theme.templateKind !== "mozarthitos") notFound();
+  const theme = snapshot?.theme;
+  if (!theme || !indexedThemeDocument(snapshot)?.pages.findClass) notFound();
 
-  const dict = applyLandingContentOverrides(resolved.dict, snapshot.theme.content, loc);
+  const dict = applyLandingContentOverrides(resolved.dict, theme.content, loc);
   const mz = dict.landing.mz;
   const guide = mz.guide;
 
@@ -93,7 +118,7 @@ export default async function MozarthitosFamilyGuidePage({ params, searchParams 
             </p>
           </header>
           <div className="mt-8">
-            <MozarthitosFamilyGuideEntry
+            <FamilyGuideEntry
               locale={loc}
               labels={guide}
               place={`${mz.sede.title} · ${mz.sede.subtitle}`}

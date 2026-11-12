@@ -31,9 +31,8 @@ import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
 import { loadLandingQuestionnaires } from "@/lib/questionnaires/loadLandingQuestionnaires";
 import { LandingQuestionnairesSection } from "@/components/organisms/LandingQuestionnairesSection";
-import { HomeEventPopup } from "@/components/organisms/HomeEventPopup";
-import { HomeEventPopupOrInline } from "@/components/organisms/HomeEventPopupOrInline";
-import { loadHomeEventPopup } from "@/lib/dashboard/events/loadHomeEventPopup";
+import { HomeEventPopupForKind } from "@/variants/ownedHomeEventPopup";
+import { loadGuestHomeEventPopup } from "@/lib/events/server/loadGuestHomeEventPopup";
 import { buildHomePageMetadata } from "@/lib/metadata/buildHomePageMetadata";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
 import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
@@ -148,7 +147,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
       getPublicCtaMode(),
       getInscriptionsEnabled(),
       loadLandingQuestionnaires(supabase, locale),
-      loadHomeEventPopup(supabase, locale),
+      loadGuestHomeEventPopup(supabase, locale),
     ]);
 
   const dict = applyLandingContentOverrides(
@@ -191,11 +190,10 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   );
 
   const popup = dict.events.public.homePopup;
-  // Liora shows the event inline on narrow screens (one layer at a time).
-  const EventPopup = templateKind === "liora" ? HomeEventPopupOrInline : HomeEventPopup;
   return (
     <>
-      <EventPopup
+      <HomeEventPopupForKind
+        kind={templateKind}
         locale={locale}
         events={homePopupEvents}
         labels={{
