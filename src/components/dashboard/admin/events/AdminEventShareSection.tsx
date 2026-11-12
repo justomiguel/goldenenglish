@@ -33,6 +33,7 @@ export function AdminEventShareSection({
   labels,
 }: AdminEventShareSectionProps) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
@@ -86,11 +87,20 @@ export function AdminEventShareSection({
   }
 
   return (
-    <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3">
-      <h2 className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-foreground)]">
+    <section className="space-y-3">
+      <Button
+        type="button"
+        variant="ghost"
+        className="min-h-11 justify-start rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4"
+        aria-expanded={open}
+        aria-controls="event-share-panel"
+        onClick={() => setOpen((current) => !current)}
+      >
         <Share2 className="h-4 w-4" aria-hidden />
         {labels.title}
-      </h2>
+      </Button>
+      {open ? (
+      <div id="event-share-panel" className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3">
       <p className="text-sm text-[var(--color-muted-foreground)]">{labels.lead}</p>
       {sites.length === 0 ? <p className="text-sm text-[var(--color-foreground)]">{labels.empty}</p> : null}
       <fieldset className="space-y-2">
@@ -134,6 +144,8 @@ export function AdminEventShareSection({
         ))}
       </ul>
       {message ? <p className="text-sm text-[var(--color-foreground)]">{message}</p> : null}
+      </div>
+      ) : null}
     </section>
   );
 }

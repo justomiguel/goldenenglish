@@ -28,7 +28,29 @@ export interface HomeEventPopupEvent {
   flowPrices: EventFlowPrice[];
 }
 
+export const HOME_POPUP_EVENT_COLUMNS =
+  "id, slug, title, description, event_date, location, price, price_local, price_non_local, currency, default_locale, status, archived_at, private_to_section, show_on_home, price_by_flow";
+
 const EXCERPT_MAX = 160;
+
+interface HomePopupSourceRow {
+  id?: unknown;
+  slug?: unknown;
+  title?: unknown;
+  description?: unknown;
+  event_date?: unknown;
+  location?: unknown;
+  price?: unknown;
+  price_local?: unknown;
+  price_non_local?: unknown;
+  currency?: unknown;
+  default_locale?: unknown;
+  status?: unknown;
+  archived_at?: unknown;
+  private_to_section?: unknown;
+  show_on_home?: unknown;
+  price_by_flow?: unknown;
+}
 
 function excerptFromHtml(html: string): string {
   const plain = htmlToPlain(html);
@@ -36,30 +58,13 @@ function excerptFromHtml(html: string): string {
   return `${plain.slice(0, EXCERPT_MAX).trimEnd()}…`;
 }
 
-export async function loadHomeEventPopup(
+export async function rowsToHomePopupEvents(
   supabase: SupabaseClient,
+  data: readonly HomePopupSourceRow[],
   locale: string,
   now = new Date(),
 ): Promise<HomeEventPopupEvent[]> {
-  const { data, error } = await supabase
-    .from("events")
-    .select(
-      "id, slug, title, description, event_date, location, price, price_local, price_non_local, currency, default_locale, status, archived_at, private_to_section, show_on_home, price_by_flow",
-    )
-    .eq("show_on_home", true)
-    .eq("status", "published")
-    .eq("private_to_section", false)
-    .is("archived_at", null)
-    .gte("event_date", now.toISOString())
-    .order("event_date", { ascending: true })
-    .limit(HOME_EVENT_POPUP_LIMIT);
-
-  if (error) {
-    logSupabaseClientError("loadHomeEventPopup", error);
-    return [];
-  }
-
-  const candidates = (data ?? []).map((row) => ({
+  const candidates = data.map((row) => ({
     row,
     id: String(row.id),
     status: String(row.status ?? ""),
@@ -114,4 +119,28 @@ export async function loadHomeEventPopup(
       flowPrices: flowPricesByEvent.get(item.id) ?? [],
     };
   });
+}
+
+export async function loadHomeEventPopup(
+  supabase: SupabaseClient,
+  locale: string,
+  now = new Date(),
+): Promise<HomeEventPopupEvent[]> {
+  const { data, error } = await supabase
+    .from("events")
+    .select(HOME_POPUP_EVENT_COLUMNS)
+    .eq("show_on_home", true)
+    .eq("status", "published")
+    .eq("private_to_section", false)
+    .is("archived_at", null)
+    .gte("event_date", now.toISOString())
+    .order("event_date", { ascending: true })
+    .limit(HOME_EVENT_POPUP_LIMIT);
+
+  if (error) {
+    logSupabaseClientError("loadHomeEventPopup", error);
+    return [];
+  }
+
+  return rowsToHomePopupEvents(supabase, (data ?? []) as HomePopupSourceRow[], locale, now);
 }

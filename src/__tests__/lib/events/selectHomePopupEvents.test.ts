@@ -4,6 +4,7 @@
 import { describe, expect, it } from "vitest";
 import {
   HOME_EVENT_POPUP_LIMIT,
+  mergeHomePopupEvents,
   selectHomePopupEvents,
   type HomePopupEventCandidate,
 } from "@/lib/events/selectHomePopupEvents";
@@ -52,5 +53,23 @@ describe("selectHomePopupEvents", () => {
     expect(selected).toHaveLength(HOME_EVENT_POPUP_LIMIT);
     expect(selected[0]?.id).toBe("e0");
     expect(selected.at(-1)?.id).toBe("e7");
+  });
+
+  it("keeps a shared home event, drops a taken slug, and drops an unmarked event", () => {
+    const shared = selectHomePopupEvents(
+      [
+        { ...row({ id: "gala", eventDate: "2026-11-01T12:00:00.000Z" }), slug: "gala" },
+        { ...row({ id: "off", eventDate: "2026-11-02T12:00:00.000Z", showOnHome: false }), slug: "off" },
+        { ...row({ id: "clash", eventDate: "2026-11-03T12:00:00.000Z" }), slug: "mine" },
+      ],
+      NOW,
+    );
+    const merged = mergeHomePopupEvents({
+      local: [{ ...row({ id: "local", eventDate: "2026-12-01T12:00:00.000Z" }), slug: "local-only" }],
+      shared,
+      takenSlugs: new Set(["mine"]),
+    });
+
+    expect(merged.map((event) => event.id)).toEqual(["gala", "local"]);
   });
 });

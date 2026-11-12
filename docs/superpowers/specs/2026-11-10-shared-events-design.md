@@ -13,7 +13,7 @@
 - Archiving the event hides it on every guest and closes the share rows.
 - Tests cover the resolver, the public merge, archive, and the CentroListo decision.
 
-**Out of scope:** Sharing sections, students, payments, or any entity other than events. The guest home popup. A share request started by the guest. A hard delete of the event row. A second copy of the event in the guest database.
+**Out of scope:** Sharing sections, students, payments, or any entity other than events. A share request started by the guest. A hard delete of the event row. A second copy of the event in the guest database. The guest home popup is specified in `docs/superpowers/specs/2026-11-11-matiss-shared-popup-and-header-design.md`.
 
 ## Decision
 
@@ -91,7 +91,7 @@ There is no Matiss-only event template in code. The frame is the institute logo 
 
 ### Owner summary
 
-Tier B. Desktop only. The control sits on the event summary tab, next to the publish bar.
+Tier B. Desktop only. The control sits on the event summary tab, next to the publish bar. The form starts closed. A button with the share title opens it.
 
 The owner admin turns on share and picks one or more other sites. Each site creates or reuses the grant row as defined above. The summary lists each grant with its status. `slug_taken` appears on a grant when the guest already has a non-archived event with the same slug. The owner can request an unshare for an `approved` grant.
 
@@ -105,7 +105,7 @@ If the guest has a non-archived event with that slug, the local event wins. Omit
 
 The detail page and the register page use the guest chrome, logo, and document title. The event fields come from the owner row. Registration writes the attendee in the owner database and sets `entry_host_slug` to the guest slug.
 
-`show_on_home` still affects only the owner home. The guest home loader does not read shared events.
+`show_on_home` on the owner row also opens the guest home popup. See `docs/superpowers/specs/2026-11-11-matiss-shared-popup-and-header-design.md`.
 
 ### Guest admin
 
