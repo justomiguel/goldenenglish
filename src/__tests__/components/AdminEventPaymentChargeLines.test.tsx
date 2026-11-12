@@ -10,6 +10,7 @@ const labels = {
   familyLine: "Family discount: {amount}",
 };
 
+// REGRESSION CHECK: A plain adult purchase must keep the adult count and unit price. Hiding that line brings back the payments tab gap.
 describe("AdminEventPaymentChargeLines", () => {
   it("shows the minor split and the code under the total", () => {
     render(
@@ -32,15 +33,15 @@ describe("AdminEventPaymentChargeLines", () => {
     expect(screen.getByText(/Code FIJO:/)).toBeTruthy();
   });
 
-  it("hides the lines when nothing was discounted", () => {
-    const { container } = render(
+  it("shows the adult line when the purchase has no minors and no discount", () => {
+    render(
       <AdminEventPaymentChargeLines
         locale="es-CL"
         currency="CLP"
         labels={labels}
         lines={{
-          amount: 10000,
-          adultTickets: 1,
+          amount: 20000,
+          adultTickets: 2,
           unitPrice: 10000,
           minorTickets: 0,
           minorUnitPrice: null,
@@ -48,6 +49,28 @@ describe("AdminEventPaymentChargeLines", () => {
         }}
       />,
     );
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByText(/Adults: 2/)).toBeTruthy();
+    expect(screen.queryByText(/Minors:/)).toBeNull();
+  });
+
+  it("shows the adult line and the discount when there are no minors", () => {
+    render(
+      <AdminEventPaymentChargeLines
+        locale="es-CL"
+        currency="CLP"
+        labels={labels}
+        lines={{
+          amount: 8000,
+          adultTickets: 1,
+          unitPrice: 10000,
+          minorTickets: 0,
+          minorUnitPrice: null,
+          discount: { kind: "code", code: "FIJO", percent: null, amountOff: 2000 },
+        }}
+      />,
+    );
+    expect(screen.getByText(/Adults: 1/)).toBeTruthy();
+    expect(screen.getByText(/Code FIJO:/)).toBeTruthy();
+    expect(screen.queryByText(/Minors:/)).toBeNull();
   });
 });

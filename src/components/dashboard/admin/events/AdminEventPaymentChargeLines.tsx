@@ -28,7 +28,7 @@ export function AdminEventPaymentChargeLines({
   lines,
   labels,
 }: AdminEventPaymentChargeLinesProps) {
-  if (!lines || (lines.minorTickets <= 0 && lines.discount == null)) return null;
+  if (!lines) return null;
   const money = (price: number) =>
     new Intl.NumberFormat(locale, {
       style: "currency",
@@ -51,11 +51,9 @@ export function AdminEventPaymentChargeLines({
 
   return (
     <div className="mt-1 space-y-0.5 text-right text-xs text-[var(--color-muted-foreground)]">
+      <p>{countLine(labels.adultLine, lines.adultTickets, lines.unitPrice ?? 0)}</p>
       {lines.minorTickets > 0 ? (
-        <>
-          <p>{countLine(labels.adultLine, lines.adultTickets, lines.unitPrice ?? 0)}</p>
-          <p>{countLine(labels.minorLine, lines.minorTickets, lines.minorUnitPrice ?? 0)}</p>
-        </>
+        <p>{countLine(labels.minorLine, lines.minorTickets, lines.minorUnitPrice ?? 0)}</p>
       ) : null}
       {discountText ? <p className="font-medium text-[var(--color-foreground)]">{discountText}</p> : null}
     </div>

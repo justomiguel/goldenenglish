@@ -178,8 +178,7 @@ export async function loadEventPaymentsPaginated(
     rows: rows.map((row) => {
       const view = shown.get(row.eventAttendeeId);
       if (view == null) return row;
-      const explain = view.minorTickets > 0 || view.discount != null;
-      return { ...row, amount: view.amount, chargeLines: explain ? view : null };
+      return { ...row, amount: view.amount, chargeLines: view };
     }),
     totalCount: countResult.count ?? 0,
     page,
