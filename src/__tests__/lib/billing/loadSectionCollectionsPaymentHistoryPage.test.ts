@@ -23,13 +23,17 @@ describe("loadSectionCollectionsPaymentHistoryPage", () => {
       select(_cols: string, opts?: { count?: string; head?: boolean }) {
         if (opts?.head) {
           return {
-            eq: () => Promise.resolve({ count: 1, error: null }),
+            eq: () => ({
+              is: () => Promise.resolve({ count: 1, error: null }),
+            }),
           };
         }
         return {
           eq: () => ({
-            order: () => ({
-              range: () => Promise.resolve({ data: [paymentRow], error: null }),
+            is: () => ({
+              order: () => ({
+                range: () => Promise.resolve({ data: [paymentRow], error: null }),
+              }),
             }),
           }),
         };
@@ -92,12 +96,18 @@ describe("loadSectionCollectionsPaymentHistoryPage", () => {
     const payApi = {
       select(_cols: string, opts?: { count?: string; head?: boolean }) {
         if (opts?.head) {
-          return { eq: () => Promise.resolve({ count: 1, error: null }) };
+          return {
+            eq: () => ({
+              is: () => Promise.resolve({ count: 1, error: null }),
+            }),
+          };
         }
         return {
           eq: () => ({
-            order: () => ({
-              range: () => Promise.resolve({ data: [paymentRow], error: null }),
+            is: () => ({
+              order: () => ({
+                range: () => Promise.resolve({ data: [paymentRow], error: null }),
+              }),
             }),
           }),
         };

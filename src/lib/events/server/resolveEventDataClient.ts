@@ -2,8 +2,8 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
-  eventShareGrantClient,
   listApprovedGrantsForGuest,
+  shareGrantClientOrNull,
 } from "@/lib/events/server/eventShareGrantStore";
 import { logServerError } from "@/lib/logging/serverActionLog";
 import { createAdminClient, createAdminClientFromCredentials } from "@/lib/supabase/admin";
@@ -63,9 +63,11 @@ export async function resolveEventDataClient(eventId: string): Promise<EventData
   const tenant = await resolveRequestTenant();
   const currentSlug = tenant?.slug ?? "";
   const currentClient = await createAdminClient();
-  const grants = currentSlug
-    ? await listApprovedGrantsForGuest(eventShareGrantClient(), currentSlug)
-    : [];
+  const grantClient = shareGrantClientOrNull();
+  const grants =
+    currentSlug && grantClient
+      ? await listApprovedGrantsForGuest(grantClient, currentSlug)
+      : [];
   return resolveEventDataClientWith({
     eventId,
     currentSlug,

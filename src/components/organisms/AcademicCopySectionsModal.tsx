@@ -7,6 +7,7 @@ import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
 import { copyCohortSectionStructureAction } from "@/app/[locale]/dashboard/admin/academic/copyCohortSectionsActions";
+import { failureSentenceForCode } from "@/lib/academics/parseNewCohortDraft";
 
 export interface AcademicCopySectionsModalDict {
   title: string;
@@ -17,8 +18,7 @@ export interface AcademicCopySectionsModalDict {
   includeStudentsHint: string;
   submit: string;
   cancel: string;
-  error: string;
-  errorEmptySource: string;
+  errors: Record<string, string>;
 }
 
 export interface AcademicCopySectionsModalProps {
@@ -63,9 +63,7 @@ export function AcademicCopySectionsModal({
         includeStudents,
       });
       if (!r.ok) {
-        setErr(
-          r.code === "EMPTY_SOURCE" ? dict.errorEmptySource : dict.error,
-        );
+        setErr(failureSentenceForCode(r.code, dict.errors));
         return;
       }
       handleOpenChange(false);

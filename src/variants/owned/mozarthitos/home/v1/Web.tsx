@@ -1,7 +1,7 @@
 "use client";
 
-import { LandingMozarthitosSections } from "@/components/organisms/LandingMozarthitosSections";
-import { MozarthitosSiteHeader } from "@/components/organisms/MozarthitosSiteHeader";
+import { LandingMozarthitosSections } from "@/variants/owned/mozarthitos/pieces/LandingMozarthitosSections";
+import { MozarthitosSiteHeader } from "@/variants/owned/mozarthitos/pieces/MozarthitosSiteHeader";
 import { resolveLandingImageSrcForTheme } from "@/lib/cms/resolveLandingMedia";
 import type { MozarthitosHomeProps } from "@/variants/owned/mozarthitos/home/v1/hostProps";
 

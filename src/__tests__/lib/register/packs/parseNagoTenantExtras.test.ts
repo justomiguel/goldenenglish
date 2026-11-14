@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseNagoTenantExtras } from "@/lib/register/packs/nago/parseNagoTenantExtras";
+import { parseNagoTenantExtras } from "@/variants/owned/nago/pieces/parseNagoTenantExtras";
 import { validNagoExtras } from "@/__tests__/lib/register/packs/nagoExtrasFixture";
 
 describe("parseNagoTenantExtras", () => {

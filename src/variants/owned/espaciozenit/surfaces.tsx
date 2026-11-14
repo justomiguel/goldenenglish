@@ -2,14 +2,14 @@ import type { ReactNode } from "react";
 import type { InstituteAnswerItem } from "@/lib/public/instituteAnswerPages";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
-import { EspacioZenitRegisterHeader } from "@/components/molecules/EspacioZenitRegisterHeader";
+import { EspacioZenitRegisterHeader } from "@/variants/owned/espaciozenit/pieces/EspacioZenitRegisterHeader";
 import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
 import { PublicAnswerArticle } from "@/components/organisms/PublicAnswerArticle";
-import { PublicBlogScreenEspacioZenit, type PublicBlogScreenEspacioZenitProps } from "@/components/organisms/PublicBlogScreenEspacioZenit";
-import { PublicContactScreenEspacioZenit, type PublicContactScreenEspacioZenitProps } from "@/components/organisms/PublicContactScreenEspacioZenit";
-import { EspacioZenitFontRoot } from "@/components/organisms/EspacioZenitFontRoot";
+import { PublicBlogScreenEspacioZenit, type PublicBlogScreenEspacioZenitProps } from "@/variants/owned/espaciozenit/pieces/PublicBlogScreenEspacioZenit";
+import { PublicContactScreenEspacioZenit, type PublicContactScreenEspacioZenitProps } from "@/variants/owned/espaciozenit/pieces/PublicContactScreenEspacioZenit";
+import { EspacioZenitFontRoot } from "@/variants/owned/espaciozenit/pieces/EspacioZenitFontRoot";
 import { PublicPrivacyArticle } from "@/components/organisms/PublicPrivacyArticle";
-import { RegisterEspacioZenitSurface, type RegisterEspacioZenitSurfaceProps } from "@/components/organisms/RegisterEspacioZenitSurface";
+import { RegisterEspacioZenitSurface, type RegisterEspacioZenitSurfaceProps } from "@/variants/owned/espaciozenit/pieces/RegisterEspacioZenitSurface";
 
 const SHEET =
   "ez-public-sheet mx-auto max-w-3xl rounded-[22px] border border-[rgb(0_174_239_/35%)] bg-[#070b12]/80 p-6 md:p-8";

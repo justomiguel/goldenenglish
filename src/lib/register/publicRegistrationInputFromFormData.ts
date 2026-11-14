@@ -1,7 +1,7 @@
 import type { PublicRegistrationFormDraft } from "@/lib/register/publicRegistrationSchema";
 import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
-import { readNagoExtrasFromFormData } from "@/lib/register/packs/nago/readNagoExtrasFromFormData";
-import { readMozarthitosExtrasFromFormData } from "@/lib/register/packs/mozarthitos/readMozarthitosExtrasFromFormData";
+import { readNagoExtrasFromFormData } from "@/variants/owned/nago/pieces/readNagoExtrasFromFormData";
+import { readMozarthitosExtrasFromFormData } from "@/variants/owned/mozarthitos/pieces/readMozarthitosExtrasFromFormData";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export function publicRegistrationInputFromFormData(

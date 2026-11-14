@@ -9,7 +9,7 @@ vi.mock("@/hooks/useAppSurface", () => ({
   useAppSurface: () => "web-desktop",
 }));
 
-import { LioraLandingGallery } from "@/components/organisms/LioraLandingGallery";
+import { LioraLandingGallery } from "@/variants/owned/liora/pieces/LioraLandingGallery";
 import type { Dictionary } from "@/types/i18n";
 
 beforeAll(() => {

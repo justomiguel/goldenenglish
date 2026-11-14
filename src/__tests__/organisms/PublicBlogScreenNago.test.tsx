@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
-vi.mock("@/components/organisms/NagoFontRoot", () => ({
+vi.mock("@/variants/owned/nago/pieces/NagoFontRoot", () => ({
   NagoFontRoot: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
@@ -14,7 +14,7 @@ vi.mock("@/lib/supabase/client", () => ({
   }),
 }));
 
-import { PublicBlogScreenNago } from "@/components/organisms/PublicBlogScreenNago";
+import { PublicBlogScreenNago } from "@/variants/owned/nago/pieces/PublicBlogScreenNago";
 
 describe("PublicBlogScreenNago", () => {
   it("keeps events and blog on the dark nago surface", () => {

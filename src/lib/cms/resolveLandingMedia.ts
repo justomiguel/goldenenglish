@@ -7,12 +7,12 @@ import {
   sectionImageSrc,
   type LandingImageSectionSlug,
 } from "@/lib/landing/sectionLandingImages";
-import { espaciozenitSectionImageSrc } from "@/lib/landing/espaciozenitLandingImages";
-import { mozarthitosSectionImageSrc } from "@/lib/landing/mozarthitosLandingImages";
-import { nagoSectionImageSrc } from "@/lib/landing/nagoLandingImages";
-import { mimundoSectionImageSrc } from "@/lib/landing/mimundoLandingImages";
-import { lioraSectionImageSrc } from "@/lib/landing/lioraLandingImages";
-import { matissSectionImageSrc } from "@/lib/landing/matissLandingImages";
+import { espaciozenitSectionImageSrc } from "@/variants/owned/espaciozenit/pieces/espaciozenitLandingImages";
+import { mozarthitosSectionImageSrc } from "@/variants/owned/mozarthitos/pieces/mozarthitosLandingImages";
+import { nagoSectionImageSrc } from "@/variants/owned/nago/pieces/nagoLandingImages";
+import { mimundoSectionImageSrc } from "@/variants/owned/mimundo/pieces/mimundoLandingImages";
+import { lioraSectionImageSrc } from "@/variants/owned/liora/pieces/lioraLandingImages";
+import { matissSectionImageSrc } from "@/variants/owned/matiss/pieces/matissLandingImages";
 import {
   genericSectionStockPath,
   isGenericInstituteKind,

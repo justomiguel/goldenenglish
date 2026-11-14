@@ -1,6 +1,6 @@
 /** @vitest-environment node */
 import { describe, expect, it } from "vitest";
-import { nagoLandingRegisterCtas } from "@/lib/landing/nagoLandingRegisterCtas";
+import { nagoLandingRegisterCtas } from "@/variants/owned/nago/pieces/nagoLandingRegisterCtas";
 import { dictEn } from "@/test/dictEn";
 
 describe("nagoLandingRegisterCtas", () => {

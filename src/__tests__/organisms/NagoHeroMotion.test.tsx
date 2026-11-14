@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
-import { NagoHeroMotion } from "@/components/organisms/NagoHeroMotion";
+import { NagoHeroMotion } from "@/variants/owned/nago/pieces/NagoHeroMotion";
 
 describe("NagoHeroMotion", () => {
   it("parallax-shifts the photo and fades the lockup on scroll", () => {

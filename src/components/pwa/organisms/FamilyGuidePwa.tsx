@@ -5,9 +5,9 @@ import { ArrowLeft, ArrowRight, ChevronRight, Mic, RotateCcw } from "lucide-reac
 import {
   MZ_GUIDE_AGE_BANDS,
   MZ_GUIDE_ATTENDANCE,
-} from "@/lib/landing/mozarthitos/familyGuideCatalog";
-import type { MzGuideLabels } from "@/lib/landing/mozarthitos/buildFamilyGuideView";
-import type { MozarthitosFamilyGuideState } from "@/hooks/useMozarthitosFamilyGuide";
+} from "@/variants/owned/mozarthitos/pieces/familyGuideCatalog";
+import type { MzGuideLabels } from "@/variants/owned/mozarthitos/pieces/buildFamilyGuideView";
+import type { MozarthitosFamilyGuideState } from "@/variants/owned/mozarthitos/pieces/useMozarthitosFamilyGuide";
 import { FamilyGuideStagePwa } from "@/components/pwa/molecules/FamilyGuideStagePwa";
 import {
   MZ_GUIDE_CHOICE_CLASS,

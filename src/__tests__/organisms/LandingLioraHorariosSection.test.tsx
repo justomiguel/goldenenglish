@@ -1,8 +1,8 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { LandingLioraHorariosSection } from "@/components/organisms/LandingLioraHorariosSection";
+import { LandingLioraHorariosSection } from "@/variants/owned/liora/pieces/LandingLioraHorariosSection";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
-import { LIORA_SATURDAY_SCHEDULE } from "@/lib/landing/lioraSchedule";
+import { LIORA_SATURDAY_SCHEDULE } from "@/variants/owned/liora/pieces/lioraSchedule";
 import dictEs from "@/dictionaries/es.json";
 import type { Dictionary } from "@/types/i18n";
 

@@ -3,7 +3,7 @@
 import { MatissSiteHeader } from "@/variants/owned/matiss/header/v1/Web";
 import { LandingMatissPhoneSections } from "@/variants/owned/matiss/home/v1/PhoneSections";
 import { LandingMatissSections } from "@/variants/owned/matiss/home/v1/Sections";
-import { useMatissCompactLayout } from "@/hooks/useMatissCompactLayout";
+import { useMatissCompactLayout } from "@/variants/owned/matiss/pieces/useMatissCompactLayout";
 import type { LandingMatissSectionsProps } from "@/lib/landing/buildMatissLanding";
 
 export interface LandingMatissExperienceProps extends LandingMatissSectionsProps {

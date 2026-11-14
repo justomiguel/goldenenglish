@@ -26,6 +26,7 @@ function supabase() {
     const q = {
       select: () => q,
       eq: () => q,
+      is: () => q,
       update: (values: unknown) => {
         writes.push(values);
         return q;

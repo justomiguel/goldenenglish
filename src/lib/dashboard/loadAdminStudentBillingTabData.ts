@@ -45,6 +45,7 @@ export async function loadAdminStudentBillingTabData(
       .from("payments")
       .select("id, month, year, amount, status, section_id, receipt_url, admin_notes, updated_at")
       .eq("student_id", studentId)
+      .is("superseded_at", null)
       .order("year", { ascending: false })
       .order("month", { ascending: false }),
     supabase

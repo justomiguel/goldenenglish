@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { NagoLandingGallery } from "@/components/organisms/NagoLandingGallery";
+import { NagoLandingGallery } from "@/variants/owned/nago/pieces/NagoLandingGallery";
 import { dictEn } from "@/test/dictEn";
 
 vi.mock("next/image", () => ({

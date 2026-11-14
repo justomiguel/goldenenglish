@@ -39,14 +39,14 @@ vi.mock("next/image", () => ({
   ),
 }));
 
-vi.mock("@/components/organisms/LandingMozarthitosLowerSections", () => ({
+vi.mock("@/variants/owned/mozarthitos/pieces/LandingMozarthitosLowerSections", () => ({
   LandingMozarthitosLowerSections: () => <div data-testid="mz-lower" />,
 }));
-vi.mock("@/components/organisms/MozarthitosBioTabs", () => ({
+vi.mock("@/variants/owned/mozarthitos/pieces/MozarthitosBioTabs", () => ({
   MozarthitosBioTabs: () => null,
 }));
 
-import { LandingMozarthitosSections } from "@/components/organisms/LandingMozarthitosSections";
+import { LandingMozarthitosSections } from "@/variants/owned/mozarthitos/pieces/LandingMozarthitosSections";
 
 const dict = dictEs as Dictionary;
 

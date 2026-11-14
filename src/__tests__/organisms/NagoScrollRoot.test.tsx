@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
-import { NagoScrollRoot } from "@/components/organisms/NagoScrollRoot";
+import { NagoScrollRoot } from "@/variants/owned/nago/pieces/NagoScrollRoot";
 
 describe("NagoScrollRoot", () => {
   it("updates landing progress and drift layers on scroll", () => {

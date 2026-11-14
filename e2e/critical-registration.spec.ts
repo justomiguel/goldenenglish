@@ -14,7 +14,7 @@ import {
   pickRegisterBirthIso,
   submitRegisterAfterDetails,
 } from "./helpers/registerForm";
-import { chooseJoinBillingCurrent } from "./helpers/acceptRegistration";
+import { markRegistrationContactedFromRow } from "./helpers/openRegistrationActions";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -67,47 +67,8 @@ test.describe("@critical-registration", () => {
     // The phone the family typed has to be readable without opening any modal.
     await expect(row).toContainText("+5491112345678");
 
-    // Follow-up: mark contacted, then accept. A contacted lead must stay acceptable.
-    await row.getByRole("button", { name: /Marcar contactado|Mark contacted|Marcar contatado/i }).click();
-    const contactedRow = adminPage.locator("tr, li, article").filter({ hasText: dni }).first();
-    // The control flips to "mark pending" only once the server actually saved the
-    // new status, so this is a real round-trip and not just optimistic UI.
-    await expect(
-      contactedRow.getByRole("button", {
-        name: /Marcar pendiente|Mark as pending|Marcar pendente/i,
-      }),
-    ).toBeVisible({ timeout: 30_000 });
-    await contactedRow.getByRole("button", { name: /Dar de alta|enroll as|accept/i }).click();
-    const dialog = adminPage.getByRole("dialog");
-    await expect(dialog).toBeVisible({ timeout: 15_000 });
-    await chooseJoinBillingCurrent(dialog);
-    await dialog.getByRole("button", { name: /Dar de alta|enroll as|accept/i }).click();
-    // Accept may close the modal (no section step) or show the section picker.
-    const skipSection = dialog.getByRole("button", {
-      name: /Omitir por ahora|omit|skip|después|later/i,
-    });
-    await expect
-      .poll(
-        async () => {
-          if (await dialog.getByRole("alert").isVisible().catch(() => false)) {
-            return "error";
-          }
-          if (!(await dialog.isVisible().catch(() => false))) return "closed";
-          if (await skipSection.isVisible().catch(() => false)) return "section";
-          return "pending";
-        },
-        { timeout: 60_000 },
-      )
-      .not.toBe("pending");
-    if (await dialog.getByRole("alert").isVisible().catch(() => false)) {
-      throw new Error(
-        `accept failed: ${await dialog.getByRole("alert").innerText()}`,
-      );
-    }
-    if (await skipSection.isVisible().catch(() => false)) {
-      await skipSection.click();
-      await expect(dialog).toBeHidden({ timeout: 20_000 });
-    }
+    // Section A has no enrollment fee, so mark contacted creates the student.
+    await markRegistrationContactedFromRow(row);
     await admin.close();
 
     const loginCtx = await browser.newContext();

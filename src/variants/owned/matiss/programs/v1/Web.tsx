@@ -1,4 +1,4 @@
-import { MATISS_GROUPS, type MatissWeekday } from "@/lib/landing/matissSchedule";
+import { MATISS_GROUPS, type MatissWeekday } from "@/variants/owned/matiss/pieces/matissSchedule";
 import { MatissPhoto } from "@/variants/owned/matiss/photo/v1/Web";
 import { MatissReveal } from "@/variants/owned/matiss/reveal/v1/Web";
 

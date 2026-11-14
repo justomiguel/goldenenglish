@@ -4,8 +4,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireAdminEventActor } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
 import { enterEventWriteAudit } from "@/lib/events/server/eventWriteAuditContext";
 import {
-  eventShareGrantClient,
   listApprovedGrantsForGuest,
+  shareGrantClientOrNull,
 } from "@/lib/events/server/eventShareGrantStore";
 import {
   ownerAdminClient,
@@ -68,7 +68,9 @@ async function eventIdOnRow(table: EventWriteRowTable, rowId: string): Promise<s
   if (localId) return localId;
   const tenant = await resolveRequestTenant();
   if (!tenant?.slug) return null;
-  const grants = await listApprovedGrantsForGuest(eventShareGrantClient(), tenant.slug);
+  const grantClient = shareGrantClientOrNull();
+  if (!grantClient) return null;
+  const grants = await listApprovedGrantsForGuest(grantClient, tenant.slug);
   for (const grant of grants) {
     const client = ownerAdminClient(grant.ownerSlug);
     if (!client) continue;

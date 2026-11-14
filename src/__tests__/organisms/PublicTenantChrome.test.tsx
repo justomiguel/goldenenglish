@@ -7,27 +7,27 @@ vi.mock("@/variants/owned/matiss/font/v1/Web", () => ({
     <div data-testid="matiss-font-root">{children}</div>
   ),
 }));
-vi.mock("@/components/organisms/NagoFontRoot", () => ({
+vi.mock("@/variants/owned/nago/pieces/NagoFontRoot", () => ({
   NagoFontRoot: ({ children }: { children: ReactNode }) => (
     <div data-testid="nago-font-root">{children}</div>
   ),
 }));
-vi.mock("@/components/organisms/LioraFontRoot", () => ({
+vi.mock("@/variants/owned/liora/pieces/LioraFontRoot", () => ({
   LioraFontRoot: ({ children }: { children: ReactNode }) => (
     <div data-testid="liora-font-root">{children}</div>
   ),
 }));
-vi.mock("@/components/organisms/MiMundoFontRoot", () => ({
+vi.mock("@/variants/owned/mimundo/pieces/MiMundoFontRoot", () => ({
   MiMundoFontRoot: ({ children }: { children: ReactNode }) => (
     <div data-testid="mm-font-root">{children}</div>
   ),
 }));
-vi.mock("@/components/organisms/MozarthitosFontRoot", () => ({
+vi.mock("@/variants/owned/mozarthitos/pieces/MozarthitosFontRoot", () => ({
   MozarthitosFontRoot: ({ children }: { children: ReactNode }) => (
     <div data-testid="mz-font-root">{children}</div>
   ),
 }));
-vi.mock("@/components/organisms/EspacioZenitFontRoot", () => ({
+vi.mock("@/variants/owned/espaciozenit/pieces/EspacioZenitFontRoot", () => ({
   EspacioZenitFontRoot: ({ children }: { children: ReactNode }) => (
     <div data-testid="ez-font-root">{children}</div>
   ),

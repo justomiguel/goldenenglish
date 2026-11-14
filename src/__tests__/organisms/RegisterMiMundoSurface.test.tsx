@@ -2,25 +2,25 @@ import { describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
 
-vi.mock("@/components/organisms/MiMundoFontRoot", () => ({
+vi.mock("@/variants/owned/mimundo/pieces/MiMundoFontRoot", () => ({
   MiMundoFontRoot: ({ children }: { children: ReactNode }) => (
     <div data-testid="mm-font-root">{children}</div>
   ),
 }));
 
-vi.mock("@/components/molecules/MiMundoRegisterHeader", () => ({
+vi.mock("@/variants/owned/mimundo/pieces/MiMundoRegisterHeader", () => ({
   MiMundoRegisterHeader: () => <div data-testid="mm-register-header" />,
 }));
 
-vi.mock("@/components/molecules/MiMundoFloatingDoodles", () => ({
+vi.mock("@/variants/owned/mimundo/pieces/MiMundoFloatingDoodles", () => ({
   MiMundoFloatingDoodles: () => <div data-testid="mm-doodles" />,
 }));
 
-vi.mock("@/components/molecules/MiMundoCursorTrail", () => ({
+vi.mock("@/variants/owned/mimundo/pieces/MiMundoCursorTrail", () => ({
   MiMundoCursorTrail: () => <div data-testid="mm-cursor-trail" />,
 }));
 
-vi.mock("@/components/molecules/MiMundoButterflyTrails", () => ({
+vi.mock("@/variants/owned/mimundo/pieces/MiMundoButterflyTrails", () => ({
   MiMundoButterflyTrails: () => <div data-testid="mm-butterflies" />,
 }));
 
@@ -28,7 +28,7 @@ vi.mock("@/components/register/RegisterForm", () => ({
   RegisterForm: () => <div data-testid="register-form-stub" />,
 }));
 
-import { RegisterMiMundoSurface } from "@/components/organisms/RegisterMiMundoSurface";
+import { RegisterMiMundoSurface } from "@/variants/owned/mimundo/pieces/RegisterMiMundoSurface";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 

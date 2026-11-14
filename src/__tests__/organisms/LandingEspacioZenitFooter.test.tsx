@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { LandingEspacioZenitFooter } from "@/components/organisms/LandingEspacioZenitFooter";
+import { LandingEspacioZenitFooter } from "@/variants/owned/espaciozenit/pieces/LandingEspacioZenitFooter";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 import dictEs from "@/dictionaries/es.json";
 import type { Dictionary } from "@/types/i18n";

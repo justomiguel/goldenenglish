@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { LandingLioraFooter } from "@/components/organisms/LandingLioraFooter";
+import { LandingLioraFooter } from "@/variants/owned/liora/pieces/LandingLioraFooter";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
-import { LIORA_SEDE_KEYS } from "@/lib/landing/lioraSchedule";
+import { LIORA_SEDE_KEYS } from "@/variants/owned/liora/pieces/lioraSchedule";
 import dictEs from "@/dictionaries/es.json";
 import type { Dictionary } from "@/types/i18n";
 

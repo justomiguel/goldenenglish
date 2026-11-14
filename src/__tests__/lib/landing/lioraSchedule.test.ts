@@ -3,8 +3,8 @@ import {
   LIORA_CLASS_KEYS,
   LIORA_SATURDAY_SCHEDULE,
   LIORA_SEDE_KEYS,
-} from "@/lib/landing/lioraSchedule";
-import { LIORA_LANDING_COPY_KEYS_BY_SECTION } from "@/lib/cms/landingLioraCatalog";
+} from "@/variants/owned/liora/pieces/lioraSchedule";
+import { LIORA_LANDING_COPY_KEYS_BY_SECTION } from "@/variants/owned/liora/pieces/landingLioraCatalog";
 
 describe("LIORA_SATURDAY_SCHEDULE", () => {
   it("covers every sede exactly once", () => {

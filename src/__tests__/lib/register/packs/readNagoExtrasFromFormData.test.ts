@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readNagoExtrasFromFormData } from "@/lib/register/packs/nago/readNagoExtrasFromFormData";
+import { readNagoExtrasFromFormData } from "@/variants/owned/nago/pieces/readNagoExtrasFromFormData";
 
 describe("readNagoExtrasFromFormData", () => {
   it("maps form fields into the Nagô extras shape", () => {

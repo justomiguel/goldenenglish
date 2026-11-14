@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const css = readFileSync(resolve(__dirname, "../../styles/lioraLanding.css"), "utf8");
+const css = readFileSync(resolve(__dirname, "../../variants/owned/liora/styles/landing.css"), "utf8");
 
 function token(name: string): string {
   const match = css.match(new RegExp(`--liora-${name}:\\s*(#[0-9a-fA-F]{6})`));

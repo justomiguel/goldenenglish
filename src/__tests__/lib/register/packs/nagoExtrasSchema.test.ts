@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildNagoExtrasSchema } from "@/lib/register/packs/nago/schema";
+import { buildNagoExtrasSchema } from "@/variants/owned/nago/pieces/schema";
 import { validNagoExtras } from "@/__tests__/lib/register/packs/nagoExtrasFixture";
 
 describe("buildNagoExtrasSchema", () => {

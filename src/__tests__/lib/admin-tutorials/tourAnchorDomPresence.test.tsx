@@ -189,11 +189,19 @@ const academicDict = {
   newCohortModal: {
     title: "Create",
     nameLabel: "Name",
-    slugLabel: "Slug",
-    slugHint: "hint",
+    chargesEnrollmentLabel: "Matrícula",
+    enrollmentAmountLabel: "Amount",
+    chargesMonthlyLabel: "Unified fee",
+    monthlyAmountLabel: "Monthly fee",
+    copySectionsLabel: "Copy sections",
+    sourceLabel: "From",
+    sourcePlaceholder: "Choose",
+    copyStudentsLabel: "Copy students",
+    copyStudentsHint: "They stay in the source cohort.",
     submit: "Create",
     cancel: "Cancel",
-    error: "Error",
+    openCohort: "Open cohort",
+    errors: { save: "Could not create. Code: save" },
   },
 };
 
@@ -244,7 +252,8 @@ const rolloverDict = {
   confirm: "c",
   cancel: "x",
   close: "cl",
-  error: "e",
+  crossCohortHint: "copy",
+  errors: { PARSE: "parse" },
   success: "s",
   emptyStudents: "empty",
   loadingStudents: "load",
@@ -305,7 +314,7 @@ describe("tourAnchorDomPresence (L2 isolated)", () => {
           profileRoleLabel="Admin"
           profileAvatarUrl={null}
         />
-        <AcademicHubToolbar locale="en" dict={academicDict} />
+        <AcademicHubToolbar locale="en" sourceCohorts={[]} dict={academicDict} />
       </>,
     );
     expectTourAnchorsInDocument(anchorsFor("task:create-cohort"));

@@ -31,7 +31,7 @@ vi.mock("@/variants/clientEntries", () => {
   };
 });
 
-import { LandingMainSectionsMatiss } from "@/components/organisms/LandingMainSectionsMatiss";
+import { LandingMainSectionsMatiss } from "@/variants/owned/matiss/pieces/LandingMainSectionsMatiss";
 
 const brand = { name: "Studio", logoAlt: "Studio", logoPath: "/logo.png" } as BrandPublic;
 

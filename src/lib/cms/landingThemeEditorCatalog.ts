@@ -5,11 +5,11 @@ import {
 import {
   ESPACIO_ZENIT_LANDING_COPY_KEYS_BY_SECTION,
   ESPACIO_ZENIT_MEDIA_SLOTS_BY_SECTION,
-} from "@/lib/cms/landingEspacioZenitCatalog";
+} from "@/variants/owned/espaciozenit/pieces/landingEspacioZenitCatalog";
 import {
   MOZARTHITOS_LANDING_COPY_KEYS_BY_SECTION,
   MOZARTHITOS_MEDIA_SLOTS_BY_SECTION,
-} from "@/lib/cms/landingMozarthitosCatalog";
+} from "@/variants/owned/mozarthitos/pieces/landingMozarthitosCatalog";
 import {
   MIMUNDO_LANDING_COPY_KEYS_BY_SECTION,
   MIMUNDO_MEDIA_SLOTS_BY_SECTION,
@@ -17,15 +17,15 @@ import {
 import {
   NAGO_LANDING_COPY_KEYS_BY_SECTION,
   NAGO_MEDIA_SLOTS_BY_SECTION,
-} from "@/lib/cms/landingNagoCatalog";
+} from "@/variants/owned/nago/pieces/landingNagoCatalog";
 import {
   LIORA_LANDING_COPY_KEYS_BY_SECTION,
   LIORA_MEDIA_SLOTS_BY_SECTION,
-} from "@/lib/cms/landingLioraCatalog";
+} from "@/variants/owned/liora/pieces/landingLioraCatalog";
 import {
   MATISS_LANDING_COPY_KEYS_BY_SECTION,
   MATISS_MEDIA_SLOTS_BY_SECTION,
-} from "@/lib/cms/landingMatissCatalog";
+} from "@/variants/owned/matiss/pieces/landingMatissCatalog";
 import { genericLandingCopyKeys } from "@/lib/cms/genericLandingCopyKeys";
 import { isGenericInstituteKind } from "@/lib/theme/genericInstituteTemplates";
 import type { LandingSectionSlug, SiteThemeKind } from "@/types/theming";

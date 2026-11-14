@@ -8,8 +8,8 @@ import {
   type PublicEventsListResult,
 } from "@/lib/dashboard/events/loadPublicEventsList";
 import {
-  eventShareGrantClient,
   listApprovedGrantsForGuest,
+  shareGrantClientOrNull,
 } from "@/lib/events/server/eventShareGrantStore";
 import { ownerAdminClient } from "@/lib/events/server/resolveEventDataClient";
 import { createClient } from "@/lib/supabase/server";
@@ -60,9 +60,11 @@ export async function loadPublicEventsListWithShares(
   const localRaw = await walkPublished(session);
   const localRows = await buildPublicEventListRows(session, localRaw, locale);
   const tenant = await resolveRequestTenant();
-  const grants = tenant?.slug
-    ? await listApprovedGrantsForGuest(eventShareGrantClient(), tenant.slug)
-    : [];
+  const grantClient = shareGrantClientOrNull();
+  const grants =
+    tenant?.slug && grantClient
+      ? await listApprovedGrantsForGuest(grantClient, tenant.slug)
+      : [];
   const hidden = grants.length > 0 ? await takenSlugs(session) : new Set<string>();
   const shared: PublicEventListRow[] = [];
   const clients = new Map<string, SupabaseClient | null>();

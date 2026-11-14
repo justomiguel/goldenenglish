@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   LIORA_GALLERY_ITEMS,
   lioraGalleryPublicUrl,
-} from "@/lib/landing/lioraGalleryImages";
-import { lioraSectionImageSrc } from "@/lib/landing/lioraLandingImages";
+} from "@/variants/owned/liora/pieces/lioraGalleryImages";
+import { lioraSectionImageSrc } from "@/variants/owned/liora/pieces/lioraLandingImages";
 
 describe("lioraGalleryPublicUrl", () => {
   it("encodes path segments for public URL", () => {

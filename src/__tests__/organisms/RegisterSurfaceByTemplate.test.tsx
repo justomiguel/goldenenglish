@@ -5,27 +5,27 @@ vi.mock("@/components/atoms/fonts/catalogFonts", () => ({
   CATALOG_FONTS: new Proxy({}, { get: () => ({ variable: "font-catalog" }) }),
 }));
 
-vi.mock("@/components/organisms/RegisterEspacioZenitSurface", () => ({
+vi.mock("@/variants/owned/espaciozenit/pieces/RegisterEspacioZenitSurface", () => ({
   RegisterEspacioZenitSurface: (p: { enrollmentLink?: { token: string } }) => (
     <div data-testid="espaciozenit">{p.enrollmentLink?.token ?? "no-link"}</div>
   ),
 }));
-vi.mock("@/components/organisms/RegisterMozarthitosSurface", () => ({
+vi.mock("@/variants/owned/mozarthitos/pieces/RegisterMozarthitosSurface", () => ({
   RegisterMozarthitosSurface: (p: { enrollmentLink?: { token: string } }) => (
     <div data-testid="mozarthitos">{p.enrollmentLink?.token ?? "no-link"}</div>
   ),
 }));
-vi.mock("@/components/organisms/RegisterNagoSurface", () => ({
+vi.mock("@/variants/owned/nago/pieces/RegisterNagoSurface", () => ({
   RegisterNagoSurface: (p: { enrollmentLink?: { token: string } }) => (
     <div data-testid="nago">{p.enrollmentLink?.token ?? "no-link"}</div>
   ),
 }));
-vi.mock("@/components/organisms/RegisterMiMundoSurface", () => ({
+vi.mock("@/variants/owned/mimundo/pieces/RegisterMiMundoSurface", () => ({
   RegisterMiMundoSurface: (p: { enrollmentLink?: { token: string } }) => (
     <div data-testid="mimundo">{p.enrollmentLink?.token ?? "no-link"}</div>
   ),
 }));
-vi.mock("@/components/organisms/RegisterLioraSurface", () => ({
+vi.mock("@/variants/owned/liora/pieces/RegisterLioraSurface", () => ({
   RegisterLioraSurface: (p: { enrollmentLink?: { token: string } }) => (
     <div data-testid="liora">{p.enrollmentLink?.token ?? "no-link"}</div>
   ),

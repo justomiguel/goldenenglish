@@ -4,8 +4,8 @@ import { useMemo, useState, type ReactNode } from "react";
 import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
 import { AlertTriangle } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import { ScheduleConflictResolutionModal } from "@/components/molecules/ScheduleConflictResolutionModal";
 import { AcademicSectionRosterCards } from "@/components/organisms/AcademicSectionRosterCards";
+import { AcademicSectionRosterDialogs } from "@/components/organisms/AcademicSectionRosterDialogs";
 import {
   AcademicSectionRosterMoveControls,
   formatEnrollmentStatusLabel,
@@ -80,12 +80,16 @@ export function AcademicSectionRosterTable({
     busy,
     modalOpen,
     setModalOpen,
+    carryOpen,
+    setCarryOpen,
+    facts,
+    moveCtx,
     conflicts,
     targetSlots,
     targetLabel,
-    moveCtx,
     setMoveCtx,
     runMove,
+    confirmCarry,
     confirmConflictMove,
   } = useAcademicSectionRosterMoves(locale, sectionId, rows, moveTargets, dict, errors);
 
@@ -207,19 +211,29 @@ export function AcademicSectionRosterTable({
           </table>
         </div>
       )}
-      <ScheduleConflictResolutionModal
-        open={modalOpen && Boolean(conflicts?.length)}
-        onClose={() => {
+      <AcademicSectionRosterDialogs
+        locale={locale}
+        carryOpen={carryOpen}
+        facts={facts}
+        carryCopy={dict.moveCarry}
+        missingChoice={errors.carry_choice_missing}
+        unknownError={errors.unknownError}
+        busy={busy}
+        onCarryClose={() => {
+          setCarryOpen(false);
+          setMoveCtx(null);
+        }}
+        onConfirmCarry={confirmCarry}
+        conflictOpen={modalOpen && Boolean(conflicts?.length)}
+        conflictDict={conflictDict}
+        conflicts={conflicts}
+        targetSlots={targetSlots}
+        targetLabel={targetLabel}
+        onConflictClose={() => {
           setModalOpen(false);
           setMoveCtx(null);
         }}
-        locale={locale}
-        dict={conflictDict}
-        conflicts={conflicts ?? []}
-        targetSlots={targetSlots}
-        targetSectionLabel={targetLabel}
         onConfirmDrop={confirmConflictMove}
-        isPending={busy}
       />
     </>
   );

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { LioraLockup } from "@/components/molecules/LioraLockup";
+import { LioraLockup } from "@/variants/owned/liora/pieces/LioraLockup";
 
 describe("LioraLockup", () => {
   it("shows the brand name with the last word as the accent", () => {

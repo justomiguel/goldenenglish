@@ -7,7 +7,7 @@ import {
   ribbonSideForText,
   ribbonX,
   type LioraRibbonAnchor,
-} from "@/lib/landing/lioraRibbonPath";
+} from "@/variants/owned/liora/pieces/lioraRibbonPath";
 
 const anchors: LioraRibbonAnchor[] = [
   { y: 300, side: "end", pose: "arabesque" },

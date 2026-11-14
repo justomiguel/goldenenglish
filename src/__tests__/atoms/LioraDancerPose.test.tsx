@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { LioraDancerPose } from "@/components/atoms/LioraDancerPose";
+import { LioraDancerPose } from "@/variants/owned/liora/pieces/LioraDancerPose";
 
 describe("LioraDancerPose", () => {
   it("renders the requested pose as a hidden decoration", () => {

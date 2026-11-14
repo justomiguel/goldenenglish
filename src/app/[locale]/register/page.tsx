@@ -26,7 +26,7 @@ import {
   formatGuideToken,
   MZ_GUIDE_REGISTER_PARAM,
   parseGuideToken,
-} from "@/lib/landing/mozarthitos/guideToken";
+} from "@/variants/owned/mozarthitos/pieces/guideToken";
 
 export const metadata: Metadata = {
   robots: { index: true, follow: true },

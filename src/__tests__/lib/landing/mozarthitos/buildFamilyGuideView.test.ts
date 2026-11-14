@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import es from "@/dictionaries/es.json";
-import { buildFamilyGuideView } from "@/lib/landing/mozarthitos/buildFamilyGuideView";
-import { resolveFamilyGuide } from "@/lib/landing/mozarthitos/resolveFamilyGuide";
-import type { MzGuideAgeBand, MzGuideAttendance } from "@/lib/landing/mozarthitos/familyGuideCatalog";
+import { buildFamilyGuideView } from "@/variants/owned/mozarthitos/pieces/buildFamilyGuideView";
+import { resolveFamilyGuide } from "@/variants/owned/mozarthitos/pieces/resolveFamilyGuide";
+import type { MzGuideAgeBand, MzGuideAttendance } from "@/variants/owned/mozarthitos/pieces/familyGuideCatalog";
 
 const labels = es.landing.mz.guide;
 const place = "Sede Las Condes · República Árabe de Egipto 670";

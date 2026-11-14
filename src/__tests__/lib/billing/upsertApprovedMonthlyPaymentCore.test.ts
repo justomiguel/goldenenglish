@@ -33,6 +33,7 @@ function makeAdmin() {
     update: () => builder,
     delete: () => builder,
     eq: () => builder,
+    is: () => builder,
     in: () => Promise.resolve(updateResult),
     maybeSingle: () => Promise.resolve(selectResult),
     single: () => Promise.resolve(insertResult),

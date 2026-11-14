@@ -2,13 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
 
-vi.mock("@/components/organisms/MozarthitosFontRoot", () => ({
+vi.mock("@/variants/owned/mozarthitos/pieces/MozarthitosFontRoot", () => ({
   MozarthitosFontRoot: ({ children }: { children: ReactNode }) => (
     <div data-testid="mz-font-root">{children}</div>
   ),
 }));
 
-vi.mock("@/components/molecules/MozarthitosReveal", () => ({
+vi.mock("@/variants/owned/mozarthitos/pieces/MozarthitosReveal", () => ({
   MozarthitosReveal: ({ children }: { children: ReactNode }) => (
     <div data-testid="mz-reveal-stub">{children}</div>
   ),
@@ -20,7 +20,7 @@ vi.mock("@/components/register/RegisterForm", () => ({
   ),
 }));
 
-import { RegisterMozarthitosSurface } from "@/components/organisms/RegisterMozarthitosSurface";
+import { RegisterMozarthitosSurface } from "@/variants/owned/mozarthitos/pieces/RegisterMozarthitosSurface";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 

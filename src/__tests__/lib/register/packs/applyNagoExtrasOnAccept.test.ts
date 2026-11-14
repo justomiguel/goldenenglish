@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { applyNagoExtrasOnAccept } from "@/lib/register/packs/nago/applyNagoExtrasOnAccept";
+import { applyNagoExtrasOnAccept } from "@/variants/owned/nago/pieces/applyNagoExtrasOnAccept";
 import { validNagoExtras } from "@/__tests__/lib/register/packs/nagoExtrasFixture";
 
 const labels = {

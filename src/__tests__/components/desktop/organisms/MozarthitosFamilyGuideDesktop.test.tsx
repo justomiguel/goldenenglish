@@ -9,7 +9,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { FamilyGuideDesktop } from "@/components/desktop/organisms/FamilyGuideDesktop";
-import { useMozarthitosFamilyGuide } from "@/hooks/useMozarthitosFamilyGuide";
+import { useMozarthitosFamilyGuide } from "@/variants/owned/mozarthitos/pieces/useMozarthitosFamilyGuide";
 
 const labels = es.landing.mz.guide;
 

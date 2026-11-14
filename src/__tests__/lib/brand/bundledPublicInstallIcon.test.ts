@@ -5,7 +5,7 @@ import {
   bundledPublicInstallManifestIcons,
   withAppleInstallIcon,
 } from "@/lib/brand/bundledPublicInstallIcon";
-import { NAGO_BUNDLED_LOGO } from "@/lib/landing/nagoLogo";
+import { NAGO_BUNDLED_LOGO } from "@/variants/owned/nago/pieces/nagoLogo";
 
 describe("bundledPublicInstallIcon", () => {
   it("uses the Nagô home mark and ignores the admin logo", () => {

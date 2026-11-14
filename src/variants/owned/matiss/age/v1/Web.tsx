@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { MATISS_AGE_RANGE, matissGroupsForAge, type MatissWeekday } from "@/lib/landing/matissSchedule";
+import { MATISS_AGE_RANGE, matissGroupsForAge, type MatissWeekday } from "@/variants/owned/matiss/pieces/matissSchedule";
 
 export interface MatissAgeFinderProps {
   title: string;

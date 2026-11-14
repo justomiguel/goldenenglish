@@ -3,22 +3,22 @@ import type { InstituteAnswerItem } from "@/lib/public/instituteAnswerPages";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
-import { MozarthitosRegisterHeader } from "@/components/molecules/MozarthitosRegisterHeader";
+import { MozarthitosRegisterHeader } from "@/variants/owned/mozarthitos/pieces/MozarthitosRegisterHeader";
 import { PublicAnswerArticle } from "@/components/organisms/PublicAnswerArticle";
 import {
   PublicBlogScreenMozarthitos,
   type PublicBlogScreenMozarthitosProps,
-} from "@/components/organisms/PublicBlogScreenMozarthitos";
+} from "@/variants/owned/mozarthitos/pieces/PublicBlogScreenMozarthitos";
 import {
   PublicContactScreenMozarthitos,
   type PublicContactScreenMozarthitosProps,
-} from "@/components/organisms/PublicContactScreenMozarthitos";
-import { MozarthitosFontRoot } from "@/components/organisms/MozarthitosFontRoot";
+} from "@/variants/owned/mozarthitos/pieces/PublicContactScreenMozarthitos";
+import { MozarthitosFontRoot } from "@/variants/owned/mozarthitos/pieces/MozarthitosFontRoot";
 import { PublicPrivacyArticle } from "@/components/organisms/PublicPrivacyArticle";
 import {
   RegisterMozarthitosSurface,
   type RegisterMozarthitosSurfaceProps,
-} from "@/components/organisms/RegisterMozarthitosSurface";
+} from "@/variants/owned/mozarthitos/pieces/RegisterMozarthitosSurface";
 
 const SHEET = "mz-public-sheet mx-auto max-w-3xl";
 

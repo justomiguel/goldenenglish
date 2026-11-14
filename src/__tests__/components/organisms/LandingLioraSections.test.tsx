@@ -4,21 +4,21 @@ import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 import dictEs from "@/dictionaries/es.json";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
-import { LIORA_CLASS_KEYS, LIORA_SEDE_KEYS } from "@/lib/landing/lioraSchedule";
+import { LIORA_CLASS_KEYS, LIORA_SEDE_KEYS } from "@/variants/owned/liora/pieces/lioraSchedule";
 
-vi.mock("@/components/organisms/LioraLandingGallery", () => ({
+vi.mock("@/variants/owned/liora/pieces/LioraLandingGallery", () => ({
   LioraLandingGallery: () => <section data-testid="liora-gallery" />,
 }));
 
-vi.mock("@/components/organisms/LioraLandingContactPanel", () => ({
+vi.mock("@/variants/owned/liora/pieces/LioraLandingContactPanel", () => ({
   LioraLandingContactPanel: () => <section data-testid="liora-contact-panel" />,
 }));
 
-vi.mock("@/components/organisms/LandingLioraFooter", () => ({
+vi.mock("@/variants/owned/liora/pieces/LandingLioraFooter", () => ({
   LandingLioraFooter: () => <footer data-testid="liora-footer" />,
 }));
 
-import { LandingLioraSections } from "@/components/organisms/LandingLioraSections";
+import { LandingLioraSections } from "@/variants/owned/liora/pieces/LandingLioraSections";
 
 const dict = dictEs as Dictionary;
 const t = (path: string) => marketingLandingCopy(dict, "liora", path);

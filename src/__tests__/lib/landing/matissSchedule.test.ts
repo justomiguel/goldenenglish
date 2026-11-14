@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { matissGroupsForAge } from "@/lib/landing/matissSchedule";
+import { matissGroupsForAge } from "@/variants/owned/matiss/pieces/matissSchedule";
 
 describe("matissGroupsForAge", () => {
   it("returns no group below 3 or above 13", () => {

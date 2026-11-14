@@ -1,5 +1,5 @@
 import type { Metadata, MetadataRoute } from "next";
-import { NAGO_BUNDLED_LOGO } from "@/lib/landing/nagoLogo";
+import { NAGO_BUNDLED_LOGO } from "@/variants/owned/nago/pieces/nagoLogo";
 
 /** Home background. The installed splash uses this instead of the admin primary. */
 export const NAGO_INSTALL_CHROME = "#070707";

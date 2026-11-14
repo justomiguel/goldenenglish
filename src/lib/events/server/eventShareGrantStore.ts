@@ -7,7 +7,7 @@ import {
   type EventShareStatus,
 } from "@/lib/events/eventShareGrant";
 import { logServerError, logSupabaseClientError } from "@/lib/logging/serverActionLog";
-import { createPulsarAdminClient } from "@/lib/supabase/pulsar";
+import { createPulsarAdminClient, isPulsarSupabaseConfigured } from "@/lib/supabase/pulsar";
 
 const COLUMNS =
   "id, owner_slug, owner_event_id, guest_slug, status, requested_by, reviewed_by";
@@ -47,6 +47,12 @@ function mapGrant(row: GrantTableRow): EventShareGrantRecord {
 }
 
 export function eventShareGrantClient(): SupabaseClient {
+  return createPulsarAdminClient();
+}
+
+/** Share reads are optional. A host with no control plane keeps its own events. */
+export function shareGrantClientOrNull(): SupabaseClient | null {
+  if (!isPulsarSupabaseConfigured()) return null;
   return createPulsarAdminClient();
 }
 

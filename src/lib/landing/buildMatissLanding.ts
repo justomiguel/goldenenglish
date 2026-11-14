@@ -1,10 +1,10 @@
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
-import { MATISS_GROUPS } from "@/lib/landing/matissSchedule";
+import { MATISS_GROUPS } from "@/variants/owned/matiss/pieces/matissSchedule";
 import { landingRegisterCtasFromDict } from "@/lib/settings/landingRegisterCtasFromDict";
 import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
-import type { MatissGalleryLabels } from "@/lib/landing/matissGalleryCarousel";
+import type { MatissGalleryLabels } from "@/variants/owned/matiss/pieces/matissGalleryCarousel";
 
 export interface LandingMatissImages {
   heroWeb: string;

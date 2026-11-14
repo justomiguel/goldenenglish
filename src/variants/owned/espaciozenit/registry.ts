@@ -22,28 +22,28 @@ function espaciozenitVariant(id: string, slot: SectionSlot, web: LoadView): Sect
 
 export const ESPACIOZENIT_VARIANTS: readonly SectionVariant<unknown>[] = [
   espaciozenitVariant("nav.espaciozenit", "nav", () =>
-    import("@/components/organisms/EspacioZenitSiteHeader").then((mod) => ({ default: mod.EspacioZenitSiteHeader })),
+    import("@/variants/owned/espaciozenit/pieces/EspacioZenitSiteHeader").then((mod) => ({ default: mod.EspacioZenitSiteHeader })),
   ),
   espaciozenitVariant("band.espaciozenit-body", "band", () =>
-    import("@/components/organisms/LandingEspacioZenitSections").then((mod) => ({ default: mod.LandingEspacioZenitSections })),
+    import("@/variants/owned/espaciozenit/pieces/LandingEspacioZenitSections").then((mod) => ({ default: mod.LandingEspacioZenitSections })),
   ),
   espaciozenitVariant("footer.espaciozenit", "footer", () =>
-    import("@/components/organisms/LandingEspacioZenitFooter").then((mod) => ({ default: mod.LandingEspacioZenitFooter })),
+    import("@/variants/owned/espaciozenit/pieces/LandingEspacioZenitFooter").then((mod) => ({ default: mod.LandingEspacioZenitFooter })),
   ),
   espaciozenitVariant("page.espaciozenit-home", "page", () =>
-    import("@/components/organisms/LandingMainSectionsEspacioZenit").then((mod) => ({
+    import("@/variants/owned/espaciozenit/pieces/LandingMainSectionsEspacioZenit").then((mod) => ({
       default: mod.LandingMainSectionsEspacioZenit,
     })),
   ),
   espaciozenitVariant("page.espaciozenit-register", "page", () =>
-    import("@/components/organisms/RegisterEspacioZenitSurface").then((mod) => ({ default: mod.RegisterEspacioZenitSurface })),
+    import("@/variants/owned/espaciozenit/pieces/RegisterEspacioZenitSurface").then((mod) => ({ default: mod.RegisterEspacioZenitSurface })),
   ),
   espaciozenitVariant("page.espaciozenit-contact", "page", () =>
-    import("@/components/organisms/PublicContactScreenEspacioZenit").then((mod) => ({
+    import("@/variants/owned/espaciozenit/pieces/PublicContactScreenEspacioZenit").then((mod) => ({
       default: mod.PublicContactScreenEspacioZenit,
     })),
   ),
   espaciozenitVariant("page.espaciozenit-blog", "page", () =>
-    import("@/components/organisms/PublicBlogScreenEspacioZenit").then((mod) => ({ default: mod.PublicBlogScreenEspacioZenit })),
+    import("@/variants/owned/espaciozenit/pieces/PublicBlogScreenEspacioZenit").then((mod) => ({ default: mod.PublicBlogScreenEspacioZenit })),
   ),
 ];

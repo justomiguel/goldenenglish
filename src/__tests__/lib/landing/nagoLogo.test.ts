@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
-import { NAGO_BUNDLED_LOGO, resolveNagoLogo } from "@/lib/landing/nagoLogo";
+import { NAGO_BUNDLED_LOGO, resolveNagoLogo } from "@/variants/owned/nago/pieces/nagoLogo";
 
 describe("resolveNagoLogo", () => {
   it("always uses the official bundled Nagô mark", () => {

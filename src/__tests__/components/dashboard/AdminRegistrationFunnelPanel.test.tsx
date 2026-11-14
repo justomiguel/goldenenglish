@@ -40,8 +40,20 @@ vi.mock("@/app/[locale]/dashboard/admin/registrations/registrationIntakeActions"
   registrationEnrollmentReceiptUrlAction: vi.fn(async () => ({ ok: true, url: "https://signed.example/receipt" })),
 }));
 const moveSection = vi.hoisted(() => vi.fn());
+const previewMove = vi.hoisted(() =>
+  vi.fn(async () => ({
+    ok: true as const,
+    facts: {
+      originPayments: [],
+      destinationPayments: [],
+      originScholarships: [],
+      destinationScholarships: [],
+    },
+  })),
+);
 vi.mock("@/app/[locale]/dashboard/admin/registrations/moveRegistrationSectionAction", () => ({
   moveRegistrationSectionAction: (...args: unknown[]) => moveSection(...args),
+  previewRegistrationSectionMoveAction: (...args: unknown[]) => previewMove(...args),
 }));
 const revertEnrolled = vi.hoisted(() => vi.fn());
 vi.mock("@/app/[locale]/dashboard/admin/registrations/revertEnrolledRegistrationAction", () => ({
@@ -458,10 +470,19 @@ describe("AdminRegistrationFunnelPanel", () => {
     );
     await user.selectOptions(screen.getByRole("combobox"), "sec-2");
     await user.click(screen.getByRole("button", { name: labels.matricula.saveSection }));
+    await user.click(await screen.findByRole("button", { name: labels.moveCarry.confirm }));
     expect(await screen.findByText(labels.funnel.errors.section_move_same)).toBeInTheDocument();
+    expect(moveSection).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sectionId: "sec-2",
+        carry: expect.objectContaining({ payments: true, attendance: false, grades: false }),
+        choices: [],
+      }),
+    );
 
     moveSection.mockResolvedValueOnce({ ok: false, code: "mystery_move" });
     await user.click(screen.getByRole("button", { name: labels.matricula.saveSection }));
+    await user.click(await screen.findByRole("button", { name: labels.moveCarry.confirm }));
     expect(await screen.findByText(/mystery_move/)).toBeInTheDocument();
   });
 });

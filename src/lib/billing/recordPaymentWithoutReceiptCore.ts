@@ -97,6 +97,7 @@ export async function recordOnePaymentWithoutReceipt(
     .eq("section_id", p.sectionId)
     .eq("year", y)
     .eq("month", m)
+    .is("superseded_at", null)
     .maybeSingle();
 
   if (payRow?.status === "approved")

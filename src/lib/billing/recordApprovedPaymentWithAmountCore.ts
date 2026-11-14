@@ -42,6 +42,7 @@ export async function recordApprovedPaymentWithAmount(
     .eq("section_id", sectionId)
     .eq("year", year)
     .eq("month", month)
+    .is("superseded_at", null)
     .maybeSingle();
 
   if (payRow?.status === "approved") return { success: false, code: "already_approved" };

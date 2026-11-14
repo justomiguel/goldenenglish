@@ -8,7 +8,7 @@ vi.mock("@/components/atoms/fonts/catalogFonts", () => ({
   },
 }));
 
-import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
+import { NagoFontRoot } from "@/variants/owned/nago/pieces/NagoFontRoot";
 
 describe("NagoFontRoot", () => {
   it("lays a film-grain overlay over the public surface", () => {

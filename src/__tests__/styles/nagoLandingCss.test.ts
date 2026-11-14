@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const css = readFileSync(
-  resolve(__dirname, "../../styles/nagoLanding.css"),
+  resolve(__dirname, "../../variants/owned/nago/styles/landing.css"),
   "utf8",
 );
 

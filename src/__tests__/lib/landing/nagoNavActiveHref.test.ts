@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveNagoNavActiveHref } from "@/lib/landing/nagoNavActiveHref";
+import { resolveNagoNavActiveHref } from "@/variants/owned/nago/pieces/nagoNavActiveHref";
 
 describe("resolveNagoNavActiveHref", () => {
   it("marks events when the pathname is the events list or an event page", () => {

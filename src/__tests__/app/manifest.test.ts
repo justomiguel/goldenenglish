@@ -31,7 +31,7 @@ vi.mock("next/headers", () => ({
 
 import { getBrandForRequest } from "@/lib/brand/server";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
-import { NAGO_BUNDLED_LOGO } from "@/lib/landing/nagoLogo";
+import { NAGO_BUNDLED_LOGO } from "@/variants/owned/nago/pieces/nagoLogo";
 import manifest from "@/app/manifest";
 
 describe("app/manifest", () => {

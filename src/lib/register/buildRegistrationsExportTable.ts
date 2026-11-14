@@ -4,8 +4,8 @@ import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatReg
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
 import type { RegisterExtrasPack } from "@/lib/register/packs/registerExtrasPack";
-import { parseNagoTenantExtras } from "@/lib/register/packs/nago/parseNagoTenantExtras";
-import { formatMozarthitosGuideSummary } from "@/lib/register/packs/mozarthitos/formatMozarthitosGuideSummary";
+import { parseNagoTenantExtras } from "@/variants/owned/nago/pieces/parseNagoTenantExtras";
+import { formatMozarthitosGuideSummary } from "@/variants/owned/mozarthitos/pieces/formatMozarthitosGuideSummary";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 

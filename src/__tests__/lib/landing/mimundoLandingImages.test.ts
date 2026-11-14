@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   MIMUNDO_DECORATIVE_BUTTERFLY_SRC,
   mimundoSectionImageSrc,
-} from "@/lib/landing/mimundoLandingImages";
+} from "@/variants/owned/mimundo/pieces/mimundoLandingImages";
 import {
   MIMUNDO_GALLERY_FILENAMES,
   MIMUNDO_GALLERY_URLS,
   mimundoGalleryPublicUrl,
-} from "@/lib/landing/mimundoGalleryImages";
+} from "@/variants/owned/mimundo/pieces/mimundoGalleryImages";
 
 describe("mimundoSectionImageSrc", () => {
   it("exposes decorative butterfly crop from logo", () => {

@@ -3,7 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { dictEn } from "@/test/dictEn";
 import { mockPathname } from "@/test/navigationMock";
-import { NagoSiteHeader } from "@/components/organisms/NagoSiteHeader";
+import { NagoSiteHeader } from "@/variants/owned/nago/pieces/NagoSiteHeader";
 
 vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({

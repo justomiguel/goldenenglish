@@ -1,4 +1,4 @@
-import { AdminSectionCard } from "@/components/molecules/AdminSectionCard";
+import { AcademicCohortSectionList } from "@/components/molecules/AcademicCohortSectionList";
 import { CohortSectionDeleteButton } from "@/components/molecules/CohortSectionDeleteButton";
 import { CohortSectionsToolbar } from "@/components/organisms/CohortSectionsToolbar";
 import type {
@@ -50,29 +50,38 @@ export function AcademicCohortPageSections(props: {
       {sectionRows.length === 0 ? (
         <p className="text-sm text-[var(--color-muted-foreground)]">{d.noSections}</p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {sectionRows.map((row) => (
-            <AdminSectionCard
-              key={row.id}
-              href={`/${locale}/dashboard/admin/academic/${cohortId}/${row.id}`}
-              name={row.name}
-              activeCount={row.active}
-              maxStudents={row.max}
-              capacityLabel={d.capacityLabel}
-              archivedLabel={row.archivedAt ? d.sectionArchivedBadge : undefined}
-              periodLine={row.periodLine}
-              imageUrl={row.referenceImageUrl}
-              actions={
-                <CohortSectionDeleteButton
-                  locale={locale}
-                  sectionId={row.id}
-                  sectionName={row.name}
-                  dict={props.sectionLifecycleDict}
-                />
-              }
-            />
-          ))}
-        </div>
+        <AcademicCohortSectionList
+          locale={locale}
+          capacityLabel={d.capacityLabel}
+          labels={{
+            section: d.sectionListName,
+            teachers: d.sectionListTeachers,
+            schedule: d.sectionListSchedule,
+            emptyTeachers: d.sectionListEmptyTeachers,
+            emptySchedule: d.sectionListEmptySchedule,
+            actions: d.sectionListActions,
+          }}
+          rows={sectionRows.map((row) => ({
+            id: row.id,
+            href: `/${locale}/dashboard/admin/academic/${cohortId}/${row.id}`,
+            name: row.name,
+            teacherNames: row.teacherNames,
+            scheduleLine: row.scheduleLine,
+            activeCount: row.active,
+            maxStudents: row.max,
+            archivedLabel: row.archivedAt ? d.sectionArchivedBadge : undefined,
+            periodLine: row.periodLine,
+            imageUrl: row.referenceImageUrl,
+            actions: (
+              <CohortSectionDeleteButton
+                locale={locale}
+                sectionId={row.id}
+                sectionName={row.name}
+                dict={props.sectionLifecycleDict}
+              />
+            ),
+          }))}
+        />
       )}
     </section>
   );

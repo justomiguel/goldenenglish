@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import type {
   MzGuideLabels,
   MzGuideStageView,
-} from "@/lib/landing/mozarthitos/buildFamilyGuideView";
+} from "@/variants/owned/mozarthitos/pieces/buildFamilyGuideView";
 import { FamilyGuideStageDetails } from "@/components/molecules/FamilyGuideStageDetails";
 import { MZ_GUIDE_PRIMARY_CTA_CLASS } from "@/components/molecules/familyGuideStyles";
 

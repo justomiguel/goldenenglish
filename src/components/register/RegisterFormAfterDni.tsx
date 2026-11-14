@@ -1,7 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { RegisterFormContactAndSections } from "@/components/register/RegisterFormContactAndSections";
-import { RegisterNagoExtras } from "@/components/register/RegisterNagoExtras";
+import { RegisterNagoExtras } from "@/variants/owned/nago/pieces/RegisterNagoExtras";
 import { RegisterStudentFieldset } from "@/components/register/RegisterStudentFieldset";
 import type { RegisterTutorPrefillValues } from "@/components/register/RegisterTutorFieldset";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";

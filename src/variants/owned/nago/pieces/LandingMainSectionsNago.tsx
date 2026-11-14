@@ -1,0 +1,74 @@
+import type { BrandPublic } from "@/lib/brand/server";
+import type { Dictionary } from "@/types/i18n";
+import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
+import { NagoSiteHeader } from "@/variants/owned/nago/pieces/NagoSiteHeader";
+import { LandingNagoSections } from "@/variants/owned/nago/pieces/LandingNagoSections";
+import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { nagoSiteHeaderLabels } from "@/variants/owned/nago/pieces/nagoSiteHeaderLabels";
+import { NagoFontRoot } from "@/variants/owned/nago/pieces/NagoFontRoot";
+import { resolveNagoLogo } from "@/variants/owned/nago/pieces/nagoLogo";
+import { nagoLandingRegisterCtas } from "@/variants/owned/nago/pieces/nagoLandingRegisterCtas";
+import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
+
+interface LandingMainSectionsNagoProps {
+  dict: Dictionary;
+  brand: BrandPublic;
+  locale: string;
+  sessionEmail?: string | null;
+  mediaMap?: LandingMediaMap;
+  blogEnabled?: boolean;
+  merchEnabled?: boolean;
+  publicCtaMode?: PublicCtaMode;
+  inscriptionsEnabled?: boolean;
+}
+
+export function LandingMainSectionsNago({
+  dict,
+  brand,
+  locale,
+  sessionEmail,
+  mediaMap,
+  blogEnabled = false,
+  merchEnabled = false,
+  publicCtaMode,
+  inscriptionsEnabled,
+}: LandingMainSectionsNagoProps) {
+  const logoSrc = resolveNagoLogo(brand);
+  const registerCtas = nagoLandingRegisterCtas({
+    locale,
+    dict,
+    publicCtaMode,
+    inscriptionsEnabled,
+  });
+
+  return (
+    <NagoFontRoot>
+      <NagoSiteHeader
+        locale={locale}
+        logoSrc={logoSrc}
+        logoAlt={brand.logoAlt}
+        dict={dict}
+        sessionEmail={sessionEmail ?? null}
+        overlayHero
+        showBlogLink={blogEnabled}
+        blogLabel={blogEnabled ? dict.blog.list.title : undefined}
+        showShopLink={merchEnabled}
+        shopLabel={merchEnabled ? dict.shop.catalog.title : undefined}
+        showEventsLink
+        eventsLabel={marketingLandingCopy(dict, "nago", "nav.eventos")}
+        labels={nagoSiteHeaderLabels(dict)}
+        registerCtas={registerCtas}
+      />
+      <main className="relative overflow-x-hidden">
+        <LandingNagoSections
+          dict={dict}
+          brand={brand}
+          locale={locale}
+          mediaMap={mediaMap}
+          registerCtas={registerCtas}
+          sessionEmail={sessionEmail}
+        />
+      </main>
+    </NagoFontRoot>
+  );
+}

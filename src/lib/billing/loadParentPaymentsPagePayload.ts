@@ -140,6 +140,7 @@ export async function loadParentPaymentsPagePayload(
       .from("payments")
       .select("id, section_id, month, year, amount, status, receipt_url, updated_at")
       .eq("student_id", selected.studentId)
+      .is("superseded_at", null)
       .order("year", { ascending: false })
       .order("month", { ascending: true })
       .limit(50);

@@ -17,11 +17,11 @@ vi.mock("next/image", () => ({
     <img src={src} alt={alt} data-priority={priority ? "true" : "false"} />
   ),
 }));
-vi.mock("@/components/molecules/MiMundoButterflyTrails", () => ({
+vi.mock("@/variants/owned/mimundo/pieces/MiMundoButterflyTrails", () => ({
   MiMundoButterflyTrails: () => null,
 }));
 
-import { MiMundoHero } from "@/components/organisms/MiMundoHero";
+import { MiMundoHero } from "@/variants/owned/mimundo/pieces/MiMundoHero";
 
 const dict = dictEs as Dictionary;
 

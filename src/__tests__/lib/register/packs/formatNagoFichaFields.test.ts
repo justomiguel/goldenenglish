@@ -3,7 +3,7 @@ import {
   formatNagoCareDietNote,
   formatNagoCareHealthNote,
   formatNagoHomeAddress,
-} from "@/lib/register/packs/nago/formatNagoFichaFields";
+} from "@/variants/owned/nago/pieces/formatNagoFichaFields";
 import { validNagoExtras } from "@/__tests__/lib/register/packs/nagoExtrasFixture";
 
 const labels = {

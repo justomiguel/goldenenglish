@@ -8,7 +8,14 @@ import { AdminRegistrationActionScene } from "@/components/dashboard/AdminRegist
 import { AdminRegistrationPersonCard } from "@/components/dashboard/AdminRegistrationPersonCard";
 import { AdminRegistrationStepBlock } from "@/components/dashboard/AdminRegistrationStepBlock";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
-import { moveRegistrationSectionAction } from "@/app/[locale]/dashboard/admin/registrations/moveRegistrationSectionAction";
+import {
+  moveRegistrationSectionAction,
+  previewRegistrationSectionMoveAction,
+} from "@/app/[locale]/dashboard/admin/registrations/moveRegistrationSectionAction";
+import { SectionMoveCarryModal } from "@/components/organisms/SectionMoveCarryModal";
+import { sectionMoveCarryFailureMessage } from "@/lib/academics/sectionMoveCarryFailureMessage";
+import type { SectionMoveCarryFacts } from "@/lib/academics/loadSectionMoveCarryFacts";
+import type { CarryResolution, SectionMoveCarryFlags } from "@/lib/academics/planSectionMoveCarry";
 import { revertEnrolledRegistrationAction } from "@/app/[locale]/dashboard/admin/registrations/revertEnrolledRegistrationAction";
 import { registrationEnrolledRevert } from "@/lib/register/registrationEnrolledRevert";
 import type { RegistrationWorkTask } from "@/hooks/useMarkContactedWithLoader";
@@ -37,6 +44,8 @@ export function AdminRegistrationEnrolledPanel({
   const router = useRouter();
   const [sectionId, setSectionId] = useState("");
   const [confirmBack, setConfirmBack] = useState(false);
+  const [carryOpen, setCarryOpen] = useState(false);
+  const [facts, setFacts] = useState<SectionMoveCarryFacts | null>(null);
   const current = new Set(row.activeSectionNames ?? []);
   const choices = sections.filter((section) => !current.has(section.label));
   const names = (row.activeSectionNames ?? []).join(", ") || labels.emptyValue;
@@ -57,17 +66,36 @@ export function AdminRegistrationEnrolledPanel({
   ).replaceAll("{{stage}}", stageName);
   const disabled = busy;
 
-  function saveMove() {
+  function failMove(code: string, detail?: string) {
+    return sectionMoveCarryFailureMessage(code, detail, labels.funnel.errors, labels.funnel.unknownError);
+  }
+
+  async function openCarry() {
+    const preview = await previewRegistrationSectionMoveAction({
+      registrationId: row.id,
+      sectionId,
+      cohortId: selectedCohortId,
+    });
+    if (!preview.ok) {
+      onWork(async () => failMove(preview.code));
+      return;
+    }
+    setFacts(preview.facts);
+    setCarryOpen(true);
+  }
+
+  function confirmCarry(flags: SectionMoveCarryFlags, choices: CarryResolution[]) {
+    setCarryOpen(false);
     onWork(async () => {
       const result = await moveRegistrationSectionAction({
         locale,
         registrationId: row.id,
         sectionId,
         cohortId: selectedCohortId,
+        carry: flags,
+        choices,
       });
-      if (!result.ok) {
-        return registrationMatriculaFailureMessage(result.code, labels.funnel.errors, labels.funnel.unknownError);
-      }
+      if (!result.ok) return failMove(result.code, result.detail);
       router.refresh();
       onClose();
       return null;
@@ -118,7 +146,7 @@ export function AdminRegistrationEnrolledPanel({
         </label>
       </AdminRegistrationActionScene>
       <AdminRegistrationStepBlock sentence={labels.funnel.enrolledSaveTip} infoLabel={labels.funnel.stepInfo} plain>
-        <Button type="button" variant="success" className="min-h-11 w-full justify-start" disabled={disabled || !sectionId} onClick={saveMove}>
+        <Button type="button" variant="success" className="min-h-11 w-full justify-start" disabled={disabled || !sectionId} onClick={() => void openCarry()}>
           <UserPlus className="h-4 w-4" aria-hidden />
           {labels.matricula.saveSection}
         </Button>
@@ -148,6 +176,17 @@ export function AdminRegistrationEnrolledPanel({
         confirmLabel={labels.funnel.backConfirm}
         confirmVariant="destructive"
         onConfirm={confirmRevert}
+      />
+      <SectionMoveCarryModal
+        open={carryOpen}
+        locale={locale}
+        copy={labels.moveCarry}
+        missingChoice={labels.funnel.errors.carry_choice_missing}
+        unknownError={labels.funnel.unknownError}
+        facts={facts}
+        busy={busy}
+        onClose={() => setCarryOpen(false)}
+        onConfirm={confirmCarry}
       />
     </div>
   );

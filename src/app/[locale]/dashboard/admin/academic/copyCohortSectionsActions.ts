@@ -1,6 +1,5 @@
 "use server";
 
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
@@ -8,7 +7,7 @@ import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { revalidateAcademicSurfaces } from "@/app/[locale]/dashboard/admin/academic/revalidatePaths";
 import { allocateUniqueSectionName } from "@/lib/academics/uniqueSectionNameInCohort";
 import { deriveSectionPeriodForCopy } from "@/lib/academics/deriveSectionPeriodForCopy";
-import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionMaxStudents";
+import { commitSectionEnrollmentRpc } from "@/lib/academics/commitSectionEnrollmentRpc";
 import { logServerException } from "@/lib/logging/serverActionLog";
 
 const uuid = z.string().uuid();
@@ -17,38 +16,15 @@ export type CopyCohortSectionsResult =
   | {
       ok: true;
       sectionsCopied: number;
-      enrollmentsTransferred: number;
+      enrollmentsCopied: number;
       enrollmentsFailed: number;
     }
   | { ok: false; code: "PARSE" | "SAME_COHORT" | "EMPTY_SOURCE" | "SAVE" };
 
-async function transferEnrollmentToNewSection(
-  supabase: SupabaseClient,
-  input: {
-    studentId: string;
-    targetSectionId: string;
-    sourceEnrollmentId: string;
-  },
-): Promise<boolean> {
-  const defMax = getDefaultSectionMaxStudents();
-  const { data, error } = await supabase.rpc("academic_admin_section_enroll_commit", {
-    p_student_id: input.studentId,
-    p_section_id: input.targetSectionId,
-    p_drop_section_enrollment_id: input.sourceEnrollmentId,
-    p_drop_next_status: "transferred",
-    p_allow_capacity_override: true,
-    p_default_max_students: defMax,
-  });
-  if (error) return false;
-  const row = data as { enrollment_id?: string } | null;
-  return Boolean(row?.enrollment_id);
-}
-
 /**
- * Duplicates `academic_sections` from source cohort to target. Optionally moves
- * active enrollments from each source section to the matching new section (same RPC
- * as admin enroll with drop → `transferred` on the old row). Does not copy attendance
- * or grades.
+ * Duplicates `academic_sections` from source cohort to target. Optionally copies
+ * active students onto the matching new section. The source enrollment stays active.
+ * Does not copy attendance or grades.
  */
 export async function copyCohortSectionStructureAction(input: {
   locale: string;
@@ -157,7 +133,7 @@ export async function copyCohortSectionStructureAction(input: {
       }
     }
 
-    let enrollmentsTransferred = 0;
+    let enrollmentsCopied = 0;
     let enrollmentsFailed = 0;
 
     if (input.includeStudents) {
@@ -172,12 +148,14 @@ export async function copyCohortSectionStructureAction(input: {
 
         for (const raw of enrs ?? []) {
           const e = raw as { id: string; student_id: string };
-          const ok = await transferEnrollmentToNewSection(supabase, {
+          const copied = await commitSectionEnrollmentRpc(supabase, {
             studentId: e.student_id,
-            targetSectionId: targetId,
-            sourceEnrollmentId: e.id,
+            sectionId: targetId,
+            dropId: null,
+            dropNext: "dropped",
+            allowCapacityOverride: true,
           });
-          if (ok) enrollmentsTransferred += 1;
+          if (copied.ok) enrollmentsCopied += 1;
           else enrollmentsFailed += 1;
         }
       }
@@ -191,7 +169,7 @@ export async function copyCohortSectionStructureAction(input: {
         source_cohort_id: src.data,
         sections_copied: pairs.length,
         include_students: Boolean(input.includeStudents),
-        enrollments_transferred: enrollmentsTransferred,
+        enrollments_copied: enrollmentsCopied,
         enrollments_failed: enrollmentsFailed,
       },
     });
@@ -202,7 +180,7 @@ export async function copyCohortSectionStructureAction(input: {
     return {
       ok: true,
       sectionsCopied: pairs.length,
-      enrollmentsTransferred,
+      enrollmentsCopied,
       enrollmentsFailed,
     };
   } catch (err) {

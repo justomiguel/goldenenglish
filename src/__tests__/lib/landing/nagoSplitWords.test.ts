@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { planNagoSplitWords } from "@/lib/landing/nagoSplitWords";
+import { planNagoSplitWords } from "@/variants/owned/nago/pieces/planNagoSplitWords";
 
 describe("planNagoSplitWords", () => {
   it("splits parts on spaces and builds the accessible label", () => {

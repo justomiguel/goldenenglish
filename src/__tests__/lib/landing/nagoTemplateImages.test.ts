@@ -3,7 +3,7 @@ import {
   NAGO_HERO_SLIDES,
   NAGO_TEMPLATE,
   NAGO_TEMPLATE_GALLERY_URLS,
-} from "@/lib/landing/nagoTemplateImages";
+} from "@/variants/owned/nago/pieces/nagoTemplateImages";
 
 describe("NAGO_TEMPLATE", () => {
   it("points hero and programs at gallery photos and keeps the Mestre file", () => {

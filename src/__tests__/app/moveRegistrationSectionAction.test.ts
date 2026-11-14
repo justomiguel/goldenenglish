@@ -20,10 +20,13 @@ vi.mock("@/lib/dashboard/assertAdmin", () => ({
   assertAdmin: () => assertAdmin(),
 }));
 
-const from = vi.hoisted(() => vi.fn());
-vi.mock("@/lib/supabase/admin", () => ({
-  createAdminClient: async () => ({ from: (...args: unknown[]) => from(...args) }),
+const carry = vi.hoisted(() => vi.fn(async () => ({ ok: true as const, enrollmentId: "new-enrollment" })));
+vi.mock("@/app/[locale]/dashboard/admin/academic/moveStudentSectionWithCarryAction", () => ({
+  moveStudentSectionWithCarryAction: (...args: unknown[]) => carry(...args),
+  previewSectionMoveCarryAction: vi.fn(),
 }));
+
+const from = vi.hoisted(() => vi.fn());
 
 const enrollmentUpdates = vi.hoisted(() => [] as Record<string, unknown>[]);
 const enrollmentInserts = vi.hoisted(() => [] as Record<string, unknown>[]);
@@ -81,7 +84,9 @@ function install(opts: {
 
 describe("moveRegistrationSectionAction", () => {
   beforeEach(() => {
-    assertAdmin.mockResolvedValue({ user: { id: "actor-1" } });
+    assertAdmin.mockResolvedValue({ user: { id: "actor-1" }, supabase: { from } });
+    carry.mockClear();
+    carry.mockResolvedValue({ ok: true, enrollmentId: "new-enrollment" });
     audit.mockClear();
     enrollmentUpdates.length = 0;
     enrollmentInserts.length = 0;
@@ -103,6 +108,7 @@ describe("moveRegistrationSectionAction", () => {
       cohortId: COHORT_ID,
     });
     expect(result).toEqual({ ok: false, code: "section_move_same" });
+    expect(carry).not.toHaveBeenCalled();
     expect(enrollmentUpdates).toEqual([]);
   });
 
@@ -138,17 +144,17 @@ describe("moveRegistrationSectionAction", () => {
       cohortId: COHORT_ID,
     });
     expect(result).toEqual({ ok: true });
-    expect(enrollmentUpdates).toEqual([{ status: "transferred" }]);
-    expect(enrollmentInserts).toEqual([
-      { section_id: OTHER_ID, student_id: STUDENT_ID, status: "active" },
-    ]);
+    expect(enrollmentUpdates).toEqual([]);
+    expect(enrollmentInserts).toEqual([]);
     expect(registrationUpdates).toEqual([]);
-    expect(audit).toHaveBeenCalledWith(
+    expect(carry).toHaveBeenCalledWith(
       expect.objectContaining({
-        action: "registration_section_move",
-        resourceId: REG_ID,
-        payload: { cohort_id: COHORT_ID, section_id: OTHER_ID },
+        studentId: STUDENT_ID,
+        toSectionId: OTHER_ID,
+        fromEnrollmentIds: ["enr-1"],
+        carry: expect.objectContaining({ payments: true, grades: false }),
       }),
     );
+    expect(audit).not.toHaveBeenCalled();
   });
 });

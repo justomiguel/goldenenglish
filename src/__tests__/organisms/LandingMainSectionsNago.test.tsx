@@ -4,21 +4,21 @@ import type { ReactNode } from "react";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
-vi.mock("@/components/organisms/NagoFontRoot", () => ({
+vi.mock("@/variants/owned/nago/pieces/NagoFontRoot", () => ({
   NagoFontRoot: ({ children }: { children: ReactNode }) => (
     <div className="nago-landing">{children}</div>
   ),
 }));
 
-vi.mock("@/components/organisms/NagoSiteHeader", () => ({
+vi.mock("@/variants/owned/nago/pieces/NagoSiteHeader", () => ({
   NagoSiteHeader: () => <header className="nago-site-header" />,
 }));
 
-vi.mock("@/components/organisms/LandingNagoSections", () => ({
+vi.mock("@/variants/owned/nago/pieces/LandingNagoSections", () => ({
   LandingNagoSections: () => <div data-testid="nago-sections" />,
 }));
 
-import { LandingMainSectionsNago } from "@/components/organisms/LandingMainSectionsNago";
+import { LandingMainSectionsNago } from "@/variants/owned/nago/pieces/LandingMainSectionsNago";
 
 describe("LandingMainSectionsNago", () => {
   it("keeps the header outside the overflow clip so photos cannot cover it", () => {

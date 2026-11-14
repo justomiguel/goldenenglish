@@ -89,6 +89,7 @@ export async function resolveStudentPaymentSlot(
       .eq("section_id", sectionId)
       .eq("month", month)
       .eq("year", year)
+      .is("superseded_at", null)
       .maybeSingle();
     if (selErr) {
       logSupabaseClientError("resolveStudentPaymentSlot:select", selErr, { studentId });
@@ -126,6 +127,7 @@ export async function resolveStudentPaymentSlot(
             .eq("section_id", sectionId)
             .eq("month", month)
             .eq("year", year)
+            .is("superseded_at", null)
             .maybeSingle();
           if (raceErr || !raced) {
             logSupabaseClientError("resolveStudentPaymentSlot:insert", insErr, { studentId });

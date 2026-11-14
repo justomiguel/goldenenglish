@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { resolveFamilyGuide } from "@/lib/landing/mozarthitos/resolveFamilyGuide";
+import { resolveFamilyGuide } from "@/variants/owned/mozarthitos/pieces/resolveFamilyGuide";
 import {
   MZ_GUIDE_AGE_BANDS,
   MZ_GUIDE_ATTENDANCE,
-} from "@/lib/landing/mozarthitos/familyGuideCatalog";
+} from "@/variants/owned/mozarthitos/pieces/familyGuideCatalog";
 
 describe("resolveFamilyGuide", () => {
   it("returns a waitlist for babies under 6 months", () => {

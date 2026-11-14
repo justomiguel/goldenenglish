@@ -45,6 +45,7 @@ function paymentsTable(rows: unknown[]) {
   const table = {
     select: vi.fn(() => table),
     eq: vi.fn(() => table),
+    is: vi.fn(() => table),
     update: vi.fn(() => ({ eq: eqAfterWrite })),
     insert: vi.fn().mockResolvedValue({ error: null }),
     delete: vi.fn(() => ({ eq: eqAfterWrite })),

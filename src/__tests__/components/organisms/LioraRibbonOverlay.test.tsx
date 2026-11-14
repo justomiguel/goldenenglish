@@ -1,6 +1,6 @@
 import { act, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { LioraRibbonOverlay } from "@/components/organisms/LioraRibbonOverlay";
+import { LioraRibbonOverlay } from "@/variants/owned/liora/pieces/LioraRibbonOverlay";
 
 const rects: Record<string, { top: number; height: number }> = {
   layer: { top: 0, height: 3000 },

@@ -2,6 +2,8 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionMaxStudents";
 import { SECTION_LEAD_TEACHER_ELIGIBLE_ROLES } from "@/lib/academics/sectionStaffEligibleRoles";
+import { formatAcademicScheduleSummary } from "@/lib/academics/formatAcademicScheduleSummary";
+import { loadCohortSectionTeacherNames } from "@/lib/academics/loadCohortSectionTeacherNames";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
 import { readRequestSupabasePublicEnv } from "@/lib/supabase/requestPublicEnv";
@@ -14,6 +16,8 @@ export interface AdminCohortSectionRow {
   archivedAt: string | null;
   periodLine?: string;
   referenceImageUrl: string | null;
+  teacherNames: string[];
+  scheduleLine: string;
 }
 
 export interface AdminCohortMoveTarget {
@@ -41,13 +45,23 @@ async function loadSectionRows(
   const [{ data: sections }, { url: supabaseUrl }] = await Promise.all([
     supabase
       .from("academic_sections")
-      .select("id, name, max_students, teacher_id, archived_at, starts_on, ends_on, reference_image_path")
+      .select(
+        "id, name, max_students, teacher_id, archived_at, starts_on, ends_on, reference_image_path, schedule_slots",
+      )
       .eq("cohort_id", cohortId)
       .order("name"),
     readRequestSupabasePublicEnv(),
   ]);
   const dateFmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
-  return Promise.all(
+  const sectionList = sections ?? [];
+  const staffNames = loadCohortSectionTeacherNames(
+    supabase,
+    sectionList.map((section) => ({
+      id: section.id as string,
+      teacherId: (section as { teacher_id?: string | null }).teacher_id ?? null,
+    })),
+  );
+  const rows = await Promise.all(
     (sections ?? []).map(async (s) => {
       const sid = s.id as string;
       const { count } = await supabase
@@ -75,9 +89,16 @@ async function loadSectionRows(
           (s as { reference_image_path?: string | null }).reference_image_path,
           supabaseUrl,
         ),
+        teacherNames: [],
+        scheduleLine: formatAcademicScheduleSummary(
+          (s as { schedule_slots?: unknown }).schedule_slots,
+          locale,
+        ),
       };
     }),
   );
+  const names = await staffNames;
+  return rows.map((row) => ({ ...row, teacherNames: names.get(row.id) ?? [] }));
 }
 
 async function loadDistinctActiveStudents(

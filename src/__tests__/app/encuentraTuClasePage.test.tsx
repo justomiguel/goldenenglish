@@ -33,7 +33,7 @@ vi.mock("@/lib/site/buildResolvedPublicShareMetadata", () => ({
 vi.mock("@/components/organisms/PublicExperienceShell", () => ({
   PublicExperienceShell: ({ children }: { children: unknown }) => children,
 }));
-vi.mock("@/components/organisms/PublicBlogScreenMozarthitos", () => ({
+vi.mock("@/variants/owned/mozarthitos/pieces/PublicBlogScreenMozarthitos", () => ({
   PublicBlogScreenMozarthitos: ({ children }: { children: unknown }) => children,
 }));
 vi.mock("@/components/organisms/FamilyGuideEntry", () => ({

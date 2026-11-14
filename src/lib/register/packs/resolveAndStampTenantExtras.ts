@@ -1,9 +1,9 @@
 import { logServerWarn } from "@/lib/logging/serverActionLog";
-import { buildNagoExtrasSchema } from "@/lib/register/packs/nago/schema";
-import { NAGO_PROTOCOL_VERSION } from "@/lib/register/packs/nago/protocolVersion";
-import type { NagoTenantExtras } from "@/lib/register/packs/nago/types";
-import { parseMozarthitosTenantExtras } from "@/lib/register/packs/mozarthitos/parseMozarthitosTenantExtras";
-import type { MozarthitosTenantExtras } from "@/lib/register/packs/mozarthitos/schema";
+import { buildNagoExtrasSchema } from "@/variants/owned/nago/pieces/schema";
+import { NAGO_PROTOCOL_VERSION } from "@/variants/owned/nago/pieces/protocolVersion";
+import type { NagoTenantExtras } from "@/variants/owned/nago/pieces/types";
+import { parseMozarthitosTenantExtras } from "@/variants/owned/mozarthitos/pieces/parseMozarthitosTenantExtras";
+import type { MozarthitosTenantExtras } from "@/variants/owned/mozarthitos/pieces/schema";
 import { resolveActiveRegistrationExtrasPack } from "@/lib/register/packs/resolveActiveRegistrationExtrasPack";
 
 export type StampedTenantExtras =

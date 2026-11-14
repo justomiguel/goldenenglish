@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { resolveEventDataClient } from "@/lib/events/server/resolveEventDataClient";
 import {
-  eventShareGrantClient,
   listGrantsForOwnerEvent,
+  shareGrantClientOrNull,
 } from "@/lib/events/server/eventShareGrantStore";
 import { loadAllPulsarTenantsForAdmin } from "@/lib/pulsar/pulsarTenantStore";
 import { loadEventAttendeesPaginated, loadEventAttendeesCount } from "@/lib/dashboard/events/loadEventAttendeesPaginated";
@@ -178,8 +178,9 @@ export async function loadAdminEventDetailPageModel(input: {
 
   const showShare = resolved.access === "local" && (input.tab === "summary" || !input.tab);
   const tenants = showShare || resolved.access === "guest" ? await loadAllPulsarTenantsForAdmin() : [];
-  const shareGrants = showShare
-    ? (await listGrantsForOwnerEvent(eventShareGrantClient(), resolved.ownerSlug, input.eventId)).map(
+  const grantClient = shareGrantClientOrNull();
+  const shareGrants = showShare && grantClient
+    ? (await listGrantsForOwnerEvent(grantClient, resolved.ownerSlug, input.eventId)).map(
         (grant) => ({
           id: grant.id,
           guestSlug: grant.guestSlug,

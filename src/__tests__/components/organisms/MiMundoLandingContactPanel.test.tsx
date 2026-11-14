@@ -13,7 +13,7 @@ vi.mock("@/app/[locale]/contact/actions", () => ({
 }));
 
 // ── component under test ──────────────────────────────────────────────────────
-import { MiMundoLandingContactPanel } from "@/components/organisms/MiMundoLandingContactPanel";
+import { MiMundoLandingContactPanel } from "@/variants/owned/mimundo/pieces/MiMundoLandingContactPanel";
 
 const defaultProps = {
   dict: dictEn,

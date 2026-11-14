@@ -6265,7 +6265,7 @@
       "detailAvatarErrSave": "Could not save the student photo. Try again.",
       "detailSectionAssignTitle": "Current cohort sections",
       "detailSectionAssignLead": "Manage which sections of the current cohort this student is enrolled in.",
-      "detailSectionAssignNoCurrent": "No current cohort is set. Mark a cohort as current in Cohorts & sections first.",
+      "detailSectionAssignNoCurrent": "No current cohort is set. Mark a cohort as current in Courses first.",
       "detailSectionAssignNoSections": "The current cohort has no active sections yet.",
       "detailSectionAssignNoAvailableSections": "No more active sections are available for this student.",
       "detailSectionAssignCurrent": "Current sections",
@@ -6308,7 +6308,7 @@
       "detailSectionAssignErrNotStudent": "Only student profiles can be assigned to sections.",
       "detailSectionAssignErrNoCurrent": "No current cohort is set.",
       "detailSectionAssignErrSectionNotCurrent": "That section does not belong to the current cohort.",
-      "detailSectionAssignErrMultipleCurrent": "This student has multiple active sections in the current cohort. Resolve the duplicate from Cohorts & sections before assigning here.",
+      "detailSectionAssignErrMultipleCurrent": "This student has multiple active sections in the current cohort. Resolve the duplicate from Courses before assigning here.",
       "detailSectionAssignErrScheduleOverlap": "This schedule overlaps another active section for the student.",
       "detailSectionAssignErrCapacity": "The section is full. Use the admin capacity override only if authorized.",
       "detailSectionAssignErrRpc": "Could not save the section assignment. Try again.",
@@ -6859,7 +6859,7 @@
           "ratio": "Collection ratio"
         },
         "empty": {
-          "noCurrentCohort": "No current cohort is set. Mark a cohort as current in Cohorts & sections.",
+          "noCurrentCohort": "No current cohort is set. Mark a cohort as current in Courses.",
           "noSections": "This cohort has no active sections yet.",
           "noStudentsAfterFilter": "No students match the current filter."
         },
@@ -6945,7 +6945,7 @@
         "overview": {
           "totalsTitle": "Cohort totals",
           "sectionsTitle": "Sections",
-          "noCurrentCohort": "No current cohort is set. Mark a cohort as current in Cohorts & sections.",
+          "noCurrentCohort": "No current cohort is set. Mark a cohort as current in Courses.",
           "noSections": "This cohort has no active sections yet.",
           "openTooltip": "Open the section to see the student matrix and bulk actions."
         },
@@ -7704,6 +7704,21 @@
       "startJoinChargeTip": "Email the family the link to pay matrícula and the current month and join.",
       "startJoinChargeSuccess": "We sent the join-pay link to the family",
       "startJoinChargeError": "Could not start the join charge",
+      "moveCarry": {
+        "title": "What follows this student",
+        "lead": "The student moves either way. Checked items leave the current section and attach to the new one.",
+        "payments": "Monthly payments",
+        "scholarships": "Scholarships and discounts",
+        "enrollmentFee": "Enrollment fee",
+        "annualSettlement": "Annual settlement",
+        "attendance": "Attendance",
+        "grades": "Grades",
+        "leave": "Leave it",
+        "replace": "Replace",
+        "confirm": "Move student",
+        "cancel": "Cancel",
+        "collisionLead": "These items already exist in the destination section. Choose one action for each."
+      },
       "funnel": {
         "registered": "Pre-enrolled ({{count}})",
         "contacted": "Pre-enrolled, contacted ({{count}})",
@@ -7784,6 +7799,9 @@
         "unknownError": "Send this code with the claim. Code: {{code}}",
         "errors": {
           "funnel_revert_not_allowed": "This lead is not in a stage this step can undo. Open Enrolled in a section when the student already has a section. Code: funnel_revert_not_allowed",
+          "carry_choice_missing": "Choose Leave or Replace for {{detail}} before this move is saved. Code: carry_choice_missing",
+          "SCHEDULE_OVERLAP": "The schedule overlaps another active section. Choose another section. Code: SCHEDULE_OVERLAP",
+          "CAPACITY_EXCEEDED": "This section is full. Choose another section. Code: CAPACITY_EXCEEDED",
           "section_move_same": "This student is already in that section. Choose another section. Code: section_move_same",
           "section_move_outside_cohort": "That section is not in the selected cohort. Choose a section from this cohort. Code: section_move_outside_cohort",
           "enrolled_revert_failed": "This lead is not enrolled in a section, so this step cannot undo it. Refresh the list. Code: enrolled_revert_failed",
@@ -9794,7 +9812,7 @@
       "coupons": "Coupons",
       "promotions": "Promotions",
       "settings": "Institute settings",
-      "academics": "Cohorts & sections",
+      "academics": "Courses",
       "calendar": "Master calendar",
       "contents": "Academic contents",
       "transferInboxNav": "Transfer inbox",
@@ -11323,24 +11341,24 @@
         "progressText": "{{current}} of {{total}}",
         "steps": {
           "intro": {
-            "title": "🏫 Cohorts & sections",
-            "description": "A cohort is the annual container for the school year. Sections (shifts, courses) live inside a cohort — create the year first, then add sections."
+            "title": "🏫 Courses",
+            "description": "A cohort is the annual container for the school year. Sections live inside a cohort. This screen opens the sections of the current year."
           },
           "titleBlock": {
-            "title": "📋 Cohorts & sections",
-            "description": "This screen lists cohorts and lets you open the one you work on."
+            "title": "📋 Courses",
+            "description": "This screen shows the sections of the year you pick in Year/Cohort."
           },
           "newCohort": {
             "title": "➕ New cohort",
             "description": "Creates another annual cohort. Prefer one cohort per calendar year unless you intentionally need another."
           },
           "boardTabs": {
-            "title": "📑 Current / Active / Archived",
-            "description": "Organize cohorts by status so the current year stays easy to find."
+            "title": "📑 Year/Cohort",
+            "description": "Choose the year. The current year is selected when you open this screen. Archived years stay at the end."
           },
           "cohortList": {
-            "title": "📚 Cohort rows",
-            "description": "Open a cohort to manage its sections. You can also mark which cohort is current for the institute."
+            "title": "📚 Sections",
+            "description": "These are the sections of the selected year. Open one for students, attendance, and grades."
           },
           "closing": {
             "title": "✅ Build the year",
@@ -12396,8 +12414,8 @@
             "description": "A cohort is the top-level container in your academic structure: it represents the school year (for example “Cohort 2026”). There is only one cohort per year — you do not create separate morning or afternoon cohorts; those schedules belong in sections inside the cohort.\n\nInside each cohort live sections —classes with a schedule, teacher, and enrollments— and within each section, the courses or units in the learning plan.\n\nYou cannot create standalone sections or courses without a cohort. This tour walks you through that first step: define the annual container before you fill it."
           },
           "navAcademic": {
-            "title": "📚 Cohorts & sections",
-            "description": "Cohorts & sections is your academic control center: cohorts, sections, and enrollments in one place.\n\nClick Next to open it. If you were on another admin screen, the tour navigates you to the hub automatically."
+            "title": "📚 Courses",
+            "description": "Courses opens the sections of the current year.\n\nClick Next to open it. If you were on another admin screen, the tour navigates you to the hub automatically."
           },
           "newCohort": {
             "title": "➕ New cohort",
@@ -12405,11 +12423,11 @@
           },
           "nameField": {
             "title": "✏️ Cohort name",
-            "description": "Use the school year as the main reference. Example: “Cohort 2026” or “2026”. You do not need to split by shift — morning and afternoon are set when you create sections inside this cohort.\n\nThe slug is optional; leave it blank and the system generates one. The name must be at least 2 characters."
+            "description": "Use the school year as the main reference. Example: “Cohort 2026” or “2026”. You do not need to split by shift — morning and afternoon are set when you create sections inside this cohort.\n\nTurn matrícula on only when this cohort charges it, then enter the amount. You can copy sections from another cohort. Copied students stay in that cohort and also join the new section. The name must be at least 2 characters."
           },
           "submit": {
             "title": "✅ Create cohort",
-            "description": "When the name is clear and valid, confirm creation. The cohort is saved as an empty container — you will add sections from its detail page next.\n\nThe tour continues there to show you what comes after."
+            "description": "When the name is valid, confirm creation. The cohort is saved. If you did not copy sections, add them from the cohort page next.\n\nThe tour continues there to show you what comes after."
           },
           "detail": {
             "title": "📂 Your cohort (container)",
@@ -12425,7 +12443,7 @@
         "progressText": "{{current}} of {{total}}",
         "missingCohortNotice": {
           "title": "Create a cohort first",
-          "description": "Sections live inside a cohort (the annual container). We could not find a current or active-year cohort.\n\nRun the “create a cohort” tutorial or open Cohorts & sections and create the year’s cohort before adding sections.",
+          "description": "Sections live inside a cohort (the annual container). We could not find a current or active-year cohort.\n\nRun the “create a cohort” tutorial or open Courses and create the year’s cohort before adding sections.",
           "dismiss": "Got it"
         },
         "steps": {
@@ -13171,7 +13189,7 @@
         "current-cohort": {
           "title": "Current cohort",
           "aliases": "Also: active cohort, “vigente”",
-          "body": "The cohort marked as the institute’s operating year right now. Public registration, assigning students to sections from user detail, and several finance views use this cohort as the default context.\n\nOnly one cohort should be current at a time. Mark it from Cohorts & sections when families should enroll into that year."
+          "body": "The cohort marked as the institute’s operating year right now. Public registration, assigning students to sections from user detail, and several finance views use this cohort as the default context.\n\nOnly one cohort should be current at a time. Mark it from Courses when families should enroll into that year."
         },
         "section": {
           "title": "Section",
@@ -13184,9 +13202,9 @@
           "body": "The teaching unit or content track inside a section — materials, tasks, mini-tests, or ordered activities families and students see in the portal.\n\nCourses are not the same as sections: the section is the live group; courses are what that group works through. They may follow a learning route or stay in free mode."
         },
         "academic-hub": {
-          "title": "Cohorts & sections",
+          "title": "Courses",
           "aliases": "Also: cohorts & sections panel",
-          "body": "The admin home for cohorts and sections: create cohorts, open a cohort to manage its sections, copy section designs from a previous year, mark the current cohort, and jump to transfers or retention for that context.\n\nIf you are unsure where academic structure lives, start here."
+          "body": "Courses shows the sections of the current year. Switch years in Year/Cohort.\n\nIf you are unsure where academic structure lives, start here."
         },
         "learning-route": {
           "title": "Learning route",
@@ -13216,7 +13234,7 @@
         "section-enrollment": {
           "title": "Section enrollment",
           "aliases": "Also: active seat in a class",
-          "body": "The link between a student and a section for the cohort cycle — who sits in which group, with start/end dates and status. Without enrollment, the student will not appear in that section’s attendance, grades, or billing.\n\nAssign from Cohorts & sections queues, user detail, imports, or approved transfers."
+          "body": "The link between a student and a section for the cohort cycle — who sits in which group, with start/end dates and status. Without enrollment, the student will not appear in that section’s attendance, grades, or billing.\n\nAssign from Courses, user detail, imports, or approved transfers."
         },
         "promotion": {
           "title": "Promotion",
@@ -13341,13 +13359,19 @@
         "CAPACITY_EXCEEDED": "This section is at capacity. Confirm override or pick another section.",
         "ALREADY_ACTIVE": "The student is already active in this section.",
         "PARSE": "Could not validate the request. Check UUIDs and section schedules.",
+        "carry_choice_missing": "Choose Leave or Replace for {{detail}} before this move is saved. Code: carry_choice_missing",
+        "section_move_same": "This student is already in that section. Choose another section. Code: section_move_same",
+        "unknownError": "Send this code with the claim. Code: {{code}}",
         "RPC": "The enrollment could not be completed. Try again or contact support."
       }
     },
     "academicHub": {
-      "metaTitle": "Cohorts & sections",
-      "title": "Cohorts & sections",
-      "lead": "Review cohorts and open one to manage sections, transfer requests, and retention alerts in the same view.",
+      "metaTitle": "Courses",
+      "title": "Courses",
+      "lead": "You see the sections of the year you pick.",
+      "cohortSelectLabel": "Year/Cohort",
+      "cohortSelectPlaceholder": "Choose a year",
+      "emptyPickCohort": "No year is current. Choose one in Year/Cohort or create a cohort.",
       "table": {
         "name": "Cohort",
         "statusActive": "Active",
@@ -13364,11 +13388,11 @@
       "board": {
         "currentTitle": "Current cohort",
         "currentLead": "Drives public registration defaults and the current cohort context in the product. Only one cohort should be current.",
-        "activeTitle": "Other cohorts",
-        "activeLead": "Not archived. Open one to manage class sections, transfers, and capacity.",
+        "activeTitle": "Active cohorts",
+        "activeLead": "The current cohort is first. The other active cohorts are listed below.",
         "archivedTitle": "Archived cohorts",
         "archivedLead": "Hidden from teachers and students until restored. Use this for operational closure while keeping admin history.",
-        "emptyActive": "No other cohorts in this view.",
+        "emptyActive": "No active cohorts in this view.",
         "emptyArchived": "No cohorts are archived yet.",
         "emptyAll": "No cohorts yet. Use New cohort above to create the first one.",
         "noCurrentBanner": "No cohort is marked as current. Choose Set as current on the cohort that families should register into.",
@@ -13388,17 +13412,34 @@
         "newCohortModal": {
           "title": "New cohort",
           "nameLabel": "Name",
-          "slugLabel": "Slug (optional)",
-          "slugHint": "Leave blank to auto-fill from the name later.",
+          "chargesEnrollmentLabel": "This cohort charges a matrícula",
+          "enrollmentAmountLabel": "Matrícula amount",
+          "chargesMonthlyLabel": "This cohort has one monthly fee for every section",
+          "monthlyAmountLabel": "Monthly fee per section",
+          "copySectionsLabel": "Copy sections from another cohort",
+          "sourceLabel": "Model cohort",
+          "sourcePlaceholder": "Choose a cohort",
+          "copyStudentsLabel": "Copy the active students too",
+          "copyStudentsHint": "Each student stays in the model cohort and is also enrolled in the matching new section.",
           "submit": "Create",
           "cancel": "Cancel",
-          "error": "Could not create the cohort. Check the name and try again."
+          "openCohort": "Open the new cohort",
+          "errors": {
+            "name_too_short": "Enter a name with at least 2 characters. Code: name_too_short",
+            "fee_amount_required": "Enter the matrícula amount, or turn matrícula off. Code: fee_amount_required",
+            "fee_amount_invalid": "Enter a matrícula amount of 0 or more. Code: fee_amount_invalid",
+            "monthly_fee_required": "Enter the monthly fee, or turn the unified fee off. Code: monthly_fee_required",
+            "monthly_fee_invalid": "Enter a monthly fee of 0 or more. Code: monthly_fee_invalid",
+            "source_required": "Choose the cohort to copy, or turn copy off. Code: source_required",
+            "save": "The cohort was not created. Try again or contact the institute. Code: save",
+            "copy_failed": "The cohort was created, but the sections were not copied. Open it and copy the sections again. Code: copy_failed"
+          }
         }
       }
     },
     "academicCohortPage": {
       "metaTitle": "Cohort",
-      "backHub": "← Cohorts & sections",
+      "backHub": "← Courses",
       "sectionsTitle": "Sections",
       "newSectionButton": "New section",
       "newSectionModal": {
@@ -13444,18 +13485,22 @@
       },
       "copySectionsButton": "Copy section layout from…",
       "newSectionButtonTip": "Add a class group with schedule, teacher, and capacity for this cohort.",
-      "copySectionsButtonTip": "Duplicate section names and schedules from another cohort; optionally move active students.",
+      "copySectionsButtonTip": "Copy section names and schedules from another cohort. Copied students stay in the source cohort.",
       "copySectionsModal": {
         "title": "Copy section structure",
-        "lead": "Creates matching sections in this cohort (same teacher, schedule, and capacity). You can optionally transfer active enrollments from the source sections into each new section.",
+        "lead": "Creates matching sections in this cohort (same teacher, schedule, and capacity). You can also copy active students. They stay in the source cohort and join the matching new section.",
         "sourceLabel": "Copy layout from cohort",
         "sourcePlaceholder": "Select a cohort",
-        "includeStudentsLabel": "Transfer active students into the new sections",
-        "includeStudentsHint": "Each active enrollment in a source section is closed as transferred and recreated on the matching new section. Transfers that fail (for example a schedule conflict with another active class) are skipped.",
+        "includeStudentsLabel": "Copy active students into the new sections",
+        "includeStudentsHint": "Each student stays enrolled in the source section and is also enrolled in the new section. A schedule clash inside this cohort skips that student.",
         "submit": "Copy structure",
         "cancel": "Cancel",
-        "error": "Could not copy sections.",
-        "errorEmptySource": "That cohort has no sections to copy."
+        "errors": {
+          "PARSE": "Choose a valid source cohort. Code: PARSE",
+          "SAME_COHORT": "Choose another cohort. You cannot copy a cohort onto itself. Code: SAME_COHORT",
+          "EMPTY_SOURCE": "That cohort has no sections to copy. Code: EMPTY_SOURCE",
+          "SAVE": "The sections were not copied. Try again or contact the institute. Code: SAVE"
+        }
       },
       "noSections": "No sections in this cohort yet.",
       "sectionArchivedBadge": "Archived",
@@ -13495,6 +13540,12 @@
       "badgeCurrent": "Current cohort",
       "badgeArchived": "Archived",
       "capacityLabel": "Capacity",
+      "sectionListName": "Section",
+      "sectionListTeachers": "Teachers",
+      "sectionListSchedule": "Schedule",
+      "sectionListEmptyTeachers": "No teacher",
+      "sectionListEmptySchedule": "No schedule",
+      "sectionListActions": "Actions",
       "kpiStudents": "Active students (unique)",
       "kpiSections": "Sections",
       "feeDefaults": {
@@ -13529,7 +13580,15 @@
         "confirm": "Confirm rollover",
         "cancel": "Cancel",
         "close": "Close",
-        "error": "Rollover could not be completed.",
+        "crossCohortHint": "Another cohort copies the student. The student stays in the origin section. The same cohort moves the student.",
+        "errors": {
+          "PARSE": "Choose valid sections and at least one student. Code: PARSE",
+          "CAPACITY_EXCEEDED": "The destination section is full. Choose another section or raise the cap. Code: CAPACITY_EXCEEDED",
+          "SCHEDULE_OVERLAP": "The schedule clashes with another active section in the same cohort. Code: SCHEDULE_OVERLAP",
+          "ALREADY_ACTIVE": "That student is already in the destination section. Code: ALREADY_ACTIVE",
+          "RPC": "The enrollment was not saved. Try again or contact the institute. Code: RPC",
+          "UNAUTHORIZED": "You cannot move or copy these students. Code: UNAUTHORIZED"
+        },
         "success": "Rollover completed for {n} students.",
         "emptyStudents": "No active students in this section.",
         "loadingStudents": "Loading students…",
@@ -14040,6 +14099,21 @@
       "emptyTab": "No rows in this view.",
       "successEnroll": "Student enrolled.",
       "successMove": "Student moved.",
+      "moveCarry": {
+        "title": "What follows this student",
+        "lead": "The student moves either way. Checked items leave the current section and attach to the new one.",
+        "payments": "Monthly payments",
+        "scholarships": "Scholarships and discounts",
+        "enrollmentFee": "Enrollment fee",
+        "annualSettlement": "Annual settlement",
+        "attendance": "Attendance",
+        "grades": "Grades",
+        "leave": "Leave it",
+        "replace": "Replace",
+        "confirm": "Move student",
+        "cancel": "Cancel",
+        "collisionLead": "These items already exist in the destination section. Choose one action for each."
+      },
       "genericError": "Something went wrong. Try again.",
       "debtBadge": "Guardian has pending payments",
       "careBadge": "Needs special care",
@@ -14093,7 +14167,7 @@
       "metaTitle": "Transfer inbox",
       "title": "Transfer requests",
       "lead": "Pending requests from teachers. Approving runs the enrollment transaction and notifies families when configured.",
-      "backHub": "← Cohorts & sections",
+      "backHub": "← Courses",
       "empty": "No pending requests.",
       "colStudent": "Student",
       "colFrom": "From",

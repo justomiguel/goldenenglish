@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import {
   formatNagoClp,
   LandingNagoHorarios,
-} from "@/components/organisms/LandingNagoHorarios";
+} from "@/variants/owned/nago/pieces/LandingNagoHorarios";
 import { dictEn } from "@/test/dictEn";
 
 describe("LandingNagoHorarios", () => {

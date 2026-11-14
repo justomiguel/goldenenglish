@@ -7,6 +7,7 @@ import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 import { AcademicSearchableSelect } from "@/components/molecules/AcademicSearchableSelect";
 import { rolloverEnrollStudentsAction } from "@/app/[locale]/dashboard/admin/academics/actions";
+import { failureSentenceForCode } from "@/lib/academics/parseNewCohortDraft";
 import {
   listActiveStudentsInSectionForAdmin,
   type SectionStudentPick,
@@ -25,7 +26,8 @@ export interface AcademicRolloverWizardDict {
   confirm: string;
   cancel: string;
   close: string;
-  error: string;
+  crossCohortHint: string;
+  errors: Record<string, string>;
   success: string;
   emptyStudents: string;
   loadingStudents: string;
@@ -102,7 +104,7 @@ export function AcademicRolloverWizard({
         allowCapacityOverride: true,
       });
       if (!r.ok) {
-        setMsg(dict.error);
+        setMsg(failureSentenceForCode(r.code, dict.errors));
         return;
       }
       setMsg(dict.success.replace("{n}", String(r.enrolled)));
@@ -158,6 +160,7 @@ export function AcademicRolloverWizard({
         {step === 2 ? (
           <div className="space-y-3">
             <p className="text-sm font-medium text-[var(--color-foreground)]">{dict.step2Title}</p>
+            <p className="text-sm text-[var(--color-muted-foreground)]">{dict.crossCohortHint}</p>
             <AcademicSearchableSelect
               id="rw-tgt"
               label={dict.targetSection}
@@ -203,7 +206,11 @@ export function AcademicRolloverWizard({
                 ))
               )}
             </div>
-            {msg ? <p className="text-sm text-[var(--color-foreground)]">{msg}</p> : null}
+            {msg ? (
+              <p className="text-sm text-[var(--color-foreground)]" role="status">
+                {msg}
+              </p>
+            ) : null}
             <div className="flex justify-between gap-2 pt-2">
               <Button type="button" variant="ghost" onClick={() => setStep(2)} disabled={pending}>
                 <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />

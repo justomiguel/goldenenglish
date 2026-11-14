@@ -2,13 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
 
-vi.mock("@/components/organisms/EspacioZenitFontRoot", () => ({
+vi.mock("@/variants/owned/espaciozenit/pieces/EspacioZenitFontRoot", () => ({
   EspacioZenitFontRoot: ({ children }: { children: ReactNode }) => (
     <div data-testid="ez-font-root">{children}</div>
   ),
 }));
 
-import { RegisterEspacioZenitSurface } from "@/components/organisms/RegisterEspacioZenitSurface";
+import { RegisterEspacioZenitSurface } from "@/variants/owned/espaciozenit/pieces/RegisterEspacioZenitSurface";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 

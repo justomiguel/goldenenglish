@@ -1,7 +1,7 @@
 export const espaciozenitLandingEntry = {
   owner: "espaciozenit",
   load: () =>
-    import("@/components/organisms/LandingMainSectionsEspacioZenit").then(
+    import("@/variants/owned/espaciozenit/pieces/LandingMainSectionsEspacioZenit").then(
       (mod) => mod.LandingMainSectionsEspacioZenit,
     ),
 };

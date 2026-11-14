@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { NagoGalleryMediaTile } from "@/components/organisms/NagoGalleryMediaTile";
-import type { NagoGalleryItem } from "@/lib/landing/nagoGalleryCatalog";
+import { NagoGalleryMediaTile } from "@/variants/owned/nago/pieces/NagoGalleryMediaTile";
+import type { NagoGalleryItem } from "@/variants/owned/nago/pieces/nagoGalleryCatalog";
 
 vi.mock("next/image", () => ({
   default: (props: { src: string; alt: string }) => (

@@ -3,7 +3,7 @@ import { ChevronRight } from "lucide-react";
 import type {
   MzGuideLabels,
   MzGuideStageView,
-} from "@/lib/landing/mozarthitos/buildFamilyGuideView";
+} from "@/variants/owned/mozarthitos/pieces/buildFamilyGuideView";
 import { FamilyGuideStageDetails } from "@/components/molecules/FamilyGuideStageDetails";
 
 export interface FamilyGuideStagePwaProps {

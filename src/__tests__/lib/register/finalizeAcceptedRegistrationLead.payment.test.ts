@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/register/enrollRequestedSectionsOnAccept", () => ({
   enrollRequestedSectionsOnAccept: (...args: unknown[]) => mocks.enroll(...args),
 }));
-vi.mock("@/lib/register/packs/nago/applyNagoExtrasOnAccept", () => ({
+vi.mock("@/variants/owned/nago/pieces/applyNagoExtrasOnAccept", () => ({
   applyNagoExtrasOnAccept: vi.fn(async () => undefined),
   nagoCareLabelsFromRegisterDict: () => ({}),
 }));

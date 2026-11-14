@@ -1,10 +1,10 @@
 import type { LandingSectionSlug } from "@/types/theming";
-import { ESPACIO_ZENIT_EDITABLE_COPY_KEYS } from "@/lib/cms/landingEspacioZenitCatalog";
+import { ESPACIO_ZENIT_EDITABLE_COPY_KEYS } from "@/variants/owned/espaciozenit/pieces/landingEspacioZenitCatalog";
 import { MIMUNDO_EDITABLE_COPY_KEYS } from "@/lib/cms/landingMimundoCatalog";
-import { MOZARTHITOS_EDITABLE_COPY_KEYS } from "@/lib/cms/landingMozarthitosCatalog";
-import { NAGO_EDITABLE_COPY_KEYS } from "@/lib/cms/landingNagoCatalog";
+import { MOZARTHITOS_EDITABLE_COPY_KEYS } from "@/variants/owned/mozarthitos/pieces/landingMozarthitosCatalog";
+import { NAGO_EDITABLE_COPY_KEYS } from "@/variants/owned/nago/pieces/landingNagoCatalog";
 import { isGenericLandingCopyKey } from "@/lib/cms/genericLandingCopyKeys";
-import { LIORA_EDITABLE_COPY_KEYS } from "@/lib/cms/landingLioraCatalog";
+import { LIORA_EDITABLE_COPY_KEYS } from "@/variants/owned/liora/pieces/landingLioraCatalog";
 
 /**
  * Closed catalog of editable landing copy per section.

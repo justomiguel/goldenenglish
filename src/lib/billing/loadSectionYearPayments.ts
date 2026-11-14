@@ -23,6 +23,7 @@ export async function loadSectionYearPayments(
       .select(COLUMNS)
       .eq("section_id", sectionId)
       .eq("year", year)
+      .is("superseded_at", null)
       .order("id", { ascending: true })
       .range(from, from + PAGE_SIZE - 1);
     if (error) {

@@ -165,7 +165,7 @@ export async function loadAdminSectionPageData(
   const { data: feePlanPaymentRows } = await supabase
     .from("payments")
     .select("year, month")
-    .eq("section_id", sectionId);
+    .eq("section_id", sectionId).is("superseded_at", null);
   const feePlanPayments: SectionFeePlanPaymentRef[] = (
     (feePlanPaymentRows ?? []) as Array<{ year: number; month: number }>
   ).map((p) => ({ year: Number(p.year), month: Number(p.month) }));

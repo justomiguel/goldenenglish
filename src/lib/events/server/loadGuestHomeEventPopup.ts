@@ -9,8 +9,8 @@ import {
 } from "@/lib/dashboard/events/loadHomeEventPopup";
 import { mergeHomePopupEvents } from "@/lib/events/selectHomePopupEvents";
 import {
-  eventShareGrantClient,
   listApprovedGrantsForGuest,
+  shareGrantClientOrNull,
   type EventShareGrantRecord,
 } from "@/lib/events/server/eventShareGrantStore";
 import { ownerAdminClient } from "@/lib/events/server/resolveEventDataClient";
@@ -77,7 +77,9 @@ export async function loadGuestHomeEventPopup(
   try {
     const tenant = await resolveRequestTenant();
     if (!tenant?.slug) return local;
-    const grants = await listApprovedGrantsForGuest(eventShareGrantClient(), tenant.slug);
+    const grantClient = shareGrantClientOrNull();
+    if (!grantClient) return local;
+    const grants = await listApprovedGrantsForGuest(grantClient, tenant.slug);
     if (grants.length === 0) return local;
     const taken = await nonArchivedSlugs(supabase);
     if (!taken) return local;

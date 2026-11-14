@@ -1,8 +1,8 @@
 "use client";
 
-import { LandingLioraSections } from "@/components/organisms/LandingLioraSections";
-import { LioraRibbonOverlay } from "@/components/organisms/LioraRibbonOverlay";
-import { LioraSiteHeader } from "@/components/organisms/LioraSiteHeader";
+import { LandingLioraSections } from "@/variants/owned/liora/pieces/LandingLioraSections";
+import { LioraRibbonOverlay } from "@/variants/owned/liora/pieces/LioraRibbonOverlay";
+import { LioraSiteHeader } from "@/variants/owned/liora/pieces/LioraSiteHeader";
 import type { LioraHomeProps } from "@/variants/owned/liora/home/v1/hostProps";
 
 export function LandingLioraExperience({

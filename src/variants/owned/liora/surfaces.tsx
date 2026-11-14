@@ -3,13 +3,13 @@ import type { InstituteAnswerItem } from "@/lib/public/instituteAnswerPages";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
-import { LioraRegisterHeader } from "@/components/molecules/LioraRegisterHeader";
+import { LioraRegisterHeader } from "@/variants/owned/liora/pieces/LioraRegisterHeader";
 import { PublicAnswerArticle } from "@/components/organisms/PublicAnswerArticle";
-import { PublicBlogScreenLiora, type PublicBlogScreenLioraProps } from "@/components/organisms/PublicBlogScreenLiora";
-import { PublicContactScreenLiora, type PublicContactScreenLioraProps } from "@/components/organisms/PublicContactScreenLiora";
-import { LioraFontRoot } from "@/components/organisms/LioraFontRoot";
+import { PublicBlogScreenLiora, type PublicBlogScreenLioraProps } from "@/variants/owned/liora/pieces/PublicBlogScreenLiora";
+import { PublicContactScreenLiora, type PublicContactScreenLioraProps } from "@/variants/owned/liora/pieces/PublicContactScreenLiora";
+import { LioraFontRoot } from "@/variants/owned/liora/pieces/LioraFontRoot";
 import { PublicPrivacyArticle } from "@/components/organisms/PublicPrivacyArticle";
-import { RegisterLioraSurface, type RegisterLioraSurfaceProps } from "@/components/organisms/RegisterLioraSurface";
+import { RegisterLioraSurface, type RegisterLioraSurfaceProps } from "@/variants/owned/liora/pieces/RegisterLioraSurface";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 
 const SHEET = "liora-public-sheet mx-auto max-w-3xl";

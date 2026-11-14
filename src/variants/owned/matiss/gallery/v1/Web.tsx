@@ -12,7 +12,7 @@ import {
   galleryPagePhotos,
   stepGalleryIndex,
   type MatissGalleryLabels,
-} from "@/lib/landing/matissGalleryCarousel";
+} from "@/variants/owned/matiss/pieces/matissGalleryCarousel";
 
 export type { MatissGalleryLabels };
 

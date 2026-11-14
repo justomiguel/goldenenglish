@@ -4,8 +4,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPublicLanding";
 import type { PublicEventDetail } from "@/lib/dashboard/events/loadEventForPublicLanding";
 import {
-  eventShareGrantClient,
   listApprovedGrantsForGuest,
+  shareGrantClientOrNull,
 } from "@/lib/events/server/eventShareGrantStore";
 import { ownerAdminClient } from "@/lib/events/server/resolveEventDataClient";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -39,7 +39,9 @@ export async function openPublishedEvent(
 
   const tenant = await resolveRequestTenant();
   if (!tenant?.slug) return null;
-  const grants = await listApprovedGrantsForGuest(eventShareGrantClient(), tenant.slug);
+  const grantClient = shareGrantClientOrNull();
+  if (!grantClient) return null;
+  const grants = await listApprovedGrantsForGuest(grantClient, tenant.slug);
   const clients = new Map<string, SupabaseClient | null>();
   for (const grant of grants) {
     if (!clients.has(grant.ownerSlug)) {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { NagoRegisterHeader } from "@/components/molecules/NagoRegisterHeader";
+import { NagoRegisterHeader } from "@/variants/owned/nago/pieces/NagoRegisterHeader";
 import { dictEn } from "@/test/dictEn";
 
 describe("NagoRegisterHeader", () => {

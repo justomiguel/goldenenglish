@@ -2,7 +2,7 @@
 
 import { useId, type ReactNode } from "react";
 import { usePersistentPageTab } from "@/hooks/usePersistentPageTab";
-import { Archive, Layers, Sparkles } from "lucide-react";
+import { Archive, Layers } from "lucide-react";
 import type { AcademicHubCohortSummary, AcademicHubCohortRowLabels } from "@/components/molecules/AcademicHubCohortRow";
 import { AcademicHubCohortRow } from "@/components/molecules/AcademicHubCohortRow";
 import {
@@ -43,9 +43,9 @@ export interface AcademicHubCohortBoardProps {
   hasAnyCohort: boolean;
 }
 
-type HubTab = "current" | "active" | "archived";
+type HubTab = "active" | "archived";
 
-const HUB_TABS: readonly HubTab[] = ["current", "active", "archived"];
+const HUB_TABS: readonly HubTab[] = ["active", "archived"];
 
 export function AcademicHubCohortBoard({
   locale,
@@ -59,11 +59,10 @@ export function AcademicHubCohortBoard({
   const idPrefix = useId().replace(/:/g, "");
   const { value: tab, setValue: setTab } = usePersistentPageTab<HubTab>({
     allowed: HUB_TABS,
-    fallback: current ? "current" : "active",
+    fallback: "active",
   });
 
   const tabItems: UnderlineTabItem[] = [
-    { id: "current", label: boardDict.tabs.current, Icon: Sparkles },
     { id: "active", label: boardDict.tabs.active, Icon: Layers },
     { id: "archived", label: boardDict.tabs.archived, Icon: Archive },
   ];
@@ -76,33 +75,14 @@ export function AcademicHubCohortBoard({
     );
   }
 
-  const banner: ReactNode =
-    current ? null : (
-      <p
-        className="mb-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-primary)]/8 px-4 py-3 text-sm text-[var(--color-foreground)]"
-        role="status"
-      >
-        {boardDict.noCurrentBanner}
-      </p>
-    );
-
-  const leads: Record<HubTab, { title: string; lead: string }> = {
-    current: { title: boardDict.currentTitle, lead: boardDict.currentLead },
-    active: { title: boardDict.activeTitle, lead: boardDict.activeLead },
-    archived: { title: boardDict.archivedTitle, lead: boardDict.archivedLead },
-  };
-
-  const empties: Record<HubTab, string> = {
-    current: boardDict.tabs.emptyCurrent,
-    active: boardDict.emptyActive,
-    archived: boardDict.emptyArchived,
-  };
-
-  const lists: Record<HubTab, AcademicHubCohortSummary[]> = {
-    current: current ? [current] : [],
-    active,
-    archived,
-  };
+  const banner: ReactNode = current ? null : (
+    <p
+      className="mb-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-primary)]/8 px-4 py-3 text-sm text-[var(--color-foreground)]"
+      role="status"
+    >
+      {boardDict.noCurrentBanner}
+    </p>
+  );
 
   return (
     <div className="space-y-4">
@@ -117,50 +97,107 @@ export function AcademicHubCohortBoard({
             onChange={(id) => setTab(id as HubTab)}
           />
         </div>
-        {(["current", "active", "archived"] as const).map((t) => {
-          const rows = lists[t];
-          const selected = tab === t;
-          const { title, lead } = leads[t];
-          return (
+        <CohortTabPanel
+          idPrefix={idPrefix}
+          tabId="active"
+          selected={tab === "active"}
+          title={boardDict.activeTitle}
+          lead={boardDict.activeLead}
+          tourAnchor={ADMIN_TOUR_ANCHORS.academicCohortList}
+        >
+          {current ? (
             <div
-              key={t}
-              id={underlinePanelId(idPrefix, t)}
-              role="tabpanel"
-              aria-labelledby={underlineTabId(idPrefix, t)}
-              hidden={!selected}
-              tabIndex={0}
-              className="outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+              role="region"
+              aria-label={boardDict.currentTitle}
+              data-current-cohort=""
+              className="rounded-2xl border border-[var(--color-primary)] bg-[var(--color-primary)]/10"
             >
-              <div className="space-y-3 px-3 py-3 sm:px-5 sm:py-5">
-                <div>
-                  <h2 className="text-base font-semibold text-[var(--color-foreground)]">{title}</h2>
-                  <p className="mt-1 hidden text-sm text-[var(--color-muted-foreground)] sm:block">{lead}</p>
-                </div>
-                {rows.length === 0 ? (
-                  <p className="rounded-2xl bg-[var(--color-muted)]/25 px-3 py-4 text-sm text-[var(--color-muted-foreground)]">
-                    {empties[t]}
-                  </p>
-                ) : (
-                  <div
-                    className="divide-y divide-[var(--color-border)] rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)]"
-                    data-tour={ADMIN_TOUR_ANCHORS.academicCohortList}
-                  >
-                    {rows.map((c) => (
-                      <AcademicHubCohortRow
-                        key={c.id}
-                        c={c}
-                        locale={locale}
-                        labels={rowLabels}
-                        isCurrent={c.is_current}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
+              <AcademicHubCohortRow c={current} locale={locale} labels={rowLabels} isCurrent />
             </div>
-          );
-        })}
+          ) : null}
+          {active.length > 0 ? (
+            <CohortRowList locale={locale} rows={active} labels={rowLabels} />
+          ) : current ? null : (
+            <EmptyCohortNote>{boardDict.emptyActive}</EmptyCohortNote>
+          )}
+        </CohortTabPanel>
+        <CohortTabPanel
+          idPrefix={idPrefix}
+          tabId="archived"
+          selected={tab === "archived"}
+          title={boardDict.archivedTitle}
+          lead={boardDict.archivedLead}
+        >
+          {archived.length === 0 ? (
+            <EmptyCohortNote>{boardDict.emptyArchived}</EmptyCohortNote>
+          ) : (
+            <CohortRowList locale={locale} rows={archived} labels={rowLabels} />
+          )}
+        </CohortTabPanel>
       </div>
     </div>
+  );
+}
+
+function CohortTabPanel({
+  idPrefix,
+  tabId,
+  selected,
+  title,
+  lead,
+  tourAnchor,
+  children,
+}: {
+  idPrefix: string;
+  tabId: HubTab;
+  selected: boolean;
+  title: string;
+  lead: string;
+  tourAnchor?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      id={underlinePanelId(idPrefix, tabId)}
+      role="tabpanel"
+      aria-labelledby={underlineTabId(idPrefix, tabId)}
+      hidden={!selected}
+      tabIndex={0}
+      className="outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+    >
+      <div className="space-y-3 px-3 py-3 sm:px-5 sm:py-5" data-tour={tourAnchor}>
+        <div>
+          <h2 className="text-base font-semibold text-[var(--color-foreground)]">{title}</h2>
+          <p className="mt-1 hidden text-sm text-[var(--color-muted-foreground)] sm:block">{lead}</p>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function CohortRowList({
+  locale,
+  rows,
+  labels,
+}: {
+  locale: string;
+  rows: AcademicHubCohortSummary[];
+  labels: AcademicHubCohortRowLabels;
+}) {
+  return (
+    <div className="divide-y divide-[var(--color-border)] rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)]">
+      {rows.map((c) => (
+        <AcademicHubCohortRow key={c.id} c={c} locale={locale} labels={labels} isCurrent={c.is_current} />
+      ))}
+    </div>
+  );
+}
+
+function EmptyCohortNote({ children }: { children: ReactNode }) {
+  return (
+    <p className="rounded-2xl bg-[var(--color-muted)]/25 px-3 py-4 text-sm text-[var(--color-muted-foreground)]">
+      {children}
+    </p>
   );
 }

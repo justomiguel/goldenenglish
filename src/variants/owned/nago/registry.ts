@@ -22,21 +22,21 @@ function nagoVariant(id: string, slot: SectionSlot, web: LoadView): SectionVaria
 
 export const NAGO_VARIANTS: readonly SectionVariant<unknown>[] = [
   nagoVariant("nav.nago", "nav", () =>
-    import("@/components/organisms/NagoSiteHeader").then((mod) => ({ default: mod.NagoSiteHeader })),
+    import("@/variants/owned/nago/pieces/NagoSiteHeader").then((mod) => ({ default: mod.NagoSiteHeader })),
   ),
   nagoVariant("band.nago-body", "band", () =>
-    import("@/components/organisms/LandingNagoSections").then((mod) => ({ default: mod.LandingNagoSections })),
+    import("@/variants/owned/nago/pieces/LandingNagoSections").then((mod) => ({ default: mod.LandingNagoSections })),
   ),
   nagoVariant("page.nago-home", "page", () =>
-    import("@/components/organisms/LandingMainSectionsNago").then((mod) => ({ default: mod.LandingMainSectionsNago })),
+    import("@/variants/owned/nago/pieces/LandingMainSectionsNago").then((mod) => ({ default: mod.LandingMainSectionsNago })),
   ),
   nagoVariant("page.nago-register", "page", () =>
-    import("@/components/organisms/RegisterNagoSurface").then((mod) => ({ default: mod.RegisterNagoSurface })),
+    import("@/variants/owned/nago/pieces/RegisterNagoSurface").then((mod) => ({ default: mod.RegisterNagoSurface })),
   ),
   nagoVariant("page.nago-contact", "page", () =>
-    import("@/components/organisms/PublicContactScreenNago").then((mod) => ({ default: mod.PublicContactScreenNago })),
+    import("@/variants/owned/nago/pieces/PublicContactScreenNago").then((mod) => ({ default: mod.PublicContactScreenNago })),
   ),
   nagoVariant("page.nago-blog", "page", () =>
-    import("@/components/organisms/PublicBlogScreenNago").then((mod) => ({ default: mod.PublicBlogScreenNago })),
+    import("@/variants/owned/nago/pieces/PublicBlogScreenNago").then((mod) => ({ default: mod.PublicBlogScreenNago })),
   ),
 ];

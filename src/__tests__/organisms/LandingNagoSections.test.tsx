@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { LandingNagoSections } from "@/components/organisms/LandingNagoSections";
+import { LandingNagoSections } from "@/variants/owned/nago/pieces/LandingNagoSections";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 

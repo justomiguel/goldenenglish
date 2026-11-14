@@ -91,6 +91,7 @@ export async function preflightSettlementPaymentsNotBlocked(
       .eq("section_id", sectionId)
       .eq("year", m.year)
       .eq("month", m.month)
+      .is("superseded_at", null)
       .maybeSingle();
     const st = pay?.status as string | undefined;
     if (st === "approved" || st === "exempt") return false;

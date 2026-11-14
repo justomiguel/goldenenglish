@@ -1,4 +1,4 @@
-import { parseNagoTenantExtras } from "@/lib/register/packs/nago/parseNagoTenantExtras";
+import { parseNagoTenantExtras } from "@/variants/owned/nago/pieces/parseNagoTenantExtras";
 import type { Dictionary } from "@/types/i18n";
 
 type RegLabels = Dictionary["admin"]["registrations"];

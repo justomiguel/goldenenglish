@@ -2,8 +2,8 @@
 // autoplay stops at the first touch, and there are no arrow buttons.
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { LioraGalleryStripNarrow } from "@/components/organisms/LioraGalleryStripNarrow";
-import type { LioraGalleryItem } from "@/lib/landing/lioraGalleryImages";
+import { LioraGalleryStripNarrow } from "@/variants/owned/liora/pieces/LioraGalleryStripNarrow";
+import type { LioraGalleryItem } from "@/variants/owned/liora/pieces/lioraGalleryImages";
 
 const items: LioraGalleryItem[] = [1, 2, 3, 4].map((n) => ({ kind: "photo", src: `/g/${n}.jpg` }));
 

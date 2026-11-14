@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   NAGO_EDITABLE_COPY_KEYS,
   NAGO_LANDING_COPY_KEYS_BY_SECTION,
-} from "@/lib/cms/landingNagoCatalog";
+} from "@/variants/owned/nago/pieces/landingNagoCatalog";
 import { getLandingDefaultCopy } from "@/lib/cms/applyLandingContentOverrides";
 import { LANDING_SECTION_SLUGS } from "@/types/theming";
 import dictEs from "@/dictionaries/es.json";

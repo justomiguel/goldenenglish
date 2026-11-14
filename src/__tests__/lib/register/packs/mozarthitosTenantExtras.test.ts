@@ -1,7 +1,7 @@
 /** @vitest-environment node */
 import { describe, expect, it } from "vitest";
-import { parseMozarthitosTenantExtras } from "@/lib/register/packs/mozarthitos/parseMozarthitosTenantExtras";
-import { readMozarthitosExtrasFromFormData } from "@/lib/register/packs/mozarthitos/readMozarthitosExtrasFromFormData";
+import { parseMozarthitosTenantExtras } from "@/variants/owned/mozarthitos/pieces/parseMozarthitosTenantExtras";
+import { readMozarthitosExtrasFromFormData } from "@/variants/owned/mozarthitos/pieces/readMozarthitosExtrasFromFormData";
 
 function form(guide?: string) {
   const fd = new FormData();

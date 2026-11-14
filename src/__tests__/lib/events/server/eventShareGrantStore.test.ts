@@ -5,11 +5,15 @@ vi.mock("@/lib/logging/serverActionLog", () => ({
   logServerError: vi.fn(),
 }));
 
+const pulsarConfigured = vi.hoisted(() => vi.fn(() => true));
+const createPulsarAdminClient = vi.hoisted(() => vi.fn());
+
 vi.mock("@/lib/supabase/pulsar", () => ({
-  createPulsarAdminClient: vi.fn(),
+  createPulsarAdminClient,
+  isPulsarSupabaseConfigured: pulsarConfigured,
 }));
 
-import { insertShareRequest } from "@/lib/events/server/eventShareGrantStore";
+import { insertShareRequest, shareGrantClientOrNull } from "@/lib/events/server/eventShareGrantStore";
 
 // REGRESSION CHECK: A self-share never inserts. A unique violation stays share_already_open.
 
@@ -110,5 +114,20 @@ describe("insertShareRequest", () => {
       enabledSlugs: ["liora", "matiss"],
     });
     expect(result).toEqual({ ok: false, code: "share_already_open" });
+  });
+});
+
+describe("shareGrantClientOrNull", () => {
+  it("returns null when the control plane is not configured", () => {
+    pulsarConfigured.mockReturnValue(false);
+    expect(shareGrantClientOrNull()).toBeNull();
+    expect(createPulsarAdminClient).not.toHaveBeenCalled();
+  });
+
+  it("returns the control-plane client when it is configured", () => {
+    const client = { from: () => ({}) };
+    pulsarConfigured.mockReturnValue(true);
+    createPulsarAdminClient.mockReturnValue(client);
+    expect(shareGrantClientOrNull()).toBe(client);
   });
 });

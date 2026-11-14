@@ -9,7 +9,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/es/encuentra-tu-clase",
 }));
 
-import { useMozarthitosFamilyGuide } from "@/hooks/useMozarthitosFamilyGuide";
+import { useMozarthitosFamilyGuide } from "@/variants/owned/mozarthitos/pieces/useMozarthitosFamilyGuide";
 
 function setup(initial = { ageBand: null, attendance: null } as const) {
   return renderHook(() =>

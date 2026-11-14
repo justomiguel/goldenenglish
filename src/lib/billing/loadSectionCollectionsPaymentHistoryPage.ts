@@ -31,7 +31,8 @@ export async function loadSectionCollectionsPaymentHistoryPage(
   const countQuery = supabase
     .from("payments")
     .select("id", { count: "exact", head: true })
-    .eq("section_id", sectionId);
+    .eq("section_id", sectionId)
+    .is("superseded_at", null);
 
   const { count, error: countErr } = await countQuery;
   if (countErr) throw countErr;
@@ -44,6 +45,7 @@ export async function loadSectionCollectionsPaymentHistoryPage(
       "id, student_id, month, year, amount, status, receipt_url, admin_notes, updated_at",
     )
     .eq("section_id", sectionId)
+    .is("superseded_at", null)
     .order("updated_at", { ascending: false })
     .range(from, to);
 

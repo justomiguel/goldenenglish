@@ -13,11 +13,11 @@ import {
   landingCopyKeysForTheme,
   landingMediaSlotsForTheme,
 } from "@/lib/cms/landingThemeEditorCatalog";
-import { espaciozenitSectionImageSrc } from "@/lib/landing/espaciozenitLandingImages";
-import { mozarthitosSectionImageSrc } from "@/lib/landing/mozarthitosLandingImages";
-import { nagoSectionImageSrc } from "@/lib/landing/nagoLandingImages";
-import { lioraSectionImageSrc } from "@/lib/landing/lioraLandingImages";
-import { matissSectionImageSrc } from "@/lib/landing/matissLandingImages";
+import { espaciozenitSectionImageSrc } from "@/variants/owned/espaciozenit/pieces/espaciozenitLandingImages";
+import { mozarthitosSectionImageSrc } from "@/variants/owned/mozarthitos/pieces/mozarthitosLandingImages";
+import { nagoSectionImageSrc } from "@/variants/owned/nago/pieces/nagoLandingImages";
+import { lioraSectionImageSrc } from "@/variants/owned/liora/pieces/lioraLandingImages";
+import { matissSectionImageSrc } from "@/variants/owned/matiss/pieces/matissLandingImages";
 import { sectionImageSrc } from "@/lib/landing/sectionLandingImages";
 import {
   genericSectionStockPath,

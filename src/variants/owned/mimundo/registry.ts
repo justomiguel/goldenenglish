@@ -28,35 +28,35 @@ function mimundoVariant(
 
 export const MIMUNDO_VARIANTS: readonly SectionVariant<unknown>[] = [
   mimundoVariant("nav.mimundo", "nav", () =>
-    import("@/components/organisms/MiMundoSiteHeader").then((mod) => ({ default: mod.MiMundoSiteHeader })),
+    import("@/variants/owned/mimundo/pieces/MiMundoSiteHeader").then((mod) => ({ default: mod.MiMundoSiteHeader })),
   ),
   mimundoVariant("hero.mimundo", "hero", () =>
-    import("@/components/organisms/MiMundoHero").then((mod) => ({ default: mod.MiMundoHero })),
+    import("@/variants/owned/mimundo/pieces/MiMundoHero").then((mod) => ({ default: mod.MiMundoHero })),
   ),
   mimundoVariant("band.mimundo-propuesta", "band", () =>
-    import("@/components/organisms/MiMundoPropuestaSection").then((mod) => ({ default: mod.MiMundoPropuestaSection })),
+    import("@/variants/owned/mimundo/pieces/MiMundoPropuestaSection").then((mod) => ({ default: mod.MiMundoPropuestaSection })),
   ),
   mimundoVariant("band.mimundo-salas", "band", () =>
-    import("@/components/organisms/MiMundoSalasGrid").then((mod) => ({ default: mod.MiMundoSalasGrid })),
+    import("@/variants/owned/mimundo/pieces/MiMundoSalasGrid").then((mod) => ({ default: mod.MiMundoSalasGrid })),
   ),
   mimundoVariant("band.mimundo-gallery", "band", () =>
-    import("@/components/organisms/MiMundoLandingGallery").then((mod) => ({ default: mod.MiMundoLandingGallery })),
+    import("@/variants/owned/mimundo/pieces/MiMundoLandingGallery").then((mod) => ({ default: mod.MiMundoLandingGallery })),
   ),
   mimundoVariant("contact.mimundo", "contact", () =>
-    import("@/components/organisms/MiMundoLandingContactPanel").then((mod) => ({ default: mod.MiMundoLandingContactPanel })),
+    import("@/variants/owned/mimundo/pieces/MiMundoLandingContactPanel").then((mod) => ({ default: mod.MiMundoLandingContactPanel })),
   ),
   mimundoVariant(
     "page.mimundo-home",
     "page",
-    () => import("@/components/organisms/LandingMainSectionsMimundo").then((mod) => ({ default: mod.LandingMainSectionsMimundo })),
+    () => import("@/variants/owned/mimundo/pieces/LandingMainSectionsMimundo").then((mod) => ({ default: mod.LandingMainSectionsMimundo })),
   ),
   mimundoVariant("page.mimundo-register", "page", () =>
-    import("@/components/organisms/RegisterMiMundoSurface").then((mod) => ({ default: mod.RegisterMiMundoSurface })),
+    import("@/variants/owned/mimundo/pieces/RegisterMiMundoSurface").then((mod) => ({ default: mod.RegisterMiMundoSurface })),
   ),
   mimundoVariant("page.mimundo-contact", "page", () =>
-    import("@/components/organisms/PublicContactScreenMiMundo").then((mod) => ({ default: mod.PublicContactScreenMiMundo })),
+    import("@/variants/owned/mimundo/pieces/PublicContactScreenMiMundo").then((mod) => ({ default: mod.PublicContactScreenMiMundo })),
   ),
   mimundoVariant("page.mimundo-blog", "page", () =>
-    import("@/components/organisms/PublicBlogScreenMiMundo").then((mod) => ({ default: mod.PublicBlogScreenMiMundo })),
+    import("@/variants/owned/mimundo/pieces/PublicBlogScreenMiMundo").then((mod) => ({ default: mod.PublicBlogScreenMiMundo })),
   ),
 ];

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { LioraSectionHeading } from "@/components/molecules/LioraSectionHeading";
+import { LioraSectionHeading } from "@/variants/owned/liora/pieces/LioraSectionHeading";
 
 describe("LioraSectionHeading", () => {
   it("reads the title and the script line as one heading", () => {

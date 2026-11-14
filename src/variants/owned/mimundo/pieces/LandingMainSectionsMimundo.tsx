@@ -1,0 +1,65 @@
+import type { BrandPublic } from "@/lib/brand/server";
+import type { Dictionary } from "@/types/i18n";
+import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
+import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { MiMundoFontRoot } from "@/variants/owned/mimundo/pieces/MiMundoFontRoot";
+import { MiMundoSiteHeader } from "@/variants/owned/mimundo/pieces/MiMundoSiteHeader";
+import { LandingMimundoSections } from "@/variants/owned/mimundo/pieces/LandingMimundoSections";
+
+interface LandingMainSectionsMimundoProps {
+  dict: Dictionary;
+  brand: BrandPublic;
+  locale: string;
+  sessionEmail?: string | null;
+  mediaMap?: LandingMediaMap;
+  blogEnabled?: boolean;
+  merchEnabled?: boolean;
+}
+
+export function LandingMainSectionsMimundo({
+  dict,
+  brand,
+  locale,
+  sessionEmail,
+  mediaMap,
+  blogEnabled = false,
+  merchEnabled = false,
+}: LandingMainSectionsMimundoProps) {
+  const t = (path: string) => marketingLandingCopy(dict, "mm", path);
+
+  return (
+    <MiMundoFontRoot>
+      <main className="relative overflow-x-hidden">
+        <MiMundoSiteHeader
+          locale={locale}
+          logoSrc={brand.logoPath}
+          logoAlt={brand.logoAlt}
+          dict={dict}
+          sessionEmail={sessionEmail ?? null}
+          socialFacebook={brand.socialFacebook}
+          socialInstagram={brand.socialInstagram}
+          labels={{
+            institucional: t("nav.institucional"),
+            colonia: t("nav.colonia"),
+            propuesta: t("nav.propuesta"),
+            salas: t("nav.salas"),
+            galeria: t("nav.galeria"),
+            contacto: t("nav.contacto"),
+            openMenu: t("chrome.openMenu"),
+            closeMenu: t("chrome.closeMenu"),
+            login: dict.nav.login,
+            reservar: t("hero.ctaReservar"),
+          }}
+        />
+        <LandingMimundoSections
+          dict={dict}
+          brand={brand}
+          locale={locale}
+          mediaMap={mediaMap}
+          blogEnabled={blogEnabled}
+          merchEnabled={merchEnabled}
+        />
+      </main>
+    </MiMundoFontRoot>
+  );
+}

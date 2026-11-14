@@ -14,7 +14,7 @@ import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollm
 import type { Dictionary } from "@/types/i18n";
 import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
-import { collectRegisterExtrasPrefill } from "@/lib/register/packs/nago/collectRegisterExtrasPrefill";
+import { collectRegisterExtrasPrefill } from "@/variants/owned/nago/pieces/collectRegisterExtrasPrefill";
 import { initialRegisterSelectedSectionIds, resolveRegisterChoosableIds } from "@/lib/register/resolveRegisterSectionPickerView";
 import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import { useRegisterDniDraft } from "@/hooks/useRegisterDniDraft";

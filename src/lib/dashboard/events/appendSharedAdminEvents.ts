@@ -3,8 +3,8 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AdminEventRow, PaginatedAdminEventsResult } from "@/lib/dashboard/events/loadPaginatedAdminEvents";
 import {
-  eventShareGrantClient,
   listApprovedGrantsForGuest,
+  shareGrantClientOrNull,
 } from "@/lib/events/server/eventShareGrantStore";
 import { ownerAdminClient } from "@/lib/events/server/resolveEventDataClient";
 import { loadAllPulsarTenantsForAdmin } from "@/lib/pulsar/pulsarTenantStore";
@@ -27,7 +27,9 @@ export async function appendSharedAdminEvents(input: {
 }): Promise<PaginatedAdminEventsResult> {
   const tenant = await resolveRequestTenant();
   if (!tenant?.slug) return input.local;
-  const grants = await listApprovedGrantsForGuest(eventShareGrantClient(), tenant.slug);
+  const grantClient = shareGrantClientOrNull();
+  if (!grantClient) return input.local;
+  const grants = await listApprovedGrantsForGuest(grantClient, tenant.slug);
   if (grants.length === 0) return input.local;
   const tenants = await loadAllPulsarTenantsForAdmin();
 

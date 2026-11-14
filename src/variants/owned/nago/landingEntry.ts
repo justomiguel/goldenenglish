@@ -1,5 +1,5 @@
 export const nagoLandingEntry = {
   owner: "nago",
   load: () =>
-    import("@/components/organisms/LandingMainSectionsNago").then((mod) => mod.LandingMainSectionsNago),
+    import("@/variants/owned/nago/pieces/LandingMainSectionsNago").then((mod) => mod.LandingMainSectionsNago),
 };

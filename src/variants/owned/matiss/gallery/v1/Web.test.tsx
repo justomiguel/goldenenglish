@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { LandingMatissGallery } from "@/variants/owned/matiss/gallery/v1/Web";
-import { formatMatissGalleryPosition, stepGalleryIndex } from "@/lib/landing/matissGalleryCarousel";
+import { formatMatissGalleryPosition, stepGalleryIndex } from "@/variants/owned/matiss/pieces/matissGalleryCarousel";
 
 vi.mock("@/lib/analytics/trackClient", () => ({
   trackEvent: vi.fn(),

@@ -3,7 +3,7 @@ import {
   LIORA_EDITABLE_COPY_KEYS,
   LIORA_LANDING_COPY_KEYS_BY_SECTION,
   LIORA_MEDIA_SLOTS_BY_SECTION,
-} from "@/lib/cms/landingLioraCatalog";
+} from "@/variants/owned/liora/pieces/landingLioraCatalog";
 import {
   landingCopyKeysForTheme,
   landingMediaSlotsForTheme,

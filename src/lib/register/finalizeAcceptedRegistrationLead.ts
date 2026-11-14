@@ -7,7 +7,7 @@ import { localizeRegistrationAcceptError } from "@/lib/register/localizeRegistra
 import {
   applyNagoExtrasOnAccept,
   nagoCareLabelsFromRegisterDict,
-} from "@/lib/register/packs/nago/applyNagoExtrasOnAccept";
+} from "@/variants/owned/nago/pieces/applyNagoExtrasOnAccept";
 import { registrationWelcomeSectionLabel } from "@/lib/register/registrationWelcomeSectionLabel";
 import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistrationSectionIds";
 import { resolveAcceptLeadWrite } from "@/lib/register/resolveAcceptLeadWrite";

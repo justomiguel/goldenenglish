@@ -50,6 +50,7 @@ export async function revertOneApprovedPayment(
     .eq("section_id", input.sectionId)
     .eq("year", y)
     .eq("month", m)
+    .is("superseded_at", null)
     .maybeSingle();
 
   if (!payRow?.id) {

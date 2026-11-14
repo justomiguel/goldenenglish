@@ -2,15 +2,15 @@ import type { ReactNode } from "react";
 import type { InstituteAnswerItem } from "@/lib/public/instituteAnswerPages";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
-import { NagoRegisterHeader } from "@/components/molecules/NagoRegisterHeader";
+import { NagoRegisterHeader } from "@/variants/owned/nago/pieces/NagoRegisterHeader";
 import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
 import { PublicAnswerArticle } from "@/components/organisms/PublicAnswerArticle";
-import { PublicBlogScreenNago, type PublicBlogScreenNagoProps } from "@/components/organisms/PublicBlogScreenNago";
-import { PublicContactScreenNago, type PublicContactScreenNagoProps } from "@/components/organisms/PublicContactScreenNago";
-import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
+import { PublicBlogScreenNago, type PublicBlogScreenNagoProps } from "@/variants/owned/nago/pieces/PublicBlogScreenNago";
+import { PublicContactScreenNago, type PublicContactScreenNagoProps } from "@/variants/owned/nago/pieces/PublicContactScreenNago";
+import { NagoFontRoot } from "@/variants/owned/nago/pieces/NagoFontRoot";
 import { PublicPrivacyArticle } from "@/components/organisms/PublicPrivacyArticle";
-import { RegisterNagoSurface, type RegisterNagoSurfaceProps } from "@/components/organisms/RegisterNagoSurface";
-import { resolveNagoLogo } from "@/lib/landing/nagoLogo";
+import { RegisterNagoSurface, type RegisterNagoSurfaceProps } from "@/variants/owned/nago/pieces/RegisterNagoSurface";
+import { resolveNagoLogo } from "@/variants/owned/nago/pieces/nagoLogo";
 
 const SHEET =
   "nago-public-sheet mx-auto max-w-3xl rounded-2xl border border-[var(--nago-gold)]/20 bg-[var(--nago-bg-2)] p-6 md:p-8";

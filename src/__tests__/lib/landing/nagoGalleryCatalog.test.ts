@@ -7,7 +7,7 @@ import {
   nagoGalleryPreviewItems,
   nagoGalleryVideoPreviewItems,
   nagoGalleryVideosFor,
-} from "@/lib/landing/nagoGalleryCatalog";
+} from "@/variants/owned/nago/pieces/nagoGalleryCatalog";
 
 // REGRESSION CHECK: Gallery filters must keep event ids stable. A new event
 // appends an id and files. It must not drop Conexión Internacional 2025.

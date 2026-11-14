@@ -1,4 +1,4 @@
-import type { MzGuideLabels, MzGuideStageView } from "@/lib/landing/mozarthitos/buildFamilyGuideView";
+import type { MzGuideLabels, MzGuideStageView } from "@/variants/owned/mozarthitos/pieces/buildFamilyGuideView";
 
 export interface FamilyGuideStageDetailsProps {
   stage: MzGuideStageView;

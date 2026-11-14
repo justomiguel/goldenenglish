@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
 
-vi.mock("@/components/organisms/LioraFontRoot", () => ({
+vi.mock("@/variants/owned/liora/pieces/LioraFontRoot", () => ({
   LioraFontRoot: ({ children }: { children: ReactNode }) => (
     <div data-testid="liora-font-root">{children}</div>
   ),
@@ -12,7 +12,7 @@ vi.mock("@/components/register/RegisterForm", () => ({
   RegisterForm: () => <div data-testid="register-form-stub" />,
 }));
 
-import { RegisterLioraSurface } from "@/components/organisms/RegisterLioraSurface";
+import { RegisterLioraSurface } from "@/variants/owned/liora/pieces/RegisterLioraSurface";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 

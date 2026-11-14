@@ -16,22 +16,22 @@ vi.mock("@/components/organisms/LandingMainSectionsEditorial", () => ({
 vi.mock("@/components/organisms/LandingMainSectionsMinimal", () => ({
   LandingMainSectionsMinimal: stub("LandingMainSectionsMinimal"),
 }));
-vi.mock("@/components/organisms/LandingMainSectionsMozarthitos", () => ({
+vi.mock("@/variants/owned/mozarthitos/pieces/LandingMainSectionsMozarthitos", () => ({
   LandingMainSectionsMozarthitos: stub("LandingMainSectionsMozarthitos"),
 }));
-vi.mock("@/components/organisms/LandingMainSectionsEspacioZenit", () => ({
+vi.mock("@/variants/owned/espaciozenit/pieces/LandingMainSectionsEspacioZenit", () => ({
   LandingMainSectionsEspacioZenit: stub("LandingMainSectionsEspacioZenit"),
 }));
-vi.mock("@/components/organisms/LandingMainSectionsNago", () => ({
+vi.mock("@/variants/owned/nago/pieces/LandingMainSectionsNago", () => ({
   LandingMainSectionsNago: stub("LandingMainSectionsNago"),
 }));
-vi.mock("@/components/organisms/LandingMainSectionsMimundo", () => ({
+vi.mock("@/variants/owned/mimundo/pieces/LandingMainSectionsMimundo", () => ({
   LandingMainSectionsMimundo: stub("LandingMainSectionsMimundo"),
 }));
-vi.mock("@/components/organisms/LandingMainSectionsLiora", () => ({
+vi.mock("@/variants/owned/liora/pieces/LandingMainSectionsLiora", () => ({
   LandingMainSectionsLiora: stub("LandingMainSectionsLiora"),
 }));
-vi.mock("@/components/organisms/LandingMainSectionsMatiss", () => ({
+vi.mock("@/variants/owned/matiss/pieces/LandingMainSectionsMatiss", () => ({
   LandingMainSectionsMatiss: stub("LandingMainSectionsMatiss"),
 }));
 vi.mock("@/components/organisms/LandingMainSectionsGeneric", () => ({

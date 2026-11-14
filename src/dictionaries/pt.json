@@ -6265,7 +6265,7 @@
       "detailAvatarErrSave": "Não foi possível salvar a foto do aluno. Tente novamente.",
       "detailSectionAssignTitle": "Seções da coorte atual",
       "detailSectionAssignLead": "Gerencie em quais seções do grupo atual este aluno está matriculado.",
-      "detailSectionAssignNoCurrent": "Nenhuma coorte atual está definida. Marque primeiro um grupo como atual em Turmas e seções.",
+      "detailSectionAssignNoCurrent": "Nenhuma coorte atual está definida. Marque primeiro um grupo como atual em Cursos.",
       "detailSectionAssignNoSections": "A coorte atual ainda não possui seções ativas.",
       "detailSectionAssignNoAvailableSections": "Não há mais seções ativas disponíveis para este aluno.",
       "detailSectionAssignCurrent": "Seções atuais",
@@ -6308,7 +6308,7 @@
       "detailSectionAssignErrNotStudent": "Somente perfis de alunos podem ser atribuídos às seções.",
       "detailSectionAssignErrNoCurrent": "Nenhuma coorte atual está definida.",
       "detailSectionAssignErrSectionNotCurrent": "Essa seção não pertence à coorte atual.",
-      "detailSectionAssignErrMultipleCurrent": "Este aluno tem várias seções ativas no grupo atual. Resolva a duplicata de Turmas e seções antes de atribuir aqui.",
+      "detailSectionAssignErrMultipleCurrent": "Este aluno tem várias seções ativas no grupo atual. Resolva a duplicata em Cursos antes de atribuir aqui.",
       "detailSectionAssignErrScheduleOverlap": "Este cronograma se sobrepõe a outra seção ativa para o aluno.",
       "detailSectionAssignErrCapacity": "A seção está cheia. Use a substituição de capacidade administrativa somente se autorizado.",
       "detailSectionAssignErrRpc": "Não foi possível salvar a atribuição da seção. Tente novamente.",
@@ -6852,7 +6852,7 @@
           "ratio": "Proporção de arrecadação"
         },
         "empty": {
-          "noCurrentCohort": "Nenhuma coorte atual está definida. Marcar um grupo como atual em Turmas e seções.",
+          "noCurrentCohort": "Nenhuma coorte atual está definida. Marque um grupo como atual em Cursos.",
           "noSections": "Esta coorte ainda não tem seções ativas.",
           "noStudentsAfterFilter": "Nenhum aluno corresponde ao filtro atual."
         },
@@ -6938,7 +6938,7 @@
         "overview": {
           "totalsTitle": "Totais da coorte",
           "sectionsTitle": "Seções",
-          "noCurrentCohort": "Nenhuma coorte atual está definida. Marcar um grupo como atual em Turmas e seções.",
+          "noCurrentCohort": "Nenhuma coorte atual está definida. Marque um grupo como atual em Cursos.",
           "noSections": "Esta coorte ainda não tem seções ativas.",
           "openTooltip": "Abra a seção para ver a matriz dos alunos e as ações em massa."
         },
@@ -7697,6 +7697,21 @@
       "startJoinChargeTip": "Envia à família o link para pagar a matrícula e o mês atual e ingressar.",
       "startJoinChargeSuccess": "Enviamos o link de cobrança à família",
       "startJoinChargeError": "Não foi possível iniciar a cobrança",
+      "moveCarry": {
+        "title": "O que segue com este aluno",
+        "lead": "O aluno muda de qualquer forma. O que estiver marcado sai da turma atual e fica na nova.",
+        "payments": "Pagamentos mensais",
+        "scholarships": "Bolsas e descontos",
+        "enrollmentFee": "Matrícula",
+        "annualSettlement": "Fecho anual",
+        "attendance": "Presenças",
+        "grades": "Notas",
+        "leave": "Deixar",
+        "replace": "Substituir",
+        "confirm": "Mover aluno",
+        "cancel": "Cancelar",
+        "collisionLead": "Estes dados já existem na turma de destino. Escolhe uma ação para cada um."
+      },
       "funnel": {
         "registered": "Pré-inscritos ({{count}})",
         "contacted": "Pré-inscritos contactados ({{count}})",
@@ -7777,6 +7792,9 @@
         "unknownError": "Envia este código com o pedido. Code: {{code}}",
         "errors": {
           "funnel_revert_not_allowed": "Esta ficha não está numa etapa que este passo possa desfazer. Abre Inscritos quando o aluno já tem turma. Code: funnel_revert_not_allowed",
+          "carry_choice_missing": "Escolhe Deixar ou Substituir para {{detail}} antes de guardar esta mudança. Code: carry_choice_missing",
+          "SCHEDULE_OVERLAP": "O horário sobrepõe outra turma ativa. Escolhe outra turma. Code: SCHEDULE_OVERLAP",
+          "CAPACITY_EXCEEDED": "Esta turma está cheia. Escolhe outra turma. Code: CAPACITY_EXCEEDED",
           "section_move_same": "Este aluno já está nessa turma. Escolhe outra turma. Code: section_move_same",
           "section_move_outside_cohort": "Essa turma não está na coorte escolhida. Escolhe uma turma desta coorte. Code: section_move_outside_cohort",
           "enrolled_revert_failed": "Esta ficha não está inscrita numa turma, por isso este passo não pode desfazê-la. Atualiza a lista. Code: enrolled_revert_failed",
@@ -9631,7 +9649,7 @@
       "coupons": "Cupons",
       "promotions": "Promoções",
       "settings": "Configurações do instituto",
-      "academics": "Turmas e seções",
+      "academics": "Cursos",
       "calendar": "Calendário mestre",
       "contents": "Conteúdo acadêmico",
       "transferInboxNav": "Caixa de entrada de transferência",
@@ -11160,24 +11178,24 @@
         "progressText": "{{current}} de {{total}}",
         "steps": {
           "intro": {
-            "title": "🏫 Coortes e seções",
-            "description": "Uma coorte é o contêiner anual do ciclo. As seções (turnos, cursos) vivem dentro — crie o ano primeiro e depois as seções."
+            "title": "🏫 Cursos",
+            "description": "Uma coorte é o contêiner anual do ciclo. As seções ficam dentro. Esta tela abre as seções do ano vigente."
           },
           "titleBlock": {
-            "title": "📋 Hub acadêmico",
-            "description": "Este hub lista coortes e permite abrir a que você está trabalhando."
+            "title": "📋 Cursos",
+            "description": "Esta tela mostra as seções do ano que você escolhe em Ano/Coorte."
           },
           "newCohort": {
             "title": "➕ Nova coorte",
             "description": "Cria outra coorte anual. Prefira uma por ano-calendário, salvo necessidade explícita."
           },
           "boardTabs": {
-            "title": "📑 Atual / Ativas / Arquivadas",
-            "description": "Organiza coortes por status para o ano atual ficar fácil de achar."
+            "title": "📑 Ano/Coorte",
+            "description": "Escolha o ano. O ano vigente fica selecionado ao entrar. Os anos arquivados ficam no final."
           },
           "cohortList": {
-            "title": "📚 Linhas de coorte",
-            "description": "Abra uma coorte para gerenciar suas seções. Também pode marcar qual é a atual do instituto."
+            "title": "📚 Seções",
+            "description": "Estas são as seções do ano escolhido. Abra uma para ver alunos, presença e notas."
           },
           "closing": {
             "title": "✅ Montar o ano",
@@ -12233,8 +12251,8 @@
             "description": "A coorte é o contentor principal da estrutura académica: representa o ano letivo (por exemplo «Coorte 2026»). Há uma só coorte por ano — não se criam coortes de turno da manhã ou da tarde; esses horários definem-se depois, nas secções dentro da coorte.\n\nDentro de cada coorte ficam as secções —turmas com horário, professor e inscrições— e, em cada secção, os cursos ou unidades do plano.\n\nNão pode criar secções ou cursos soltos sem uma coorte. Este percurso guia esse primeiro passo: definir o contentor anual antes de o preencher."
           },
           "navAcademic": {
-            "title": "📚 Turmas e seções",
-            "description": "Turmas e seções é o centro de controle acadêmico: coortes, seções e matrículas num só lugar.\n\nClique em Próximo para abri-lo. Se estava em outra tela do admin, o tutorial navega automaticamente para lá."
+            "title": "📚 Cursos",
+            "description": "Cursos abre as seções do ano vigente.\n\nClique em Próximo para abri-lo. Se estava em outra tela do admin, o tutorial navega automaticamente para lá."
           },
           "newCohort": {
             "title": "➕ Nova coorte",
@@ -12242,11 +12260,11 @@
           },
           "nameField": {
             "title": "✏️ Nome da coorte",
-            "description": "Use o ano letivo como referência principal. Exemplo: «Coorte 2026» ou «2026». Não precisa de dividir por turno: manhã e tarde configuram-se ao criar as secções dentro desta coorte.\n\nO slug é opcional; se o deixar vazio, o sistema gera um. O nome deve ter pelo menos 2 caracteres."
+            "description": "Use o ano letivo como referência principal. Exemplo: «Coorte 2026» ou «2026». Não precisa de dividir por turno: manhã e tarde configuram-se ao criar as secções dentro desta coorte.\n\nAtive a matrícula só se esta coorte a cobra e escreva o valor. Você pode copiar as seções de outra coorte. Os alunos copiados continuam nessa coorte e também entram na seção nova. O nome precisa de pelo menos 2 caracteres."
           },
           "submit": {
             "title": "✅ Criar coorte",
-            "description": "Quando o nome estiver claro e válido, confirme a criação. A coorte fica guardada como contentor vazio — depois adiciona secções na página de detalhes.\n\nO tutorial continua aí para mostrar o passo seguinte."
+            "description": "Quando o nome estiver válido, confirme a criação. A coorte fica guardada. Se você não copiou seções, adicione-as na página da coorte.\n\nO tutorial continua aí para mostrar o passo seguinte."
           },
           "detail": {
             "title": "📂 A sua coorte (contentor)",
@@ -12262,7 +12280,7 @@
         "progressText": "{{current}} de {{total}}",
         "missingCohortNotice": {
           "title": "Crie primeiro uma coorte",
-          "description": "As secções vivem dentro de uma coorte (o contentor anual). Não encontrámos uma coorte vigente nem do ano em curso.\n\nUse o tutorial «Como crio uma coorte?» ou abra Turmas e seções e crie a coorte do ano antes de adicionar secções.",
+          "description": "As secções vivem dentro de uma coorte (o contentor anual). Não encontrámos uma coorte vigente nem do ano em curso.\n\nUse o tutorial «Como crio uma coorte?» ou abra Cursos e crie a coorte do ano antes de adicionar secções.",
           "dismiss": "Entendido"
         },
         "steps": {
@@ -13008,7 +13026,7 @@
         "current-cohort": {
           "title": "Coorte vigente",
           "aliases": "Também: coorte atual, coorte ativa",
-          "body": "A coorte marcada como o ano operativo do instituto neste momento. A inscrição pública, atribuir secções no detalhe do utilizador e várias vistas financeiras usam esta coorte como contexto predefinido.\n\nSó deve haver uma coorte vigente de cada vez. Marque-a em Turmas e seções quando as famílias devem inscrever-se nesse ano."
+          "body": "A coorte marcada como o ano operativo do instituto neste momento. A inscrição pública, atribuir secções no detalhe do utilizador e várias vistas financeiras usam esta coorte como contexto predefinido.\n\nSó deve haver uma coorte vigente de cada vez. Marque-a em Cursos quando as famílias devem inscrever-se nesse ano."
         },
         "section": {
           "title": "Secção",
@@ -13021,9 +13039,9 @@
           "body": "A unidade de ensino ou percurso de conteúdos dentro de uma secção — materiais, tarefas, mini testes ou atividades ordenadas que famílias e alunos veem no portal.\n\nNão é o mesmo que a secção: a secção é o grupo ativo; os cursos são o que esse grupo percorre. Podem seguir uma rota de aprendizagem ou ficar em modalidade livre."
         },
         "academic-hub": {
-          "title": "Turmas e seções",
+          "title": "Cursos",
           "aliases": "Também: painel de coortes e seções",
-          "body": "O ponto de partida admin para coortes e seções: criar coortes, abrir uma para gerir seções, copiar estruturas de outro ano, marcar a coorte vigente e saltar para transferências ou retenção nesse contexto.\n\nSe não souber onde fica a estrutura acadêmica, comece aqui."
+          "body": "Cursos mostra as seções do ano vigente. Você troca o ano em Ano/Coorte.\n\nSe não souber onde fica a estrutura acadêmica, comece aqui."
         },
         "learning-route": {
           "title": "Rota de aprendizagem",
@@ -13178,13 +13196,19 @@
         "CAPACITY_EXCEEDED": "Esta seção está lotada. Confirme a substituição ou escolha outra seção.",
         "ALREADY_ACTIVE": "O aluno já está ativo nesta seção.",
         "PARSE": "Não foi possível validar a solicitação. Verifique UUIDs e programações de seção.",
+        "carry_choice_missing": "Escolhe Deixar ou Substituir para {{detail}} antes de guardar esta mudança. Code: carry_choice_missing",
+        "section_move_same": "Este aluno já está nessa turma. Escolhe outra turma. Code: section_move_same",
+        "unknownError": "Envia este código com o pedido. Code: {{code}}",
         "RPC": "Não foi possível concluir a inscrição. Tente novamente ou entre em contato com o suporte."
       }
     },
     "academicHub": {
-      "metaTitle": "Turmas e seções",
-      "title": "Turmas e seções",
-      "lead": "Revise coortes e abra uma para gerenciar seções, solicitações de transferência e alertas de retenção na mesma visualização.",
+      "metaTitle": "Cursos",
+      "title": "Cursos",
+      "lead": "Você vê as seções do ano escolhido.",
+      "cohortSelectLabel": "Ano/Coorte",
+      "cohortSelectPlaceholder": "Escolha um ano",
+      "emptyPickCohort": "Não há um ano vigente. Escolha um em Ano/Coorte ou crie uma coorte.",
       "table": {
         "name": "Coorte",
         "statusActive": "Ativo",
@@ -13201,20 +13225,20 @@
       "board": {
         "currentTitle": "Coorte atual",
         "currentLead": "Gera padrões de registro público e o contexto de coorte atual no produto. Apenas uma coorte deve ser atual.",
-        "activeTitle": "Outras coortes",
-        "activeLead": "Não arquivado. Abra um para gerenciar seções de aula, transferências e capacidade.",
+        "activeTitle": "Coortes ativas",
+        "activeLead": "A coorte atual vem primeiro. As outras coortes ativas aparecem abaixo.",
         "archivedTitle": "Coortes arquivadas",
         "archivedLead": "Escondido de professores e alunos até ser restaurado. Use isso para encerramento operacional enquanto mantém o histórico do administrador.",
-        "emptyActive": "Nenhuma outra coorte nesta visão.",
+        "emptyActive": "Nenhuma coorte ativa nesta vista.",
         "emptyArchived": "Nenhuma coorte foi arquivada ainda.",
         "emptyAll": "Nenhuma coorte ainda. Use Nova coorte acima para criar a primeira.",
         "noCurrentBanner": "Nenhuma coorte está marcada como atual. Escolha Definir como atual na coorte na qual as famílias devem se registrar.",
         "tabs": {
           "tablistAria": "Grupos de coorte por status",
           "current": "Atual",
-          "active": "Ativo",
-          "archived": "Arquivado",
-          "emptyCurrent": "Nenhuma coorte está marcada como atual. Abra a guia Ativo e use Definir como atual em uma linha."
+          "active": "Ativas",
+          "archived": "Arquivadas",
+          "emptyCurrent": "Nenhuma coorte está marcada como atual. Abra a guia Ativas e use Definir como atual em uma linha."
         }
       },
       "toolbar": {
@@ -13225,17 +13249,34 @@
         "newCohortModal": {
           "title": "Nova coorte",
           "nameLabel": "Nome",
-          "slugLabel": "Lesma (opcional)",
-          "slugHint": "Deixe em branco para preencher automaticamente com o nome posteriormente.",
+          "chargesEnrollmentLabel": "Esta coorte cobra matrícula",
+          "enrollmentAmountLabel": "Valor da matrícula",
+          "chargesMonthlyLabel": "Esta coorte tem uma mensalidade única por seção",
+          "monthlyAmountLabel": "Mensalidade por seção",
+          "copySectionsLabel": "Copiar seções de outra coorte",
+          "sourceLabel": "Coorte modelo",
+          "sourcePlaceholder": "Escolha uma coorte",
+          "copyStudentsLabel": "Copiar também os alunos ativos",
+          "copyStudentsHint": "Cada aluno continua na coorte modelo e também fica inscrito na seção nova equivalente.",
           "submit": "Criar",
           "cancel": "Cancelar",
-          "error": "Não foi possível criar a coorte. Verifique o nome e tente novamente."
+          "openCohort": "Abrir a coorte nova",
+          "errors": {
+            "name_too_short": "Escreva um nome com pelo menos 2 caracteres. Código: name_too_short",
+            "fee_amount_required": "Escreva o valor da matrícula ou desligue a cobrança. Código: fee_amount_required",
+            "fee_amount_invalid": "Escreva um valor de matrícula de 0 ou mais. Código: fee_amount_invalid",
+            "monthly_fee_required": "Escreva a mensalidade ou desligue a mensalidade única. Código: monthly_fee_required",
+            "monthly_fee_invalid": "Escreva uma mensalidade de 0 ou mais. Código: monthly_fee_invalid",
+            "source_required": "Escolha a coorte a copiar ou desligue a cópia. Código: source_required",
+            "save": "A coorte não foi criada. Tente de novo ou fale com o instituto. Código: save",
+            "copy_failed": "A coorte foi criada, mas as seções não foram copiadas. Abra a coorte e copie as seções de novo. Código: copy_failed"
+          }
         }
       }
     },
     "academicCohortPage": {
       "metaTitle": "Coorte",
-      "backHub": "← Turmas e seções",
+      "backHub": "← Cursos",
       "sectionsTitle": "Seções",
       "newSectionButton": "Nova seção",
       "newSectionModal": {
@@ -13281,18 +13322,22 @@
       },
       "copySectionsButton": "Copiar layout da seção de…",
       "newSectionButtonTip": "Adicione um grupo de turma com horário, professor e capacidade para este grupo.",
-      "copySectionsButtonTip": "Duplicar nomes de seções e programações de outro grupo; opcionalmente, mova alunos ativos.",
+      "copySectionsButtonTip": "Copia nomes e horários de outra coorte. Os alunos copiados continuam na coorte de origem.",
       "copySectionsModal": {
         "title": "Copiar estrutura da seção",
-        "lead": "Cria seções correspondentes neste coorte (mesmo professor, horário e capacidade). Opcionalmente, você pode transferir inscrições ativas das seções de origem para cada nova seção.",
-        "sourceLabel": "Copiar layout do coorte",
-        "sourcePlaceholder": "Selecione uma coorte",
-        "includeStudentsLabel": "Transferir alunos ativos para as novas seções",
-        "includeStudentsHint": "Cada inscrição ativa em uma seção de origem é fechada conforme transferida e recriada na nova seção correspondente. As transferências que falharem (por exemplo, um conflito de agendamento com outra classe ativa) serão ignoradas.",
+        "lead": "Cria seções equivalentes nesta coorte (mesmo professor, horário e vagas). Você também pode copiar os alunos ativos. Eles continuam na coorte de origem e entram na seção nova.",
+        "sourceLabel": "Copiar layout da coorte",
+        "sourcePlaceholder": "Escolha uma coorte",
+        "includeStudentsLabel": "Copiar também os alunos ativos",
+        "includeStudentsHint": "Cada aluno continua na seção de origem e também fica inscrito na seção nova. Um choque de horário dentro desta coorte deixa esse aluno de fora.",
         "submit": "Copiar estrutura",
         "cancel": "Cancelar",
-        "error": "Não foi possível copiar seções.",
-        "errorEmptySource": "Essa coorte não tem seções para copiar."
+        "errors": {
+          "PARSE": "Escolha uma coorte de origem válida. Código: PARSE",
+          "SAME_COHORT": "Escolha outra coorte. Você não pode copiar uma coorte sobre ela mesma. Código: SAME_COHORT",
+          "EMPTY_SOURCE": "Essa coorte não tem seções para copiar. Código: EMPTY_SOURCE",
+          "SAVE": "As seções não foram copiadas. Tente de novo ou fale com o instituto. Código: SAVE"
+        }
       },
       "noSections": "Ainda não há seções nesta coorte.",
       "sectionArchivedBadge": "Arquivado",
@@ -13332,6 +13377,12 @@
       "badgeCurrent": "Coorte atual",
       "badgeArchived": "Arquivado",
       "capacityLabel": "Capacidade",
+      "sectionListName": "Seção",
+      "sectionListTeachers": "Professores",
+      "sectionListSchedule": "Horário",
+      "sectionListEmptyTeachers": "Sem professor",
+      "sectionListEmptySchedule": "Sem horário",
+      "sectionListActions": "Ações",
       "kpiStudents": "Alunos ativos (únicos)",
       "kpiSections": "Seções",
       "feeDefaults": {
@@ -13366,7 +13417,15 @@
         "confirm": "Confirmar capotamento",
         "cancel": "Cancelar",
         "close": "Fechar",
-        "error": "A rolagem não pôde ser concluída.",
+        "crossCohortHint": "Outra coorte copia o aluno. O aluno continua na seção de origem. A mesma coorte move o aluno.",
+        "errors": {
+          "PARSE": "Escolha seções válidas e pelo menos um aluno. Código: PARSE",
+          "CAPACITY_EXCEEDED": "A seção de destino está cheia. Escolha outra seção ou aumente as vagas. Código: CAPACITY_EXCEEDED",
+          "SCHEDULE_OVERLAP": "O horário choca com outra seção ativa da mesma coorte. Código: SCHEDULE_OVERLAP",
+          "ALREADY_ACTIVE": "Esse aluno já está na seção de destino. Código: ALREADY_ACTIVE",
+          "RPC": "A inscrição não foi salva. Tente de novo ou fale com o instituto. Código: RPC",
+          "UNAUTHORIZED": "Você não pode mover ou copiar estes alunos. Código: UNAUTHORIZED"
+        },
         "success": "Rollover concluído para {n} alunos.",
         "emptyStudents": "Nenhum aluno ativo nesta seção.",
         "loadingStudents": "Carregando alunos…",
@@ -13877,6 +13936,21 @@
       "emptyTab": "Não há linhas nesta visualização.",
       "successEnroll": "Aluno matriculado.",
       "successMove": "Aluno mudou.",
+      "moveCarry": {
+        "title": "O que segue com este aluno",
+        "lead": "O aluno muda de qualquer forma. O que estiver marcado sai da turma atual e fica na nova.",
+        "payments": "Pagamentos mensais",
+        "scholarships": "Bolsas e descontos",
+        "enrollmentFee": "Matrícula",
+        "annualSettlement": "Fecho anual",
+        "attendance": "Presenças",
+        "grades": "Notas",
+        "leave": "Deixar",
+        "replace": "Substituir",
+        "confirm": "Mover aluno",
+        "cancel": "Cancelar",
+        "collisionLead": "Estes dados já existem na turma de destino. Escolhe uma ação para cada um."
+      },
       "genericError": "Algo deu errado. Tente novamente.",
       "debtBadge": "Guardian tem pagamentos pendentes",
       "careBadge": "Precisa de cuidado especial",
@@ -13930,7 +14004,7 @@
       "metaTitle": "Caixa de entrada de transferência",
       "title": "Solicitações de transferência",
       "lead": "Solicitações pendentes de professores. A aprovação executa a transação de inscrição e notifica as famílias quando configurada.",
-      "backHub": "← Turmas e seções",
+      "backHub": "← Cursos",
       "empty": "Não há solicitações pendentes.",
       "colStudent": "Estudante",
       "colFrom": "De",

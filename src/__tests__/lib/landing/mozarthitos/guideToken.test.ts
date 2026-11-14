@@ -4,7 +4,7 @@ import {
   formatGuideToken,
   parseGuideToken,
   readGuideAnswers,
-} from "@/lib/landing/mozarthitos/guideToken";
+} from "@/variants/owned/mozarthitos/pieces/guideToken";
 
 describe("parseGuideToken", () => {
   it("parses a valid token", () => {

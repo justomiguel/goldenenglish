@@ -3,7 +3,7 @@ import {
   applyNagoScrollAtmosphere,
   nagoDriftOffset,
   nagoPageProgress,
-} from "@/lib/landing/nagoScrollAtmosphere";
+} from "@/variants/owned/nago/pieces/nagoScrollAtmosphere";
 
 describe("nagoScrollAtmosphere", () => {
   it("clamps page progress between 0 and 1", () => {

@@ -1,5 +1,5 @@
-import { parseMozarthitosTenantExtras } from "@/lib/register/packs/mozarthitos/parseMozarthitosTenantExtras";
-import { mozarthitosGuideSummaryParts } from "@/lib/register/packs/mozarthitos/formatMozarthitosGuideSummary";
+import { parseMozarthitosTenantExtras } from "@/variants/owned/mozarthitos/pieces/parseMozarthitosTenantExtras";
+import { mozarthitosGuideSummaryParts } from "@/variants/owned/mozarthitos/pieces/formatMozarthitosGuideSummary";
 import type { Dictionary } from "@/types/i18n";
 
 type GuideLabels = Dictionary["admin"]["registrations"]["mozarthitosGuide"];

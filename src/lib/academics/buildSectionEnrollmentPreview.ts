@@ -11,6 +11,7 @@ import { loadParentPaymentPendingForStudent } from "@/lib/academics/parentPaymen
 type SectionHead = {
   id: string;
   name: string;
+  cohort_id?: string | null;
   schedule_slots: unknown;
   max_students: number | null;
   archived_at?: string | null;
@@ -38,7 +39,7 @@ export async function buildSectionEnrollmentPreview(
 ): Promise<PreviewSectionEnrollmentResult> {
   const { data: section, error: secErr } = await supabase
     .from("academic_sections")
-    .select("id, name, schedule_slots, max_students, archived_at, academic_cohorts(name, archived_at)")
+    .select("id, name, cohort_id, schedule_slots, max_students, archived_at, academic_cohorts(name, archived_at)")
     .eq("id", input.sectionId)
     .maybeSingle();
 
@@ -103,13 +104,14 @@ export async function buildSectionEnrollmentPreview(
 
   const { data: otherSections, error: osErr } = await supabase
     .from("academic_sections")
-    .select("id, name, schedule_slots, academic_cohorts(name)")
+    .select("id, name, cohort_id, schedule_slots, academic_cohorts(name)")
     .in("id", uniqueSectionIds);
 
   if (osErr || !otherSections) return { ok: false, code: "PARSE" };
 
   const conflicts: SectionEnrollmentConflict[] = [];
   for (const s of otherSections as unknown as SectionHead[]) {
+    if (s.cohort_id && row.cohort_id && s.cohort_id !== row.cohort_id) continue;
     const otherSlots = parseSectionScheduleSlots(s.schedule_slots);
     if (schedulesOverlap(targetSlots, otherSlots)) {
       const enrId = (activeRows ?? []).find((e) => e.section_id === s.id)?.id ?? "";

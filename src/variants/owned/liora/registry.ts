@@ -28,31 +28,31 @@ function lioraVariant(
 
 export const LIORA_VARIANTS: readonly SectionVariant<unknown>[] = [
   lioraVariant("nav.liora", "nav", () =>
-    import("@/components/organisms/LioraSiteHeader").then((mod) => ({ default: mod.LioraSiteHeader })),
+    import("@/variants/owned/liora/pieces/LioraSiteHeader").then((mod) => ({ default: mod.LioraSiteHeader })),
   ),
   lioraVariant("hero.liora", "hero", () =>
-    import("@/components/organisms/LandingLioraHero").then((mod) => ({ default: mod.LandingLioraHero })),
+    import("@/variants/owned/liora/pieces/LandingLioraHero").then((mod) => ({ default: mod.LandingLioraHero })),
   ),
   lioraVariant("band.liora-sobre", "band", () =>
-    import("@/components/organisms/LandingLioraSobre").then((mod) => ({ default: mod.LandingLioraSobre })),
+    import("@/variants/owned/liora/pieces/LandingLioraSobre").then((mod) => ({ default: mod.LandingLioraSobre })),
   ),
   lioraVariant("band.liora-clases", "band", () =>
-    import("@/components/organisms/LandingLioraClasesSection").then((mod) => ({ default: mod.LandingLioraClasesSection })),
+    import("@/variants/owned/liora/pieces/LandingLioraClasesSection").then((mod) => ({ default: mod.LandingLioraClasesSection })),
   ),
   lioraVariant("band.liora-sedes", "band", () =>
-    import("@/components/organisms/LandingLioraSedesSection").then((mod) => ({ default: mod.LandingLioraSedesSection })),
+    import("@/variants/owned/liora/pieces/LandingLioraSedesSection").then((mod) => ({ default: mod.LandingLioraSedesSection })),
   ),
   lioraVariant("schedule.liora-horarios", "schedule", () =>
-    import("@/components/organisms/LandingLioraHorariosSection").then((mod) => ({ default: mod.LandingLioraHorariosSection })),
+    import("@/variants/owned/liora/pieces/LandingLioraHorariosSection").then((mod) => ({ default: mod.LandingLioraHorariosSection })),
   ),
   lioraVariant("band.liora-gallery", "band", () =>
-    import("@/components/organisms/LioraLandingGallery").then((mod) => ({ default: mod.LioraLandingGallery })),
+    import("@/variants/owned/liora/pieces/LioraLandingGallery").then((mod) => ({ default: mod.LioraLandingGallery })),
   ),
   lioraVariant("contact.liora", "contact", () =>
-    import("@/components/organisms/LioraLandingContactPanel").then((mod) => ({ default: mod.LioraLandingContactPanel })),
+    import("@/variants/owned/liora/pieces/LioraLandingContactPanel").then((mod) => ({ default: mod.LioraLandingContactPanel })),
   ),
   lioraVariant("footer.liora", "footer", () =>
-    import("@/components/organisms/LandingLioraFooter").then((mod) => ({ default: mod.LandingLioraFooter })),
+    import("@/variants/owned/liora/pieces/LandingLioraFooter").then((mod) => ({ default: mod.LandingLioraFooter })),
   ),
   lioraVariant(
     "page.liora-home",
@@ -61,12 +61,12 @@ export const LIORA_VARIANTS: readonly SectionVariant<unknown>[] = [
     () => import("@/variants/owned/liora/home/v1/Pwa"),
   ),
   lioraVariant("page.liora-register", "page", () =>
-    import("@/components/organisms/RegisterLioraSurface").then((mod) => ({ default: mod.RegisterLioraSurface })),
+    import("@/variants/owned/liora/pieces/RegisterLioraSurface").then((mod) => ({ default: mod.RegisterLioraSurface })),
   ),
   lioraVariant("page.liora-contact", "page", () =>
-    import("@/components/organisms/PublicContactScreenLiora").then((mod) => ({ default: mod.PublicContactScreenLiora })),
+    import("@/variants/owned/liora/pieces/PublicContactScreenLiora").then((mod) => ({ default: mod.PublicContactScreenLiora })),
   ),
   lioraVariant("page.liora-blog", "page", () =>
-    import("@/components/organisms/PublicBlogScreenLiora").then((mod) => ({ default: mod.PublicBlogScreenLiora })),
+    import("@/variants/owned/liora/pieces/PublicBlogScreenLiora").then((mod) => ({ default: mod.PublicBlogScreenLiora })),
   ),
 ];

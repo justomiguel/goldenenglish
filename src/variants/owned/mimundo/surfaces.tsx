@@ -3,13 +3,13 @@ import type { InstituteAnswerItem } from "@/lib/public/instituteAnswerPages";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
-import { MiMundoRegisterHeader } from "@/components/molecules/MiMundoRegisterHeader";
+import { MiMundoRegisterHeader } from "@/variants/owned/mimundo/pieces/MiMundoRegisterHeader";
 import { PublicAnswerArticle } from "@/components/organisms/PublicAnswerArticle";
-import { PublicBlogScreenMiMundo, type PublicBlogScreenMiMundoProps } from "@/components/organisms/PublicBlogScreenMiMundo";
-import { PublicContactScreenMiMundo, type PublicContactScreenMiMundoProps } from "@/components/organisms/PublicContactScreenMiMundo";
-import { MiMundoFontRoot } from "@/components/organisms/MiMundoFontRoot";
+import { PublicBlogScreenMiMundo, type PublicBlogScreenMiMundoProps } from "@/variants/owned/mimundo/pieces/PublicBlogScreenMiMundo";
+import { PublicContactScreenMiMundo, type PublicContactScreenMiMundoProps } from "@/variants/owned/mimundo/pieces/PublicContactScreenMiMundo";
+import { MiMundoFontRoot } from "@/variants/owned/mimundo/pieces/MiMundoFontRoot";
 import { PublicPrivacyArticle } from "@/components/organisms/PublicPrivacyArticle";
-import { RegisterMiMundoSurface, type RegisterMiMundoSurfaceProps } from "@/components/organisms/RegisterMiMundoSurface";
+import { RegisterMiMundoSurface, type RegisterMiMundoSurfaceProps } from "@/variants/owned/mimundo/pieces/RegisterMiMundoSurface";
 
 const SHEET = "mimundo-public-sheet mx-auto max-w-3xl";
 

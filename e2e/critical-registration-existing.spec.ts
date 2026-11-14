@@ -14,7 +14,7 @@ import {
   pickRegisterBirthIso,
   submitRegisterAfterDetails,
 } from "./helpers/registerForm";
-import { chooseJoinBillingCurrent } from "./helpers/acceptRegistration";
+import { markRegistrationContactedFromRow } from "./helpers/openRegistrationActions";
 import { openAdminRegistrationByDni } from "./helpers/scheduleOffer";
 
 const paths = e2eAuthPaths();
@@ -110,61 +110,24 @@ test.describe("@critical-registration", () => {
     const familyPage = await family.newPage();
     await familyPage.goto(inviteUrl, { waitUntil: "domcontentloaded" });
     await completeRegisterDniStep(familyPage, "E2E-STU-B1");
-    await familyPage.locator("#rg-fn").fill("E2E");
-    await familyPage.locator("#rg-ln").fill("EnrolleeB");
-    await pickRegisterBirthIso(familyPage, "2010-03-04");
-    await familyPage.locator("#rg-dni").fill("E2E-STU-B1");
-    await continueRegisterAfterStudent(familyPage);
     await expect(familyPage.getByText(R.existingFoundTitle)).toBeVisible({
       timeout: 20_000,
     });
     await expect(familyPage.getByText(/E2E EnrolleeB/)).toBeVisible();
-    await chooseRegisterSectionByName(familyPage, /E2E Section B/i);
+    await expect(familyPage.locator("#rg-fn")).toHaveValue("E2E");
+    await expect(familyPage.locator("#rg-ln")).toHaveValue("EnrolleeB");
+    // The invite already locks Section A. The section combo stays off the page.
+    await expect(familyPage.locator("#rg-section")).toHaveCount(0);
     await submitRegisterAfterDetails(familyPage);
     await expect(familyPage.getByRole("dialog")).toBeVisible({ timeout: 45_000 });
     await family.close();
 
-    const row = await openAdminRegistrationByDni(staffPage, locale, "E2E-STU-B1", "awaiting_fee");
+    await gotoIsolated(staffPage, `/${locale}/dashboard/admin/registrations`);
+    const row = staffPage.locator("tr").filter({ hasText: "E2E-STU-B1" }).first();
+    await expect(row).toBeVisible({ timeout: 45_000 });
     await expect(row).toContainText(A.existingStudentBadge);
-    const accept = row.getByRole("button", { name: /Dar de alta|enroll as|accept/i });
-    if (await accept.isVisible().catch(() => false)) {
-      await accept.click();
-    } else {
-      const expand = row.getByRole("button", { name: A.expandRow });
-      if (await expand.isVisible().catch(() => false)) await expand.click();
-      await chooseJoinBillingCurrent(staffPage.locator("body"));
-      await staffPage.locator('input[id^="waive-"]').fill("e2e");
-      await staffPage.getByRole("button", { name: /Eximir y dar de alta|Waive and enroll|Isentar/i }).click();
-    }
-    const dialog = staffPage.getByRole("dialog");
-    if (await dialog.isVisible().catch(() => false)) {
-      await expect(dialog.getByText(A.acceptExistingLead)).toBeVisible();
-      await chooseJoinBillingCurrent(dialog);
-      await dialog.getByRole("button", { name: /Dar de alta|enroll as|accept/i }).click();
-      const skipSection = dialog.getByRole("button", {
-        name: /Omitir por ahora|omit|skip|después|later/i,
-      });
-      await expect
-        .poll(
-          async () => {
-            if (await dialog.getByRole("alert").isVisible().catch(() => false)) return "error";
-            if (!(await dialog.isVisible().catch(() => false))) return "closed";
-            if (await skipSection.isVisible().catch(() => false)) return "section";
-            return "pending";
-          },
-          { timeout: 60_000 },
-        )
-        .not.toBe("pending");
-      if (await dialog.getByRole("alert").isVisible().catch(() => false)) {
-        const text = await dialog.getByRole("alert").innerText();
-        if (!text.includes(A.acceptPendingSections)) {
-          throw new Error(`accept failed: ${text}`);
-        }
-      }
-      if (await skipSection.isVisible().catch(() => false)) {
-        await skipSection.click();
-      }
-    }
+    // Section A has no fee, so mark contacted reuses the ficha.
+    await markRegistrationContactedFromRow(row);
     await gotoIsolated(
       staffPage,
       `/${locale}/dashboard/admin/users?q=${encodeURIComponent("e2e-student-b@example.test")}`,

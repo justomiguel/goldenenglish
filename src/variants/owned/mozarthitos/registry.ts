@@ -28,23 +28,23 @@ function mozarthitosVariant(
 
 export const MOZARTHITOS_VARIANTS: readonly SectionVariant<unknown>[] = [
   mozarthitosVariant("nav.mozarthitos", "nav", () =>
-    import("@/components/organisms/MozarthitosSiteHeader").then((mod) => ({ default: mod.MozarthitosSiteHeader })),
+    import("@/variants/owned/mozarthitos/pieces/MozarthitosSiteHeader").then((mod) => ({ default: mod.MozarthitosSiteHeader })),
   ),
   mozarthitosVariant("band.mozarthitos-body", "band", () =>
-    import("@/components/organisms/LandingMozarthitosSections").then((mod) => ({ default: mod.LandingMozarthitosSections })),
+    import("@/variants/owned/mozarthitos/pieces/LandingMozarthitosSections").then((mod) => ({ default: mod.LandingMozarthitosSections })),
   ),
   mozarthitosVariant("band.mozarthitos-cursos", "band", () =>
-    import("@/components/organisms/LandingMozarthitosCursosSection").then((mod) => ({
+    import("@/variants/owned/mozarthitos/pieces/LandingMozarthitosCursosSection").then((mod) => ({
       default: mod.LandingMozarthitosCursosSection,
     })),
   ),
   mozarthitosVariant("band.mozarthitos-sedes", "band", () =>
-    import("@/components/organisms/LandingMozarthitosSedesSection").then((mod) => ({
+    import("@/variants/owned/mozarthitos/pieces/LandingMozarthitosSedesSection").then((mod) => ({
       default: mod.LandingMozarthitosSedesSection,
     })),
   ),
   mozarthitosVariant("contact.mozarthitos", "contact", () =>
-    import("@/components/organisms/LandingMozarthitosContactSection").then((mod) => ({
+    import("@/variants/owned/mozarthitos/pieces/LandingMozarthitosContactSection").then((mod) => ({
       default: mod.LandingMozarthitosContactSection,
     })),
   ),
@@ -55,15 +55,15 @@ export const MOZARTHITOS_VARIANTS: readonly SectionVariant<unknown>[] = [
     () => import("@/variants/owned/mozarthitos/home/v1/Pwa"),
   ),
   mozarthitosVariant("page.mozarthitos-register", "page", () =>
-    import("@/components/organisms/RegisterMozarthitosSurface").then((mod) => ({ default: mod.RegisterMozarthitosSurface })),
+    import("@/variants/owned/mozarthitos/pieces/RegisterMozarthitosSurface").then((mod) => ({ default: mod.RegisterMozarthitosSurface })),
   ),
   mozarthitosVariant("page.mozarthitos-contact", "page", () =>
-    import("@/components/organisms/PublicContactScreenMozarthitos").then((mod) => ({
+    import("@/variants/owned/mozarthitos/pieces/PublicContactScreenMozarthitos").then((mod) => ({
       default: mod.PublicContactScreenMozarthitos,
     })),
   ),
   mozarthitosVariant("page.mozarthitos-blog", "page", () =>
-    import("@/components/organisms/PublicBlogScreenMozarthitos").then((mod) => ({ default: mod.PublicBlogScreenMozarthitos })),
+    import("@/variants/owned/mozarthitos/pieces/PublicBlogScreenMozarthitos").then((mod) => ({ default: mod.PublicBlogScreenMozarthitos })),
   ),
   mozarthitosVariant("page.find-class", "page", () =>
     import("@/components/desktop/organisms/FamilyGuideDesktop").then((mod) => ({

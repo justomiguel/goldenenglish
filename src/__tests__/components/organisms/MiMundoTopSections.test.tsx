@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { MiMundoInstitucionalSection } from "@/components/organisms/MiMundoInstitucionalSection";
-import { MiMundoColoniaSection } from "@/components/organisms/MiMundoColoniaSection";
+import { MiMundoInstitucionalSection } from "@/variants/owned/mimundo/pieces/MiMundoInstitucionalSection";
+import { MiMundoColoniaSection } from "@/variants/owned/mimundo/pieces/MiMundoColoniaSection";
 import { dictEn } from "@/test/dictEn";
 import es from "@/dictionaries/es.json";
 import pt from "@/dictionaries/pt.json";

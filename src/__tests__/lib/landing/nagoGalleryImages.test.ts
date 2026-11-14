@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nagoGalleryPublicUrl } from "@/lib/landing/nagoGalleryImages";
+import { nagoGalleryPublicUrl } from "@/variants/owned/nago/pieces/nagoGalleryImages";
 
 describe("nagoGalleryPublicUrl", () => {
   it("encodes path segments for public URL", () => {

@@ -11,16 +11,16 @@ import { mockPathname } from "@/test/navigationMock";
 
 import { LandingHeader } from "@/components/organisms/LandingHeader";
 import { LandingGreenfieldHeader } from "@/components/organisms/LandingGreenfieldHeader";
-import { MozarthitosSiteHeader } from "@/components/organisms/MozarthitosSiteHeader";
-import { EspacioZenitSiteHeader } from "@/components/organisms/EspacioZenitSiteHeader";
-import { NagoSiteHeader } from "@/components/organisms/NagoSiteHeader";
+import { MozarthitosSiteHeader } from "@/variants/owned/mozarthitos/pieces/MozarthitosSiteHeader";
+import { EspacioZenitSiteHeader } from "@/variants/owned/espaciozenit/pieces/EspacioZenitSiteHeader";
+import { NagoSiteHeader } from "@/variants/owned/nago/pieces/NagoSiteHeader";
 import { LandingHeaderPwa } from "@/components/pwa/molecules/LandingHeaderPwa";
 
 import { LandingFooter } from "@/components/organisms/LandingFooter";
 import { LandingFooterPwa } from "@/components/pwa/molecules/LandingFooterPwa";
-import { LandingEspacioZenitFooter } from "@/components/organisms/LandingEspacioZenitFooter";
+import { LandingEspacioZenitFooter } from "@/variants/owned/espaciozenit/pieces/LandingEspacioZenitFooter";
 import { LandingGreenfieldFooter } from "@/components/organisms/LandingGreenfieldFooter";
-import { LandingNagoSections } from "@/components/organisms/LandingNagoSections";
+import { LandingNagoSections } from "@/variants/owned/nago/pieces/LandingNagoSections";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname(),

@@ -6,11 +6,11 @@ const root = resolve(__dirname, "../../../..");
 
 const fontRoots = [
   "src/variants/owned/matiss/font/v1/Web.tsx",
-  "src/components/organisms/LioraFontRoot.tsx",
-  "src/components/organisms/MozarthitosFontRoot.tsx",
-  "src/components/organisms/MiMundoFontRoot.tsx",
-  "src/components/organisms/NagoFontRoot.tsx",
-  "src/components/organisms/EspacioZenitFontRoot.tsx",
+  "src/variants/owned/liora/pieces/LioraFontRoot.tsx",
+  "src/variants/owned/mozarthitos/pieces/MozarthitosFontRoot.tsx",
+  "src/variants/owned/mimundo/pieces/MiMundoFontRoot.tsx",
+  "src/variants/owned/nago/pieces/NagoFontRoot.tsx",
+  "src/variants/owned/espaciozenit/pieces/EspacioZenitFontRoot.tsx",
 ];
 
 describe("marketingFontPreload wiring", () => {

@@ -4,6 +4,7 @@ import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { revalidateAcademicSurfaces } from "@/app/[locale]/dashboard/admin/academic/revalidatePaths";
 import {
   logServerActionException,
+  logServerWarn,
   logSupabaseClientError,
 } from "@/lib/logging/serverActionLog";
 import {
@@ -11,6 +12,9 @@ import {
   type AdminStudentSearchHit,
 } from "@/lib/users/searchAdminStudentsByPrefix";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { parseNewCohortDraft } from "@/lib/academics/parseNewCohortDraft";
+import { copyCohortSectionStructureAction } from "@/app/[locale]/dashboard/admin/academic/copyCohortSectionsActions";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type { AdminStudentSearchHit };
 
@@ -64,43 +68,97 @@ export async function setCurrentCohortAction(input: {
   }
 }
 
+async function nextFreeCohortSlug(
+  supabase: SupabaseClient,
+  base: string,
+): Promise<string | null> {
+  for (let i = 0; i < 20; i += 1) {
+    const candidate = i === 0 ? base : `${base}-${i + 1}`;
+    const { data, error } = await supabase
+      .from("academic_cohorts")
+      .select("id")
+      .eq("slug", candidate)
+      .maybeSingle();
+    if (error) return null;
+    if (!data) return candidate;
+  }
+  return null;
+}
+
 export async function createAcademicCohortAction(input: {
   locale: string;
   name: string;
-  slug?: string | null;
-}): Promise<{ ok: true; id: string } | { ok: false }> {
+  chargesEnrollmentFee: boolean;
+  enrollmentFeeAmount: string;
+  chargesMonthlyFee: boolean;
+  monthlyFeeAmount: string;
+  copySections: boolean;
+  sourceCohortId: string;
+  copyStudents: boolean;
+}): Promise<{ ok: true; id: string } | { ok: false; code: string; cohortId?: string }> {
+  const draft = parseNewCohortDraft(input);
+  if (!draft.ok) return { ok: false, code: draft.code };
+
   try {
     const { supabase } = await assertAdmin();
-    const name = input.name.trim();
-    if (name.length < 2) return { ok: false };
+    const slug = await nextFreeCohortSlug(supabase, draft.slugBase);
+    if (!slug) {
+      logServerWarn(S.createCohort, { code: "save", reason: "slug_unavailable" });
+      return { ok: false, code: "save" };
+    }
 
-    const slug = input.slug?.trim() || null;
     const { data, error } = await supabase
       .from("academic_cohorts")
       .insert({
-        name,
-        slug: slug || null,
+        name: draft.name,
+        slug,
+        default_enrollment_fee_amount: draft.enrollmentFeeAmount,
+        default_monthly_fee: draft.monthlyFeeAmount,
       })
       .select("id")
       .single();
 
     if (error || !data?.id) {
-      if (error) logSupabaseClientError(S.createCohort, error, { nameLen: name.length });
-      return { ok: false };
+      if (error) logSupabaseClientError(S.createCohort, error, { code: "save" });
+      return { ok: false, code: "save" };
     }
 
+    const cohortId = data.id as string;
     void recordSystemAudit({
       action: "academic_cohort_created",
       resourceType: "academic_cohort",
-      resourceId: data.id as string,
-      payload: { name },
+      resourceId: cohortId,
+      payload: {
+        name: draft.name,
+        charges_enrollment_fee: draft.enrollmentFeeAmount != null,
+        charges_monthly_fee: draft.monthlyFeeAmount != null,
+        copied_from: draft.sourceCohortId,
+        copy_students: draft.copyStudents,
+      },
     });
 
+    if (draft.sourceCohortId) {
+      const copied = await copyCohortSectionStructureAction({
+        locale: input.locale,
+        sourceCohortId: draft.sourceCohortId,
+        targetCohortId: cohortId,
+        includeStudents: draft.copyStudents,
+      });
+      if (!copied.ok) {
+        logServerWarn(S.createCohort, {
+          code: "copy_failed",
+          cohortId,
+          copyCode: copied.code,
+        });
+        return { ok: false, code: "copy_failed", cohortId };
+      }
+    }
+
     revalidateAcademicSurfaces(input.locale);
-    return { ok: true, id: data.id as string };
+    return { ok: true, id: cohortId };
   } catch (err) {
-    logServerActionException(S.createCohort, err);
-    return { ok: false };
+    logServerActionException(S.createCohort, err, { code: "save" });
+    return { ok: false, code: "save" };
   }
 }
 

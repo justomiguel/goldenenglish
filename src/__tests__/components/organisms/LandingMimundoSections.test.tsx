@@ -16,19 +16,19 @@ beforeAll(() => {
 });
 
 // ── sub-organism mocks (keep render surface focused) ─────────────────────────
-vi.mock("@/components/organisms/MiMundoHero", () => ({
+vi.mock("@/variants/owned/mimundo/pieces/MiMundoHero", () => ({
   MiMundoHero: () => <section data-testid="mm-hero" />,
 }));
 
-vi.mock("@/components/organisms/MiMundoSalasGrid", () => ({
+vi.mock("@/variants/owned/mimundo/pieces/MiMundoSalasGrid", () => ({
   MiMundoSalasGrid: () => <section data-testid="mm-salas-grid" />,
 }));
 
-vi.mock("@/components/organisms/MiMundoLandingGallery", () => ({
+vi.mock("@/variants/owned/mimundo/pieces/MiMundoLandingGallery", () => ({
   MiMundoLandingGallery: () => <section data-testid="mm-gallery" />,
 }));
 
-vi.mock("@/components/organisms/MiMundoLandingContactPanel", () => ({
+vi.mock("@/variants/owned/mimundo/pieces/MiMundoLandingContactPanel", () => ({
   MiMundoLandingContactPanel: () => <section data-testid="mm-contact-panel" />,
 }));
 
@@ -37,7 +37,7 @@ vi.mock("@/components/molecules/LanguageSwitcher", () => ({
 }));
 
 // ── component under test (imported after mocks) ───────────────────────────────
-import { LandingMimundoSections } from "@/components/organisms/LandingMimundoSections";
+import { LandingMimundoSections } from "@/variants/owned/mimundo/pieces/LandingMimundoSections";
 
 const defaultProps = {
   dict: dictEn,

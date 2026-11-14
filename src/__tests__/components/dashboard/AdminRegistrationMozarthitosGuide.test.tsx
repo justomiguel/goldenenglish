@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import es from "@/dictionaries/es.json";
 import { AdminRegistrationFamilyGuide } from "@/components/dashboard/AdminRegistrationFamilyGuide";
-import { formatMozarthitosGuideSummary } from "@/lib/register/packs/mozarthitos/formatMozarthitosGuideSummary";
+import { formatMozarthitosGuideSummary } from "@/variants/owned/mozarthitos/pieces/formatMozarthitosGuideSummary";
 
 const labels = es.admin.registrations.mozarthitosGuide;
 const extras = {

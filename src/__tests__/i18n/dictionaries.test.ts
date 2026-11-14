@@ -60,6 +60,8 @@ describe("getDictionary", () => {
   it("includes academic hub board and open cohort title in en and es", async () => {
     const en = await getDictionary("en");
     const es = await getDictionary("es");
+    expect(es.dashboard.adminNav.academics).toBe("Cursos");
+    expect(es.dashboard.academicHub.cohortSelectLabel).toBe("Año/Cohorte");
     expect(en.dashboard.academicHub.board.currentTitle).toBeTruthy();
     expect(es.dashboard.academicHub.board.currentTitle).toBeTruthy();
     expect(en.dashboard.academicHub.board.tabs.current).toBeTruthy();

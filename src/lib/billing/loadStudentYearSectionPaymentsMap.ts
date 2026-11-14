@@ -31,7 +31,8 @@ export async function loadStudentYearSectionPaymentsMap(
     .select("id, section_id, month, year, amount, status, receipt_url, payment_method, paid_on")
     .eq("student_id", studentId)
     .eq("year", year)
-    .in("section_id", sectionIds);
+    .in("section_id", sectionIds)
+    .is("superseded_at", null);
   const records: StudentMonthlyPaymentRecord[] = await Promise.all(
     ((payments ?? []) as PaymentRow[]).map(async (p) => ({
       id: p.id,

@@ -9,9 +9,9 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
-import { MozarthitosSiteHeader } from "@/components/organisms/MozarthitosSiteHeader";
-import { EspacioZenitSiteHeader } from "@/components/organisms/EspacioZenitSiteHeader";
-import { NagoSiteHeader } from "@/components/organisms/NagoSiteHeader";
+import { MozarthitosSiteHeader } from "@/variants/owned/mozarthitos/pieces/MozarthitosSiteHeader";
+import { EspacioZenitSiteHeader } from "@/variants/owned/espaciozenit/pieces/EspacioZenitSiteHeader";
+import { NagoSiteHeader } from "@/variants/owned/nago/pieces/NagoSiteHeader";
 
 vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({

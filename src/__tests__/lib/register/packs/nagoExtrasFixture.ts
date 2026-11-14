@@ -1,4 +1,4 @@
-import type { NagoTenantExtras } from "@/lib/register/packs/nago/types";
+import type { NagoTenantExtras } from "@/variants/owned/nago/pieces/types";
 
 export function validNagoExtras(over: Partial<NagoTenantExtras> = {}): NagoTenantExtras {
   return {

@@ -80,6 +80,7 @@ export async function findExistingMonthlyPaymentForSlot(
     .eq("section_id", sectionId)
     .eq("month", month)
     .eq("year", year)
+    .is("superseded_at", null)
     .maybeSingle();
   return { row: (data as ExistingMonthlyPaymentRow | null) ?? null, error };
 }

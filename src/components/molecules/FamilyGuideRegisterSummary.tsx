@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Compass } from "lucide-react";
-import type { MzGuideChoice } from "@/lib/landing/mozarthitos/familyGuideCatalog";
-import { buildGuidePageHref } from "@/lib/landing/mozarthitos/guideToken";
+import type { MzGuideChoice } from "@/variants/owned/mozarthitos/pieces/familyGuideCatalog";
+import { buildGuidePageHref } from "@/variants/owned/mozarthitos/pieces/guideToken";
 import type { Dictionary } from "@/types/i18n";
 
 export interface FamilyGuideRegisterSummaryProps {

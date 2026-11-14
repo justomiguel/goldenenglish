@@ -95,7 +95,9 @@ test.describe("@critical-section-enrollment-link", () => {
     await family.close();
 
     await gotoIsolated(staffPage, `/${locale}/dashboard/admin/registrations`);
-    await expect(staffPage.getByText(`Link${suffix}`)).toBeVisible({ timeout: 45_000 });
+    await expect(
+      staffPage.getByRole("cell", { name: new RegExp(`Link${suffix}`) }).first(),
+    ).toBeVisible({ timeout: 45_000 });
     await expect(staffPage.getByText(es.admin.registrations.viaSectionLink).first()).toBeVisible();
 
     await gotoIsolated(

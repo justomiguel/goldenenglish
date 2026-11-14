@@ -7,7 +7,7 @@ import { renderOwnedSurface } from "@/variants/ownedSurfaces";
 import type { RegisterExtrasPack } from "@/lib/register/packs/registerExtrasPack";
 import type { RegisterSectionMode } from "@/lib/settings/registerSectionMode";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
-import type { MzGuideChoice } from "@/lib/landing/mozarthitos/familyGuideCatalog";
+import type { MzGuideChoice } from "@/variants/owned/mozarthitos/pieces/familyGuideCatalog";
 
 interface RegisterSurfaceByTemplateProps {
   templateKind: string;

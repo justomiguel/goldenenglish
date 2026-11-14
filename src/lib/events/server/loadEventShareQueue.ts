@@ -1,6 +1,6 @@
 import "server-only";
 
-import { eventShareGrantClient, listPendingGrants } from "@/lib/events/server/eventShareGrantStore";
+import { listPendingGrants, shareGrantClientOrNull } from "@/lib/events/server/eventShareGrantStore";
 import { ownerAdminClient } from "@/lib/events/server/resolveEventDataClient";
 import { logServerError } from "@/lib/logging/serverActionLog";
 import { loadAllPulsarTenantsForAdmin } from "@/lib/pulsar/pulsarTenantStore";
@@ -16,7 +16,9 @@ export type EventShareQueueRow = {
 };
 
 export async function loadEventShareQueue(): Promise<EventShareQueueRow[]> {
-  const grants = await listPendingGrants(eventShareGrantClient());
+  const grantClient = shareGrantClientOrNull();
+  if (!grantClient) return [];
+  const grants = await listPendingGrants(grantClient);
   const tenants = await loadAllPulsarTenantsForAdmin();
   const siteName = (slug: string) => tenants.find((tenant) => tenant.slug === slug)?.displayName ?? slug;
   const rows: EventShareQueueRow[] = [];

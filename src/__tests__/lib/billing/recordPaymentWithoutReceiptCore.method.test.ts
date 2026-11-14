@@ -30,6 +30,7 @@ function supabase(payment: Record<string, unknown> | null, updateRows: { id: str
     const q = {
       select: () => q,
       eq: () => q,
+      is: () => q,
       in: () => q,
       update: (values: unknown) => {
         writes.push({ table, op: "update", values });

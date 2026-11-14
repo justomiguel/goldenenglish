@@ -45,7 +45,8 @@ async function loadPeriodPayments(
     .select("id, status, amount, section_id")
     .eq("student_id", studentId)
     .eq("year", year)
-    .eq("month", month);
+    .eq("month", month)
+    .is("superseded_at", null);
   return (data ?? []) as PeriodPaymentRow[];
 }
 

@@ -26,6 +26,19 @@ export async function rolloverEnrollStudentsAction(input: {
       return { ok: false, code: "PARSE", enrolled: 0 };
     }
 
+    const { data: sectionRows, error: sectionErr } = await supabase
+      .from("academic_sections")
+      .select("id, cohort_id")
+      .in("id", [src.data, sec.data]);
+    if (sectionErr || !sectionRows) {
+      if (sectionErr) logServerException("rolloverEnrollStudentsAction", sectionErr);
+      return { ok: false, code: "PARSE", enrolled: 0 };
+    }
+    const sourceCohort = sectionRows.find((r) => r.id === src.data)?.cohort_id;
+    const targetCohort = sectionRows.find((r) => r.id === sec.data)?.cohort_id;
+    if (!sourceCohort || !targetCohort) return { ok: false, code: "PARSE", enrolled: 0 };
+    const sameCohort = sourceCohort === targetCohort;
+
     let enrolled = 0;
     for (const raw of input.studentIds) {
       const st = uuid.safeParse(raw);
@@ -44,7 +57,7 @@ export async function rolloverEnrollStudentsAction(input: {
       const preview = await buildSectionEnrollmentPreview(supabase, {
         studentId: st.data,
         sectionId: sec.data,
-        ignoreEnrollmentId: dropRow.id,
+        ignoreEnrollmentId: sameCohort ? dropRow.id : null,
         ignoreCapacity: Boolean(input.allowCapacityOverride),
       });
       if (!preview.ok && preview.code === "ALREADY_ACTIVE") continue;
@@ -58,12 +71,14 @@ export async function rolloverEnrollStudentsAction(input: {
       const r = await commitSectionEnrollmentRpc(supabase, {
         studentId: st.data,
         sectionId: sec.data,
-        dropId: dropRow.id,
+        dropId: sameCohort ? dropRow.id : null,
         dropNext: "transferred",
         allowCapacityOverride: Boolean(input.allowCapacityOverride),
       });
       if (!r.ok) return { ok: false, code: r.code, enrolled };
-      await cancelReminderJobsForEnrollmentId(dropRow.id, "rolloverEnrollStudentsAction");
+      if (sameCohort) {
+        await cancelReminderJobsForEnrollmentId(dropRow.id, "rolloverEnrollStudentsAction");
+      }
       enrolled += 1;
 
       void recordSystemAudit({

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
-import { LandingMozarthitosCursosSection } from "@/components/organisms/LandingMozarthitosCursosSection";
+import { LandingMozarthitosCursosSection } from "@/variants/owned/mozarthitos/pieces/LandingMozarthitosCursosSection";
 import dictEs from "@/dictionaries/es.json";
 import type { Dictionary } from "@/types/i18n";
 

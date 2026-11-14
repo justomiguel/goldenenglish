@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { matissSectionImageSrc } from "@/lib/landing/matissLandingImages";
+import { matissSectionImageSrc } from "@/variants/owned/matiss/pieces/matissLandingImages";
 
 const SLOTS = {
   inicio: 2,

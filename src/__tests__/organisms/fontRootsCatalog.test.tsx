@@ -15,12 +15,12 @@ vi.mock("@/components/atoms/fonts/catalogFonts", () => {
   };
 });
 
-import { EspacioZenitFontRoot } from "@/components/organisms/EspacioZenitFontRoot";
-import { LioraFontRoot } from "@/components/organisms/LioraFontRoot";
+import { EspacioZenitFontRoot } from "@/variants/owned/espaciozenit/pieces/EspacioZenitFontRoot";
+import { LioraFontRoot } from "@/variants/owned/liora/pieces/LioraFontRoot";
 import { MatissFontRoot } from "@/variants/owned/matiss/font/v1/Web";
-import { MiMundoFontRoot } from "@/components/organisms/MiMundoFontRoot";
-import { MozarthitosFontRoot } from "@/components/organisms/MozarthitosFontRoot";
-import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
+import { MiMundoFontRoot } from "@/variants/owned/mimundo/pieces/MiMundoFontRoot";
+import { MozarthitosFontRoot } from "@/variants/owned/mozarthitos/pieces/MozarthitosFontRoot";
+import { NagoFontRoot } from "@/variants/owned/nago/pieces/NagoFontRoot";
 
 describe("bespoke font roots", () => {
   it("puts the catalog variable classes on each landing root", () => {

@@ -28,7 +28,7 @@ vi.mock("next/image", () => ({
   ),
 }));
 
-import { LandingEspacioZenitHeroMockup } from "@/components/organisms/LandingEspacioZenitHeroMockup";
+import { LandingEspacioZenitHeroMockup } from "@/variants/owned/espaciozenit/pieces/LandingEspacioZenitHeroMockup";
 
 const dict = dictEs as Dictionary;
 const brush1 = marketingLandingCopy(dict, "ez", "hero.brushLine1");

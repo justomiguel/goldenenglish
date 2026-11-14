@@ -6,7 +6,7 @@ vi.mock("@/components/molecules/SignOutButton", () => ({
   SignOutButton: () => <button type="button">logout</button>,
 }));
 
-import { LioraSiteHeader } from "@/components/organisms/LioraSiteHeader";
+import { LioraSiteHeader } from "@/variants/owned/liora/pieces/LioraSiteHeader";
 
 type IoCallback = (entries: Array<{ isIntersecting: boolean }>) => void;
 let observerCallback: IoCallback | null = null;

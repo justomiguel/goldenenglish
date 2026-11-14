@@ -44,7 +44,9 @@ function makeSupabase(
               eq: () => ({
                 eq: () => ({
                   eq: () => ({
-                    maybeSingle: () => Promise.resolve({ data: payRow, error: null }),
+                    is: () => ({
+                      maybeSingle: () => Promise.resolve({ data: payRow, error: null }),
+                    }),
                   }),
                 }),
               }),

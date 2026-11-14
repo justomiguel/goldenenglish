@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
 
-vi.mock("@/components/organisms/NagoFontRoot", () => ({
+vi.mock("@/variants/owned/nago/pieces/NagoFontRoot", () => ({
   NagoFontRoot: ({ children }: { children: ReactNode }) => (
     <div data-testid="nago-font-root">{children}</div>
   ),
@@ -12,7 +12,7 @@ vi.mock("@/components/register/RegisterForm", () => ({
   RegisterForm: () => <div data-testid="register-form-stub" />,
 }));
 
-import { RegisterNagoSurface } from "@/components/organisms/RegisterNagoSurface";
+import { RegisterNagoSurface } from "@/variants/owned/nago/pieces/RegisterNagoSurface";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 

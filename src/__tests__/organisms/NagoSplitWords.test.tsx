@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { NagoSplitWords } from "@/components/organisms/NagoSplitWords";
+import { NagoSplitWords } from "@/variants/owned/nago/pieces/NagoSplitWords";
 
 const parts = [
   { text: "Capoeira que" },

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { dictEn } from "@/test/dictEn";
-import { MiMundoSiteHeader } from "@/components/organisms/MiMundoSiteHeader";
+import { MiMundoSiteHeader } from "@/variants/owned/mimundo/pieces/MiMundoSiteHeader";
 
 const labels = {
   institucional: "Institucional",

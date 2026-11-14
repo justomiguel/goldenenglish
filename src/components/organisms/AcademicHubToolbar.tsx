@@ -14,6 +14,7 @@ import {
 
 export interface AcademicHubToolbarProps {
   locale: string;
+  sourceCohorts: readonly { id: string; name: string }[];
   dict: {
     newCohort: string;
     newCohortTip: string;
@@ -21,7 +22,7 @@ export interface AcademicHubToolbarProps {
   };
 }
 
-export function AcademicHubToolbar({ locale, dict }: AcademicHubToolbarProps) {
+export function AcademicHubToolbar({ locale, sourceCohorts, dict }: AcademicHubToolbarProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export function AcademicHubToolbar({ locale, dict }: AcademicHubToolbarProps) {
         locale={locale}
         open={open}
         onOpenChange={setOpen}
+        sourceCohorts={sourceCohorts}
         dict={dict.newCohortModal}
       />
     </div>

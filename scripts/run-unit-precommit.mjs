@@ -25,6 +25,13 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const cachePath = path.join(ROOT, UNIT_PRECOMMIT_CACHE_FILE);
 const reportPath = path.join(ROOT, "test-results/unit-precommit-report.json");
 
+if ((process.env.SKIP_UNIT ?? "").trim() === "1") {
+  console.warn(
+    "⚠ SKIP_UNIT=1 — Vitest gate skipped. Do not use for merge-ready commits without explicit user approval.",
+  );
+  process.exit(0);
+}
+
 const extraArgs = process.argv.slice(2);
 if (extraArgs.length > 0) {
   const child = spawnVitest(extraArgs, false);

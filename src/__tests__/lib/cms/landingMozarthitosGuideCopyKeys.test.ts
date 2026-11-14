@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import en from "@/dictionaries/en.json";
 import es from "@/dictionaries/es.json";
 import pt from "@/dictionaries/pt.json";
-import { MOZARTHITOS_GUIDE_COPY_KEYS } from "@/lib/cms/landingMozarthitosGuideCopyKeys";
-import { MOZARTHITOS_LANDING_COPY_KEYS_BY_SECTION } from "@/lib/cms/landingMozarthitosCatalog";
+import { MOZARTHITOS_GUIDE_COPY_KEYS } from "@/variants/owned/mozarthitos/pieces/landingMozarthitosGuideCopyKeys";
+import { MOZARTHITOS_LANDING_COPY_KEYS_BY_SECTION } from "@/variants/owned/mozarthitos/pieces/landingMozarthitosCatalog";
 
 function at(root: unknown, path: string): unknown {
   return path.split(".").reduce<unknown>(

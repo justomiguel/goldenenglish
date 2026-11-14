@@ -19,17 +19,25 @@ const dict = {
   newCohortModal: {
     title: "Create cohort",
     nameLabel: "Name",
-    slugLabel: "Slug",
-    slugHint: "hint",
+    chargesEnrollmentLabel: "Matrícula",
+    enrollmentAmountLabel: "Amount",
+    chargesMonthlyLabel: "Unified fee",
+    monthlyAmountLabel: "Monthly fee",
+    copySectionsLabel: "Copy sections",
+    sourceLabel: "From",
+    sourcePlaceholder: "Choose",
+    copyStudentsLabel: "Copy students",
+    copyStudentsHint: "They stay in the source cohort.",
     submit: "Create",
     cancel: "Cancel",
-    error: "Error",
+    openCohort: "Open cohort",
+    errors: { save: "Could not create. Code: save" },
   },
 };
 
 describe("AcademicHubToolbar tour anchors", () => {
   it("exposes new-cohort data-tour and opens modal on tutorial event", async () => {
-    render(<AcademicHubToolbar locale="es" dict={dict} />);
+    render(<AcademicHubToolbar locale="es" sourceCohorts={[]} dict={dict} />);
     expect(document.querySelector('[data-tour="academic-new-cohort"]')).toBeTruthy();
 
     await act(async () => {

@@ -12,7 +12,7 @@ import { FamilyGuidePwa } from "@/components/pwa/organisms/FamilyGuidePwa";
 import {
   useMozarthitosFamilyGuide,
   type MzFamilyGuideAnswers,
-} from "@/hooks/useMozarthitosFamilyGuide";
+} from "@/variants/owned/mozarthitos/pieces/useMozarthitosFamilyGuide";
 
 const labels = es.landing.mz.guide;
 
