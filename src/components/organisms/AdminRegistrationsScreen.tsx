@@ -41,9 +41,11 @@ export interface AdminRegistrationsScreenProps {
   currentCohortName?: string;
   createSectionHref?: string | null;
   usesCefrLevel?: boolean;
-  cohorts?: readonly { id: string; name: string }[];
   selectedCohortId?: string | null;
+  cycleStartsOn?: string | null;
+  cycleEndsOn?: string | null;
   openCohortId?: string | null;
+  cohortHasMatricula?: boolean;
 }
 
 export function AdminRegistrationsScreen(props: AdminRegistrationsScreenProps) {

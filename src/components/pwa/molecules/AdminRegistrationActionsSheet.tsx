@@ -2,6 +2,7 @@
 
 import { Modal } from "@/components/atoms/Modal";
 import { AdminRegistrationFunnelPanel } from "@/components/dashboard/AdminRegistrationFunnelPanel";
+import type { RegistrationWorkTask } from "@/hooks/useMarkContactedWithLoader";
 import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
@@ -18,10 +19,13 @@ export function AdminRegistrationActionsSheet({
   contact,
   sections,
   selectedCohortId,
+  cycleStartsOn,
+  cycleEndsOn,
   onEdit,
   onDelete,
   onMarkContacted,
   onStartEnrollmentFee,
+  onWork,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -32,10 +36,13 @@ export function AdminRegistrationActionsSheet({
   contact: RegistrationContactView;
   sections: { id: string; label: string }[];
   selectedCohortId?: string;
+  cycleStartsOn?: string | null;
+  cycleEndsOn?: string | null;
   onEdit: (row: AdminRegistrationRow) => void;
   onDelete: (row: AdminRegistrationRow) => void;
   onMarkContacted: (row: AdminRegistrationRow) => void;
   onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
+  onWork: (task: RegistrationWorkTask) => void;
 }) {
   return (
     <Modal
@@ -52,12 +59,15 @@ export function AdminRegistrationActionsSheet({
         busy={busy}
         sections={sections}
         selectedCohortId={selectedCohortId}
+        cycleStartsOn={cycleStartsOn}
+        cycleEndsOn={cycleEndsOn}
         contact={contact}
         onStartEnrollmentFee={onStartEnrollmentFee}
         onMarkContacted={onMarkContacted}
         onEdit={onEdit}
         onDelete={onDelete}
         onClose={() => onOpenChange(false)}
+        onWork={onWork}
       />
     </Modal>
   );

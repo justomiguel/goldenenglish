@@ -12,6 +12,7 @@ import {
   collectSectionsChargingEnrollmentFee,
   markRegistrationRowsEnrollmentFee,
 } from "@/lib/register/markRegistrationRowsEnrollmentFee";
+import { loadOpenCohortEnrollmentDefault } from "@/lib/register/loadOpenCohortEnrollmentDefault";
 import { attachTrialSeatsToRegistrationRows } from "@/lib/register/attachTrialSeatsToRegistrationRows";
 import { attachRegistrationPreferredCohorts } from "@/lib/dashboard/attachRegistrationPreferredCohorts";
 import { loadRegistrationCohortPage } from "@/lib/dashboard/loadRegistrationCohortPage";
@@ -48,16 +49,18 @@ export interface PaginatedRegistrationsParams {
 
 async function decorateRegistrationRows(supabase: SupabaseClient, rows: AdminRegistrationRow[]) {
   const requestedIds = rows.flatMap((row) => requestedRegistrationSectionIds(row));
-  const [closedIds, chargingIds, withSeats] = await Promise.all([
+  const [closedIds, chargingIds, withSeats, inherited] = await Promise.all([
     collectClosedRequestedSectionIds(supabase, requestedIds),
     collectSectionsChargingEnrollmentFee(supabase, requestedIds),
     attachTrialSeatsToRegistrationRows(supabase, rows),
+    loadOpenCohortEnrollmentDefault(supabase),
   ]);
   return attachRegistrationPreferredCohorts(
     supabase,
     markRegistrationRowsEnrollmentFee(
       markRegistrationRowsClosedSections(withSeats, closedIds),
       chargingIds,
+      inherited?.amount ?? 0,
     ),
   );
 }

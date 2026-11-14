@@ -28,6 +28,34 @@ export function registrationHasMatricula(row: {
   return row.chargesEnrollmentFee === true || (row.snapshotTotal ?? 0) > 0;
 }
 
+const FEE_FUNNEL_STAGES = [
+  "registered",
+  "contacted",
+  "awaiting_payment",
+  "paid_without_section",
+  "enrolled_in_section",
+] as const satisfies readonly RegistrationFunnelStage[];
+
+const NO_FEE_FUNNEL_STAGES = [
+  "registered",
+  "awaiting_section",
+  "enrolled_in_section",
+] as const satisfies readonly RegistrationFunnelStage[];
+
+export function registrationFunnelStagesForCohort(
+  hasMatricula: boolean,
+): readonly RegistrationFunnelStage[] {
+  return hasMatricula ? FEE_FUNNEL_STAGES : NO_FEE_FUNNEL_STAGES;
+}
+
+export function visibleRegistrationInboxFilter(
+  inbox: RegistrationFunnelStage,
+  hasMatricula: boolean,
+): RegistrationFunnelStage {
+  const stages = registrationFunnelStagesForCohort(hasMatricula);
+  return stages.includes(inbox) ? inbox : "registered";
+}
+
 export function registrationFunnelStage(row: RegistrationFunnelRow): RegistrationFunnelStage | null {
   if (row.status === "enrolled") return null;
   const hasFee = registrationHasMatricula(row);

@@ -14,6 +14,7 @@ vi.mock("@/lib/email/templates/sendBrandedEmail", () => ({
 vi.mock("@/lib/email/registrationIntakeEmails", () => ({
   sendRegistrationAdminEmails: mocks.sendRegistrationAdminEmails,
 }));
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logServerActionInvariantViolation: vi.fn(),
   logSupabaseClientError: vi.fn(),

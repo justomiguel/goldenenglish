@@ -2,19 +2,21 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { CreditCard, Check, ArrowRight, Landmark } from "lucide-react";
 import {
+  claimRegistrationEnrollmentCashAction,
   startRegistrationEnrollmentFlowAction,
   startRegistrationEnrollmentMercadoPagoAction,
   switchRegistrationPaySectionAction,
   uploadRegistrationEnrollmentReceiptAction,
 } from "@/app/[locale]/matricula/matriculaPayActions";
+import { RegistrationEnrollmentPayChoices } from "@/components/register/RegistrationEnrollmentPayChoices";
 import {
   startTrialFeeFlowAction,
   startTrialFeeMercadoPagoAction,
 } from "@/app/[locale]/clase-prueba/trialFeePayActions";
-import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
+import { RegistrationMatriculaPayLeave } from "@/components/register/RegistrationMatriculaPayLeave";
 import { explainCodedFailure } from "@/lib/errors/revealFailureCode";
-import { EVENT_TRANSFER_RECEIPT_ACCEPT } from "@/lib/events/eventTransferReceiptLimits";
 import type { RegistrationPublicPayMethod } from "@/lib/register/resolveRegistrationPublicPayMethods";
 
 export type RegistrationMatriculaPayActionLabels = {
@@ -23,15 +25,21 @@ export type RegistrationMatriculaPayActionLabels = {
   transfer: string;
   transferHint: string;
   uploadButton: string;
+  chooseFile?: string;
   pickSection: string;
   error: string;
   failures?: Partial<Record<string, string>>;
   receiptOk: string;
   acceptOffer?: string;
+  cash?: string;
+  online?: string;
+  uploadChoice?: string;
+  onlineEmpty?: string;
+  cashOk?: string;
 };
 
 const btnClass =
-  "inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] disabled:opacity-60";
+  "inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] disabled:opacity-60";
 
 export function RegistrationMatriculaPayActions({
   locale,
@@ -45,6 +53,8 @@ export function RegistrationMatriculaPayActions({
   proposedSectionId,
   labels,
   variant = "enrollment",
+  homeHref,
+  leavingLabel,
 }: {
   locale: string;
   token: string;
@@ -57,12 +67,16 @@ export function RegistrationMatriculaPayActions({
   proposedSectionId?: string | null;
   labels: RegistrationMatriculaPayActionLabels;
   variant?: "enrollment" | "trial";
+  homeHref?: string;
+  leavingLabel?: string;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [receiptBusy, setReceiptBusy] = useState(false);
   const [error, setError] = useState("");
   const [receiptOk, setReceiptOk] = useState(false);
+  const [cashOk, setCashOk] = useState(false);
+  const enrollmentChoices = showPay && variant !== "trial" && Boolean(labels.cash);
 
   function run(action: () => Promise<{ ok: true } | { ok: false; code?: string }>) {
     setError("");
@@ -72,13 +86,71 @@ export function RegistrationMatriculaPayActions({
         setError(explainCodedFailure(result.code, labels.failures, labels.error));
         return;
       }
-      await router.refresh();
+      router.refresh();
     });
   }
 
   return (
     <div className="mt-6 space-y-4">
-      {showPay && methods.includes("flow") ? (
+      {cashOk ? (
+        <>
+          <p className="text-sm" role="status">
+            {labels.cashOk}
+          </p>
+          {homeHref && leavingLabel ? (
+            <RegistrationMatriculaPayLeave href={homeHref} label={leavingLabel} />
+          ) : null}
+        </>
+      ) : null}
+      {enrollmentChoices && !cashOk ? (
+        <RegistrationEnrollmentPayChoices
+          methods={methods}
+          transferInstructions={transferInstructions}
+          labels={labels}
+          pending={pending}
+          receiptBusy={receiptBusy}
+          receiptOk={receiptOk}
+          homeHref={homeHref}
+          leavingLabel={leavingLabel}
+          onCash={() => {
+            setError("");
+            start(async () => {
+              const result = await claimRegistrationEnrollmentCashAction(locale, token, sectionLabel);
+              if (!result.ok) {
+                setError(explainCodedFailure(result.code, labels.failures, labels.error));
+                return;
+              }
+              setCashOk(true);
+            });
+          }}
+          onFlow={() =>
+            run(() => startRegistrationEnrollmentFlowAction(locale, token))
+          }
+          onMercadoPago={() =>
+            run(() => startRegistrationEnrollmentMercadoPagoAction(locale, token))
+          }
+          onReceipt={(data) => {
+            data.set("token", token);
+            data.set("locale", locale);
+            data.set("sectionLabel", sectionLabel);
+            setReceiptBusy(true);
+            setError("");
+            start(async () => {
+              try {
+                const result = await uploadRegistrationEnrollmentReceiptAction(data);
+                if (!result.ok) {
+                  setError(explainCodedFailure(result.code, labels.failures, labels.error));
+                  return;
+                }
+                setReceiptOk(true);
+              } finally {
+                setReceiptBusy(false);
+              }
+            });
+          }}
+        />
+      ) : null}
+      {showPay && !enrollmentChoices && methods.includes("flow") ? (
         <button
           type="button"
           className={btnClass}
@@ -91,13 +163,14 @@ export function RegistrationMatriculaPayActions({
             )
           }
         >
+          <CreditCard className="h-4 w-4" aria-hidden />
           {labels.flow}
         </button>
       ) : null}
-      {showPay && methods.includes("mercadopago") ? (
+      {showPay && !enrollmentChoices && methods.includes("mercadopago") ? (
         <button
           type="button"
-          className={`${btnClass} ml-2`}
+          className={btnClass}
           disabled={pending}
           onClick={() =>
             run(() =>
@@ -107,51 +180,9 @@ export function RegistrationMatriculaPayActions({
             )
           }
         >
+          <Landmark className="h-4 w-4" aria-hidden />
           {labels.mercadoPago}
         </button>
-      ) : null}
-      {showPay && variant !== "trial" && methods.includes("transfer") && transferInstructions ? (
-        <form
-          className="space-y-3 rounded-lg border border-[var(--color-border)] p-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const form = event.currentTarget;
-            const data = new FormData(form);
-            data.set("token", token);
-            data.set("locale", locale);
-            data.set("sectionLabel", sectionLabel);
-            setReceiptBusy(true);
-            run(async () => {
-              try {
-                const result = await uploadRegistrationEnrollmentReceiptAction(data);
-                if (result.ok) setReceiptOk(true);
-                return result;
-              } finally {
-                setReceiptBusy(false);
-              }
-            });
-          }}
-        >
-          <p className="font-medium">{labels.transfer}</p>
-          <p className="whitespace-pre-wrap text-sm text-[var(--color-muted-foreground)]">
-            {transferInstructions}
-          </p>
-          <p className="text-sm">{labels.transferHint}</p>
-          <input
-            type="file"
-            name="receipt"
-            required
-            accept={EVENT_TRANSFER_RECEIPT_ACCEPT}
-            className="block w-full text-sm"
-          />
-          {receiptBusy ? (
-            <InlineUploadProgressBar label={labels.uploadButton} indeterminate />
-          ) : null}
-          <button type="submit" className={btnClass} disabled={pending}>
-            {labels.uploadButton}
-          </button>
-          {receiptOk ? <p className="text-sm">{labels.receiptOk}</p> : null}
-        </form>
       ) : null}
       {showSwitch && proposedSectionId && labels.acceptOffer ? (
         <button
@@ -162,6 +193,7 @@ export function RegistrationMatriculaPayActions({
             run(() => switchRegistrationPaySectionAction(locale, token, proposedSectionId))
           }
         >
+          <Check className="h-4 w-4" aria-hidden />
           {labels.acceptOffer}
         </button>
       ) : null}
@@ -179,6 +211,7 @@ export function RegistrationMatriculaPayActions({
                     run(() => switchRegistrationPaySectionAction(locale, token, alt.id))
                   }
                 >
+                  <ArrowRight className="h-4 w-4" aria-hidden />
                   {alt.label}
                 </button>
               </li>
@@ -186,7 +219,7 @@ export function RegistrationMatriculaPayActions({
           </ul>
         </div>
       ) : null}
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
     </div>
   );
 }

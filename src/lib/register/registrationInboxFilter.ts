@@ -21,13 +21,17 @@ export function parseRegistrationInboxFilter(
   return "registered";
 }
 
-function feeMatch(chargingSectionIds: readonly string[]): string {
+const NO_SECTION =
+  "and(preferred_section_id.is.null,or(additional_section_ids.is.null,additional_section_ids.eq.{}))";
+
+function feeMatch(chargingSectionIds: readonly string[], openCohortDefaultFee: number): string {
   const parts = ["fee_snapshot->>total.gt.0"];
   if (chargingSectionIds.length > 0) {
     const list = chargingSectionIds.join(",");
     parts.push(`preferred_section_id.in.(${list})`);
     parts.push(`additional_section_ids.ov.{${list}}`);
   }
+  if (openCohortDefaultFee > 0) parts.push(NO_SECTION);
   return parts.join(",");
 }
 
@@ -39,9 +43,10 @@ export function applyRegistrationFunnelFilter<T>(
   query: T,
   stage: RegistrationInboxFilter,
   chargingSectionIds: readonly string[],
+  openCohortDefaultFee = 0,
 ): T {
   const builder = query as unknown as FunnelQuery;
-  const fees = feeMatch(chargingSectionIds);
+  const fees = feeMatch(chargingSectionIds, openCohortDefaultFee);
   let next = builder;
   if (stage === "registered") {
     next = unpaid(
@@ -69,6 +74,9 @@ export function applyRegistrationFunnelFilter<T>(
   } else {
     const noSnapshot = "fee_snapshot->>total.is.null,fee_snapshot->>total.eq.0";
     next = builder.eq("status", "contacted").or(noSnapshot);
+    if (openCohortDefaultFee > 0) {
+      next = next.or("preferred_section_id.not.is.null,additional_section_ids.neq.{}");
+    }
     if (chargingSectionIds.length > 0) {
       const list = chargingSectionIds.join(",");
       next = next.or(`preferred_section_id.is.null,preferred_section_id.not.in.(${list})`);

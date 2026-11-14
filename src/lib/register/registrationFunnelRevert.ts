@@ -14,6 +14,7 @@ export type FunnelRevertPatch = {
   enrollment_fee_paid_method?: null;
   enrollment_fee_paid_amount?: null;
   enrollment_fee_paid_on?: null;
+  enrollment_fee_receipt_path?: null;
 };
 
 export type FunnelRevertResult =
@@ -62,5 +63,7 @@ export function registrationFunnelRevert(row: RegistrationFunnelRow): FunnelReve
 
   const nextStage = registrationFunnelStage(afterPatch(row, patch));
   if (!nextStage) return { ok: false, code: "funnel_revert_not_allowed" };
-  return { ok: true, nextStage, patch };
+  const nextPatch =
+    nextStage === "awaiting_payment" ? { ...patch, enrollment_fee_receipt_path: null } : patch;
+  return { ok: true, nextStage, patch: nextPatch };
 }

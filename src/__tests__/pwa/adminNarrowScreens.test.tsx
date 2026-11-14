@@ -99,7 +99,7 @@ describe("admin narrow screens", () => {
         surface="web-mobile"
       />,
     );
-    expect(screen.getByText("B A")).toBeInTheDocument();
+    expect(screen.getAllByText("B A").length).toBeGreaterThan(0);
     await user.click(
       screen.getByRole("button", { name: new RegExp(dictEn.admin.registrations.mobileSortButton.replace("{{field}}", ".*")) }),
     );

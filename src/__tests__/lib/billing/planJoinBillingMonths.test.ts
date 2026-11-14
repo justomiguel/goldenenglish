@@ -1,9 +1,37 @@
 /** @vitest-environment node */
 import { describe, expect, it } from "vitest";
-import { planJoinBillingMonths } from "@/lib/billing/planJoinBillingMonths";
+import { firstAvailableCycleMonth, planJoinBillingMonths } from "@/lib/billing/planJoinBillingMonths";
 
 // REGRESSION CHECK: Changing prior-month bounds may mark mid-year joiners as overdue
 // in collections (plan-year scope) or skip months they never attended.
+
+describe("firstAvailableCycleMonth", () => {
+  const now = new Date("2026-11-13T15:00:00.000Z");
+
+  it("returns the cycle start when today is before the cohort", () => {
+    expect(firstAvailableCycleMonth({
+      startsOn: "2027-03-01",
+      endsOn: "2027-12-15",
+      now,
+    })).toEqual({ year: 2027, month: 3 });
+  });
+
+  it("returns the current month when today sits inside the cycle", () => {
+    expect(firstAvailableCycleMonth({
+      startsOn: "2026-01-01",
+      endsOn: "2026-12-31",
+      now,
+    })).toEqual({ year: 2026, month: 11 });
+  });
+
+  it("returns the cycle end when today is after the cohort", () => {
+    expect(firstAvailableCycleMonth({
+      startsOn: "2025-03-01",
+      endsOn: "2025-11-30",
+      now,
+    })).toEqual({ year: 2025, month: 11 });
+  });
+});
 
 describe("planJoinBillingMonths", () => {
   it("marks January–September as prior when the cycle starts in January and they join in October", () => {

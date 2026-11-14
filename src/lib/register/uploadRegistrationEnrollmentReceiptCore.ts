@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { revalidatePath } from "next/cache";
 import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
 import { sendRegistrationAdminEmails } from "@/lib/email/registrationIntakeEmails";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
@@ -96,6 +97,7 @@ export async function uploadRegistrationEnrollmentReceiptCore(input: {
     return { ok: false, code: "update_failed" };
   }
 
+  revalidatePath(`/${input.locale}/dashboard/admin/registrations`, "page");
   await notifyReceiptUploaded({
     lead,
     locale: input.locale as Locale,

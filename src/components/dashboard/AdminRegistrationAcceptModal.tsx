@@ -18,6 +18,8 @@ interface AdminRegistrationAcceptModalProps {
   labels: Dictionary["admin"]["registrations"];
   userLabels: RegistrationAcceptUserLabels;
   currentCohortSections?: CurrentCohortSection[];
+  cycleStartsOn?: string | null;
+  cycleEndsOn?: string | null;
   currentCohortName?: string;
   createSectionHref?: string | null;
 }
@@ -33,6 +35,8 @@ export function AdminRegistrationAcceptModal({
   labels,
   userLabels,
   currentCohortSections,
+  cycleStartsOn,
+  cycleEndsOn,
   currentCohortName,
   createSectionHref,
 }: AdminRegistrationAcceptModalProps) {
@@ -65,6 +69,8 @@ export function AdminRegistrationAcceptModal({
           labels={labels}
           userLabels={userLabels}
         currentCohortSections={currentCohortSections}
+        cycleStartsOn={cycleStartsOn}
+        cycleEndsOn={cycleEndsOn}
         currentCohortName={currentCohortName}
         createSectionHref={createSectionHref}
         />

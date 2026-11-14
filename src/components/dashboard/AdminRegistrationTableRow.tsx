@@ -5,6 +5,9 @@ import { ChevronDown, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Modal } from "@/components/atoms/Modal";
 import { AdminRegistrationFunnelPanel } from "@/components/dashboard/AdminRegistrationFunnelPanel";
+import { AdminRegistrationReceiptLink } from "@/components/dashboard/AdminRegistrationReceiptLink";
+import { AdminRegistrationMarkingDialog } from "@/components/dashboard/AdminRegistrationMarkingDialog";
+import { useMarkContactedWithLoader } from "@/hooks/useMarkContactedWithLoader";
 import { RegistrationContactCell } from "@/components/dashboard/RegistrationContactCell";
 import { RegistrationPageCheckbox } from "@/components/molecules/RegistrationPageCheckbox";
 import { AdminUserNameLink } from "@/components/molecules/AdminUserNameLink";
@@ -40,6 +43,8 @@ export interface AdminRegistrationTableRowProps {
   onStartJoinCharge: (row: AdminRegistrationRow) => void;
   sectionOptionsByCohort?: Record<string, RegistrationSectionPickerOption[]>;
   selectedCohortId?: string | null;
+  cycleStartsOn?: string | null;
+  cycleEndsOn?: string | null;
   rowSelected?: boolean;
   onToggleSelected?: (id: string) => void;
 }
@@ -63,6 +68,8 @@ export function AdminRegistrationTableRow({
   onStartJoinCharge: _onStartJoinCharge,
   sectionOptionsByCohort,
   selectedCohortId,
+  cycleStartsOn,
+  cycleEndsOn,
   rowSelected = false,
   onToggleSelected,
 }: AdminRegistrationTableRowProps) {
@@ -70,6 +77,7 @@ export function AdminRegistrationTableRow({
   void _onRevertToNew;
   void _onStartJoinCharge;
   const [actionsOpen, setActionsOpen] = useState(false);
+  const marking = useMarkContactedWithLoader(onMarkContacted, () => setActionsOpen(false));
   const intakeLabel = formatRegistrationIntakeLabel({
     intakeState: r.intakeState,
     requestedSectionFull: r.requestedSectionFull,
@@ -173,6 +181,17 @@ export function AdminRegistrationTableRow({
             {intakeLabel}
           </span>
         ) : null}
+        {r.enrollmentFeeFamilyClaim === "cash" ? (
+          <span className="mt-1 inline-flex w-fit items-center rounded-full bg-[var(--color-accent)]/15 px-2 py-0.5 text-xs font-medium text-[var(--color-foreground)]">
+            {labels.intake.cashClaimed}
+          </span>
+        ) : null}
+        {r.enrollmentFeeReceiptPath ? (
+          <AdminRegistrationReceiptLink
+            registrationId={r.id}
+            label={labels.intake.viewReceipt}
+          />
+        ) : null}
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top text-[var(--color-muted-foreground)]">
         {r.created_at ? new Date(r.created_at).toLocaleString(locale) : labels.emptyValue}
@@ -188,19 +207,27 @@ export function AdminRegistrationTableRow({
             row={r}
             labels={labels}
             busy={busy}
-            sections={cohortSectionChoices(
-              r.status === "enrolled" ? selectedCohortId : r.preferredSectionCohortId,
-              sectionOptionsByCohort,
-            )}
+            sections={cohortSectionChoices(selectedCohortId, sectionOptionsByCohort)}
             selectedCohortId={selectedCohortId ?? undefined}
+            cycleStartsOn={cycleStartsOn}
+            cycleEndsOn={cycleEndsOn}
             contact={contact}
             onStartEnrollmentFee={onStartEnrollmentFee}
-            onMarkContacted={onMarkContacted}
+            onMarkContacted={marking.mark}
             onEdit={onEdit}
             onDelete={onDelete}
             onClose={() => setActionsOpen(false)}
+            onWork={marking.track}
           />
         </Modal>
+        <AdminRegistrationMarkingDialog
+          open={marking.open}
+          error={marking.error}
+          onClose={marking.dismiss}
+          titleId={`registration-marking-${r.id}`}
+          title={marking.error ? labels.funnel.workingErrorTitle : labels.funnel.markingTitle}
+          body={labels.funnel.markingBody}
+        />
       </td>
     </tr>
   );

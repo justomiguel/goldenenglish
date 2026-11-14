@@ -6,6 +6,7 @@ import {
   registrationMatriculaAmount,
   registrationMatriculaFailureMessage,
   registrationMatriculaLines,
+  registrationSectionAssignCohort,
   sectionAssignedRegistrationWrite,
   sectionMatchesRegisteredCohort,
 } from "@/lib/register/registrationMatriculaAlta";
@@ -24,10 +25,19 @@ describe("registrationMatriculaAlta", () => {
     );
   });
 
-  it("uses the live fee when the snapshot total is zero", () => {
-    expect(registrationMatriculaAmount(0, 120)).toBe(120);
-    expect(registrationMatriculaAmount(80, 120)).toBe(80);
-    expect(registrationMatriculaAmount(0, 0)).toBe(0);
+  it("uses the cohort matrícula before the section and the snapshot", () => {
+    expect(
+      registrationMatriculaAmount({ cohortAmount: 55000, sectionAmount: 50000, snapshotTotal: 0 }),
+    ).toBe(55000);
+    expect(
+      registrationMatriculaAmount({ cohortAmount: 0, sectionAmount: 50000, snapshotTotal: 80 }),
+    ).toBe(50000);
+    expect(
+      registrationMatriculaAmount({ cohortAmount: 0, sectionAmount: 0, snapshotTotal: 80 }),
+    ).toBe(80);
+    expect(
+      registrationMatriculaAmount({ cohortAmount: 0, sectionAmount: 0, snapshotTotal: 0 }),
+    ).toBe(0);
   });
 
   it("shows the Mercado Pago line and keeps the approved student on the row", () => {
@@ -60,6 +70,23 @@ describe("registrationMatriculaAlta", () => {
         acceptedStudentId: "stu-1",
       }),
     ).toEqual(["in_person", "approved_without_section"]);
+  });
+
+  it("lets a paid lead without a preferred section join a real section", () => {
+    expect(
+      registrationSectionAssignCohort({
+        preferredSectionId: null,
+        preferredCohortId: null,
+        sectionCohortId: "cohort-2027",
+      }),
+    ).toEqual({ ok: true });
+    expect(
+      registrationSectionAssignCohort({
+        preferredSectionId: "sec-1",
+        preferredCohortId: "cohort-2027",
+        sectionCohortId: "cohort-2026",
+      }).ok,
+    ).toBe(false);
   });
 
   it("matches a section only inside the registered cohort", () => {

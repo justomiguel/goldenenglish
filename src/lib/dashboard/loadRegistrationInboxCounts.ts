@@ -4,10 +4,19 @@ import {
   emptyRegistrationInboxCounts,
   type RegistrationInboxCounts,
 } from "@/lib/register/countRegistrationInboxFilters";
-import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistrationSectionIds";
-import { loadAllChargingSectionIds } from "@/lib/register/markRegistrationRowsEnrollmentFee";
+import {
+  loadAllChargingSectionIds,
+  markRegistrationRowsEnrollmentFee,
+} from "@/lib/register/markRegistrationRowsEnrollmentFee";
+import { loadCohortEnrollmentFeeAmount } from "@/lib/register/loadCohortEnrollmentFeeAmount";
+import { loadOpenCohortEnrollmentDefault } from "@/lib/register/loadOpenCohortEnrollmentDefault";
 import { snapshotTotalFromUnknown } from "@/lib/register/registrationIntake";
 import { registrationBelongsToCohort } from "@/lib/register/registrationCohortMembership";
+import {
+  emptyRegistrationCohortCardCounts,
+  registrationCohortCardCounts,
+  type RegistrationCohortCardCounts,
+} from "@/lib/register/registrationCohortCardCounts";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
   activeSectionCohortIds,
@@ -16,6 +25,12 @@ import {
 } from "@/lib/dashboard/registrationCohortFacts";
 
 export type { RegistrationInboxCounts };
+export type { RegistrationCohortCardCounts };
+
+export type RegistrationInboxLoad = {
+  inbox: RegistrationInboxCounts;
+  cards: RegistrationCohortCardCounts;
+};
 
 const PAGE = 1000;
 const COLUMNS = [
@@ -59,28 +74,47 @@ async function readRows(supabase: SupabaseClient, excludeEnrolled: boolean): Pro
   return rows;
 }
 
-function countRows(rows: CountRow[], charging: ReadonlySet<string>): RegistrationInboxCounts {
+function countRows(
+  rows: CountRow[],
+  charging: ReadonlySet<string>,
+  openCohortFee: number,
+): RegistrationInboxCounts {
   return countRegistrationInboxFilters(
-    rows.map((row) => ({
-      ...row,
-      chargesEnrollmentFee:
-        snapshotTotalFromUnknown(row.fee_snapshot) > 0 ||
-        requestedRegistrationSectionIds({
-          preferred_section_id: row.preferred_section_id ?? null,
-          additionalSectionIds: row.additional_section_ids ?? [],
-        }).some((id) => charging.has(id)),
-    })),
+    markRegistrationRowsEnrollmentFee(
+      rows.map((row) => ({
+        ...row,
+        preferred_section_id: row.preferred_section_id ?? null,
+        additionalSectionIds: row.additional_section_ids ?? [],
+        snapshotTotal: snapshotTotalFromUnknown(row.fee_snapshot),
+      })),
+      charging,
+      openCohortFee,
+    ),
   );
 }
 
 export async function loadRegistrationInboxCounts(
   supabase: SupabaseClient,
   scope?: RegistrationCohortScope,
-): Promise<RegistrationInboxCounts> {
-  const charging = new Set(await loadAllChargingSectionIds(supabase));
-  const rows = await readRows(supabase, !scope);
-  if (!rows) return emptyRegistrationInboxCounts();
-  if (!scope) return countRows(rows, charging);
+): Promise<RegistrationInboxLoad> {
+  const [chargingIds, cohortFee, rows] = await Promise.all([
+    loadAllChargingSectionIds(supabase),
+    scope
+      ? loadCohortEnrollmentFeeAmount(supabase, scope.selectedCohortId)
+      : loadOpenCohortEnrollmentDefault(supabase).then((row) => row?.amount ?? 0),
+    readRows(supabase, !scope),
+  ]);
+  const charging = new Set(chargingIds);
+  const openCohortFee = cohortFee;
+  if (!rows) {
+    return { inbox: emptyRegistrationInboxCounts(), cards: emptyRegistrationCohortCardCounts() };
+  }
+  if (!scope) {
+    return {
+      inbox: countRows(rows, charging, openCohortFee),
+      cards: registrationCohortCardCounts(rows),
+    };
+  }
 
   const [sectionCohorts, facts] = await Promise.all([
     loadSectionCohortById(supabase),
@@ -102,5 +136,8 @@ export async function loadRegistrationInboxCounts(
       activeSectionCohortIds: activeSectionCohortIds(facts, studentId),
     });
   });
-  return countRows(kept, charging);
+  return {
+    inbox: countRows(kept, charging, openCohortFee),
+    cards: registrationCohortCardCounts(kept),
+  };
 }

@@ -14,8 +14,9 @@ import {
   gatewaySupportsBillingCurrency,
 } from "@/lib/payment-gateways/gatewayCountryForBillingCurrency";
 import type { PaymentGatewayCountryCode } from "@/types/paymentGateway";
+import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
+import { enrollmentFeeChargeCurrency } from "@/lib/register/enrollmentFeeChargeCurrency";
 import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
-import { buildMatriculaPayPath } from "@/lib/site/publicSharePaths";
 import { isPubliclyReachableUrl } from "@/lib/site/isPubliclyReachableUrl";
 import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
 import { requestedSectionsHaveOpenSeats } from "@/lib/register/requestedSectionsHaveOpenSeats";
@@ -67,7 +68,8 @@ export async function startRegistrationEnrollmentGatewayCore(input: {
   const payerEmail = await familyEmailFromPayLead(lead);
   if (!payerEmail) return { ok: false, code: "no_payer_email" };
 
-  const currency = lead.snapshotCurrency.trim().toUpperCase();
+  const billing = await loadBillingCurrencySetting(input.admin);
+  const currency = enrollmentFeeChargeCurrency(lead.snapshotCurrency, billing.currency);
   const country = gatewayCountryForBillingCurrency(currency);
   if (!country) return { ok: false, code: "currency_unsupported" };
   if (!gatewaySupportsBillingCurrency(input.method, currency)) {
@@ -79,8 +81,11 @@ export async function startRegistrationEnrollmentGatewayCore(input: {
   const originStr = origin.toString();
   const amount = Math.round(lead.snapshotTotal);
   const title = `Matrícula ${lead.firstName} ${lead.lastName}`.trim();
-  const returnUrl = new URL(buildMatriculaPayPath(input.locale, "", input.payToken), originStr);
-  returnUrl.searchParams.set("paid", "1");
+  const returnUrl = new URL("/api/register/enrollment-pay-return", originStr);
+  returnUrl.searchParams.set("locale", input.locale);
+  returnUrl.searchParams.set("pay", input.payToken);
+  returnUrl.searchParams.set("slug", "pago");
+  returnUrl.searchParams.set("country", country);
 
   if (input.method === "mercadopago") {
     return startMercadoPago({

@@ -60,7 +60,9 @@ function mockRegistrationsTable(
                     },
               error: null,
             }),
+          limit: () => Promise.resolve({ data: [], error: null }),
         }),
+        is: () => Promise.resolve({ data: [], error: null }),
       }),
       update,
     },
@@ -146,6 +148,47 @@ describe("markRegistrationContacted", () => {
 
     expect(r.ok).toBe(true);
     expect(mockAccept).toHaveBeenCalled();
+    expect(m.update).toHaveBeenCalled();
+  });
+
+  it("does not create the student when the open cohort charges matrícula", async () => {
+    const m = mockRegistrationsTable("new", null, 0);
+    const cohortId = "9c97bc3f-1592-4735-9947-ce243e65333b";
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "site_settings") {
+        return {
+          select: () => ({
+            eq: () => ({
+              limit: () => Promise.resolve({ data: [{ value: cohortId }], error: null }),
+            }),
+          }),
+        };
+      }
+      if (table === "academic_cohorts") {
+        return {
+          select: () => ({
+            is: () =>
+              Promise.resolve({
+                data: [
+                  {
+                    id: cohortId,
+                    name: "2027",
+                    is_current: true,
+                    default_enrollment_fee_amount: 55000,
+                  },
+                ],
+                error: null,
+              }),
+          }),
+        };
+      }
+      return m.table;
+    });
+
+    const r = await markRegistrationContacted("es", REG_ID);
+
+    expect(r.ok).toBe(true);
+    expect(mockAccept).not.toHaveBeenCalled();
     expect(m.update).toHaveBeenCalled();
   });
 

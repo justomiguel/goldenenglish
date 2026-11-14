@@ -53,6 +53,24 @@ describe("applyRegistrationFunnelFilter", () => {
     expect(calls.join("\n")).toContain("preferred_section_id.in.(sec-1)");
   });
 
+  it("includes a section-less lead when the open cohort charges matrícula", () => {
+    const { query, calls } = capture();
+    applyRegistrationFunnelFilter(query, "contacted", [], 55000);
+    const text = calls.join("\n");
+    expect(text).toContain("eq status contacted");
+    expect(text).toContain("preferred_section_id.is.null");
+    expect(text).toContain("additional_section_ids.eq.{}");
+  });
+
+  it("keeps a section-less cohort-fee lead out of waiting for a section", () => {
+    const { query, calls } = capture();
+    applyRegistrationFunnelFilter(query, "awaiting_section", [], 55000);
+    const text = calls.join("\n");
+    expect(text).toContain("eq status contacted");
+    expect(text).toContain("preferred_section_id.not.is.null");
+    expect(text).toContain("additional_section_ids.neq.{}");
+  });
+
   it("keeps a zero-fee lead out of the payment stage", () => {
     const { query, calls } = capture();
     applyRegistrationFunnelFilter(query, "awaiting_section", []);

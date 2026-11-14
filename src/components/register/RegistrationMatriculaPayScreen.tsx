@@ -1,14 +1,12 @@
 import type { ReactNode } from "react";
-import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
 import { fillTemplate } from "@/lib/i18n/fillTemplate";
-import { formatJoinPackageBreakdown } from "@/lib/register/formatJoinPackageCopy";
-import { parseJoinPackageSnapshot } from "@/lib/register/parseJoinPackageSnapshot";
 import type { RegistrationPayContext } from "@/lib/register/parseRegistrationPayContext";
 import { registrationPayPageKind } from "@/lib/register/registrationPayPageKind";
 import {
   RegistrationMatriculaPayActions,
   type RegistrationMatriculaPayActionLabels,
 } from "@/components/register/RegistrationMatriculaPayActions";
+import { RegistrationMatriculaPayDue } from "@/components/register/RegistrationMatriculaPayDue";
 import type { RegistrationPublicPayMethod } from "@/lib/register/resolveRegistrationPublicPayMethods";
 
 export type RegistrationMatriculaPayLabels = {
@@ -30,6 +28,10 @@ export type RegistrationMatriculaPayLabels = {
   offerLead?: string;
   offerAccept?: string;
   offerGone?: string;
+  leaving?: string;
+  gatewayRejected?: string;
+  gatewayPending?: string;
+  cashOk?: string;
 };
 
 function OfferLeadText({ text }: { text: string }) {
@@ -105,6 +107,8 @@ export function RegistrationMatriculaPayScreen({
   sectionIsFull,
   labels,
   payUi,
+  result,
+  homeHref,
 }: {
   locale: string;
   studentName: string;
@@ -114,6 +118,8 @@ export function RegistrationMatriculaPayScreen({
   sectionIsFull: boolean;
   labels: RegistrationMatriculaPayLabels;
   payUi?: RegistrationMatriculaPayUi;
+  result?: string;
+  homeHref?: string;
 }) {
   const hasProposed = Boolean(context.proposedSectionId);
   const kind = registrationPayPageKind({
@@ -124,11 +130,8 @@ export function RegistrationMatriculaPayScreen({
     sectionIsFull,
     hasProposed,
     proposedIsFull: !hasProposed && context.intakeState === "offer_pending",
+    familyClaim: context.familyClaim,
   });
-  const amount =
-    context.snapshotTotal > 0
-      ? formatMoneyLabel(context.snapshotTotal, context.snapshotCurrency, locale)
-      : null;
   const showSwitch =
     kind === "section_full" ||
     kind === "captured_full" ||
@@ -159,7 +162,9 @@ export function RegistrationMatriculaPayScreen({
         ? labels.needsSection
         : kind === "receipt_pending"
           ? labels.receiptPending
-          : kind === "captured"
+          : kind === "cash_claimed"
+            ? labels.cashOk ?? ""
+            : kind === "captured"
             ? labels.captured
             : kind === "captured_full"
               ? labels.capturedFull
@@ -176,16 +181,30 @@ export function RegistrationMatriculaPayScreen({
       <p className="mt-3">
         {studentName} · {sectionLabel}
       </p>
-      <p className="mt-3 text-[var(--color-muted-foreground)]">
-        {kind === "offer" ? <OfferLeadText text={leadCopy} /> : leadCopy}
-      </p>
-      {kind === "pay" && amount ? (
-        <p className="mt-6 text-lg font-medium">
-          {formatJoinPackageBreakdown(parseJoinPackageSnapshot(context.feeSnapshot), locale, {
-            enrollment: labels.enrollmentKind,
-          }) || labels.amount}
-          : {amount}
+      {kind === "pay" ? null : (
+        <p className="mt-3 text-[var(--color-muted-foreground)]">
+          {kind === "offer" ? <OfferLeadText text={leadCopy} /> : leadCopy}
         </p>
+      )}
+      <RegistrationMatriculaPayDue
+        locale={locale}
+        showAmount={kind === "pay"}
+        total={context.snapshotTotal}
+        currency={context.snapshotCurrency}
+        feeSnapshot={context.feeSnapshot}
+        enrollmentKind={labels.enrollmentKind}
+        amountLabel={labels.amount}
+        result={result}
+        rejectedLabel={labels.gatewayRejected}
+        pendingLabel={labels.gatewayPending}
+        errorLabel={payUi?.actionLabels.error}
+        failures={payUi?.actionLabels.failures}
+        homeHref={homeHref}
+        leavingLabel={labels.leaving}
+        leave={result === "paid" || kind === "receipt_pending" || kind === "cash_claimed"}
+      />
+      {showPay && payUi && payUi.methods.length === 0 && !payUi.actionLabels.cash ? (
+        <p className="mt-4">{labels.noMethods}</p>
       ) : null}
       {showSwitch && payUi && payUi.alternatives.length === 0 ? (
         <p className="mt-4">{labels.noAlternatives}</p>
@@ -206,6 +225,8 @@ export function RegistrationMatriculaPayScreen({
             acceptOffer: payUi.actionLabels.acceptOffer ?? labels.offerAccept,
           }}
           variant={payUi.variant}
+          homeHref={homeHref}
+          leavingLabel={labels.leaving}
         />
       ) : null}
       {showContact && payUi ? (

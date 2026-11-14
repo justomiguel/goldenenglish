@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { registrationFunnelStage } from "@/lib/register/registrationFunnelStage";
+import {
+  registrationFunnelStage,
+  registrationFunnelStagesForCohort,
+  visibleRegistrationInboxFilter,
+} from "@/lib/register/registrationFunnelStage";
 
 describe("registrationFunnelStage", () => {
   it("walks a fee lead from contact to paid without a section", () => {
@@ -46,7 +50,7 @@ describe("registrationFunnelStage", () => {
         chargesEnrollmentFee: true,
         snapshotTotal: 0,
       }),
-    ).not.toBe("awaiting_section");
+    ).toBe("contacted");
     expect(
       registrationFunnelStage({
         status: "contacted",
@@ -61,6 +65,32 @@ describe("registrationFunnelStage", () => {
         acceptedStudentId: "stu-1",
       }),
     ).toBe("registered");
+  });
+
+  it("lists fee stages and hides the no-fee stage", () => {
+    expect(registrationFunnelStagesForCohort(true)).toEqual([
+      "registered",
+      "contacted",
+      "awaiting_payment",
+      "paid_without_section",
+      "enrolled_in_section",
+    ]);
+  });
+
+  it("lists the three stages when the cohort has no matrícula", () => {
+    expect(registrationFunnelStagesForCohort(false)).toEqual([
+      "registered",
+      "awaiting_section",
+      "enrolled_in_section",
+    ]);
+  });
+
+  it("opens pre-enrolled when the URL names a hidden stage", () => {
+    expect(visibleRegistrationInboxFilter("awaiting_section", true)).toBe("registered");
+    expect(visibleRegistrationInboxFilter("contacted", false)).toBe("registered");
+    expect(visibleRegistrationInboxFilter("paid_without_section", true)).toBe(
+      "paid_without_section",
+    );
   });
 
   it("keeps an unpaid approved student out of the paid stage", () => {

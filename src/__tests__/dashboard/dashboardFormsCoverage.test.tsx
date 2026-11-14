@@ -262,10 +262,10 @@ describe("dashboard coverage", () => {
         {...REG_CONTACT_PROPS}
       />,
     );
-    expect(screen.getByText("B1")).toBeInTheDocument();
+    expect(screen.getAllByText("B1").length).toBeGreaterThan(0);
     // The email moved into the expandable panel to make room for the two phones.
     fireEvent.click(screen.getByRole("button", { name: R.expandRow }));
-    expect(screen.getByText("raw@x.co")).toBeInTheDocument();
+    expect(screen.getAllByText("raw@x.co").length).toBeGreaterThan(0);
   });
 
   it("AdminRegistrationsList shows contacted status and delete error toast", async () => {

@@ -1,3 +1,5 @@
+import { registrationFeeFamilyClaim } from "@/lib/register/registrationFeeFamilyClaim";
+
 export type RegistrationPayContext = {
   firstName: string;
   lastName: string;
@@ -10,6 +12,7 @@ export type RegistrationPayContext = {
   preferredSectionId: string | null;
   proposedSectionId: string | null;
   additionalSectionIds: string[];
+  familyClaim?: "cash" | null;
 };
 
 export function parseRegistrationPayContext(raw: unknown): RegistrationPayContext | null {
@@ -37,6 +40,7 @@ export function parseRegistrationPayContext(raw: unknown): RegistrationPayContex
     additionalSectionIds: Array.isArray(r.additional_section_ids)
       ? r.additional_section_ids.map((id) => String(id)).filter(Boolean)
       : [],
+    familyClaim: registrationFeeFamilyClaim(r.fee_snapshot),
   };
 }
 

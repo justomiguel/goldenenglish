@@ -9,6 +9,8 @@ const STUDENT = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 function memoryPort(init?: {
   startsOn?: string | null;
   endsOn?: string | null;
+  cohortStartsOn?: string | null;
+  cohortEndsOn?: string | null;
   billingMode?: string;
   enrollmentFeeAmount?: number | null;
   enrollmentFeeExempt?: boolean;
@@ -45,8 +47,10 @@ function memoryPort(init?: {
     async loadSectionFacts(_studentId, sectionIds) {
       return sectionIds.map((sectionId) => ({
         sectionId,
-        startsOn: init?.startsOn ?? "2026-01-01",
-        endsOn: init?.endsOn ?? "2026-12-31",
+        startsOn: init?.startsOn === undefined ? "2026-01-01" : init.startsOn,
+        endsOn: init?.endsOn === undefined ? "2026-12-31" : init.endsOn,
+        cohortStartsOn: init?.cohortStartsOn ?? null,
+        cohortEndsOn: init?.cohortEndsOn ?? null,
         billingMode: init?.billingMode ?? "section_monthly_fee",
         enrollmentFeeAmount: init?.enrollmentFeeAmount ?? 50000,
         enrollmentFeeExempt: init?.enrollmentFeeExempt ?? false,
@@ -100,6 +104,38 @@ describe("applyJoinBillingDisposition", () => {
     expect(port.exempts.map((r) => r.month)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
     expect(port.approved).toEqual([{ year: 2026, month: 10 }]);
     expect(port.stampedPaid).toBe(true);
+  });
+
+  it("approves the cohort start month when the cycle is still in the future", async () => {
+    const port = memoryPort({ startsOn: "2027-03-01", endsOn: "2027-12-31" });
+    const result = await applyJoinBillingDisposition(port, {
+      studentId: STUDENT,
+      sectionIds: [SECTION],
+      disposition: { kind: "current" },
+      actorId: "admin-1",
+      now: new Date("2026-11-13T15:00:00.000Z"),
+    });
+    expect(result).toEqual({ ok: true });
+    expect(port.approved).toEqual([{ year: 2027, month: 3 }]);
+    expect(port.exempts).toEqual([]);
+  });
+
+  it("uses the section cohort dates when the section dates are empty", async () => {
+    const port = memoryPort({
+      startsOn: null,
+      endsOn: null,
+      cohortStartsOn: "2027-03-01",
+      cohortEndsOn: "2027-12-31",
+    });
+    const result = await applyJoinBillingDisposition(port, {
+      studentId: STUDENT,
+      sectionIds: [SECTION],
+      disposition: { kind: "current" },
+      actorId: "admin-1",
+      now: new Date("2026-11-13T15:00:00.000Z"),
+    });
+    expect(result).toEqual({ ok: true });
+    expect(port.approved).toEqual([{ year: 2027, month: 3 }]);
   });
 
   it("approves the frozen snapshot month instead of calendar now", async () => {

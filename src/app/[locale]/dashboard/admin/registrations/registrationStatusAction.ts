@@ -9,6 +9,7 @@ import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serv
 import { auditIdentityAction } from "@/lib/audit";
 import { acceptRegistrationLead } from "@/lib/register/acceptRegistrationLead";
 import { collectSectionsChargingEnrollmentFee } from "@/lib/register/markRegistrationRowsEnrollmentFee";
+import { loadOpenCohortEnrollmentDefault } from "@/lib/register/loadOpenCohortEnrollmentDefault";
 import {
   REGISTRATION_PENDING_STATUSES,
   registrationIsActionable,
@@ -120,6 +121,10 @@ async function promoteZeroFeeContact(
   if (!charges && sectionIds.length > 0) {
     const charging = await collectSectionsChargingEnrollmentFee(admin, sectionIds);
     charges = sectionIds.some((id) => charging.has(id));
+  }
+  if (!charges && sectionIds.length === 0) {
+    const inherited = await loadOpenCohortEnrollmentDefault(admin);
+    charges = (inherited?.amount ?? 0) > 0;
   }
   if (charges) return { ok: true };
   const accepted = await acceptRegistrationLead({

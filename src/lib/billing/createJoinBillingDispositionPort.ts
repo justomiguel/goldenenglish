@@ -6,6 +6,16 @@ import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const JOIN_NOTE = "join_billing_disposition";
 
+function cohortCycleDates(value: unknown): { startsOn: string | null; endsOn: string | null } {
+  const row = Array.isArray(value) ? value[0] : value;
+  if (!row || typeof row !== "object") return { startsOn: null, endsOn: null };
+  const dates = row as { starts_on?: unknown; ends_on?: unknown };
+  return {
+    startsOn: dates.starts_on != null ? String(dates.starts_on) : null,
+    endsOn: dates.ends_on != null ? String(dates.ends_on) : null,
+  };
+}
+
 export function createJoinBillingDispositionPort(
   admin: SupabaseClient,
 ): JoinBillingDispositionPort {
@@ -13,7 +23,9 @@ export function createJoinBillingDispositionPort(
     async loadSectionFacts(studentId, sectionIds) {
       const { data: sections, error: secErr } = await admin
         .from("academic_sections")
-        .select("id, starts_on, ends_on, billing_mode, enrollment_fee_amount")
+        .select(
+          "id, starts_on, ends_on, billing_mode, enrollment_fee_amount, academic_cohorts(starts_on, ends_on)",
+        )
         .in("id", sectionIds);
       if (secErr) {
         logSupabaseClientError("joinBilling:loadSections", secErr, { sectionIds });
@@ -33,10 +45,11 @@ export function createJoinBillingDispositionPort(
       );
       return (sections ?? []).map((row) => {
         const enroll = enrollBySection.get(String(row.id));
+        const cohort = cohortCycleDates(row.academic_cohorts);
         return {
           sectionId: String(row.id),
-          startsOn: row.starts_on != null ? String(row.starts_on) : null,
-          endsOn: row.ends_on != null ? String(row.ends_on) : null,
+          startsOn: row.starts_on != null ? String(row.starts_on) : cohort.startsOn,
+          endsOn: row.ends_on != null ? String(row.ends_on) : cohort.endsOn,
           billingMode: row.billing_mode != null ? String(row.billing_mode) : null,
           enrollmentFeeAmount: parseOptionalFeeAmount(row.enrollment_fee_amount),
           enrollmentFeeExempt: Boolean(enroll?.enrollment_fee_exempt),

@@ -40,4 +40,19 @@ describe("AdminRegistrationJoinBillingFields", () => {
       scope: "join_month",
     });
   });
+
+  it("previews the cohort start month when the cohort has not started", () => {
+    render(
+      <AdminRegistrationJoinBillingFields
+        locale="en"
+        namePrefix="join"
+        value={null}
+        onChange={vi.fn()}
+        labels={labels}
+        cycleStartsOn="2027-03-01"
+        cycleEndsOn="2027-12-15"
+      />,
+    );
+    expect(screen.getByText("Mar: owed")).toBeInTheDocument();
+  });
 });

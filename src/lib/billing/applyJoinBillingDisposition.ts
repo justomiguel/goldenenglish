@@ -1,5 +1,5 @@
 import type { JoinBillingDisposition } from "@/lib/billing/joinBillingDispositionSchema";
-import { planJoinBillingMonths } from "@/lib/billing/planJoinBillingMonths";
+import { firstAvailableCycleMonth, planJoinBillingMonths } from "@/lib/billing/planJoinBillingMonths";
 import { isPeriodCoveredByScholarship } from "@/lib/billing/scholarshipPeriod";
 import { sectionIsClassPackBilled } from "@/lib/billing/sectionBillingMode";
 
@@ -12,6 +12,8 @@ export type JoinSectionFacts = {
   enrollmentFeeExempt: boolean;
   lastEnrollmentPaidAt: string | null;
   enrollmentId: string | null;
+  cohortStartsOn?: string | null;
+  cohortEndsOn?: string | null;
 };
 
 export type JoinPaymentRow = { year: number; month: number; status: string };
@@ -83,20 +85,23 @@ export async function applyJoinBillingDisposition(
   input: ApplyJoinBillingDispositionInput,
 ): Promise<{ ok: true } | { ok: false; code: "seed_failed" }> {
   const now = input.now ?? new Date();
-  const fallbackYear = now.getFullYear();
-  const fallbackMonth = now.getMonth() + 1;
   const uniqueIds = [...new Set(input.sectionIds.filter(Boolean))];
   if (uniqueIds.length === 0) return { ok: true };
   const facts = await port.loadSectionFacts(input.studentId, uniqueIds);
   if (facts.length === 0) return { ok: false, code: "seed_failed" };
   for (const section of facts) {
     const frozen = input.joinMonths?.[section.sectionId];
+    const cycleMonth = firstAvailableCycleMonth({
+      startsOn: section.startsOn ?? section.cohortStartsOn ?? null,
+      endsOn: section.endsOn ?? section.cohortEndsOn ?? null,
+      now,
+    });
     const seeded = await seedOneSection(
       port,
       input,
       section,
-      frozen?.year ?? fallbackYear,
-      frozen?.month ?? fallbackMonth,
+      frozen?.year ?? cycleMonth.year,
+      frozen?.month ?? cycleMonth.month,
     );
     if (!seeded.ok) return seeded;
   }

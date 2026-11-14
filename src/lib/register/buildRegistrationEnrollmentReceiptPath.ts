@@ -19,6 +19,13 @@ function extFromMime(mime: string): string {
   return "bin";
 }
 
+export function registrationReceiptObjectPath(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const path = value.trim();
+  if (!path || path.includes("..") || path.startsWith("/")) return null;
+  return path;
+}
+
 export function buildRegistrationEnrollmentReceiptPath(args: {
   registrationId: string;
   filename: string;

@@ -67,6 +67,27 @@ export const adminReceiptPendingTemplate: EmailTemplateDefinition = {
   }),
 };
 
+export const adminCashClaimedTemplate: EmailTemplateDefinition = {
+  key: "registration.admin_cash_claimed",
+  category: "notifications",
+  label: { es: "Inscripción: avisó pago en efectivo (admin)", en: "Registration: cash payment reported (admin)" },
+  description: {
+    es: "La familia avisó que pagó la matrícula en efectivo. El admin confirma o no.",
+    en: "The family reported a cash enrollment payment. The admin confirms it or not.",
+  },
+  placeholders: REGISTRATION_ADMIN_PLACEHOLDERS,
+  defaults: withPtFallback({
+    es: {
+      subject: "Avisó pago en efectivo · {{studentName}}",
+      bodyHtml: adminBody("La familia avisó que pagó la matrícula en efectivo. Confirma el pago en inscripciones."),
+    },
+    en: {
+      subject: "Cash payment reported · {{studentName}}",
+      bodyHtml: adminBody("The family reported a cash enrollment payment. Confirm it in registrations."),
+    },
+  }),
+};
+
 export const adminEnrolledTemplate: EmailTemplateDefinition = {
   key: "registration.admin_enrolled",
   category: "notifications",

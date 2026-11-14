@@ -15,9 +15,15 @@ export function matriculaBlocksManualAlta(row: {
   return due && row.feeCaptured !== true;
 }
 
-export function registrationMatriculaAmount(snapshotTotal: number, liveAmount: number): number {
-  if (snapshotTotal > 0) return snapshotTotal;
-  return liveAmount > 0 ? liveAmount : 0;
+export function registrationMatriculaAmount(input: {
+  cohortAmount: number;
+  sectionAmount: number;
+  snapshotTotal: number;
+}): number {
+  if (input.cohortAmount > 0) return input.cohortAmount;
+  if (input.sectionAmount > 0) return input.sectionAmount;
+  if (input.snapshotTotal > 0) return input.snapshotTotal;
+  return 0;
 }
 
 export function registrationMatriculaLines(row: {
@@ -42,6 +48,20 @@ export function registrationMatriculaLines(row: {
     lines.push("approved_without_section");
   }
   return lines;
+}
+
+export function registrationSectionAssignCohort(input: {
+  preferredSectionId: string | null;
+  preferredCohortId: string | null;
+  sectionCohortId: string | null;
+}): { ok: true } | { ok: false; code: "no_cohort" | "section_cohort_mismatch" } {
+  if (!input.sectionCohortId) return { ok: false, code: "no_cohort" };
+  if (!input.preferredSectionId) return { ok: true };
+  if (!input.preferredCohortId) return { ok: false, code: "no_cohort" };
+  if (!sectionMatchesRegisteredCohort(input.sectionCohortId, input.preferredCohortId)) {
+    return { ok: false, code: "section_cohort_mismatch" };
+  }
+  return { ok: true };
 }
 
 export function sectionMatchesRegisteredCohort(

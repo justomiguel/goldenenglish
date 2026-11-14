@@ -29,6 +29,7 @@ describe("registrationFunnelRevert", () => {
     expect(fromPaid.ok).toBe(true);
     if (!fromPaid.ok) return;
     expect(fromPaid.nextStage).toBe("awaiting_payment");
+    expect(fromPaid.patch.enrollment_fee_receipt_path).toBeNull();
     expect(fromPaid.patch).not.toHaveProperty("accepted_student_id");
     row = apply(row, fromPaid.patch);
     expect(row.acceptedStudentId).toBe("stu-1");

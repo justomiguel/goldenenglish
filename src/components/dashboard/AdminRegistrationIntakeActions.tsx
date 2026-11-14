@@ -31,7 +31,7 @@ export function AdminRegistrationIntakeActions({
   labels,
   joinBilling,
   sections,
-  busy,
+  cycleStartsOn, cycleEndsOn, busy,
   onBusy,
   onDone,
   createSectionHref,
@@ -43,6 +43,7 @@ export function AdminRegistrationIntakeActions({
   labels: IntakeLabels;
   joinBilling: Dictionary["admin"]["registrations"]["joinBilling"];
   sections: CurrentCohortSection[];
+  cycleStartsOn?: string | null; cycleEndsOn?: string | null;
   busy: boolean;
   onBusy: (id: string | null) => void;
   onDone: () => void;
@@ -108,6 +109,8 @@ export function AdminRegistrationIntakeActions({
         value={joinDisposition}
         onChange={setJoinDisposition}
         labels={joinBilling}
+        cycleStartsOn={cycleStartsOn}
+        cycleEndsOn={cycleEndsOn}
       />
       {kind === "collect" || kind === "receipt" ? (
         <AdminRegistrationRecordPayment
@@ -238,11 +241,7 @@ export function AdminRegistrationIntakeActions({
         />
       ) : null}
       {propose}
-      {error ? (
-        <p className="text-sm text-[var(--color-error)]" role="alert">
-          {error}
-        </p>
-      ) : null}
+      {error ? <p className="text-sm text-[var(--color-error)]" role="alert">{error}</p> : null}
     </div>
   );
 }

@@ -65,6 +65,49 @@ describe("buildRegistrationEnrollmentFeeInsertFields", () => {
     expect(fields.intake_state).toBe("none");
   });
 
+  it("quotes the open cohort matrícula when the family has not picked a section", async () => {
+    const cohortId = "9c97bc3f-1592-4735-9947-ce243e65333b";
+    const fields = await buildRegistrationEnrollmentFeeInsertFields({
+      admin: {
+        from: (table: string) => {
+          if (table === "site_settings") {
+            return {
+              select: () => ({
+                eq: () => ({
+                  limit: () => Promise.resolve({ data: [{ value: cohortId }], error: null }),
+                  maybeSingle: () => Promise.resolve({ data: { value: "CLP" }, error: null }),
+                }),
+              }),
+            };
+          }
+          return {
+            select: () => ({
+              is: () =>
+                Promise.resolve({
+                  data: [
+                    {
+                      id: cohortId,
+                      name: "2027",
+                      is_current: true,
+                      default_enrollment_fee_amount: 55000,
+                    },
+                  ],
+                  error: null,
+                }),
+            }),
+          };
+        },
+      } as unknown as SupabaseClient,
+      sectionIds: [],
+      nowIso: "2026-08-10T15:00:00.000Z",
+    });
+    expect(fields.fee_snapshot.total).toBe(55000);
+    expect(fields.fee_snapshot.currency).toBe("CLP");
+    expect(fields.fee_snapshot.lines[0]?.amount).toBe(55000);
+    expect(fields.fee_snapshot.lines[0]?.sectionName).toBe("2027");
+    expect(fields.intake_state).toBe("awaiting_fee");
+  });
+
   it("does not open checkout when the family has not picked a schedule", async () => {
     const fields = await buildRegistrationEnrollmentFeeInsertFields({
       admin: mockAdmin([]),

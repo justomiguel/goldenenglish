@@ -1,6 +1,7 @@
 import type { EmailTemplateDefinition } from "@/types/emailTemplates";
 import { withPtFallback } from "@/lib/email/templates/withPtEmailDefaults";
 import {
+  adminCashClaimedTemplate,
   adminEnrolledTemplate,
   adminNeedsSectionTemplate,
   adminReceiptPendingTemplate,
@@ -23,8 +24,10 @@ const FAMILY_PLACEHOLDERS = [
 
 export const REGISTRATION_EMAIL_KEYS = [
   "registration.received",
+  "registration.enrollment_fee_due",
   "registration.admin_received",
   "registration.admin_receipt_pending",
+  "registration.admin_cash_claimed",
   "registration.admin_enrolled",
   "registration.admin_needs_section",
   "registration.admin_section_full",
@@ -57,6 +60,33 @@ export const receivedTemplate: EmailTemplateDefinition = {
       bodyHtml: `<p style="margin:0 0 12px;">Hi {{greetingName}},</p>
 <p style="margin:0 0 12px;">We received the pre-registration for <strong>{{studentName}}</strong> in <strong>{{sectionName}}</strong> ({{scheduleLabel}}).</p>
 <p style="margin:0 0 12px;">We will try to keep that schedule, but seats can run out before the place is confirmed.</p>
+{{payBlock}}`,
+    },
+  }),
+};
+
+export const enrollmentFeeDueTemplate: EmailTemplateDefinition = {
+  key: "registration.enrollment_fee_due",
+  category: "notifications",
+  label: { es: "Inscripción: pagar matrícula", en: "Registration: pay the matrícula" },
+  description: {
+    es: "Pide el pago de la matrícula. El botón abre la página pública de ese paso.",
+    en: "Asks for the matrícula payment. The button opens the public page for that step.",
+  },
+  placeholders: FAMILY_PLACEHOLDERS,
+  defaults: withPtFallback({
+    es: {
+      subject: "Paga la matrícula de {{studentName}}",
+      bodyHtml: `<p style="margin:0 0 12px;">Hola {{greetingName}},</p>
+<p style="margin:0 0 12px;">La matrícula de <strong>{{studentName}}</strong> está lista.</p>
+<p style="margin:0 0 12px;">Abre la página para pagar con el medio habilitado o para subir el comprobante de la transferencia.</p>
+{{payBlock}}`,
+    },
+    en: {
+      subject: "Pay the matrícula for {{studentName}}",
+      bodyHtml: `<p style="margin:0 0 12px;">Hi {{greetingName}},</p>
+<p style="margin:0 0 12px;">The matrícula for <strong>{{studentName}}</strong> is ready.</p>
+<p style="margin:0 0 12px;">Open the page to pay with an enabled method or to upload the transfer receipt.</p>
 {{payBlock}}`,
     },
   }),
@@ -182,8 +212,10 @@ export const scheduleOfferTemplate: EmailTemplateDefinition = {
 
 export const REGISTRATION_EMAIL_TEMPLATES: ReadonlyArray<EmailTemplateDefinition> = [
   receivedTemplate,
+  enrollmentFeeDueTemplate,
   adminReceivedTemplate,
   adminReceiptPendingTemplate,
+  adminCashClaimedTemplate,
   adminEnrolledTemplate,
   adminNeedsSectionTemplate,
   adminSectionFullTemplate,

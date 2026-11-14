@@ -114,6 +114,7 @@ export async function sendRegistrationAdminEmails(input: {
   templateKey:
     | "registration.admin_received"
     | "registration.admin_receipt_pending"
+    | "registration.admin_cash_claimed"
     | "registration.admin_enrolled"
     | "registration.admin_needs_section"
     | "registration.admin_section_full"

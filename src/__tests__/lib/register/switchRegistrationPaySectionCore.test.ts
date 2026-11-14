@@ -49,6 +49,15 @@ function mockAdmin(opts: {
           },
         };
       }
+      if (table === "site_settings") {
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({ data: { value: "CLP" }, error: null }),
+            }),
+          }),
+        };
+      }
       if (table === "academic_sections") {
         return {
           select: () => ({

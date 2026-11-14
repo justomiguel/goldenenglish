@@ -1,5 +1,11 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+  usePathname: () => "/en/dashboard/admin/registrations",
+}));
 import { AdminRegistrationTableRow } from "@/components/dashboard/AdminRegistrationTableRow";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
@@ -42,11 +48,21 @@ function row(overrides: Partial<AdminRegistrationRow> = {}): AdminRegistrationRo
   };
 }
 
-function renderRow(r: AdminRegistrationRow, onStart = vi.fn(), onJoin = vi.fn()) {
+function renderRow(
+  r: AdminRegistrationRow,
+  onStart = vi.fn(),
+  onJoin = vi.fn(),
+  extra: {
+    selectedCohortId?: string;
+    sectionOptionsByCohort?: Record<string, { id: string; label: string; hasOpenSeat: boolean; offersTrial: boolean; slots: [] }>;
+  } = {},
+) {
   return render(
     <table>
       <tbody>
         <AdminRegistrationTableRow
+          selectedCohortId={extra.selectedCohortId}
+          sectionOptionsByCohort={extra.sectionOptionsByCohort}
           locale="en"
           r={r}
           busy={false}
@@ -77,6 +93,36 @@ describe("AdminRegistrationTableRow", () => {
     expect(screen.queryByText(labels.joinBilling.legend)).not.toBeInTheDocument();
   });
 
+  it("lists the selected cohort sections for a paid lead with no preferred section", async () => {
+    const user = userEvent.setup();
+    renderRow(
+      row({
+        preferred_section_id: null,
+        preferredSectionCohortId: null,
+        feeCaptured: true,
+        status: "contacted",
+      }),
+      vi.fn(),
+      vi.fn(),
+      {
+        selectedCohortId: "cohort-2027",
+        sectionOptionsByCohort: {
+          "cohort-2027": [
+            {
+              id: "sec-golden",
+              label: "Morning",
+              hasOpenSeat: true,
+              offersTrial: false,
+              slots: [],
+            },
+          ],
+        },
+      },
+    );
+    await user.click(screen.getByRole("button", { name: labels.funnel.actions }));
+    expect(screen.getByRole("option", { name: "Morning" })).toBeInTheDocument();
+  });
+
   it("shows a type column for pre-enrollment", () => {
     renderRow(row());
     expect(screen.getByText(labels.intentReserve)).toBeInTheDocument();
@@ -86,6 +132,11 @@ describe("AdminRegistrationTableRow", () => {
     renderRow(row({ intent: "trial", chargesEnrollmentFee: true, snapshotTotal: 80 }));
     expect(screen.getByText(labels.intentTrial)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: labels.startJoinCharge })).not.toBeInTheDocument();
+  });
+
+  it("shows a cash report as a chip", () => {
+    renderRow(row({ enrollmentFeeFamilyClaim: "cash" }));
+    expect(screen.getByText(labels.intake.cashClaimed)).toHaveClass("rounded-full");
   });
 
   it("marks a full-section lead in red", () => {

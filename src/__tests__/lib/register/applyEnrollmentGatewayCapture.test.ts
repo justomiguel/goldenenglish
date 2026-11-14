@@ -2,22 +2,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-const mocks = vi.hoisted(() => ({
-  accept: vi.fn(),
-  getDictionary: vi.fn(),
-  notifyPlacement: vi.fn(async () => undefined),
-}));
-
-vi.mock("@/lib/register/acceptRegistrationLead", () => ({
-  acceptRegistrationLead: mocks.accept,
-}));
-vi.mock("@/lib/email/notifyAdminsRegistrationPlacement", () => ({
-  notifyAdminsRegistrationPlacement: (...args: unknown[]) => mocks.notifyPlacement(...args),
-}));
-vi.mock("@/lib/i18n/dictionaries", () => ({
-  getDictionary: mocks.getDictionary,
-  defaultLocale: "es",
-}));
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logServerException: vi.fn(),
   logSupabaseClientError: vi.fn(),
@@ -74,8 +59,6 @@ function mockAdmin(opts: {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.getDictionary.mockResolvedValue({ register: {} });
-  mocks.accept.mockResolvedValue({ ok: true, studentId: "stu-1", pendingSectionIds: [] });
 });
 
 describe("applyEnrollmentGatewayCapture", () => {
@@ -89,23 +72,23 @@ describe("applyEnrollmentGatewayCapture", () => {
       locale: "es",
     });
     expect(result).toEqual({ ok: true, skipped: "amount_mismatch" });
-    expect(mocks.accept).not.toHaveBeenCalled();
     expect(admin.updates).toEqual([]);
   });
 
   it("is a no-op when the lead is already enrolled", async () => {
+    const admin = mockAdmin({ row: lead({ status: "enrolled", accepted_student_id: "stu-1" }) });
     const result = await applyEnrollmentGatewayCapture({
-      admin: mockAdmin({ row: lead({ status: "enrolled", accepted_student_id: "stu-1" }) }),
+      admin,
       registrationId: REG_ID,
       gatewayAmount: 15000,
       gatewayCurrency: "CLP",
       locale: "es",
     });
     expect(result).toEqual({ ok: true, skipped: "already_enrolled", studentId: "stu-1" });
-    expect(mocks.accept).not.toHaveBeenCalled();
+    expect(admin.updates).toEqual([]);
   });
 
-  it("marks fee_captured and accepts when the seat is still open", async () => {
+  it("marks the fee captured and leaves the lead without a section when the seat is open", async () => {
     const admin = mockAdmin();
     const result = await applyEnrollmentGatewayCapture({
       admin,
@@ -114,18 +97,15 @@ describe("applyEnrollmentGatewayCapture", () => {
       gatewayCurrency: "CLP",
       locale: "es",
     });
-    expect(result).toEqual({ ok: true, studentId: "stu-1" });
-    expect(admin.updates[0]).toMatchObject({ fee_captured: true });
-    expect(mocks.accept).toHaveBeenCalledWith(
-      expect.objectContaining({
-        registrationId: REG_ID,
-        paidCapture: true,
-        enrollClient: admin,
-      }),
-    );
+    expect(result).toEqual({ ok: true });
+    expect(admin.updates[0]).toMatchObject({
+      fee_captured: true,
+      enrollment_fee_paid_method: "gateway",
+      intake_state: "needs_section",
+    });
   });
 
-  it("creates the student without a section when the requested seat is full", async () => {
+  it("marks the fee captured and does not enroll when the requested seat is full", async () => {
     const admin = mockAdmin({ seatOpen: false });
     const result = await applyEnrollmentGatewayCapture({
       admin,
@@ -134,12 +114,11 @@ describe("applyEnrollmentGatewayCapture", () => {
       gatewayCurrency: "CLP",
       locale: "es",
     });
-    expect(result).toEqual({ ok: true, studentId: "stu-1" });
+    expect(result).toEqual({ ok: true });
     expect(admin.updates[0]).toMatchObject({
       fee_captured: true,
       enrollment_fee_paid_method: "gateway",
+      intake_state: "needs_section",
     });
-    expect(mocks.accept).toHaveBeenCalled();
-    expect(mocks.notifyPlacement).not.toHaveBeenCalled();
   });
 });

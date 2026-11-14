@@ -66,7 +66,7 @@ describe("admin PWA smoke", () => {
         onStartJoinCharge={() => {}}
       />,
     );
-    expect(screen.getByText("B A")).toBeInTheDocument();
+    expect(screen.getAllByText("B A").length).toBeGreaterThan(0);
   });
 
   it("AdminRegistrationsPwaList empty", () => {
@@ -136,7 +136,7 @@ describe("admin PWA smoke", () => {
         }}
       />,
     );
-    expect(screen.getByText("B A")).toBeInTheDocument();
+    expect(screen.getAllByText("B A").length).toBeGreaterThan(0);
   });
 
   it("AdminUsersPwaList empty", () => {

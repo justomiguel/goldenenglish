@@ -31,16 +31,25 @@ export async function generateMetadata({
 
 export default async function MatriculaPayPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; slug: string; token: string }>;
+  searchParams: Promise<{ result?: string | string[] }>;
 }) {
   const { locale, slug, token } = await params;
+  const query = await searchParams;
+  const rawResult = query.result;
+  const result = (Array.isArray(rawResult) ? rawResult[0] : rawResult)?.trim() ?? "";
+  const dict = await getDictionary(locale);
   const page = await loadRegistrationMatriculaPayPage(token);
   if (!page) notFound();
-  const canonical = buildMatriculaPayPath(locale, page.sectionLabel, token);
-  if (`/${locale}/matricula/${slug}/${token}` !== canonical) permanentRedirect(canonical);
+  const sectionLabel = page.sectionLabel || dict.register.enrollmentPayUndecidedSection;
+  const canonical = buildMatriculaPayPath(locale, sectionLabel, token);
+  if (`/${locale}/matricula/${slug}/${token}` !== canonical) {
+    const dest = result ? `${canonical}?result=${encodeURIComponent(result)}` : canonical;
+    permanentRedirect(dest);
+  }
 
-  const dict = await getDictionary(locale);
   const r = dict.register;
   const studentName = `${page.context.firstName} ${page.context.lastName}`.trim();
 
@@ -48,10 +57,12 @@ export default async function MatriculaPayPage({
     <RegistrationMatriculaPayScreen
       locale={locale}
       studentName={studentName}
-      sectionLabel={page.sectionLabel || r.enrollmentPayUndecidedSection}
+      sectionLabel={sectionLabel}
       proposedSectionLabel={page.proposedSectionLabel}
       context={page.context}
       sectionIsFull={page.sectionIsFull}
+      result={result}
+      homeHref={`/${locale}`}
       labels={{
         title: r.enrollmentPayTitle,
         lead: r.enrollmentPayLead,
@@ -71,6 +82,10 @@ export default async function MatriculaPayPage({
         offerLead: r.enrollmentPayOfferLead,
         offerAccept: r.enrollmentPayOfferAccept,
         offerGone: r.enrollmentPayOfferGone,
+        leaving: r.enrollmentPayLeaving,
+        gatewayRejected: r.enrollmentPayGatewayRejected,
+        gatewayPending: r.enrollmentPayGatewayPending,
+        cashOk: r.enrollmentPayCashOk,
       }}
       payUi={{
         token,
@@ -85,11 +100,17 @@ export default async function MatriculaPayPage({
           transfer: r.enrollmentPayTransfer,
           transferHint: r.enrollmentPayTransferHint,
           uploadButton: r.enrollmentPayUploadButton,
+          chooseFile: r.enrollmentPayChooseFile,
           pickSection: r.enrollmentPayPickSection,
           error: r.enrollmentPayError,
           failures: r.payFailure,
           receiptOk: r.enrollmentPayReceiptOk,
           acceptOffer: r.enrollmentPayOfferAccept,
+          cash: r.enrollmentPayCash,
+          online: r.enrollmentPayOnline,
+          uploadChoice: r.enrollmentPayUploadChoice,
+          onlineEmpty: r.enrollmentPayOnlineEmpty,
+          cashOk: r.enrollmentPayCashOk,
         },
       }}
     />

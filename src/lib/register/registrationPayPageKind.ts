@@ -5,6 +5,7 @@ export type RegistrationPayPageKind =
   | "section_full"
   | "captured_full"
   | "receipt_pending"
+  | "cash_claimed"
   | "captured"
   | "no_fee"
   | "pay";
@@ -17,6 +18,7 @@ export function registrationPayPageKind(input: {
   sectionIsFull: boolean;
   hasProposed?: boolean;
   proposedIsFull?: boolean;
+  familyClaim?: "cash" | null;
 }): RegistrationPayPageKind {
   if (input.status === "enrolled") return "enrolled";
   if (
@@ -36,6 +38,7 @@ export function registrationPayPageKind(input: {
   if (input.sectionIsFull && input.feeCaptured) return "captured_full";
   if (input.sectionIsFull) return "section_full";
   if (input.intakeState === "receipt_pending") return "receipt_pending";
+  if (input.familyClaim === "cash" && !input.feeCaptured) return "cash_claimed";
   if (input.feeCaptured) return "captured";
   if (!(input.snapshotTotal > 0)) return "no_fee";
   return "pay";

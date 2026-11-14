@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Banknote, Mail, MessageCircle, Pencil, Trash2, Undo2, UserPlus } from "lucide-react";
+import { Pencil, Trash2, Undo2, UserPlus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { AdminRegistrationContactChoice } from "@/components/dashboard/AdminRegistrationContactChoice";
+import { AdminRegistrationLaterScene } from "@/components/dashboard/AdminRegistrationLaterScene";
+import { AdminRegistrationPersonCard } from "@/components/dashboard/AdminRegistrationPersonCard";
 import { AdminRegistrationStepBlock } from "@/components/dashboard/AdminRegistrationStepBlock";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
-import { AdminRegistrationJoinBillingFields } from "@/components/dashboard/AdminRegistrationJoinBillingFields";
 import { RegistrationContactMailForm } from "@/components/dashboard/RegistrationContactMailForm";
 import { assignRegistrationCohortSectionAction } from "@/app/[locale]/dashboard/admin/registrations/assignRegistrationCohortSectionAction";
 import { AdminRegistrationEnrolledPanel } from "@/components/dashboard/AdminRegistrationEnrolledPanel";
@@ -20,6 +22,8 @@ import {
   registrationMatriculaFailureMessage,
   registrationMatriculaLines,
 } from "@/lib/register/registrationMatriculaAlta";
+import { registrationTelHref } from "@/lib/register/registrationTelHref";
+import type { RegistrationWorkTask } from "@/hooks/useMarkContactedWithLoader";
 import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
@@ -27,7 +31,7 @@ import type { Dictionary } from "@/types/i18n";
 type Labels = Dictionary["admin"]["registrations"];
 
 export function AdminRegistrationFunnelPanel({
-  locale, row, labels, busy, sections, contact, onStartEnrollmentFee, onMarkContacted, onEdit, onDelete, onClose, selectedCohortId,
+  locale, row, labels, busy, sections, contact, onStartEnrollmentFee, onMarkContacted, onEdit, onDelete, onClose,   onWork, selectedCohortId, cycleStartsOn, cycleEndsOn,
 }: {
   locale: string;
   row: AdminRegistrationRow;
@@ -40,7 +44,10 @@ export function AdminRegistrationFunnelPanel({
   onEdit: (row: AdminRegistrationRow) => void;
   onDelete: (row: AdminRegistrationRow) => void;
   onClose: () => void;
+  onWork: (task: RegistrationWorkTask) => void;
   selectedCohortId?: string;
+  cycleStartsOn?: string | null;
+  cycleEndsOn?: string | null;
 }) {
   const router = useRouter();
   const stage = row.status === "enrolled"
@@ -50,8 +57,6 @@ export function AdminRegistrationFunnelPanel({
   const paymentStage = stage === "contacted" || stage === "awaiting_payment";
   const [sectionId, setSectionId] = useState("");
   const [disposition, setDisposition] = useState<JoinBillingDisposition | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [localBusy, setLocalBusy] = useState(false);
   const [composeOpen, setComposeOpen] = useState(false);
   const [confirmBack, setConfirmBack] = useState(false);
   const mail = row.tutor_email || row.email || "";
@@ -74,6 +79,7 @@ export function AdminRegistrationFunnelPanel({
     enrolled_in_section: labels.funnel.stepEnrolled,
   }[stage];
   const digits = contact.tutor?.whatsAppDigits ?? contact.student?.whatsAppDigits ?? null;
+  const callHref = registrationTelHref(contact.tutor?.phoneDisplay ?? contact.student?.phoneDisplay);
   const lines = registrationMatriculaLines(row);
   const lineText = {
     mercadopago: labels.matricula.paidMercadoPago,
@@ -82,34 +88,31 @@ export function AdminRegistrationFunnelPanel({
     approved_without_section: labels.matricula.approvedWithoutSection,
   };
 
-  async function run(task: () => Promise<{ ok: true } | { ok: false; code: string }>) {
-    setLocalBusy(true);
-    setError(null);
-    const result = await task();
-    setLocalBusy(false);
-    if (!result.ok) {
-      setError(registrationMatriculaFailureMessage(result.code, labels.matricula.errors, labels.matricula.unknownError));
-      return;
-    }
-    router.refresh();
-    onClose();
+  function run(task: () => Promise<{ ok: true } | { ok: false; code: string }>) {
+    onWork(async () => {
+      const result = await task();
+      if (!result.ok) {
+        return registrationMatriculaFailureMessage(result.code, labels.matricula.errors, labels.matricula.unknownError);
+      }
+      router.refresh();
+      onClose();
+      return null;
+    });
   }
 
-  async function confirmRevert() {
-    setLocalBusy(true);
-    setError(null);
-    const result = await revertRegistrationFunnelStageAction({ locale, registrationId: row.id });
-    setLocalBusy(false);
-    if (!result.ok) {
-      setConfirmBack(false);
-      setError(registrationMatriculaFailureMessage(result.code, labels.funnel.errors, labels.funnel.unknownError));
-      return;
-    }
-    router.refresh();
-    onClose();
+  function confirmRevert() {
+    onWork(async () => {
+      const result = await revertRegistrationFunnelStageAction({ locale, registrationId: row.id });
+      if (!result.ok) {
+        return registrationMatriculaFailureMessage(result.code, labels.funnel.errors, labels.funnel.unknownError);
+      }
+      router.refresh();
+      onClose();
+      return null;
+    });
   }
 
-  const disabled = busy || localBusy;
+  const disabled = busy;
   if (stage === "enrolled_in_section") {
     return (
       <AdminRegistrationEnrolledPanel
@@ -122,6 +125,8 @@ export function AdminRegistrationFunnelPanel({
         onEdit={onEdit}
         onDelete={onDelete}
         onClose={onClose}
+        onWork={onWork}
+        contact={contact}
       />
     );
   }
@@ -130,97 +135,96 @@ export function AdminRegistrationFunnelPanel({
   const markPaid = () => void run(() => markRegistrationPaidInPersonAction({ locale, registrationId: row.id }));
   return (
     <div className="flex flex-col gap-3">
-      <AdminRegistrationStepBlock sentence={stepText}>
+      <AdminRegistrationPersonCard locale={locale} row={row} labels={labels} contact={contact} />
+      {stage === "registered" ? (
+        <div className="flex flex-col gap-2">
+          <AdminRegistrationContactChoice
+            labels={labels.funnel}
+            infoLabel={labels.funnel.stepInfo}
+            whatsAppLabel={labels.whatsappCta}
+            callLabel={labels.funnel.callCta}
+            disabled={disabled}
+            whatsAppHref={digits ? `https://wa.me/${digits}` : null}
+            callHref={callHref}
+            onMail={() => setComposeOpen(true)}
+          />
+          {composeOpen ? (
+            <RegistrationContactMailForm locale={locale} registrationId={row.id} toEmail={mail} labels={labels.funnel} disabled={disabled} onWork={onWork} />
+          ) : null}
+        </div>
+      ) : null}
+      {stage !== "registered" ? (
+        <AdminRegistrationLaterScene
+          stage={stage}
+          rowId={row.id}
+          locale={locale}
+          labels={labels}
+          disabled={disabled}
+          sections={sections}
+          sectionId={sectionId}
+          onSectionId={setSectionId}
+          disposition={disposition}
+          onDisposition={setDisposition}
+          cycleStartsOn={cycleStartsOn}
+          cycleEndsOn={cycleEndsOn}
+          onSendFee={() => onWork(async () => { await onStartEnrollmentFee(row); return null; })}
+          onMarkPaid={markPaid}
+          showReceipt={stage === "awaiting_payment" && Boolean(row.enrollmentFeeReceiptPath)}
+          onApproveReceipt={() => void run(() => approveRegistrationReceiptAction({ locale, registrationId: row.id, joinDisposition: { kind: "behind" } }))}
+        />
+      ) : null}
+      {stage === "registered" ? (
+        <h3 className="text-sm font-medium text-[var(--color-foreground)]">{labels.funnel.afterTalk}</h3>
+      ) : null}
+      <AdminRegistrationStepBlock sentence={stepText} infoLabel={labels.funnel.stepInfo} plain>
         {stage === "registered" ? (
-          <Button type="button" variant="stepCommit" className={commitClass} disabled={disabled} onClick={() => onMarkContacted(row)}>
+          <Button
+            type="button"
+            variant="success"
+            className={commitClass}
+            disabled={disabled}
+            onClick={() => {
+              onClose();
+              void onMarkContacted(row);
+            }}
+          >
             <UserPlus className="h-4 w-4" aria-hidden />
             {labels.markContacted}
           </Button>
         ) : null}
-        {stage === "contacted" ? (
-          <Button type="button" variant="stepCommit" className={commitClass} disabled={disabled} onClick={() => onStartEnrollmentFee(row)}>
-            <Mail className="h-4 w-4" aria-hidden />
-            {labels.matricula.sendMail}
-          </Button>
-        ) : null}
-        {stage === "awaiting_payment" ? (
-          <Button type="button" variant="stepCommit" className={commitClass} disabled={disabled} onClick={markPaid}>
-            <Banknote className="h-4 w-4" aria-hidden />
-            {labels.matricula.markInPerson}
-          </Button>
-        ) : null}
         {sectionStage ? (
-          <Button type="button" variant="stepCommit" className={commitClass} disabled={disabled || !sectionId} onClick={() => void run(() => assignRegistrationCohortSectionAction({ locale, registrationId: row.id, sectionId, joinDisposition: disposition ?? { kind: "behind" } }))}>
+          <Button type="button" variant="success" className={commitClass} disabled={disabled || !sectionId} onClick={() => void run(() => assignRegistrationCohortSectionAction({ locale, registrationId: row.id, sectionId, joinDisposition: disposition ?? { kind: "behind" } }))}>
             <UserPlus className="h-4 w-4" aria-hidden />
             {labels.matricula.saveSection}
           </Button>
         ) : null}
+        {stage === "contacted" ? (
+          <p className="text-sm font-medium text-[var(--color-foreground)]">{labels.funnel.feeAfter}</p>
+        ) : null}
+        {stage === "awaiting_payment" ? (
+          <p className="text-sm font-medium text-[var(--color-foreground)]">{labels.funnel.payAfter}</p>
+        ) : null}
       </AdminRegistrationStepBlock>
-      {stage === "registered" ? (
-        <div className="flex flex-col gap-2">
-          <Button type="button" variant="ghost" className={ghostClass} disabled={disabled} onClick={() => setComposeOpen(true)}>
-            <Mail className="h-4 w-4" aria-hidden />
-            {labels.funnel.sendMail}
-          </Button>
-          {composeOpen ? (
-            <RegistrationContactMailForm locale={locale} registrationId={row.id} toEmail={mail} labels={labels.funnel} disabled={disabled} />
-          ) : null}
-          {digits ? (
-            <a href={`https://wa.me/${digits}`} className="inline-flex min-h-11 items-center gap-2 text-sm text-[var(--color-foreground)]">
-              <MessageCircle className="h-4 w-4" aria-hidden />
-              {labels.whatsappCta}
-            </a>
-          ) : null}
-        </div>
-      ) : null}
-      {paymentStage ? lines.map((line) => (
+      {paymentStage ? lines.filter((line) => line !== "approved_without_section").map((line) => (
         <p key={line} className="text-sm text-[var(--color-foreground)]">{lineText[line]}</p>
       )) : null}
-      {stage === "contacted" ? (
-        <Button type="button" variant="ghost" className={ghostClass} disabled={disabled} onClick={markPaid}>
-          <Banknote className="h-4 w-4" aria-hidden />
-          {labels.matricula.markInPerson}
-        </Button>
-      ) : null}
-      {stage === "awaiting_payment" ? (
-        <Button type="button" variant="ghost" className={ghostClass} disabled={disabled} onClick={() => onStartEnrollmentFee(row)}>
-          <Mail className="h-4 w-4" aria-hidden />
-          {labels.matricula.sendMail}
-        </Button>
-      ) : null}
-      {stage === "awaiting_payment" && row.enrollmentFeeReceiptPath ? (
-        <Button type="button" variant="ghost" className={ghostClass} disabled={disabled} onClick={() => void run(() => approveRegistrationReceiptAction({ locale, registrationId: row.id, joinDisposition: { kind: "behind" } }))}>
-          <Mail className="h-4 w-4" aria-hidden />
-          {labels.matricula.receiptPending}
-        </Button>
-      ) : null}
-      {sectionStage ? (
-        <div className="flex flex-col gap-2">
-          <label className="text-sm text-[var(--color-foreground)]" htmlFor={`funnel-section-${row.id}`}>{labels.matricula.assignSection}</label>
-          <select id={`funnel-section-${row.id}`} className="min-h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-sm" value={sectionId} disabled={disabled} onChange={(event) => setSectionId(event.target.value)}>
-            <option value="">{labels.matricula.assignPlaceholder}</option>
-            {sections.map((section) => <option key={section.id} value={section.id}>{section.label}</option>)}
-          </select>
-          <AdminRegistrationJoinBillingFields locale={locale} namePrefix={`funnel-${row.id}`} value={disposition} onChange={setDisposition} labels={labels.joinBilling} />
-        </div>
-      ) : null}
-      {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
       <div className="flex flex-col gap-2 border-t border-[var(--color-border)] pt-3">
-        <Button type="button" variant="ghost" className={ghostClass} disabled={disabled} onClick={() => { onClose(); onEdit(row); }}>
-          <Pencil className="h-4 w-4" aria-hidden />
-          {labels.editTitle}
-        </Button>
-        <Button type="button" variant="ghost" className={`${ghostClass} border border-[var(--color-error)] text-[var(--color-error)]`} disabled={disabled} onClick={() => { onClose(); onDelete(row); }}>
-          <Trash2 className="h-4 w-4" aria-hidden />
-          {labels.delete}
-        </Button>
+        <div className="flex flex-row gap-2">
+          <Button type="button" variant="primary" className="min-h-11 flex-1" disabled={disabled} onClick={() => { onClose(); onEdit(row); }}>
+            <Pencil className="h-4 w-4" aria-hidden />
+            {labels.editTitle}
+          </Button>
+          <Button type="button" variant="destructive" className="min-h-11 flex-1" disabled={disabled} onClick={() => { onClose(); onDelete(row); }}>
+            <Trash2 className="h-4 w-4" aria-hidden />
+            {labels.delete}
+          </Button>
+        </div>
         {stage !== "registered" ? (
           <Button type="button" variant="ghost" className={ghostClass} disabled={disabled} onClick={() => setConfirmBack(true)}>
             <Undo2 className="h-4 w-4" aria-hidden />
             {labels.funnel.back}
           </Button>
         ) : null}
-        <Button type="button" variant="ghost" className={ghostClass} onClick={onClose}>{labels.funnel.close}</Button>
       </div>
       <ConfirmActionModal
         open={confirmBack}
@@ -230,8 +234,7 @@ export function AdminRegistrationFunnelPanel({
         cancelLabel={labels.funnel.cancel}
         confirmLabel={labels.funnel.backConfirm}
         confirmVariant="destructive"
-        busy={localBusy}
-        onConfirm={() => void confirmRevert()}
+        onConfirm={confirmRevert}
       />
     </div>
   );

@@ -1,9 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { revalidatePath } from "next/cache";
 import { todayIsoDate } from "@/lib/billing/paymentMethod";
 import { amountsMatchForCurrency } from "@/lib/billing/upsertApprovedMonthlyPaymentSupport";
-import { getDictionary } from "@/lib/i18n/dictionaries";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
-import { acceptRegistrationLead } from "@/lib/register/acceptRegistrationLead";
 
 export type ApplyEnrollmentGatewayCaptureResult =
   | { ok: true; skipped?: string; studentId?: string }
@@ -55,6 +54,7 @@ export async function applyEnrollmentGatewayCapture(input: {
       enrollment_fee_paid_method: "gateway",
       enrollment_fee_paid_amount: expected,
       enrollment_fee_paid_on: todayIsoDate(),
+      intake_state: "needs_section",
     })
     .eq("id", input.registrationId);
   if (captureErr) {
@@ -64,17 +64,6 @@ export async function applyEnrollmentGatewayCapture(input: {
     return { ok: false };
   }
 
-  const dict = await getDictionary(input.locale);
-  const accepted = await acceptRegistrationLead({
-    admin: input.admin,
-    enrollClient: input.admin,
-    locale: input.locale,
-    dict,
-    registrationId: input.registrationId,
-    paidCapture: true,
-    feePayment: { method: "gateway", amount: expected, paidOn: todayIsoDate() },
-    enrollServiceRole: true,
-  });
-  if (!accepted.ok) return { ok: false };
-  return { ok: true, studentId: accepted.studentId };
+  revalidatePath(`/${input.locale}/dashboard/admin/registrations`, "page");
+  return { ok: true };
 }

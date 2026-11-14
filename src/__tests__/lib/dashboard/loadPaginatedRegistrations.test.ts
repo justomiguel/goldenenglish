@@ -26,6 +26,8 @@ function makeSupabase() {
       calls.eq.push(args);
       return chain;
     }),
+    is: vi.fn(() => chain),
+    limit: vi.fn(() => Promise.resolve({ data: [], error: null })),
     order: vi.fn(() => chain),
     in: vi.fn(() =>
       Promise.resolve({

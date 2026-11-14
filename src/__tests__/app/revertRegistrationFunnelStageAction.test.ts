@@ -24,8 +24,12 @@ vi.mock("@/lib/register/markRegistrationRowsEnrollmentFee", () => ({
 }));
 
 const from = vi.hoisted(() => vi.fn());
+const removeReceipt = vi.hoisted(() => vi.fn(async () => ({ error: null })));
 vi.mock("@/lib/supabase/admin", () => ({
-  createAdminClient: async () => ({ from: (...args: unknown[]) => from(...args) }),
+  createAdminClient: async () => ({
+    from: (...args: unknown[]) => from(...args),
+    storage: { from: () => ({ remove: removeReceipt }) },
+  }),
 }));
 
 function lead(overrides: Record<string, unknown> = {}) {
@@ -62,6 +66,7 @@ describe("revertRegistrationFunnelStageAction", () => {
     assertAdmin.mockResolvedValue({ user: { id: "actor-1" } });
     audit.mockClear();
     from.mockReset();
+    removeReceipt.mockClear();
   });
 
   it("clears a captured fee and keeps the student id off the patch", async () => {
@@ -73,13 +78,41 @@ describe("revertRegistrationFunnelStageAction", () => {
     expect(result).toEqual({ ok: true });
     const patch = update.mock.calls[0]?.[0] as Record<string, unknown>;
     expect(patch.fee_captured).toBe(false);
+    expect(patch.enrollment_fee_receipt_path).toBeNull();
     expect(patch).not.toHaveProperty("accepted_student_id");
+    expect(removeReceipt).not.toHaveBeenCalled();
     expect(audit).toHaveBeenCalledWith(
       expect.objectContaining({
         resourceId: REG_ID,
         payload: { from_stage: "paid_without_section", to_stage: "awaiting_payment" },
       }),
     );
+  });
+
+  it("deletes the stored receipt when the lead returns to awaiting payment", async () => {
+    const { update } = mockTable(
+      lead({ enrollment_fee_receipt_path: "registration-enrollment/lead/pago.png" }),
+    );
+    const result = await revertRegistrationFunnelStageAction({
+      locale: "es",
+      registrationId: REG_ID,
+    });
+    expect(result).toEqual({ ok: true });
+    const patch = update.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(patch.enrollment_fee_receipt_path).toBeNull();
+    expect(removeReceipt).toHaveBeenCalledWith(["registration-enrollment/lead/pago.png"]);
+  });
+
+  it("clears a receipt path that is not a storage object and does not delete it", async () => {
+    const { update } = mockTable(lead({ enrollment_fee_receipt_path: "../secret.png" }));
+    const result = await revertRegistrationFunnelStageAction({
+      locale: "es",
+      registrationId: REG_ID,
+    });
+    expect(result).toEqual({ ok: true });
+    const patch = update.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(patch.enrollment_fee_receipt_path).toBeNull();
+    expect(removeReceipt).not.toHaveBeenCalled();
   });
 
   it("refuses an enrolled lead", async () => {

@@ -1,3 +1,4 @@
+import { parseOptionalFeeAmount } from "@/lib/billing/resolveCohortFeeDefaults";
 import { createClient } from "@/lib/supabase/server";
 import {
   parseRegisterSectionMode,
@@ -11,6 +12,9 @@ export type RegistrationCohortOption = {
   id: string;
   name: string;
   isCurrent: boolean;
+  enrollmentFeeAmount?: number;
+  startsOn?: string | null;
+  endsOn?: string | null;
 };
 
 export type RegistrationCohortConfig = {
@@ -109,7 +113,7 @@ export async function loadRegistrationCohortConfig(): Promise<RegistrationCohort
       .maybeSingle(),
     supabase
       .from("academic_cohorts")
-      .select("id, name, is_current")
+      .select("id, name, is_current, default_enrollment_fee_amount, starts_on, ends_on")
       .is("archived_at", null)
       .order("starts_on", { ascending: false, nullsFirst: false })
       .order("name", { ascending: false }),
@@ -119,10 +123,16 @@ export async function loadRegistrationCohortConfig(): Promise<RegistrationCohort
     id: string;
     name: string;
     is_current: boolean | null;
+    default_enrollment_fee_amount?: unknown;
+    starts_on?: string | null;
+    ends_on?: string | null;
   }>).map((row) => ({
     id: String(row.id),
     name: String(row.name ?? ""),
     isCurrent: row.is_current === true,
+    enrollmentFeeAmount: parseOptionalFeeAmount(row.default_enrollment_fee_amount) ?? 0,
+    startsOn: row.starts_on != null ? String(row.starts_on).slice(0, 10) : null,
+    endsOn: row.ends_on != null ? String(row.ends_on).slice(0, 10) : null,
   }));
 
   return resolveRegistrationCohortState(cohorts, settingRow?.value ?? null);

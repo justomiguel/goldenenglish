@@ -6,6 +6,7 @@ import { sendRegistrationContactEmailAction } from "@/app/[locale]/dashboard/adm
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { RichTextEditor } from "@/components/molecules/RichTextEditor";
+import type { RegistrationWorkTask } from "@/hooks/useMarkContactedWithLoader";
 import { registrationMatriculaFailureMessage } from "@/lib/register/registrationMatriculaAlta";
 import type { Dictionary } from "@/types/i18n";
 
@@ -17,39 +18,39 @@ export function RegistrationContactMailForm({
   toEmail,
   labels,
   disabled,
+  onWork,
 }: {
   locale: string;
   registrationId: string;
   toEmail: string;
   labels: FunnelLabels;
   disabled: boolean;
+  onWork: (task: RegistrationWorkTask) => void;
 }) {
   const [body, setBody] = useState("<p></p>");
-  const [busy, setBusy] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
 
-  async function onSubmit(event: React.FormEvent) {
+  function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-    setBusy(true);
-    setNotice(null);
-    const result = await sendRegistrationContactEmailAction({
-      locale,
-      registrationId,
-      bodyHtml: body,
+    const html = body;
+    onWork(async () => {
+      const result = await sendRegistrationContactEmailAction({
+        locale,
+        registrationId,
+        bodyHtml: html,
+      });
+      if (!result?.ok) {
+        return registrationMatriculaFailureMessage(
+          result?.code ?? "unknown",
+          labels.errors,
+          labels.unknownError,
+        );
+      }
+      return null;
     });
-    setBusy(false);
-    if (!result.ok) {
-      setNotice(
-        registrationMatriculaFailureMessage(result.code, labels.errors, labels.unknownError),
-      );
-      return;
-    }
-    setNotice(labels.contactMailSent);
-    setBody("<p></p>");
   }
 
   return (
-    <form className="flex flex-col gap-2" onSubmit={(event) => void onSubmit(event)}>
+    <form className="flex flex-col gap-2" onSubmit={onSubmit}>
       <label className="text-sm text-[var(--color-foreground)]" htmlFor={`contact-mail-${registrationId}`}>
         {labels.contactMailTo}
       </label>
@@ -57,14 +58,13 @@ export function RegistrationContactMailForm({
       <RichTextEditor
         value={body}
         onChange={setBody}
-        disabled={disabled || busy}
+        disabled={disabled}
         aria-label={labels.contactMailBody}
       />
-      <Button type="submit" className="min-h-11" disabled={disabled || busy} isLoading={busy}>
-        {busy ? null : <Send className="h-4 w-4" aria-hidden />}
+      <Button type="submit" className="min-h-11" disabled={disabled}>
+        <Send className="h-4 w-4" aria-hidden />
         {labels.contactMailSend}
       </Button>
-      {notice ? <p className="text-sm text-[var(--color-foreground)]">{notice}</p> : null}
     </form>
   );
 }

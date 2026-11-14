@@ -36,9 +36,11 @@ export function AdminRegistrationsTableDesktop({
   createSectionHref,
   usesCefrLevel = false,
   selection,
-  cohorts,
   selectedCohortId,
+  cycleStartsOn,
+  cycleEndsOn,
   openCohortId,
+  cohortHasMatricula = false,
 }: AdminRegistrationsTableDesktopProps) {
   const u = useAdminRegistrationsList({
     locale,
@@ -85,9 +87,9 @@ export function AdminRegistrationsTableDesktop({
             onInboxFilterChange={u.setInboxFilter}
             locale={locale}
             selection={selection}
-            cohorts={cohorts}
             selectedCohortId={selectedCohortId}
             openCohortId={openCohortId}
+            cohortHasMatricula={cohortHasMatricula}
           />
         }
         leadingHeader={
@@ -183,6 +185,8 @@ export function AdminRegistrationsTableDesktop({
                 onStartJoinCharge={u.onStartJoinCharge}
                 sectionOptionsByCohort={sectionOptionsByCohort}
                 selectedCohortId={selectedCohortId}
+                cycleStartsOn={cycleStartsOn}
+                cycleEndsOn={cycleEndsOn}
                 rowSelected={selection?.selectedIds.includes(r.id)}
                 onToggleSelected={selection ? (id) => selection.toggle(id) : undefined}
               />
@@ -201,6 +205,8 @@ export function AdminRegistrationsTableDesktop({
                     (id) => sectionNameById.get(id) ?? id,
                   )}
                   currentCohortSections={currentCohortSections}
+                  cycleStartsOn={cycleStartsOn}
+                  cycleEndsOn={cycleEndsOn}
                   createSectionHref={createSectionHref}
                   createSectionLabel={labels.createSectionInCohort.replaceAll("{{cohort}}", currentCohortName ?? "")}
                   busy={u.busyId === r.id}
@@ -223,6 +229,8 @@ export function AdminRegistrationsTableDesktop({
         legalAgeMajority={legalAgeMajority}
         list={u}
         currentCohortSections={currentCohortSections}
+        cycleStartsOn={cycleStartsOn}
+        cycleEndsOn={cycleEndsOn}
         currentCohortName={currentCohortName}
         createSectionHref={createSectionHref}
         usesCefrLevel={usesCefrLevel}

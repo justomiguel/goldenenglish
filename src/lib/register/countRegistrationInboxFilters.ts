@@ -1,4 +1,5 @@
 import { registrationFunnelStage, type RegistrationFunnelStage } from "@/lib/register/registrationFunnelStage";
+import { registrationFeeFamilyClaim } from "@/lib/register/registrationFeeFamilyClaim";
 import {
   parseRegistrationIntakeState,
   snapshotCurrencyFromUnknown,
@@ -66,6 +67,7 @@ export function mapInboxLeadFields(row: {
   feeCaptured: boolean;
   enrollmentFeeReceiptPath: string | null;
   enrollmentFeeMailSentAt: string | null;
+  enrollmentFeeFamilyClaim: "cash" | null;
 } {
   return {
     intakeState: parseRegistrationIntakeState(row.intake_state),
@@ -81,5 +83,6 @@ export function mapInboxLeadFields(row: {
       typeof row.enrollment_fee_mail_sent_at === "string" && row.enrollment_fee_mail_sent_at.trim()
         ? row.enrollment_fee_mail_sent_at
         : null,
+    enrollmentFeeFamilyClaim: registrationFeeFamilyClaim(row.fee_snapshot),
   };
 }

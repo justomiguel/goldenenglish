@@ -2,13 +2,8 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useState, useTransition } from "react";
-import {
-  deleteRegistration,
-  markRegistrationContacted,
-  revertRegistrationToNew,
-} from "@/app/[locale]/dashboard/admin/registrations/actions";
-import { startRegistrationEnrollmentFeeFlowAction } from "@/app/[locale]/dashboard/admin/registrations/registrationIntakeActions";
-import { startAdminRegistrationJoinCharge } from "@/lib/register/startAdminRegistrationJoinCharge";
+import { deleteRegistration } from "@/app/[locale]/dashboard/admin/registrations/actions";
+import { useAdminRegistrationRowActions } from "@/hooks/useAdminRegistrationRowActions";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { RegistrationSortDir, RegistrationSortKey } from "@/lib/dashboard/adminRegistrationsSort";
@@ -50,8 +45,6 @@ export function useAdminRegistrationsList({
   const currentParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
   const [deleteRow, setDeleteRow] = useState<AdminRegistrationRow | null>(null);
   const [acceptRow, setAcceptRow] = useState<AdminRegistrationRow | null>(null);
   const [editRow, setEditRow] = useState<AdminRegistrationRow | null>(null);
@@ -132,6 +125,9 @@ export function useAdminRegistrationsList({
     router.refresh();
   }
 
+  const rowActions = useAdminRegistrationRowActions(locale, labels, refreshList);
+  const { busyId, setBusyId, toast, setToast } = rowActions;
+
   async function onConfirmDelete() {
     if (!deleteRow) return;
     setBusyId(deleteRow.id);
@@ -145,65 +141,6 @@ export function useAdminRegistrationsList({
     } else {
       setToast(`${labels.deleteError}: ${res.message ?? ""}`);
     }
-  }
-
-  async function runStatusChange(
-    row: AdminRegistrationRow,
-    fn: (l: string, id: string) => Promise<{ ok: boolean; message?: string }>,
-  ) {
-    setBusyId(row.id);
-    setToast(null);
-    const res = await fn(locale, row.id);
-    setBusyId(null);
-    if (res.ok) {
-      setToast(labels.statusChangeSuccess);
-      refreshList();
-    } else {
-      setToast(`${labels.statusChangeError}: ${res.message ?? ""}`);
-    }
-  }
-
-  function onMarkContacted(row: AdminRegistrationRow) {
-    return runStatusChange(row, markRegistrationContacted);
-  }
-
-  function onRevertToNew(row: AdminRegistrationRow) {
-    return runStatusChange(row, revertRegistrationToNew);
-  }
-
-  async function onStartEnrollmentFee(row: AdminRegistrationRow) {
-    setBusyId(row.id);
-    setToast(null);
-    const res = await startRegistrationEnrollmentFeeFlowAction({
-      locale,
-      registrationId: row.id,
-    });
-    setBusyId(null);
-    if (res.ok) {
-      setToast(labels.startEnrollmentFeeFlowSuccess);
-      refreshList();
-      return;
-    }
-    setToast(
-      res.code === "section_full"
-        ? labels.intake.sectionFullError
-        : labels.startEnrollmentFeeFlowError,
-    );
-    refreshList();
-  }
-
-  async function onStartJoinCharge(row: AdminRegistrationRow) {
-    setBusyId(row.id);
-    setToast(null);
-    const res = await startAdminRegistrationJoinCharge({
-      locale,
-      registrationId: row.id,
-      trialConvertToken: row.trialConvertToken,
-      trialConvertExpiresAt: row.trialConvertExpiresAt,
-    });
-    setBusyId(null);
-    setToast(res.ok ? labels.startJoinChargeSuccess : labels.startJoinChargeError);
-    if (res.ok) refreshList();
   }
 
   return {
@@ -239,9 +176,9 @@ export function useAdminRegistrationsList({
     setInboxFilter,
     expandedId,
     toggleExpanded,
-    onMarkContacted,
-    onRevertToNew,
-    onStartEnrollmentFee,
-    onStartJoinCharge,
+    onMarkContacted: rowActions.onMarkContacted,
+    onRevertToNew: rowActions.onRevertToNew,
+    onStartEnrollmentFee: rowActions.onStartEnrollmentFee,
+    onStartJoinCharge: rowActions.onStartJoinCharge,
   };
 }

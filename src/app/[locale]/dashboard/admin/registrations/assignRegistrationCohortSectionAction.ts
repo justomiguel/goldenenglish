@@ -3,8 +3,8 @@
 import { enrollStudentInSectionAction } from "@/app/[locale]/dashboard/admin/academic/enrollmentActions";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
+  registrationSectionAssignCohort,
   sectionAssignedRegistrationWrite,
-  sectionMatchesRegisteredCohort,
 } from "@/lib/register/registrationMatriculaAlta";
 import {
   requireRegistrationIntakeAdmin,
@@ -48,16 +48,14 @@ export async function assignRegistrationCohortSectionAction(input: {
   if (!studentId) return { ok: false, code: "not_approved" };
   if (String(row.status ?? "") === "enrolled") return { ok: false, code: "already_enrolled" };
   const preferredId = row.preferred_section_id ? String(row.preferred_section_id) : "";
-  if (!preferredId) return { ok: false, code: "no_cohort" };
-
-  const cohort = await cohortIds(admin, [preferredId, input.sectionId]);
+  const cohort = await cohortIds(admin, preferredId ? [preferredId, input.sectionId] : [input.sectionId]);
   if (!cohort.ok) return cohort;
-  const registeredCohortId = cohort.ids.get(preferredId) ?? null;
-  const sectionCohortId = cohort.ids.get(input.sectionId) ?? null;
-  if (!registeredCohortId) return { ok: false, code: "no_cohort" };
-  if (!sectionMatchesRegisteredCohort(sectionCohortId, registeredCohortId)) {
-    return { ok: false, code: "section_cohort_mismatch" };
-  }
+  const assignCohort = registrationSectionAssignCohort({
+    preferredSectionId: preferredId || null,
+    preferredCohortId: preferredId ? (cohort.ids.get(preferredId) ?? null) : null,
+    sectionCohortId: cohort.ids.get(input.sectionId) ?? null,
+  });
+  if (!assignCohort.ok) return assignCohort;
 
   const disposition = input.joinDisposition
     ? parseJoinDispositionInput(input.joinDisposition)

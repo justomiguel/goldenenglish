@@ -26,7 +26,9 @@ export function canStartRegistrationEnrollmentFeeFlow(row: {
   if (row.feeCaptured) return false;
   const hasFee = row.chargesEnrollmentFee === true || (row.snapshotTotal ?? 0) > 0;
   if (!hasFee) return false;
-  if (requestedRegistrationSectionIds(row).length === 0) return false;
   const intake = row.intakeState ?? "none";
+  if (requestedRegistrationSectionIds(row).length === 0) {
+    return intake !== "section_full" && intake !== "offer_pending" && intake !== "receipt_pending";
+  }
   return !BLOCKED_INTAKE.has(intake);
 }

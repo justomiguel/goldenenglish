@@ -5,6 +5,7 @@ import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { collectSectionsChargingEnrollmentFee } from "@/lib/register/markRegistrationRowsEnrollmentFee";
+import { registrationReceiptObjectPath } from "@/lib/register/buildRegistrationEnrollmentReceiptPath";
 import { registrationFunnelRevert } from "@/lib/register/registrationFunnelRevert";
 import { registrationFunnelStage } from "@/lib/register/registrationFunnelStage";
 import {
@@ -37,7 +38,7 @@ export async function revertRegistrationFunnelStageAction(input: {
   const { data, error } = await admin
     .from("registrations")
     .select(
-      "id,status,intake_state,fee_snapshot,fee_captured,enrollment_fee_mail_sent_at,accepted_student_id,preferred_section_id,additional_section_ids",
+      "id,status,intake_state,fee_snapshot,fee_captured,enrollment_fee_mail_sent_at,enrollment_fee_receipt_path,accepted_student_id,preferred_section_id,additional_section_ids",
     )
     .eq("id", parsed.data)
     .maybeSingle();
@@ -101,6 +102,18 @@ export async function revertRegistrationFunnelStageAction(input: {
     resourceId: parsed.data,
     payload: { from_stage: fromStage, to_stage: step.nextStage },
   });
+  const receiptPath = registrationReceiptObjectPath(row.enrollment_fee_receipt_path);
+  if (step.nextStage === "awaiting_payment" && receiptPath) {
+    const { error: removeError } = await admin.storage
+      .from("payment-receipts")
+      .remove([receiptPath]);
+    if (removeError) {
+      logSupabaseClientError("revertRegistrationFunnelStage:receipt", removeError, {
+        registrationId: parsed.data,
+        code: "receipt_delete_failed",
+      });
+    }
+  }
   revalidateRegistrationInbox(input.locale);
   return { ok: true };
 }

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ClipboardList, MessageCircle, Sparkle, UserPlus } from "lucide-react";
 import { AdminStatCard } from "@/components/dashboard/AdminStatCard";
 import { peopleSharePercent } from "@/lib/dashboard/loadAdminPeoplePageStats";
@@ -10,6 +11,7 @@ export function AdminRegistrationsStatsRow({
   pending,
   contacted,
   enrolled,
+  cohortSelect,
 }: {
   locale: string;
   labels: Dictionary["admin"]["registrations"]["stats"];
@@ -17,6 +19,7 @@ export function AdminRegistrationsStatsRow({
   pending: number;
   contacted: number;
   enrolled: number;
+  cohortSelect?: ReactNode;
 }) {
   const fmt = (n: number) => n.toLocaleString(locale);
   const ic = "h-5 w-5";
@@ -27,7 +30,9 @@ export function AdminRegistrationsStatsRow({
     );
 
   return (
-    <div className="relative z-0 mt-3 grid grid-cols-2 gap-2 sm:mt-6 sm:gap-3 xl:grid-cols-4">
+    <div className="relative z-0 mt-3 space-y-3 sm:mt-6">
+      {cohortSelect ? <div className="max-w-sm">{cohortSelect}</div> : null}
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-4">
       <AdminStatCard
         icon={<ClipboardList className={ic} strokeWidth={1.5} aria-hidden />}
         iconClass="bg-sky-100 text-sky-700"
@@ -56,6 +61,7 @@ export function AdminRegistrationsStatsRow({
         value={fmt(enrolled)}
         hint={share(enrolled)}
       />
+      </div>
     </div>
   );
 }

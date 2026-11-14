@@ -28,6 +28,7 @@ describe("parseRegistrationPayContext", () => {
       preferredSectionId: "sec-1",
       proposedSectionId: null,
       additionalSectionIds: ["sec-2"],
+      familyClaim: null,
     });
   });
 

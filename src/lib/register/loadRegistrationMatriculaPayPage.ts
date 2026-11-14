@@ -1,8 +1,10 @@
 import "server-only";
+import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
+import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
 import { loadEnabledGatewaysForBillingCurrency } from "@/lib/payment-gateways/loadEnabledGatewaysForBillingCurrency";
 import { loadRegistrationSectionOptions } from "@/lib/register/loadRegistrationSectionOptions";
 import {
@@ -11,6 +13,7 @@ import {
   type RegistrationPayContext,
 } from "@/lib/register/parseRegistrationPayContext";
 import { requestedSectionsHaveOpenSeats } from "@/lib/register/requestedSectionsHaveOpenSeats";
+import { enrollmentFeeChargeCurrency } from "@/lib/register/enrollmentFeeChargeCurrency";
 import { resolveRegistrationPublicPayMethods } from "@/lib/register/resolveRegistrationPublicPayMethods";
 import type { RegistrationPublicPayMethod } from "@/lib/register/resolveRegistrationPublicPayMethods";
 
@@ -33,7 +36,12 @@ export async function loadRegistrationMatriculaPayPage(
   const { data, error } = await supabase.rpc("registration_public_pay_context", {
     p_token: token,
   });
-  if (error) return null;
+  if (error) {
+    await logSupabaseClientError("loadRegistrationMatriculaPayPage", error, {
+      scope: "pay_context",
+    });
+    return null;
+  }
   let context = parseRegistrationPayContext(data);
   if (!context) return null;
 
@@ -81,10 +89,16 @@ export async function loadRegistrationMatriculaPayPage(
       .update({ intake_state: "section_full" })
       .eq("pay_token", token);
   }
-  const [gateways, transfer] = await Promise.all([
-    loadEnabledGatewaysForBillingCurrency(admin, context.snapshotCurrency),
+  const [billing, transfer] = await Promise.all([
+    loadBillingCurrencySetting(admin),
     loadBankTransferInstructionsSetting(admin),
   ]);
+  const chargeCurrency = enrollmentFeeChargeCurrency(
+    context.snapshotCurrency,
+    billing.currency,
+  );
+  context = { ...context, snapshotCurrency: chargeCurrency };
+  const gateways = await loadEnabledGatewaysForBillingCurrency(admin, chargeCurrency);
   const methods = resolveRegistrationPublicPayMethods({
     enabledGateways: gateways.map((row) => row.provider),
     transferInstructions: transfer.instructions,

@@ -45,7 +45,9 @@ export interface AdminRegistrationsTableDesktopProps {
   createSectionHref?: string | null;
   usesCefrLevel?: boolean;
   selection?: RegistrationPageSelection;
-  cohorts?: readonly { id: string; name: string }[];
   selectedCohortId?: string | null;
+  cycleStartsOn?: string | null;
+  cycleEndsOn?: string | null;
   openCohortId?: string | null;
+  cohortHasMatricula?: boolean;
 }

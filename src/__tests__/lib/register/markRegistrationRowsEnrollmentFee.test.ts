@@ -21,6 +21,24 @@ describe("markRegistrationRowsEnrollmentFee", () => {
     expect(rows[1]?.chargesEnrollmentFee).toBe(false);
   });
 
+  it("flags a section-less lead when the open cohort charges matrícula", () => {
+    const rows = markRegistrationRowsEnrollmentFee(
+      [{ preferred_section_id: null, additionalSectionIds: [], snapshotTotal: 0 }],
+      new Set(),
+      55000,
+    );
+    expect(rows[0]?.chargesEnrollmentFee).toBe(true);
+  });
+
+  it("does not flag a section-less lead when the open cohort fee is 0", () => {
+    const rows = markRegistrationRowsEnrollmentFee(
+      [{ preferred_section_id: null, additionalSectionIds: [], snapshotTotal: 0 }],
+      new Set(),
+      0,
+    );
+    expect(rows[0]?.chargesEnrollmentFee).toBe(false);
+  });
+
   it("flags a lead from a leftover fee snapshot even if live sections do not charge", () => {
     const rows = markRegistrationRowsEnrollmentFee(
       [{ preferred_section_id: A, additionalSectionIds: [], snapshotTotal: 80 }],

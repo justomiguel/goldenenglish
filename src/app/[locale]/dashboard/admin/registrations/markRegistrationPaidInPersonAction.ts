@@ -1,12 +1,9 @@
 "use server";
 
 import { todayIsoDate } from "@/lib/billing/paymentMethod";
-import {
-  parseOptionalFeeAmount,
-  resolveEffectiveEnrollmentFeeAmount,
-} from "@/lib/billing/resolveCohortFeeDefaults";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { loadRegistrationCashMatriculaAmounts } from "@/lib/register/loadRegistrationCashMatriculaAmounts";
 import { registrationMatriculaAmount } from "@/lib/register/registrationMatriculaAlta";
 import { acceptRegistrationLead } from "@/lib/register/acceptRegistrationLead";
 import {
@@ -29,11 +26,12 @@ export async function markRegistrationPaidInPersonAction(input: {
   if (lead.fee_captured === true) return { ok: false, code: "already_paid" };
   if (String(lead.status) === "enrolled") return { ok: false, code: "already_enrolled" };
 
-  const liveAmount = await liveMatriculaAmount(admin, lead.preferred_section_id);
-  const amount = registrationMatriculaAmount(
-    snapshotTotalFromUnknown(lead.fee_snapshot),
-    liveAmount,
-  );
+  const live = await loadRegistrationCashMatriculaAmounts(admin, lead.preferred_section_id);
+  const amount = registrationMatriculaAmount({
+    cohortAmount: live.cohortAmount,
+    sectionAmount: live.sectionAmount,
+    snapshotTotal: snapshotTotalFromUnknown(lead.fee_snapshot),
+  });
   if (!(amount > 0)) return { ok: false, code: "no_fee" };
 
   const paidOn = todayIsoDate();
@@ -67,31 +65,4 @@ export async function markRegistrationPaidInPersonAction(input: {
   if (!accepted.ok) return { ok: false, code: "accept_failed" };
   revalidateRegistrationInbox(input.locale);
   return { ok: true };
-}
-
-async function liveMatriculaAmount(
-  admin: Awaited<ReturnType<typeof createAdminClient>>,
-  sectionId: string | null,
-): Promise<number> {
-  if (!sectionId) return 0;
-  const { data, error } = await admin
-    .from("academic_sections")
-    .select("enrollment_fee_amount, academic_cohorts(default_enrollment_fee_amount)")
-    .eq("id", sectionId)
-    .maybeSingle();
-  if (error || !data) return 0;
-  const row = data as {
-    enrollment_fee_amount?: unknown;
-    academic_cohorts?:
-      | { default_enrollment_fee_amount?: unknown }
-      | { default_enrollment_fee_amount?: unknown }[]
-      | null;
-  };
-  const cohort = Array.isArray(row.academic_cohorts)
-    ? row.academic_cohorts[0]
-    : row.academic_cohorts;
-  return resolveEffectiveEnrollmentFeeAmount(
-    parseOptionalFeeAmount(row.enrollment_fee_amount),
-    parseOptionalFeeAmount(cohort?.default_enrollment_fee_amount),
-  );
 }

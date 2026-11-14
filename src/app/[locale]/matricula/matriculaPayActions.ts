@@ -6,6 +6,7 @@ import { Buffer } from "node:buffer";
 import { loadPaymentGatewayEncryptionKeyRaw32 } from "@/lib/payment-gateways/loadPaymentGatewayEncryptionKey";
 import { startRegistrationEnrollmentGatewayCore } from "@/lib/register/startRegistrationEnrollmentGatewayCore";
 import { switchRegistrationPaySectionCore } from "@/lib/register/switchRegistrationPaySectionCore";
+import { claimRegistrationEnrollmentCashCore } from "@/lib/register/claimRegistrationEnrollmentCashCore";
 import { uploadRegistrationEnrollmentReceiptCore } from "@/lib/register/uploadRegistrationEnrollmentReceiptCore";
 import { acceptRegistrationLead } from "@/lib/register/acceptRegistrationLead";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -70,6 +71,23 @@ export async function uploadRegistrationEnrollmentReceiptAction(
   if (result.ok) {
     revalidatePath(buildMatriculaPayPath(locale, sectionLabel, token));
     revalidatePath(`/${locale}/matricula/${token}`);
+  }
+  return result;
+}
+
+export async function claimRegistrationEnrollmentCashAction(
+  locale: string,
+  token: string,
+  sectionLabel: string,
+): Promise<MatriculaPayActionResult> {
+  const result = await claimRegistrationEnrollmentCashCore({
+    admin: await createAdminClient(),
+    payToken: token,
+    locale,
+    sectionLabel,
+  });
+  if (result.ok) {
+    revalidatePath(buildMatriculaPayPath(locale, sectionLabel, token));
   }
   return result;
 }

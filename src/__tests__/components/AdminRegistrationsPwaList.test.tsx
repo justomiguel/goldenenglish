@@ -110,7 +110,7 @@ describe("AdminRegistrationsPwaList", () => {
     );
 
     expect(container.querySelector(`[data-tour="${ADMIN_TOUR_ANCHORS.registrationsTable}"]`)).not.toBeNull();
-    expect(screen.getByText("Pérez Ana")).toBeInTheDocument();
+    expect(screen.getAllByText("Pérez Ana").length).toBeGreaterThan(0);
     expect(screen.queryAllByRole("button", { name: labels.name })).toHaveLength(0);
 
     await user.click(screen.getByRole("button", { name: /Sort:/ }));

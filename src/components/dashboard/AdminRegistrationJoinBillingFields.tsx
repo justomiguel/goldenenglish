@@ -2,7 +2,7 @@
 
 import type { JoinBillingDisposition } from "@/lib/billing/joinBillingDispositionSchema";
 import { formatJoinBillingPreview } from "@/lib/billing/formatJoinBillingPreview";
-import { planJoinBillingMonths } from "@/lib/billing/planJoinBillingMonths";
+import { firstAvailableCycleMonth, planJoinBillingMonths } from "@/lib/billing/planJoinBillingMonths";
 import { Label } from "@/components/atoms/Label";
 import { Input } from "@/components/atoms/Input";
 
@@ -39,7 +39,11 @@ export function AdminRegistrationJoinBillingFields({
   cycleEndsOn?: string | null;
 }) {
   const now = new Date();
-  const joinMonth = { year: now.getFullYear(), month: now.getMonth() + 1 };
+  const joinMonth = firstAvailableCycleMonth({
+    startsOn: cycleStartsOn ?? null,
+    endsOn: cycleEndsOn ?? null,
+    now,
+  });
   const plan = planJoinBillingMonths({
     sectionStartsOn: cycleStartsOn ?? null,
     sectionEndsOn: cycleEndsOn ?? null,

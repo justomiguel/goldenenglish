@@ -34,6 +34,8 @@ export interface AdminRegistrationAcceptFormProps {
   labels: Dictionary["admin"]["registrations"];
   userLabels: RegistrationAcceptUserLabels;
   currentCohortSections?: CurrentCohortSection[];
+  cycleStartsOn?: string | null;
+  cycleEndsOn?: string | null;
   currentCohortName?: string;
   createSectionHref?: string | null;
 }
@@ -48,6 +50,8 @@ export function AdminRegistrationAcceptForm({
   onSuccess,
   labels,
   currentCohortSections,
+  cycleStartsOn,
+  cycleEndsOn,
   currentCohortName,
   createSectionHref,
 }: AdminRegistrationAcceptFormProps) {
@@ -135,8 +139,10 @@ export function AdminRegistrationAcceptForm({
           namePrefix={`join-${row.id}`}
           value={joinDisposition}
           onChange={setJoinDisposition}
-          labels={labels.joinBilling}
-        />
+        labels={labels.joinBilling}
+        cycleStartsOn={cycleStartsOn}
+        cycleEndsOn={cycleEndsOn}
+      />
 
         {formError ? (
           <p className="text-sm text-[var(--color-error)]" role="alert">

@@ -34,13 +34,22 @@ export function markRegistrationRowsEnrollmentFee<
     additionalSectionIds?: string[] | null;
     snapshotTotal?: number;
   },
->(rows: T[], chargingIds: ReadonlySet<string>): Array<T & { chargesEnrollmentFee: boolean }> {
-  return rows.map((row) => ({
-    ...row,
-    chargesEnrollmentFee:
-      (row.snapshotTotal ?? 0) > 0 ||
-      requestedRegistrationSectionIds(row).some((id) => chargingIds.has(id)),
-  }));
+>(
+  rows: T[],
+  chargingIds: ReadonlySet<string>,
+  openCohortDefaultFee = 0,
+): Array<T & { chargesEnrollmentFee: boolean }> {
+  return rows.map((row) => {
+    const sectionIds = requestedRegistrationSectionIds(row);
+    const inherits = sectionIds.length === 0 && openCohortDefaultFee > 0;
+    return {
+      ...row,
+      chargesEnrollmentFee:
+        (row.snapshotTotal ?? 0) > 0 ||
+        sectionIds.some((id) => chargingIds.has(id)) ||
+        inherits,
+    };
+  });
 }
 
 function chargingSectionId(row: unknown): string | null {

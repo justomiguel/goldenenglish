@@ -3,6 +3,10 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import type { RegistrationInboxCounts } from "@/lib/register/countRegistrationInboxFilters";
 import type { RegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
+import {
+  registrationFunnelStagesForCohort,
+  type RegistrationFunnelStage,
+} from "@/lib/register/registrationFunnelStage";
 import type { Dictionary } from "@/types/i18n";
 
 type FunnelLabels = Dictionary["admin"]["registrations"]["funnel"];
@@ -55,6 +59,20 @@ function idleClass(index: number, activeIndex: number): string {
   return row[slot] ?? row[0] ?? "";
 }
 
+function arrowLabel(
+  stage: RegistrationFunnelStage,
+  labels: FunnelLabels,
+  hasMatricula: boolean,
+): string {
+  if (stage === "enrolled_in_section" && hasMatricula) return labels.enrolledLatest;
+  if (stage === "registered") return labels.registered;
+  if (stage === "contacted") return labels.contacted;
+  if (stage === "awaiting_payment") return labels.awaitingPayment;
+  if (stage === "paid_without_section") return labels.paidWithoutSection;
+  if (stage === "awaiting_section") return labels.awaitingSection;
+  return labels.enrolledInSection;
+}
+
 function tpl(template: string, count: number): string {
   return template.replace(/\{\{count\}\}/g, String(count));
 }
@@ -69,23 +87,22 @@ export function RegistrationFunnelArrows({
   inboxFilter,
   inboxCounts,
   onInboxFilterChange,
+  cohortHasMatricula = false,
 }: {
   labels: FunnelLabels;
   groupLabel: string;
   inboxFilter: RegistrationInboxFilter | undefined;
   inboxCounts: RegistrationInboxCounts;
   onInboxFilterChange: (next: RegistrationInboxFilter) => void;
+  cohortHasMatricula?: boolean;
 }) {
   const groupRef = useRef<HTMLDivElement>(null);
   const [sizes, setSizes] = useState<Box[]>([]);
-  const stages = [
-    { value: "registered" as const, label: labels.registered, count: inboxCounts.registered },
-    { value: "contacted" as const, label: labels.contacted, count: inboxCounts.contacted },
-    { value: "awaiting_payment" as const, label: labels.awaitingPayment, count: inboxCounts.awaiting_payment },
-    { value: "paid_without_section" as const, label: labels.paidWithoutSection, count: inboxCounts.paid_without_section },
-    { value: "awaiting_section" as const, label: labels.awaitingSection, count: inboxCounts.awaiting_section },
-    { value: "enrolled_in_section" as const, label: labels.enrolledInSection, count: inboxCounts.enrolled_in_section },
-  ];
+  const stages = registrationFunnelStagesForCohort(cohortHasMatricula).map((value) => ({
+    value,
+    label: arrowLabel(value, labels, cohortHasMatricula),
+    count: inboxCounts[value],
+  }));
   const last = stages.length - 1;
   const activeIndex = Math.max(
     0,
@@ -107,7 +124,7 @@ export function RegistrationFunnelArrows({
     observer.observe(group);
     for (const el of group.querySelectorAll<HTMLElement>("[data-funnel-seg]")) observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [cohortHasMatricula]);
 
   return (
     <div ref={groupRef} className="flex w-full items-stretch overflow-x-auto p-1" role="group" aria-label={groupLabel}>

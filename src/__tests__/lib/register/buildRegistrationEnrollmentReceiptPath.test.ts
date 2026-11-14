@@ -1,6 +1,9 @@
 /** @vitest-environment node */
 import { describe, expect, it } from "vitest";
-import { buildRegistrationEnrollmentReceiptPath } from "@/lib/register/buildRegistrationEnrollmentReceiptPath";
+import {
+  buildRegistrationEnrollmentReceiptPath,
+  registrationReceiptObjectPath,
+} from "@/lib/register/buildRegistrationEnrollmentReceiptPath";
 
 const REG_ID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 
@@ -25,5 +28,15 @@ describe("buildRegistrationEnrollmentReceiptPath", () => {
       now: 1,
     });
     expect(path.endsWith(".jpg")).toBe(true);
+  });
+});
+
+describe("registrationReceiptObjectPath", () => {
+  it("keeps a stored object path and rejects a parent path", () => {
+    expect(registrationReceiptObjectPath(" registration-enrollment/a/pago.png ")).toBe(
+      "registration-enrollment/a/pago.png",
+    );
+    expect(registrationReceiptObjectPath("../secret.png")).toBeNull();
+    expect(registrationReceiptObjectPath("")).toBeNull();
   });
 });

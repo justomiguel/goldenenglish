@@ -11,6 +11,9 @@ import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatReg
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
 import { AdminRegistrationActionsSheet } from "@/components/pwa/molecules/AdminRegistrationActionsSheet";
+import { AdminRegistrationMarkingDialog } from "@/components/dashboard/AdminRegistrationMarkingDialog";
+import { AdminRegistrationReceiptLink } from "@/components/dashboard/AdminRegistrationReceiptLink";
+import { useMarkContactedWithLoader } from "@/hooks/useMarkContactedWithLoader";
 import { registrationIntentLabel } from "@/lib/register/registrationIntentLabel";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import { AdminRegistrationUniformExtras } from "@/components/dashboard/AdminRegistrationUniformExtras";
@@ -35,6 +38,8 @@ export interface AdminRegistrationPwaCardProps {
   onStartJoinCharge: (row: AdminRegistrationRow) => void;
   cohortSections?: { id: string; label: string }[];
   selectedCohortId?: string | null;
+  cycleStartsOn?: string | null;
+  cycleEndsOn?: string | null;
   currentCohortSections?: CurrentCohortSection[];
   createSectionHref?: string | null;
   createSectionLabel?: string;
@@ -58,10 +63,13 @@ export function AdminRegistrationPwaCard({
   onStartEnrollmentFee,
   cohortSections = [],
   selectedCohortId,
+  cycleStartsOn,
+  cycleEndsOn,
   rowSelected = false,
   onToggleSelected,
 }: AdminRegistrationPwaCardProps) {
   const [actionsOpen, setActionsOpen] = useState(false);
+  const marking = useMarkContactedWithLoader(onMarkContacted, () => setActionsOpen(false));
   const birthDisplay =
     formatCivilIsoDateForDisplay(locale, r.birth_date, {
       year: "numeric",
@@ -166,6 +174,17 @@ export function AdminRegistrationPwaCard({
               <span className="text-[var(--color-foreground)]">{labels.received}: </span>
               {receivedDisplay}
             </span>
+            {r.enrollmentFeeFamilyClaim === "cash" ? (
+              <span className="inline-flex w-fit items-center rounded-full bg-[var(--color-accent)]/15 px-2 py-0.5 text-xs font-medium text-[var(--color-foreground)]">
+                {labels.intake.cashClaimed}
+              </span>
+            ) : null}
+            {r.enrollmentFeeReceiptPath ? (
+              <AdminRegistrationReceiptLink
+                registrationId={r.id}
+                label={labels.intake.viewReceipt}
+              />
+            ) : null}
           </div>
         </dl>
         <AdminRegistrationUniformExtras
@@ -206,10 +225,21 @@ export function AdminRegistrationPwaCard({
           contact={contact}
           sections={cohortSections}
           selectedCohortId={selectedCohortId ?? undefined}
+          cycleStartsOn={cycleStartsOn}
+          cycleEndsOn={cycleEndsOn}
           onEdit={onEdit}
           onDelete={onDelete}
-          onMarkContacted={onMarkContacted}
+          onMarkContacted={marking.mark}
           onStartEnrollmentFee={onStartEnrollmentFee}
+          onWork={marking.track}
+        />
+        <AdminRegistrationMarkingDialog
+          open={marking.open}
+          error={marking.error}
+          onClose={marking.dismiss}
+          titleId={`registration-marking-${r.id}`}
+          title={marking.error ? labels.funnel.workingErrorTitle : labels.funnel.markingTitle}
+          body={labels.funnel.markingBody}
         />
       </div>
     </li>

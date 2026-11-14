@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
   loadFlowChileCredentialsPlain: vi.fn(),
   flowChileApiBase: vi.fn(() => "https://flow.test/api"),
   flowCreatePaymentOrder: vi.fn(),
-  getPublicSiteUrl: vi.fn(() => "https://goldenenglish.cl"),
+  getRequestPublicSiteUrl: vi.fn(async () => new URL("https://goldenenglish.cl")),
 }));
 
 vi.mock("@/lib/payment-gateways/mercadopago/loadMercadoPagoCredentialsPlain", () => ({
@@ -25,8 +25,8 @@ vi.mock("@/lib/payment-gateways/flow/loadFlowChileCredentialsPlain", () => ({
 vi.mock("@/lib/payment-gateways/flow/flowCreatePaymentOrder", () => ({
   flowCreatePaymentOrder: mocks.flowCreatePaymentOrder,
 }));
-vi.mock("@/lib/site/publicUrl", () => ({
-  getPublicSiteUrl: mocks.getPublicSiteUrl,
+vi.mock("@/lib/site/requestPublicUrl", () => ({
+  getRequestPublicSiteUrl: mocks.getRequestPublicSiteUrl,
 }));
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logServerActionInvariantViolation: vi.fn(),
@@ -89,7 +89,7 @@ const baseInput = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.getPublicSiteUrl.mockReturnValue("https://goldenenglish.cl");
+  mocks.getRequestPublicSiteUrl.mockResolvedValue(new URL("https://goldenenglish.cl"));
   mocks.flowChileApiBase.mockReturnValue("https://flow.test/api");
 });
 
@@ -118,6 +118,11 @@ describe("startRegistrationEnrollmentGatewayCore", () => {
         externalReference: `enrollment:${REG_ID}`,
         payerEmail: "ana@example.com",
         notificationUrl: expect.stringContaining("purpose=enrollment"),
+        backUrls: {
+          success: expect.stringContaining("/api/register/enrollment-pay-return?locale=es&pay=pay-token-1"),
+          failure: expect.stringContaining("/api/register/enrollment-pay-return?locale=es&pay=pay-token-1"),
+          pending: expect.stringContaining("/api/register/enrollment-pay-return?locale=es&pay=pay-token-1"),
+        },
       }),
     );
   });
@@ -148,6 +153,7 @@ describe("startRegistrationEnrollmentGatewayCore", () => {
       expect.objectContaining({
         commerceOrder: "MAT-2026-00000042",
         urlConfirmation: expect.stringContaining("purpose=enrollment"),
+        urlReturn: expect.stringContaining("/api/register/enrollment-pay-return?locale=es&pay=pay-token-1"),
       }),
     );
   });

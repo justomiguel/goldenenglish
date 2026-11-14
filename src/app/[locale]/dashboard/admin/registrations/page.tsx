@@ -6,11 +6,8 @@ import {
   loadCohortSections,
   loadCurrentCohort,
 } from "@/lib/academics/currentCohort";
-import {
-  loadPaginatedRegistrations,
-  type PaginatedRegistrationsParams,
-} from "@/lib/dashboard/loadPaginatedRegistrations";
-import type { RegistrationSortKey } from "@/lib/dashboard/adminRegistrationsSort";
+import { loadPaginatedRegistrations } from "@/lib/dashboard/loadPaginatedRegistrations";
+import { parseRegistrationsListSearchParams } from "@/lib/dashboard/parseRegistrationsListSearchParams";
 import {
   loadRegistrationEnrolledCount,
   loadRegistrationStatusCounts,
@@ -19,7 +16,7 @@ import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { AdminRegistrationsConfigPanel } from "@/components/dashboard/AdminRegistrationsConfigPanel";
 import { AdminRegistrationsTabs } from "@/components/dashboard/AdminRegistrationsTabs";
 import { AdminRegistrationCreateButton } from "@/components/dashboard/AdminRegistrationCreateButton";
-import { AdminRegistrationsStatsRow } from "@/components/dashboard/AdminRegistrationsStatsRow";
+import { AdminRegistrationsCohortStats } from "@/components/dashboard/AdminRegistrationsCohortStats";
 import {
   loadRegistrationSectionPickerOptions,
   loadRegistrationSectionPickerOptionsByCohort,
@@ -29,7 +26,7 @@ import { resolveActiveRegistrationExtrasPack } from "@/lib/register/packs/resolv
 import { registrationUsesCefrLevel } from "@/lib/register/packs/registrationUsesCefrLevel";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { loadRegistrationInboxCounts } from "@/lib/dashboard/loadRegistrationInboxCounts";
-import { parseRegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
+import { visibleRegistrationInboxFilter } from "@/lib/register/registrationFunnelStage";
 import { resolveRegistrationCohortId } from "@/lib/register/registrationCohortMembership";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveExistingStudentIdsForLeads } from "@/lib/register/resolveExistingStudentIdsForLeads";
@@ -47,30 +44,6 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps) {
   const { locale } = await params;
   return buildPageMetadata(locale, (d) => d.admin.registrations.title);
-}
-
-const VALID_SORT_KEYS: RegistrationSortKey[] = [
-  "name", "dni", "email", "phoneStudent", "phoneTutor", "level", "birth", "status", "received",
-];
-
-function parseSearchParams(raw: Record<string, string | string[] | undefined>): PaginatedRegistrationsParams {
-  const pageStr = typeof raw.page === "string" ? raw.page : "1";
-  const q = typeof raw.q === "string" ? raw.q : "";
-  const sort = typeof raw.sort === "string" && VALID_SORT_KEYS.includes(raw.sort as RegistrationSortKey)
-    ? (raw.sort as RegistrationSortKey)
-    : "received";
-  const dir = raw.dir === "asc" ? "asc" : "desc";
-  const status = raw.status === "new" || raw.status === "contacted" ? raw.status : undefined;
-  const inboxRaw = typeof raw.inbox === "string" ? raw.inbox : undefined;
-
-  return {
-    page: Math.max(1, parseInt(pageStr, 10) || 1),
-    q,
-    sort,
-    dir,
-    status,
-    inbox: parseRegistrationInboxFilter(inboxRaw, status),
-  };
 }
 
 export default async function AdminRegistrationsPage({ params, searchParams }: PageProps) {
@@ -98,7 +71,7 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
       </div>
     );
   }
-  const paginationParams = parseSearchParams(rawSp);
+  const paginationParams = parseRegistrationsListSearchParams(rawSp);
   const supabase = await createClient();
   const cohortConfig = await loadRegistrationCohortConfig();
   const openCohortId = cohortConfig.activeCohort?.id ?? null;
@@ -106,6 +79,12 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
     typeof rawSp.cohort === "string" ? rawSp.cohort : undefined,
     cohortConfig.cohorts,
     openCohortId,
+  );
+  const cohortHasMatricula =
+    (cohortConfig.cohorts.find((item) => item.id === selectedCohortId)?.enrollmentFeeAmount ?? 0) > 0;
+  paginationParams.inbox = visibleRegistrationInboxFilter(
+    paginationParams.inbox ?? "registered",
+    cohortHasMatricula,
   );
   if (selectedCohortId && openCohortId) {
     paginationParams.cohortId = selectedCohortId;
@@ -117,7 +96,7 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
   const headerCountsPromise =
     listQuery.trim() === "" ? listCountsPromise : loadRegistrationStatusCounts(supabase, "");
 
-  const [result, legalAgeMajority, cohort, statusCounts, headerCounts, enrolledCount, inboxCounts, brand, sectionOptions, profile] =
+  const [result, legalAgeMajority, cohort, statusCounts, headerCounts, enrolledCount, inboxLoad, brand, sectionOptions, profile] =
     await Promise.all([
       loadPaginatedRegistrations(supabase, paginationParams),
       Promise.resolve(getLegalAgeMajorityFromSystem()),
@@ -145,6 +124,7 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
     cohortConfig.cohorts.map((item) => item.id),
   );
   const extrasPack = profile.extrasPack;
+  const inboxCounts = inboxLoad.inbox;
   const registrationLabels = profile.usesCefrLevel
     ? dict.admin.registrations
     : {
@@ -192,13 +172,16 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
         }
       />
       <AdminRegistrationsTabs labels={tabLabels}>
-      <AdminRegistrationsStatsRow
+      <AdminRegistrationsCohortStats
         locale={locale}
-        labels={dict.admin.registrations.stats}
-        total={headerCounts.total + enrolledCount}
-        pending={headerCounts.new}
-        contacted={headerCounts.contacted}
-        enrolled={enrolledCount}
+        statsLabels={dict.admin.registrations.stats}
+        cohortLabel={dict.admin.registrations.funnel.cohortLabel}
+        scoped={Boolean(selectedCohortId && openCohortId)}
+        cards={inboxLoad.cards}
+        headerCounts={headerCounts}
+        enrolledCount={enrolledCount}
+        cohorts={cohortConfig.cohorts}
+        selectedCohortId={selectedCohortId}
       />
       <div className="mt-3 md:mt-6">
         <AdminRegistrationsScreen
@@ -228,9 +211,11 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
           sectionOptionsByCohort={sectionOptionsByCohort}
           currentCohortName={inscriptionsCohort?.name}
           createSectionHref={createSectionHref}
-          cohorts={cohortConfig.cohorts}
           selectedCohortId={selectedCohortId}
+          cycleStartsOn={cohortConfig.cohorts.find((item) => item.id === selectedCohortId)?.startsOn ?? null}
+          cycleEndsOn={cohortConfig.cohorts.find((item) => item.id === selectedCohortId)?.endsOn ?? null}
           openCohortId={openCohortId}
+          cohortHasMatricula={cohortHasMatricula}
         />
       </div>
       </AdminRegistrationsTabs>

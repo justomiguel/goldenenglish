@@ -1,7 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PaginatedRegistrationsParams } from "@/lib/dashboard/loadPaginatedRegistrations";
 import type { RegistrationSortKey } from "@/lib/dashboard/adminRegistrationsSort";
+import { loadCohortEnrollmentFeeAmount } from "@/lib/register/loadCohortEnrollmentFeeAmount";
 import { loadAllChargingSectionIds } from "@/lib/register/markRegistrationRowsEnrollmentFee";
+import { loadOpenCohortEnrollmentDefault } from "@/lib/register/loadOpenCohortEnrollmentDefault";
 import {
   applyRegistrationFunnelFilter,
   parseRegistrationInboxFilter,
@@ -71,9 +73,25 @@ export async function openRegistrationListQueries(
     dataQuery = dataQuery.or(filter);
     countQuery = countQuery.or(filter);
   }
-  const chargingSectionIds = await loadAllChargingSectionIds(supabase);
-  dataQuery = applyRegistrationFunnelFilter(dataQuery, inbox, chargingSectionIds) as unknown as ListQuery;
-  countQuery = applyRegistrationFunnelFilter(countQuery, inbox, chargingSectionIds) as unknown as ListQuery;
+  const [chargingSectionIds, cohortFee] = await Promise.all([
+    loadAllChargingSectionIds(supabase),
+    params.cohortId
+      ? loadCohortEnrollmentFeeAmount(supabase, params.cohortId)
+      : loadOpenCohortEnrollmentDefault(supabase).then((row) => row?.amount ?? 0),
+  ]);
+  const openCohortFee = cohortFee;
+  dataQuery = applyRegistrationFunnelFilter(
+    dataQuery,
+    inbox,
+    chargingSectionIds,
+    openCohortFee,
+  ) as unknown as ListQuery;
+  countQuery = applyRegistrationFunnelFilter(
+    countQuery,
+    inbox,
+    chargingSectionIds,
+    openCohortFee,
+  ) as unknown as ListQuery;
   const sectionId = params.sectionId?.trim() ?? "";
   if (sectionId) {
     const sectionFilter = `preferred_section_id.eq.${sectionId},additional_section_ids.cs.{${sectionId}}`;

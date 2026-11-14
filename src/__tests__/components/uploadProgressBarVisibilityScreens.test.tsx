@@ -106,6 +106,10 @@ describe("upload progress bar visibility on account and site screens", () => {
           pickSection: "Pick",
           error: "Error",
           receiptOk: "Saved",
+          cash: "I paid in cash",
+          online: "Pay online",
+          uploadChoice: "Upload a receipt",
+          onlineEmpty: "Online pay is not available.",
         }}
       />,
     );

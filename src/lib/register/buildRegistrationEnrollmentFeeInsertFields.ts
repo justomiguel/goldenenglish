@@ -6,6 +6,7 @@ import {
 } from "@/lib/register/registrationFeeSnapshot";
 import { intakeStateForSnapshotTotal } from "@/lib/register/registrationIntake";
 import { parseOptionalFeeAmount, resolveEffectiveMonthlyFee } from "@/lib/billing/resolveCohortFeeDefaults";
+import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
 import { DEFAULT_SECTION_FEE_PLAN_CURRENCY } from "@/types/sectionFeePlan";
 import { logServerException } from "@/lib/logging/serverActionLog";
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
@@ -13,6 +14,7 @@ import { getInstituteTimeZone } from "@/lib/datetime/instituteTimeZone";
 import { loadFamilyBillingPolicy } from "@/lib/billing/loadFamilyBillingPolicy";
 import { loadStudentPaidTrialCredit } from "@/lib/billing/loadStudentPaidTrialCredit";
 import { planJoinPackageQuote } from "@/lib/register/planJoinPackageQuote";
+import { loadOpenCohortEnrollmentDefault } from "@/lib/register/loadOpenCohortEnrollmentDefault";
 
 export type RegistrationEnrollmentFeeInsertFields = {
   pay_token: string;
@@ -55,6 +57,43 @@ export async function buildRegistrationEnrollmentFeeInsertFields(input: {
   }
 }
 
+async function quoteInheritedCohortFee(
+  admin: SupabaseClient,
+  nowIso: string,
+  now: Date,
+  timeZone: string,
+  currency: string,
+): Promise<RegistrationEnrollmentFeeInsertFields> {
+  const inherited = await loadOpenCohortEnrollmentDefault(admin);
+  if (!inherited) return emptyFields(nowIso, "needs_section");
+  const fee_snapshot = planJoinPackageQuote({
+    mode: "per_section",
+    currency,
+    nowIso,
+    now,
+    timeZone,
+    sections: [
+      {
+        id: inherited.id,
+        name: inherited.name,
+        sectionAmount: inherited.amount,
+        cohortDefault: inherited.amount,
+        monthlyAmount: 0,
+        billingMode: null,
+        slots: [],
+        startsOn: null,
+        endsOn: null,
+      },
+    ],
+  });
+  return {
+    pay_token: generateRegistrationPayToken(),
+    fee_snapshot,
+    intake_state: intakeStateForSnapshotTotal(fee_snapshot.total),
+    fee_captured: false,
+  };
+}
+
 async function loadFields(input: {
   admin: SupabaseClient;
   sectionIds: string[];
@@ -64,21 +103,9 @@ async function loadFields(input: {
   const ids = [...new Set(input.sectionIds.filter(Boolean))];
   const now = new Date(input.nowIso);
   const timeZone = getInstituteTimeZone();
+  const billing = await loadBillingCurrencySetting(input.admin);
   if (ids.length === 0) {
-    const fee_snapshot = planJoinPackageQuote({
-      mode: "per_section",
-      currency: DEFAULT_SECTION_FEE_PLAN_CURRENCY,
-      nowIso: input.nowIso,
-      now,
-      timeZone,
-      sections: [],
-    });
-    return {
-      pay_token: generateRegistrationPayToken(),
-      fee_snapshot,
-      intake_state: "needs_section",
-      fee_captured: false,
-    };
+    return quoteInheritedCohortFee(input.admin, input.nowIso, now, timeZone, billing.currency);
   }
 
   const { data: rows, error } = await input.admin
@@ -96,7 +123,7 @@ async function loadFields(input: {
 
   const fee_snapshot = planJoinPackageQuote({
     mode: parseMode(firstCohort?.enrollment_fee_mode),
-    currency: DEFAULT_SECTION_FEE_PLAN_CURRENCY,
+    currency: billing.currency,
     nowIso: input.nowIso,
     now,
     timeZone,

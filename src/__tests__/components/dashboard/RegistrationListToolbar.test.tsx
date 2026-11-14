@@ -33,6 +33,7 @@ describe("RegistrationListToolbar", () => {
         }}
         onInboxFilterChange={() => {}}
         locale="en"
+        cohortHasMatricula
       />,
     );
 
@@ -54,14 +55,14 @@ describe("RegistrationListToolbar", () => {
     const group = screen.getByRole("group", { name: dictEn.admin.registrations.status });
     expect(group.className).toContain("w-full");
     expect(group.querySelector(".rounded-full")).toBeNull();
-    const contacted = screen.getByRole("button", { name: "Registered, contacted (1)" });
-    const waiting = screen.getByRole("button", { name: "Contacted, waiting for payment (0)" });
+    const contacted = screen.getByRole("button", { name: "Pre-enrolled, contacted (1)" });
+    const waiting = screen.getByRole("button", { name: "Waiting for payment (0)" });
     expect(contacted.className).toContain("flex-1");
     expect(contacted.className).not.toContain("bg-[var(--color-muted)]");
     expect(waiting.className).not.toContain("bg-[var(--color-muted)]");
     expect(waiting.className).not.toContain("hover:opacity");
     expect(contacted.className).not.toBe(waiting.className);
-    const tip = screen.getByRole("button", { name: "Enrolled in a section (0)" });
+    const tip = screen.getByRole("button", { name: "Latest enrolled (0)" });
     expect(tip.parentElement?.querySelector("[data-funnel-stroke]")).not.toBeNull();
     expect(tip.getAttribute("style")).toContain("calc(100% - 36px)");
   });
@@ -85,16 +86,17 @@ describe("RegistrationListToolbar", () => {
         }}
         onInboxFilterChange={() => {}}
         locale="en"
+        cohortHasMatricula
       />,
     );
 
     const passed = screen.getByRole("button", { name: "Pre-enrolled (2)" });
-    const ahead = screen.getByRole("button", { name: "Matrícula paid, no section (0)" });
+    const ahead = screen.getByRole("button", { name: "Paid (0)" });
     expect(passed.className).toContain("_34%");
     expect(ahead.className).toContain("_14%");
   });
 
-  it("shows the cohort select and hides the batch bar on the enrolled arrow", () => {
+  it("hides the batch bar on the enrolled arrow", () => {
     render(
       <RegistrationListToolbar
         labels={dictEn.admin.registrations}
@@ -113,7 +115,6 @@ describe("RegistrationListToolbar", () => {
         }}
         onInboxFilterChange={() => {}}
         locale="en"
-        cohorts={[{ id: "c1", name: "2026" }]}
         selectedCohortId="c1"
         selection={{
           pageIds: ["a"],
@@ -127,8 +128,39 @@ describe("RegistrationListToolbar", () => {
       />,
     );
 
-    expect(screen.getByRole("combobox")).toHaveValue("c1");
-    expect(screen.getByRole("option", { name: "2026" })).toBeInTheDocument();
+    expect(screen.queryByRole("combobox")).toBeNull();
     expect(screen.queryByRole("button", { name: dictEn.admin.registrations.funnel.selectPage })).toBeNull();
+  });
+
+  it("hides payment arrows when the cohort has no matrícula", () => {
+    render(
+      <RegistrationListToolbar
+        labels={dictEn.admin.registrations}
+        query=""
+        onQueryChange={() => {}}
+        totalCount={2}
+        filteredCount={2}
+        inboxFilter="registered"
+        inboxCounts={{
+          registered: 1,
+          contacted: 0,
+          awaiting_payment: 0,
+          paid_without_section: 0,
+          awaiting_section: 1,
+          enrolled_in_section: 0,
+        }}
+        onInboxFilterChange={() => {}}
+        locale="en"
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Pre-enrolled (1)" })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Contacted, waiting for a section (1)" }),
+    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Enrolled in a section (0)" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Pre-enrolled, contacted (0)" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Waiting for payment (0)" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Paid (0)" })).toBeNull();
   });
 });

@@ -22,21 +22,28 @@ import {
   collectSectionsChargingEnrollmentFee,
   markRegistrationRowsEnrollmentFee,
 } from "@/lib/register/markRegistrationRowsEnrollmentFee";
+import { loadCohortEnrollmentFeeAmount } from "@/lib/register/loadCohortEnrollmentFeeAmount";
 import { attachTrialSeatsToRegistrationRows } from "@/lib/register/attachTrialSeatsToRegistrationRows";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 
 const PAGE = 1000;
 
-async function decorate(supabase: SupabaseClient, rows: AdminRegistrationRow[]) {
+async function decorate(
+  supabase: SupabaseClient,
+  rows: AdminRegistrationRow[],
+  cohortId: string,
+) {
   const requestedIds = rows.flatMap((row) => requestedRegistrationSectionIds(row));
-  const [closedIds, chargingIds, withSeats] = await Promise.all([
+  const [closedIds, chargingIds, withSeats, cohortFee] = await Promise.all([
     collectClosedRequestedSectionIds(supabase, requestedIds),
     collectSectionsChargingEnrollmentFee(supabase, requestedIds),
     attachTrialSeatsToRegistrationRows(supabase, rows),
+    loadCohortEnrollmentFeeAmount(supabase, cohortId),
   ]);
   return markRegistrationRowsEnrollmentFee(
     markRegistrationRowsClosedSections(withSeats, closedIds),
     chargingIds,
+    cohortFee,
   );
 }
 
@@ -87,6 +94,6 @@ export async function loadRegistrationCohortPage(
     }];
   });
   const start = (page - 1) * pageSize;
-  const slice = await decorate(supabase, filtered.slice(start, start + pageSize));
+  const slice = await decorate(supabase, filtered.slice(start, start + pageSize), params.cohortId);
   return { rows: slice, totalCount: filtered.length, page, pageSize };
 }

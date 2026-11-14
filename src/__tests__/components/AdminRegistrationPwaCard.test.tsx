@@ -73,7 +73,7 @@ describe("AdminRegistrationPwaCard", () => {
       />,
     );
 
-    expect(screen.getByText("Pérez Ana")).toBeInTheDocument();
+    expect(screen.getAllByText("Pérez Ana").length).toBeGreaterThan(0);
     expect(screen.queryByRole("link", { name: labels.whatsappCta })).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: labels.moreActionsAria.replace("{{name}}", "Pérez Ana") }));
     expect(screen.getByRole("link", { name: labels.whatsappCta })).toHaveAttribute(
@@ -110,5 +110,27 @@ describe("AdminRegistrationPwaCard", () => {
     await user.click(screen.getByRole("button", { name: labels.moreActionsAria.replace("{{name}}", "Pérez Ana") }));
     await user.click(screen.getByRole("button", { name: labels.editTitle }));
     expect(onEdit).toHaveBeenCalledWith(row);
+  });
+
+  it("shows a cash report as a chip", () => {
+    render(
+      <AdminRegistrationPwaCard
+        locale="es"
+        r={{ ...row, enrollmentFeeFamilyClaim: "cash" }}
+        busy={false}
+        labels={labels}
+        statusLabel={(status) => status}
+        contact={{ isMinor: false, student: null, tutor: null }}
+        instituteName="Test Institute"
+        onAccept={() => {}}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        onMarkContacted={() => {}}
+        onRevertToNew={() => {}}
+        onStartEnrollmentFee={() => {}}
+        onStartJoinCharge={() => {}}
+      />,
+    );
+    expect(screen.getByText(labels.intake.cashClaimed)).toHaveClass("rounded-full");
   });
 });

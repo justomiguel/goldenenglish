@@ -17,6 +17,8 @@ export function AdminRegistrationsTableModals({
   legalAgeMajority,
   list,
   currentCohortSections,
+  cycleStartsOn,
+  cycleEndsOn,
   currentCohortName,
   createSectionHref,
   usesCefrLevel,
@@ -27,6 +29,8 @@ export function AdminRegistrationsTableModals({
   legalAgeMajority: number;
   list: List;
   currentCohortSections?: CurrentCohortSection[];
+  cycleStartsOn?: string | null;
+  cycleEndsOn?: string | null;
   currentCohortName?: string;
   createSectionHref?: string | null;
   usesCefrLevel: boolean;
@@ -54,6 +58,8 @@ export function AdminRegistrationsTableModals({
         labels={labels}
         userLabels={userLabels}
         currentCohortSections={currentCohortSections}
+        cycleStartsOn={cycleStartsOn}
+        cycleEndsOn={cycleEndsOn}
         currentCohortName={currentCohortName}
         createSectionHref={createSectionHref}
       />

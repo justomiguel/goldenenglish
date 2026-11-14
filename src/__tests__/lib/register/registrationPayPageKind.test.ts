@@ -56,6 +56,10 @@ describe("registrationPayPageKind", () => {
     expect(registrationPayPageKind(base)).toBe("pay");
   });
 
+  it("returns cash_claimed when the family reported cash and the fee is still open", () => {
+    expect(registrationPayPageKind({ ...base, familyClaim: "cash" })).toBe("cash_claimed");
+  });
+
   it("returns offer while a proposal is live even if the original section is full", () => {
     expect(
       registrationPayPageKind({

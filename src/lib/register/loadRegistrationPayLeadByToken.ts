@@ -20,6 +20,7 @@ export type RegistrationPayLead = {
   firstName: string;
   lastName: string;
   tutorName: string | null;
+  feeSnapshot: unknown;
 };
 
 export function requestedSectionIdsFromLead(lead: RegistrationPayLead): string[] {
@@ -82,5 +83,6 @@ export async function loadRegistrationPayLeadByToken(
     firstName: String(row.first_name ?? "").trim(),
     lastName: String(row.last_name ?? "").trim(),
     tutorName: row.tutor_name == null ? null : String(row.tutor_name),
+    feeSnapshot: row.fee_snapshot ?? {},
   };
 }

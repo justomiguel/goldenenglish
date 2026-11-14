@@ -1,9 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
+import { mockPush } from "@/test/navigationMock";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { RegistrationMatriculaPayScreen } from "@/components/register/RegistrationMatriculaPayScreen";
 import type { RegistrationPayContext } from "@/lib/register/parseRegistrationPayContext";
 
 vi.mock("@/app/[locale]/matricula/matriculaPayActions", () => ({
+  claimRegistrationEnrollmentCashAction: vi.fn(),
   startRegistrationEnrollmentFlowAction: vi.fn(),
   startRegistrationEnrollmentMercadoPagoAction: vi.fn(),
   uploadRegistrationEnrollmentReceiptAction: vi.fn(),
@@ -54,8 +57,48 @@ describe("RegistrationMatriculaPayScreen", () => {
       />,
     );
     expect(screen.getByRole("heading", { name: labels.title })).toBeInTheDocument();
-    expect(screen.getByText(/cupos se pueden acabar/)).toBeInTheDocument();
+    expect(screen.queryByText(/cupos se pueden acabar/)).not.toBeInTheDocument();
     expect(screen.getByText(/Matrícula/)).toBeInTheDocument();
+    expect(screen.getByText("CLP")).toBeInTheDocument();
+  });
+
+  it("keeps the fee on screen when the gateway rejects the payment", () => {
+    render(
+      <RegistrationMatriculaPayScreen
+        locale="es"
+        studentName="Ana Pérez"
+        sectionLabel="A2 Mañana"
+        context={base}
+        sectionIsFull={false}
+        result="rejected"
+        labels={{
+          ...labels,
+          gatewayRejected: "El pago no se confirmó. Puedes intentar de nuevo.",
+        }}
+      />,
+    );
+    expect(screen.getByText(/no se confirmó/)).toBeInTheDocument();
+    expect(screen.getByText("CLP")).toBeInTheDocument();
+  });
+
+  it("goes home after a confirmed gateway payment", () => {
+    vi.useFakeTimers();
+    render(
+      <RegistrationMatriculaPayScreen
+        locale="es"
+        studentName="Ana Pérez"
+        sectionLabel="A2 Mañana"
+        context={{ ...base, feeCaptured: true, intakeState: "needs_section" }}
+        sectionIsFull={false}
+        result="paid"
+        homeHref="/es"
+        labels={{ ...labels, leaving: "Te llevamos al inicio." }}
+      />,
+    );
+    expect(screen.getByText("Te llevamos al inicio.")).toBeInTheDocument();
+    vi.advanceTimersByTime(1600);
+    expect(mockPush).toHaveBeenCalledWith("/es");
+    vi.useRealTimers();
   });
 
   it("shows the full-section error when the seat is gone", () => {
@@ -87,6 +130,96 @@ describe("RegistrationMatriculaPayScreen", () => {
     expect(screen.queryByText(/cupos se pueden acabar/)).not.toBeInTheDocument();
   });
 
+  it("shows cash, online pay, and the receipt upload on the fee page", async () => {
+    const user = userEvent.setup();
+    render(
+      <RegistrationMatriculaPayScreen
+        locale="es"
+        studentName="Ana Pérez"
+        sectionLabel="A2 Mañana"
+        context={base}
+        sectionIsFull={false}
+        labels={labels}
+        payUi={{
+          token: "tok",
+          methods: ["mercadopago"],
+          transferInstructions: null,
+          alternatives: [],
+          whatsappUrl: "",
+          contactEmail: "",
+          actionLabels: {
+            flow: "Pagar con Flow",
+            mercadoPago: "Pagar con Mercado Pago",
+            transfer: "Transferencia",
+            transferHint: "Sube el comprobante",
+            uploadButton: "Enviar comprobante",
+            pickSection: "Elegí",
+            error: "Error",
+            receiptOk: "Ok",
+            cash: "Ya pagué con efectivo, avisar",
+            online: "Pagar online",
+            uploadChoice: "Subir comprobante de transferencia o pago",
+            chooseFile: "Elegir archivo",
+            onlineEmpty: "El pago online no está disponible.",
+            cashOk: "Avisamos al instituto.",
+          },
+        }}
+      />,
+    );
+    expect(screen.queryByText(/cupos se pueden acabar/)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ya pagué con efectivo, avisar" })).toBeInTheDocument();
+    expect(screen.getByText("Pagar online")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Pagar con Mercado Pago" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Pagar con Flow" })).not.toBeInTheDocument();
+    expect(screen.getByText("Subir comprobante de transferencia o pago")).toBeInTheDocument();
+    const choose = screen.getByRole("button", { name: "Elegir archivo" });
+    expect(choose.className).toContain("bg-[var(--color-secondary)]");
+    const send = screen.getByRole("button", { name: "Enviar comprobante" });
+    expect(send).toBeDisabled();
+    await user.upload(
+      screen.getByLabelText("Elegir archivo"),
+      new File(["pdf"], "pago.pdf", { type: "application/pdf" }),
+    );
+    expect(send).toBeEnabled();
+  });
+
+  it("shows the cash notice and leaves the pay choices hidden", () => {
+    render(
+      <RegistrationMatriculaPayScreen
+        locale="es"
+        studentName="Ana Pérez"
+        sectionLabel="A2 Mañana"
+        context={{ ...base, familyClaim: "cash" }}
+        sectionIsFull={false}
+        homeHref="/es"
+        labels={{ ...labels, cashOk: "Avisamos al instituto.", leaving: "Te llevamos al inicio." }}
+        payUi={{
+          token: "tok",
+          methods: ["mercadopago"],
+          transferInstructions: null,
+          alternatives: [],
+          whatsappUrl: "",
+          contactEmail: "",
+          actionLabels: {
+            flow: "Flow",
+            mercadoPago: "MP",
+            transfer: "T",
+            transferHint: "",
+            uploadButton: "Enviar",
+            pickSection: "Elegí",
+            error: "Error",
+            receiptOk: "Ok",
+            cash: "Ya pagué con efectivo, avisar",
+            online: "Pagar online",
+            uploadChoice: "Subir",
+          },
+        }}
+      />,
+    );
+    expect(screen.getByText("Avisamos al instituto.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Ya pagué con efectivo, avisar" })).not.toBeInTheDocument();
+  });
+
   it("shows transfer instructions when transfer is the only method", () => {
     render(
       <RegistrationMatriculaPayScreen
@@ -112,6 +245,10 @@ describe("RegistrationMatriculaPayScreen", () => {
             pickSection: "Elegí",
             error: "Error",
             receiptOk: "Ok",
+            cash: "Ya pagué con efectivo, avisar",
+            online: "Pagar online",
+            uploadChoice: "Subir comprobante",
+            onlineEmpty: "Sin pago online",
           },
         }}
       />,

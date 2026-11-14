@@ -44,6 +44,8 @@ export interface AdminRegistrationsPwaListProps {
   currentCohortSections?: CurrentCohortSection[];
   sectionOptionsByCohort?: Record<string, RegistrationSectionPickerOption[]>;
   selectedCohortId?: string | null;
+  cycleStartsOn?: string | null;
+  cycleEndsOn?: string | null;
   createSectionHref?: string | null;
   createSectionLabel?: string;
   onBusy?: (id: string | null) => void;
@@ -82,6 +84,8 @@ export function AdminRegistrationsPwaList({
   currentCohortSections,
   sectionOptionsByCohort,
   selectedCohortId,
+  cycleStartsOn,
+  cycleEndsOn,
   createSectionHref,
   createSectionLabel,
   onBusy,
@@ -127,11 +131,10 @@ export function AdminRegistrationsPwaList({
             onRevertToNew={onRevertToNew}
             onStartEnrollmentFee={onStartEnrollmentFee}
             onStartJoinCharge={onStartJoinCharge}
-            cohortSections={cohortSectionChoices(
-              r.status === "enrolled" ? selectedCohortId : r.preferredSectionCohortId,
-              sectionOptionsByCohort,
-            )}
+            cohortSections={cohortSectionChoices(selectedCohortId, sectionOptionsByCohort)}
             selectedCohortId={selectedCohortId}
+            cycleStartsOn={cycleStartsOn}
+            cycleEndsOn={cycleEndsOn}
             currentCohortSections={currentCohortSections}
             createSectionHref={createSectionHref}
             createSectionLabel={createSectionLabel}

@@ -51,9 +51,11 @@ interface AdminRegistrationsScreenNarrowProps {
   createSectionHref?: string | null;
   usesCefrLevel?: boolean;
   selection?: RegistrationPageSelection;
-  cohorts?: readonly { id: string; name: string }[];
   selectedCohortId?: string | null;
+  cycleStartsOn?: string | null;
+  cycleEndsOn?: string | null;
   openCohortId?: string | null;
+  cohortHasMatricula?: boolean;
 }
 
 export function AdminRegistrationsScreenNarrow({
@@ -82,9 +84,11 @@ export function AdminRegistrationsScreenNarrow({
   createSectionHref,
   usesCefrLevel = false,
   selection,
-  cohorts,
   selectedCohortId,
+  cycleStartsOn,
+  cycleEndsOn,
   openCohortId,
+  cohortHasMatricula = false,
 }: AdminRegistrationsScreenNarrowProps) {
   void surface;
   const u = useAdminRegistrationsList({
@@ -128,9 +132,9 @@ export function AdminRegistrationsScreenNarrow({
                 onInboxFilterChange={u.setInboxFilter}
                 locale={locale}
                 selection={selection}
-                cohorts={cohorts}
                 selectedCohortId={selectedCohortId}
                 openCohortId={openCohortId}
+                cohortHasMatricula={cohortHasMatricula}
               />
             }
             labels={labels}
@@ -157,6 +161,8 @@ export function AdminRegistrationsScreenNarrow({
             currentCohortSections={currentCohortSections}
             sectionOptionsByCohort={sectionOptionsByCohort}
             selectedCohortId={selectedCohortId}
+            cycleStartsOn={cycleStartsOn}
+            cycleEndsOn={cycleEndsOn}
             createSectionHref={createSectionHref}
             createSectionLabel={labels.createSectionInCohort.replaceAll(
               "{{cohort}}",
@@ -199,6 +205,8 @@ export function AdminRegistrationsScreenNarrow({
             labels={labels}
             userLabels={userLabels}
             currentCohortSections={currentCohortSections}
+            cycleStartsOn={cycleStartsOn}
+            cycleEndsOn={cycleEndsOn}
             currentCohortName={currentCohortName}
             createSectionHref={createSectionHref}
           />

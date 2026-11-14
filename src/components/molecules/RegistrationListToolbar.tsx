@@ -13,7 +13,6 @@ import type { RegistrationInboxFilter } from "@/lib/register/registrationInboxFi
 import type { RegistrationInboxCounts } from "@/lib/register/countRegistrationInboxFilters";
 import { RegistrationFunnelArrows } from "@/components/molecules/RegistrationFunnelArrows";
 import { RegistrationFunnelBatchBar } from "@/components/molecules/RegistrationFunnelBatchBar";
-import { RegistrationCohortSelect } from "@/components/molecules/RegistrationCohortSelect";
 import type { RegistrationPageSelection } from "@/hooks/useRegistrationPageSelection";
 
 type RegLabels = Dictionary["admin"]["registrations"];
@@ -38,9 +37,9 @@ export interface RegistrationListToolbarProps {
   onInboxFilterChange?: (next: RegistrationInboxFilter) => void;
   locale?: string;
   selection?: RegistrationPageSelection;
-  cohorts?: readonly { id: string; name: string }[];
   selectedCohortId?: string | null;
   openCohortId?: string | null;
+  cohortHasMatricula?: boolean;
 }
 
 export function RegistrationListToolbar({
@@ -57,9 +56,9 @@ export function RegistrationListToolbar({
   onInboxFilterChange,
   locale,
   selection,
-  cohorts,
   selectedCohortId,
   openCohortId,
+  cohortHasMatricula = false,
 }: RegistrationListToolbarProps) {
   const { localValue, setLocalValue, flushNow } = useDebouncedSearch({
     value: query,
@@ -121,13 +120,6 @@ export function RegistrationListToolbar({
           className="min-h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] py-2 pl-10 pr-3 text-sm outline-none ring-[var(--color-primary)] placeholder:text-[var(--color-muted-foreground)] focus-visible:ring-2"
         />
       </form>
-      {cohorts && cohorts.length > 0 && selectedCohortId ? (
-        <RegistrationCohortSelect
-          label={labels.funnel.cohortLabel}
-          cohorts={cohorts}
-          value={selectedCohortId}
-        />
-      ) : null}
       {inboxCounts && onInboxFilterChange ? (
         <div className="space-y-3">
           <RegistrationFunnelArrows
@@ -136,6 +128,7 @@ export function RegistrationListToolbar({
             inboxFilter={inboxFilter}
             inboxCounts={inboxCounts}
             onInboxFilterChange={onInboxFilterChange}
+            cohortHasMatricula={cohortHasMatricula}
           />
           {selection && locale && inboxFilter !== "enrolled_in_section" ? (
             <RegistrationFunnelBatchBar

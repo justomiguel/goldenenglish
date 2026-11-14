@@ -20,6 +20,8 @@ export interface AdminRegistrationExpandedDetailsProps {
   sectionName: string | null;
   requestedSectionNames?: string[];
   currentCohortSections?: CurrentCohortSection[];
+  cycleStartsOn?: string | null;
+  cycleEndsOn?: string | null;
   createSectionHref?: string | null;
   createSectionLabel?: string;
   busy?: boolean;
@@ -46,6 +48,8 @@ export function AdminRegistrationExpandedDetails({
   sectionName,
   requestedSectionNames = [],
   currentCohortSections,
+  cycleStartsOn,
+  cycleEndsOn,
   createSectionHref,
   createSectionLabel,
   busy,
@@ -129,6 +133,8 @@ export function AdminRegistrationExpandedDetails({
             labels={labels.intake}
             joinBilling={labels.joinBilling}
             sections={currentCohortSections ?? []}
+            cycleStartsOn={cycleStartsOn}
+            cycleEndsOn={cycleEndsOn}
             createSectionHref={createSectionHref}
             createSectionLabel={createSectionLabel}
             emptySectionLabel={labels.noSectionsInCohort}

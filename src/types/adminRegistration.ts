@@ -49,6 +49,7 @@ export interface AdminRegistrationRow {
   acceptedStudentId?: string | null;
   preferredSectionCohortId?: string | null;
   enrollmentFeeReceiptPath?: string | null;
+  enrollmentFeeFamilyClaim?: "cash" | null;
   enrollmentFeeMailSentAt?: string | null;
   proposedSectionId?: string | null;
   /** Active section cohorts for an enrolled student. */
