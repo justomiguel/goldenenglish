@@ -7711,7 +7711,7 @@
         "paidWithoutSection": "Paid ({{count}})",
         "awaitingSection": "Contacted, waiting for a section ({{count}})",
         "enrolledInSection": "Enrolled in a section ({{count}})",
-        "enrolledLatest": "Latest enrolled ({{count}})",
+        "enrolledLatest": "Enrolled in a section ({{count}})",
         "actions": "Actions",
         "contactTitle": "Contact",
         "stepRegistered": "Contact the family by email or WhatsApp. Then mark the lead contacted. If there is no matrícula, that mark creates the student account.",

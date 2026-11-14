@@ -7704,7 +7704,7 @@
         "paidWithoutSection": "Pagos ({{count}})",
         "awaitingSection": "Contactados à espera de turma ({{count}})",
         "enrolledInSection": "Inscritos ({{count}})",
-        "enrolledLatest": "Últimos inscritos ({{count}})",
+        "enrolledLatest": "Inscritos com turma ({{count}})",
         "actions": "Ações",
         "contactTitle": "Contactar",
         "stepRegistered": "Fale com a família por e-mail ou WhatsApp. Depois marque o contato. Se não houver matrícula, essa marca cria a conta do aluno.",

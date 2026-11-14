@@ -62,7 +62,7 @@ describe("RegistrationListToolbar", () => {
     expect(waiting.className).not.toContain("bg-[var(--color-muted)]");
     expect(waiting.className).not.toContain("hover:opacity");
     expect(contacted.className).not.toBe(waiting.className);
-    const tip = screen.getByRole("button", { name: "Latest enrolled (0)" });
+    const tip = screen.getByRole("button", { name: "Enrolled in a section (0)" });
     expect(tip.parentElement?.querySelector("[data-funnel-stroke]")).not.toBeNull();
     expect(tip.getAttribute("style")).toContain("calc(100% - 36px)");
   });

@@ -14,7 +14,7 @@ With a matrícula, the arrows are:
 2. Pre-inscritos contactados
 3. Esperando pago
 4. Pagados
-5. Últimos inscritos
+5. Inscritos con sección
 
 Without a matrícula, the arrows are:
 
