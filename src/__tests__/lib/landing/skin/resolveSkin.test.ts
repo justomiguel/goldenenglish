@@ -82,6 +82,26 @@ describe("resolveSkin", () => {
     );
     expect(merged.sections.faq?.lists?.entries).toEqual([{ q: { es: "new" } }]);
   });
+
+  it("reads an item id, skips a missing list, and replaces a default that is not a list", () => {
+    const base = defaults();
+    (base.faq as { entries: unknown }).entries = "not-a-list";
+    const skin = resolveSkin({
+      defaults: base,
+      stored: {
+        v: 1,
+        sections: {
+          oferta: { lists: { items: [{ id: "futbol", name: "Futbol" }] } },
+          faq: { lists: { entries: [{ q: { es: "Q" }, a: { es: "A" } }] } },
+          metodo: { fields: { body: { es: "Asi" } } },
+        },
+      },
+      locale: "es",
+    });
+    expect(skin.oferta.items[0]).toMatchObject({ id: "futbol", name: "" });
+    expect(skin.faq.entries[0]).toMatchObject({ q: "Q", a: "A" });
+    expect(skin.metodo.body).toBe("Asi");
+  });
 });
 
 describe("pickLocalized", () => {
@@ -91,5 +111,6 @@ describe("pickLocalized", () => {
     expect(pickLocalized({ es: "S", en: "E" }, "pt")).toBe("S");
     expect(pickLocalized({ es: " ", en: "E" }, "pt")).toBe("E");
     expect(pickLocalized(undefined, "es")).toBe("");
+    expect(pickLocalized({ es: "  ", en: " ", pt: "" }, "es")).toBe("");
   });
 });

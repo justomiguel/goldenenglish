@@ -9406,43 +9406,88 @@
         ]
       },
       "mozarthitos": {
-        "metaTitle": "Questions about early music classes",
-        "metaDescription": "Starting age, session length, the Mago Diapasón method, and the Las Condes site.",
+        "metaTitle": "Questions about the music programs",
+        "metaDescription": "Ages, programs, the weekly class, live online classes, and how to enroll.",
         "items": [
           {
+            "id": "price",
+            "q": "How much do the programs cost, and which payment options do you offer?",
+            "a": "Mozarthitos has several music programs. The fee depends on the course. Every program has an enrollment fee and a monthly fee. You can pay by bank transfer or by credit card. Ask the admissions team for the current amounts."
+          },
+          {
+            "id": "programs",
+            "q": "Which programs do you offer, and what do the classes include?",
+            "a": "Mozarthitos offers music programs by age and by each student's development.\n\nThe base program uses Mago Diapasón. It is a European method for musical language and ear training. It is for children from 6 months to 7 years. Mozarthitos is the first licensed center in South America.\n\nJuventum is for children from 7 to 14 years. It develops the voice, group singing, and musical language.\n\nOrquesta Academy and instrument training are for students who already read music. Instrument training can start at age 3, after the base courses."
+          },
+          {
             "id": "age",
-            "q": "From what age can a baby start?",
-            "a": "Sessions start from 6 months of age."
+            "q": "From what age can children join, and which program matches each age?",
+            "a": "Mozarthitos starts music education at 6 months of age. The class is a structured course from early childhood. It is more than music stimulation.\n\nThe first seven years, from 0 to 7, use Mago Diapasón. The second seven years, from 7 to 14, use Juventum. Each stage has its own program."
           },
           {
-            "id": "length",
-            "q": "How long is a session?",
-            "a": "Each session lasts 30 minutes. From age 3, children start to follow scores."
+            "id": "schedule",
+            "q": "Which days and times do you have, and how many classes are there each week or month?",
+            "a": "Each program has one class a week, about 4 sessions a month. In 2027, class times run through the week. The time depends on the program, the student's age, and open places.\n\nContact the admissions team. The team helps you choose the program and the time for your child."
           },
           {
-            "id": "method",
-            "q": "What method do you use?",
-            "a": "We use the Mago Diapasón method by Paqui Castro. The story is «Viajando al país de la música». Children work with song, play, and percussion."
-          },
-          {
-            "id": "musician",
-            "q": "Is this class only for future musicians?",
-            "a": "The class is music education for babies and young children. It also works memory, creativity, attention, and social skills."
-          },
-          {
-            "id": "where",
-            "q": "Where are the in-person sessions?",
-            "a": "The in-person site is in Las Condes, at República Árabe de Egipto 670."
+            "id": "babies",
+            "q": "Do you have activities for babies under one year?",
+            "a": "Yes. Baby Mago starts at 6 months of age. It is part of the Mago Diapasón method.\n\nBabies can build musical language and listening, just as they learn the language they hear at home. Early music education builds a base for later development."
           },
           {
             "id": "online",
-            "q": "Do you offer online classes?",
-            "a": "The site lists an online option in the courses section."
+            "q": "How do online classes work, and what do they include?",
+            "a": "Online classes take the method to homes across Chile. They serve families in the regions and families in Santiago who cannot travel to the academy.\n\nClasses are 100% live, with specialist teachers. They are not recordings. The program matches the in-person classes, and learning moves step by step.\n\nYou can also join like a podcast if you want to avoid screens. The adult listens, takes part, and does the musical activities with the baby or child.\n\nStudents from Arica to Punta Arenas have built strong listening skills without visiting the academy.\n\nMusic education can start at 6 months, wherever you live. Admissions will tell you the open programs and times."
+          },
+          {
+            "id": "inPerson",
+            "q": "What are the in-person classes like?",
+            "a": "In-person Mago Diapasón classes are in a group. An adult stays with the child for the whole class.\n\nEach session lasts 30 minutes. That length matches the attention span of early childhood. The class is active. Musical activities follow one another so the children stay involved.\n\nThe class is a real course with clear goals. It is more than music stimulation. Children develop musical hearing, rhythm, coordination, and musical language, and they move toward reading scores.\n\nFamilies can continue the work at home after each session.\n\nAt Mozarthitos, each class is one step in an ongoing course."
+          },
+          {
+            "id": "where",
+            "q": "Where is the academy, and can I join from another city or country?",
+            "a": "The main site is in Las Condes, Santiago, Chile. The teaching also reaches other places.\n\nLive online classes run at set times for families in Chile and abroad. Students join from Arica to Punta Arenas.\n\nIn-person students can join online when they are ill or cannot travel. Learning continues.\n\nYou can study from home even if you never visit the academy.\n\nAdmissions helps you choose the format and the time for your family."
+          },
+          {
+            "id": "instruments",
+            "q": "Do you offer individual classes in piano, singing, guitar, or other instruments?",
+            "a": "Yes. Orquesta Academy offers instrument training. The path and the age rules are set.\n\nBefore age 7, children start musical language with Mago Diapasón and continue that course in parallel. An instrument starts after the child can read music.\n\nThe academy builds the musical language first, then adds the instrument. Starting an instrument without that base can make it harder to continue.\n\nFrom age 7, students can start instrument training directly, under each program's rules.\n\nAsk admissions which instruments are open, which formats exist, and what the entry rules are."
           },
           {
             "id": "enroll",
-            "q": "How do I reserve a place?",
-            "a": "Reserve a place from the enrollment page or from the published contact."
+            "q": "How do I enroll my child, and how do I ask about open places?",
+            "a": "Enrollment goes through the official Mozarthitos WhatsApp Business.\n\nAdmissions tells you the program for your child's age, the times, open places, fees, and enrollment rules.\n\nThe team stays with your family through each step."
+          },
+          {
+            "id": "siblings",
+            "q": "Can I enroll several children, and are there plans for siblings?",
+            "a": "Yes. Some families have up to five children at the academy.\n\nSiblings can share a course and a time when their ages and learning stages allow it. That can make travel easier.\n\nFamily plans give a discount from the second sibling through the fifth.\n\nAdmissions helps you choose the option and explains the benefits."
+          },
+          {
+            "id": "trial",
+            "q": "Can I book a trial class before I enroll?",
+            "a": "Yes. The Clase Experiencia lets a family meet the method before enrollment, even with no music background.\n\nIt is a full real class with other families. It is not a short sample.\n\nThe Clase Experiencia costs $20,000. Book an open time through the admissions WhatsApp.\n\nYou can see the course, ask your questions, and then decide."
+          },
+          {
+            "id": "parents",
+            "q": "Can parents stay with the child during class?",
+            "a": "Yes. An accompanying adult is required in Mago Diapasón classes.\n\nThe adult can be the mother, the father, a guardian, or another trusted person. Adults can take turns from one class to the next.\n\nAdults take part and learn with the child. They are not only watching. Their presence supports the course and the practice at home."
+          },
+          {
+            "id": "materials",
+            "q": "What materials or instruments do we need?",
+            "a": "You do not need to bring an instrument or other materials.\n\nMozarthitos provides the teaching materials for each class.\n\nThe adult's participation matters. No previous music knowledge is required. You can start on the first day."
+          },
+          {
+            "id": "whatsapp",
+            "q": "How can I get advice or information on WhatsApp?",
+            "a": "The official admissions WhatsApp answers questions about programs, methods, fees, and enrollment rules.\n\nThe team helps you choose a program, a time, and a place.\n\nWrite here:\nhttps://wa.me/message/AIF6J7HA3KIDE1"
+          },
+          {
+            "id": "inclusion",
+            "q": "Do the programs include children who need support or who have a disability?",
+            "a": "Mozarthitos teaches children with different ways of learning.\n\nThe community includes children with autism spectrum disorder (ASD), Down syndrome, and motor, visual, and developmental support needs.\n\nMusic study works on thinking, listening, movement, and emotion.\n\nThere is no audition. Previous music knowledge is not required. Each child learns at their own pace.\n\nAdmissions can help a family find a group and the right way to take part."
           }
         ]
       },

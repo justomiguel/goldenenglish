@@ -27,6 +27,8 @@ describe("gallery strip offset helpers", () => {
   it("maps track offset to logical index", () => {
     expect(logicalIndexFromTrackOffset(6, total)).toBe(0);
     expect(logicalIndexFromTrackOffset(8, total)).toBe(2);
+    expect(logicalIndexFromTrackOffset(4, 0)).toBe(0);
+    expect(snapTrackOffsetAfterTransition(2, 0)).toBeNull();
   });
 
   it("places the active slide in the middle copy band", () => {

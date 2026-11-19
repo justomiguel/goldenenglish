@@ -39,4 +39,24 @@ describe("buildGenericSiteCopyFields", () => {
     });
     expect(fields.some((field) => field.key === "genericSectionLabels.equipo")).toBe(true);
   });
+
+  it("uses the section id when that section has no name", () => {
+    const thin = {
+      ...dict,
+      landing: {
+        ...dict.landing,
+        genericSectionLabels: { ...dict.landing.genericSectionLabels, historia: "" },
+      },
+    } as Dictionary;
+    const fields = buildGenericSiteCopyFields({
+      kind: "deportes",
+      dict: thin,
+      content: null,
+      locale: "es",
+      labels,
+    });
+    expect(fields.find((field) => field.key === "genericSectionLabels.historia")?.label).toBe(
+      `historia — ${labels.name}`,
+    );
+  });
 });

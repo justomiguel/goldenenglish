@@ -73,4 +73,15 @@ describe("resolveSharePreviewLogoAbsoluteUrl", () => {
     );
     expect(out).toBe("https://example.com/images/custom/logo.png");
   });
+
+  it("tries the next logo when a candidate request fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new Error("down");
+      }),
+    );
+    const out = await resolveSharePreviewLogoAbsoluteUrl("https://example.com", "mimundo", brand);
+    expect(out).toBe("https://example.com/images/custom/logo.png");
+  });
 });

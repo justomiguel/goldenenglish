@@ -14,6 +14,7 @@ describe("pgDateToInputValue", () => {
   it("returns empty for invalid", () => {
     expect(pgDateToInputValue(null)).toBe("");
     expect(pgDateToInputValue("nope")).toBe("");
+    expect(pgDateToInputValue(20260401)).toBe("");
   });
 
   it("sectionCalendarDateIsoOrNull returns null for empty", () => {

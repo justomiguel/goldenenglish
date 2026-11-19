@@ -43,5 +43,17 @@ describe("genericSiteContactPatch", () => {
     expect(
       genericSiteContactPatch({ email: "", phone: "", address: "", whatsapp: "no", instagram: "" }),
     ).toEqual({ ok: false, errorCode: "whatsapp" });
+    expect(
+      genericSiteContactPatch({ email: "", phone: "abc", address: "", whatsapp: "", instagram: "" }),
+    ).toEqual({ ok: false, errorCode: "phone" });
+    expect(
+      genericSiteContactPatch({
+        email: "",
+        phone: "",
+        address: "",
+        whatsapp: "",
+        instagram: "bad handle!!",
+      }),
+    ).toEqual({ ok: false, errorCode: "instagram" });
   });
 });

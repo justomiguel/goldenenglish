@@ -13,4 +13,8 @@ describe("shortNameFromBrand", () => {
   it("cuts a one-word name of 15 characters to 12", () => {
     expect(shortNameFromBrand("Supercalifragil", null)).toBe("Supercalifra");
   });
+
+  it("keeps a name that already fits", () => {
+    expect(shortNameFromBrand("Club", null)).toBe("Club");
+  });
 });

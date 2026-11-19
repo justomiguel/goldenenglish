@@ -6,6 +6,7 @@ import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import type { Dictionary } from "@/types/i18n";
 import { resolveLandingImageSrcForTheme } from "@/lib/cms/resolveLandingMedia";
 import { PublicContactForm } from "@/components/molecules/PublicContactForm";
+import { MozarthitosFaqAccordion } from "@/variants/owned/mozarthitos/pieces/MozarthitosFaqAccordion";
 import { MozarthitosRegisterHeader } from "@/variants/owned/mozarthitos/pieces/MozarthitosRegisterHeader";
 import { MozarthitosFontRoot } from "@/variants/owned/mozarthitos/pieces/MozarthitosFontRoot";
 
@@ -57,6 +58,17 @@ export function PublicContactScreenMozarthitos({
               {pc.lead}
             </p>
           </header>
+          <div className="mz-public-sheet mb-8 rounded-[26px] p-6 text-[var(--color-foreground)] md:p-8">
+            <h2 className="text-2xl font-semibold text-[var(--color-foreground)]">
+              {dict.publicAnswers.pageTitle}
+            </h2>
+            <div className="mt-2">
+              <MozarthitosFaqAccordion
+                items={dict.publicAnswers.kinds.mozarthitos.items}
+                questionLevel="h3"
+              />
+            </div>
+          </div>
           <div className="flex justify-center lg:justify-start">
             <div className="mz-public-sheet w-full max-w-lg rounded-[26px] border-2 border-[color-mix(in_srgb,var(--mz-header-red-deep)_22%,transparent)] p-6 shadow-[0_22px_50px_rgb(0_0_0_/8%)] md:p-8">
               <PublicContactForm locale={locale} labels={pc} />

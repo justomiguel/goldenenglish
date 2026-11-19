@@ -10,5 +10,6 @@ describe("isValidE164Phone", () => {
     expect(isValidE164Phone("549111")).toBe(false);
     expect(isValidE164Phone("+123")).toBe(false);
     expect(isValidE164Phone("")).toBe(false);
+    expect(isValidE164Phone(null)).toBe(false);
   });
 });

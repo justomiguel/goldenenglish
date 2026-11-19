@@ -27,6 +27,7 @@ describe("createUserTourDemo", () => {
     const from = new Date(2026, 6, 11);
     const iso = demoBirthIsoForTourPath("adult", 18, from);
     expect(fullYearsFromIsoDate(iso, from)).toBeGreaterThanOrEqual(18);
+    expect(fullYearsFromIsoDate("no-es-fecha", from)).toBe(0);
   });
 });
 

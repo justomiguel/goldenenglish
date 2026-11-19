@@ -4,7 +4,7 @@ import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
 import { MozarthitosRegisterHeader } from "@/variants/owned/mozarthitos/pieces/MozarthitosRegisterHeader";
-import { PublicAnswerArticle } from "@/components/organisms/PublicAnswerArticle";
+import { MozarthitosFaqAccordion } from "@/variants/owned/mozarthitos/pieces/MozarthitosFaqAccordion";
 import {
   PublicBlogScreenMozarthitos,
   type PublicBlogScreenMozarthitosProps,
@@ -45,7 +45,18 @@ function MozarthitosPublicSheet({
 }: MozarthitosSheetProps) {
   const logoSrc = brand.logoPath.trim();
   const article = items ? (
-    <PublicAnswerArticle title={title ?? ""} lead={lead ?? ""} items={items} />
+    <article className="mx-auto max-w-2xl space-y-8">
+      <header>
+        <h1
+          id="public-answers-title"
+          className="font-display text-3xl font-bold text-[var(--color-heading,var(--color-primary))] md:text-4xl"
+        >
+          {title}
+        </h1>
+        <p className="mt-3 text-[var(--color-muted-foreground)] md:text-lg">{lead}</p>
+      </header>
+      <MozarthitosFaqAccordion items={items} />
+    </article>
   ) : (
     <PublicPrivacyArticle locale={locale} dict={dict} contact={brand} />
   );

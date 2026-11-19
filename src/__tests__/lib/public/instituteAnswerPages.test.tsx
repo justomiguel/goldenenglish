@@ -28,7 +28,24 @@ const EXPECTED_IDS: Record<InstituteAnswerKindKey, readonly string[]> = {
     "where",
     "enroll",
   ],
-  mozarthitos: ["age", "length", "method", "musician", "where", "online", "enroll"],
+  mozarthitos: [
+    "price",
+    "programs",
+    "age",
+    "schedule",
+    "babies",
+    "online",
+    "inPerson",
+    "where",
+    "instruments",
+    "enroll",
+    "siblings",
+    "trial",
+    "parents",
+    "materials",
+    "whatsapp",
+    "inclusion",
+  ],
   espaciozenit: [
     "styles",
     "groups",
@@ -107,11 +124,38 @@ describe("institute answer pages", () => {
     });
   });
 
+  it("uses the email-only and phone-only contact sentences", () => {
+    const shared = {
+      items: es.publicAnswers.kinds.classic.items,
+      brand: "Instituto",
+      contactQuestion: es.publicAnswers.contactQuestion,
+      contactLine: es.publicAnswers.contactLine,
+      contactEmailOnly: es.publicAnswers.contactEmailOnly,
+      contactPhoneOnly: es.publicAnswers.contactPhoneOnly,
+    };
+    const emailOnly = withPublishableContact({
+      ...shared,
+      email: "hola@instituto.test",
+      phone: "",
+    });
+    const phoneOnly = withPublishableContact({
+      ...shared,
+      email: "",
+      phone: "+54 9 3718 528-383",
+    });
+    expect(emailOnly.at(-1)?.a).toBe("Escribe a hola@instituto.test.");
+    expect(phoneOnly.at(-1)?.a).toBe("Llama al +54 9 3718 528-383.");
+  });
+
   it("does not publish unconfirmed claims from other listings", () => {
     expect(joinedAnswers("espaciozenit")).not.toMatch(/0000|tuestudio|providencia/i);
     expect(joinedAnswers("espaciozenit")).toMatch(/Tegualda 1566/);
     expect(joinedAnswers("nago")).not.toMatch(/sin contacto|non-contact|sem contato/i);
     expect(joinedAnswers("mozarthitos")).not.toMatch(/hasta los 8|uma vez por semana|una vez por semana/i);
+    expect(joinedAnswers("mozarthitos")).toMatch(/\$20[.,]000/);
+    expect(joinedAnswers("mozarthitos")).toContain("https://wa.me/message/AIF6J7HA3KIDE1");
+    expect(joinedAnswers("mozarthitos")).toMatch(/clase semanal|one class a week|uma aula por semana/i);
+    expect(joinedAnswers("mozarthitos")).not.toMatch(/🎶s que/);
     expect(joinedAnswers("mimundo")).not.toMatch(/french 535|442-0905|lauriobregon/i);
     expect(joinedAnswers("mimundo")).not.toMatch(/3 a 12|3 to 12|aged 3 to 12/);
     const colony = {

@@ -9406,43 +9406,88 @@
         ]
       },
       "mozarthitos": {
-        "metaTitle": "Preguntas sobre las clases de música temprana",
-        "metaDescription": "Edad de inicio, duración de la sesión, método Mago Diapasón y sede en Las Condes.",
+        "metaTitle": "Preguntas sobre los programas de música",
+        "metaDescription": "Edades, programas, clase semanal, clases online en vivo y cómo inscribirse.",
         "items": [
           {
+            "id": "price",
+            "q": "¿Cuánto cuestan los programas y qué opciones de pago ofrecen?",
+            "a": "En Mozarthitos contamos con distintos programas de formación musical, cuyos valores varían según el curso. Todos contemplan matrícula y mensualidad. Aceptamos pagos mediante transferencia bancaria y tarjetas de crédito. Para conocer los valores específicos, te invitamos a conversar con nuestro equipo de admisiones."
+          },
+          {
+            "id": "programs",
+            "q": "¿Qué programas ofrecen y en qué consisten las clases?",
+            "a": "En Mozarthitos ofrecemos programas especializados de formación musical según la edad y el desarrollo de cada estudiante.\n\nNuestro programa base utiliza Mago Diapasón, un método europeo de lenguaje musical y educación auditiva, dirigido a niños desde los 6 meses hasta los 7 años. Somos el primer centro homologado en Sudamérica.\n\nPara niños de 7 a 14 años contamos con Juventum, enfocado en el desarrollo de la voz, el canto colectivo y el lenguaje musical.\n\nTambién ofrecemos Orquesta Academy y formación instrumental, dirigidas a estudiantes que ya cuentan con bases de lectura musical. La formación instrumental puede comenzar desde los 3 años, previa preparación en nuestros cursos base."
+          },
+          {
             "id": "age",
-            "q": "¿Desde qué edad puede empezar un bebé?",
-            "a": "Las sesiones empiezan desde los 6 meses de vida."
+            "q": "¿Desde qué edad pueden participar y qué programa corresponde a cada edad?",
+            "a": "En Mozarthitos nos caracteriza comenzar la educación musical desde los 6 meses de vida. No realizamos simplemente clases de estimulación musical, sino que desarrollamos un proceso de enseñanza estructurado desde la primera infancia.\n\nAcompañamos todo el primer septenio (0 a 7 años) mediante el método Mago Diapasón y continuamos con el segundo septenio (7 a 14 años) a través de Juventum, con programas especializados para cada etapa del desarrollo infantil."
           },
           {
-            "id": "length",
-            "q": "¿Cuánto dura una sesión?",
-            "a": "Cada sesión dura 30 minutos. Desde los 3 años los niños empiezan a seguir partituras."
+            "id": "schedule",
+            "q": "¿Qué días y horarios tienen, y cuántas clases hay por semana o mes?",
+            "a": "Nuestros programas contemplan una clase semanal (4 sesiones mensuales aproximadamente). Para 2027, contaremos con horarios distribuidos durante toda la semana, según el programa, la edad de los estudiantes y los cupos disponibles.\n\nTe invitamos a contactar a nuestro equipo de Admisión, donde te orientaremos para encontrar el programa y horario más adecuado para tu hijo o hija."
           },
           {
-            "id": "method",
-            "q": "¿Qué método usan?",
-            "a": "Usamos el método Mago Diapasón, creado por Paqui Castro. El cuento es «Viajando al país de la música». Los niños trabajan canto, juego y percusión."
-          },
-          {
-            "id": "musician",
-            "q": "¿La clase es solo para futuros músicos?",
-            "a": "La clase es educación musical para bebés y niños pequeños. También trabaja memoria, creatividad, atención y habilidades sociales."
-          },
-          {
-            "id": "where",
-            "q": "¿Dónde son las sesiones presenciales?",
-            "a": "La sede presencial está en Las Condes, República Árabe de Egipto 670."
+            "id": "babies",
+            "q": "¿Tienen actividades para bebés menores de un año?",
+            "a": "¡Por supuesto! En Mozarthitos comenzamos la educación musical desde los 6 meses de vida con nuestro programa Baby Mago, perteneciente al método Mago Diapasón.\n\nAsí como los bebés comienzan a familiarizarse con el lenguaje de sus padres desde muy temprano, también pueden desarrollar progresivamente su lenguaje musical y capacidad auditiva. Creemos que una educación musical temprana establece bases fundamentales para su desarrollo futuro."
           },
           {
             "id": "online",
-            "q": "¿Hay modalidad en línea?",
-            "a": "El sitio ofrece modalidad en línea desde la sección de cursos."
+            "q": "¿Cómo funcionan las clases online y qué incluyen?",
+            "a": "Nuestras clases online nacieron para descentralizar la educación musical y llevar nuestra metodología a los hogares de todo Chile, tanto a familias de regiones como a aquellas de Santiago que no pueden trasladarse a la academia.\n\nSon clases 100 % en vivo, con docentes especializados, no grabaciones. Se desarrolla el mismo programa pedagógico que en nuestras clases presenciales, con aprendizajes progresivos.\n\nAdemás, si prefieres evitar las pantallas, puedes vivir la experiencia como un podcast: el adulto escucha, participa y realiza las actividades musicales junto a su bebé o niño.\n\nContamos con alumnos desde Arica hasta Punta Arenas que han desarrollado extraordinariamente sus capacidades auditivas sin haber asistido presencialmente a nuestra academia.\n\nLa educación musical puede comenzar desde los 6 meses de vida, estés donde estés. Nuestro equipo de Admisión te orientará sobre los programas y horarios disponibles."
+          },
+          {
+            "id": "inPerson",
+            "q": "¿Cómo son las clases presenciales?",
+            "a": "Las clases presenciales de nuestro método Mago Diapasón son grupales, con la participación permanente de un adulto acompañante.\n\nCada sesión dura 30 minutos, un tiempo especialmente diseñado para las capacidades de atención y aprendizaje de la primera infancia. Son clases dinámicas, intensas y entretenidas, con actividades musicales que se suceden de manera fluida para mantener la participación y concentración de los niños.\n\nNo son clases de estimulación musical, sino de aprendizaje real y progresivo, con objetivos pedagógicos e hitos claros: desarrollar el oído musical, el sentido rítmico, la coordinación, conocer el lenguaje musical y avanzar hacia la lectura de partituras.\n\nAdemás, las familias pueden continuar el aprendizaje en casa, reforzando lo trabajado en cada sesión.\n\nEn Mozarthitos, cada clase es parte de un proceso educativo continuo, donde aprender música también es disfrutarla."
+          },
+          {
+            "id": "where",
+            "q": "¿Dónde está la academia y puedo participar desde otra ciudad o país?",
+            "a": "Nuestra sede central se encuentra en Las Condes, Santiago de Chile, pero nuestra enseñanza musical no tiene fronteras.\n\nOfrecemos clases online en vivo, en horarios específicos, para familias de todo Chile y del extranjero. ¡Tenemos alumnos desde Arica hasta Punta Arenas, literalmente!\n\nTambién nuestros alumnos presenciales pueden participar de manera online cuando están enfermos o no pueden trasladarse, manteniendo así la continuidad de su aprendizaje.\n\nNo importa dónde vivas: puedes desarrollar tu educación musical desde tu propio hogar, incluso sin haber visitado nunca nuestra academia.\n\nNuestro equipo de Admisión te ayudará a encontrar la modalidad y el horario más adecuado para tu familia."
+          },
+          {
+            "id": "instruments",
+            "q": "¿Ofrecen clases individuales de piano, canto, guitarra u otros instrumentos?",
+            "a": "¡Sí! En Mozarthitos ofrecemos formación instrumental a través de nuestro programa Orquesta Academy, con una metodología progresiva y requisitos según la edad.\n\nDurante el primer septenio (antes de los 7 años), los niños deben haber iniciado su formación en lenguaje musical mediante Mago Diapasón y continuar paralelamente con ella. Para comenzar un instrumento, es fundamental contar con bases de lectura musical.\n\n¿Por qué? Porque aprender un instrumento sin haber desarrollado previamente el lenguaje musical puede dificultar la continuidad del aprendizaje. Primero construimos las bases musicales y luego incorporamos el instrumento.\n\nDesde el segundo septenio (7 años en adelante), los estudiantes pueden comenzar directamente su formación instrumental, según los requisitos de cada programa.\n\nConsulta con nuestro equipo de Admisión los instrumentos disponibles, las modalidades y los requisitos de ingreso."
           },
           {
             "id": "enroll",
-            "q": "¿Cómo reservo un lugar?",
-            "a": "Reserva tu lugar desde la inscripción del sitio o desde el contacto publicado."
+            "q": "¿Cómo inscribo a mi hijo y cómo consulto cupos disponibles?",
+            "a": "¡Inscribirse es muy fácil! 🎶\n\nTodo nuestro proceso de admisión se realiza a través del WhatsApp Business oficial de Mozarthitos.\n\nNuestro equipo de Admisión te orientará personalmente sobre los programas adecuados según la edad de tu hijo o hija, horarios, cupos disponibles, valores y requisitos de inscripción.\n\n¡Te acompañaremos en cada paso para que tu familia pueda formar parte de Mozarthitos, nuestra Academia Élite de Educación Auditiva y Lenguaje Musical!"
+          },
+          {
+            "id": "siblings",
+            "q": "¿Puedo inscribir a varios hijos y existen planes para hermanos?",
+            "a": "¡Por supuesto! En Mozarthitos tenemos familias con hasta cinco hijos participando en nuestra academia.\n\nLos hermanos pueden asistir al mismo curso y horario, siempre que sus edades y etapas de aprendizaje lo permitan, facilitando así la organización y el traslado familiar.\n\nAdemás, contamos con planes familiares y descuentos especiales desde el segundo hermano, incluyendo al tercero, cuarto y quinto.\n\nNuestro equipo de Admisión te ayudará a encontrar la mejor alternativa para tu familia y conocer los beneficios disponibles."
+          },
+          {
+            "id": "trial",
+            "q": "¿Puedo agendar una clase de prueba antes de inscribirme?",
+            "a": "¡Claro que sí! En Mozarthitos ofrecemos nuestra Clase Experiencia, especialmente pensada para familias que desean conocer nuestra metodología antes de inscribirse, incluso si no tienen conocimientos musicales previos.\n\nNo es una clase de prueba: vivirán una clase completa y real, participando de nuestra metodología junto a otras familias.\n\nLa Clase Experiencia tiene un valor de $20.000 y puedes agendarla según los horarios disponibles a través de nuestro WhatsApp de Admisión.\n\nAsí podrán conocer nuestra propuesta educativa, resolver sus dudas y tomar una decisión informada sobre el ingreso a la academia.\n\n¡Ven a descubrir cómo comienza la verdadera educación musical! 🎶"
+          },
+          {
+            "id": "parents",
+            "q": "¿Los padres pueden acompañar al niño durante las clases?",
+            "a": "¡Absolutamente! En Mozarthitos, la participación de un adulto acompañante es fundamental en nuestras clases del método Mago Diapasón.\n\nCada niño participa junto a un adulto, que puede ser su mamá, papá, tutor o una persona de confianza. Además, pueden turnarse entre una clase y otra.\n\nLos adultos no son simples espectadores: participan, aprenden y avanzan musicalmente junto a sus hijos. Su presencia es esencial para acompañar el proceso educativo y continuar el aprendizaje en casa.\n\nY hay algo aún más valioso: cada clase se convierte en un espacio único de conexión, descubrimiento y aprendizaje compartido.\n\nPorque en Mozarthitos no solo educamos musicalmente a los niños; creamos experiencias familiares que atesorarán para siempre. 🎶"
+          },
+          {
+            "id": "materials",
+            "q": "¿Qué materiales o instrumentos se necesitan para participar?",
+            "a": "¡Absolutamente ninguno! 🎶\n\nPara comenzar nuestros cursos de lenguaje musical y educación auditiva, solo necesitan venir con entusiasmo y muchas ganas de aprender.\n\nEn Mozarthitos proporcionamos todos los materiales y recursos pedagógicos necesarios para cada clase.\n\nLo más importante es la motivación y participación de los adultos acompañantes, quienes cumplen un papel fundamental en este maravilloso proceso de alfabetización auditiva, uno de los pilares de nuestra metodología.\n\n¡No necesitan conocimientos musicales previos ni instrumentos! Nosotros nos encargamos de todo para que puedan comenzar esta experiencia de aprendizaje desde el primer día."
+          },
+          {
+            "id": "whatsapp",
+            "q": "¿Cómo puedo recibir asesoría o información por WhatsApp?",
+            "a": "¡Muy fácil! 🎶\n\nContamos con nuestro WhatsApp oficial de Admisión, donde recibirás toda la información sobre nuestros programas, metodologías, valores y requisitos de inscripción.\n\nNuestro equipo te brindará atención personalizada para ayudarte a elegir el programa más adecuado, encontrar el horario que mejor se adapte a tu familia y asegurar tu cupo en Mozarthitos.\n\n📲 ¡Escríbenos aquí!\nhttps://wa.me/message/AIF6J7HA3KIDE1"
+          },
+          {
+            "id": "inclusion",
+            "q": "¿Los programas contemplan niños con necesidades de apoyo o discapacidad?",
+            "a": "¡Absolutamente! ❤️ En Mozarthitos creemos que la música es para todos, porque cada niño tiene capacidades, talentos y formas únicas de aprender.\n\nNuestra comunidad es diversa e inclusiva. Trabajamos con niños con Trastorno del Espectro Autista (TEA), síndrome de Down y distintas necesidades de apoyo motor, visual y del desarrollo.\n\nLa educación musical estimula múltiples capacidades cognitivas, auditivas, motrices y emocionales, ofreciendo valiosas oportunidades de aprendizaje y desarrollo.\n\nNo realizamos audiciones ni exigimos conocimientos musicales previos. Nuestro propósito es que cada niño pueda descubrir, disfrutar y aprender a través de los sonidos, respetando sus propios ritmos y necesidades.\n\nNuestro equipo de Admisión puede orientar a cada familia para encontrar el grupo y las condiciones de participación más adecuados.\n\nEn Mozarthitos, la diversidad nos enriquece y la música nos une. 🎶"
           }
         ]
       },

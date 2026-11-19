@@ -6,5 +6,6 @@ describe("parsePlainText", () => {
     expect(parsePlainText("  ", 4000)).toEqual({ ok: false, code: "empty" });
     expect(parsePlainText("a".repeat(501), 500)).toEqual({ ok: false, code: "too_long" });
     expect(parsePlainText(" Ready ", 500)).toEqual({ ok: true, text: "Ready" });
+    expect(parsePlainText(null, 500)).toEqual({ ok: false, code: "empty" });
   });
 });

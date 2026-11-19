@@ -3,6 +3,8 @@ import { Images, MessageCircle } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
 import { MozarthitosReveal } from "@/variants/owned/mozarthitos/pieces/MozarthitosReveal";
+import { MozarthitosFaqAccordion } from "@/variants/owned/mozarthitos/pieces/MozarthitosFaqAccordion";
+import { MOZARTHITOS_ADMISSION_WHATSAPP_URL } from "@/variants/owned/mozarthitos/pieces/mozarthitosAdmissionWhatsApp";
 import { PublicContactForm } from "@/components/molecules/PublicContactForm";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 
@@ -26,14 +28,28 @@ export function LandingMozarthitosContactSection({
   );
   const phoneHref =
     marketingBrand === "mz"
-      ? "https://wa.me/56959916314"
+      ? MOZARTHITOS_ADMISSION_WHATSAPP_URL
       : `tel:${phoneDisplay.replace(/[^\d+]/gu, "").trim() || "#"}`;
   return (
     <section
       id="contacto"
       className="mz-contact-surface relative z-[13] scroll-mt-[max(6rem,env(safe-area-inset-top)+5rem)] -mt-8 rounded-t-[28px] px-[max(1rem,env(safe-area-inset-left))] pb-[max(4rem,env(safe-area-inset-bottom))] pt-12 shadow-[0_-20px_50px_rgb(0_0_0_/14%)] sm:-mt-10 sm:rounded-t-[36px] md:-mt-14 md:rounded-t-[48px] md:pb-24 md:pt-20 lg:px-6"
     >
-      <div className="relative z-[2] mx-auto grid max-w-6xl gap-10 sm:gap-12 md:grid-cols-2 md:gap-20">
+      <div className="relative z-[2] mx-auto flex max-w-6xl flex-col gap-10 sm:gap-12">
+        {marketingBrand === "mz" ? (
+          <div className="mz-public-sheet rounded-[28px] p-6 text-[var(--color-foreground)] shadow-[0_18px_50px_rgb(0_0_0_/28%)] sm:p-8">
+            <h2 className="text-2xl font-semibold text-[var(--color-foreground)]">
+              {dict.publicAnswers.pageTitle}
+            </h2>
+            <div className="mt-2">
+              <MozarthitosFaqAccordion
+                items={dict.publicAnswers.kinds.mozarthitos.items}
+                questionLevel="h3"
+              />
+            </div>
+          </div>
+        ) : null}
+        <div className="grid gap-10 sm:gap-12 md:grid-cols-2 md:gap-20">
         <MozarthitosReveal preset="contactColLeft" className="min-w-0 space-y-6 sm:space-y-8">
           <div>
             <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-white/70 sm:text-xs sm:tracking-[0.22em]">
@@ -79,6 +95,7 @@ export function LandingMozarthitosContactSection({
             <p>{marketingLandingCopy(dict, marketingBrand, "contact.formHint")}</p>
           </div>
         </MozarthitosReveal>
+        </div>
       </div>
     </section>
   );

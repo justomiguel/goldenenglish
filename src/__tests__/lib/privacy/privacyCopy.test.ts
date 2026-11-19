@@ -47,5 +47,6 @@ describe("privacy copy helpers", () => {
       before: "Acepto los ",
       after: " para esta preinscripción.",
     });
+    expect(splitPrivacyConsentLabel("Sin enlace")).toEqual({ before: "Sin enlace", after: "" });
   });
 });

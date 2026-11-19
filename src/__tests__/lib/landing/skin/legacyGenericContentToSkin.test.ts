@@ -31,6 +31,10 @@ describe("legacyGenericContentToSkin", () => {
 
   it("returns an empty model for no content", () => {
     expect(legacyGenericContentToSkin(null)).toEqual({ v: 1, sections: {} });
+    expect(legacyGenericContentToSkin({ inicio: null } as never)).toEqual({ v: 1, sections: {} });
+    expect(
+      legacyGenericContentToSkin({ inicio: { "genericLandings.jardin.title": { es: "  " } } }),
+    ).toEqual({ v: 1, sections: {} });
   });
 
   it("ignores prototype keys such as constructor", () => {

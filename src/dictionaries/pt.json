@@ -9243,43 +9243,88 @@
         ]
       },
       "mozarthitos": {
-        "metaTitle": "Perguntas sobre as aulas de música inicial",
-        "metaDescription": "Idade de início, duração da sessão, método Mago Diapasón e sede em Las Condes.",
+        "metaTitle": "Perguntas sobre os programas de música",
+        "metaDescription": "Idades, programas, aula semanal, aulas online ao vivo e como se inscrever.",
         "items": [
           {
+            "id": "price",
+            "q": "Quanto custam os programas e quais opções de pagamento vocês oferecem?",
+            "a": "A Mozarthitos tem vários programas de formação musical. O valor depende do curso. Todo programa tem matrícula e mensalidade. Você pode pagar por transferência bancária ou cartão de crédito. Peça à equipe de admissão os valores atuais."
+          },
+          {
+            "id": "programs",
+            "q": "Quais programas vocês oferecem e em que consistem as aulas?",
+            "a": "A Mozarthitos oferece programas de música segundo a idade e o desenvolvimento de cada estudante.\n\nO programa base usa o Mago Diapasón. É um método europeu de linguagem musical e educação auditiva, para crianças de 6 meses a 7 anos. A Mozarthitos é o primeiro centro homologado na América do Sul.\n\nO Juventum é para crianças de 7 a 14 anos. Desenvolve a voz, o canto em grupo e a linguagem musical.\n\nA Orquesta Academy e a formação instrumental são para estudantes que já leem música. A formação instrumental pode começar aos 3 anos, depois dos cursos base."
+          },
+          {
             "id": "age",
-            "q": "A partir de que idade um bebê pode começar?",
-            "a": "As sessões começam a partir dos 6 meses de vida."
+            "q": "A partir de que idade podem participar e qual programa corresponde a cada idade?",
+            "a": "A Mozarthitos começa a educação musical aos 6 meses de vida. A aula é um processo de ensino desde a primeira infância. Não é só estimulação musical.\n\nO primeiro setênio, de 0 a 7 anos, usa o método Mago Diapasón. O segundo setênio, de 7 a 14 anos, usa o Juventum. Cada etapa tem o seu programa."
           },
           {
-            "id": "length",
-            "q": "Quanto tempo dura uma sessão?",
-            "a": "Cada sessão dura 30 minutos. A partir dos 3 anos as crianças começam a seguir partituras."
+            "id": "schedule",
+            "q": "Quais dias e horários vocês têm, e quantas aulas há por semana ou por mês?",
+            "a": "Cada programa tem uma aula por semana, cerca de 4 sessões por mês. Em 2027, os horários se distribuem pela semana. O horário depende do programa, da idade e das vagas.\n\nFale com a equipe de admissão. A equipe ajuda você a escolher o programa e o horário do seu filho ou filha."
           },
           {
-            "id": "method",
-            "q": "Qual método vocês usam?",
-            "a": "Usamos o método Mago Diapasón, criado por Paqui Castro. O conto é «Viajando al país de la música». As crianças trabalham canto, jogo e percussão."
-          },
-          {
-            "id": "musician",
-            "q": "A aula é só para futuros músicos?",
-            "a": "A aula é educação musical para bebês e crianças pequenas. Também trabalha memória, criatividade, atenção e habilidades sociais."
-          },
-          {
-            "id": "where",
-            "q": "Onde são as sessões presenciais?",
-            "a": "A sede presencial fica em Las Condes, República Árabe de Egipto 670."
+            "id": "babies",
+            "q": "Vocês têm atividades para bebês menores de um ano?",
+            "a": "Sim. O Baby Mago começa aos 6 meses de vida. Ele faz parte do método Mago Diapasón.\n\nO bebê pode desenvolver a linguagem musical e a escuta, como faz com a língua que ouve em casa. A educação musical cedo cria uma base para o desenvolvimento futuro."
           },
           {
             "id": "online",
-            "q": "Há modalidade online?",
-            "a": "O site oferece modalidade online na seção de cursos."
+            "q": "Como funcionam as aulas online e o que elas incluem?",
+            "a": "As aulas online levam o método para casas em todo o Chile. Atendem famílias das regiões e famílias de Santiago que não podem ir até a academia.\n\nAs aulas são 100% ao vivo, com docentes especializados. Não são gravações. O programa é o mesmo das aulas presenciais, com aprendizagem em etapas.\n\nSe você prefere evitar as telas, pode viver a aula como um podcast. O adulto escuta, participa e faz as atividades musicais com o bebê ou a criança.\n\nHá alunos de Arica a Punta Arenas que desenvolveram a escuta sem ir à academia.\n\nA educação musical pode começar aos 6 meses, onde você estiver. A admissão informa os programas e os horários abertos."
+          },
+          {
+            "id": "inPerson",
+            "q": "Como são as aulas presenciais?",
+            "a": "As aulas presenciais do método Mago Diapasón são em grupo. Um adulto acompanha a criança durante toda a aula.\n\nCada sessão dura 30 minutos. Esse tempo combina com a atenção da primeira infância. A aula é ativa. As atividades musicais se sucedem para manter a participação.\n\nA aula é um curso real, com objetivos claros. Não é só estimulação musical. As crianças desenvolvem o ouvido musical, o ritmo, a coordenação e a linguagem musical, e avançam para a leitura de partituras.\n\nA família pode continuar o trabalho em casa depois de cada sessão.\n\nNa Mozarthitos, cada aula é um passo de um processo contínuo."
+          },
+          {
+            "id": "where",
+            "q": "Onde fica a academia e posso participar de outra cidade ou país?",
+            "a": "A sede central fica em Las Condes, Santiago do Chile. O ensino também chega a outros lugares.\n\nHá aulas online ao vivo, em horários definidos, para famílias de todo o Chile e do exterior. Há alunos de Arica a Punta Arenas.\n\nOs alunos presenciais podem entrar online quando estão doentes ou não podem se deslocar. A aprendizagem continua.\n\nVocê pode estudar em casa mesmo sem visitar a academia.\n\nA admissão ajuda você a escolher a modalidade e o horário da sua família."
+          },
+          {
+            "id": "instruments",
+            "q": "Vocês oferecem aulas individuais de piano, canto, violão ou outros instrumentos?",
+            "a": "Sim. A Orquesta Academy oferece formação instrumental. O caminho e as regras de idade estão definidos.\n\nAntes dos 7 anos, a criança começa a linguagem musical com o Mago Diapasón e segue esse curso em paralelo. O instrumento começa depois que a criança lê música.\n\nA academia constrói a linguagem musical primeiro e depois inclui o instrumento. Começar um instrumento sem essa base pode dificultar a continuidade.\n\nA partir dos 7 anos, o estudante pode começar a formação instrumental direto, segundo as regras de cada programa.\n\nPergunte à admissão quais instrumentos estão abertos, quais modalidades existem e quais são os requisitos de entrada."
           },
           {
             "id": "enroll",
-            "q": "Como reservo uma vaga?",
-            "a": "Reserve sua vaga pela inscrição do site ou pelo contato publicado."
+            "q": "Como inscrevo meu filho e como consulto as vagas?",
+            "a": "A inscrição passa pelo WhatsApp Business oficial da Mozarthitos.\n\nA admissão indica o programa segundo a idade, os horários, as vagas, os valores e os requisitos.\n\nA equipe acompanha a sua família em cada passo."
+          },
+          {
+            "id": "siblings",
+            "q": "Posso inscrever vários filhos e existem planos para irmãos?",
+            "a": "Sim. Há famílias com até cinco filhos na academia.\n\nOs irmãos podem ir ao mesmo curso e horário quando a idade e a etapa de aprendizagem permitem. Isso facilita o deslocamento.\n\nOs planos familiares dão desconto a partir do segundo irmão, até o quinto.\n\nA admissão ajuda você a escolher a opção e explica os benefícios."
+          },
+          {
+            "id": "trial",
+            "q": "Posso agendar uma aula experimental antes de me inscrever?",
+            "a": "Sim. A Clase Experiencia permite conhecer o método antes da inscrição, mesmo sem formação musical.\n\nÉ uma aula completa e real, com outras famílias. Não é uma amostra curta.\n\nA Clase Experiencia custa $20.000. Agende um horário aberto pelo WhatsApp de admissão.\n\nVocê conhece a proposta, tira as dúvidas e depois decide."
+          },
+          {
+            "id": "parents",
+            "q": "Os pais podem acompanhar a criança durante as aulas?",
+            "a": "Sim. Um adulto acompanhante é necessário nas aulas do método Mago Diapasón.\n\nO adulto pode ser a mãe, o pai, o tutor ou outra pessoa de confiança. Os adultos podem se revezar de uma aula para outra.\n\nOs adultos participam e aprendem com a criança. Eles não ficam só olhando. A presença deles apoia o curso e a prática em casa."
+          },
+          {
+            "id": "materials",
+            "q": "Quais materiais ou instrumentos são necessários?",
+            "a": "Você não precisa levar instrumento nem outro material.\n\nA Mozarthitos entrega os materiais de cada aula.\n\nA participação do adulto importa. Não é preciso conhecimento musical prévio. Dá para começar no primeiro dia."
+          },
+          {
+            "id": "whatsapp",
+            "q": "Como posso receber orientação ou informação pelo WhatsApp?",
+            "a": "O WhatsApp oficial de admissão responde sobre programas, métodos, valores e requisitos de inscrição.\n\nA equipe ajuda você a escolher o programa, o horário e a vaga.\n\nEscreva aqui:\nhttps://wa.me/message/AIF6J7HA3KIDE1"
+          },
+          {
+            "id": "inclusion",
+            "q": "Os programas incluem crianças com necessidades de apoio ou deficiência?",
+            "a": "A Mozarthitos ensina crianças com formas diferentes de aprender.\n\nA comunidade inclui crianças com Transtorno do Espectro Autista (TEA), síndrome de Down e necessidades de apoio motor, visual e do desenvolvimento.\n\nO estudo da música trabalha o pensamento, a escuta, o movimento e a emoção.\n\nNão há teste de seleção. Não se exige conhecimento musical prévio. Cada criança aprende no seu ritmo.\n\nA admissão pode ajudar a família a encontrar o grupo e a forma de participar."
           }
         ]
       },

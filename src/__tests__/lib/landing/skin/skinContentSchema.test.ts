@@ -24,6 +24,21 @@ describe("parseSkinContent", () => {
     });
   });
 
+  it("drops blank text, a section that is not an object, and broken list items", () => {
+    expect(parseSkinContent({ v: 1, sections: null })).toEqual({ v: 1, sections: {} });
+    const dropped = parseSkinContent({
+      v: 1,
+      sections: {
+        inicio: { fields: { title: { es: "   " } } },
+        faq: { lists: { entries: "no" } },
+        oferta: { lists: { items: [null, {}, { id: "Bad!", name: { es: "" } }] } },
+      },
+    });
+    expect(dropped.sections.inicio).toBeUndefined();
+    expect(dropped.sections.faq).toBeUndefined();
+    expect(dropped.sections.oferta).toEqual({ lists: { items: [] } });
+  });
+
   it("trims lists to their maximum", () => {
     const items = Array.from({ length: 20 }, (_, i) => ({ q: { es: `q${i}` }, a: { es: "a" } }));
     const parsed = parseSkinContent({ v: 1, sections: { faq: { lists: { entries: items } } } });

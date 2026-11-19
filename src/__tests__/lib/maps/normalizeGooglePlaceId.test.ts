@@ -13,5 +13,6 @@ describe("normalizeGooglePlaceIdForStorage", () => {
   it("returns null for empty", () => {
     expect(normalizeGooglePlaceIdForStorage("")).toBeNull();
     expect(normalizeGooglePlaceIdForStorage(null)).toBeNull();
+    expect(normalizeGooglePlaceIdForStorage("places/")).toBeNull();
   });
 });

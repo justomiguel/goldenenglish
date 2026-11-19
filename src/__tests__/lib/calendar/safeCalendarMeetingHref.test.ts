@@ -12,5 +12,6 @@ describe("safeCalendarMeetingHref", () => {
   it("rejects javascript and http", () => {
     expect(safeCalendarMeetingHref("javascript:alert(1)")).toBeNull();
     expect(safeCalendarMeetingHref("http://insecure")).toBeNull();
+    expect(safeCalendarMeetingHref(null)).toBeNull();
   });
 });

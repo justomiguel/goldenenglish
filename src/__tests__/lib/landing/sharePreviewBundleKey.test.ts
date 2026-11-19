@@ -11,6 +11,8 @@ describe("sharePreviewBundleKeyFromTemplateKind", () => {
     );
     expect(sharePreviewBundleKeyFromTemplateKind("nago")).toBe("nago");
     expect(sharePreviewBundleKeyFromTemplateKind("mimundo")).toBe("mimundo");
+    expect(sharePreviewBundleKeyFromTemplateKind("liora")).toBe("liora");
+    expect(sharePreviewBundleKeyFromTemplateKind("matiss")).toBe("matiss");
   });
 
   it("maps classic, editorial and minimal to golden", () => {

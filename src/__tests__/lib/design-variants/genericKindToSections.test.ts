@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { genericKindToSections } from "@/lib/design-variants/genericKindToSections";
-import { genericLandingComposition } from "@/lib/landing/genericLandingComposition";
+import { genericLandingComposition, splitGenericRhythm } from "@/lib/landing/genericLandingComposition";
 import { GENERIC_INSTITUTE_KINDS } from "@/lib/theme/genericInstituteTemplates";
 
 describe("genericKindToSections", () => {
@@ -16,5 +16,7 @@ describe("genericKindToSections", () => {
       ]);
       expect(sections.every((section) => section.major === 1)).toBe(true);
     }
+    expect(splitGenericRhythm("sin hora")).toEqual({ mark: "", rest: "sin hora" });
+    expect(splitGenericRhythm("08:00. Llegada")).toEqual({ mark: "08:00", rest: "Llegada" });
   });
 });

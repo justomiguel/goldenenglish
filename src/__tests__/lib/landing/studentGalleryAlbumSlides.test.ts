@@ -19,6 +19,10 @@ describe("parseStudentGalleryPhotoIndexesList", () => {
     expect(parseStudentGalleryPhotoIndexesList("", 10, [3, 4])).toEqual([3, 4]);
     expect(parseStudentGalleryPhotoIndexesList(undefined, 10, [])).toEqual([0]);
   });
+
+  it("skips an empty token left by a leading separator", () => {
+    expect(parseStudentGalleryPhotoIndexesList(",0", 5, [])).toEqual([0]);
+  });
 });
 
 describe("resolveStudentGalleryAlbumSlides", () => {
@@ -31,5 +35,9 @@ describe("resolveStudentGalleryAlbumSlides", () => {
     };
     expect(resolveStudentGalleryAlbumSlides(sg, 0, 12)).toEqual([0, 1, 2]);
     expect(resolveStudentGalleryAlbumSlides(sg, 1, 12)).toEqual([4, 5]);
+  });
+
+  it("uses the default index when the album has no list and no item", () => {
+    expect(resolveStudentGalleryAlbumSlides({ ...baseSg, items: [] }, 2, 12)).toEqual([0]);
   });
 });

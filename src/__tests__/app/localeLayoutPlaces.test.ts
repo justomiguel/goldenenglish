@@ -54,4 +54,37 @@ describe("locale layout places", () => {
     });
     expect(places).toEqual([{ name: "Ñuñoa", description: "Metro Irarrázaval" }]);
   });
+
+  it("skips broken place rows and omits an empty description", () => {
+    const places = placesForOrganization({
+      name: "  ",
+      contactAddress: "Seminario 130, Providencia",
+      answerSections: [
+        { props: null },
+        { props: { places: "no" } },
+        {
+          props: {
+            places: [
+              null,
+              { name: 1 },
+              { name: "  " },
+              { name: "Sala", description: 1 },
+              { name: "Ok", description: "Metro" },
+            ],
+          },
+        },
+      ],
+    });
+    expect(places).toEqual([
+      { name: "Sala", description: "" },
+      { name: "Ok", description: "Metro" },
+    ]);
+    expect(buildInstituteDepartments([{ name: "Sala", description: "" }])[0]).toEqual({
+      "@type": "Place",
+      name: "Sala",
+    });
+    expect(
+      placesForOrganization({ name: "   ", contactAddress: "Seminario 130, Providencia" }),
+    ).toEqual([{ name: "Seminario 130, Providencia", description: "Seminario 130, Providencia" }]);
+  });
 });
