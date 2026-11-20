@@ -23,7 +23,7 @@ test.describe("@critical-academic", () => {
     test.skip(!authReady, "Auth storage not ready");
   });
 
-  test("academic hub shows cohort board and new-cohort control", async ({ page }) => {
+  test("academic hub opens the current year on sections", async ({ page }) => {
     const locale = isolation.ok ? isolation.locale : "es";
     await gotoIsolated(page, `/${locale}/dashboard/admin/academic`);
     await expect(page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.academicTitle))).toBeVisible({
@@ -31,7 +31,10 @@ test.describe("@critical-academic", () => {
     });
     await expect(page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.academicBoardTabs))).toBeVisible();
     await expect(page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.newCohort))).toBeVisible();
-    await expect(page.getByText(/E2E Cohort/i).first()).toBeVisible();
+    await expect(page.locator("#hub-cohort option", { hasText: /E2E Cohort/i }).first()).toBeAttached();
+    const sectionsTab = page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.cohortSectionsTab));
+    await expect(sectionsTab).toBeVisible();
+    await expect(sectionsTab).toHaveAttribute("aria-selected", "true");
   });
 
   test("seeded cohort sections page exposes new-section control", async ({ page }) => {

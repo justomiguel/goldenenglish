@@ -1,0 +1,43 @@
+---
+description: Blog notes underline the answer, bold the facts, and keep each photo whole and centered.
+alwaysApply: true
+---
+
+# Blog article format
+
+## Rule
+
+Write each blog note so a reader can see the answer and the facts without reading the whole page.
+
+Publish the note in `es`, `en`, and `pt` when the host has those locales. Spanish follows **`40-neutral-spanish-copy.mdc`**.
+
+## Emphasis
+
+1. Underline one sentence. That sentence is the direct answer. Put it in the first paragraph. Use `<u>`.
+2. Use `<strong>` for a level, a clock time, and a site name when that word is the fact.
+3. Use `<em>` for one short qualifier. Do not style a whole paragraph.
+4. Do not underline a heading, a link, or a list.
+5. The sanitizer allows `strong`, `em`, and `u`. Do not add `style` or `class` on the tags.
+
+```html
+<p><u>A child can start ballet at age 3.</u> That age joins <strong>Pre Ballet</strong>.</p>
+```
+
+## Photos
+
+1. Use at most two photos.
+2. The first `<img>` is the cover. The page shows it in the hero and removes it from the body.
+3. Keep the photo whole. Do not crop it to fill a wide box.
+4. The hero, the card, and the body image stay centered. The classes are `object-contain` and `object-center` on `BlogArticleDetailHero`, `BlogArticleCard`, and `BLOG_ARTICLE_BODY_PROSE`.
+5. Use a studio photo that belongs to that host. Generate or upload a stock photo only when no fitting studio file remains.
+
+## Facts
+
+Do not invent a time, an address, or a phone number. If the public schedule has no block, say that and tell the reader to write to the institute.
+
+## Checklist
+
+- [ ] Does the first paragraph underline the answer?
+- [ ] Are levels, times, and sites bold, and only those facts?
+- [ ] Does the note have two photos or fewer?
+- [ ] Does each photo stay whole and centered?

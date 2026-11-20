@@ -4967,6 +4967,15 @@
           "linkAria": "{{count}} alunos precisam de uma seção atribuída. Abra a lista de usuários."
         }
       },
+      "faqMetrics": {
+        "title": "Perguntas que as famílias abrem",
+        "people": "Pessoas que viram as perguntas",
+        "window": "Últimos 30 dias",
+        "opens": "Aberturas",
+        "hint": "Cada pessoa conta uma vez por dia.",
+        "loadFailed": "As contagens das perguntas não carregaram. Atualize o início. Código: load_failed",
+        "statsUnavailable": "As contagens das perguntas não estão disponíveis nesta sessão. Atualize o início. Código: stats_unavailable"
+      },
       "layout": {
         "arrange": "Editar",
         "done": "Pronto",

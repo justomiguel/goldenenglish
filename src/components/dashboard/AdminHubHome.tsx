@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminHubSummary } from "@/lib/dashboard/loadAdminHubSummary";
 import type { UpcomingBirthdayCardRow } from "@/lib/birthdays/mapBirthdayRowsToDashboardCard";
@@ -29,6 +30,7 @@ interface AdminHubHomeProps {
   layout?: AdminHomeLayout;
   shopEnabled?: boolean;
   extras?: AdminHomeExtraWidgets;
+  faqHome?: ReactNode;
 }
 
 export function AdminHubHome({
@@ -43,6 +45,7 @@ export function AdminHubHome({
   layout,
   shopEnabled = false,
   extras = EMPTY_EXTRAS,
+  faqHome = null,
 }: AdminHubHomeProps) {
   const base = `/${locale}/dashboard/admin`;
   const resolvedLayout = layout ?? factoryAdminHomeLayout({ shopEnabled });
@@ -58,6 +61,7 @@ export function AdminHubHome({
         </h1>
         <p className="mt-2 text-base text-[var(--color-muted-foreground)]">{dict.admin.home.lead}</p>
       </div>
+      {faqHome}
       <AdminHubHomeBoard
         layout={resolvedLayout}
         shopEnabled={shopEnabled}

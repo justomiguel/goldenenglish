@@ -4967,6 +4967,15 @@
           "linkAria": "{{count}} students need a section assigned. Open the users list."
         }
       },
+      "faqMetrics": {
+        "title": "Questions families open",
+        "people": "People who saw the questions",
+        "window": "Last 30 days",
+        "opens": "Opens",
+        "hint": "Each person counts once per day.",
+        "loadFailed": "The question counts did not load. Refresh the home. Code: load_failed",
+        "statsUnavailable": "The question counts are not available for this session. Refresh the home. Code: stats_unavailable"
+      },
       "layout": {
         "arrange": "Edit",
         "done": "Done",

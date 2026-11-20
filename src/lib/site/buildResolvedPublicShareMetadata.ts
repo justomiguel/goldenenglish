@@ -17,7 +17,10 @@ import {
   pageLocaleFromPublicPath,
 } from "@/lib/metadata/buildHomePageMetadata";
 import { buildPublicShareMetadata, toAbsoluteShareUrl } from "@/lib/site/buildPublicShareMetadata";
-import { pickHomeSharePhotoUrl } from "@/lib/site/pickHomeSharePhotoUrl";
+import {
+  bundledDedicatedSharePath,
+  pickHomeSharePhotoUrl,
+} from "@/lib/site/pickHomeSharePhotoUrl";
 import { pickShareImageUrl } from "@/lib/site/pickShareImageUrl";
 import { buildPublicShareTitle, clipShareDescription } from "@/lib/site/publicShareText";
 import { getRequestPublicSiteUrl } from "@/lib/site/requestPublicUrl";
@@ -38,10 +41,20 @@ export async function loadHomeSharePhotoUrl(): Promise<string | null> {
   const media = snapshot
     ? buildLandingMediaMap(snapshot.media, await createRequestLandingMediaPublicUrlBuilder())
     : null;
+  const dedicatedPath = bundledDedicatedSharePath(
+    resolveLandingImageSrcForTheme(kind, "inicio", "og.jpg"),
+    resolveLandingImageSrcForTheme(kind, "inicio", "1.png"),
+  );
+  let dedicatedShare: string | null = null;
+  if (dedicatedPath) {
+    const absoluteDedicated = await toAbsoluteShareUrl(dedicatedPath);
+    if (await urlExists(absoluteDedicated)) dedicatedShare = dedicatedPath;
+  }
   const picked = pickHomeSharePhotoUrl({
     media,
     bundledInicio: resolveLandingImageSrcForTheme(kind, "inicio", "1.png", media ?? undefined),
     bundledGallery: resolveLandingImageSrcForTheme(kind, "modalidades", "1.png", media ?? undefined),
+    dedicatedShare,
   });
   if (!picked) return null;
   const absolute = await toAbsoluteShareUrl(picked);

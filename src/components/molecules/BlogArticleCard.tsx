@@ -51,7 +51,7 @@ export function BlogArticleCard({ locale, article, labels, fromIndex = false }: 
             src={coverImageUrl}
             alt={article.translation.title}
             fill
-            className="object-cover"
+            className="object-contain object-center"
             sizes="(max-width: 768px) 100vw, 50vw"
             unoptimized={coverUnoptimized}
           />

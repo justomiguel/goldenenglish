@@ -11,7 +11,10 @@ import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
 import { loadAdminHomeLayout } from "@/lib/dashboard/loadAdminHomeLayout";
 import { loadAdminHomeExtraWidgets } from "@/lib/dashboard/loadAdminHomeExtraWidgets";
 import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
+import { FaqHomeCard } from "@/variants/owned/mozarthitos/pieces/FaqHomeCard";
+import { loadMozarthitosFaqHomeCard } from "@/variants/owned/mozarthitos/pieces/loadFaqHomeCard";
 
 interface AdminHomeProps {
   params: Promise<{ locale: string }>;
@@ -36,14 +39,16 @@ export default async function AdminHomePage({ params }: AdminHomeProps) {
   if (!isAdmin) redirect(`/${locale}`);
 
   const adminClient = await createAdminClient();
-  const [summary, birthdayRows, profile, includeBlog, checklist, shopEnabled] = await Promise.all([
-    loadAdminHubSummary(supabase, adminClient, user.id),
-    loadDashboardBirthdaysCard(supabase, user.id),
-    supabase.from("profiles").select("first_name").eq("id", user.id).maybeSingle(),
-    loadBlogEnabled(),
-    loadAdminFirstClassChecklist(supabase, locale),
-    loadMerchEnabled(),
-  ]);
+  const [summary, birthdayRows, profile, includeBlog, checklist, shopEnabled, activeTheme] =
+    await Promise.all([
+      loadAdminHubSummary(supabase, adminClient, user.id),
+      loadDashboardBirthdaysCard(supabase, user.id),
+      supabase.from("profiles").select("first_name").eq("id", user.id).maybeSingle(),
+      loadBlogEnabled(),
+      loadAdminFirstClassChecklist(supabase, locale),
+      loadMerchEnabled(),
+      loadActiveTheme(),
+    ]);
   const layout = await loadAdminHomeLayout(supabase, user.id, { shopEnabled });
   const extras = await loadAdminHomeExtraWidgets({
     supabase,
@@ -53,6 +58,11 @@ export default async function AdminHomePage({ params }: AdminHomeProps) {
     locale,
   });
   const greetingName = String(profile.data?.first_name ?? "").trim();
+  const faqHome = await loadMozarthitosFaqHomeCard(
+    activeTheme?.theme.templateKind ?? null,
+    () => supabase.rpc("faq_admin_stats_30d"),
+    dict.publicAnswers.kinds.mozarthitos.items,
+  );
 
   return (
     <AdminHubHome
@@ -67,6 +77,7 @@ export default async function AdminHomePage({ params }: AdminHomeProps) {
       layout={layout}
       shopEnabled={shopEnabled}
       extras={extras}
+      faqHome={faqHome ? <FaqHomeCard locale={locale} dict={dict} model={faqHome} /> : null}
     />
   );
 }

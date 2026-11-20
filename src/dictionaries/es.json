@@ -4967,6 +4967,15 @@
           "linkAria": "{{count}} alumnos necesitan sección. Abrir listado de usuarios."
         }
       },
+      "faqMetrics": {
+        "title": "Preguntas que abren las familias",
+        "people": "Personas que vieron las preguntas",
+        "window": "Últimos 30 días",
+        "opens": "Aperturas",
+        "hint": "Cada persona cuenta una vez por día.",
+        "loadFailed": "Los conteos de preguntas no cargaron. Actualiza el inicio. Código: load_failed",
+        "statsUnavailable": "Los conteos de preguntas no están disponibles en esta sesión. Actualiza el inicio. Código: stats_unavailable"
+      },
       "layout": {
         "arrange": "Editar",
         "done": "Listo",

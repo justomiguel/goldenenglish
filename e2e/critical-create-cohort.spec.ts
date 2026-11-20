@@ -42,7 +42,6 @@ test.describe("@critical-create-cohort", () => {
     }).toPass({ timeout: 20_000 });
     await expect(page.locator("#nc-name")).toBeVisible({ timeout: 10_000 });
     await page.locator("#nc-name").fill(cohortName);
-    await page.locator("#nc-slug").fill(`e2e-cohort-${suffix}`);
 
     await page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.newCohortSubmit)).click();
     await expect

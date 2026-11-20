@@ -40,13 +40,13 @@ export function BlogArticleDetailHero({
       </Link>
 
       {coverImageUrl ? (
-        <figure className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/30 shadow-sm">
+        <figure className="flex items-center justify-center overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/30 shadow-sm">
           <Image
             src={coverImageUrl}
             alt=""
             width={1600}
             height={900}
-            className="mx-auto h-auto max-h-[min(65dvh,560px)] w-full object-cover object-center"
+            className="mx-auto aspect-auto h-auto max-h-[min(70dvh,720px)] w-auto max-w-full object-contain object-center"
             sizes="(max-width: 1024px) 100vw, 768px"
             priority
             unoptimized={coverUnoptimized}

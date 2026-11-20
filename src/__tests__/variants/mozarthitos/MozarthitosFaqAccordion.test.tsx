@@ -15,6 +15,7 @@ vi.mock("@/components/molecules/PublicContactForm", () => ({
 }));
 
 beforeAll(() => {
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
   if (typeof globalThis.IntersectionObserver === "undefined") {
     globalThis.IntersectionObserver = class {
       observe() {}

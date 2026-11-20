@@ -21,15 +21,33 @@ function firstSectionUrl(
 }
 
 /**
+ * Dedicated share file when it is not the same path as slot 1.
+ * Matiss maps both names to one JPEG, so that host stays on the slot chain.
+ */
+export function bundledDedicatedSharePath(
+  dedicated: string | null | undefined,
+  slotOne: string | null | undefined,
+): string | null {
+  const next = dedicated?.trim() ?? "";
+  const current = slotOne?.trim() ?? "";
+  if (!next || next === current) return null;
+  return next;
+}
+
+/**
  * Home photo for share cards.
  * `inicio` is the hero. `modalidades` is the gallery.
  * Bundled paths are used only when the media map has no image.
+ * A dedicated share file wins when the loader already proved the file exists.
  */
 export function pickHomeSharePhotoUrl(input: {
   media: ReadonlyMap<string, string> | null | undefined;
   bundledInicio: string | null;
   bundledGallery: string | null;
+  dedicatedShare?: string | null;
 }): string | null {
+  const dedicated = input.dedicatedShare?.trim() ?? "";
+  if (dedicated) return dedicated;
   const inicio = firstSectionUrl(input.media, "inicio");
   if (inicio) return inicio;
   const gallery = firstSectionUrl(input.media, "modalidades");
