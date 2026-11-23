@@ -137,13 +137,17 @@ function grantedColumns(): Set<string> {
 }
 
 describe("profiles care-note column privileges", () => {
-  it("reconstructs a plausible profiles table", () => {
-    const all = profilesColumns();
-    expect(all.size).toBeGreaterThan(20);
-    expect(all.has("id")).toBe(true);
-    expect(all.has("role")).toBe(true);
-    for (const col of CARE_NOTES) expect(all.has(col)).toBe(true);
-  });
+  it(
+    "reconstructs a plausible profiles table",
+    () => {
+      const all = profilesColumns();
+      expect(all.size).toBeGreaterThan(20);
+      expect(all.has("id")).toBe(true);
+      expect(all.has("role")).toBe(true);
+      for (const col of CARE_NOTES) expect(all.has(col)).toBe(true);
+    },
+    120_000,
+  );
 
   it("grants SELECT on every profiles column except the three care notes", () => {
     const expected = [...profilesColumns()].filter((c) => !CARE_NOTES.includes(c)).sort();

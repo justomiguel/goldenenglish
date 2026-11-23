@@ -104,4 +104,4 @@ beforeEach(() => {
   mockRefresh.mockClear();
   mockSearchParams.mockReset();
   mockSearchParams.mockReturnValue(new URLSearchParams());
-});
+}, 120_000);

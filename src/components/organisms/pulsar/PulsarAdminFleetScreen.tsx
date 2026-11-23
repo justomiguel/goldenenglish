@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Activity, ArchiveRestore, Building2, Eye, Plus } from "lucide-react";
 import { PulsarAdminAnalyticsSettings } from "@/components/organisms/pulsar/PulsarAdminAnalyticsSettings";
-import { PulsarAdminOperatorPassword } from "@/components/organisms/pulsar/PulsarAdminOperatorPassword";
+import { PulsarAdminOperatorTab } from "@/components/organisms/pulsar/PulsarAdminOperatorTab";
 import { PulsarPanelFrame } from "@/components/organisms/pulsar/PulsarPanelFrame";
 import { PulsarAdminMailSettings } from "@/components/organisms/pulsar/PulsarAdminMailSettings";
 import { PulsarAdminOwnerReview } from "@/components/organisms/pulsar/PulsarAdminOwnerReview";
@@ -16,6 +16,7 @@ import { PulsarAdminFleetTable } from "@/components/organisms/pulsar/PulsarAdmin
 import { PulsarCloseTenantDialog } from "@/components/organisms/pulsar/PulsarCloseTenantDialog";
 import { PulsarAdminFleetVisitChart } from "@/components/organisms/pulsar/PulsarAdminFleetVisitChart";
 import { PulsarAdminPlatformHostsCard } from "@/components/organisms/pulsar/PulsarAdminPlatformHostsCard";
+import type { AiProviderListItem } from "@/lib/ai/aiProviderList";
 import type { MailMonthReadout } from "@/lib/email/resendMonthlyMail";
 import type { TenantTelemetrySnapshot } from "@/lib/pulsar/loadPulsarFleetTelemetry";
 import type { PulsarTenantRecord } from "@/lib/pulsar/pulsarTenantMapper";
@@ -39,6 +40,12 @@ export interface PulsarAdminFleetScreenProps {
   };
   gaMeasurementId?: string;
   operatorPasswordSet?: boolean;
+  openAiKey?: {
+    saved: boolean;
+    last4: string | null;
+    providers?: readonly AiProviderListItem[];
+    conversationProviderId?: string | null;
+  };
   displayName?: string;
   phone?: string;
   avatarUrl?: string | null;
@@ -58,6 +65,7 @@ export function PulsarAdminFleetScreen({
   mailSettings = { fromEmail: "", notifyEmail: "", hasApiKey: false, last: null },
   gaMeasurementId = "",
   operatorPasswordSet = false,
+  openAiKey = { saved: false, last4: null },
   displayName = "",
   phone = "",
   avatarUrl = null,
@@ -165,11 +173,7 @@ export function PulsarAdminFleetScreen({
             <PulsarAdminAnalyticsSettings locale={locale} measurementId={gaMeasurementId} copy={copy.analytics} />
           </div>
         ) : null}
-        {tab === "operator" ? (
-          <div className="mt-6">
-            <PulsarAdminOperatorPassword locale={locale} passwordSet={operatorPasswordSet} copy={copy.operator} />
-          </div>
-        ) : null}
+        {tab === "operator" ? <PulsarAdminOperatorTab locale={locale} passwordSet={operatorPasswordSet} openAiKey={openAiKey} copy={copy} /> : null}
         {tab === "shares" ? (
           <PulsarAdminEventShareQueue locale={locale} rows={shareRows} copy={copy} />
         ) : null}

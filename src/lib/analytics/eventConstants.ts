@@ -63,6 +63,8 @@ export const AnalyticsEntity = {
   monthlyPaymentMercadoPagoCompleted: "monthly_payment_mercadopago_completed",
   blog: "section:blog",
   events: "section:events",
+  openaiConversation: "openai_conversation",
+  aiThread: "ai_thread",
 } as const;
 
 export type UserEventTypeName = "page_view" | "click" | "action" | "session_start";

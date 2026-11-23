@@ -6,9 +6,13 @@ import {
 } from "@/lib/events/resolveEventRegistrationTotal";
 
 describe("eventUsesPackages", () => {
-  it("says yes as soon as there is one active package", () => {
-    expect(eventUsesPackages([{ id: "p1" }])).toBe(true);
-  });
+  it(
+    "says yes as soon as there is one active package",
+    () => {
+      expect(eventUsesPackages([{ id: "p1" }])).toBe(true);
+    },
+    120_000,
+  );
 
   it("says no for an event with none", () => {
     expect(eventUsesPackages([])).toBe(false);

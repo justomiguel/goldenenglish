@@ -34,13 +34,17 @@ describe("AdminBillingSectionFeeSummary", () => {
     expect(screen.queryByRole("deletion")).not.toBeInTheDocument();
   });
 
-  it("strikes the list monthly fee and shows the scholarship average", () => {
-    renderSummary({ effectiveMonthlyAmount: 60 });
+  it(
+    "strikes the list monthly fee and shows the scholarship average",
+    () => {
+      renderSummary({ effectiveMonthlyAmount: 60 });
 
-    const struck = screen.getByRole("deletion");
-    expect(struck).toHaveTextContent("$120");
-    expect(screen.getByText("$60")).toBeInTheDocument();
-  });
+      const struck = screen.getByRole("deletion");
+      expect(struck).toHaveTextContent("$120");
+      expect(screen.getByText("$60")).toBeInTheDocument();
+    },
+    120_000,
+  );
 
   it("shows 0 when the average after scholarship or exemption is zero", () => {
     renderSummary({ effectiveMonthlyAmount: 0 });

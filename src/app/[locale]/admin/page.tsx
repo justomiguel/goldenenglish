@@ -11,6 +11,8 @@ import { isPulsarPlatformRequest } from "@/lib/tenant/tenantRequestContext";
 import { PulsarAdminFleetScreen } from "@/components/organisms/pulsar/PulsarAdminFleetScreen";
 import { loadPulsarMailSettings } from "@/lib/pulsar/pulsarMail";
 import { loadCentrolistoGaMeasurementId } from "@/lib/pulsar/centrolistoGaSettings";
+import { loadAiProviderList } from "@/lib/ai/store/loadAiProviderList";
+import { loadPlatformOpenAiKeyStatus } from "@/lib/ai/providers/openai/platformOpenAiKeyStore";
 import { loadPlatformOperatorPasswordSet } from "@/lib/pulsar/platformOperatorPassword";
 import { listPulsarOwners } from "@/lib/pulsar/pulsarOwnerAccount";
 import { loadPlatformUserProfile } from "@/lib/pulsar/platformUserProfileStore";
@@ -35,7 +37,7 @@ export default async function PulsarAdminPage({ params }: PageProps) {
     redirect(`/${locale}/admin/password`);
   }
 
-  const [dict, tenants, platformHosts, owners, mailSettings, gaMeasurementId, operatorPasswordSet, profile, shareRows] = await Promise.all([
+  const [dict, tenants, platformHosts, owners, mailSettings, gaMeasurementId, operatorPasswordSet, openAiKey, aiProviders, profile, shareRows] = await Promise.all([
     getDictionary(locale as AppLocale),
     loadAllPulsarTenantsForAdmin(),
     loadPulsarPlatformHostsForAdmin(),
@@ -43,6 +45,8 @@ export default async function PulsarAdminPage({ params }: PageProps) {
     loadPulsarMailSettings(),
     loadCentrolistoGaMeasurementId(),
     loadPlatformOperatorPasswordSet(),
+    loadPlatformOpenAiKeyStatus(),
+    loadAiProviderList(),
     loadPlatformUserProfile(session.userId),
     loadEventShareQueue(),
   ]);
@@ -65,6 +69,11 @@ export default async function PulsarAdminPage({ params }: PageProps) {
       mailSettings={mailSettings}
       gaMeasurementId={gaMeasurementId ?? ""}
       operatorPasswordSet={operatorPasswordSet}
+      openAiKey={{
+        ...openAiKey,
+        providers: aiProviders.providers,
+        conversationProviderId: aiProviders.conversationProviderId,
+      }}
       displayName={profile.displayName}
       phone={profile.phone}
       avatarUrl={profile.avatarUrl}

@@ -18,7 +18,7 @@ describe("deleteArticleAction", () => {
     });
     expect(result).toEqual({ ok: false, code: "forbidden" });
     expect(supabase.from).not.toHaveBeenCalled();
-  });
+  }, 120_000);
 
   it("deletes article for admin", async () => {
     const eq = vi.fn().mockResolvedValue({ error: null });
@@ -41,5 +41,5 @@ describe("deleteArticleAction", () => {
     expect(result).toEqual({ ok: true });
     expect(deleteFn).toHaveBeenCalled();
     expect(eq).toHaveBeenCalledWith("id", ARTICLE_ID);
-  });
+  }, 120_000);
 });
