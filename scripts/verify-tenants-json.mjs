@@ -1,5 +1,6 @@
 /**
- * Validate `.env.local` `TENANTS_CONFIG_JSON` when that file exists.
+ * Validate `.env.local` `TENANTS_CONFIG_JSON` only when that key is present.
+ * Local and production read tenants from Pulsar. A missing key is valid.
  * Does not print secret values.
  */
 import fs from "node:fs";
@@ -29,10 +30,7 @@ export function verifyTenantsJsonFile(filePath) {
   if (!fs.existsSync(filePath)) return errors;
   const env = readEnvFile(filePath);
   const raw = env.TENANTS_CONFIG_JSON?.trim();
-  if (!raw) {
-    errors.push(`${path.basename(filePath)} is missing TENANTS_CONFIG_JSON`);
-    return errors;
-  }
+  if (!raw) return errors;
   let data;
   try {
     data = JSON.parse(raw);
@@ -67,8 +65,11 @@ const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURL
 if (isDirectRun) {
   const file = path.join(ROOT, ".env.local");
   const errors = verifyTenantsJsonFile(file);
+  const raw = fs.existsSync(file) ? readEnvFile(file).TENANTS_CONFIG_JSON?.trim() : "";
   if (!fs.existsSync(file)) {
     console.log("skip: .env.local is absent");
+  } else if (!raw) {
+    console.log("skip: TENANTS_CONFIG_JSON is absent; tenants come from Pulsar");
   } else if (errors.length) {
     for (const msg of errors) console.error(msg);
     process.exit(1);

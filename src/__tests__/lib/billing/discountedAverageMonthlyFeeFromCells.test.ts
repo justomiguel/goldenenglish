@@ -1,3 +1,4 @@
+// REGRESSION CHECK: A plain exemption must not strike the plan price. A scholarship month still does.
 import { describe, expect, it } from "vitest";
 import { discountedAverageMonthlyFeeFromCells } from "@/lib/billing/discountedAverageMonthlyFeeFromCells";
 import type { StudentMonthlyPaymentCell } from "@/types/studentMonthlyPayments";
@@ -97,7 +98,7 @@ describe("discountedAverageMonthlyFeeFromCells", () => {
     ).toBe(0);
   });
 
-  it("returns 0 when every billable month is exempt", () => {
+  it("returns null when every billable month is a plain exemption", () => {
     expect(
       discountedAverageMonthlyFeeFromCells([
         cell(8, "exempt", {
@@ -109,10 +110,23 @@ describe("discountedAverageMonthlyFeeFromCells", () => {
           fullMonthExpectedAmount: 30_000,
         }),
       ]),
-    ).toBe(0);
+    ).toBeNull();
   });
 
-  it("counts exempt months as 0 in a mixed year", () => {
+  it("returns null when plain exemptions sit next to full-price months", () => {
+    expect(
+      discountedAverageMonthlyFeeFromCells([
+        cell(8, "exempt", {
+          fullMonthOriginalExpectedAmount: 30_000,
+          fullMonthExpectedAmount: 30_000,
+        }),
+        dueMonth(9, 30_000, 30_000),
+        dueMonth(10, 30_000, 30_000),
+      ]),
+    ).toBeNull();
+  });
+
+  it("leaves plain exemptions out of a scholarship average", () => {
     expect(
       discountedAverageMonthlyFeeFromCells([
         cell(8, "exempt", {
@@ -122,6 +136,6 @@ describe("discountedAverageMonthlyFeeFromCells", () => {
         dueMonth(9, 30_000, 15_000, 50),
         dueMonth(10, 30_000, 15_000, 50),
       ]),
-    ).toBe(10_000);
+    ).toBe(15_000);
   });
 });

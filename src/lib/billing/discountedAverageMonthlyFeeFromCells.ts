@@ -5,12 +5,16 @@ function isBillableMonth(cell: StudentMonthlyPaymentCell): boolean {
   return cell.status !== "no-plan" && cell.status !== "out-of-period";
 }
 
-function monthHasDiscount(cell: StudentMonthlyPaymentCell): boolean {
-  if (cell.status === "exempt") return true;
+function hasScholarshipReduction(cell: StudentMonthlyPaymentCell): boolean {
   if ((cell.scholarshipDiscountPercent ?? 0) > 0) return true;
   const original = cell.fullMonthOriginalExpectedAmount;
   const expected = cell.fullMonthExpectedAmount;
   return original != null && expected != null && expected < original;
+}
+
+/** Exempt with no scholarship. That month is not charged and stays out of the average. */
+function isPlainExemption(cell: StudentMonthlyPaymentCell): boolean {
+  return cell.status === "exempt" && !hasScholarshipReduction(cell);
 }
 
 function effectiveFullMonthAmount(cell: StudentMonthlyPaymentCell): number {
@@ -19,18 +23,18 @@ function effectiveFullMonthAmount(cell: StudentMonthlyPaymentCell): number {
 }
 
 /**
- * Average full-month amount the student pays across billable months after
- * scholarships / exemptions. Null when nothing is discounted so the list
- * price stays the only figure shown.
+ * Average full-month amount after scholarships. Null when no scholarship
+ * lowers a month, so the list price stays the only figure shown.
+ * A plain exemption is left out. It does not count as 0.
  */
 export function discountedAverageMonthlyFeeFromCells(
   cells: readonly StudentMonthlyPaymentCell[] | null | undefined,
 ): number | null {
   if (!cells?.length) return null;
-  const billable = cells.filter(isBillableMonth);
-  if (billable.length === 0) return null;
-  if (!billable.some(monthHasDiscount)) return null;
+  const counted = cells.filter((cell) => isBillableMonth(cell) && !isPlainExemption(cell));
+  if (counted.length === 0) return null;
+  if (!counted.some(hasScholarshipReduction)) return null;
 
-  const sum = billable.reduce((acc, cell) => acc + effectiveFullMonthAmount(cell), 0);
-  return round2(sum / billable.length);
+  const sum = counted.reduce((acc, cell) => acc + effectiveFullMonthAmount(cell), 0);
+  return round2(sum / counted.length);
 }
